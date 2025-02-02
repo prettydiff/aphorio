@@ -1111,7 +1111,9 @@ const dashboard = function dashboard():void {
                         if (data.status === "error") {
                             if (data.type === "socket") {
                                 const config:services_socket = data.configuration as services_socket;
-                                socket_destroy(config.hash);
+                                if (config !== null) {
+                                    socket_destroy(config.hash);
+                                }
                             }
                         } else {
                             if (data.type === "server") {

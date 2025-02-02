@@ -31,7 +31,7 @@
 }
 
 html{font-size:10px}
-body{background:var(--background);color:var(--text);font-family:sans-serif;max-width:180em}
+body{background:var(--background);color:var(--text);font-family:sans-serif}
 #dashboard .file-list,
 #dashboard .file-system-content,
 #dashboard .file-system-summary,
