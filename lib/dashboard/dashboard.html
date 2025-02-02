@@ -1,7 +1,7 @@
 
 <!doctype html>
 <html lang="en">
-    <!-- cspell: words buildx, containerd, dpkg, IRSSI, keyrings, lydell, nmap, winget -->
+    <!-- cspell: words buildx, containerd, dpkg, endianness, healthcheck, IRSSI, keyrings, jellyfin, journalctl, libcap, lydell, NAPTR, nmap, PGID, POSIX, ppid, proxied, PUID, setgid, setuid, uptimeimages, webserver, winget -->
 <head>
 <meta charset="utf-8"/>
 <title>Server Management Dashboard</title>
@@ -27,11 +27,11 @@
         <h2>Navigation</h2>
         <div>
             <h3>Services</h3>
-            <ul><li><button class="nav-focus" data-section="servers">Servers</button></li><li><button data-section="compose">Docker Compose</button></li><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li></ul>
+            <ul><li><button class="nav-focus" data-section="servers">Servers</button></li><li><button data-section="compose">Docker Compose</button></li></ul>
         </div>
         <div>
             <h3>Tools</h3>
-            <ul><li><button data-section="http">HTTP Test</button></li><li><button data-section="dns">DNS Resolve</button></li><li><button data-section="hash">Hash</button></li></ul>
+            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="http">HTTP Test</button></li><li><button data-section="dns">DNS Resolve</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
         </div>
         <div>
             <h3>Informational</h3>
@@ -91,9 +91,9 @@
             </div>
             <div class="section">
                 <h3>Input</h3>
-                <p class="buttons"><button>Resolve</button></p>
                 <p><label>Comma separated list of domains and/or hostname entries</label> <input type="text"/></p>
                 <p><label>Comma separated list of record types. Leave blank for all types. Supported types: A, AAAA, CAA, CNAME, MX, NAPTR, NS, PTR, SOA, SRV, TXT</label> <input type="text"/></p>
+                <p class="buttons"><button>Resolve</button></p>
             </div>
             <div class="section">
                 <h3>Output</h3>
@@ -135,7 +135,7 @@
                         If the given server does not have a secure TLS instance running it will not be able to proxy to an encrypted TLS destination.
                     </p>
                     <p>
-                        Second, ensure there is a <em>redirect_domain</em> entry for the given server named with a <strong>.secure</strong> suffix, such as mybank.com.secure as opposed to just mybank.com.
+                        Second, ensure there is a <em>redirect_domain</em> entry for the given server named with a <strong>.secure</strong> suffix, such as my-bank.com.secure as opposed to just my-bank.com.
                         That tells this application to only proxy via TLS on incoming TLS connections.
                     </p>
                 </div>
@@ -153,7 +153,7 @@
                         Third, if the destination is failing through direct encrypted access via HTTPS but still works through unencrypted HTTP access you can fall back to partial encryption by deleting the <em>redirect_domain</em> entry with the <strong>.secure</strong> suffix.
                         Partial encryption still encrypts data between the proxy, your server running from this application, and the users.
                         Partial encryption will not encrypt data between the proxy and the destination.
-                        Typically partical encryption is good enough for privacy, but should not be trusted with sensitive data like passwords or connections to financial institutions.
+                        Typically partial encryption is good enough for privacy, but should not be trusted with sensitive data like passwords or connections to financial institutions.
                     </p>
                 </div>
             </div>
@@ -191,7 +191,7 @@
                 </div>
                 <div class="section">
                     <h4>On regular intervals my container appears to flicker between up and down.  Upon further investigation I found the container issues 3 events: <em>exec-create</em>, <em>exec-start</em>, <em>exec-die</em>.</h4>
-                    <p>This is how containers execute healthchecks. To stop a service from issuing a health check add the following property to the concerned service in the respective Docker Compose file: <code>
+                    <p>This is how containers execute health checks. To stop a service from issuing a health check add the following property to the concerned service in the respective Docker Compose file: <code>
     healthcheck:
       disable: true
                     </code></p>
@@ -227,11 +227,11 @@
                         <dt>directory</dt>
                         <dd>A directory serves as a grouping mechanism allowing containing of child file system artifacts, which thereby provides a tree structure with organizational depth.</dd>
                         <dt>FIFO device</dt>
-                        <dd>FIFO, or first in and first out, provides for pipe functionality. A pipe is an inter-rocess communication stream whereby one process sends its output directly to a different process as streamed input without help from an intermediary, such as a shell or user interaction. A FIFO allows for such interprocess communication via file system operations.</dd>
+                        <dd>FIFO, or first in and first out, provides for pipe functionality. A pipe is an inter-process communication stream whereby one process sends its output directly to a different process as streamed input without help from an intermediary, such as a shell or user interaction. A FIFO allows for such inter-process communication via file system operations.</dd>
                         <dt>file</dt>
                         <dd>Files are the typical storage unit of file systems whereby text or binary is stored directly as opposed to a grouping or communication structure.</dd>
                         <dt>socket</dt>
-                        <dd>File system sockets are similar to network sockets and FIFO devices.  File system sockets exist at a low level in the kernel like network sockets and provide streamed interprocess communication like FIFO devices.  File system sockets initiate using file system operations, but unlike FIFO devices are not necessarily subject to file system operations for transmitting data.  Nonetheless file system sockets respect access and permission limitations inherited from their location on the file system.</dd>
+                        <dd>File system sockets are similar to network sockets and FIFO devices.  File system sockets exist at a low level in the kernel like network sockets and provide streamed inter-process communication like FIFO devices.  File system sockets initiate using file system operations, but unlike FIFO devices are not necessarily subject to file system operations for transmitting data.  Nonetheless file system sockets respect access and permission limitations inherited from their location on the file system.</dd>
                         <dt>symbolic link</dt>
                         <dd>A symbolic link is a virtual file that provides redirection within a file system.  A symbolic link points to a file system artifact elsewhere on the file system and takes the identity of that artifact so as to function as a shortcut but yet appear exactly as the type of thing it points to.  Since a symbolic link looks exactly like the thing it points to in both identity and function it cannot be discerned from a different file system type unless intentionally traversing and scanning for symbolic links.</dd>
                     </dl>
@@ -288,7 +288,7 @@
             </div>
         </div>
         <div class="tab" id="hash">
-            <h2>Hash</h2>
+            <h2>Hash / Base64</h2>
             <p class="tab-description">Generate a hash tokens from custom input or the file system.</p>
             <div class="section">
                 <h3>Hash Algorithms Explained <button class="expand">Expand</button></h3>
@@ -311,11 +311,21 @@
                     </p>
                 </div>
             </div>
-            <div class="section">
+            <div class="form">
+                <h3>Function</h3>
+                <p>
+                    <label class="radio">Generate Hash <input checked="checked" name="hash_function" type="radio" value="false"/></label>
+                    <label class="radio">Base64 Encode <input name="hash_function" type="radio" value="true"/></label>
+                </p>
                 <h3>Input Source Type</h3>
                 <p>
-                    <label class="radio">String <input name="hash_type" type="radio" value="false"/></label>
+                    <label class="radio">String <input checked="checked" name="hash_type" type="radio" value="false"/></label>
                     <label class="radio">File <input name="hash_type" type="radio" value="true"/></label>
+                </p>
+                <h3>Hash Output Format</h3>
+                <p>
+                    <label class="radio">Hexadecimal <input checked="checked" name="hash_digest" type="radio" value="false"/></label>
+                    <label class="radio">Base64 <input name="hash_digest" type="radio" value="true"/></label>
                 </p>
                 <h3>Hash Algorithm</h3>
                 <p><label>Choose one of all supported hash algorithms <select></select></label></p>
@@ -323,9 +333,10 @@
                 <p><label>Input must be a local absolute file system path if input type is <em>file</em>, otherwise provide any text value. <textarea spellcheck="spellcheck"></textarea></label></p>
                 <p class="buttons"><button>Generate Hash</button></p>
             </div>
-            <div class="section">
+            <div class="form">
                 <h3>Output</h3>
-                <p><label>Generated hash token</label> <input spellcheck="false" type="text"/></p>
+                <p><label>Generated hash token</label> <textarea class="output" spellcheck="false"></textarea></p>
+                <p>Input size: <strong>0</strong> bytes.</p>
             </div>
         </div>
         <div class="tab" id="help">
@@ -454,7 +465,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         The authentication portion is optional and rarely used.</p>
                     <p>The port portion of a domain is optional and rarely included if connecting with plain text HTTP over port 80 or encrypted HTTPS over port 443.
                         In all other cases the port number is a colon separated suffix to the domain name.
-                        In the case of an IPv6 address the domain name must be inclosed in sqaure braces before specifying the port number, example: <strong>host: [2600:1700:1234:5678::a]:8081</strong>.</p>
+                        In the case of an IPv6 address the domain name must be inclosed in square braces before specifying the port number, example: <strong>host: [2600:1700:1234:5678::a]:8081</strong>.</p>
                     <ul>
                         <li>The method is one of the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods">HTTP request methods</a>. <strong>GET</strong> is the most common.</li>
                         <li>The end point looks like a Unix absolute file path always starting with a forward slash.</li>
@@ -470,14 +481,14 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     </ul>
                 </div>
             </div>
-            <div class="section">
+            <div class="form">
                 <h3>Request Scheme</h3>
                 <p><label class="radio">Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
                 <h3>Raw Request</h3>
                 <p><label>Complete raw HTTP request including header <textarea class="test-input" spellcheck="false"></textarea></label></p>
                 <p class="buttons"><button class="send_request">Send Request</button></p>
             </div>
-            <div class="section">
+            <div class="form">
                 <h3>Response</h3>
                 <div class="http_response">
                     <p><label>URI <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
@@ -645,7 +656,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         If the 'new domain' is an empty string the requested domain will be used.
                         If the port number is not a number or 0 the current server's port number will be used.
                     </p><p>
-                        If TLS connections needs to be directed to a port different than open connections then use the naming convnetion <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003]</code>
+                        If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003]</code>
                     </p></dd>
                     <dt><em>temporary</em> (boolean)</dt>
                     <dd><p>

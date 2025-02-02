@@ -83,6 +83,7 @@ interface file_write {
 interface hash_output {
     filePath: string;
     hash: string;
+    size: number;
 }
 
 interface server {
@@ -163,6 +164,29 @@ interface server_ports {
     secure?: number;
 }
 
+interface state_store {
+    dns: {
+        hosts: string;
+        types: string;
+    };
+    fileSystem: {
+        path: string;
+        search: string;
+    };
+    hash: {
+        algorithm: string;
+        digest: "base64" | "hex";
+        hashFunction: "base64" | "hash";
+        source: string;
+        type: "file" | "string";
+    };
+    http: {
+        encryption: boolean;
+        request: string;
+    };
+    nav: string;
+}
+
 interface store_compose {
     [key:string]: services_docker_compose;
 }
@@ -211,7 +235,6 @@ interface vars {
     css: string;
     dashboard: string;
     hashes: string[];
-    http_headers: string;
     interfaces: string[];
     intervals: store_number;
     logs: services_dashboard_status[];

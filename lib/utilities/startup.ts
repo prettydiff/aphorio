@@ -117,13 +117,14 @@ const startup = function utilities_startup(callback:() => void):void {
             readComplete("config");
         },
         readXterm = function utilities_startup_readXterm(xtermFile:Buffer):void {
-            const xterm:string = xtermFile.toString().replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, "");
             file.read({
                 callback: function utilities_startup_readHTML(fileContents:Buffer):void {
+                    const xterm:string = xtermFile.toString().replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
+                        script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
                     vars.dashboard = fileContents.toString()
                         .replace("${payload.intervals.nmap}", (vars.intervals.nmap / 1000).toString())
                         .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
-                        .replace("replace_javascript", `${xterm}const commas=${commas.toString()};(${dashboard_script.toString().replace(/\(\s*\)/, "(core)")}(${core.toString()}));`);
+                        .replace("replace_javascript", `${xterm}const commas=${commas.toString()};(${script}(${core.toString()}));`);
                     readComplete("html");
                 },
                 error_terminate: null,

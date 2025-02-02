@@ -13,7 +13,7 @@ const port_map = function services_portMap(callback:() => void):void {
             if (stderr !== "" || error !== null) {
                 const message:string = (error === null)
                     ? `When gathering port data from command '${vars.commands.nmap} ${args.join(" ")}' failed with an error. Perhaps application NMap is not available or not in the system path.`
-                    : "Exeucting command 'nmap' returned an error.";
+                    : "Executing command 'nmap' returned an error.";
                 log({
                     action: "activate",
                     config: error,

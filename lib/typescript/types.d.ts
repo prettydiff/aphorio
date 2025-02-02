@@ -23,7 +23,6 @@ type type_docker_state = "created" | "dead" | "exited" | "paused" | "removing" |
 type type_encryption = "both" | "open" | "secure";
 type type_external_port = [number, string, string, string];
 type type_file = "block_device" | "character_device" | "directory" | "fifo_pipe" | "file" | "socket" | "symbolic_link";
-type type_hash_algorithm = "blake2d512" | "blake2s256" | "sha1" | "sha3-224" | "sha3-256" | "sha3-384" | "sha3-512" | "sha384" | "sha512-224" | "sha512-256" | "sha512" | "shake128" | "shake256";
 type type_halt_action = "deactivate" | "destroy" | "modify";
 type type_hash_input = "direct" | "file";
 type type_http_method = "connect" | "delete" | "get" | "head" | "post" | "put";
@@ -39,8 +38,8 @@ type type_server_property = "block_list" | "domain_local" | "encryption" | "http
 // * dashboard-payload           - transmit_dashboard        - Contains all dynamic data for populating a browser page
 // * dashboard-server            - services_dashboard_status - A single server's configuration data plus an action to perform
 // * dashboard-status            - services_dashboard_status - Typically conveys log entries
-type type_service = "dashboard-compose-container" | "dashboard-compose-variables" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-http" | "dashboard-os" | "dashboard-payload" | "dashboard-server" | "dashboard-status" | "youtube-download-status";
-type type_socket_data = services_action_compose | services_action_server | services_dashboard_status | services_dashboard_terminal | services_dns_input | services_dns_output | services_docker_compose | services_fileSystem | services_http_test | services_os | services_processKill | services_youtubeDownload | services_youtubeStatus | store_string | string[] | transmit_dashboard;
+type type_service = "dashboard-compose-container" | "dashboard-compose-variables" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-os" | "dashboard-payload" | "dashboard-server" | "dashboard-status" | "youtube-download-status";
+type type_socket_data = services_action_compose | services_action_server | services_dashboard_status | services_dashboard_terminal | services_dns_input | services_dns_output | services_docker_compose | services_fileSystem | services_hash | services_http_test | services_os | services_processKill | services_youtubeDownload | services_youtubeStatus | store_string | string[] | transmit_dashboard;
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";

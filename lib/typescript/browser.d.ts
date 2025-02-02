@@ -74,7 +74,7 @@ declare global {
     interface module_dns {
         init: () => void;
         nodes: {
-            input: HTMLInputElement;
+            hosts: HTMLInputElement;
             output: HTMLTextAreaElement;
             resolve: HTMLButtonElement;
             types: HTMLInputElement;
@@ -88,8 +88,8 @@ declare global {
         nodes: {
             content: HTMLElement;
             failures: HTMLElement;
-            input: HTMLInputElement;
             output: HTMLElement;
+            path: HTMLInputElement;
             search: HTMLInputElement;
             summary: HTMLElement;
         };
@@ -99,8 +99,17 @@ declare global {
 
     interface module_hash {
         init: () => void;
-        nodes: {};
-        request: (event:MouseEvent) => void;
+        nodes: {
+            algorithm: HTMLSelectElement;
+            base64: HTMLInputElement;
+            button: HTMLButtonElement;
+            digest: HTMLInputElement;
+            output: HTMLTextAreaElement;
+            size: HTMLElement;
+            source: HTMLTextAreaElement;
+            type: HTMLInputElement;
+        };
+        request: () => void;
         response: (hash:services_hash) => void;
     }
 
