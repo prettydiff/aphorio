@@ -90,7 +90,7 @@ td .icon{display:inline-block;width:1.5em}
 #dashboard td,
 td{padding:0.5em;text-align:right}
 th{border-color:var(--background_button);border-style:solid;border-width:0.1em;padding:0.2em 0.5em;text-align:left}
-th{background:var(--background_textarea);min-width:10em}
+th{background:var(--background_textarea);min-width:9em}
 td button{padding:0}
 
 /* end basic html */
@@ -104,7 +104,7 @@ textarea{background:var(--background_textarea);border-style:solid;border-width:0
 #terminal .xterm{border-color:var(--border_input);overflow:hidden}
 #terminal .xterm-viewport{overflow:hidden}
 textarea{border-color:var(--textarea_border);box-shadow:0 0 0.1em var(--black)}
-
+#dashboard .xterm-rows{font-size:vars(--font-size)}
 .delay{height:50%;width:50%}
 .delay svg{stroke:var(--text)}
 .ytDownload input{display:block;width:100%}
