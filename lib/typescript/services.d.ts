@@ -1,5 +1,7 @@
 import { IModes } from "@xterm/xterm";
 
+// cspell: words opencontainers
+
 declare global {
 
     interface services_action_compose {
@@ -116,6 +118,15 @@ declare global {
         parent: type_directory_item;
         search: string;
         sep: "/"|"\\";
+    }
+
+    interface services_hash {
+        algorithm: string;
+        base64: boolean;
+        digest: "base64" | "hex";
+        size: number;
+        type: type_hash_input;
+        value: string;
     }
 
     interface services_http {

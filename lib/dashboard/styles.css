@@ -8,6 +8,7 @@
     --background_button:#444;
     --background_dark:#111;
     --background_fieldset:#181818;
+    --background_nav:#282828;
     --background_textarea:#222;
     --border_color:#999;
     --border_input:#666;
@@ -30,11 +31,14 @@
 }
 
 html{font-size:10px}
-body{background:var(--background);color:var(--text);font-family:sans-serif;max-width:180em}
+body{background:var(--background);color:var(--text);font-family:sans-serif}
 #dashboard .file-list,
 #dashboard .file-system-content,
 #dashboard .file-system-summary,
+div.form,
 div.section{border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:2em;padding:2em}
+div.form h3{margin:1.5em 0 0.5em}
+div.form h3:first-child{margin-top:0}
 h1{font-size:3em}
 h2{font-size:2em}
 h3{font-size:1.8em}
@@ -50,7 +54,8 @@ li h3,
 li h4,
 li h5,
 li li{font-size:1em}
-label input{display:block}
+label input,
+label select{display:block}
 dt em{color:var(--text_input);font-style:normal;font-weight:bold;text-decoration:underline}
 dt{font-size:1.4em}
 dd{margin:0 0 1em 2.5em}
@@ -85,7 +90,7 @@ td .icon{display:inline-block;width:1.5em}
 #dashboard td,
 td{padding:0.5em;text-align:right}
 th{border-color:var(--background_button);border-style:solid;border-width:0.1em;padding:0.2em 0.5em;text-align:left}
-th{background:var(--background_textarea);min-width:10em}
+th{background:var(--background_textarea);min-width:9em}
 td button{padding:0}
 
 /* end basic html */
@@ -99,7 +104,7 @@ textarea{background:var(--background_textarea);border-style:solid;border-width:0
 #terminal .xterm{border-color:var(--border_input);overflow:hidden}
 #terminal .xterm-viewport{overflow:hidden}
 textarea{border-color:var(--textarea_border);box-shadow:0 0 0.1em var(--black)}
-
+#dashboard .xterm-rows{font-size:vars(--font-size)}
 .delay{height:50%;width:50%}
 .delay svg{stroke:var(--text)}
 .ytDownload input{display:block;width:100%}
@@ -114,7 +119,8 @@ label.radio{display:inline-block;width:45%}
 .buttons button,
 label.radio{cursor:pointer}
 label.radio input{display:inline}
-input{background:var(--background_textarea);border-color:var(--border_input);border-style:solid;border-width:0.065em;color:var(--text_input);font-family:monospace;margin:0.5em 0 0;padding:0.5em}
+input,
+select{background:var(--background_textarea);border-color:var(--border_input);border-style:solid;border-width:0.065em;color:var(--text_input);font-family:monospace;margin:0.5em 0 0;padding:0.5em}
 .controls p{margin:2em 0}
 .controls button{font-size:2em}
 label span{border-radius:50%;background:var(--border_color);border-color:var(--border_color);border-style:solid;border-width:0.065em;display:inline-block;height:0.8em;margin:0 0.5em 0 0;width:0.8em}
@@ -124,6 +130,7 @@ label span.checked{background:var(--background_dark)}
 .linux-options select{display:block;width:20em}
 .linux-options legend{font-size:2em;font-weight:bold}
 
+#dashboard select{display:block}
 #dashboard #servers li,
 #dashboard #compose li{border-color:var(--border_color);border-style:solid;border-width:0.1em}
 #connection-status{border-color:var(--border_color);border-style:solid;border-width:0.1em;padding:0.2em}
@@ -132,10 +139,16 @@ label span.checked{background:var(--background_dark)}
 #dashboard button:hover:disabled{background:var(--background_button);color:var(--border_input);cursor:auto}
 #dashboard .buttons button:disabled{color:var(--border_input)}
 #dashboard code {background:var(--background_textarea);border-color:var(--border_soft);border-style:solid;border-width:0.1em;margin:0.5em 2em;padding:0.5em}
-#dashboard nav ul{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 4em;padding:0 0 1em}
+#dashboard nav div{border-color:var(--border_color);border-style:none solid none none;border-width:0.1em;float:left;margin:0 0 4em}
+#dashboard nav div:hover{background:var(--background_nav)}
+#dashboard nav div:last-child{border-style:none}
+#dashboard nav h2{font-size:0.01em;position:absolute;left:-1000em}
+#dashboard nav h3{color:var(--border_color);padding:0 0 0 0.5em;margin:0}
+#dashboard nav ul{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0;padding:0 0 1em}
 #dashboard nav li{border-color:var(--border_color);border-style:none solid none none;border-width:0.1em;display:inline-block;padding:0 0.5em}
-#dashboard nav button{background:transparent;border-style:none;box-shadow:none;color:var(--text)}
-#dashboard nav .nav-focus{background:var(--background_dark);color:var(--text_input)}
+#dashboard nav li:last-child{border-style:none}
+#dashboard nav button{background:transparent;border-color:transparent;border-style:solid;border-width:0.1em;box-shadow:none;color:var(--text)}
+#dashboard nav .nav-focus{background:var(--background_dark);border-color:var(--border_soft);color:var(--text_input)}
 #dashboard nav button:hover{color:var(--text)}
 #dashboard .tab-description{border-color:var(--border_soft);border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 0.5em}
 #dashboard h1,
@@ -159,6 +172,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard div.edit{padding:0 0.694em}
 #dashboard div > .edit{border-color:var(--border_input);border-style:solid;border-width:0.1em;padding:1em}
 #dashboard .definitions{display:none}
+#dashboard .form > .buttons,
 #dashboard .section > .buttons{margin:0 0 2em}
 #dashboard .compose-container-list h4 button,
 #dashboard .server-list h4 button{background:none;border-style:none;box-shadow:none;display:block;font-size:0.834em;padding:0.595em;text-align:left;width:100%}
@@ -167,7 +181,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard h3 .expand{font-size:0.6em}
 #dashboard h4 .expand{font-size:0.675em}
 #dashboard .edit .summary ul{font-size:1em;margin:1em 0 0;padding:0}
-#dashboard main li{border-color:var(--border_color);border-style:solid;border-width:0.1em;list-style:none}
+#dashboard main li{list-style:none}
 #help ul{padding:0}
 #compose li,
 #servers li{list-style:none}
@@ -189,7 +203,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard button.server-deactivate,
 #dashboard button.server-destroy{float:left}
 #dashboard .pass-true,
-#logs li.log-success,
+#application-logs li.log-success,
 #dashboard button.server-modify,
 #dashboard button.server-add{color:var(--text_green)}
 #dashboard button.server-edit{display:block;margin:1em auto}
@@ -212,21 +226,21 @@ label span.checked{background:var(--background_dark)}
 #dashboard .edit label span{display:block}
 #dashboard .edit label span{height:2em}
 #dashboard .edit h4{font-size:1.2em}
-#dashboard .file-system-summary li,
+#dashboard #file-system li,
 #dashboard #servers .edit li,
 #dashboard #compose .edit li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
 #dashboard .edit dt,
 #dashboard .edit dd{font-size:1em}
 #dashboard #servers .note{clear:both;font-size:1.2em}
 #dashboard .pass-false{color:var(--fail_bright)}
-#logs > ul{background:var(--background_textarea);border-color:var(--textarea_border);border-style:solid;border-width:0.1em;padding:0.5em}
+#application-logs > ul{background:var(--background_textarea);border-color:var(--textarea_border);border-style:solid;border-width:0.1em;padding:0.5em}
 #dashboard .tab{display:none}
 #dashboard #servers{display:block}
-#logs ul{height:83.9em;overflow:scroll}
-#dashboard #logs li{border-style:none;font-size:var(--font-size);font-family:monospace;list-style:none;margin:0.5em 0 0;padding:0;white-space:pre}
-#logs li.log-error{color:var(--fail_bright)}
-#logs time{color:var(--text_cyan);display:inline-block;margin:0 1em 0 0}
-#logs code{color:var(--fail_bright)}
+#application-logs ul{height:83.9em;overflow:scroll}
+#dashboard #application-logs li{border-style:none;font-size:var(--font-size);font-family:monospace;list-style:none;margin:0.5em 0 0;padding:0;white-space:pre}
+#application-logs li.log-error{color:var(--fail_bright)}
+#application-logs time{color:var(--text_cyan);display:inline-block;margin:0 1em 0 0}
+#application-logs code{color:var(--fail_bright)}
 #dashboard table{border-collapse:collapse;margin:0 0 4em}
 #dashboard #compose textarea.compose-variables-edit{height:10em}
 #dashboard textarea.short{height:6em}
@@ -236,11 +250,14 @@ label span.checked{background:var(--background_dark)}
 #dashboard .http_response p.float-last{margin:0;width:64%}
 #dashboard textarea.test-input{height:20em}
 #dashboard .file-system-summary span{display:inline-block;width:12em}
+#dashboard #file-system ul{margin:0 0 0 4em;padding:0}
+#dashboard .file-system-summary .file-system-summary-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}
 #dashboard #os li{border-style:none;list-style:none}
 #dashboard #os strong{display:inline-block;width:18em}
 #dashboard #os .os-interface{border-color:var(--border_soft);border-style:solid;border-width:0.1em}
 #dashboard #os ul{margin:0 0 1em 2em;padding:0 1em 1em}
 #dashboard #os .section{padding-bottom:0}
+#dashboard #hash .output{height:15em}
 
 #dashboard *::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--background)}
 #dashboard textarea::-webkit-scrollbar{background-color:black}

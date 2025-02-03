@@ -305,18 +305,17 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         decoded:string = decodeURI(fileFragment);
     if (server_name === "dashboard") {
         if (decoded === "") {
-            const headers:string[] = [
-                "HTTP/1.1 200",
-                "content-type: text/html",
-                `content-length: ${Buffer.byteLength(vars.dashboard)}`,
-                "server: prettydiff/webserver",
-                "",
-                ""
-            ];
-            if (headerList.indexOf("dashboard-http: true") < 0) {
-                vars.http_headers = headerList.join("\n");
-            }
-            write(headers.join("\r\n") + vars.dashboard);
+            const list:string = headerList.join("\n"),
+                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``),
+                headers:string[] = [
+                    "HTTP/1.1 200",
+                    "content-type: text/html",
+                    `content-length: ${Buffer.byteLength(dashboard)}`,
+                    "server: prettydiff/webserver",
+                    "",
+                    ""
+                ];
+            write(headers.join("\r\n") + dashboard);
             return;
         }
         if (decoded.includes("node_modules") === true) {

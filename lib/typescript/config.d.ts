@@ -14,7 +14,6 @@ interface config_core {
 }
 
 interface config_dashboardObject {
-    fileSystem_only: boolean;
     path: string;
     search: string;
     socket: websocket_client;
@@ -32,9 +31,9 @@ interface config_directory {
 }
 
 interface config_hash {
-    algorithm: type_hash_algorithm;
+    algorithm: string;
     callback: (hashOutput:hash_output) => void;
-    digest: "base64" | "hex";
+    digest: "base64-output" | "base64" | "hex";
     hash_input_type: type_hash_input;
     source: Buffer | string;
 }

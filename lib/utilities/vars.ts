@@ -1,7 +1,7 @@
 
 import node from "./node.js";
 
-/* cspell: words appdata */
+/* cspell: words appdata, nmap */
 
 const gid:number = (typeof process.getgid === "undefined")
         ? 0
@@ -23,7 +23,7 @@ const gid:number = (typeof process.getgid === "undefined")
         },
         css: "",
         dashboard: "",
-        http_headers: "",
+        hashes: node.crypto.getHashes(),
         interfaces: [
             "localhost",
             "127.0.0.1",

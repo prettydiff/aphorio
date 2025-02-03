@@ -4,16 +4,62 @@ import core from "../browser/core.js";
 // @ts-expect-error - TypeScript claims xterm has no default export, but this is how the documentation says to use it.
 import Terminal from "@xterm/xterm";
 
-// cspell: words buildx, containerd, nmap, winget
+// cspell: words buildx, containerd, nmap, PUID, PGID, winget
 const dashboard = function dashboard():void {
     let payload:transmit_dashboard = null,
         loaded:boolean = false,
         ports_external:boolean = false,
         section:type_dashboard_sections = "servers";
-    const log = function dashboard_log(item:services_dashboard_status):void {
+    const local:string = localStorage.state,
+        state:state_store = (local === undefined || local === null)
+            ? {
+                dns: {
+                    hosts: "",
+                    types: ""
+                },
+                fileSystem: {
+                    path: "",
+                    search: ""
+                },
+                hash: {
+                    algorithm: "sha3-512",
+                    digest: "hex",
+                    hashFunction: "hash",
+                    source: "",
+                    type: "string"
+                },
+                http: {
+                    encryption: true,
+                    request: ""
+                },
+                nav: "servers"
+            }
+            : JSON.parse(local),
+        setState = function dashboard_setState():void {
+            const hashInput:HTMLCollectionOf<HTMLInputElement> = document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input");
+            state.dns.hosts = dns.nodes.hosts.value;
+            state.dns.types = dns.nodes.types.value;
+            state.fileSystem.path = fileSystem.nodes.path.value;
+            state.fileSystem.search = fileSystem.nodes.search.value;
+            state.hash.algorithm = hash.nodes.algorithm[hash.nodes.algorithm.selectedIndex].textContent;
+            state.hash.hashFunction = (hashInput[1].checked === true)
+                ? "base64"
+                : "hash";
+            state.hash.type = (hashInput[3].checked === true)
+                ? "file"
+                : "string";
+            state.hash.digest = (hashInput[5].checked === true)
+                ? "base64"
+                : "hex";
+            state.hash.source = hash.nodes.source.value;
+            state.http.encryption = (http.nodes.encryption.checked === true);
+            state.http.request = http.nodes.request.value;
+            localStorage.state = JSON.stringify(state);
+        },
+        log = function dashboard_log(item:services_dashboard_status):void {
             const li:HTMLElement = document.createElement("li"),
                 timeElement:HTMLElement = document.createElement("time"),
-                ul:HTMLElement = document.getElementById("logs").getElementsByTagName("ul")[0],
+                ul:HTMLElement = document.getElementById("application-logs").getElementsByTagName("ul")[0],
                 strong:HTMLElement = document.createElement("strong"),
                 code:HTMLElement = document.createElement("code"),
                 time:string = item.time.dateTime(false);
@@ -35,7 +81,7 @@ const dashboard = function dashboard():void {
         },
         baseline = function dashboard_baseline():void {
             const serverList:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
-                logs_old:HTMLElement = document.getElementById("logs").getElementsByTagName("ul")[0],
+                logs_old:HTMLElement = document.getElementById("application-logs").getElementsByTagName("ul")[0],
                 ports_old:HTMLCollectionOf<HTMLElement> = document.getElementById("ports").getElementsByTagName("tbody"),
                 sockets_old:HTMLElement = document.getElementById("sockets").getElementsByTagName("tbody")[0],
                 status:HTMLElement = document.getElementById("connection-status"),
@@ -195,7 +241,7 @@ const dashboard = function dashboard():void {
                     portItem = document.createElement("li");
                     portItem.appendText(`${ports[index].PublishedPort} (${ports[index].Protocol.toUpperCase()})`);
                     portList.appendChild(portItem);
-                    // prevent redudant output in the case of reporting for both IPv4 and IPv6
+                    // prevent redundant output in the case of reporting for both IPv4 and IPv6
                     if (index > 0 && ports[index - 1].PublishedPort === ports[index].PublishedPort) {
                         index = index - 1;
                     }
@@ -548,18 +594,19 @@ const dashboard = function dashboard():void {
                 dns.nodes.output.value = "";
             },
             nodes: {
-                input: document.getElementById("dns").getElementsByTagName("input")[0],
+                hosts: document.getElementById("dns").getElementsByTagName("input")[0],
                 output: document.getElementById("dns").getElementsByTagName("textarea")[0],
                 resolve: document.getElementById("dns").getElementsByTagName("button")[1],
                 types: document.getElementById("dns").getElementsByTagName("input")[1]
             },
             resolve: function dashboard_dnsResolve():void {
-                const values:string[] = dns.nodes.input.value.replace(/,\s+/g, ",").split(","),
+                const values:string[] = dns.nodes.hosts.value.replace(/,\s+/g, ",").split(","),
                     types:string = dns.nodes.types.value,
                     payload:services_dns_input = {
                         names: values,
                         types: types
                     };
+                setState();
                 message.send(payload, "dashboard-dns");
                 dns.nodes.output.value = "";
             },
@@ -669,6 +716,8 @@ const dashboard = function dashboard():void {
                                 len_object = record_strings.length;
                                 if (len_object < 1) {
                                     output.push(`        ${pad(types[index_types], max_type)}: [],`);
+                                } else if (Array.isArray(record_strings[0]) === false) {
+                                    output.push(`        ${pad(types[index_types], max_type)}: ["${record_strings.join("")}"],`);
                                 } else {
                                     output.push(`        ${pad(types[index_types], max_type)}: [`);
                                     index_object = 0;
@@ -705,17 +754,14 @@ const dashboard = function dashboard():void {
         },
         fileSystem:module_fileSystem = {
             init: function dashboard_fileSystemInit():void {
-                fileSystem.nodes.input.onblur = fileSystem.send;
-                fileSystem.nodes.input.onkeyup = fileSystem.send;
+                fileSystem.nodes.path.onblur = fileSystem.send;
                 fileSystem.nodes.search.onblur = fileSystem.send;
-                fileSystem.nodes.search.onkeyup = fileSystem.send;
-                fileSystem.receive(payload.fileSystem);
             },
             nodes: {
                 content: document.getElementById("file-system").getElementsByClassName("file-system-content")[0] as HTMLElement,
-                input: document.getElementById("file-system").getElementsByTagName("input")[0],
                 failures: document.getElementById("file-system").getElementsByClassName("file-system-failures")[0] as HTMLElement,
                 output: document.getElementById("file-system").getElementsByClassName("file-list")[0] as HTMLElement,
+                path: document.getElementById("file-system").getElementsByTagName("input")[0],
                 search: document.getElementById("file-system").getElementsByTagName("input")[1],
                 summary: document.getElementById("file-system").getElementsByClassName("file-system-summary")[0] as HTMLElement
             },
@@ -816,10 +862,11 @@ const dashboard = function dashboard():void {
                     };
                 let index_record:number = 0,
                     size:number = 0;
-                fileSystem.nodes.input.value = fs.address;
+                fileSystem.nodes.path.value = fs.address;
                 fileSystem.nodes.search.value = (fs.search === null)
                     ? ""
                     : fs.search;
+                setState();
                 // td[0] = icon name
                 // td[1] = type
                 // td[2] = size
@@ -895,7 +942,7 @@ const dashboard = function dashboard():void {
                     keyEvent:KeyboardEvent = event as KeyboardEvent,
                     name:string = target.lowName(),
                     address:string = (name === "input")
-                        ? fileSystem.nodes.input.value.replace(/^\s+/, "").replace(/\s+$/, "")
+                        ? fileSystem.nodes.path.value.replace(/^\s+/, "").replace(/\s+$/, "")
                         : target.parentNode.dataset.raw,
                     search:string = (name === "input")
                         ? fileSystem.nodes.search.value.replace(/^\s+/, "").replace(/\s+$/, "")
@@ -916,10 +963,60 @@ const dashboard = function dashboard():void {
                 }
             }
         },
+        hash:module_hash = {
+            init: function dashboard_hashInit():void {
+                const len:number = payload.hashes.length;
+                let index:number = 0,
+                    option:HTMLElement = null;
+                hash.nodes.button.onclick = hash.request;
+                do {
+                    option = document.createElement("option");
+                    option.textContent = payload.hashes[index];
+                    if (payload.hashes[index] === "sha3-512") {
+                        option.setAttribute("selected", "selected");
+                    }
+                    hash.nodes.algorithm.appendChild(option);
+                    index = index + 1;
+                } while (index < len);
+            },
+            nodes: {
+                algorithm: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("select")[0],
+                base64: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[1],
+                button: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("button")[0],
+                digest: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[5],
+                output: document.getElementById("hash").getElementsByClassName("form")[1].getElementsByTagName("textarea")[0],
+                size: document.getElementById("hash").getElementsByClassName("form")[1].getElementsByTagName("strong")[0],
+                source: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0],
+                type: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[3]
+            },
+            request: function dashboard_hashRequest():void {
+                const option:HTMLOptionElement = hash.nodes.algorithm[hash.nodes.algorithm.selectedIndex] as HTMLOptionElement,
+                    selectValue:string = option.value,
+                    service:services_hash = {
+                        algorithm: selectValue,
+                        base64: (hash.nodes.base64.checked === true),
+                        digest: (hash.nodes.digest.checked === true)
+                            ? "base64"
+                            : "hex",
+                        size: 0,
+                        type: (hash.nodes.type.checked === true)
+                            ? "file"
+                            : "direct",
+                        value: hash.nodes.source.value
+                    };
+                hash.nodes.output.value = "";
+                setState();
+                message.send(service, "dashboard-hash");
+            },
+            response: function dashboard_hashResponse(data:services_hash):void {
+                hash.nodes.output.value = data.value;
+                hash.nodes.size.textContent = String(data.size);
+            }
+        },
         http:module_http = {
             init: function dashboard_httpInit():void {
                 // populate a default HTTP test value
-                http.nodes.request.value = payload.http_headers;
+                http.nodes.request.value = state.http.request;
                 http.nodes.http_request.onclick = http.request;
                 http.nodes.responseBody.value = "";
                 http.nodes.responseHeaders.value = "";
@@ -941,6 +1038,7 @@ const dashboard = function dashboard():void {
                         headers: http.nodes.request.value,
                         uri: ""
                     };
+                setState();
                 message.send(data, "dashboard-http");
                 http.nodes.responseBody.value = "";
                 http.nodes.responseHeaders.value = "";
@@ -979,6 +1077,8 @@ const dashboard = function dashboard():void {
                         dns.init();
                         // generate file system output
                         fileSystem.init();
+                        // populate the hash tool
+                        hash.init();
                         // populate the http content
                         http.init();
                         // populate the OS content
@@ -1011,7 +1111,9 @@ const dashboard = function dashboard():void {
                         if (data.status === "error") {
                             if (data.type === "socket") {
                                 const config:services_socket = data.configuration as services_socket;
-                                socket_destroy(config.hash);
+                                if (config !== null) {
+                                    socket_destroy(config.hash);
+                                }
                             }
                         } else {
                             if (data.type === "server") {
@@ -1174,12 +1276,14 @@ const dashboard = function dashboard():void {
                                 compose.list("variables");
                             }
                         }
-                    } else if (message_item.service === "dashboard-fileSystem") {
-                        fileSystem.receive(message_item.data as services_fileSystem);
-                    } else if (message_item.service === "dashboard-http") {
-                        http.response(message_item.data as services_http_test);
                     } else if (message_item.service === "dashboard-dns") {
                         dns.response(message_item.data as services_dns_output);
+                    } else if (message_item.service === "dashboard-fileSystem") {
+                        fileSystem.receive(message_item.data as services_fileSystem);
+                    } else if (message_item.service === "dashboard-hash") {
+                        hash.response(message_item.data as services_hash);
+                    } else if (message_item.service === "dashboard-http") {
+                        http.response(message_item.data as services_http_test);
                     } else if (message_item.service === "dashboard-os") {
                         os.service(message_item.data as services_os);
                     }
@@ -2573,16 +2677,24 @@ const dashboard = function dashboard():void {
             message: message.receiver,
             open: function dashboard_socketOpen(event:Event):void {
                 const target:WebSocket = event.target as WebSocket,
-                    status:HTMLElement = document.getElementById("connection-status"),
-                    payload:socket_data = {
-                        data: null,
-                        service: "dashboard-payload"
-                    };
+                    fileSearch:string = fileSystem.nodes.search.value,
+                    fileRequest:services_fileSystem = {
+                        address: fileSystem.nodes.path.value,
+                        dirs: null,
+                        failures: null,
+                        file: null,
+                        parent: null,
+                        search: (fileSearch === "")
+                            ? null
+                            : fileSearch,
+                        sep: null
+                    },
+                    status:HTMLElement = document.getElementById("connection-status");
                 if (status !== null ) {
                     status.getElementsByTagName("strong")[0].textContent = "Online";
                     status.setAttribute("class", "connection-online");
                 }
-                target.send(JSON.stringify(payload));
+                
                 socket.socket = target;
                 if (socket.queueStore.length > 0) {
                     do {
@@ -2590,38 +2702,40 @@ const dashboard = function dashboard():void {
                         socket.queueStore.splice(0, 1);
                     } while (socket.queueStore.length > 0);
                 }
+                message.send(fileRequest, "dashboard-fileSystem");
             },
             type: "dashboard"
         });
 
     // start up logic for browser
     {
-        const navigation = function dashboard_navigation(event:MouseEvent):void {
-                const target:HTMLElement = event.target,
-                    buttons:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("nav")[0].getElementsByTagName("button");
+        const navButtons:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("nav")[0].getElementsByTagName("button"),
+            navigation = function dashboard_navigation(event:MouseEvent):void {
+                const target:HTMLElement = event.target;
                 let index:number = sections.length;
                 section = target.getAttribute("data-section") as type_dashboard_sections;
                 do {
                     index = index - 1;
                     document.getElementById(sections[index]).style.display = "none";
                 } while (index > 0);
-                index = buttons.length;
+                index = navButtons.length;
                 do {
                     index = index - 1;
-                    buttons[index].removeAttribute("class");
+                    navButtons[index].removeAttribute("class");
                 } while (index > 0);
                 document.getElementById(section).style.display = "block";
+                state.nav = target.dataset.section;
+                setState();
                 target.setAttribute("class", "nav-focus");
             },
             // dynamically discover navigation and assign navigation event handler
             sections:string[] = (function dashboard_sections():string[] {
-                const buttons:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("nav")[0].getElementsByTagName("button"),
-                    output:string[] = [];
-                let index:number = buttons.length;
+                const output:string[] = [];
+                let index:number = navButtons.length;
                 do {
                     index = index - 1;
-                    output.push(buttons[index].getAttribute("data-section"));
-                    buttons[index].onclick = navigation;
+                    output.push(navButtons[index].getAttribute("data-section"));
+                    navButtons[index].onclick = navigation;
                 } while (index > 0);
                 return output;
             }()),
@@ -2638,14 +2752,67 @@ const dashboard = function dashboard():void {
                 }
             },
             th:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("th"),
-            expand:HTMLCollectionOf<HTMLButtonElement> = document.getElementsByClassName("expand") as HTMLCollectionOf<HTMLButtonElement>;
-        let index:number = th.length,
+            expand:HTMLCollectionOf<HTMLButtonElement> = document.getElementsByClassName("expand") as HTMLCollectionOf<HTMLButtonElement>,
+            hashInputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("hash").getElementsByTagName("input"),
+            hashOptions:HTMLCollectionOf<HTMLOptionElement> = document.getElementById("hash").getElementsByTagName("option");
+        let index:number = hashOptions.length,
             button:HTMLElement = null;
 
         // invoke web socket connection to application
         socket.invoke();
 
+        // restore state
+        dns.nodes.hosts.value = state.dns.hosts;
+        dns.nodes.types.value = state.dns.types;
+        fileSystem.nodes.path.value = state.fileSystem.path;
+        fileSystem.nodes.search.value = state.fileSystem.search;
+        if (state.hash.algorithm !== "sha3-512") {
+            do {
+                index = index - 1;
+                if (hashOptions[index].textContent === state.hash.algorithm) {
+                    hashOptions[index].selected = true;
+                    break;
+                }
+            } while (index > 0);
+        }
+        hash.nodes.source.value = state.hash.source;
+        if (state.hash.hashFunction === "hash") {
+            hashInputs[0].checked = true;
+        } else {
+            hashInputs[1].checked = true;
+        }
+        if (state.hash.type === "string") {
+            hashInputs[2].checked = true;
+        } else {
+            hashInputs[3].checked = true;
+        }
+        if (state.hash.digest === "hex") {
+            hashInputs[4].checked = true;
+        } else {
+            hashInputs[5].checked = true;
+        }
+        if (state.http.encryption === true) {
+            document.getElementById("http").getElementsByTagName("input")[1].checked =  true;
+        } else {
+            document.getElementById("http").getElementsByTagName("input")[0].checked =  true;
+        }
+        http.nodes.request.value = state.http.request;
+        if (state.nav !== "servers") {
+            index = navButtons.length;
+            do {
+                index = index - 1;
+                if (navButtons[index].dataset.section === state.nav) {
+                    navButtons[index].setAttribute("class", "nav-focus");
+                } else {
+                    navButtons[index].removeAttribute("class");
+                }
+            } while (index > 0);
+            document.getElementById("servers").style.display = "none";
+            document.getElementById(state.nav).style.display = "block";
+        }
+
         // table header sort buttons
+        index = th.length;
         do {
             index = index - 1;
             button = th[index].getElementsByTagName("button")[0];
