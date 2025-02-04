@@ -62,9 +62,9 @@
         <div class="tab" id="dns">
             <h2>DNS Resolve</h2>
             <p class="tab-description">Test DNS name resolution from the application's location.</p>
-            <div class="section">
+            <div class="definitions">
                 <h3>DNS Type Definitions <button class="expand">Expand</button></h3>
-                <dl class="definitions">
+                <dl class="definition-body">
                     <dt>A</dt>
                     <dd>IPv4 addresses</dd>
                     <dt>AAAA</dt>
@@ -215,9 +215,9 @@
         <div class="tab" id="file-system">
             <h2>File System</h2>
             <p class="tab-description">This tool allows navigating the hosting machine's file system.</p>
-            <div class="section">
+            <div class="definitions">
                 <h3>File System Information <button class="expand">Expand</button></h3>
-                <div class="definitions">
+                <div class="definition-body">
                     <h4>File System Objects</h4>
                     <dl>
                         <dt>block device</dt>
@@ -290,9 +290,9 @@
         <div class="tab" id="hash">
             <h2>Hash / Base64</h2>
             <p class="tab-description">Generate a hash tokens from custom input or the file system.</p>
-            <div class="section">
+            <div class="definitions">
                 <h3>Hash Algorithms Explained <button class="expand">Expand</button></h3>
-                <div class="definitions">
+                <div class="definition-body">
                     <p>
                         Hash functions allow for generation of a predictable but challenging to reverse string token from a given string or binary input.
                         Hashes are typically used as a form of identity or integrity check.
@@ -450,9 +450,9 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="http">
             <h2>HTTP Test</h2>
             <p class="tab-description">A means to write arbitrary HTTP requests and read the raw response.</p>
-            <div class="section">
+            <div class="definitions">
                 <h3>HTTP Format <button class="expand">Expand</button></h3>
-                <div class="definitions">
+                <div class="definition-body">
                     <p>HTTP is a text-based application layer transmission protocol defined as <a href="https://datatracker.ietf.org/doc/html/rfc2616">RFC 2616</a>.</p>
                     <p>The first line of an HTTP request a space separated list of method, resource path (also known as <em>end point</em>), and protocol.
                         Each following line is separated by a CRLF (x0Dx0A) sequence. This application handles that formatting for you.
@@ -597,9 +597,9 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="servers">
             <h2>Servers</h2>
             <p class="tab-description">A list of configured HTTP/WS servers hosted by this application and their respective status.</p>
-            <div class="section">
+            <div class="definitions">
                 <h3>Definitions of Server Object Properties <button class="expand">Expand</button></h3>
-                <dl class="definitions">
+                <dl class="definition-body">
                     <dt><em>activate</em> (string)</dt>
                     <dd><p>
                         Instructs the application to bring the server online automatically at application start and server creation.

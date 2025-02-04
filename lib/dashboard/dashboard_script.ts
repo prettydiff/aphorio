@@ -2742,7 +2742,7 @@ const dashboard = function dashboard():void {
             definitions = function dashboard_commonDefinitions(event:MouseEvent):void {
                 const target:HTMLElement = event.target,
                     parent:HTMLElement = target.getAncestor("div", "tag") as HTMLElement,
-                    child:HTMLElement = parent.getElementsByClassName("definitions")[0] as HTMLElement;
+                    child:HTMLElement = parent.getElementsByClassName("definition-body")[0] as HTMLElement;
                 if (target.textContent === "Expand") {
                     child.style.display = "block";
                     target.textContent = "Hide";
