@@ -85,6 +85,7 @@ declare global {
 
     interface module_fileSystem {
         init: () => void;
+        key: (event:KeyboardEvent) => void;
         nodes: {
             content: HTMLElement;
             failures: HTMLElement;

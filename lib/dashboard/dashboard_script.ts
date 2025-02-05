@@ -756,6 +756,13 @@ const dashboard = function dashboard():void {
             init: function dashboard_fileSystemInit():void {
                 fileSystem.nodes.path.onblur = fileSystem.send;
                 fileSystem.nodes.search.onblur = fileSystem.send;
+                fileSystem.nodes.path.onkeydown = fileSystem.key;
+                fileSystem.nodes.search.onkeydown = fileSystem.key;
+            },
+            key: function dashboard_fileSystemKey(event:KeyboardEvent):void {
+                if (event.key.toLowerCase() === "enter") {
+                    fileSystem.send(event);
+                }
             },
             nodes: {
                 content: document.getElementById("file-system").getElementsByClassName("file-system-content")[0] as HTMLElement,
@@ -791,6 +798,7 @@ const dashboard = function dashboard():void {
                         "socket": "\ud83d\udd0c",
                         "symbolic_link": "\ud83d\udd17"
                     },
+                    failureTitle:HTMLElement = fileSystem.nodes.failures.parentNode.getElementsByTagName("h3")[0],
                     record = function dashboard_fileSystemReceive_record(index:number):void {
                         const item:type_directory_item = (index < 0)
                                 ? fs.parent
@@ -919,7 +927,7 @@ const dashboard = function dashboard():void {
                     } else {
                         fails.appendText("0 artifacts failed accessing.");
                     }
-                    fails.setAttribute("class", fileSystem.nodes.failures.getAttribute("class"));
+                    failureTitle.textContent = "Items in current directory that could not be read";
                 } else {
                     const strong:HTMLElement = document.createElement("strong");
                     strong.appendText(fs.failures[0]);
@@ -928,11 +936,13 @@ const dashboard = function dashboard():void {
                     if (fs.failures[0] === "binary") {
                         fails.appendText("File is either binary or uses a text encoding larger than utf8.");
                     } else {
-                        fails.appendText("File limited to ");
+                        fails.appendText("File encoded as ");
                         fails.appendChild(strong);
-                        fails.appendText(" encoded characters.");
+                        fails.appendText(".");
                     }
+                    failureTitle.textContent = "File encoding";
                 }
+                fails.setAttribute("class", fileSystem.nodes.failures.getAttribute("class"));
                 fileSystem.nodes.failures.parentNode.appendChild(fails);
                 fileSystem.nodes.failures.parentNode.removeChild(fileSystem.nodes.failures);
                 fileSystem.nodes.failures = fails;
@@ -946,9 +956,8 @@ const dashboard = function dashboard():void {
                         : target.parentNode.dataset.raw,
                     search:string = (name === "input")
                         ? fileSystem.nodes.search.value.replace(/^\s+/, "").replace(/\s+$/, "")
-                        : null;
-                if (name === "button" || event.type === "blur" || (event.type === "keyup" && keyEvent.key.toLowerCase() === "enter")) {
-                    const payload:services_fileSystem = {
+                        : null,
+                    payload:services_fileSystem = {
                         address: address,
                         dirs: null,
                         failures: null,
@@ -959,8 +968,7 @@ const dashboard = function dashboard():void {
                             : search,
                         sep: null
                     };
-                    message.send(payload, "dashboard-fileSystem");
-                }
+                message.send(payload, "dashboard-fileSystem");
             }
         },
         hash:module_hash = {
@@ -1010,7 +1018,7 @@ const dashboard = function dashboard():void {
             },
             response: function dashboard_hashResponse(data:services_hash):void {
                 hash.nodes.output.value = data.value;
-                hash.nodes.size.textContent = String(data.size);
+                hash.nodes.size.textContent = commas(data.size);
             }
         },
         http:module_http = {
@@ -2742,7 +2750,7 @@ const dashboard = function dashboard():void {
             definitions = function dashboard_commonDefinitions(event:MouseEvent):void {
                 const target:HTMLElement = event.target,
                     parent:HTMLElement = target.getAncestor("div", "tag") as HTMLElement,
-                    child:HTMLElement = parent.getElementsByClassName("definitions")[0] as HTMLElement;
+                    child:HTMLElement = parent.getElementsByClassName("definition-body")[0] as HTMLElement;
                 if (target.textContent === "Expand") {
                     child.style.display = "block";
                     target.textContent = "Hide";

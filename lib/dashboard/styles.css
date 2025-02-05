@@ -28,6 +28,7 @@
     --textarea_border:#676767;
 
     --font-size:1.2em;
+    --h3-size:1.8em;
 }
 
 html{font-size:10px}
@@ -36,12 +37,14 @@ body{background:var(--background);color:var(--text);font-family:sans-serif}
 #dashboard .file-system-content,
 #dashboard .file-system-summary,
 div.form,
+div.definitions,
 div.section{border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:2em;padding:2em}
 div.form h3{margin:1.5em 0 0.5em}
 div.form h3:first-child{margin-top:0}
+div.definitions h3{margin:0}
 h1{font-size:3em}
 h2{font-size:2em}
-h3{font-size:1.8em}
+h3{font-size:var(--h3-size)}
 h4{font-size:1.6em}
 h5{font-size:1.4em}
 h1,h2,h3,h4,h5,h6{margin:0 0 1em}
@@ -171,8 +174,9 @@ label span.checked{background:var(--background_dark)}
 #dashboard .edit .summary h5{font-size:1em;margin:0}
 #dashboard div.edit{padding:0 0.694em}
 #dashboard div > .edit{border-color:var(--border_input);border-style:solid;border-width:0.1em;padding:1em}
-#dashboard .definitions{display:none}
+#dashboard .definition-body{display:none;margin:var(--h3-size) 0 0}
 #dashboard .form > .buttons,
+#dashboard .definitions > .buttons,
 #dashboard .section > .buttons{margin:0 0 2em}
 #dashboard .compose-container-list h4 button,
 #dashboard .server-list h4 button{background:none;border-style:none;box-shadow:none;display:block;font-size:0.834em;padding:0.595em;text-align:left;width:100%}
@@ -245,7 +249,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard #compose textarea.compose-variables-edit{height:10em}
 #dashboard textarea.short{height:6em}
 #dashboard label input[type="radio"]{box-sizing:unset;display:inline-block;width:1em}
-#dashboard .definitions li{border-style:none;list-style:disc}
+#dashboard .definition-body li{border-style:none;list-style:disc}
 #dashboard .http_response p{float:left;margin:0 2% 0 0;width:16%}
 #dashboard .http_response p.float-last{margin:0;width:64%}
 #dashboard textarea.test-input{height:20em}
