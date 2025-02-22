@@ -949,7 +949,6 @@ const dashboard = function dashboard():void {
             },
             send: function dashboard_fileSystemSend(event:FocusEvent|KeyboardEvent):void {
                 const target:HTMLElement = event.target,
-                    keyEvent:KeyboardEvent = event as KeyboardEvent,
                     name:string = target.lowName(),
                     address:string = (name === "input")
                         ? fileSystem.nodes.path.value.replace(/^\s+/, "").replace(/\s+$/, "")

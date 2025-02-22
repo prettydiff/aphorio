@@ -31,6 +31,19 @@
     --h3-size:1.8em;
 }
 
+/* highlight, animated border */
+@keyframes highlight {
+    0%, 100% {clip-path: inset(0 0 calc(100% - 1px) 0); }
+    25% {clip-path: inset(0 calc(100% - 1px) 0 0); }
+    50% {clip-path: inset(calc(100% - 1px) 0 0 0); }
+    75% {clip-path: inset(0 0 0 calc(100% - 1px)); }
+}
+
+.highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}
+.highlight::after,
+.highlight::before{animation:highlight 2s linear infinite;bottom:0;box-shadow:inset 0 0 0 0.2em var(--fail_dark);content:"";left:0;margin:-5%;position:absolute;right:0;top:0;z-index:1}
+.highlight::before{animation-delay:-1s}
+
 html{font-size:10px}
 body{background:var(--background);color:var(--text);font-family:sans-serif}
 #dashboard .file-list,
