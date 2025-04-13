@@ -2,6 +2,7 @@
 import server from "./transmit/server.js";
 import server_create from "./services/server_create.js";
 import startup from "./utilities/startup.js";
+import yt_config from "./services/yt_config.js";
 import vars from "./utilities/vars.js";
 
 // cspell: words nmap
@@ -85,12 +86,20 @@ startup(function index():void {
             index = index + 1;
         } while (index < total);
     };
-    if (vars.servers.dashboard === undefined) {
-        server_create({
-            action: "add",
-            server: default_server("dashboard")
-        }, start);
+
+    if (process.argv.includes("yt_config") === true) {
+        yt_config(process.argv[process.argv.indexOf("yt_config") + 1], function index_ytConfig(dest:string):void {
+            console.log(`Configs written to ${dest}.`);
+            process.exit(0);
+        });
     } else {
-        start();
+        if (vars.servers.dashboard === undefined) {
+            server_create({
+                action: "add",
+                server: default_server("dashboard")
+            }, start);
+        } else {
+            start();
+        }
     }
 });
