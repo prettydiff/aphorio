@@ -12,9 +12,13 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
         write = function http_request_write(body:string, headers:string, uri:boolean):void {
             const output:services_http_test = {
                 body: body,
+                chunked: chunked,
+                chunks: (chunked === true)
+                    ? chunkCount
+                    : 1,
                 encryption: data.encryption,
                 headers: headers,
-                timeout: Math.round(Number(startTime) / 1e6),
+                timeout: Math.round(Number(process.hrtime.bigint() - startTime) / 1e6),
                 uri: (uri === true)
                     ? urlOutput()
                     : ""
@@ -59,7 +63,9 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
         url:URL = null,
         host:string = "",
         port:number = 0,
-        address:string = "";
+        address:string = "",
+        chunked:boolean = false,
+        chunkCount:number = 0;
     do {
         index = index - 1;
         if ((/^host\s*:\s*/).test(headers[index].toLowerCase()) === true) {
@@ -124,8 +130,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
         let chunks:string = "",
             fragment:string = "",
             bodyIndex:number = -1,
-            contentLength:number = -1,
-            chunked:boolean = false;
+            contentLength:number = -1;
         if (vars.servers.dashboard.config.domain_local.indexOf(host) > -1 || vars.interfaces.indexOf(host) > -1) {
             headers.push("dashboard-http: true");
         }
@@ -142,16 +147,16 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
                 return;
             }
             fragment = decoder.write(responseData);
+            chunkCount = chunkCount + 1;
             if (chunked === true) {
                 chunks = chunks + fragment.replace(/^[0-9a-f]+\r\n/, "");
             } else {
                 chunks = chunks + fragment;
             }
-            if (bodyIndex < 4) {
+            if (chunkCount === 1) {
                 const lower:string = chunks.toLowerCase(),
                     contentIndex:number = lower.indexOf("content-length");
                 let content:string = "";
-                bodyIndex = chunks.indexOf("\r\n\r\n") + 4;
                 if (contentIndex > 0) {
                     content = chunks.slice(contentIndex);
                     contentLength = Number(content.slice(content.indexOf(":") + 1, content.indexOf("\r\n")).replace(/\s+/g, ""));
@@ -159,6 +164,10 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
                     contentLength = 0;
                     chunked = true;
                 }
+            }
+            if (bodyIndex < 4) {
+                bodyIndex = chunks.indexOf("\r\n\r\n") + 4;
+                chunks = chunks.slice(0, bodyIndex) + chunks.slice(bodyIndex).replace(/^[0-9a-f]+\r\n/, "");
             }
             if (Buffer.byteLength(chunks.slice(bodyIndex)) === contentLength) {
                 socket.end();
@@ -168,7 +177,6 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
             if (chunks.length < 1) {
                 write("Error: message ended with no data, which indicates no web server or connection refused.", "", true);
             } else {
-                startTime = process.hrtime.bigint() - startTime;
                 write(chunks.slice(bodyIndex), chunks.slice(0, bodyIndex), true);
             }
         });

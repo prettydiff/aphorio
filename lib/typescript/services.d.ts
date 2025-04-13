@@ -140,6 +140,8 @@ declare global {
 
     interface services_http_test {
         body: string;
+        chunks: number;
+        chunked: boolean;
         encryption: boolean;
         headers: string;
         timeout: number;

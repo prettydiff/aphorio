@@ -1044,6 +1044,8 @@ const dashboard = function dashboard():void {
                     timeout:number = Number(http.nodes.timeout.value),
                     data:services_http_test = {
                         body: "",
+                        chunks: 1,
+                        chunked: false,
                         encryption: encryption,
                         headers: http.nodes.request.value,
                         timeout: (isNaN(timeout) === true || timeout < 0)
@@ -1056,6 +1058,14 @@ const dashboard = function dashboard():void {
                 http.nodes.responseBody.value = "";
                 http.nodes.responseHeaders.value = "";
                 http.nodes.responseURI.value = "";
+                http.nodes.stats[0].textContent = "";
+                http.nodes.stats[1].textContent = "";
+                http.nodes.stats[2].textContent = "";
+                http.nodes.stats[3].textContent = "";
+                http.nodes.stats[4].textContent = "";
+                http.nodes.stats[5].textContent = "";
+                http.nodes.stats[6].textContent = "";
+                http.nodes.stats[7].textContent = "";
             },
             response: function dashboard_httpResponse(data:services_http_test):void {
                 let req:string = http.nodes.request.value.replace(/\r\n/g, "\n").replace(/\r/g, "\n"),
@@ -1066,15 +1076,17 @@ const dashboard = function dashboard():void {
                 http.nodes.stats[0].textContent = `${commas(data.timeout / 1000)} seconds`;
                 http.nodes.stats[1].textContent = commas(data.headers.length);
                 http.nodes.stats[2].textContent = commas(data.body.length);
+                http.nodes.stats[3].textContent = String(data.chunked);
+                http.nodes.stats[4].textContent = commas(data.chunks);
                 if (reqs.length < 2) {
-                    http.nodes.stats[3].textContent = commas(http.nodes.request.value.length);
-                    http.nodes.stats[4].textContent = "0";
+                    http.nodes.stats[5].textContent = commas(http.nodes.request.value.length);
+                    http.nodes.stats[6].textContent = "0";
                 } else {
-                    http.nodes.stats[3].textContent = commas(reqs[0].length);
+                    http.nodes.stats[5].textContent = commas(reqs[0].length);
                     reqs.splice(0, 1);
-                    http.nodes.stats[4].textContent = commas(reqs.join("\n\n").length);
+                    http.nodes.stats[6].textContent = commas(reqs.join("\n\n").length);
                 }
-                http.nodes.stats[5].textContent = commas(JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length);
+                http.nodes.stats[7].textContent = commas(JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length);
             }
         },
         message:module_message = {
