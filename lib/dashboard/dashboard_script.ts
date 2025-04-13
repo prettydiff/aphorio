@@ -770,7 +770,7 @@ const dashboard = function dashboard():void {
                 output: document.getElementById("file-system").getElementsByClassName("file-list")[0] as HTMLElement,
                 path: document.getElementById("file-system").getElementsByTagName("input")[0],
                 search: document.getElementById("file-system").getElementsByTagName("input")[1],
-                summary: document.getElementById("file-system").getElementsByClassName("file-system-summary")[0] as HTMLElement
+                summary: document.getElementById("file-system").getElementsByClassName("summary-stats")[0] as HTMLElement
             },
             receive: function dashboard_fileSystemReceive(fs:services_fileSystem):void {
                 const len:number = fs.dirs.length,
@@ -949,7 +949,6 @@ const dashboard = function dashboard():void {
             },
             send: function dashboard_fileSystemSend(event:FocusEvent|KeyboardEvent):void {
                 const target:HTMLElement = event.target,
-                    keyEvent:KeyboardEvent = event as KeyboardEvent,
                     name:string = target.lowName(),
                     address:string = (name === "input")
                         ? fileSystem.nodes.path.value.replace(/^\s+/, "").replace(/\s+$/, "")
@@ -1036,14 +1035,22 @@ const dashboard = function dashboard():void {
                 request: document.getElementById("http").getElementsByTagName("textarea")[0],
                 responseBody: document.getElementById("http").getElementsByTagName("textarea")[3],
                 responseHeaders: document.getElementById("http").getElementsByTagName("textarea")[2],
-                responseURI: document.getElementById("http").getElementsByTagName("textarea")[1]
+                responseURI: document.getElementById("http").getElementsByTagName("textarea")[1],
+                stats: document.getElementById("http").getElementsByClassName("summary-stats")[0].getElementsByTagName("strong"),
+                timeout: document.getElementById("http").getElementsByTagName("input")[2]
             },
             request: function dashboard_httpRequest():void {
                 const encryption:boolean = http.nodes.encryption.checked,
+                    timeout:number = Number(http.nodes.timeout.value),
                     data:services_http_test = {
                         body: "",
+                        chunks: 1,
+                        chunked: false,
                         encryption: encryption,
                         headers: http.nodes.request.value,
+                        timeout: (isNaN(timeout) === true || timeout < 0)
+                            ? 0
+                            : Math.floor(timeout),
                         uri: ""
                     };
                 setState();
@@ -1051,11 +1058,35 @@ const dashboard = function dashboard():void {
                 http.nodes.responseBody.value = "";
                 http.nodes.responseHeaders.value = "";
                 http.nodes.responseURI.value = "";
+                http.nodes.stats[0].textContent = "";
+                http.nodes.stats[1].textContent = "";
+                http.nodes.stats[2].textContent = "";
+                http.nodes.stats[3].textContent = "";
+                http.nodes.stats[4].textContent = "";
+                http.nodes.stats[5].textContent = "";
+                http.nodes.stats[6].textContent = "";
+                http.nodes.stats[7].textContent = "";
             },
             response: function dashboard_httpResponse(data:services_http_test):void {
+                let req:string = http.nodes.request.value.replace(/\r\n/g, "\n").replace(/\r/g, "\n"),
+                    reqs:string[] = req.split("\n\n");
                 http.nodes.responseBody.value = data.body;
                 http.nodes.responseHeaders.value = data.headers;
                 http.nodes.responseURI.value = data.uri;
+                http.nodes.stats[0].textContent = `${commas(data.timeout / 1000)} seconds`;
+                http.nodes.stats[1].textContent = commas(data.headers.length);
+                http.nodes.stats[2].textContent = commas(data.body.length);
+                http.nodes.stats[3].textContent = String(data.chunked);
+                http.nodes.stats[4].textContent = commas(data.chunks);
+                if (reqs.length < 2) {
+                    http.nodes.stats[5].textContent = commas(http.nodes.request.value.length);
+                    http.nodes.stats[6].textContent = "0";
+                } else {
+                    http.nodes.stats[5].textContent = commas(reqs[0].length);
+                    reqs.splice(0, 1);
+                    http.nodes.stats[6].textContent = commas(reqs.join("\n\n").length);
+                }
+                http.nodes.stats[7].textContent = commas(JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length);
             }
         },
         message:module_message = {

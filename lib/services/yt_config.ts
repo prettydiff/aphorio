@@ -5,7 +5,7 @@ import vars from "../utilities/vars.js";
 
 // cspell: words bestaudio, keyid, multistreams, pathlen
 
-const yt_config = function services_ytConfig(name:string, callback:() => void):void {
+const yt_config = function services_ytConfig(name:string, callback:(dest:string) => void):void {
     const server:server = vars.servers[name];
     if (server === undefined) {
         log({
@@ -20,7 +20,7 @@ const yt_config = function services_ytConfig(name:string, callback:() => void):v
             confWritten = function services_ytConfig_confWritten():void {
                 conf_count = conf_count + 1;
                 if (conf_count === conf_total) {
-                    callback();
+                    callback(dest);
                 }
             },
             conf:store_string = (function services_ytConfig_confWritten_paths():store_string {
