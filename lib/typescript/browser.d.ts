@@ -123,6 +123,8 @@ declare global {
             responseBody: HTMLTextAreaElement;
             responseHeaders: HTMLTextAreaElement;
             responseURI: HTMLTextAreaElement;
+            stats: HTMLCollectionOf<HTMLElement>
+            timeout: HTMLInputElement;
         };
         request: (event:MouseEvent) => void;
         response: (data:services_http_test) => void;

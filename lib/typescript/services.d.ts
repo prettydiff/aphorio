@@ -142,6 +142,7 @@ declare global {
         body: string;
         encryption: boolean;
         headers: string;
+        timeout: number;
         uri: string;
     }
 
