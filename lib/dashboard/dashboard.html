@@ -202,6 +202,21 @@
                 </div>
             </div>
             <div class="section">
+                <h3>HTTP Test</h3>
+                <div class="section">
+                    <h4>What are the common error states demonstrated by this HTTP Test tool?</h4>
+                    <ul>
+                        <li>Some domains are very slow to return a response and can take up to 10 minutes.</li>
+                        <li>Some domains drop the connection or return an erroneous response. This could be due to a misconfiguration at the server, but is more typically an intentional way for servers to abandon traffic they don't want.</li>
+                        <li>Some domains cause an EPROTO error.  This is a TLS protocol negotionation error.  It occurs because they server is using unsupported TLS 1.1 certificates, an error in this application, or mostly likely due to an error in Node.js. Examples of domains causing this error: <em>prettydiff.com</em>, <em>www.army.mil</em>, <em>www.treasury.gov</em></li>
+                    </ul>
+                </div>
+                <div class="section">
+                    <h4>What is the fastest observed response from a public domain?</h4>
+                    <p>The fastest I have seen consistently is <em>www.microsoft.com</em> which completes a roundtrip in about 0.065 seconds.</p>
+                </div>
+            </div>
+            <div class="section">
                 <h3>Other Features</h3>
                 <div class="section">
                     <h4>No external port information populates on the ports tab.</h4>

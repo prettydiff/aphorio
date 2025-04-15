@@ -199,6 +199,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard h4 .expand{font-size:0.675em}
 #dashboard .edit .summary ul{font-size:1em;margin:1em 0 0;padding:0}
 #dashboard main li{list-style:none}
+#dashboard main #faq li{list-style:disc}
 #help ul{padding:0}
 #compose li,
 #servers li{list-style:none}

@@ -120,7 +120,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
     }
     socket.once("error", function http_request_error(error:node_error):void {
         if (error.code === "EPROTO" && error.syscall === "write") {
-            write(`Remote server is likely using TLSv1.1 which is not supported by OpenSSL3 used by Node.js since version 17.\n\n${JSON.stringify(error)}\n\nscheme: ${(data.encryption === true) ? "https (tls)" : "http"}\nhost: ${host}\nport: ${port}`, "", true);
+            write(`The EPROTO error is a protocol negotiation error that occurs for one of three reasons:\n1. Remote server is using outdated TLSv1.1 which is not supported by OpenSSL3 used by Node.js since version 17.\n2. There is a defect in this application.\n3. The most likely cause is a defect in Node.js.\n\nKnown domains causing this error:\n* prettydiff.com\n* www.army.mil\n* www.treasury.gov\n\n${JSON.stringify(error)}\n\nscheme: ${(data.encryption === true) ? "https (tls)" : "http"}\nhost: ${host}\nport: ${port}`, "", true);
         } else {
             write(JSON.stringify(error), "", true);
         }
