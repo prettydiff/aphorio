@@ -31,7 +31,7 @@
         </div>
         <div>
             <h3>Tools</h3>
-            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="http">HTTP Test</button></li><li><button data-section="dns">DNS Resolve</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
+            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="http">HTTP Test</button></li><li><button data-section="websocket">WebSocket Test</button></li><li><button data-section="dns">DNS Resolve</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
         </div>
         <div>
             <h3>Informational</h3>
@@ -724,6 +724,17 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <h2>Terminal</h2>
             <p class="tab-description">A command terminal to interact with the local operating system. Expect this terminal to mirror the operating system terminal exactly. <em>Text selections in the console are automatically copied to the clipboard.</em></p>
             <div class="terminal-output"></div>
+        </div>
+        <div class="tab" id="websocket">
+            <h2>WebSocket Test</h2>
+            <p class="tab-description">A tool to open and experiment with arbitrary WebSocket messaging.</p>
+            <div class="form"></div>
+                <h3>Socket Scheme</h3>
+                <p><label class="radio">Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label></p>
+                <h3>Handshake Message</h3>
+                <p><label>Handshake request messaging <textarea spellcheck="false"></textarea></label></p>
+                <p class="buttons"><button>Send Handshake</button></p>
+            </div>
         </div>
     </main>
 <script type="application/javascript">replace_javascript</script></body></html>

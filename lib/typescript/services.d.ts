@@ -211,6 +211,11 @@ declare global {
         secure: "open" | "secure";
     }
 
+    interface services_websocket_handshake {
+        encryption: boolean;
+        message: string[];
+    }
+
     interface services_youtubeDownload {
         address: string;
         options: string;

@@ -1128,6 +1128,8 @@ const dashboard = function dashboard():void {
                         server.list();
                         // start the terminal
                         terminal.init();
+                        // populate the websocket test tool
+                        websocket.init();
                     } else if (message_item.service === "dashboard-status") {
                         const data:services_dashboard_status = message_item.data as services_dashboard_status,
                             socket_destroy = function dashboard_messageReceiver_socketDestroy(hash:string):void {
@@ -2694,6 +2696,37 @@ const dashboard = function dashboard():void {
                 output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement
             },
             socket: null
+        },
+        websocket:module_websocket = {
+            handshake: function dashboard_websocketHandshake():void {
+                const handshakeString:string[] = [],
+                    key:string = window.btoa((Math.random().toString() + Math.random().toString()).slice(2, 18));
+                handshakeString.push("GET / HTTP/1.1");
+                handshakeString.push(`Host: ${location.host}`);
+                handshakeString.push("Upgrade: websocket");
+                handshakeString.push("Connection: Upgrade");
+                handshakeString.push(`Sec-WebSocket-Key: ${key}`);
+                handshakeString.push(`Origin: ${location.origin}`);
+                handshakeString.push("Sec-WebSocket-Protocol: none");
+                handshakeString.push("Sec-WebSocket-Version: 13");
+                websocket.nodes.handshake.value = handshakeString.join("\n");
+            },
+            handshakeSend: function dashboard_webscketHandshakeSend():void {
+                const payload:services_websocket_handshake = {
+                    encryption: (websocket.nodes.handshake_scheme.checked === true),
+                    message: websocket.nodes.handshake.value.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\r\n/g, "\n").split("\n")
+                };
+                message.send(payload, "dashboard-websocket-handshake");
+            },
+            init: function dashboard_websocketInit():void {
+                websocket.handshake();
+                websocket.nodes.button_handshake.onclick = websocket.handshakeSend;
+            },
+            nodes: {
+                button_handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
+                handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                handshake_scheme: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement
+            }
         },
         socket:socket_object = core({
             close: function dashboard_socketClose():void {

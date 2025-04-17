@@ -190,6 +190,17 @@ declare global {
         socket: WebSocket;
     }
 
+    interface module_websocket {
+        handshake: () => void;
+        handshakeSend: () => void;
+        init: () => void;
+        nodes: {
+            button_handshake: HTMLButtonElement;
+            handshake: HTMLTextAreaElement;
+            handshake_scheme: HTMLInputElement;
+        };
+    }
+
     interface socket_object {
         invoke: () => void;
         queue: (message:string) => void;
