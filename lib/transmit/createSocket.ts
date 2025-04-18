@@ -40,8 +40,13 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     ? "Socket is not a proxy."
                     : `Socket is a proxy to ${config.proxy.hash} on server ${config.proxy.server}.`}`,
                 status: "error",
-                type: "socket"
+                type: (config.type === "websocket-test")
+                    ? "websocket-test"
+                    : "socket"
             });
+            if (config.type === "websocket-test") {
+                config.callback(null, errorMessage);
+            }
         },
         callbackReady = function transmit_createSocket_hash_ready():void {
             header.push("");

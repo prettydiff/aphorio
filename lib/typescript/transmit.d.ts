@@ -126,3 +126,9 @@ interface websocket_pong {
 interface websocket_store {
     [key:string]: websocket_list;
 }
+
+interface websocket_test {
+    handler: websocket_message_handler;
+    handshake: receiver;
+    socket: websocket_client;
+}

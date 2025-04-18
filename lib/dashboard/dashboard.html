@@ -728,11 +728,16 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="websocket">
             <h2>WebSocket Test</h2>
             <p class="tab-description">A tool to open and experiment with arbitrary WebSocket messaging.</p>
-            <div class="form"></div>
+            <div class="form">
+                <p id="websocket-status" class="connection-offline">WebSocket Test socket: <strong>Offline</strong></p>
                 <h3>Socket Scheme</h3>
                 <p><label class="radio">Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label></p>
                 <h3>Handshake Message</h3>
-                <p><label>Handshake request messaging <textarea spellcheck="false"></textarea></label></p>
+                <div class="http_response">
+                    <p><label>Handshake request messaging <textarea spellcheck="false"></textarea></label></p>
+                    <p class="float-last"><label>Handshake error messaging <textarea readonly="true" spellcheck="false"></textarea></label></p>
+                    <span class="clear"></span>
+                </div>
                 <p class="buttons"><button>Send Handshake</button></p>
             </div>
         </div>

@@ -198,7 +198,10 @@ declare global {
             button_handshake: HTMLButtonElement;
             handshake: HTMLTextAreaElement;
             handshake_scheme: HTMLInputElement;
+            handshake_status: HTMLTextAreaElement;
+            status: HTMLElement;
         };
+        status: (data:services_websocket_status) => void;
     }
 
     interface socket_object {

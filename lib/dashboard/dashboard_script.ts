@@ -1327,6 +1327,8 @@ const dashboard = function dashboard():void {
                         http.response(message_item.data as services_http_test);
                     } else if (message_item.service === "dashboard-os") {
                         os.service(message_item.data as services_os);
+                    } else if (message_item.service === "dashboard-websocket-status") {
+                        websocket.status(message_item.data as services_websocket_status);
                     }
                 }
             },
@@ -2725,7 +2727,27 @@ const dashboard = function dashboard():void {
             nodes: {
                 button_handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
                 handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                handshake_scheme: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement
+                handshake_scheme: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
+                handshake_status: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                status: document.getElementById("websocket-status")
+            },
+            status: function dashboard_websocketStatus(data:services_websocket_status):void {
+                if (data.connected === true) {
+                    websocket.nodes.button_handshake.disabled = true;
+                    websocket.nodes.status.setAttribute("class", "connection-online");
+                } else {
+                    websocket.nodes.button_handshake.disabled = false;
+                    websocket.nodes.status.setAttribute("class", "connection-offline");
+                }
+                if (data.error === null) {
+                    websocket.nodes.handshake_status.value = "";
+                } else {
+                    let error:string = JSON.stringify(data.error);
+                    if (data.error.code === "ECONNRESET") {
+                        error = `The server dropped the connection. Ensure the encryption options matches whether the server's port accepts encrypted traffic.\n\n${error}`;
+                    }
+                    websocket.nodes.handshake_status.value = error;
+                }
             }
         },
         socket:socket_object = core({

@@ -216,6 +216,11 @@ declare global {
         message: string[];
     }
 
+    interface services_websocket_status {
+        connected: boolean;
+        error: node_error;
+    }
+
     interface services_youtubeDownload {
         address: string;
         options: string;

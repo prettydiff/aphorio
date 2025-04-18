@@ -73,7 +73,7 @@ interface config_validate_serverKeys {
 }
 
 interface config_websocket_create {
-    callback: (socket:websocket_client) => void;
+    callback: (socket:websocket_client, error?:node_error) => void;
     handler: websocket_message_handler;
     hash: string;
     headers: string[];

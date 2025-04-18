@@ -52,8 +52,8 @@ const core = function core(config:config_core):socket_object {
                         classy:string = element.getAttribute("class"),
                         classes:string[] = (classy === null)
                             ? []
-                            : classy.split(" ");
-                    if (classes.indexOf(className) > -1) {
+                            : classy.replace(/\s+/g, " ").split(" ");
+                    if (classes.includes(className) === true) {
                         return;
                     }
                     if (classes.length < 1) {

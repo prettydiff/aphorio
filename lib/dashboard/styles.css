@@ -149,7 +149,9 @@ label span.checked{background:var(--background_dark)}
 #dashboard select{display:block}
 #dashboard #servers li,
 #dashboard #compose li{border-color:var(--border_color);border-style:solid;border-width:0.1em}
-#connection-status{border-color:var(--border_color);border-style:solid;border-width:0.1em;padding:0.2em}
+#connection-status,
+#websocket-status{border-color:var(--border_color);border-style:solid;border-width:0.1em;padding:0.2em}
+#websocket-status{margin:-1.75em -1.75em 1em}
 #dashboard button{background:var(--background_button);border-color:var(--border_color);border-style:solid;border-radius:0;border-width:0.065em;font-size:1em;font-weight:bold;text-shadow:0.05em 0.05em var(--background_dark);width:10em}
 #dashboard button:hover{background:var(--border_input)}
 #dashboard button:hover:disabled{background:var(--background_button);color:var(--border_input);cursor:auto}
@@ -179,9 +181,11 @@ label span.checked{background:var(--background_dark)}
 #dashboard .compose-container-list .amber,
 #dashboard .server-list .amber{background:var(--status_amber)}
 #connection-status.connection-online,
+#websocket-status.connection-online,
 #dashboard .compose-container-list .green,
 #dashboard .server-list .green{background:var(--status_green)}
 #connection-status.connection-offline,
+#websocket-status.connection-offline,
 #dashboard .compose-container-list .red,
 #dashboard .server-list .red{background:var(--status_red)}
 #dashboard .edit .summary h5{font-size:1em;margin:0}
@@ -236,6 +240,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard .file-list{max-height:85em;overflow:scroll}
 #dashboard .file-list table{border-style:none}
 #dashboard textarea{height:35em;overflow:scroll}
+#dashboard #websocket textarea{height:15em}
 #dashboard .active-ports h5{font-size:1.2em}
 #dashboard .active-ports,
 #dashboard .edit .summary{background:var(--background);border-color:var(--border_input);border-style:solid;border-width:0.1em;margin:0 0 1em;padding:1em 0.5em}
