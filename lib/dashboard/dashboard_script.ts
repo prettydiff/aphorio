@@ -126,6 +126,9 @@ const dashboard = function dashboard():void {
                 if (terminal.socket !== null) {
                     terminal.socket.close();
                 }
+                websocket.nodes.handshake_status.value = "Disconnected.";
+                websocket.nodes.button_handshake.textContent = "Connect";
+                websocket.nodes.status.setAttribute("class", "connection-offline");
             }
         },
         sort_html = function dashboard_sortHTML(event:MouseEvent, table?:HTMLElement, heading_index?:number):void {
@@ -1068,7 +1071,7 @@ const dashboard = function dashboard():void {
                 http.nodes.stats[7].textContent = "";
             },
             response: function dashboard_httpResponse(data:services_http_test):void {
-                let req:string = http.nodes.request.value.replace(/\r\n/g, "\n").replace(/\r/g, "\n"),
+                const req:string = http.nodes.request.value.replace(/\r\n/g, "\n").replace(/\r/g, "\n"),
                     reqs:string[] = req.split("\n\n");
                 http.nodes.responseBody.value = data.body;
                 http.nodes.responseHeaders.value = data.headers;
@@ -2700,6 +2703,7 @@ const dashboard = function dashboard():void {
             socket: null
         },
         websocket:module_websocket = {
+            connected: false,
             handshake: function dashboard_websocketHandshake():void {
                 const handshakeString:string[] = [],
                     key:string = window.btoa((Math.random().toString() + Math.random().toString()).slice(2, 18));
@@ -2714,10 +2718,18 @@ const dashboard = function dashboard():void {
                 websocket.nodes.handshake.value = handshakeString.join("\n");
             },
             handshakeSend: function dashboard_webscketHandshakeSend():void {
-                const payload:services_websocket_handshake = {
-                    encryption: (websocket.nodes.handshake_scheme.checked === true),
-                    message: websocket.nodes.handshake.value.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\r\n/g, "\n").split("\n")
-                };
+                const timeout:number = Number(websocket.nodes.handshake_timeout.value),
+                    payload:services_websocket_handshake = {
+                        encryption: (websocket.nodes.handshake_scheme.checked === true),
+                        message: (websocket.connected === true)
+                            ? ["disconnect"]
+                            : websocket.nodes.handshake.value.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\r\n/g, "\n").split("\n"),
+                        timeout: (isNaN(timeout) === true)
+                            ? 0
+                            : timeout
+                    };
+                websocket.timeout = payload.timeout;
+                websocket.nodes.status.value = "";
                 message.send(payload, "dashboard-websocket-handshake");
             },
             init: function dashboard_websocketInit():void {
@@ -2729,26 +2741,41 @@ const dashboard = function dashboard():void {
                 handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
                 handshake_scheme: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
                 handshake_status: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
-                status: document.getElementById("websocket-status")
+                handshake_timeout: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
+                status: document.getElementById("websocket-status") as HTMLTextAreaElement
             },
             status: function dashboard_websocketStatus(data:services_websocket_status):void {
+                websocket.nodes.button_handshake.onclick = websocket.handshakeSend;
                 if (data.connected === true) {
-                    websocket.nodes.button_handshake.disabled = true;
+                    websocket.nodes.button_handshake.textContent = "Disconnect";
                     websocket.nodes.status.setAttribute("class", "connection-online");
+                    websocket.connected = true;
                 } else {
-                    websocket.nodes.button_handshake.disabled = false;
+                    websocket.nodes.button_handshake.textContent = "Connect";
                     websocket.nodes.status.setAttribute("class", "connection-offline");
+                    websocket.connected = false;
                 }
                 if (data.error === null) {
-                    websocket.nodes.handshake_status.value = "";
+                    if (data.connected === true) {
+                        websocket.nodes.handshake_status.value = "Connected.";
+                    } else {
+                        websocket.nodes.handshake_status.value = "Disconnected.";
+                    }
+                } else if (typeof data.error === "string") {
+                    websocket.nodes.handshake_status.value = data.error;
                 } else {
                     let error:string = JSON.stringify(data.error);
-                    if (data.error.code === "ECONNRESET") {
-                        error = `The server dropped the connection. Ensure the encryption options matches whether the server's port accepts encrypted traffic.\n\n${error}`;
+                    if (data.error.code === "ETIMEDOUT") {
+                        websocket.nodes.handshake_status.value = `WebSocket handshake exceeded the specified timeout of ${websocket.timeout} milliseconds.`;
+                    } else {
+                        if (typeof data.error !== "string" && data.error.code === "ECONNRESET") {
+                            error = `The server dropped the connection. Ensure the encryption options matches whether the server's port accepts encrypted traffic.\n\n${error}`;
+                        }
+                        websocket.nodes.handshake_status.value = error;
                     }
-                    websocket.nodes.handshake_status.value = error;
                 }
-            }
+            },
+            timeout: 0
         },
         socket:socket_object = core({
             close: function dashboard_socketClose():void {

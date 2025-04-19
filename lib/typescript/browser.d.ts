@@ -123,7 +123,7 @@ declare global {
             responseBody: HTMLTextAreaElement;
             responseHeaders: HTMLTextAreaElement;
             responseURI: HTMLTextAreaElement;
-            stats: HTMLCollectionOf<HTMLElement>
+            stats: HTMLCollectionOf<HTMLElement>;
             timeout: HTMLInputElement;
         };
         request: (event:MouseEvent) => void;
@@ -191,6 +191,7 @@ declare global {
     }
 
     interface module_websocket {
+        connected: boolean;
         handshake: () => void;
         handshakeSend: () => void;
         init: () => void;
@@ -199,9 +200,11 @@ declare global {
             handshake: HTMLTextAreaElement;
             handshake_scheme: HTMLInputElement;
             handshake_status: HTMLTextAreaElement;
-            status: HTMLElement;
+            handshake_timeout: HTMLInputElement;
+            status: HTMLTextAreaElement;
         };
         status: (data:services_websocket_status) => void;
+        timeout: number;
     }
 
     interface socket_object {

@@ -28,7 +28,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             send({
                 data: service,
                 service: "dashboard-fileSystem"
-            }, transmit.socket as websocket_client, 1);
+            }, transmit.socket as websocket_client, 3);
         },
         dirCallback = function services_fileSystem_dirCallback(dir:directory_list|string[]):void {
             const list:directory_list = dir as directory_list,

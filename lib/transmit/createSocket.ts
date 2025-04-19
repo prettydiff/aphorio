@@ -4,17 +4,20 @@ import node from "../utilities/node.js";
 import socket_extension from "./socketExtension.js";
 
 const create_socket = function transmit_createSocket(config:config_websocket_create):void {
-    let a:number = 0;
+    let a:number = 0,
+        startTime:bigint = null;
     const len:number = config.headers.length,
         client:websocket_client = (config.secure === true)
             ? node.tls.connect({
                 host: config.ip,
                 port: config.port,
+                timeout: config.timeout,
                 rejectUnauthorized: false
             }) as websocket_client
             : node.net.connect({
                 host: config.ip,
-                port: config.port
+                port: config.port,
+                timeout: config.timeout,
             }) as websocket_client,
         resource:string = (config.resource === null || config.resource === "" || config.resource === "/")
             ? "GET / HTTP/1.1"
@@ -45,14 +48,16 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     : "socket"
             });
             if (config.type === "websocket-test") {
-                config.callback(null, errorMessage);
+                config.callback(null, null, errorMessage);
             }
         },
         callbackReady = function transmit_createSocket_hash_ready():void {
             header.push("");
             header.push("");
             client.write(header.join("\r\n"));
+            startTime = process.hrtime.bigint();
             client.once("data", function transmit_createSocket_hash_ready_data():void {
+                startTime = process.hrtime.bigint() - startTime;
                 socket_extension({
                     callback: config.callback,
                     handler: config.handler,
@@ -62,9 +67,17 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     server: config.server,
                     socket: client,
                     temporary: false,
+                    timeout: startTime,
                     type: config.type
                 });
             });
+        },
+        callbackTimeout = function transmit_createSocket_hash_timeout():void {
+            const error:node_error = new Error("Socket handshake timedout.");
+            error.code = "ETIMEDOUT";
+            config.callback(null, null, error);
+            client.removeAllListeners("error");
+            client.removeAllListeners("ready");
         };
     if (config.ip === "") {
         // an empty string defaults to loopback, which creates an endless feedback loop
@@ -75,6 +88,9 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
             header.push(config.headers[a]);
             a = a + 1;
         } while (a < len);
+    }
+    if (config.timeout > 0) {
+        client.once("connectionAttemptTimeout", callbackTimeout);
     }
     client.once("error", callbackError);
     client.once("ready", callbackReady);

@@ -36,6 +36,7 @@ const http_connect:http_action = function http_connect(headerList:string[], sock
         resource: null,
         secure: (socket.encrypted === true),
         server: socket.server,
+        timeout: null,
         type: "http-proxy"
     });
 };

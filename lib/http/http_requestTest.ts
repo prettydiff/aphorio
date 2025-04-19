@@ -26,7 +26,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
             send({
                 data: output,
                 service: "dashboard-http"
-            }, transmit.socket as websocket_client, 1);
+            }, transmit.socket as websocket_client, 3);
             if (socket !== null) {
                 socket.destroy();
             }

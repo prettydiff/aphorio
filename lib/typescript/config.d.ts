@@ -73,7 +73,7 @@ interface config_validate_serverKeys {
 }
 
 interface config_websocket_create {
-    callback: (socket:websocket_client, error?:node_error) => void;
+    callback: (socket:websocket_client, timeout:bigint, error?:node_error) => void;
     handler: websocket_message_handler;
     hash: string;
     headers: string[];
@@ -83,11 +83,12 @@ interface config_websocket_create {
     resource: string;
     secure: boolean;
     server: string;
+    timeout: number;
     type: string;
 }
 
 interface config_websocket_extensions {
-    callback: (socket:websocket_client) => void;
+    callback: (socket:websocket_client, timeout:bigint) => void;
     handler: websocket_message_handler;
     identifier: string;
     proxy: websocket_client;
@@ -95,6 +96,7 @@ interface config_websocket_extensions {
     server: string;
     socket: websocket_client;
     temporary: boolean;
+    timeout: bigint;
     type: string;
 }
 

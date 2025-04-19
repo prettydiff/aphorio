@@ -140,8 +140,8 @@ declare global {
 
     interface services_http_test {
         body: string;
-        chunks: number;
         chunked: boolean;
+        chunks: number;
         encryption: boolean;
         headers: string;
         timeout: number;
@@ -214,11 +214,12 @@ declare global {
     interface services_websocket_handshake {
         encryption: boolean;
         message: string[];
+        timeout: number;
     }
 
     interface services_websocket_status {
         connected: boolean;
-        error: node_error;
+        error: node_error | string;
     }
 
     interface services_youtubeDownload {

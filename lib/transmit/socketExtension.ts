@@ -115,7 +115,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         config.socket.role = config.role;         // assigns socket creation location
         config.socket.type = config.type;         // a classification identifier to functionally identify a common utility of sockets on a given server
         if (config.callback !== null && config.callback !== undefined) {
-            config.callback(config.socket);
+            config.callback(config.socket, config.timeout);
         }
         log(log_config);
     }

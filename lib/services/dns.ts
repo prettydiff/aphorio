@@ -28,7 +28,7 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
                         send({
                             data: output,
                             service: "dashboard-dns"
-                        }, transmit.socket as websocket_client, 1);
+                        }, transmit.socket as websocket_client, 3);
                     }
                 }
             };

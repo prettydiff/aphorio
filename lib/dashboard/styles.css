@@ -240,7 +240,6 @@ label span.checked{background:var(--background_dark)}
 #dashboard .file-list{max-height:85em;overflow:scroll}
 #dashboard .file-list table{border-style:none}
 #dashboard textarea{height:35em;overflow:scroll}
-#dashboard #websocket textarea{height:15em}
 #dashboard .active-ports h5{font-size:1.2em}
 #dashboard .active-ports,
 #dashboard .edit .summary{background:var(--background);border-color:var(--border_input);border-style:solid;border-width:0.1em;margin:0 0 1em;padding:1em 0.5em}
@@ -271,7 +270,8 @@ label span.checked{background:var(--background_dark)}
 #dashboard .definition-body li{border-style:none;list-style:disc}
 #dashboard .http_response p{float:left;margin:0 2% 0 0;width:16%}
 #dashboard .http_response p.float-last{margin:0;width:64%}
-#dashboard textarea.test-input{height:20em}
+#dashboard #websocket .http_response p.float-last{width:82%}
+#dashboard textarea.test-input{height:15em}
 #dashboard .summary-stats span{display:inline-block;width:12em}
 #dashboard #file-system ul{margin:0 0 0 4em;padding:0}
 #dashboard .summary-stats .file-system-summary-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}

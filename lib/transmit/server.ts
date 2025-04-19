@@ -128,6 +128,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                     server: server_name,
                                     socket: socket,
                                     temporary: temporary,
+                                    timeout: null,
                                     type: "http"
                                 });
                             } else {
@@ -170,7 +171,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                                 send({
                                                     data: dashboard,
                                                     service: "dashboard-payload"
-                                                }, socket, 1);
+                                                }, socket, 3);
                                             }
                                         },
                                         terminalFlag:boolean = (server_name === "dashboard" && type.indexOf("dashboard-terminal-") === 0),
@@ -186,6 +187,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                         server: server_name,
                                         socket: socket,
                                         temporary: temporary,
+                                        timeout: null,
                                         type: type
                                     });
                                 };
@@ -262,6 +264,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 server: server_name,
                                 socket: socket,
                                 temporary: false,
+                                timeout: null,
                                 type: type
                             });
                             // proxy socket
@@ -274,6 +277,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 server: server_name,
                                 socket: proxy,
                                 temporary: false,
+                                timeout: null,
                                 type: type
                             });
                         };
