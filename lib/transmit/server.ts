@@ -176,7 +176,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                         },
                                         terminalFlag:boolean = (server_name === "dashboard" && type.indexOf("dashboard-terminal-") === 0),
                                         identifier:string = (terminalFlag === true)
-                                            ? server_name
+                                            ? `dashboard-terminal-${hashOutput.hash}`
                                             : `browserSocket-${hashOutput.hash}`;
                                     socket_extension({
                                         callback: client_respond,

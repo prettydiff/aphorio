@@ -192,17 +192,29 @@ declare global {
 
     interface module_websocket {
         connected: boolean;
+        frameBeautify: (target:"receive"|"send", value?:string) => void;
         handshake: () => void;
         handshakeSend: () => void;
         init: () => void;
+        keyup_frame: (event:Event) => void;
+        keyup_message: (event:KeyboardEvent) => void;
+        message_receive: (data:services_websocket_message) => void;
+        message_send: (event:MouseEvent) => void;
         nodes: {
             button_handshake: HTMLButtonElement;
+            button_send: HTMLButtonElement;
             handshake: HTMLTextAreaElement;
             handshake_scheme: HTMLInputElement;
             handshake_status: HTMLTextAreaElement;
             handshake_timeout: HTMLInputElement;
+            halt_receive: HTMLInputElement;
+            message_receive_body: HTMLTextAreaElement;
+            message_receive_frame: HTMLTextAreaElement;
+            message_send_body: HTMLTextAreaElement;
+            message_send_frame: HTMLTextAreaElement;
             status: HTMLTextAreaElement;
         };
+        parse_frame:() => websocket_frame;
         status: (data:services_websocket_status) => void;
         timeout: number;
     }

@@ -3,7 +3,6 @@ import log from "../utilities/log.js";
 import vars from "../utilities/vars.js";
 
 const socket_end = function transmit_socketEnd(socket_input:websocket_client, errorMessage?:node_error):void {
-    let index:number = 0;
     const socket:websocket_client = (typeof socket_input === "object")
             ? socket_input
             // eslint-disable-next-line no-restricted-syntax
@@ -30,7 +29,7 @@ const socket_end = function transmit_socketEnd(socket_input:websocket_client, er
                 type: "socket"
             },
         sockets:services_socket[] = vars.servers[socket.server].sockets;
-    index = sockets.length;
+    let index:number = sockets.length;
     if (index > 0) {
         do {
             index = index - 1;
@@ -51,7 +50,11 @@ const socket_end = function transmit_socketEnd(socket_input:websocket_client, er
     } while (index > 0);
     socket.destroy();
     if (socket.proxy !== null) {
-        socket.proxy.destroy();
+        if (socket.type === "websocket-test") {
+            socket.proxy.proxy = null;
+        } else {
+            socket.proxy.destroy();
+        }
     }
     log(log_config);
 };

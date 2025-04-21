@@ -129,6 +129,8 @@ const dashboard = function dashboard():void {
                 websocket.nodes.handshake_status.value = "Disconnected.";
                 websocket.nodes.button_handshake.textContent = "Connect";
                 websocket.nodes.status.setAttribute("class", "connection-offline");
+                websocket.nodes.message_receive_body.value = "";
+                websocket.nodes.message_receive_frame.value = "";
             }
         },
         sort_html = function dashboard_sortHTML(event:MouseEvent, table?:HTMLElement, heading_index?:number):void {
@@ -1330,6 +1332,8 @@ const dashboard = function dashboard():void {
                         http.response(message_item.data as services_http_test);
                     } else if (message_item.service === "dashboard-os") {
                         os.service(message_item.data as services_os);
+                    } else if (message_item.service === "dashboard-websocket-message") {
+                        websocket.message_receive(message_item.data as services_websocket_message);
                     } else if (message_item.service === "dashboard-websocket-status") {
                         websocket.status(message_item.data as services_websocket_status);
                     }
@@ -2663,9 +2667,7 @@ const dashboard = function dashboard():void {
                             : "secure",
                         scheme:"ws"|"wss" = (encryption === "open")
                             ? "ws"
-                            : "wss",
-                        id:string = `dashboard-terminal-${Math.random() + Date.now()}`;
-                    terminal.id = id;
+                            : "wss";
                     terminal.item = new Terminal({
                         cols: payload.terminal.cols,
                         cursorBlink: true,
@@ -2681,7 +2683,7 @@ const dashboard = function dashboard():void {
                     terminal.item.onKey(terminal.events.input);
                     terminal.item.write("Terminal emulator pending connection...\r\n");
                     // client-side terminal is ready, so alert the backend to initiate a pseudo-terminal
-                    terminal.socket = new WebSocket(`${scheme}://${location.host}`, [id]);
+                    terminal.socket = new WebSocket(`${scheme}://${location.host}`, ["dashboard-terminal"]);
                     terminal.socket.onmessage = terminal.events.firstData;
                     if (typeof navigator.clipboard === "undefined") {
                         const em:HTMLElement = document.getElementById("terminal").getElementsByClassName("tab-description")[0].getElementsByTagName("em")[0] as HTMLElement;
@@ -2704,6 +2706,16 @@ const dashboard = function dashboard():void {
         },
         websocket:module_websocket = {
             connected: false,
+            frameBeautify: function dashboard_websocketFrameBeautify(target:"receive"|"send", valueItem?:string):void {
+                const value:string = (valueItem === null || valueItem === undefined)
+                    ? websocket.nodes[`message_${target}_frame`].value
+                    : valueItem;
+                websocket.nodes[`message_${target}_frame`].value = value
+                    .replace("{", "{\n    ")
+                    .replace(/,/g, ",\n    ")
+                    .replace("}", "\n}")
+                    .replace(/:/g, ": ");
+            },
             handshake: function dashboard_websocketHandshake():void {
                 const handshakeString:string[] = [],
                     key:string = window.btoa((Math.random().toString() + Math.random().toString()).slice(2, 18));
@@ -2735,14 +2747,113 @@ const dashboard = function dashboard():void {
             init: function dashboard_websocketInit():void {
                 websocket.handshake();
                 websocket.nodes.button_handshake.onclick = websocket.handshakeSend;
+                websocket.nodes.button_send.onclick = websocket.message_send;
+                websocket.nodes.message_send_body.onkeyup = websocket.keyup_message;
+                websocket.nodes.message_send_frame.onblur = websocket.keyup_frame;
+            },
+            keyup_frame: function dashboard_websocketKeuUpFrame(event:Event):void {
+                const encodeLength:TextEncoder = new TextEncoder(),
+                    text:string = websocket.nodes.message_send_body.value,
+                    textLength:number = encodeLength.encode(text).length;
+                let frame:websocket_frame = null;
+                try {
+                    const frameTry:websocket_frame = websocket.parse_frame();
+                    frameTry.opcode = (isNaN(frameTry.opcode) === true)
+                        ? 1
+                        : Math.floor(frameTry.opcode);
+                    frame = {
+                        extended: 0,
+                        fin: (frameTry.fin === false)
+                            ? false
+                            : true,
+                        len: 0,
+                        mask: (frameTry.mask === true)
+                            ? true
+                            : false,
+                        maskKey: null,
+                        opcode: (frameTry.opcode > -1 && frameTry.opcode < 16)
+                            ? frameTry.opcode
+                            : 1,
+                        rsv1: (frameTry.rsv1 === true)
+                            ? true
+                            : false,
+                        rsv2: (frameTry.rsv2 === true)
+                            ? true
+                            : false,
+                        rsv3: (frameTry.rsv3 === true)
+                            ? true
+                            : false,
+                        startByte: 0
+                    };
+                } catch (e:unknown) {
+                    frame = {
+                        extended: 0,
+                        fin: true,
+                        len: 0,
+                        mask: false,
+                        maskKey: null,
+                        opcode: 1,
+                        rsv1: false,
+                        rsv2: false,
+                        rsv3: false,
+                        startByte: 0
+                    };
+                }
+                if (textLength < 126) {
+                    frame.extended = 0;
+                    frame.len = textLength;
+                    frame.startByte = 2;
+                } else if (textLength < 65536) {
+                    frame.extended = textLength;
+                    frame.len = 126;
+                    frame.startByte = 4;
+                } else {
+                    frame.extended = textLength;
+                    frame.len = 127;
+                    frame.startByte = 10;
+                }
+                if (frame.mask === true) {
+                    frame.startByte = frame.startByte + 4;
+                }
+                if ((event === null || event.target === websocket.nodes.message_send_frame) && frame.mask === true) {
+                    const encodeKey:TextEncoder = new TextEncoder;
+                    frame.maskKey = encodeKey.encode(window.btoa(Math.random().toString() + Math.random().toString() + Math.random().toString()).replace(/0\./g, "").slice(0, 32)) as Buffer;
+                }
+                websocket.frameBeautify("send", JSON.stringify(frame));
+            },
+            keyup_message: function dashboard_websocketKeyUpMessage(event:KeyboardEvent):void {
+                websocket.keyup_frame(event);
+            },
+            message_receive: function dashboard_websocketMessageReceive(data:services_websocket_message):void {
+                if (websocket.nodes.halt_receive.checked === false && websocket.nodes.message_receive_frame.value !== "") {
+                    websocket.nodes.message_receive_body.value = data.message;
+                    websocket.frameBeautify("receive", JSON.stringify(data.frame));
+                }
+            },
+            message_send: function dashboard_websocketMessageSend():void {
+                const payload:services_websocket_message = {
+                    frame: websocket.parse_frame(),
+                    message: websocket.nodes.message_send_body.value
+                };
+                message.send(payload, "dashboard-websocket-message");
+                websocket.keyup_frame(null);
             },
             nodes: {
                 button_handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
+                button_send: document.getElementById("websocket").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
                 handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
                 handshake_scheme: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
                 handshake_status: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
                 handshake_timeout: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
+                halt_receive: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
+                message_receive_body: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                message_receive_frame: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                message_send_body: document.getElementById("websocket").getElementsByClassName("form")[2].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                message_send_frame: document.getElementById("websocket").getElementsByClassName("form")[2].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
                 status: document.getElementById("websocket-status") as HTMLTextAreaElement
+            },
+            parse_frame: function dashboard_websocketParseFrame():websocket_frame {
+                return JSON.parse(websocket.nodes.message_send_frame.value.replace(/",\s+/g, "\",").replace(/\{\s+/, "{").replace(/\s+\}/, "}"));
             },
             status: function dashboard_websocketStatus(data:services_websocket_status):void {
                 websocket.nodes.button_handshake.onclick = websocket.handshakeSend;
@@ -2750,10 +2861,14 @@ const dashboard = function dashboard():void {
                     websocket.nodes.button_handshake.textContent = "Disconnect";
                     websocket.nodes.status.setAttribute("class", "connection-online");
                     websocket.connected = true;
+                    websocket.nodes.message_receive_body.value = "";
+                    websocket.nodes.message_receive_frame.value = "";
+                    websocket.nodes.button_send.disabled = false;
                 } else {
                     websocket.nodes.button_handshake.textContent = "Connect";
                     websocket.nodes.status.setAttribute("class", "connection-offline");
                     websocket.connected = false;
+                    websocket.nodes.button_send.disabled = true;
                 }
                 if (data.error === null) {
                     if (data.connected === true) {

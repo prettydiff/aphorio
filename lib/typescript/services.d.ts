@@ -217,6 +217,11 @@ declare global {
         timeout: number;
     }
 
+    interface services_websocket_message {
+        frame: websocket_frame;
+        message: string;
+    }
+
     interface services_websocket_status {
         connected: boolean;
         error: node_error | string;

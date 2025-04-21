@@ -24,9 +24,9 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
         isBuffer:boolean = (opcode === 2),
         stringBody:string = (isBuffer === true)
             ? null
-            : (opcode === 1)
-                ? body.toString()
-                : JSON.stringify(socketData);
+            : (opcode === 3)
+                ? JSON.stringify(socketData)
+                : body.toString();
     let dataPackage:Buffer = (isBuffer === true)
         ? body as Buffer
         : Buffer.from(stringBody);

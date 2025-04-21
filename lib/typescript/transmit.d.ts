@@ -47,7 +47,7 @@ interface transmit_receiver {
 }
 
 interface transmit_socket_messageHandler {
-    [key:string]: (data:Buffer) => void;
+    [key:string]: websocket_message_handler;
 }
 
 interface transmit_tlsOptions {
@@ -130,5 +130,5 @@ interface websocket_store {
 interface websocket_test {
     handler: websocket_message_handler;
     handshake: receiver;
-    socket: websocket_client;
+    message: receiver;
 }

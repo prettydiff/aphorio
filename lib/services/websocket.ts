@@ -4,7 +4,23 @@ import send from "../transmit/send.js";
 import vars from "../utilities/vars.js";
 
 const websocket_test:websocket_test = {
-    handler: function services_websocketTest_handler():void {},
+    handler: function services_websocketTest_handler(socket_test:websocket_client, resultBuffer:Buffer, frame:websocket_frame):void {
+        // from - websocket-test socket
+        // to   - dashboard socket
+        const decoder:node_stringDecoder_StringDecoder = new node.stringDecoder.StringDecoder("utf8"),
+            result:string = decoder.end(resultBuffer),
+            payload:services_websocket_message = {
+                frame: frame,
+                message: result
+            };
+        send({
+            data: payload,
+            service: "dashboard-websocket-message"
+        }, socket_test.proxy, 3);
+        if (frame.opcode === 8) {
+            socket_test.destroy();
+        }
+    },
     handshake: function services_websocketTest_handshake(socket_data:socket_data, transmit:transmit_socket):void {
         const data:services_websocket_handshake = socket_data.data as services_websocket_handshake,
             browser_socket:websocket_client = transmit.socket as websocket_client,
@@ -13,7 +29,7 @@ const websocket_test:websocket_test = {
         let index:number = data.message.length,
             host:string = "";
         if (data.message.length === 1 && data.message[0] === "disconnect") {
-            if (websocket_test.socket !== null) {
+            if (socket.proxy !== null) {
                 const message:services_websocket_status = {
                     connected: false,
                     error: null
@@ -22,8 +38,7 @@ const websocket_test:websocket_test = {
                     data: message,
                     service: "dashboard-websocket-status"
                 }, socket, 3);
-                websocket_test.socket.destroy();
-                websocket_test.socket = null;
+                socket.proxy.destroy();
             }
         } else {
             const config:config_websocket_create = {
@@ -34,7 +49,10 @@ const websocket_test:websocket_test = {
                                 ? `Connected in ${Number(timeout) /1e6} milliseconds.`
                                 : error
                         };
-                    websocket_test.socket = websocket;
+                    if (websocket !== null) {
+                        socket.proxy = websocket;
+                        websocket.proxy = socket;
+                    }
                     send({
                         data: message,
                         service: "dashboard-websocket-status"
@@ -96,7 +114,53 @@ const websocket_test:websocket_test = {
             create_socket(config);
         }
     },
-    socket: null
+    message: function services_websocketTest_message(socket_data:socket_data, transmit:transmit_socket):void {
+        // from - dashboard socket
+        // to   - websocket-test socket
+        const data:services_websocket_message = socket_data.data as services_websocket_message,
+            socket_dashboard:websocket_client = transmit.socket as websocket_client;
+        let frameHeader:Buffer = null,
+            headerSize:number = 2;
+        if (data.frame.opcode < 8) {
+            if (data.frame.len === 126) {
+                headerSize = headerSize + 2;
+            } else if (data.frame.len === 127) {
+                headerSize = headerSize + 8;
+            }
+        }
+        frameHeader = Buffer.alloc(headerSize);
+        if (data.frame.fin === true) {
+            frameHeader[0] = 128;
+        }
+        if (data.frame.rsv1 === true) {
+            frameHeader[0] = frameHeader[0] + 64;
+        }
+        if (data.frame.rsv2 === true) {
+            frameHeader[0] = frameHeader[0] + 32;
+        }
+        if (data.frame.rsv3 === true) {
+            frameHeader[0] = frameHeader[0] + 16;
+        }
+        frameHeader[0] = frameHeader[0] + data.frame.opcode;
+        frameHeader[1] = (data.frame.mask === true)
+            ? 128 + data.frame.len
+            : data.frame.len;
+        if (data.frame.opcode < 8) {
+            if (data.frame.len === 126) {
+                frameHeader.writeUInt16BE(data.frame.extended, 2);
+            } else if (data.frame.len === 127) {
+                frameHeader.writeUIntBE(data.frame.extended, 4, 6);
+            }
+            if (data.frame.mask === true) {
+                frameHeader = Buffer.concat([frameHeader, data.frame.maskKey, Buffer.from(data.message)]);
+            } else {
+                frameHeader = Buffer.concat([frameHeader, Buffer.from(data.message)]);
+            }
+        } else {
+            frameHeader = Buffer.concat([frameHeader, Buffer.from(data.message)]);
+        }
+        socket_dashboard.proxy.write(frameHeader);
+    }
 };
 
 export default websocket_test;

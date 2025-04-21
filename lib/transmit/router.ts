@@ -20,6 +20,7 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-http": http_request,
             "dashboard-server": servers,
             "dashboard-websocket-handshake": websocket_test.handshake,
+            "dashboard-websocket-message": websocket_test.message,
             "process-kill": process_kill,
             "youtube-download": youtube_download
         };

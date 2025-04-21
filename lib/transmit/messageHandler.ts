@@ -3,7 +3,7 @@ import node from "../utilities/node.js";
 import router from "./router.js";
 
 const message_handler:transmit_socket_messageHandler = {
-    default: function transmit_messageHandler(bufferData:Buffer):void {
+    default: function transmit_messageHandler(socket:websocket_client, bufferData:Buffer):void {
         const decoder:node_stringDecoder_StringDecoder = new node.stringDecoder.StringDecoder("utf8"),
             result:string = decoder.end(bufferData);
 

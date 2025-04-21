@@ -497,11 +497,12 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
             <div class="form">
-                <h3>Request Scheme</h3>
+                <h3>Request</h3>
+                <h4>Scheme</h4>
                 <p><label class="radio">Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
-                <h3>Request Timeout</h3>
+                <h4>Timeout</h4>
                 <p><label>Request timeout in miliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
-                <h3>Raw Request</h3>
+                <h4>Raw Request Text</h4>
                 <p><label>Complete raw HTTP request including header <textarea class="test-input" spellcheck="false"></textarea></label></p>
                 <p class="buttons"><button class="send_request">Send Request</button></p>
             </div>
@@ -728,19 +729,101 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="websocket">
             <h2>WebSocket Test</h2>
             <p class="tab-description">A tool to open and experiment with arbitrary WebSocket messaging.</p>
+            <div class="definitions">
+                <h3>WebSockets <button class="expand">Expand</button></h3>
+                <div class="definition-body">
+                    <p>WebSockets exist in two phases, a handshake phase to establish connection and then a messaging phase.</p>
+                    <div class="section">
+                        <h4>Handshake</h4>
+                        <p>The handshake phase resembles HTTP wherein a <a href="https://datatracker.ietf.org/doc/html/rfc2616">RFC 2616</a> request is sent from a client to a server.
+                            This request includes a vaguely random 32bit key compatible with BASE64 syntax.
+                            The request also allows for multiple points of identity, such as: a URI path, subprotocol names, and custom headers.</p>
+                        <p>Once the server receives the handshake request it responds with an algorithmic transform of the key provided by the request. The client then opens a persistent TCP socket to the server upon confirming the server's key transform.</p>
+                    </div>
+                    <div class="section">
+                        <h4>Messaging</h4>
+                        <p>Messaging occurs in binary form. A single message may be divided into mulitple transmissions called <em>frames</em>. Each frame is composed of a frame header of 2 to 14 bytes immediately followed by the frame message.</p>
+                        <p>Message in WebSockets is also full-duplex.  This means a single socket comprises two separate and fully independent communication channels allowing each side of the socket to send messages without waiting on the other side.</p>
+                        <p>This application represents frame headers using an object of type name <em>websocket_frame</em> that comprises these properties:</p>
+                        <dl>
+                            <dt>extended</dt> <dd>A number value storing the extended frame content length.</dd>
+                            <dt>fin</dt> <dd>A boolean value indicating whether the given frame is the final frame of a message.</dd>
+                            <dt>len</dt> <dd>A number value storing the abridged frame content length.</dd>
+                            <dt>mask</dt> <dd>A boolean value indicating whether the frame applies message masking.</dd>
+                            <dt>maskKey</dt> <dd>The 32 bit masking key used to unmask the frame body if the frame body were masked.</dd>
+                            <dt>opcode</dt> <dd>A number value determining frame function or message body format.</dd>
+                            <dt>rsv1</dt> <dd>A boolean value representing an optional bit flag that can be set for custom application preferences. This is not used by web browsers.</dd>
+                            <dt>rsv2</dt> <dd>Same as rsv1.</dd>
+                            <dt>rsv3</dt> <dd>Same as rsv1.</dd>
+                            <dt>startByte</dt> <dd>A number value only used internally by this application to indicate frame header length, and thus start position of the frame content body.</dd>
+                        </dl>
+                        <p>For frame content lengths of less than 126 bytes their lengths are literally represented in the <em>len</em> property of the frame header and then <em>extended</em> property recevies a value of 0.
+                            For frame content lengths greater than 125 bytes but less than 65,536 bytes the <em>len</em> property receives a value of 126 and the <em>extended</em> property stores the actualy frame content length occupying exactly 2 bytes of storage.
+                            For frame content lengths greater than 65,535 bytes the <em>len</em> property receives a value of 127 and the <em>extended</em> property stores the actual frame content length occupying exactly 8 bytes of storage.</p>
+                        <p>The opcode property stores a 2 byte integer, values of 0 to 15. The first half of values indicate message format and the second half of values indicate control frames.  The value definitions are as follows:</p>
+                        <dl>
+                            <dt>0</dt> <dd>A continuation frame, which is any frame after the first representing a emssage divided amongst multiple frames.</dd>
+                            <dt>1</dt> <dd>A text frame, which stores messages in a text compatible string format of unspecified string encoding.</dd>
+                            <dt>2</dt> <dd>A binary frame, which means the content comprises a binary buffer.</dd>
+                            <dt>3-7</dt> <dd>Reserved for future use.</dd>
+                            <dt>8</dt> <dd>A close control frame. This lets the remote end know the socket will immediately self-destruct.</dd>
+                            <dt>9</dt> <dd>A ping control frame. This provides heartbeat to the remote end.</dd>
+                            <dt>10</dt> <dd>A pong control frame, which is just a response to a ping frame.</dd>
+                            <dt>11-15</dt> <dd>Reserved for future use.</dd>
+                        </dl>
+                        <p>Opcode values in the <em>reserved for future use</em> category can be safely repurposed for custom application use so long as both sides of the socket agree on these custom definitions.</p>
+                        <p>In WebSockets messages cannot be intermingled.
+                            Each message must be sent serially in the order which the transmission buffer receives them.
+                            The WebSocket protocol does not specify a message queue, but I strongly recommend always including a message queue on each side of the socket.
+                            A message queue will ensure messages are not dropped if awaiting a prior message to finish transmission.</p>
+                    </div>
+                </div>
+            </div>
             <div class="form">
                 <p id="websocket-status" class="connection-offline">WebSocket Test socket: <strong>Offline</strong></p>
-                <h3>Socket Scheme</h3>
+                <h3>Socket Connection</h3>
+                <h4>Scheme</h4>
                 <p><label class="radio">Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label></p>
-                <h3>Handshake Timeout</h3>
+                <h4>Handshake Timeout</h4>
                 <p><label>Request timeout in miliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
-                <h3>Handshake Message</h3>
+                <h4>Raw Handshake Message</h4>
                 <div class="http_response">
                     <p><label>Handshake request messaging <textarea class="test-input" spellcheck="false"></textarea></label></p>
                     <p class="float-last"><label>Handshake error messaging <textarea class="test-input" readonly="true" spellcheck="false">Disconnected.</textarea></label></p>
                     <span class="clear"></span>
                 </div>
                 <p class="buttons"><button>Connect</button></p>
+            </div>
+            <div class="form">
+                <h3>Messaging</h3>
+                <div class="http_response">
+                    <div class="form">
+                        <h4>Send</h4>
+                        <p><label>Frame Header</label> <textarea spellcheck="false">{
+    "extended": 0,
+    "fin": false,
+    "len": 0,
+    "mask": false,
+    "maskKey": "",
+    "opcode": 1,
+    "rsv1": false,
+    "rsv2": false,
+    "rsv3": false,
+    "startByte": 0,
+}</textarea></p>
+                        <p class="float-last"><label>Message</label> <textarea spellcheck="false"></textarea></p>
+                        <span class="clear"></span>
+                        <p class="buttons"><button disabled="disabled">Send</button></p>
+                    </div>
+                    <div class="form">
+                        <h4>Receive</h4>
+                        <p><label>Frame Header</label> <textarea spellcheck="false"></textarea></p>
+                        <p class="float-last"><label>Message</label> <textarea spellcheck="false"></textarea></p>
+                        <span class="clear"></span>
+                        <p><label><input type="checkbox"/> Halt On Message</label></p>
+                    </div>
+                    <span class="clear"></span>
+                </div>
             </div>
         </div>
     </main>

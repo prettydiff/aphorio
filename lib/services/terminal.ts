@@ -30,7 +30,7 @@ const terminal = function services_terminal(socket:websocket_client):void {
             log(config);
             close();
         },
-        handler = function services_terminalShell_handler(data:Buffer):void {
+        handler = function services_terminalShell_handler(socket:websocket_client, data:Buffer):void {
             input = data.toString();
             pty.write(input);
         },
