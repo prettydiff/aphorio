@@ -281,7 +281,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard .definition-body li{border-style:none;list-style:disc}
 #dashboard .http_response p{float:left;margin:0 2% 0 0;width:16%}
 #dashboard .http_response p.float-last{margin:0;width:64%}
-#dashboard .http_response .form{float:left;margin:2em 0.5%;padding:2em 0.5%;width:47.9%}
+#dashboard .http_response .form{float:left;margin:2em 0.5%;padding:2em 0.5%;width:47.65%}
 #dashboard #websocket .http_response p.float-last{width:82%}
 #dashboard textarea.test-input{height:15em}
 #dashboard .summary-stats span{display:inline-block;width:12em}

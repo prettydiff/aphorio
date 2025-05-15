@@ -241,6 +241,8 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 callback = function transmit_server_connection_handshake_createProxy_callback():void {
                                     count = count + 1;
                                     if (count > 1) {
+                                        socket.proxy = proxy;
+                                        proxy.proxy = socket;
                                         proxy.pipe(socket);
                                         if (server.redirect_domain !== undefined && server.redirect_domain !== null && (server.redirect_domain[domain] !== undefined || (socket.encrypted === true && server.redirect_domain[`${domain}.secure`] !== undefined))) {
                                             socket.pipe(proxy);
@@ -259,7 +261,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 callback: callback,
                                 handler: null,
                                 identifier: `${domain}-${now}`,
-                                proxy: proxy,
+                                proxy: null,
                                 role: "server",
                                 server: server_name,
                                 socket: socket,
@@ -272,7 +274,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 callback: callback,
                                 handler: null,
                                 identifier: `${domain}-${now}-proxy`,
-                                proxy: socket,
+                                proxy: null,
                                 role: "client",
                                 server: server_name,
                                 socket: proxy,

@@ -49,7 +49,7 @@ const socket_end = function transmit_socketEnd(socket_input:websocket_client, er
         }
     } while (index > 0);
     socket.destroy();
-    if (socket.proxy !== null) {
+    if (socket.proxy !== null && socket.proxy !== undefined) {
         if (socket.type === "websocket-test") {
             socket.proxy.proxy = null;
         } else {

@@ -203,11 +203,11 @@ declare global {
         nodes: {
             button_handshake: HTMLButtonElement;
             button_send: HTMLButtonElement;
+            halt_receive: HTMLInputElement;
             handshake: HTMLTextAreaElement;
             handshake_scheme: HTMLInputElement;
             handshake_status: HTMLTextAreaElement;
             handshake_timeout: HTMLInputElement;
-            halt_receive: HTMLInputElement;
             message_receive_body: HTMLTextAreaElement;
             message_receive_frame: HTMLTextAreaElement;
             message_send_body: HTMLTextAreaElement;

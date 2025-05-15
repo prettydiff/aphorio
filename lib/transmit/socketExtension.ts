@@ -70,6 +70,10 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             };
         vars.server_meta[config.server].sockets[encryption].push(config.socket);
         vars.servers[config.server].sockets.push(socket);
+        config.socket.server = config.server;     // identifies which local server the given socket is connected to
+        config.socket.hash = config.identifier;   // assigns a unique identifier to the socket based upon the socket's credentials
+        config.socket.role = config.role;         // assigns socket creation location
+        config.socket.type = config.type;         // a classification identifier to functionally identify a common utility of sockets on a given server
         if (config.proxy === null) {
             config.socket.handler = (config.handler === message_handler.default)
                 ? (message_handler[config.server] === undefined)
@@ -111,13 +115,14 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             config.socket.on("error", socketError);
         }
         if (config.type !== "http") {
-            config.socket.setKeepAlive(true, 0);      // standard method to retain socket against timeouts from inactivity until a close frame comes in
-            config.socket.proxy = config.proxy;       // stores the relationship between two sockets when they are piped as a proxy
+            config.socket.setKeepAlive(true, 0);   // standard method to retain socket against timeouts from inactivity until a close frame comes in
+            if (config.proxy !== null && config.proxy !== undefined) {
+                config.socket.proxy = config.proxy; // stores the relationship between two sockets when they are piped as a proxy
+                config.proxy.proxy = config.socket; // adds the relationship to the proxy socket as well
+                config.socket.pipe(config.proxy);
+                config.proxy.pipe(config.socket);
+            }
         }
-        config.socket.server = config.server;     // identifies which local server the given socket is connected to
-        config.socket.hash = config.identifier;   // assigns a unique identifier to the socket based upon the socket's credentials
-        config.socket.role = config.role;         // assigns socket creation location
-        config.socket.type = config.type;         // a classification identifier to functionally identify a common utility of sockets on a given server
         if (config.callback !== null && config.callback !== undefined) {
             config.callback(config.socket, config.timeout);
         }

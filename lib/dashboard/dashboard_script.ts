@@ -2704,6 +2704,7 @@ const dashboard = function dashboard():void {
             },
             socket: null
         },
+        // websocket tester
         websocket:module_websocket = {
             connected: false,
             frameBeautify: function dashboard_websocketFrameBeautify(target:"receive"|"send", valueItem?:string):void {
@@ -2756,6 +2757,7 @@ const dashboard = function dashboard():void {
                     text:string = websocket.nodes.message_send_body.value,
                     textLength:number = encodeLength.encode(text).length;
                 let frame:websocket_frame = null;
+                // eslint-disable-next-line no-restricted-syntax
                 try {
                     const frameTry:websocket_frame = websocket.parse_frame();
                     frameTry.opcode = (isNaN(frameTry.opcode) === true)
@@ -2785,7 +2787,7 @@ const dashboard = function dashboard():void {
                             : false,
                         startByte: 0
                     };
-                } catch (e:unknown) {
+                } catch {
                     frame = {
                         extended: 0,
                         fin: true,
@@ -2825,7 +2827,7 @@ const dashboard = function dashboard():void {
                 websocket.keyup_frame(event);
             },
             message_receive: function dashboard_websocketMessageReceive(data:services_websocket_message):void {
-                if (websocket.nodes.halt_receive.checked === false && websocket.nodes.message_receive_frame.value !== "") {
+                if ((websocket.nodes.halt_receive.checked === true && websocket.nodes.message_receive_frame.value !== "") || websocket.nodes.halt_receive.checked === false) {
                     websocket.nodes.message_receive_body.value = data.message;
                     websocket.frameBeautify("receive", JSON.stringify(data.frame));
                 }
@@ -2841,11 +2843,11 @@ const dashboard = function dashboard():void {
             nodes: {
                 button_handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
                 button_send: document.getElementById("websocket").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
+                halt_receive: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
                 handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
                 handshake_scheme: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
                 handshake_status: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
                 handshake_timeout: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
-                halt_receive: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
                 message_receive_body: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
                 message_receive_frame: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
                 message_send_body: document.getElementById("websocket").getElementsByClassName("form")[2].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,

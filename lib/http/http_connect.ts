@@ -10,19 +10,9 @@ const http_connect:http_action = function http_connect(headerList:string[], sock
             : "",
         ip:string = (portString === "")
             ? destination
-            : destination.split(`:${portString}`)[0],
-        callback = function http_connect_callback(proxy:websocket_client):void {
-            const close = function http_connect_callback_close():void {
-                proxy.destroy();
-                socket.destroy();
-            };
-            proxy.pipe(socket);
-            socket.pipe(proxy);
-            proxy.on("close", close);
-            socket.on("close", close);
-        };
+            : destination.split(`:${portString}`)[0];
     create_socket({
-        callback: callback,
+        callback: null,
         handler: null,
         hash: `${socket.server}-connect-${process.hrtime.bigint().toString()}`,
         ip: ip,

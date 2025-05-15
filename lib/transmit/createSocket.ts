@@ -4,10 +4,8 @@ import node from "../utilities/node.js";
 import socket_extension from "./socketExtension.js";
 
 const create_socket = function transmit_createSocket(config:config_websocket_create):void {
-    let a:number = 0,
-        startTime:bigint = null;
-    const len:number = config.headers.length,
-        client:websocket_client = (config.secure === true)
+    let startTime:bigint = null;
+    const client:websocket_client = (config.secure === true)
             ? node.tls.connect({
                 host: config.ip,
                 port: config.port,
@@ -56,7 +54,14 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
             header.push("");
             client.write(header.join("\r\n"));
             startTime = process.hrtime.bigint();
-            client.once("data", function transmit_createSocket_hash_ready_data():void {
+            client.once("data", function transmit_createSocket_hash_ready_data(responseData:Buffer):void {
+                const response:string = responseData.toString();
+                if ((/^HTTP\/1.1 (4|5)\d{2}/).test(response) === true) {
+                    let status:string = response.slice(response.indexOf(" ") + 1);
+                    status = status.slice(0, status.indexOf(" "));
+                    callbackError(new Error(`Remote server returned an HTTP response with status code ${status}.`));
+                    return null;
+                }
                 startTime = process.hrtime.bigint() - startTime;
                 socket_extension({
                     callback: config.callback,
@@ -82,12 +87,6 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
     if (config.ip === "") {
         // an empty string defaults to loopback, which creates an endless feedback loop
         return;
-    }
-    if (len > 0) {
-        do {
-            header.push(config.headers[a]);
-            a = a + 1;
-        } while (a < len);
     }
     if (config.timeout > 0) {
         client.once("connectionAttemptTimeout", callbackTimeout);
