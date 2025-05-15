@@ -17,7 +17,7 @@ const process_kill = function services_processKill(socketData:socket_data, trans
         send({
             data: message,
             service: "youtube-download-status"
-        }, transmit.socket as websocket_client, 1);
+        }, transmit.socket as websocket_client, 3);
     } else {
         vars.processes[data.process].kill("SIGKILL");
         if (process.platform === "win32") {
@@ -28,7 +28,7 @@ const process_kill = function services_processKill(socketData:socket_data, trans
         send({
             data: message,
             service: "youtube-download-status"
-        }, transmit.socket as websocket_client, 1);
+        }, transmit.socket as websocket_client, 3);
     }
 };
 

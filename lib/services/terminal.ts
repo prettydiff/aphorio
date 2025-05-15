@@ -30,12 +30,12 @@ const terminal = function services_terminal(socket:websocket_client):void {
             log(config);
             close();
         },
-        handler = function services_terminalShell_handler(data:Buffer):void {
+        handler = function services_terminalShell_handler(socket:websocket_client, data:Buffer):void {
             input = data.toString();
             pty.write(input);
         },
         out = function services_terminalShell_out(output:string):void {
-            send(output, socket, 3);
+            send(output, socket, 1);
         },
         address:transmit_addresses_socket = get_address({
             socket: socket,
@@ -49,7 +49,7 @@ const terminal = function services_terminal(socket:websocket_client):void {
         };
     let input:string = null;
     socket.handler = handler;
-    send(JSON.stringify(identifiers), socket, 3);
+    send(JSON.stringify(identifiers), socket, 1);
     pty.onData(out);
     pty.onExit(close);
     socket.on("close", close);

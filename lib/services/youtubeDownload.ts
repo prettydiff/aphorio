@@ -20,7 +20,7 @@ const youtube_download = function services_youtubeDownload(socketData:socket_dat
                     time: humanTime(startTime)
                 },
                 service: "youtube-download-status"
-            }, socket, 1);
+            }, socket, 3);
         },
         spawnOpts:node_childProcess_SpawnOptions = {
             cwd: vars.path.project,

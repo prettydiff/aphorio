@@ -89,6 +89,7 @@ startup(function index():void {
 
     if (process.argv.includes("yt_config") === true) {
         yt_config(process.argv[process.argv.indexOf("yt_config") + 1], function index_ytConfig(dest:string):void {
+            // eslint-disable-next-line no-console
             console.log(`Configs written to ${dest}.`);
             process.exit(0);
         });

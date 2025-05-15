@@ -25,8 +25,8 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
         stringBody:string = (isBuffer === true)
             ? null
             : (opcode === 3)
-                ? body.toString()
-                : JSON.stringify(socketData);
+                ? JSON.stringify(socketData)
+                : body.toString();
     let dataPackage:Buffer = (isBuffer === true)
         ? body as Buffer
         : Buffer.from(stringBody);
@@ -36,9 +36,9 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
     // OPCODES
     // ## Messages
     // 0 - continuation - fragments of a message payload following an initial fragment
-    // 1 - socket_data object (normally a text string)
+    // 1 - text string
     // 2 - binary message
-    // 3 - in this application 3 means raw string, but officially it is reserved for future use
+    // 3 - socketData, the internal message object format, but normally reserved for future use
     // 4-7 - officially (reserved for future use)
     //
     // ## Control Frames

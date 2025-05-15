@@ -126,6 +126,11 @@ const dashboard = function dashboard():void {
                 if (terminal.socket !== null) {
                     terminal.socket.close();
                 }
+                websocket.nodes.handshake_status.value = "Disconnected.";
+                websocket.nodes.button_handshake.textContent = "Connect";
+                websocket.nodes.status.setAttribute("class", "connection-offline");
+                websocket.nodes.message_receive_body.value = "";
+                websocket.nodes.message_receive_frame.value = "";
             }
         },
         sort_html = function dashboard_sortHTML(event:MouseEvent, table?:HTMLElement, heading_index?:number):void {
@@ -214,6 +219,232 @@ const dashboard = function dashboard():void {
                 } while (index_tr < tr_length);
                 tbody_old.parentNode.appendChild(tbody_new);
                 tbody_old.parentNode.removeChild(tbody_old);
+            }
+        },
+        init = function dashboard_init(data_item:socket_data):void {
+            if (loaded === false) {
+                payload = data_item.data as transmit_dashboard;
+                // populate log data
+                payload.logs.forEach(function dashboard_messageReceiver_logsEach(item:services_dashboard_status):void {
+                    log(item);
+                });
+                loaded = true;
+                log({
+                    action: "activate",
+                    configuration: null,
+                    message: "Dashboard browser connection online.",
+                    status: "informational",
+                    time: Date.now(),
+                    type: "log"
+                });
+                // populate docker containers
+                compose.init();
+                // assign the dns events
+                dns.init();
+                // generate file system output
+                fileSystem.init();
+                // populate the hash tool
+                hash.init();
+                // populate the http content
+                http.init();
+                // populate the OS content
+                os.init();
+                // populate port data
+                ports.init(payload.ports);
+                // populate server list
+                server.list();
+                // start the terminal
+                terminal.init();
+                // populate the websocket test tool
+                websocket.init();
+            }
+        },
+        status = function dashboard_status(data_item:socket_data) {
+            const data:services_dashboard_status = data_item.data as services_dashboard_status,
+                socket_destroy = function dashboard_messageReceiver_socketDestroy(hash:string):void {
+                    const tbody:HTMLElement = document.getElementById("sockets").getElementsByTagName("tbody")[0],
+                        tr:HTMLCollectionOf<HTMLElement> = tbody.getElementsByTagName("tr");
+                    let index:number = tr.length;
+                    if (index > 0) {
+                        do {
+                            index = index - 1;
+                            if (tr[index].getElementsByTagName("td")[1].textContent === hash || (hash === "dashboard" && tr[index].getElementsByTagName("td")[2].textContent === "dashboard")) {
+                                tbody.removeChild(tr[index]);
+                                return;
+                            }
+                        } while (index > 0);
+                    }
+                };
+            if (data.type !== "port" && data.type !== "socket" && data.message !== "Container status refreshed.") {
+                log(data);
+            }
+            if (data.status === "error") {
+                if (data.type === "socket") {
+                    const config:services_socket = data.configuration as services_socket;
+                    if (config !== null) {
+                        socket_destroy(config.hash);
+                    }
+                }
+            } else {
+                if (data.type === "server") {
+                    const config:services_server = data.configuration as services_server,
+                        list:HTMLCollectionOf<HTMLElement> = document.getElementById("servers").getElementsByTagName("li");
+                    let index:number = list.length;
+                    if (data.action === "destroy") {
+                        delete payload.servers[config.name];
+                        do {
+                            index = index - 1;
+                            if (list[index].getAttribute("data-name") === config.name) {
+                                list[index].parentNode.removeChild(list[index]);
+                                return;
+                            }
+                        } while (index > 0);
+                    } else if (data.action === "add" && payload.servers[config.name] === undefined) {
+                        payload.servers[config.name] = {
+                            config: config,
+                            sockets: [],
+                            status: {
+                                open: 0,
+                                secure: 0
+                            }
+                        };
+                        const names:string[] = Object.keys(payload.servers),
+                            ul_current:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
+                            ul:HTMLElement = (ul_current === undefined)
+                                ? document.createElement("ul")
+                                : ul_current;
+                        payload.servers[config.name].status = {
+                            open: 0,
+                            secure: 0
+                        };
+                        names.sort(function dashboard_serverList_sort(a:string, b:string):-1|1 {
+                            if (a < b) {
+                                return -1;
+                            }
+                            return 1;
+                        });
+                        index = names.length;
+                        if (names[names.length - 1] === config.name) {
+                            ul.appendChild(service_items.title(config.name, "server"));
+                        } else if (names[0] === config.name) {
+                            ul.insertBefore(service_items.title(config.name, "server"), ul.firstChild);
+                        } else {
+                            do {
+                                index = index - 1;
+                                if (names[index] === config.name) {
+                                    ul.insertBefore(service_items.title(config.name, "server"), ul.childNodes[index - 1]);
+                                    break;
+                                }
+                            } while (index > 0);
+                        }
+                    } else if (data.action === "activate") {
+                        payload.servers[config.name].status = config.ports;
+                        const color:type_activation_status = service_items.color(config.name, "server");
+                        let oldPorts:HTMLElement = null,
+                            activate:HTMLButtonElement = null,
+                            deactivate:HTMLButtonElement = null;
+                        do {
+                            index = index - 1;
+                            if (list[index].getAttribute("data-name") === config.name) {
+                                if (color[0] !== null) {
+                                    list[index].setAttribute("class", color[0]);
+                                }
+                                list[index].getElementsByTagName("h4")[0].getElementsByTagName("button")[0].lastChild.textContent = `${config.name} - ${color[1]}`;
+                                oldPorts = list[index].getElementsByClassName("active-ports")[0] as HTMLElement;
+                                activate = list[index].getElementsByClassName("server-activate")[0] as HTMLButtonElement;
+                                deactivate = list[index].getElementsByClassName("server-deactivate")[0] as HTMLButtonElement;
+                                if (oldPorts !== undefined) {
+                                    oldPorts.parentNode.insertBefore(server.activePorts(config.name), oldPorts);
+                                    oldPorts.parentNode.removeChild(oldPorts);
+                                }
+                                if (activate !== undefined) {
+                                    if (color[0] === "green") {
+                                        activate.disabled = true;
+                                    } else {
+                                        activate.disabled = false;
+                                    }
+                                }
+                                if (deactivate !== undefined) {
+                                    if (color[0] === "red") {
+                                        deactivate.disabled = true;
+                                    } else {
+                                        deactivate.disabled = false;
+                                    }
+                                }
+                                break;
+                            }
+                        } while (index > 0);
+                    } else if (data.action === "deactivate") {
+                        payload.servers[config.name].status = {
+                            open: 0,
+                            secure: 0
+                        };
+                        let oldPorts:HTMLElement = null,
+                            activate:HTMLButtonElement = null,
+                            deactivate:HTMLButtonElement = null;
+                        do {
+                            index = index - 1;
+                            if (list[index].getAttribute("data-name") === config.name) {
+                                list[index].setAttribute("class", "red");
+                                list[index].getElementsByTagName("h4")[0].getElementsByTagName("button")[0].lastChild.textContent = `${config.name} - offline`;
+                                oldPorts = list[index].getElementsByClassName("active-ports")[0] as HTMLElement;
+                                activate = list[index].getElementsByClassName("server-activate")[0] as HTMLButtonElement;
+                                deactivate = list[index].getElementsByClassName("server-deactivate")[0] as HTMLButtonElement;
+                                if (oldPorts !== undefined) {
+                                    oldPorts.parentNode.insertBefore(server.activePorts(config.name), oldPorts);
+                                    oldPorts.parentNode.removeChild(oldPorts);
+                                }
+                                if (activate !== undefined) {
+                                    activate.disabled = false;
+                                }
+                                if (deactivate !== undefined) {
+                                    deactivate.disabled = true;
+                                }
+                                break;
+                            }
+                        } while (index > 0);
+                    } else if (data.action === "modify") {
+                        const list:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
+                            items:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li");
+                        let index:number = items.length;
+                        payload.servers[config.name].config = config;
+                        if (index > 0) {
+                            do {
+                                index = index - 1;
+                                if (items[index].getAttribute("data-name") === config.name) {
+                                    list.insertBefore(service_items.title(config.name, "server"), items[index]);
+                                    list.removeChild(items[index]);
+                                    break;
+                                }
+                            } while (index > 0);
+                        }
+                    }
+                    ports.internal();
+                } else if (data.type === "socket") {
+                    const config:services_socket = data.configuration as services_socket;
+                    if (data.action === "add") {
+                        socket_destroy(config.hash);
+                        server.socket_add(config);
+                    } else if (data.action === "destroy") {
+                        socket_destroy(config.hash);
+                    }
+                    if (payload !== null) {
+                        ports.internal();
+                    }
+                } else if (data.type === "port") {
+                    ports.external(data.configuration as external_ports);
+                } else if (data.type === "compose-containers") {
+                    if (data.action === "destroy") {
+                        compose.destroyContainer(data.configuration as services_docker_compose);
+                    } else {
+                        compose.container(data.configuration as services_docker_compose);
+                    }
+                    ports.internal();
+                } else if (data.type === "compose-variables") {
+                    const store:store_string = data.configuration as store_string;
+                    payload.compose.variables = store;
+                    compose.list("variables");
+                }
             }
         },
         compose:module_compose = {
@@ -610,8 +841,9 @@ const dashboard = function dashboard():void {
                 message.send(payload, "dashboard-dns");
                 dns.nodes.output.value = "";
             },
-            response: function dashboard_dnsResponse(result:services_dns_output):void {
-                const hosts:string[] = Object.keys(result),
+            response: function dashboard_dnsResponse(data_item:socket_data):void {
+                const result:services_dns_output = data_item.data as services_dns_output,
+                    hosts:string[] = Object.keys(result),
                     len_hosts:number = hosts.length;
                 if (len_hosts > 0) {
                     const output:string[] = ["{"],
@@ -772,8 +1004,9 @@ const dashboard = function dashboard():void {
                 search: document.getElementById("file-system").getElementsByTagName("input")[1],
                 summary: document.getElementById("file-system").getElementsByClassName("summary-stats")[0] as HTMLElement
             },
-            receive: function dashboard_fileSystemReceive(fs:services_fileSystem):void {
-                const len:number = fs.dirs.length,
+            receive: function dashboard_fileSystemReceive(data_item:socket_data):void {
+                const fs:services_fileSystem = data_item.data as services_fileSystem,
+                    len:number = fs.dirs.length,
                     len_fail:number = fs.failures.length,
                     fails:HTMLElement = (len_fail > 0 && fs.dirs[0][1] === "directory")
                         ? document.createElement("ul")
@@ -1015,7 +1248,8 @@ const dashboard = function dashboard():void {
                 setState();
                 message.send(service, "dashboard-hash");
             },
-            response: function dashboard_hashResponse(data:services_hash):void {
+            response: function dashboard_hashResponse(data_item:socket_data):void {
+                const data:services_hash = data_item.data as services_hash;
                 hash.nodes.output.value = data.value;
                 hash.nodes.size.textContent = commas(data.size);
             }
@@ -1067,8 +1301,9 @@ const dashboard = function dashboard():void {
                 http.nodes.stats[6].textContent = "";
                 http.nodes.stats[7].textContent = "";
             },
-            response: function dashboard_httpResponse(data:services_http_test):void {
-                let req:string = http.nodes.request.value.replace(/\r\n/g, "\n").replace(/\r/g, "\n"),
+            response: function dashboard_httpResponse(data_item:socket_data):void {
+                const data:services_http_test = data_item.data as services_http_test,
+                    req:string = http.nodes.request.value.replace(/\r\n/g, "\n").replace(/\r/g, "\n"),
                     reqs:string[] = req.split("\n\n");
                 http.nodes.responseBody.value = data.body;
                 http.nodes.responseHeaders.value = data.headers;
@@ -1092,240 +1327,19 @@ const dashboard = function dashboard():void {
         message:module_message = {
             receiver: function dashboard_messageReceiver(event:websocket_event):void {
                 if (typeof event.data === "string") {
-                    const message_item:socket_data = JSON.parse(event.data);
-                    if (message_item.service === "dashboard-payload" && loaded === false) {
-                        payload = message_item.data as transmit_dashboard;
-                        // populate log data
-                        payload.logs.forEach(function dashboard_messageReceiver_logsEach(item:services_dashboard_status):void {
-                            log(item);
-                        });
-                        if (loaded === false) {
-                            loaded = true;
-                            log({
-                                action: "activate",
-                                configuration: null,
-                                message: "Dashboard browser connection online.",
-                                status: "informational",
-                                time: Date.now(),
-                                type: "log"
-                            });
-                        }
-                        // populate docker containers
-                        compose.init();
-                        // assign the dns events
-                        dns.init();
-                        // generate file system output
-                        fileSystem.init();
-                        // populate the hash tool
-                        hash.init();
-                        // populate the http content
-                        http.init();
-                        // populate the OS content
-                        os.init();
-                        // populate port data
-                        ports.init(payload.ports);
-                        // populate server list
-                        server.list();
-                        // start the terminal
-                        terminal.init();
-                    } else if (message_item.service === "dashboard-status") {
-                        const data:services_dashboard_status = message_item.data as services_dashboard_status,
-                            socket_destroy = function dashboard_messageReceiver_socketDestroy(hash:string):void {
-                                const tbody:HTMLElement = document.getElementById("sockets").getElementsByTagName("tbody")[0],
-                                    tr:HTMLCollectionOf<HTMLElement> = tbody.getElementsByTagName("tr");
-                                let index:number = tr.length;
-                                if (index > 0) {
-                                    do {
-                                        index = index - 1;
-                                        if (tr[index].getElementsByTagName("td")[1].textContent === hash || (hash === "dashboard" && tr[index].getElementsByTagName("td")[2].textContent === "dashboard")) {
-                                            tbody.removeChild(tr[index]);
-                                            return;
-                                        }
-                                    } while (index > 0);
-                                }
-                            };
-                        if (data.type !== "port" && data.type !== "socket" && data.message !== "Container status refreshed.") {
-                            log(data);
-                        }
-                        if (data.status === "error") {
-                            if (data.type === "socket") {
-                                const config:services_socket = data.configuration as services_socket;
-                                if (config !== null) {
-                                    socket_destroy(config.hash);
-                                }
-                            }
-                        } else {
-                            if (data.type === "server") {
-                                const config:services_server = data.configuration as services_server,
-                                    list:HTMLCollectionOf<HTMLElement> = document.getElementById("servers").getElementsByTagName("li");
-                                let index:number = list.length;
-                                if (data.action === "destroy") {
-                                    delete payload.servers[config.name];
-                                    do {
-                                        index = index - 1;
-                                        if (list[index].getAttribute("data-name") === config.name) {
-                                            list[index].parentNode.removeChild(list[index]);
-                                            return;
-                                        }
-                                    } while (index > 0);
-                                } else if (data.action === "add" && payload.servers[config.name] === undefined) {
-                                    payload.servers[config.name] = {
-                                        config: config,
-                                        sockets: [],
-                                        status: {
-                                            open: 0,
-                                            secure: 0
-                                        }
-                                    };
-                                    const names:string[] = Object.keys(payload.servers),
-                                        ul_current:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
-                                        ul:HTMLElement = (ul_current === undefined)
-                                            ? document.createElement("ul")
-                                            : ul_current;
-                                    payload.servers[config.name].status = {
-                                        open: 0,
-                                        secure: 0
-                                    };
-                                    names.sort(function dashboard_serverList_sort(a:string, b:string):-1|1 {
-                                        if (a < b) {
-                                            return -1;
-                                        }
-                                        return 1;
-                                    });
-                                    index = names.length;
-                                    if (names[names.length - 1] === config.name) {
-                                        ul.appendChild(service_items.title(config.name, "server"));
-                                    } else if (names[0] === config.name) {
-                                        ul.insertBefore(service_items.title(config.name, "server"), ul.firstChild);
-                                    } else {
-                                        do {
-                                            index = index - 1;
-                                            if (names[index] === config.name) {
-                                                ul.insertBefore(service_items.title(config.name, "server"), ul.childNodes[index - 1]);
-                                                break;
-                                            }
-                                        } while (index > 0);
-                                    }
-                                } else if (data.action === "activate") {
-                                    payload.servers[config.name].status = config.ports;
-                                    const color:type_activation_status = service_items.color(config.name, "server");
-                                    let oldPorts:HTMLElement = null,
-                                        activate:HTMLButtonElement = null,
-                                        deactivate:HTMLButtonElement = null;
-                                    do {
-                                        index = index - 1;
-                                        if (list[index].getAttribute("data-name") === config.name) {
-                                            if (color[0] !== null) {
-                                                list[index].setAttribute("class", color[0]);
-                                            }
-                                            list[index].getElementsByTagName("h4")[0].getElementsByTagName("button")[0].lastChild.textContent = `${config.name} - ${color[1]}`;
-                                            oldPorts = list[index].getElementsByClassName("active-ports")[0] as HTMLElement;
-                                            activate = list[index].getElementsByClassName("server-activate")[0] as HTMLButtonElement;
-                                            deactivate = list[index].getElementsByClassName("server-deactivate")[0] as HTMLButtonElement;
-                                            if (oldPorts !== undefined) {
-                                                oldPorts.parentNode.insertBefore(server.activePorts(config.name), oldPorts);
-                                                oldPorts.parentNode.removeChild(oldPorts);
-                                            }
-                                            if (activate !== undefined) {
-                                                if (color[0] === "green") {
-                                                    activate.disabled = true;
-                                                } else {
-                                                    activate.disabled = false;
-                                                }
-                                            }
-                                            if (deactivate !== undefined) {
-                                                if (color[0] === "red") {
-                                                    deactivate.disabled = true;
-                                                } else {
-                                                    deactivate.disabled = false;
-                                                }
-                                            }
-                                            break;
-                                        }
-                                    } while (index > 0);
-                                } else if (data.action === "deactivate") {
-                                    payload.servers[config.name].status = {
-                                        open: 0,
-                                        secure: 0
-                                    };
-                                    let oldPorts:HTMLElement = null,
-                                        activate:HTMLButtonElement = null,
-                                        deactivate:HTMLButtonElement = null;
-                                    do {
-                                        index = index - 1;
-                                        if (list[index].getAttribute("data-name") === config.name) {
-                                            list[index].setAttribute("class", "red");
-                                            list[index].getElementsByTagName("h4")[0].getElementsByTagName("button")[0].lastChild.textContent = `${config.name} - offline`;
-                                            oldPorts = list[index].getElementsByClassName("active-ports")[0] as HTMLElement;
-                                            activate = list[index].getElementsByClassName("server-activate")[0] as HTMLButtonElement;
-                                            deactivate = list[index].getElementsByClassName("server-deactivate")[0] as HTMLButtonElement;
-                                            if (oldPorts !== undefined) {
-                                                oldPorts.parentNode.insertBefore(server.activePorts(config.name), oldPorts);
-                                                oldPorts.parentNode.removeChild(oldPorts);
-                                            }
-                                            if (activate !== undefined) {
-                                                activate.disabled = false;
-                                            }
-                                            if (deactivate !== undefined) {
-                                                deactivate.disabled = true;
-                                            }
-                                            break;
-                                        }
-                                    } while (index > 0);
-                                } else if (data.action === "modify") {
-                                    const list:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
-                                        items:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li");
-                                    let index:number = items.length;
-                                    payload.servers[config.name].config = config;
-                                    if (index > 0) {
-                                        do {
-                                            index = index - 1;
-                                            if (items[index].getAttribute("data-name") === config.name) {
-                                                list.insertBefore(service_items.title(config.name, "server"), items[index]);
-                                                list.removeChild(items[index]);
-                                                break;
-                                            }
-                                        } while (index > 0);
-                                    }
-                                }
-                                ports.internal();
-                            } else if (data.type === "socket") {
-                                const config:services_socket = data.configuration as services_socket;
-                                if (data.action === "add") {
-                                    socket_destroy(config.hash);
-                                    server.socket_add(config);
-                                } else if (data.action === "destroy") {
-                                    socket_destroy(config.hash);
-                                }
-                                if (payload !== null) {
-                                    ports.internal();
-                                }
-                            } else if (data.type === "port") {
-                                ports.external(data.configuration as external_ports);
-                            } else if (data.type === "compose-containers") {
-                                if (data.action === "destroy") {
-                                    compose.destroyContainer(data.configuration as services_docker_compose);
-                                } else {
-                                    compose.container(data.configuration as services_docker_compose);
-                                }
-                                ports.internal();
-                            } else if (data.type === "compose-variables") {
-                                const store:store_string = data.configuration as store_string;
-                                payload.compose.variables = store;
-                                compose.list("variables");
-                            }
-                        }
-                    } else if (message_item.service === "dashboard-dns") {
-                        dns.response(message_item.data as services_dns_output);
-                    } else if (message_item.service === "dashboard-fileSystem") {
-                        fileSystem.receive(message_item.data as services_fileSystem);
-                    } else if (message_item.service === "dashboard-hash") {
-                        hash.response(message_item.data as services_hash);
-                    } else if (message_item.service === "dashboard-http") {
-                        http.response(message_item.data as services_http_test);
-                    } else if (message_item.service === "dashboard-os") {
-                        os.service(message_item.data as services_os);
-                    }
+                    const message_item:socket_data = JSON.parse(event.data),
+                        service_map:map_messages = {
+                            "dashboard-dns": dns.response,
+                            "dashboard-fileSystem": fileSystem.receive,
+                            "dashboard-hash": hash.response,
+                            "dashboard-http": http.response,
+                            "dashboard-payload": init,
+                            "dashboard-os": os.service,
+                            "dashboard-status": status,
+                            "dashboard-websocket-response": websocket.message_receive,
+                            "dashboard-websocket-status": websocket.status
+                        };
+                    service_map[message_item.service](message_item);
                 }
             },
             send: function dashboard_messageSend(data:type_socket_data, service:type_service):void {
@@ -1492,8 +1506,9 @@ const dashboard = function dashboard():void {
                 output_old.parentNode.appendChild(output_new);
                 output_old.parentNode.removeChild(output_old);
             },
-            service: function dashboard_osService(data:services_os):void {
-                const section:HTMLElement = document.getElementById("os"),
+            service: function dashboard_osService(data_item:socket_data):void {
+                const data:services_os = data_item.data as services_os,
+                    section:HTMLElement = document.getElementById("os"),
                     sections:HTMLCollectionOf<HTMLElement> = section.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>,
                     update:HTMLElement = document.getElementById("os").getElementsByTagName("p")[1].getElementsByTagName("em")[0],
                     machines:HTMLCollectionOf<HTMLElement> = sections[0].getElementsByTagName("ul"),
@@ -2656,9 +2671,7 @@ const dashboard = function dashboard():void {
                             : "secure",
                         scheme:"ws"|"wss" = (encryption === "open")
                             ? "ws"
-                            : "wss",
-                        id:string = `dashboard-terminal-${Math.random() + Date.now()}`;
-                    terminal.id = id;
+                            : "wss";
                     terminal.item = new Terminal({
                         cols: payload.terminal.cols,
                         cursorBlink: true,
@@ -2674,7 +2687,7 @@ const dashboard = function dashboard():void {
                     terminal.item.onKey(terminal.events.input);
                     terminal.item.write("Terminal emulator pending connection...\r\n");
                     // client-side terminal is ready, so alert the backend to initiate a pseudo-terminal
-                    terminal.socket = new WebSocket(`${scheme}://${location.host}`, [id]);
+                    terminal.socket = new WebSocket(`${scheme}://${location.host}`, ["dashboard-terminal"]);
                     terminal.socket.onmessage = terminal.events.firstData;
                     if (typeof navigator.clipboard === "undefined") {
                         const em:HTMLElement = document.getElementById("terminal").getElementsByClassName("tab-description")[0].getElementsByTagName("em")[0] as HTMLElement;
@@ -2694,6 +2707,198 @@ const dashboard = function dashboard():void {
                 output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement
             },
             socket: null
+        },
+        // websocket tester
+        websocket:module_websocket = {
+            connected: false,
+            frameBeautify: function dashboard_websocketFrameBeautify(target:"receive"|"send", valueItem?:string):void {
+                const value:string = (valueItem === null || valueItem === undefined)
+                    ? websocket.nodes[`message_${target}_frame`].value
+                    : valueItem;
+                websocket.nodes[`message_${target}_frame`].value = value
+                    .replace("{", "{\n    ")
+                    .replace(/,/g, ",\n    ")
+                    .replace("}", "\n}")
+                    .replace(/:/g, ": ");
+            },
+            handshake: function dashboard_websocketHandshake():void {
+                const handshakeString:string[] = [],
+                    key:string = window.btoa((Math.random().toString() + Math.random().toString()).slice(2, 18));
+                handshakeString.push("GET / HTTP/1.1");
+                handshakeString.push(`Host: ${location.host}`);
+                handshakeString.push("Upgrade: websocket");
+                handshakeString.push("Connection: Upgrade");
+                handshakeString.push(`Sec-WebSocket-Key: ${key}`);
+                handshakeString.push(`Origin: ${location.origin}`);
+                handshakeString.push("Sec-WebSocket-Protocol: websocket-test-remote");
+                handshakeString.push("Sec-WebSocket-Version: 13");
+                websocket.nodes.handshake.value = handshakeString.join("\n");
+            },
+            handshakeSend: function dashboard_webscketHandshakeSend():void {
+                const timeout:number = Number(websocket.nodes.handshake_timeout.value),
+                    payload:services_websocket_handshake = {
+                        encryption: (websocket.nodes.handshake_scheme.checked === true),
+                        message: (websocket.connected === true)
+                            ? ["disconnect"]
+                            : websocket.nodes.handshake.value.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\r\n/g, "\n").split("\n"),
+                        timeout: (isNaN(timeout) === true)
+                            ? 0
+                            : timeout
+                    };
+                websocket.timeout = payload.timeout;
+                websocket.nodes.status.value = "";
+                message.send(payload, "dashboard-websocket-handshake");
+            },
+            init: function dashboard_websocketInit():void {
+                websocket.handshake();
+                websocket.nodes.button_handshake.onclick = websocket.handshakeSend;
+                websocket.nodes.button_send.onclick = websocket.message_send;
+                websocket.nodes.message_send_body.onkeyup = websocket.keyup_message;
+                websocket.nodes.message_send_frame.onblur = websocket.keyup_frame;
+            },
+            keyup_frame: function dashboard_websocketKeuUpFrame(event:Event):void {
+                const encodeLength:TextEncoder = new TextEncoder(),
+                    text:string = websocket.nodes.message_send_body.value,
+                    textLength:number = encodeLength.encode(text).length;
+                let frame:websocket_frame = null;
+                // eslint-disable-next-line no-restricted-syntax
+                try {
+                    const frameTry:websocket_frame = websocket.parse_frame();
+                    frameTry.opcode = (isNaN(frameTry.opcode) === true)
+                        ? 1
+                        : Math.floor(frameTry.opcode);
+                    frame = {
+                        extended: 0,
+                        fin: (frameTry.fin === false)
+                            ? false
+                            : true,
+                        len: 0,
+                        mask: (frameTry.mask === true)
+                            ? true
+                            : false,
+                        maskKey: null,
+                        opcode: (frameTry.opcode > -1 && frameTry.opcode < 16)
+                            ? frameTry.opcode
+                            : 1,
+                        rsv1: (frameTry.rsv1 === true)
+                            ? true
+                            : false,
+                        rsv2: (frameTry.rsv2 === true)
+                            ? true
+                            : false,
+                        rsv3: (frameTry.rsv3 === true)
+                            ? true
+                            : false,
+                        startByte: 0
+                    };
+                } catch {
+                    frame = {
+                        extended: 0,
+                        fin: true,
+                        len: 0,
+                        mask: false,
+                        maskKey: null,
+                        opcode: 1,
+                        rsv1: false,
+                        rsv2: false,
+                        rsv3: false,
+                        startByte: 0
+                    };
+                }
+                if (textLength < 126) {
+                    frame.extended = 0;
+                    frame.len = textLength;
+                    frame.startByte = 2;
+                } else if (textLength < 65536) {
+                    frame.extended = textLength;
+                    frame.len = 126;
+                    frame.startByte = 4;
+                } else {
+                    frame.extended = textLength;
+                    frame.len = 127;
+                    frame.startByte = 10;
+                }
+                if (frame.mask === true) {
+                    frame.startByte = frame.startByte + 4;
+                }
+                if ((event === null || event.target === websocket.nodes.message_send_frame) && frame.mask === true) {
+                    const encodeKey:TextEncoder = new TextEncoder;
+                    frame.maskKey = encodeKey.encode(window.btoa(Math.random().toString() + Math.random().toString() + Math.random().toString()).replace(/0\./g, "").slice(0, 32)) as Buffer;
+                }
+                websocket.frameBeautify("send", JSON.stringify(frame));
+            },
+            keyup_message: function dashboard_websocketKeyUpMessage(event:KeyboardEvent):void {
+                websocket.keyup_frame(event);
+            },
+            message_receive: function dashboard_websocketMessageReceive(data_item:socket_data):void {
+                if ((websocket.nodes.halt_receive.checked === true && websocket.nodes.message_receive_frame.value !== "") || websocket.nodes.halt_receive.checked === false) {
+                    const data:services_websocket_message = data_item.data as services_websocket_message;
+                    websocket.nodes.message_receive_body.value = data.message;
+                    websocket.frameBeautify("receive", JSON.stringify(data.frame));
+                }
+            },
+            message_send: function dashboard_websocketMessageSend():void {
+                const payload:services_websocket_message = {
+                    frame: websocket.parse_frame(),
+                    message: websocket.nodes.message_send_body.value
+                };
+                message.send(payload, "dashboard-websocket-message");
+                websocket.keyup_frame(null);
+            },
+            nodes: {
+                button_handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
+                button_send: document.getElementById("websocket").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
+                halt_receive: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
+                handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                handshake_scheme: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
+                handshake_status: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                handshake_timeout: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
+                message_receive_body: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                message_receive_frame: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                message_send_body: document.getElementById("websocket").getElementsByClassName("form")[2].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                message_send_frame: document.getElementById("websocket").getElementsByClassName("form")[2].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                status: document.getElementById("websocket-status") as HTMLTextAreaElement
+            },
+            parse_frame: function dashboard_websocketParseFrame():websocket_frame {
+                return JSON.parse(websocket.nodes.message_send_frame.value.replace(/",\s+/g, "\",").replace(/\{\s+/, "{").replace(/\s+\}/, "}"));
+            },
+            status: function dashboard_websocketStatus(data_item:socket_data):void {
+                const data:services_websocket_status = data_item.data as services_websocket_status;
+                websocket.nodes.button_handshake.onclick = websocket.handshakeSend;
+                if (data.connected === true) {
+                    websocket.nodes.button_handshake.textContent = "Disconnect";
+                    websocket.nodes.status.setAttribute("class", "connection-online");
+                    websocket.connected = true;
+                    websocket.nodes.message_receive_body.value = "";
+                    websocket.nodes.message_receive_frame.value = "";
+                    websocket.nodes.button_send.disabled = false;
+                } else {
+                    websocket.nodes.button_handshake.textContent = "Connect";
+                    websocket.nodes.status.setAttribute("class", "connection-offline");
+                    websocket.connected = false;
+                    websocket.nodes.button_send.disabled = true;
+                }
+                if (data.error === null) {
+                    if (data.connected === true) {
+                        websocket.nodes.handshake_status.value = "Connected.";
+                    } else {
+                        websocket.nodes.handshake_status.value = "Disconnected.";
+                    }
+                } else if (typeof data.error === "string") {
+                    websocket.nodes.handshake_status.value = data.error;
+                } else {
+                    let error:string = JSON.stringify(data.error);
+                    if (data.error.code === "ETIMEDOUT") {
+                        websocket.nodes.handshake_status.value = `WebSocket handshake exceeded the specified timeout of ${websocket.timeout} milliseconds.`;
+                    } else {
+                        if (typeof data.error !== "string" && data.error.code === "ECONNRESET") {
+                            error = `The server dropped the connection. Ensure the encryption options matches whether the server's port accepts encrypted traffic.\n\n${error}`;
+                        }
+                        websocket.nodes.handshake_status.value = error;
+                    }
+                }
+            },
+            timeout: 0
         },
         socket:socket_object = core({
             close: function dashboard_socketClose():void {

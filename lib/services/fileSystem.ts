@@ -8,14 +8,14 @@ import { detectAll } from "jschardet";
 
 // cspell: words jschardet
 
-const dashboard_object = function utilities_dashboardObject(socket_data:socket_data, transmit:transmit_socket):void {
+const fileSystem = function services_fileSystem(socket_data:socket_data, transmit:transmit_socket):void {
     let parent:type_directory_item = null,
         failures:string[] = [],
         file:string = null,
         list_local:directory_list = [];
     const data:services_fileSystem = socket_data.data as services_fileSystem,
         windows_root:RegExp = (/^\w:(\\)?$/),
-        complete = function utilities_dashboardObject_complete():void {
+        complete = function services_fileSystem_complete():void {
             const service:services_fileSystem = {
                 address: data.address,
                 dirs: list_local,
@@ -28,9 +28,9 @@ const dashboard_object = function utilities_dashboardObject(socket_data:socket_d
             send({
                 data: service,
                 service: "dashboard-fileSystem"
-            }, transmit.socket as websocket_client, 1);
+            }, transmit.socket as websocket_client, 3);
         },
-        dirCallback = function utilities_dashboardObject_dirCallback(dir:directory_list|string[]):void {
+        dirCallback = function services_fileSystem_dirCallback(dir:directory_list|string[]):void {
             const list:directory_list = dir as directory_list,
                 len:number = list.length - 1,
                 self:type_directory_item = list[0];
@@ -48,7 +48,7 @@ const dashboard_object = function utilities_dashboardObject(socket_data:socket_d
             } else {
                 list_local = list;
             }
-            list_local.sort(function utilities_dashboardObject_dirCallback_sort(a:type_directory_item, b:type_directory_item):-1|0|1 {
+            list_local.sort(function services_fileSystem_dirCallback_sort(a:type_directory_item, b:type_directory_item):-1|0|1 {
                 if (a[1] < b[1]) {
                     return -1;
                 }
@@ -71,11 +71,11 @@ const dashboard_object = function utilities_dashboardObject(socket_data:socket_d
             failures = list.failures;
             complete();
         },
-        readCallback = function utilities_dashboardObject_readCallback(err:node_error, fileContents:Buffer):void {
+        readCallback = function services_fileSystem_readCallback(err:node_error, fileContents:Buffer):void {
             if (err === null) {
                 const detect:string_detect[] = detectAll(fileContents),
                     decoder:node_stringDecoder_StringDecoder = new node.stringDecoder.StringDecoder("utf8");
-                detect.sort(function utilities_dashboardObject_readCallback_sort(a:string_detect, b:string_detect):-1|1 {
+                detect.sort(function services_fileSystem_readCallback_sort(a:string_detect, b:string_detect):-1|1 {
                     if (a.confidence > b.confidence) {
                         return -1;
                     }
@@ -96,7 +96,7 @@ const dashboard_object = function utilities_dashboardObject(socket_data:socket_d
             file = `Error, ${err.code}, reading file at ${data.address}. ${err.message}`;
             complete();
         },
-        parentCallback = function utilities_dashboardObject_parentCallback(dir:directory_list|string[]):void {
+        parentCallback = function services_fileSystem_parentCallback(dir:directory_list|string[]):void {
             const list:directory_list = dir as directory_list,
                 paths:string[] = data.address.split(vars.sep),
                 config_dir:config_directory = {
@@ -148,7 +148,7 @@ const dashboard_object = function utilities_dashboardObject(socket_data:socket_d
                 directory(config_dir);
             }
         },
-        parent_path:string = (function utilities_dashboardObject_parentPath():string {
+        parent_path:string = (function services_fileSystem_parentPath():string {
             if (data.address === "/" || data.address === "\\" || (windows_root.test(data.address) === true && vars.sep === "\\")) {
                 return data.address;
             }
@@ -183,4 +183,4 @@ const dashboard_object = function utilities_dashboardObject(socket_data:socket_d
     }
 };
 
-export default dashboard_object;
+export default fileSystem;

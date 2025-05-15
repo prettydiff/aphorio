@@ -6,6 +6,7 @@ import hash from "../services/hash.js";
 import http_request from "../http/http_requestTest.js";
 import process_kill from "../services/processKill.js";
 import servers from "../services/server.js";
+import websocket_test from "../services/websocket.js";
 import youtube_download from "../services/youtubeDownload.js";
 
 const router = function transmit_router(socketData:socket_data, transmit:transmit_socket):void {
@@ -18,6 +19,8 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-hash": hash,
             "dashboard-http": http_request,
             "dashboard-server": servers,
+            "dashboard-websocket-handshake": websocket_test.handshake,
+            "dashboard-websocket-message": websocket_test.message,
             "process-kill": process_kill,
             "youtube-download": youtube_download
         };

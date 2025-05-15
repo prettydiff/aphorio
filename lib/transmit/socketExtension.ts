@@ -70,19 +70,25 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             };
         vars.server_meta[config.server].sockets[encryption].push(config.socket);
         vars.servers[config.server].sockets.push(socket);
-        if (config.proxy === null) {
+        config.socket.server = config.server;     // identifies which local server the given socket is connected to
+        config.socket.hash = config.identifier;   // assigns a unique identifier to the socket based upon the socket's credentials
+        config.socket.role = config.role;         // assigns socket creation location
+        config.socket.type = config.type;         // a classification identifier to functionally identify a common utility of sockets on a given server
+        if (config.type.includes("websocket-test") === true || config.proxy === null) {
             config.socket.handler = (config.handler === message_handler.default)
                 ? (message_handler[config.server] === undefined)
                     ? config.handler
                     : message_handler[config.server]
                 : config.handler;   // assigns an event handler to process incoming messages
-            config.socket.on("data", receiver);
-            config.socket.fragment = Buffer.from([]); // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
-            config.socket.frame = Buffer.from([]);    // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
-            config.socket.frameExtended = 0;          // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
-            config.socket.ping = ping;                // provides a means to insert a ping control frame and measure the round trip time of the returned pong frame
-            config.socket.pong = {};                  // stores termination times and callbacks for pong handling
-            config.socket.queue = [];                 // stores messages for transmit, because websocket protocol cannot intermix messages
+            if (config.type !== "http") {
+                config.socket.on("data", receiver);
+                config.socket.fragment = Buffer.from([]); // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
+                config.socket.frame = Buffer.from([]);    // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
+                config.socket.frameExtended = 0;          // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
+                config.socket.ping = ping;                // provides a means to insert a ping control frame and measure the round trip time of the returned pong frame
+                config.socket.pong = {};                  // stores termination times and callbacks for pong handling
+                config.socket.queue = [];                 // stores messages for transmit, because websocket protocol cannot intermix messages
+            }
             config.socket.status = "open";            // sets the status flag for the socket
             if (config.type.indexOf("dashboard-terminal-") !== 0) {
                 if (config.temporary === true) {
@@ -98,24 +104,27 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     config.socket.on("end", temporary);
                     config.socket.on("error", temporary);
                 } else {
-                    config.socket.on("close", socket_end);
-                    config.socket.on("end", socket_end);
+                    config.socket.on("close", socketError);
+                    config.socket.on("end", socketError);
                     config.socket.on("error", socketError);
                 }
             }
         } else {
-            config.socket.on("close", socket_end);
-            config.socket.on("end", socket_end);
+            config.socket.on("close", socketError);
+            config.socket.on("end", socketError);
             config.socket.on("error", socketError);
         }
-        config.socket.setKeepAlive(true, 0);      // standard method to retain socket against timeouts from inactivity until a close frame comes in
-        config.socket.server = config.server;     // identifies which local server the given socket is connected to
-        config.socket.hash = config.identifier;   // assigns a unique identifier to the socket based upon the socket's credentials
-        config.socket.proxy = config.proxy;       // stores the relationship between two sockets when they are piped as a proxy
-        config.socket.role = config.role;         // assigns socket creation location
-        config.socket.type = config.type;         // a classification identifier to functionally identify a common utility of sockets on a given server
+        if (config.type !== "http") {
+            config.socket.setKeepAlive(true, 0);   // standard method to retain socket against timeouts from inactivity until a close frame comes in
+            if (config.proxy !== null && config.proxy !== undefined) {
+                config.socket.proxy = config.proxy; // stores the relationship between two sockets when they are piped as a proxy
+                config.proxy.proxy = config.socket; // adds the relationship to the proxy socket as well
+                config.socket.pipe(config.proxy);
+                config.proxy.pipe(config.socket);
+            }
+        }
         if (config.callback !== null && config.callback !== undefined) {
-            config.callback(config.socket);
+            config.callback(config.socket, config.timeout);
         }
         log(log_config);
     }

@@ -50,6 +50,10 @@ declare global {
         target: HTMLElement;
     }
 
+    interface map_messages {
+        [key:string]: (data_item:socket_data) => void;
+    }
+
     interface module_compose {
         activePorts: (name_server:string) => HTMLElement;
         cancelVariables: (event:MouseEvent) => void;
@@ -80,7 +84,7 @@ declare global {
             types: HTMLInputElement;
         };
         resolve: (event:MouseEvent) => void;
-        response: (result:services_dns_output) => void;
+        response: (data_item:socket_data) => void;
     }
 
     interface module_fileSystem {
@@ -94,7 +98,7 @@ declare global {
             search: HTMLInputElement;
             summary: HTMLElement;
         };
-        receive: (fs:services_fileSystem) => void;
+        receive: (data_item:socket_data) => void;
         send: (event:FocusEvent|KeyboardEvent) => void;
     }
 
@@ -111,7 +115,7 @@ declare global {
             type: HTMLInputElement;
         };
         request: () => void;
-        response: (hash:services_hash) => void;
+        response: (data_item:socket_data) => void;
     }
 
     interface module_http {
@@ -123,11 +127,11 @@ declare global {
             responseBody: HTMLTextAreaElement;
             responseHeaders: HTMLTextAreaElement;
             responseURI: HTMLTextAreaElement;
-            stats: HTMLCollectionOf<HTMLElement>
+            stats: HTMLCollectionOf<HTMLElement>;
             timeout: HTMLInputElement;
         };
         request: (event:MouseEvent) => void;
-        response: (data:services_http_test) => void;
+        response: (data_item:socket_data) => void;
     }
 
     interface module_message {
@@ -149,7 +153,7 @@ declare global {
     interface module_os {
         init: () => void;
         interfaces: (data:NodeJS.Dict<node_os_NetworkInterfaceInfo[]>) => void;
-        service: (data:services_os) => void;
+        service: (data_item:socket_data) => void;
     }
 
     interface module_server {
@@ -188,6 +192,35 @@ declare global {
             output: HTMLElement;
         };
         socket: WebSocket;
+    }
+
+    interface module_websocket {
+        connected: boolean;
+        frameBeautify: (target:"receive"|"send", value?:string) => void;
+        handshake: () => void;
+        handshakeSend: () => void;
+        init: () => void;
+        keyup_frame: (event:Event) => void;
+        keyup_message: (event:KeyboardEvent) => void;
+        message_receive: (data_item:socket_data) => void;
+        message_send: (event:MouseEvent) => void;
+        nodes: {
+            button_handshake: HTMLButtonElement;
+            button_send: HTMLButtonElement;
+            halt_receive: HTMLInputElement;
+            handshake: HTMLTextAreaElement;
+            handshake_scheme: HTMLInputElement;
+            handshake_status: HTMLTextAreaElement;
+            handshake_timeout: HTMLInputElement;
+            message_receive_body: HTMLTextAreaElement;
+            message_receive_frame: HTMLTextAreaElement;
+            message_send_body: HTMLTextAreaElement;
+            message_send_frame: HTMLTextAreaElement;
+            status: HTMLTextAreaElement;
+        };
+        parse_frame:() => websocket_frame;
+        status: (data_item:socket_data) => void;
+        timeout: number;
     }
 
     interface socket_object {

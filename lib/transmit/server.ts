@@ -128,6 +128,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                     server: server_name,
                                     socket: socket,
                                     temporary: temporary,
+                                    timeout: null,
                                     type: "http"
                                 });
                             } else {
@@ -170,12 +171,12 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                                 send({
                                                     data: dashboard,
                                                     service: "dashboard-payload"
-                                                }, socket, 1);
+                                                }, socket, 3);
                                             }
                                         },
                                         terminalFlag:boolean = (server_name === "dashboard" && type.indexOf("dashboard-terminal-") === 0),
                                         identifier:string = (terminalFlag === true)
-                                            ? server_name
+                                            ? `dashboard-terminal-${hashOutput.hash}`
                                             : `browserSocket-${hashOutput.hash}`;
                                     socket_extension({
                                         callback: client_respond,
@@ -186,6 +187,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                         server: server_name,
                                         socket: socket,
                                         temporary: temporary,
+                                        timeout: null,
                                         type: type
                                     });
                                 };
@@ -239,6 +241,8 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 callback = function transmit_server_connection_handshake_createProxy_callback():void {
                                     count = count + 1;
                                     if (count > 1) {
+                                        socket.proxy = proxy;
+                                        proxy.proxy = socket;
                                         proxy.pipe(socket);
                                         if (server.redirect_domain !== undefined && server.redirect_domain !== null && (server.redirect_domain[domain] !== undefined || (socket.encrypted === true && server.redirect_domain[`${domain}.secure`] !== undefined))) {
                                             socket.pipe(proxy);
@@ -257,11 +261,12 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 callback: callback,
                                 handler: null,
                                 identifier: `${domain}-${now}`,
-                                proxy: proxy,
+                                proxy: null,
                                 role: "server",
                                 server: server_name,
                                 socket: socket,
                                 temporary: false,
+                                timeout: null,
                                 type: type
                             });
                             // proxy socket
@@ -269,11 +274,12 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 callback: callback,
                                 handler: null,
                                 identifier: `${domain}-${now}-proxy`,
-                                proxy: socket,
+                                proxy: null,
                                 role: "client",
                                 server: server_name,
                                 socket: proxy,
                                 temporary: false,
+                                timeout: null,
                                 type: type
                             });
                         };

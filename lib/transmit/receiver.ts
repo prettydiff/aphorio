@@ -122,6 +122,9 @@ const receiver = function transmit_receiver(buf:Buffer):void {
         return;
     }
 
+    if (socket.type === "websocket-test") {
+        socket.handler(socket, payload, frame);
+    }
     if (frame.opcode === 8) {
         // socket close
         data[0] = 136;
@@ -130,7 +133,7 @@ const receiver = function transmit_receiver(buf:Buffer):void {
             : data[1];
         const payload:Buffer = Buffer.concat([data.subarray(0, 2), unmask(data.subarray(2))]);
         socket.write(payload);
-        socket_end(socket);
+        socket_end(socket, null);
     } else if (frame.opcode === 9) {
         // respond to "ping" as "pong"
         send(data.subarray(frame.startByte), socket, 10);
@@ -151,7 +154,7 @@ const receiver = function transmit_receiver(buf:Buffer):void {
         // this block may include frame.opcode === 0 - a continuation frame
         socket.frameExtended = frame.extended;
         if (frame.fin === true) {
-            socket.handler(segment.subarray(0, socket.frameExtended));
+            socket.handler(socket, segment.subarray(0, socket.frameExtended), frame);
             socket.fragment = segment.subarray(socket.frameExtended);
         } else {
             socket.fragment = segment;
