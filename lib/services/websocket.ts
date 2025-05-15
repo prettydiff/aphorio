@@ -126,7 +126,25 @@ const websocket_test:websocket_test = {
         // to   - websocket-test socket
         const data:services_websocket_message = socket_data.data as services_websocket_message,
             socket_dashboard:websocket_client = transmit.socket as websocket_client,
-            body:Buffer = Buffer.from(data.message);
+            body:Buffer = Buffer.from(data.message),
+            same_application = function services_websocketTest_message_sameApplication():void {
+                const respond:services_websocket_message = {
+                    frame: data.frame,
+                    message: `WebSocket response:\n\n${data.message}`
+                };
+                respond.frame.extended = Buffer.byteLength(respond.message);
+                if (respond.frame.extended < 126) {
+                    respond.frame.len = respond.frame.extended;
+                } else if (respond.frame.extended < 65536) {
+                    respond.frame.len = 126;
+                } else {
+                    respond.frame.len = 127;
+                }
+                send({
+                    data: respond,
+                    service: "dashboard-websocket-response"
+                }, socket_dashboard, 3);
+            };
         let frameHeader:Buffer = null,
             payload:Buffer = null,
             headerSize:number = 2;
@@ -168,10 +186,21 @@ const websocket_test:websocket_test = {
         } else {
             payload = Buffer.concat([frameHeader, body]);
         }
+        // connected to same server, so just respond to the requesting browser
         if (socket_dashboard.proxy === socket_dashboard) {
-            websocket_test.handler(socket_dashboard, body, data.frame);
+            same_application();
+        // connected to another server spawned from an instance of this application
+        } else if (socket_dashboard.type === "websocket-test-remote") {
+            same_application();
+        // received response from remote of a connection to a different server spawned from an instance of this application
+        } else if (socket_dashboard.type === "websocket-test-local") {
+            send({
+                data: data,
+                service: "dashboard-websocket-response"
+            }, socket_dashboard.proxy, 3);
+        // connected to an unrelated remote
         } else {
-            socket_dashboard.proxy.write(frameHeader);
+            socket_dashboard.proxy.write(payload);
         }
     }
 };

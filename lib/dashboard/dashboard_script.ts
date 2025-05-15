@@ -1332,7 +1332,7 @@ const dashboard = function dashboard():void {
                         http.response(message_item.data as services_http_test);
                     } else if (message_item.service === "dashboard-os") {
                         os.service(message_item.data as services_os);
-                    } else if (message_item.service === "dashboard-websocket-message") {
+                    } else if (message_item.service === "dashboard-websocket-response") {
                         websocket.message_receive(message_item.data as services_websocket_message);
                     } else if (message_item.service === "dashboard-websocket-status") {
                         websocket.status(message_item.data as services_websocket_status);
@@ -2726,7 +2726,7 @@ const dashboard = function dashboard():void {
                 handshakeString.push("Connection: Upgrade");
                 handshakeString.push(`Sec-WebSocket-Key: ${key}`);
                 handshakeString.push(`Origin: ${location.origin}`);
-                handshakeString.push("Sec-WebSocket-Protocol: none");
+                handshakeString.push("Sec-WebSocket-Protocol: websocket-test-remote");
                 handshakeString.push("Sec-WebSocket-Version: 13");
                 websocket.nodes.handshake.value = handshakeString.join("\n");
             },

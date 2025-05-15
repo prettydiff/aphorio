@@ -74,7 +74,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         config.socket.hash = config.identifier;   // assigns a unique identifier to the socket based upon the socket's credentials
         config.socket.role = config.role;         // assigns socket creation location
         config.socket.type = config.type;         // a classification identifier to functionally identify a common utility of sockets on a given server
-        if (config.proxy === null) {
+        if (config.type.includes("websocket-test") === true || config.proxy === null) {
             config.socket.handler = (config.handler === message_handler.default)
                 ? (message_handler[config.server] === undefined)
                     ? config.handler
@@ -104,14 +104,14 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     config.socket.on("end", temporary);
                     config.socket.on("error", temporary);
                 } else {
-                    config.socket.on("close", socket_end);
-                    config.socket.on("end", socket_end);
+                    config.socket.on("close", socketError);
+                    config.socket.on("end", socketError);
                     config.socket.on("error", socketError);
                 }
             }
         } else {
-            config.socket.on("close", socket_end);
-            config.socket.on("end", socket_end);
+            config.socket.on("close", socketError);
+            config.socket.on("end", socketError);
             config.socket.on("error", socketError);
         }
         if (config.type !== "http") {

@@ -48,6 +48,16 @@ const socket_end = function transmit_socketEnd(socket_input:websocket_client, er
             break;
         }
     } while (index > 0);
+    index = vars.servers[socket.server].sockets.length;
+    if (index > 0) {
+        do {
+            index = index - 1;
+            if (vars.servers[socket.server].sockets[index].hash === socket.hash && vars.servers[socket.server].sockets[index].encrypted === socket.encrypted) {
+                vars.servers[socket.server].sockets.splice(index, 1);
+                break;
+            }
+        } while (index > 0);
+    }
     socket.destroy();
     if (socket.proxy !== null && socket.proxy !== undefined) {
         if (socket.type === "websocket-test") {
