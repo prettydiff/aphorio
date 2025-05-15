@@ -50,6 +50,10 @@ declare global {
         target: HTMLElement;
     }
 
+    interface map_messages {
+        [key:string]: (data_item:socket_data) => void;
+    }
+
     interface module_compose {
         activePorts: (name_server:string) => HTMLElement;
         cancelVariables: (event:MouseEvent) => void;
@@ -80,7 +84,7 @@ declare global {
             types: HTMLInputElement;
         };
         resolve: (event:MouseEvent) => void;
-        response: (result:services_dns_output) => void;
+        response: (data_item:socket_data) => void;
     }
 
     interface module_fileSystem {
@@ -94,7 +98,7 @@ declare global {
             search: HTMLInputElement;
             summary: HTMLElement;
         };
-        receive: (fs:services_fileSystem) => void;
+        receive: (data_item:socket_data) => void;
         send: (event:FocusEvent|KeyboardEvent) => void;
     }
 
@@ -111,7 +115,7 @@ declare global {
             type: HTMLInputElement;
         };
         request: () => void;
-        response: (hash:services_hash) => void;
+        response: (data_item:socket_data) => void;
     }
 
     interface module_http {
@@ -127,7 +131,7 @@ declare global {
             timeout: HTMLInputElement;
         };
         request: (event:MouseEvent) => void;
-        response: (data:services_http_test) => void;
+        response: (data_item:socket_data) => void;
     }
 
     interface module_message {
@@ -149,7 +153,7 @@ declare global {
     interface module_os {
         init: () => void;
         interfaces: (data:NodeJS.Dict<node_os_NetworkInterfaceInfo[]>) => void;
-        service: (data:services_os) => void;
+        service: (data_item:socket_data) => void;
     }
 
     interface module_server {
@@ -198,7 +202,7 @@ declare global {
         init: () => void;
         keyup_frame: (event:Event) => void;
         keyup_message: (event:KeyboardEvent) => void;
-        message_receive: (data:services_websocket_message) => void;
+        message_receive: (data_item:socket_data) => void;
         message_send: (event:MouseEvent) => void;
         nodes: {
             button_handshake: HTMLButtonElement;
@@ -215,7 +219,7 @@ declare global {
             status: HTMLTextAreaElement;
         };
         parse_frame:() => websocket_frame;
-        status: (data:services_websocket_status) => void;
+        status: (data_item:socket_data) => void;
         timeout: number;
     }
 
