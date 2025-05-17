@@ -175,7 +175,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                                 }, socket, 3);
                                             }
                                         },
-                                        terminalFlag:boolean = (server_name === "dashboard" && type.indexOf("dashboard-terminal-") === 0),
+                                        terminalFlag:boolean = (server_name === "dashboard" && type === "dashboard-terminal"),
                                         identifier:string = (terminalFlag === true)
                                             ? `dashboard-terminal-${hashOutput.hash}`
                                             : `browserSocket-${hashOutput.hash}`;
@@ -268,7 +268,9 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 socket: socket,
                                 temporary: false,
                                 timeout: null,
-                                type: type
+                                type: (type === "" && server.redirect_domain !== undefined && server.redirect_domain !== null && (server.redirect_domain[domain] !== undefined || (socket.encrypted === true && server.redirect_domain[`${domain}.secure`] !== undefined)))
+                                    ? `socket-${server_name}-${domain}`
+                                    : type
                             });
                             // proxy socket
                             socket_extension({
@@ -281,7 +283,9 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 socket: proxy,
                                 temporary: false,
                                 timeout: null,
-                                type: type
+                                type: (type === "" && server.redirect_domain !== undefined && server.redirect_domain !== null && (server.redirect_domain[domain] !== undefined || (socket.encrypted === true && server.redirect_domain[`${domain}.secure`] !== undefined)))
+                                    ? `proxy-${server_name}-${domain}`
+                                    : type
                             });
                         };
                     headerList.forEach(headerEach);
