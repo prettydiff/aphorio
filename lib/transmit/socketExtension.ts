@@ -70,11 +70,12 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             };
         vars.server_meta[config.server].sockets[encryption].push(config.socket);
         vars.servers[config.server].sockets.push(socket);
+
         config.socket.server = config.server;     // identifies which local server the given socket is connected to
         config.socket.hash = config.identifier;   // assigns a unique identifier to the socket based upon the socket's credentials
         config.socket.role = config.role;         // assigns socket creation location
         config.socket.type = config.type;         // a classification identifier to functionally identify a common utility of sockets on a given server
-        if (config.type.includes("websocket-test") === true || config.proxy === null) {
+        if (config.type === "websocket-test" || config.proxy === null) {
             config.socket.handler = (config.handler === message_handler.default)
                 ? (message_handler[config.server] === undefined)
                     ? config.handler
@@ -90,7 +91,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 config.socket.queue = [];                 // stores messages for transmit, because websocket protocol cannot intermix messages
             }
             config.socket.status = "open";            // sets the status flag for the socket
-            if (config.type.indexOf("dashboard-terminal-") !== 0) {
+            if (config.type !== "dashboard-terminal") {
                 if (config.temporary === true) {
                     const temporary = function transmit_socketExtension_temporary():void {
                         // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
@@ -119,8 +120,13 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             if (config.proxy !== null && config.proxy !== undefined) {
                 config.socket.proxy = config.proxy; // stores the relationship between two sockets when they are piped as a proxy
                 config.proxy.proxy = config.socket; // adds the relationship to the proxy socket as well
-                config.socket.pipe(config.proxy);
-                config.proxy.pipe(config.socket);
+                // do not pipe socket traffic that is part of a web server domain redirection rule
+                if (config.type.indexOf(`proxy-${config.server}-`) !== 0 && config.type.indexOf(`socket-${config.server}-`) !== 0) {
+                    config.socket.pipe(config.proxy);
+                    config.proxy.pipe(config.socket);
+                }
+            } else {
+                config.socket.proxy = null;
             }
         }
         if (config.callback !== null && config.callback !== undefined) {
