@@ -39,10 +39,10 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     };
                 }
             },
-            socketError = function transmit_socketExtension_socketError(errorMessage:node_error):void {
+            socketError = function transmit_socketExtension_socketError():void {
                 // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                 const socket:websocket_client = this;
-                socket_end(socket, errorMessage);
+                socket_end(socket);
             },
             encryption:"open"|"secure" = (config.socket.secure === true)
                 ? "secure"

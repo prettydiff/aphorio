@@ -738,7 +738,6 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <p>The handshake phase resembles an HTTP GET request, wherein a <a href="https://datatracker.ietf.org/doc/html/rfc2616">RFC 2616</a> compliant request is sent from a client to a server.
                             This request includes a vaguely random 32bit key compatible with BASE64 syntax.
                             The request also allows for multiple points of identity, such as: a URI path, subprotocol names via comma separated values to the <em>sec-websocket-protocol</em> header, and custom headers.</p>
-                            <p><em>Please note:</em> if connecting to another server spawned from an instance of this application the header sec-websocket-protocol must be present with value <strong>websocket-test-remote</strong>. Otherwise, a response message will not generate send back to the originating browser.</p>
                         <p>Once the server receives the handshake request it responds with an algorithmic transform of the key provided by the request. The client then opens a persistent TCP socket to the server upon confirming the server's key transform.</p>
                     </div>
                     <div class="section">

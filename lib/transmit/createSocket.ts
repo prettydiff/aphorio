@@ -41,7 +41,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     ? "Socket is not a proxy."
                     : `Socket is a proxy to ${config.proxy.hash} on server ${config.proxy.server}.`}`,
                 status: "error",
-                type: (config.type.includes("websocket-test") === true)
+                type: (config.type === "websocket-test")
                     ? "websocket-test"
                     : "socket"
             });
@@ -73,9 +73,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     socket: client,
                     temporary: false,
                     timeout: startTime,
-                    type: (config.type === "websocket-test" && (/sec-websocket-protocol:\s+websocket-test-remote/).test(response.toLowerCase()) === true)
-                        ? "websocket-test-local"
-                        : config.type
+                    type: config.type
                 });
             });
         },

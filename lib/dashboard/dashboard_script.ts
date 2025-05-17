@@ -259,7 +259,7 @@ const dashboard = function dashboard():void {
                 websocket.init();
             }
         },
-        status = function dashboard_status(data_item:socket_data) {
+        status = function dashboard_status(data_item:socket_data):void {
             const data:services_dashboard_status = data_item.data as services_dashboard_status,
                 socket_destroy = function dashboard_messageReceiver_socketDestroy(hash:string):void {
                     const tbody:HTMLElement = document.getElementById("sockets").getElementsByTagName("tbody")[0],
@@ -1336,7 +1336,7 @@ const dashboard = function dashboard():void {
                             "dashboard-payload": init,
                             "dashboard-os": os.service,
                             "dashboard-status": status,
-                            "dashboard-websocket-response": websocket.message_receive,
+                            "dashboard-websocket-message": websocket.message_receive,
                             "dashboard-websocket-status": websocket.status
                         };
                     service_map[message_item.service](message_item);
@@ -2730,7 +2730,7 @@ const dashboard = function dashboard():void {
                 handshakeString.push("Connection: Upgrade");
                 handshakeString.push(`Sec-WebSocket-Key: ${key}`);
                 handshakeString.push(`Origin: ${location.origin}`);
-                handshakeString.push("Sec-WebSocket-Protocol: websocket-test-remote");
+                handshakeString.push("Sec-WebSocket-Protocol: websocket-test");
                 handshakeString.push("Sec-WebSocket-Version: 13");
                 websocket.nodes.handshake.value = handshakeString.join("\n");
             },
@@ -2900,6 +2900,7 @@ const dashboard = function dashboard():void {
             },
             timeout: 0
         },
+        // dashboard socket
         socket:socket_object = core({
             close: function dashboard_socketClose():void {
                 const status:HTMLElement = document.getElementById("connection-status");
