@@ -13,6 +13,7 @@ import server_halt from "../services/server_halt.js";
 import socket_extension from "./socketExtension.js";
 import terminal from "../services/terminal.js";
 import vars from "../utilities/vars.js";
+import websocket_test from "../services/websocket.js";
 
 // cspell: words untrapped
 
@@ -157,7 +158,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                             }
                                             if (terminalFlag === true) {
                                                 terminal(socket);
-                                            } else if (server_name === "dashboard") {
+                                            } else if (server_name === "dashboard" && type === "dashboard") {
                                                 const dashboard:transmit_dashboard = {
                                                     compose: vars.compose,
                                                     hashes: vars.hashes,
@@ -180,7 +181,9 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                             : `browserSocket-${hashOutput.hash}`;
                                     socket_extension({
                                         callback: client_respond,
-                                        handler: message_handler.default,
+                                        handler: (type === "websocket-test")
+                                            ? websocket_test.handler_server
+                                            : message_handler.default,
                                         identifier: identifier,
                                         proxy: null,
                                         role: "server",

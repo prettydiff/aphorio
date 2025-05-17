@@ -1,8 +1,9 @@
 
-import log from "../utilities/log.js";
+import broadcast from "./broadcast.js";
+import get_address from "../utilities/getAddress.js";
 import vars from "../utilities/vars.js";
 
-const socket_end = function transmit_socketEnd(socket_input:websocket_client, errorMessage?:node_error):void {
+const socket_end = function transmit_socketEnd(socket_input:websocket_client):void {
     const socket:websocket_client = (typeof socket_input === "object")
             ? socket_input
             // eslint-disable-next-line no-restricted-syntax
@@ -10,54 +11,78 @@ const socket_end = function transmit_socketEnd(socket_input:websocket_client, er
         encryption:"open"|"secure" = (socket.secure === true)
             ? "secure"
             : "open",
-        list:string = socket.server,
-        log_config:config_log = (errorMessage === null || errorMessage === undefined)
-            ? {
-                action: "destroy",
-                config: vars.servers[socket.server],
-                message: `Socket ${socket.hash} closed on ${encryption} server ${socket.server}.`,
-                status: "success",
-                type: "socket"
-            }
-            : {
-                action: (socket.closed === true)
-                    ? "destroy"
-                    : null,
-                config: errorMessage,
-                message: `Error on socket ${socket.hash} at location ${socket.role} with server ${socket.server}.`,
-                status: "error",
-                type: "socket"
-            },
-        sockets:services_socket[] = vars.servers[socket.server].sockets;
-    let index:number = sockets.length;
+        sockets:services_socket[] = vars.servers[socket.server].sockets,
+        payload_configuration:services_socket = {
+            address: get_address({
+                socket: socket_input,
+                type: "ws"
+            }),
+            encrypted: socket.encrypted,
+            hash: socket.hash,
+            proxy: (socket.proxy === null || socket.proxy === undefined)
+                ? ""
+                : socket.proxy.hash,
+            role: socket.role,
+            server: socket.server,
+            type: socket.type
+        },
+        payload:services_dashboard_status = {
+            action: "destroy",
+            configuration: payload_configuration,
+            message: "Socket ended.",
+            status: "success",
+            time: Date.now(),
+            type: "socket"
+        };
+
+    // remove the socket from the respective server's list of sockets
+    let index:number = sockets.length,
+        flag:boolean = false;
     if (index > 0) {
         do {
             index = index - 1;
             if (sockets[index].hash === socket.hash) {
-                log_config.config = sockets[index];
                 sockets.splice(index, 1);
             }
         } while (index > 0);
     }
-    index = list.length;
-    socket.status = "end";
-    do {
-        index = index - 1;
-        if (vars.server_meta[socket.server].sockets[encryption][index] === socket) {
-            vars.server_meta[socket.server].sockets[encryption].splice(index, 1);
-            break;
-        }
-    } while (index > 0);
-    index = vars.servers[socket.server].sockets.length;
+
+    // remove the socket from the sockets list of server_meta
+    index = vars.server_meta[socket.server].sockets[encryption].length;
     if (index > 0) {
         do {
             index = index - 1;
-            if (vars.servers[socket.server].sockets[index].hash === socket.hash && vars.servers[socket.server].sockets[index].encrypted === socket.encrypted) {
-                vars.servers[socket.server].sockets.splice(index, 1);
-                break;
+            if (vars.server_meta[socket.server].sockets[encryption][index] === socket) {
+                vars.server_meta[socket.server].sockets[encryption].splice(index, 1);
+            }
+            // kill any child websocket-test sockets if the corresponding dashboard socket ends
+            if (socket.type === "dashboard" && vars.server_meta[socket.server].sockets[encryption][index] !== null && vars.server_meta[socket.server].sockets[encryption][index] !== undefined && vars.server_meta[socket.server].sockets[encryption][index].hash === `websocketTest-${socket.hash}`) {
+                vars.server_meta[socket.server].sockets[encryption][index].status = "end";
+                vars.server_meta[socket.server].sockets[encryption][index].destroy();
+                flag = true;
             }
         } while (index > 0);
     }
+
+    // look for any websocket test connections of opposite encryption type
+    if (socket.type === "dashboard" && flag === false) {
+        const encrypt:"open"|"secure" = (encryption === "open")
+            ? "secure"
+            : "open";
+        index = vars.server_meta[socket.server].sockets[encryption].length;
+        if (index > 0) {
+            do {
+                index = index - 1;
+                // kill any child websocket-test sockets if the corresponding dashboard socket ends
+                if (socket.type === "dashboard" && vars.server_meta[socket.server].sockets[encrypt][index] !== null && vars.server_meta[socket.server].sockets[encrypt][index] !== undefined && vars.server_meta[socket.server].sockets[encrypt][index].hash === `websocketTest-${socket.hash}`) {
+                    vars.server_meta[socket.server].sockets[encrypt][index].status = "end";
+                    vars.server_meta[socket.server].sockets[encrypt][index].destroy();
+                }
+            } while (index > 0);
+        }
+    }
+
+    socket.status = "end";
     socket.destroy();
     if (socket.proxy !== null && socket.proxy !== undefined) {
         if (socket.type === "websocket-test") {
@@ -66,7 +91,11 @@ const socket_end = function transmit_socketEnd(socket_input:websocket_client, er
             socket.proxy.destroy();
         }
     }
-    log(log_config);
+
+    broadcast("dashboard", "dashboard", {
+        data: payload,
+        service: "dashboard-status"
+    });
 };
 
 export default socket_end;

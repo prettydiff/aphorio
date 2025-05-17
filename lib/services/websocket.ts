@@ -4,7 +4,33 @@ import send from "../transmit/send.js";
 import vars from "../utilities/vars.js";
 
 const websocket_test:websocket_test = {
-    handler: function services_websocketTest_handler(socket_test:websocket_client, resultBuffer:Buffer, frame:websocket_frame):void {
+    find_socket: function services_websocket_findSocket(direction:"in"|"out", hashString:string):websocket_client {
+        const hash:string = (direction === "in")
+            ? hashString.replace("websocketTest-", "")
+            : `websocketTest-${hashString}`;
+        let sockets:websocket_client[] = vars.server_meta.dashboard.sockets.open,
+            index:number = sockets.length;
+        if (index > 0) {
+            do {
+                index = index - 1;
+                if (sockets[index].hash === hash) {
+                    return sockets[index];
+                }
+            } while (index > 0);
+        }
+        sockets = vars.server_meta.dashboard.sockets.secure;
+        index = sockets.length;
+        if (index > 0) {
+            do {
+                index = index - 1;
+                if (sockets[index].hash === hash) {
+                    return sockets[index];
+                }
+            } while (index > 0);
+        }
+        return null;
+    },
+    handler_client: function services_websocketTest_handlerClient(socket_test:websocket_client, resultBuffer:Buffer, frame:websocket_frame):void {
         // from - websocket-test socket
         // to   - dashboard socket
         const decoder:node_stringDecoder_StringDecoder = new node.stringDecoder.StringDecoder("utf8"),
@@ -12,35 +38,40 @@ const websocket_test:websocket_test = {
             payload:services_websocket_message = {
                 frame: frame,
                 message: result
-            };
-        send({
-            data: payload,
-            service: "dashboard-websocket-message"
-        }, socket_test.proxy, 3);
+            },
+            socket_dashboard:websocket_client = websocket_test.find_socket("in", socket_test.hash);
+        if (socket_dashboard !== null) {
+            send({
+                data: payload,
+                service: "dashboard-websocket-message"
+            }, socket_dashboard, 3);
+        }
         if (frame.opcode === 8) {
             socket_test.destroy();
         }
+    },
+    handler_server: function services_websocketTest_handlerServer(socket_test:websocket_client, resultBuffer:Buffer):void {
+        send(`Response message.\n\n${resultBuffer.toString()}`, socket_test, 1);
     },
     handshake: function services_websocketTest_handshake(socket_data:socket_data, transmit:transmit_socket):void {
         const data:services_websocket_handshake = socket_data.data as services_websocket_handshake,
             browser_socket:websocket_client = transmit.socket as websocket_client,
             socket_id:string = browser_socket.hash,
-            socket:websocket_client = transmit.socket as websocket_client;
+            socket_dashboard:websocket_client = transmit.socket as websocket_client,
+            socket_test:websocket_client = websocket_test.find_socket("out", socket_dashboard.hash);
         let index:number = data.message.length,
             host:string = "";
         if (data.message.length === 1 && data.message[0] === "disconnect") {
-            if (socket.proxy !== null) {
-                const message:services_websocket_status = {
-                    connected: false,
-                    error: null
-                };
-                send({
-                    data: message,
-                    service: "dashboard-websocket-status"
-                }, socket, 3);
-                if (socket.proxy !== null && socket.proxy !== undefined && socket.proxy !== socket) {
-                    socket.proxy.destroy();
-                }
+            const message:services_websocket_status = {
+                connected: false,
+                error: null
+            };
+            send({
+                data: message,
+                service: "dashboard-websocket-status"
+            }, socket_dashboard, 3);
+            if (socket_test !== null) {
+                socket_test.destroy();
             }
         } else {
             const callback = function services_websocket_handshake_callback(websocket:websocket_client, timeout:bigint, error:node_error):void {
@@ -53,25 +84,24 @@ const websocket_test:websocket_test = {
                     send({
                         data: message,
                         service: "dashboard-websocket-status"
-                    }, socket, 3);
+                    }, socket_dashboard, 3);
                 },
                 config:config_websocket_create = {
                     callback: callback,
                     hash: `websocketTest-${socket_id}`,
-                    handler: websocket_test.handler,
+                    handler: websocket_test.handler_client,
                     headers: data.message,
                     ip: "",
                     port: 0,
-                    proxy: socket,
+                    proxy: null,
                     resource: null,
                     secure: data.encryption,
                     server: "dashboard",
                     timeout: 0,
                     type: "websocket-test"
-                },
-                secureString:"open"|"secure" = (config.secure === true)
-                    ? "secure"
-                    : "open";
+                };
+
+            // get the host value
             do {
                 index = index - 1;
                 if (data.message[index].toLowerCase().indexOf("host:") === 0) {
@@ -79,11 +109,14 @@ const websocket_test:websocket_test = {
                     break;
                 }
             } while (index > 0);
+
+            // set host to loopback if not found
             if (host === "") {
                 config.ip = "127.0.0.1";
                 config.port = (data.encryption === true)
                     ? vars.servers.dashboard.config.ports.secure
                     : vars.servers.dashboard.config.ports.open;
+            // discern host value from IPv6 address plus specified port
             } else if (host.includes("[") === true && host.includes("]") === true) {
                 config.ip = host.slice(host.indexOf("[") + 1, host.indexOf("]"));
                 host = host.slice(host.indexOf("]") + 1);
@@ -94,31 +127,30 @@ const websocket_test:websocket_test = {
                 } else {
                     config.port = Number(host.replace(":", ""));
                 }
+            // if literal IPv6 value set host to IPv6 address
+            } else if (node.net.isIPv6(host) === true) {
+                config.ip = host;
+                config.port = (data.encryption === true)
+                    ? 443
+                    : 80;
+            // if host value is IPv4 plus port number then discern the correct values
+            } else if (host.includes(":") === true) {
+                config.ip = host.slice(0, host.indexOf(":"));
+                config.port = Number(host.slice(host.indexOf(":") + 1));
+            // otherwise use the supplied host with default HTTP ports
             } else {
-                if (node.net.isIPv6(host) === true) {
-                    config.ip = host;
-                    config.port = (data.encryption === true)
-                        ? 443
-                        : 80;
-                } else if (host.includes(":") === true) {
-                    config.ip = host.slice(0, host.indexOf(":"));
-                    config.port = Number(host.slice(host.indexOf(":") + 1));
-                } else {
-                    config.ip = host;
-                    config.port = (data.encryption === true)
-                        ? 443
-                        : 80;
-                }
+                config.ip = host;
+                config.port = (data.encryption === true)
+                    ? 443
+                    : 80;
             }
+
+            // set the timeout value for the handshake, if any
             if (isNaN(data.timeout) === false && data.timeout > 0) {
                 config.timeout = Math.floor(data.timeout);
             }
-            if (vars.servers.dashboard.config.domain_local.includes(config.ip) === true && vars.servers.dashboard.config.ports[secureString] === config.port) {
-                socket.proxy = socket;
-                callback(socket, 0n, null);
-            } else {
-                create_socket(config);
-            }
+
+            create_socket(config);
         }
     },
     message: function services_websocketTest_message(socket_data:socket_data, transmit:transmit_socket):void {
@@ -127,27 +159,13 @@ const websocket_test:websocket_test = {
         const data:services_websocket_message = socket_data.data as services_websocket_message,
             socket_dashboard:websocket_client = transmit.socket as websocket_client,
             body:Buffer = Buffer.from(data.message),
-            same_application = function services_websocketTest_message_sameApplication():void {
-                const respond:services_websocket_message = {
-                    frame: data.frame,
-                    message: `WebSocket response:\n\n${data.message}`
-                };
-                respond.frame.extended = Buffer.byteLength(respond.message);
-                if (respond.frame.extended < 126) {
-                    respond.frame.len = respond.frame.extended;
-                } else if (respond.frame.extended < 65536) {
-                    respond.frame.len = 126;
-                } else {
-                    respond.frame.len = 127;
-                }
-                send({
-                    data: respond,
-                    service: "dashboard-websocket-response"
-                }, socket_dashboard, 3);
-            };
+            socket_test:websocket_client = websocket_test.find_socket("out", socket_dashboard.hash);
         let frameHeader:Buffer = null,
             payload:Buffer = null,
             headerSize:number = 2;
+        if (socket_test === null) {
+            return;
+        }
         if (data.frame.opcode < 8) {
             if (data.frame.len === 126) {
                 headerSize = headerSize + 2;
@@ -186,22 +204,7 @@ const websocket_test:websocket_test = {
         } else {
             payload = Buffer.concat([frameHeader, body]);
         }
-        // connected to same server, so just respond to the requesting browser
-        if (socket_dashboard.proxy === socket_dashboard) {
-            same_application();
-        // connected to another server spawned from an instance of this application
-        } else if (socket_dashboard.type === "websocket-test-remote") {
-            same_application();
-        // received response from remote of a connection to a different server spawned from an instance of this application
-        } else if (socket_dashboard.type === "websocket-test-local") {
-            send({
-                data: data,
-                service: "dashboard-websocket-response"
-            }, socket_dashboard.proxy, 3);
-        // connected to an unrelated remote
-        } else {
-            socket_dashboard.proxy.write(payload);
-        }
+        socket_test.write(payload);
     }
 };
 
