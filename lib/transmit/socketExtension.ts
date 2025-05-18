@@ -121,7 +121,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 config.socket.proxy = config.proxy; // stores the relationship between two sockets when they are piped as a proxy
                 config.proxy.proxy = config.socket; // adds the relationship to the proxy socket as well
                 // do not pipe socket traffic that is part of a web server domain redirection rule
-                if (config.type.indexOf(`proxy-${config.server}-`) !== 0 && config.type.indexOf(`socket-${config.server}-`) !== 0) {
+                if (config.type.indexOf(`proxy-${config.server}-`) !== 0 && config.type.indexOf(`socket-${config.server}-`) !== 0 && config.type !== "dashboard" && config.type !== "dashboard-terminal") {
                     config.socket.pipe(config.proxy);
                     config.proxy.pipe(config.socket);
                 }

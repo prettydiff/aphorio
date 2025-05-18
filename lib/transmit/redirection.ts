@@ -9,7 +9,7 @@ const redirection = function transmit_redirection(domain:string, message:Buffer|
         server:services_server = vars.servers[server_name].config;
     if (headerStr.indexOf("HTTP") > 0) {
         const header:string[] = headerStr.split(" "),
-            keys:string[] = (server.redirect_asset[domain] === undefined)
+            keys:string[] = (server.redirect_asset === null || server.redirect_asset === undefined || server.redirect_asset[domain] === undefined)
                 ? []
                 : Object.keys(server.redirect_asset[domain]);
         let index:number = keys.length,
