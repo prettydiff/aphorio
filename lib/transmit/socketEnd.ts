@@ -48,7 +48,9 @@ const socket_end = function transmit_socketEnd(socket_input:websocket_client):vo
     }
 
     // remove the socket from the sockets list of server_meta
-    index = vars.server_meta[socket.server].sockets[encryption].length;
+    index = (vars.server_meta[socket.server] === null || vars.server_meta[socket.server] === undefined)
+        ? 0
+        : vars.server_meta[socket.server].sockets[encryption].length;
     if (index > 0) {
         do {
             index = index - 1;
@@ -69,7 +71,9 @@ const socket_end = function transmit_socketEnd(socket_input:websocket_client):vo
         const encrypt:"open"|"secure" = (encryption === "open")
             ? "secure"
             : "open";
-        index = vars.server_meta[socket.server].sockets[encryption].length;
+        index = (vars.server_meta[socket.server] === null || vars.server_meta[socket.server] === undefined)
+            ? 0
+            : vars.server_meta[socket.server].sockets[encrypt].length;
         if (index > 0) {
             do {
                 index = index - 1;
