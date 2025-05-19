@@ -129,7 +129,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 config.socket.proxy = null;
             }
         }
-        if (config.callback !== null && config.callback !== undefined) {
+        if (config.callback !== null && config.callback !== undefined && (config.server !== "dashboard" || (config.server === "dashboard" && config.type !== "dashboard" && config.type !== "dashboard-terminal"))) {
             config.callback(config.socket, config.timeout);
         }
         log(log_config);

@@ -89,78 +89,80 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                     }
                 });
             },
-            sockets_open:websocket_client[] = vars.server_meta[old].sockets.open,
-            sockets_secure:websocket_client[] = vars.server_meta[old].sockets.secure;
-        let index:number = (sockets_open === undefined)
-            ? 0
-            : sockets_open.length;
-        if (temporary === true) {
-            data.action = "destroy";
-        }
-        // 1. turn off active servers
-        if (vars.server_meta[old].server.open !== undefined && vars.server_meta[old].server.open !== null) {
-            vars.server_meta[old].server.open.close();
-        }
-        if (vars.server_meta[old].server.secure !== undefined && vars.server_meta[old].server.secure !== null) {
-            vars.server_meta[old].server.secure.close();
-        }
-        vars.servers[old].status = {
-            open: 0,
-            secure: 0
-        };
-        // 2. kill all sockets on the server
-        if (index > 0) {
-            do {
-                index = index - 1;
-                sockets_open[index].destroy();
-            } while (index > 0);
-        }
-        index = (sockets_secure === undefined)
-            ? 0
-            : sockets_secure.length;
-        if (index > 0) {
-            do {
-                index = index - 1;
-                sockets_secure[index].destroy();
-            } while (index > 0);
-        }
-        delete vars.server_meta[old];
-        // 3. delete vars.sockets[name]
-        if (data.action === "destroy") {
-            // 4. delete server from vars.server
-            delete vars.servers[old];
-            // 5. remove server's directory
-            file.remove(file_remove);
-        } else if (data.action !== "modify") {
-            complete("remove");
-        }
-        // 6. modify the server
-        if (data.action === "modify") {
-            delete data.server.modification_name;
-            vars.servers[data.server.name].config = data.server;
-            if (data.server.name !== old) {
-                delete vars.servers[old];
-                server_create({
-                    action: "add",
-                    server: data.server
-                }, server_restart);
-            } else {
-                certificate({
-                    callback: function services_serverHalt_certificate():void {
-                        server(data, function services_serverHalt_certificate_restartComplete():void {
-                            complete("restart");
+            write_json = function services_serverHalt_writeJSON():void {
+                const sockets_open:websocket_client[] = vars.server_meta[old].sockets.open,
+                    sockets_secure:websocket_client[] = vars.server_meta[old].sockets.secure;
+                let index:number = (sockets_open === undefined)
+                    ? 0
+                    : sockets_open.length;
+                if (temporary === true) {
+                    data.action = "destroy";
+                }
+                // 2. turn off active servers
+                if (vars.server_meta[old].server.open !== undefined && vars.server_meta[old].server.open !== null) {
+                    vars.server_meta[old].server.open.close();
+                }
+                if (vars.server_meta[old].server.secure !== undefined && vars.server_meta[old].server.secure !== null) {
+                    vars.server_meta[old].server.secure.close();
+                }
+                vars.servers[old].status = {
+                    open: 0,
+                    secure: 0
+                };
+                // 3. kill all sockets on the server
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        sockets_open[index].destroy();
+                    } while (index > 0);
+                }
+                index = (sockets_secure === undefined)
+                    ? 0
+                    : sockets_secure.length;
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        sockets_secure[index].destroy();
+                    } while (index > 0);
+                }
+                delete vars.server_meta[old];
+                // 4. delete vars.sockets[name]
+                if (data.action === "destroy") {
+                    // 5. delete server from vars.server
+                    delete vars.servers[old];
+                    // 6. remove server's directory
+                    file.remove(file_remove);
+                } else if (data.action !== "modify") {
+                    complete("remove");
+                }
+                // 7. modify the server
+                if (data.action === "modify") {
+                    delete data.server.modification_name;
+                    vars.servers[data.server.name].config = data.server;
+                    if (data.server.name !== old) {
+                        delete vars.servers[old];
+                        server_create({
+                            action: "add",
+                            server: data.server
+                        }, server_restart);
+                    } else {
+                        certificate({
+                            callback: function services_serverHalt_certificate():void {
+                                server(data, function services_serverHalt_certificate_restartComplete():void {
+                                    complete("restart");
+                                });
+                            },
+                            days: 65535,
+                            name: data.server.name,
+                            selfSign: true
                         });
-                    },
-                    days: 65535,
-                    name: data.server.name,
-                    selfSign: true
-                });
-            }
-        } else {
-            complete("restart");
-        }
+                    }
+                } else {
+                    complete("restart");
+                }
+            };
         if (data.action === "destroy" || data.action === "modify") {
-            // 7. modify the servers.json file
+            // 1. modify the servers.json file
             const servers:store_server_config = {},
                 keys:string[] = Object.keys(vars.servers),
                 total:number = keys.length;
@@ -174,15 +176,13 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 } while (index < total);
             }
             file.write({
-                callback: function services_serverHalt_writeConfig():void {
-                    complete("config");
-                },
+                callback: write_json,
                 contents: JSON.stringify(servers),
                 error_terminate: data.server,
                 location: path_config
             });
         } else {
-            complete("config");
+            write_json();
         }
     }
 };
