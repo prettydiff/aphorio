@@ -116,14 +116,14 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         }
         if (config.type !== "http") {
             config.socket.setKeepAlive(true, 0);   // standard method to retain socket against timeouts from inactivity until a close frame comes in
-            if (config.proxy !== null && config.proxy !== undefined) {
+            if (config.proxy !== null && config.proxy !== undefined && (config.server !== "dashboard" || (config.server === "dashboard" && config.type !== "dashboard" && config.type !== "dashboard-terminal"))) {
                 config.socket.proxy = config.proxy; // stores the relationship between two sockets when they are piped as a proxy
                 config.proxy.proxy = config.socket; // adds the relationship to the proxy socket as well
                 config.socket.pipe(config.proxy);
                 config.proxy.pipe(config.socket);
             }
         }
-        if (config.callback !== null && config.callback !== undefined && (config.server !== "dashboard" || (config.server === "dashboard" && config.type !== "dashboard" && config.type !== "dashboard-terminal"))) {
+        if (config.callback !== null && config.callback !== undefined) {
             config.callback(config.socket, config.timeout);
         }
         log(log_config);
