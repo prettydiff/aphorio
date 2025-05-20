@@ -120,6 +120,7 @@ interface server_os {
     machine: {
         cpu: {
             arch: string;
+            cores: number;
             endianness: string;
             frequency: number;
             name: string;
@@ -133,12 +134,12 @@ interface server_os {
     os: {
         env: store_string;
         hostname: string;
+        name: string;
         path: string[];
         platform: string;
         release: string;
         type: string;
         uptime: number;
-        version: string;
     };
     process: {
         arch: string;
@@ -146,6 +147,11 @@ interface server_os {
         cpuSystem: number;
         cpuUser: number;
         cwd: string;
+        memory: {
+            external: number;
+            rss: number;
+            V8: number;
+        };
         pid: number;
         platform: string;
         ppid: number;
@@ -157,6 +163,14 @@ interface server_os {
         homedir: string;
         uid: number;
     };
+}
+
+interface server_os_memoryUsage {
+    arrayBuffers: number;
+    external: number;
+    heapTotal: number;
+    heapUsed: number;
+    rss: number;
 }
 
 interface server_ports {

@@ -39,6 +39,7 @@ const gid:number = (typeof process.getgid === "undefined")
             machine: {
                 cpu: {
                     arch: node.os.arch(),
+                    cores: node.os.cpus().length,
                     endianness: node.os.endianness(),
                     frequency: node.os.cpus()[0].speed,
                     name: node.os.cpus()[0].model,
@@ -52,6 +53,7 @@ const gid:number = (typeof process.getgid === "undefined")
             os: {
                 env: process.env,
                 hostname: node.os.hostname(),
+                name: node.os.version(),
                 path: (process.platform === "win32")
                     ? process.env.Path.split(";")
                     : (process.env.PATH === undefined)
@@ -60,8 +62,7 @@ const gid:number = (typeof process.getgid === "undefined")
                 platform: node.os.platform(),
                 release: node.os.release(),
                 type: node.os.type(),
-                uptime: node.os.uptime(),
-                version: node.os.version()
+                uptime: node.os.uptime()
             },
             process: {
                 arch: process.arch,
@@ -69,6 +70,11 @@ const gid:number = (typeof process.getgid === "undefined")
                 cpuSystem: process.cpuUsage().system,
                 cpuUser: process.cpuUsage().user,
                 cwd: process.cwd(),
+                memory: {
+                    external: 0,
+                    rss: 0,
+                    V8: 0
+                },
                 pid: process.pid,
                 platform: process.platform,
                 ppid: process.ppid,

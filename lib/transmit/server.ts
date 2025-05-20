@@ -175,7 +175,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                                 }, socket, 3);
                                             }
                                         },
-                                        terminalFlag:boolean = (server_name === "dashboard" && type.indexOf("dashboard-terminal-") === 0),
+                                        terminalFlag:boolean = (server_name === "dashboard" && type === "dashboard-terminal"),
                                         identifier:string = (terminalFlag === true)
                                             ? `dashboard-terminal-${hashOutput.hash}`
                                             : `browserSocket-${hashOutput.hash}`;

@@ -432,9 +432,11 @@ const core = function core(config:config_core):socket_object {
                                     a = a + 1;
                                 } while (a < 9);
                             }
-                            return nano;
+                            return nano.replace(/0+$/, "");
                         }()),
-                        secondString:string = `${numberString(seconds)}.${nanoString}`,
+                        secondString:string = (nanoString === "")
+                            ? numberString(seconds)
+                            : `${numberString(seconds)}.${nanoString}`,
                         minuteString:string = numberString(minutes),
                         hourString:string = numberString(hours),
                         dayString:string = (days === 1n)
