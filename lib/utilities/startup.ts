@@ -184,24 +184,33 @@ const startup = function utilities_startup(callback:() => void):void {
             readComplete("docker");
         },
         osUpdate = function utilities_startup_osUpdate():void {
-            const os:services_os = {
-                machine: {
-                    interfaces: node.os.networkInterfaces(),
-                    memory: {
-                        free: node.os.freemem(),
-                        total: node.os.totalmem()
-                    }
-                },
-                os: {
-                    uptime: node.os.uptime()
-                },
-                process: {
-                    cpuSystem: process.cpuUsage().system,
-                    cpuUser: process.cpuUsage().user,
-                    uptime: process.uptime()
-                },
-                time: Date.now()
-            };
+            const mem:server_os_memoryUsage = process.memoryUsage(),
+                os:services_os = {
+                    machine: {
+                        cores: node.os.cpus().length,
+                        interfaces: node.os.networkInterfaces(),
+                        memory: {
+                            free: node.os.freemem(),
+                            total: node.os.totalmem()
+                        }
+                    },
+                    os: {
+                        uptime: node.os.uptime()
+                    },
+                    process: {
+                        // microseconds
+                        cpuSystem: process.cpuUsage().system / 1e6,
+                        cpuUser: process.cpuUsage().user / 1e6,
+                        memory: {
+                            external: mem.external,
+                            rss: process.memoryUsage.rss(),
+                            V8: mem.heapUsed
+                        },
+                        uptime: process.uptime()
+                    },
+                    time: Date.now()
+                };
+            vars.os.machine.cpu.cores = os.machine.cores;
             vars.os.machine.interfaces = os.machine.interfaces;
             vars.os.machine.memory.free = os.machine.memory.free;
             vars.os.machine.memory.total = os.machine.memory.total;
@@ -209,6 +218,9 @@ const startup = function utilities_startup(callback:() => void):void {
             vars.os.process.cpuSystem = os.process.cpuSystem;
             vars.os.process.cpuUser = os.process.cpuUser;
             vars.os.process.uptime = os.process.uptime;
+            vars.os.process.memory.external = os.process.memory.external;
+            vars.os.process.memory.rss = os.process.memory.rss;
+            vars.os.process.memory.V8 = os.process.memory.V8;
             broadcast("dashboard", "dashboard", {
                 data: os,
                 service: "dashboard-os"

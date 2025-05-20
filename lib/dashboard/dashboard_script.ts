@@ -1352,49 +1352,65 @@ const dashboard = function dashboard():void {
         },
         os:module_os = {
             init: function dashboard_osInit():void {
-                const section:HTMLElement = document.getElementById("os"),
-                    sections:HTMLCollectionOf<HTMLElement> = section.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>,
-                    user:HTMLElement = sections[3],
-                    machines:HTMLCollectionOf<HTMLElement> = sections[0].getElementsByTagName("ul"),
-                    os_sections:HTMLCollectionOf<HTMLElement> = sections[1].getElementsByTagName("ul"),
-                    processes:HTMLCollectionOf<HTMLElement> = sections[2].getElementsByTagName("ul"),
-                    populate = function dashboard_osInit_populate(list:HTMLElement, listItem:number, value:string):void {
-                        list.getElementsByTagName("li")[listItem].getElementsByTagName("span")[0].textContent = value;
-                    },
-                    update:HTMLElement = document.getElementById("os").getElementsByTagName("p")[1].getElementsByTagName("em")[0];
                 let keys:string[] = null,
                     li:HTMLElement = null,
                     strong:HTMLElement = null,
                     span:HTMLElement = null,
                     len:number = 0,
                     index:number = 0;
-                update.textContent = Date.now().dateTime(true);
-                populate(machines[0], 0, payload.os.machine.cpu.name);
-                populate(machines[0], 1, `${commas(payload.os.machine.cpu.frequency)}mhz`);
-                populate(machines[0], 2, payload.os.machine.cpu.arch);
-                populate(machines[0], 3, payload.os.machine.cpu.endianness);
-                populate(machines[1], 0, commas(payload.os.machine.memory.free));
-                populate(machines[1], 1, commas(payload.os.machine.memory.total - payload.os.machine.memory.free));
-                populate(machines[1], 2, commas(payload.os.machine.memory.total));
+                os.nodes.update.textContent = Date.now().dateTime(true);
+                os.nodes.cpu.arch.textContent = payload.os.machine.cpu.arch;
+                os.nodes.cpu.cores.textContent = commas(payload.os.machine.cpu.cores);
+                os.nodes.cpu.endianness.textContent = payload.os.machine.cpu.endianness;
+                os.nodes.cpu.frequency.textContent = `${commas(payload.os.machine.cpu.frequency)}mhz`;
+                os.nodes.cpu.name.textContent = payload.os.machine.cpu.name;
+                os.nodes.memory.free.textContent = `${commas(payload.os.machine.memory.free)} bytes`;
+                os.nodes.memory.used.textContent = `${commas(payload.os.machine.memory.total - payload.os.machine.memory.free)} bytes`;
+                os.nodes.memory.total.textContent = `${commas(payload.os.machine.memory.total)} bytes`;
                 os.interfaces(payload.os.machine.interfaces);
-                populate(os_sections[0], 0, payload.os.os.version);
-                populate(os_sections[0], 1, payload.os.os.platform);
-                populate(os_sections[0], 2, payload.os.os.release);
-                populate(os_sections[0], 3, payload.os.os.hostname);
-                populate(os_sections[0], 4, payload.os.os.uptime.time());
-                populate(os_sections[0], 0, payload.os.os.version);
+                os.nodes.os.hostname.textContent = payload.os.os.hostname;
+                os.nodes.os.name.textContent = payload.os.os.name;
+                os.nodes.os.platform.textContent = payload.os.os.platform;
+                os.nodes.os.release.textContent = payload.os.os.release;
+                os.nodes.os.type.textContent = payload.os.os.type;
+                os.nodes.os.uptime.textContent = payload.os.os.uptime.time();
+                os.nodes.process.arch.textContent = payload.os.process.arch;
+                os.nodes.process.argv.textContent = JSON.stringify(payload.os.process.argv);
+                os.nodes.process.cpuSystem.textContent = payload.os.process.cpuSystem.time();
+                os.nodes.process.cpuUser.textContent = payload.os.process.cpuUser.time();
+                os.nodes.process.cwd.textContent = payload.os.process.cwd;
+                os.nodes.process.platform.textContent = payload.os.process.platform;
+                os.nodes.process.pid.textContent = String(payload.os.process.pid);
+                os.nodes.process.ppid.textContent = String(payload.os.process.ppid);
+                os.nodes.process.uptime.textContent = payload.os.process.uptime.time();
+                os.nodes.process.memoryProcess.textContent = `${commas(payload.os.process.memory.rss)} bytes`;
+                os.nodes.process.memoryPercent.textContent = `${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
+                os.nodes.process.memoryV8.textContent = `${commas(payload.os.process.memory.V8)} bytes`;
+                os.nodes.process.memoryExternal.textContent = `${commas(payload.os.process.memory.external)} bytes`;
+                if (payload.os.process.platform === "win32") {
+                    os.nodes.user.gid.parentNode.style.display = "none";
+                    os.nodes.user.uid.parentNode.style.display = "none";
+                } else {
+                    os.nodes.user.gid.textContent = String(payload.os.user.gid);
+                    os.nodes.user.uid.textContent = String(payload.os.user.uid);
+                }
+                os.nodes.user.homedir.textContent = payload.os.user.homedir;
+
+                // System Path
                 len = payload.os.os.path.length;
                 if (len > 0) {
                     index = 0;
                     do {
                         li = document.createElement("li");
                         li.textContent = payload.os.os.path[index];
-                        os_sections[1].appendChild(li);
+                        os.nodes.path.appendChild(li);
                         index = index + 1;
                     } while (index < len);
                 }
                 delete payload.os.os.env.Path;
                 delete payload.os.os.env.PATH;
+
+                // Environbmental Variables
                 keys = Object.keys(payload.os.os.env);
                 len = keys.length;
                 if (len > 0) {
@@ -1406,19 +1422,12 @@ const dashboard = function dashboard():void {
                         span.textContent = payload.os.os.env[keys[index]];
                         li.appendChild(strong);
                         li.appendChild(span);
-                        os_sections[2].appendChild(li);
+                        os.nodes.env.appendChild(li);
                         index = index + 1;
                     } while (index < len);
                 }
-                populate(processes[0], 0, payload.os.process.arch);
-                populate(processes[0], 1, payload.os.process.platform);
-                populate(processes[0], 2, JSON.stringify(payload.os.process.argv));
-                populate(processes[0], 3, commas(payload.os.process.cpuSystem / 1e6));
-                populate(processes[0], 4, commas(payload.os.process.cpuUser / 1e6));
-                populate(processes[0], 5, payload.os.process.cwd);
-                populate(processes[0], 6, String(payload.os.process.pid));
-                populate(processes[0], 7, String(payload.os.process.ppid));
-                populate(processes[0], 8, payload.os.process.uptime.time());
+
+                // Node Dependency Versions
                 keys = Object.keys(payload.os.process.versions);
                 len = keys.length;
                 if (len > 0) {
@@ -1431,21 +1440,13 @@ const dashboard = function dashboard():void {
                         span.textContent = payload.os.process.versions[keys[index]];
                         li.appendChild(strong);
                         li.appendChild(span);
-                        processes[1].appendChild(li);
+                        os.nodes.versions.appendChild(li);
                         index = index + 1;
                     } while (index < len);
                 }
-                if (payload.os.process.platform === "win32") {
-                    user.getElementsByTagName("li")[0].style.display = "none";
-                    user.getElementsByTagName("li")[1].style.display = "none";
-                } else {
-                    populate(user, 0, String(payload.os.user.gid));
-                    populate(user, 1, String(payload.os.user.uid));
-                }
-                populate(user, 2, payload.os.user.homedir);
             },
             interfaces: function dashboard_osInterfaces(data:NodeJS.Dict<node_os_NetworkInterfaceInfo[]>):void {
-                const output_old:HTMLElement = document.getElementById("os").getElementsByTagName("div")[0].getElementsByTagName("ul")[2],
+                const output_old:HTMLElement = os.nodes.interfaces,
                     output_new:HTMLElement = document.createElement("ul"),
                     keys:string[] = Object.keys(data),
                     len:number = keys.length,
@@ -1478,7 +1479,7 @@ const dashboard = function dashboard():void {
                     len_child:number = 0,
                     li:HTMLElement = null,
                     h5:HTMLElement = null;
-                output_new.setAttribute("class", "definitions");
+                output_new.setAttribute("class", "definition-body");
                 output_new.setAttribute("data-name", output_old.dataset.name);
                 if (output_old.style.display === "block") {
                     output_new.style.display = "block";
@@ -1505,19 +1506,76 @@ const dashboard = function dashboard():void {
                 }
                 output_old.parentNode.appendChild(output_new);
                 output_old.parentNode.removeChild(output_old);
+                os.nodes.interfaces = output_new;
             },
-            service: function dashboard_osService(data_item:socket_data):void {
-                const data:services_os = data_item.data as services_os,
-                    section:HTMLElement = document.getElementById("os"),
-                    sections:HTMLCollectionOf<HTMLElement> = section.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>,
-                    update:HTMLElement = document.getElementById("os").getElementsByTagName("p")[1].getElementsByTagName("em")[0],
-                    machines:HTMLCollectionOf<HTMLElement> = sections[0].getElementsByTagName("ul"),
-                    os_sections:HTMLCollectionOf<HTMLElement> = sections[1].getElementsByTagName("ul"),
-                    processes:HTMLCollectionOf<HTMLElement> = sections[2].getElementsByTagName("ul"),
-                    populate = function dashboard_osService_populate(list:HTMLElement, listItem:number, value:string):void {
-                        list.getElementsByTagName("li")[listItem].getElementsByTagName("span")[0].textContent = value;
+            nodes: (function dashboard_osNodes():module_os_nodes {
+                const sectionList:HTMLCollectionOf<HTMLElement> = document.getElementById("os").getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>,
+                    sections = {
+                        cpu: sectionList[0].getElementsByTagName("ul")[0],
+                        env: sectionList[1].getElementsByTagName("ul")[1],
+                        interfaces: sectionList[0].getElementsByTagName("ul")[2],
+                        memory: sectionList[0].getElementsByTagName("ul")[1],
+                        os: sectionList[1].getElementsByTagName("ul")[0],
+                        path: sectionList[1].getElementsByTagName("ul")[2],
+                        process: sectionList[2].getElementsByTagName("ul")[0],
+                        user: sectionList[3].getElementsByTagName("ul")[0],
+                        versions: sectionList[2].getElementsByTagName("ul")[1]
+                    },
+                    item = function dashboard_osNodes_item(section:"cpu"|"memory"|"os"|"process"|"user", index:number):HTMLElement {
+                        return sections[section].getElementsByTagName("li")[index].getElementsByTagName("span")[0]
+                    },
+                    nodeList:module_os_nodes = {
+                        cpu: {
+                            arch: item("cpu", 0),
+                            cores: item("cpu", 1),
+                            endianness: item("cpu", 2),
+                            frequency: item("cpu", 3),
+                            name: item("cpu", 4)
+                        },
+                        env: sections.env,
+                        interfaces: sections.interfaces,
+                        memory: {
+                            free: item("memory", 0),
+                            total: item("memory", 2),
+                            used: item("memory", 1)
+                        },
+                        os: {
+                            hostname: item("os", 0),
+                            name: item("os", 1),
+                            platform: item("os", 2),
+                            release: item("os", 3),
+                            type: item("os", 4),
+                            uptime: item("os", 5)
+                        },
+                        path: sections.path,
+                        process: {
+                            arch: item("process", 0),
+                            argv: item("process", 1),
+                            cpuSystem: item("process", 2),
+                            cpuUser: item("process", 3),
+                            cwd: item("process", 4),
+                            memoryProcess: item("process", 5),
+                            memoryPercent: item("process", 6),
+                            memoryV8: item("process", 7),
+                            memoryExternal: item("process", 8),
+                            platform: item("process", 9),
+                            pid: item("process", 10),
+                            ppid: item("process", 11),
+                            uptime: item("process", 12)
+                        },
+                        update: document.getElementById("os").getElementsByTagName("p")[2],
+                        user: {
+                            gid: item("user", 0),
+                            uid: item("user", 1),
+                            homedir: item("user", 2)
+                        },
+                        versions: sections.versions
                     };
-                update.textContent = data.time.dateTime(true);
+                return nodeList;
+            }()),
+            service: function dashboard_osService(data_item:socket_data):void {
+                const data:services_os = data_item.data as services_os;
+                os.nodes.update.textContent = data.time.dateTime(true);
                 payload.os.machine.interfaces = data.machine.interfaces;
                 payload.os.machine.memory = data.machine.memory;
                 payload.os.os.uptime = data.os.uptime;
@@ -1525,13 +1583,17 @@ const dashboard = function dashboard():void {
                 payload.os.process.cpuUser = data.process.cpuUser;
                 payload.os.process.uptime = data.process.uptime;
                 os.interfaces(data.machine.interfaces);
-                populate(machines[1], 0, commas(payload.os.machine.memory.free));
-                populate(machines[1], 1, commas(payload.os.machine.memory.total - payload.os.machine.memory.free));
-                populate(machines[1], 2, commas(payload.os.machine.memory.total));
-                populate(os_sections[0], 4, payload.os.os.uptime.time());
-                populate(processes[0], 3, commas(payload.os.process.cpuSystem / 1e6));
-                populate(processes[0], 4, commas(payload.os.process.cpuUser / 1e6));
-                populate(processes[0], 8, payload.os.process.uptime.time());
+                os.nodes.memory.free.textContent = `${commas(payload.os.machine.memory.free)} bytes`;
+                os.nodes.memory.used.textContent = `${commas(payload.os.machine.memory.total - payload.os.machine.memory.free)} bytes`;
+                os.nodes.memory.total.textContent = `${commas(payload.os.machine.memory.total)} bytes`;
+                os.nodes.os.uptime.textContent = payload.os.os.uptime.time();
+                os.nodes.process.cpuSystem.textContent = payload.os.process.cpuSystem.time();
+                os.nodes.process.cpuUser.textContent = payload.os.process.cpuUser.time();
+                os.nodes.process.uptime.textContent = payload.os.process.uptime.time();
+                os.nodes.process.memoryProcess.textContent = `${commas(payload.os.process.memory.rss)} bytes`;
+                os.nodes.process.memoryPercent.textContent = `${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
+                os.nodes.process.memoryV8.textContent = `${commas(payload.os.process.memory.V8)} bytes`;
+                os.nodes.process.memoryExternal.textContent = `${commas(payload.os.process.memory.external)} bytes`;
             }
         },
         ports:module_port = {

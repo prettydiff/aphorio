@@ -150,6 +150,7 @@ declare global {
 
     interface services_os {
         machine: {
+            cores: number;
             interfaces: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
             memory: {
                 free: number;
@@ -162,6 +163,11 @@ declare global {
         process: {
             cpuSystem: number;
             cpuUser: number;
+            memory: {
+                external: number;
+                rss: number;
+                V8: number;
+            };
             uptime: number;
         };
         time: number;

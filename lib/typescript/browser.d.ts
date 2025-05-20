@@ -153,7 +153,56 @@ declare global {
     interface module_os {
         init: () => void;
         interfaces: (data:NodeJS.Dict<node_os_NetworkInterfaceInfo[]>) => void;
+        nodes: module_os_nodes;
         service: (data_item:socket_data) => void;
+    }
+
+    interface module_os_nodes {
+        cpu: {
+            arch: HTMLElement;
+            cores: HTMLElement;
+            endianness: HTMLElement;
+            frequency: HTMLElement;
+            name: HTMLElement;
+        };
+        env: HTMLElement;
+        interfaces: HTMLElement;
+        memory: {
+            free: HTMLElement;
+            total: HTMLElement;
+            used: HTMLElement;
+        };
+        os: {
+            hostname: HTMLElement;
+            name: HTMLElement;
+            platform: HTMLElement;
+            release: HTMLElement;
+            type: HTMLElement;
+            uptime: HTMLElement;
+        };
+        path: HTMLElement;
+        process: {
+            arch: HTMLElement;
+            argv: HTMLElement;
+            cpuSystem: HTMLElement;
+            cpuUser: HTMLElement;
+            cwd: HTMLElement;
+            memoryProcess: HTMLElement;
+            memoryPercent: HTMLElement;
+            memoryV8: HTMLElement;
+            memoryExternal: HTMLElement;
+            platform: HTMLElement;
+            pid: HTMLElement;
+            ppid: HTMLElement;
+            uptime: HTMLElement;
+        };
+        update: HTMLElement;
+        user: {
+            gid: HTMLElement;
+            uid: HTMLElement;
+            homedir: HTMLElement;
+        };
+        versions: HTMLElement;
     }
 
     interface module_server {
