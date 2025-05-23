@@ -101,7 +101,7 @@ const gid:number = (typeof process.getgid === "undefined")
         servers: {},
         server_meta: {},
         shell: (process.platform === "win32")
-            ? "powershell.exe"
+            ? "\\\\?\\C:\\Windows\\System32\\conhost.exe"
             : "/bin/sh",
         system_ports: {
             list: [],

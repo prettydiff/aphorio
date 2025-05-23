@@ -226,7 +226,10 @@ const startup = function utilities_startup(callback:() => void):void {
                 service: "dashboard-os"
             });
             setTimeout(utilities_startup_osUpdate, 60000);
-        };
+        },
+        shellTest:string = (process.platform === "win32")
+            ? "\\\\?\\C:\\Program Files\\PowerShell\\7\\pwsh.exe"
+            : "/bin/bash";
 
     String.prototype.capitalize = capitalize;
     Number.prototype.dateTime = dateTime;
@@ -242,18 +245,16 @@ const startup = function utilities_startup(callback:() => void):void {
         location: `${vars.path.project}compose.json`,
         no_file: null
     });
-    if (process.platform !== "win32") {
-        file.stat({
-            callback: function utilities_startup_bash(stat:node_fs_BigIntStats):void {
-                if (stat !== null) {
-                    vars.shell = "/bin/bash";
-                }
-            },
-            error_terminate: null,
-            location: "/bin/bash",
-            no_file: null
-        });
-    }
+    file.stat({
+        callback: function utilities_startup_bash(stat:node_fs_BigIntStats):void {
+            if (stat !== null) {
+                vars.shell = shellTest;
+            }
+        },
+        error_terminate: null,
+        location: shellTest,
+        no_file: null
+    });
 };
 
 export default startup;
