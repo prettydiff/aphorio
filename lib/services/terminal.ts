@@ -10,7 +10,6 @@ import vars from "../utilities/vars.js";
 // cspell: words lydell
 
 const terminal = function services_terminal(socket:websocket_client):void {
-    let xterm:boolean = false;
     const close = function services_terminal_close():void {
             pty.kill();
         },
@@ -29,44 +28,44 @@ const terminal = function services_terminal(socket:websocket_client):void {
             socket: socket,
             type: "ws"
         }),
-        // pty:pty|node_childProcess_ChildProcess = (xterm === true)
-        //     ? (function services_terminal_xterm():pty {
-        //         const item:pty = spawn(vars.shell, [], {
-        //                 cols: vars.terminal.cols,
-        //                 cwd: vars.path.project,
-        //                 env: process.env,
-        //                 name: socket.server,
-        //                 rows: vars.terminal.rows
-        //             }),
-        //             handler = function services_terminal_xterm_handler(socket:websocket_client, data:Buffer):void {
-        //                 item.write(data.toString());
-        //             },
-        //             out = function services_terminal_xterm_out(output:string):void {
-        //                 send(output, socket, 1);
-        //             };
-        //         socket.handler = handler;
-        //         item.onData(out);
-        //         item.onExit(close);
-        //         return item;
-        //     }())
-        //     : 
+        // pty:pty = (function services_terminal_xterm():pty {
+        //     const item:pty = spawn(vars.shell, [], {
+        //             cols: vars.terminal.cols,
+        //             cwd: vars.path.project,
+        //             env: process.env,
+        //             name: socket.server,
+        //             rows: vars.terminal.rows
+        //         }),
+        //         handler = function services_terminal_xterm_handler(socket:websocket_client, data:Buffer):void {
+        //             item.write(data.toString());
+        //         },
+        //         out = function services_terminal_xterm_out(output:string):void {
+        //             send(output, socket, 1);
+        //         };
+        //     socket.handler = handler;
+        //     item.onData(out);
+        //     item.onExit(close);
+        //     return item;
+        // }()),
         pty:node_childProcess_ChildProcess = (function services_terminal_child():node_childProcess_ChildProcess {
             const item:node_childProcess_ChildProcess = node.child_process.spawn(vars.shell, [], {
-                    windowsHide: true
+                    env: process.env
                 }),
                 handler = function services_terminal_child_handler(socket:websocket_client, data:Buffer):void {
                     const str:string = data.toString();
-                    item.stdin.write((str === "\r") ? "\r\n" : str);
+                    item.stdin.write((str === "\r") ? (process.platform === "win32") ? "\r\n" : "\n" : str);
                 },
-                out = function services_terminal_child_out(output:Buffer):void {
+                out = function services_terminal_child_out(output:Buffer):void {console.log(output.toString());
                     send(output.toString(), socket, 1);
                 };
             if (process.platform === "win32") {
                 if (vars.shell.includes("conhost") === true) {
+                    // resize cmd shell
                     item.stdin.write(`mode con: cols=${vars.terminal.cols} lines=${vars.terminal.rows}\r\n`);
                 } else {
+                    // resize powershell
                     const inst:string[] = [
-                        "$PSStyle.OutputRendering='Host'",
+                        "$PSStyle.OutputRendering='ANSI'",
                         "$psGet=Get-Host",
                         "$psHost=$psGet.UI.RawUI",
                         "$psBuffer=psHost.BufferSize",
@@ -82,6 +81,9 @@ const terminal = function services_terminal(socket:websocket_client):void {
                     ];
                     item.stdin.write(inst.join("\r\n"));
                 }
+            } else {
+                // resize bash
+                item.stdin.write(`printf "\u001b[8;${vars.terminal.rows};${vars.terminal.cols}t"\n`);
             }
             socket.handler = handler;
             item.stdout.on("data", out);
