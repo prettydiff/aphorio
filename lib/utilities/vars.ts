@@ -100,9 +100,6 @@ const gid:number = (typeof process.getgid === "undefined")
         sep: node.path.sep,
         servers: {},
         server_meta: {},
-        shell: (process.platform === "win32")
-            ? "\\\\?\\C:\\Windows\\System32\\conhost.exe"
-            : "/bin/sh",
         system_ports: {
             list: [],
             time: 0
@@ -110,6 +107,12 @@ const gid:number = (typeof process.getgid === "undefined")
         start_time: process.hrtime.bigint(),
         terminal: {
             cols: 199,
+            pty: (process.platform === "win32")
+                ? ["\\\\?\\C:\\Windows\\System32\\conhost.exe"]
+                : ["/dev/pts/ptmx"],
+            shell: (process.platform === "win32")
+                ? ["\\\\?\\C:\\Windows\\System32\\cmd.exe"]
+                : ["/bin/sh"],
             rows: 50
         },
         text: {

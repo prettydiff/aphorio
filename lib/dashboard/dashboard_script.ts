@@ -32,7 +32,11 @@ const dashboard = function dashboard():void {
                     encryption: true,
                     request: ""
                 },
-                nav: "servers"
+                nav: "servers",
+                terminal: {
+                    pty: 0,
+                    shell: 0
+                }
             }
             : JSON.parse(local),
         setState = function dashboard_setState():void {
@@ -54,6 +58,10 @@ const dashboard = function dashboard():void {
             state.hash.source = hash.nodes.source.value;
             state.http.encryption = (http.nodes.encryption.checked === true);
             state.http.request = http.nodes.request.value;
+            state.terminal = {
+                pty: terminal.nodes.pty.selectedIndex,
+                shell: terminal.nodes.shell.selectedIndex
+            };
             localStorage.state = JSON.stringify(state);
         },
         log = function dashboard_log(item:services_dashboard_status):void {
@@ -1321,16 +1329,6 @@ const dashboard = function dashboard():void {
                 http.nodes.stats[5].textContent = `${commas(data.stats.request.size_header)} bytes`;
                 // request body size
                 http.nodes.stats[6].textContent = `${commas(data.stats.request.size_body)} bytes`;
-                // if (reqs.length < 2) {
-                //     // request header size
-                //     http.nodes.stats[5].textContent = `${commas(data.stats.request.size_header)} bytes`;
-                //     // request body size
-                //     http.nodes.stats[6].textContent = "0 characters";
-                // } else {
-                //     http.nodes.stats[5].textContent = `${commas(reqs[0].length)} characters`;
-                //     reqs.splice(0, 1);
-                //     http.nodes.stats[6].textContent = `${commas(reqs.join("\n\n").length)} characters`;
-                // }
                 // URI length
                 http.nodes.stats[7].textContent = `${commas(JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length)} characters`;
             }
@@ -2714,6 +2712,30 @@ const dashboard = function dashboard():void {
         terminal:module_terminal = {
             // https://xtermjs.org/docs/
             events: {
+                connect: function dashboard_terminalConnect(event:MouseEvent):void {
+                    const target:HTMLElement = event.target;
+                    if (target.textContent === "Connect") {
+                        const encryption:type_encryption = (location.protocol === "http:")
+                                ? "open"
+                                : "secure",
+                            scheme:"ws"|"wss" = (encryption === "open")
+                                ? "ws"
+                                : "wss",
+                            message:services_terminal_request = {
+                                pty: terminal.nodes.pty[terminal.nodes.pty.selectedIndex].textContent,
+                                secure: encryption,
+                                shell: terminal.nodes.shell[terminal.nodes.shell.selectedIndex].textContent
+                            };
+                        terminal.socket = new WebSocket(`${scheme}://${location.host}`, ["dashboard-terminal"]);
+                        terminal.socket.onmessage = terminal.events.firstData;
+                        terminal.socket.send(JSON.stringify(message));
+                    } else {
+                        terminal.socket.close();
+                        terminal.nodes.output.textContent = "";
+                        terminal.item = null;
+                        terminal.info = null;
+                    }
+                },
                 data: function dashboard_terminalData(event:websocket_event):void {
                     terminal.item.write(event.data);
                 },
@@ -2721,30 +2743,6 @@ const dashboard = function dashboard():void {
                     terminal.socket.onmessage = terminal.events.data;
                     terminal.info = JSON.parse(event.data);
                     terminal.nodes.output.setAttribute("data-info", event.data);
-                },
-                input: function dashboard_terminalInput(input:terminal_input):void {
-                    if (terminal.socket.readyState === 1) {
-                        terminal.socket.send(input.key);
-                    }
-                },
-                selection: function dashboard_terminalSelection():void {
-                    navigator.clipboard.write([
-                        new ClipboardItem({["text/plain"]: terminal.item.getSelection()})
-                    ]);
-                }
-            },
-            id: null,
-            info: null,
-            init: function dashboard_terminalItem():void {
-                if (typeof Terminal === "undefined") {
-                    setTimeout(dashboard_terminalItem, 200);
-                } else {
-                    const encryption:type_encryption = (location.protocol === "http:")
-                            ? "open"
-                            : "secure",
-                        scheme:"ws"|"wss" = (encryption === "open")
-                            ? "ws"
-                            : "wss";
                     terminal.item = new Terminal({
                         cols: payload.terminal.cols,
                         cursorBlink: true,
@@ -2758,10 +2756,6 @@ const dashboard = function dashboard():void {
                     });
                     terminal.item.open(terminal.nodes.output);
                     terminal.item.onKey(terminal.events.input);
-                    terminal.item.write("Terminal emulator pending connection...\r\n");
-                    // client-side terminal is ready, so alert the backend to initiate a pseudo-terminal
-                    terminal.socket = new WebSocket(`${scheme}://${location.host}`, ["dashboard-terminal"]);
-                    terminal.socket.onmessage = terminal.events.firstData;
                     if (typeof navigator.clipboard === "undefined") {
                         const em:HTMLElement = document.getElementById("terminal").getElementsByClassName("tab-description")[0].getElementsByTagName("em")[0] as HTMLElement;
                         if (location.protocol === "http:") {
@@ -2773,11 +2767,54 @@ const dashboard = function dashboard():void {
                     } else {
                         terminal.item.onSelectionChange(terminal.events.selection);
                     }
+                },
+                input: function dashboard_terminalInput(input:terminal_input):void {
+                    if (terminal.socket.readyState === 1) {
+                        terminal.socket.send(input.key);
+                    }
+                },
+                select: function dashboard_terminalSelect(event:Event):void {
+                    const target:HTMLSelectElement = event.target as HTMLSelectElement;
+                    setState();
+                },
+                selection: function dashboard_terminalSelection():void {
+                    navigator.clipboard.write([
+                        new ClipboardItem({["text/plain"]: terminal.item.getSelection()})
+                    ]);
                 }
+            },
+            info: null,
+            init: function dashboard_terminalItem():void {
+                const populate = function dashboard_terminalItem_populate(key:"pty"|"shell"):void {
+                    let index:number = 0,
+                        option:HTMLElement = null;
+                    const len:number = payload.terminal[key].length;
+                    if (len > 0) {
+                        do {
+                            option = document.createElement("option");
+                            option.textContent = payload.terminal[key][index];
+                            terminal.nodes[key].appendChild(option);
+                            index = index + 1;
+                        } while (index < len);
+                    }
+                };
+                terminal.nodes.connect.onclick = terminal.events.connect;
+                if (state.terminal !== undefined) {
+                    terminal.nodes.pty.selectedIndex = state.terminal.pty;
+                    terminal.nodes.shell.selectedIndex = state.terminal.shell;
+                }
+                terminal.nodes.connect.textContent = "Connect";
+                terminal.nodes.pty.onchange = terminal.events.select;
+                terminal.nodes.shell.onchange = terminal.events.select;
+                populate("pty");
+                populate("shell");
             },
             item: null,
             nodes: {
-                output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement
+                connect: document.getElementById("terminal").getElementsByClassName("section")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
+                output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
+                pty: document.getElementById("terminal").getElementsByClassName("section")[0].getElementsByTagName("select")[1] as HTMLSelectElement,
+                shell: document.getElementById("terminal").getElementsByClassName("section")[0].getElementsByTagName("select")[0] as HTMLSelectElement
             },
             socket: null
         },

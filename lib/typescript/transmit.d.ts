@@ -39,7 +39,7 @@ interface transmit_dashboard {
         time: number;
     };
     servers: store_servers;
-    terminal: terminal_size;
+    terminal: terminal_config;
 }
 
 interface transmit_receiver {

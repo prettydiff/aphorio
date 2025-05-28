@@ -228,17 +228,21 @@ declare global {
 
     interface module_terminal {
         events: {
+            connect: (event:MouseEvent) => void;
             data: (event:websocket_event) => void;
             firstData: (event:websocket_event) => void;
             input: (input:terminal_input) => void;
+            select: (event:Event) => void;
             selection: () => void;
         };
-        id: string;
         info: terminal_identifiers;
         init: () => void;
         item: Terminal;
         nodes: {
+            connect: HTMLButtonElement;
             output: HTMLElement;
+            pty: HTMLSelectElement;
+            shell: HTMLSelectElement;
         };
         socket: WebSocket;
     }
@@ -279,11 +283,39 @@ declare global {
         socket: WebSocket;
     }
 
+    interface state_store {
+        dns: {
+            hosts: string;
+            types: string;
+        };
+        fileSystem: {
+            path: string;
+            search: string;
+        };
+        hash: {
+            algorithm: string;
+            digest: "base64" | "hex";
+            hashFunction: "base64" | "hash";
+            source: string;
+            type: "file" | "string";
+        };
+        http: {
+            encryption: boolean;
+            request: string;
+        };
+        nav: string;
+        terminal: {
+            pty: number;
+            shell: number;
+        };
+    }
+
     interface terminal_identifiers {
         pid: number;
         port_browser: number;
         port_terminal: number;
         server_name: string;
+        socket_id: string;
     }
 
     interface terminal_input {

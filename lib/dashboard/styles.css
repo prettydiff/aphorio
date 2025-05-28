@@ -206,7 +206,8 @@ label span.checked{background:var(--background_dark)}
 #dashboard .definitions > .buttons,
 #dashboard .section > .buttons{margin:0 0 2em}
 #dashboard #http .buttons,
-#dashboard #websocket .buttons{margin:0}
+#dashboard #websocket .buttons,
+#dashboard #terminal .buttons{margin:0}
 #dashboard .compose-container-list h4 button,
 #dashboard .server-list h4 button{background:none;border-style:none;box-shadow:none;display:block;font-size:0.834em;padding:0.595em;text-align:left;width:100%}
 #dashboard h3 .expand,
@@ -248,6 +249,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard button.server-cancel{color:var(--text_yellow)}
 #dashboard button.server-destroy{color:var(--fail_dark)}
 #dashboard input[type="text"],
+#dashboard select,
 #dashboard textarea{box-sizing:border-box;display:block;font-family:monospace;font-size:1em;margin:0 0 1em;width:100%}
 #dashboard .file-list{max-height:85em;overflow:scroll}
 #dashboard .file-list table{border-style:none}

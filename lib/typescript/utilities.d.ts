@@ -178,29 +178,6 @@ interface server_ports {
     secure?: number;
 }
 
-interface state_store {
-    dns: {
-        hosts: string;
-        types: string;
-    };
-    fileSystem: {
-        path: string;
-        search: string;
-    };
-    hash: {
-        algorithm: string;
-        digest: "base64" | "hex";
-        hashFunction: "base64" | "hash";
-        source: string;
-        type: "file" | "string";
-    };
-    http: {
-        encryption: boolean;
-        request: string;
-    };
-    nav: string;
-}
-
 interface store_compose {
     [key:string]: services_docker_compose;
 }
@@ -238,8 +215,10 @@ interface string_detect {
     encoding: string;
 }
 
-interface terminal_size {
+interface terminal_config {
     cols: number;
+    pty: string[];
+    shell: string[];
     rows: number;
 }
 
@@ -264,10 +243,9 @@ interface vars {
     sep: "/" | "\\";
     server_meta: server_meta;
     servers: store_servers;
-    shell: string;
     start_time: bigint;
     system_ports: external_ports;
-    terminal: terminal_size;
+    terminal: terminal_config;
     text: store_string;
 }
 

@@ -227,7 +227,9 @@ declare global {
     }
 
     interface services_terminal_request {
+        pty: string;
         secure: "open" | "secure";
+        shell: string;
     }
 
     interface services_websocket_handshake {
