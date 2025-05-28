@@ -1278,10 +1278,9 @@ const dashboard = function dashboard():void {
                     timeout:number = Number(http.nodes.timeout.value),
                     data:services_http_test = {
                         body: "",
-                        chunks: 1,
-                        chunked: false,
                         encryption: encryption,
                         headers: http.nodes.request.value,
+                        stats: null,
                         timeout: (isNaN(timeout) === true || timeout < 0)
                             ? 0
                             : Math.floor(timeout),
@@ -1308,20 +1307,32 @@ const dashboard = function dashboard():void {
                 http.nodes.responseBody.value = data.body;
                 http.nodes.responseHeaders.value = data.headers;
                 http.nodes.responseURI.value = data.uri;
-                http.nodes.stats[0].textContent = `${commas(data.timeout / 1000)} seconds`;
-                http.nodes.stats[1].textContent = commas(data.headers.length);
-                http.nodes.stats[2].textContent = commas(data.body.length);
-                http.nodes.stats[3].textContent = String(data.chunked);
-                http.nodes.stats[4].textContent = commas(data.chunks);
-                if (reqs.length < 2) {
-                    http.nodes.stats[5].textContent = commas(http.nodes.request.value.length);
-                    http.nodes.stats[6].textContent = "0";
-                } else {
-                    http.nodes.stats[5].textContent = commas(reqs[0].length);
-                    reqs.splice(0, 1);
-                    http.nodes.stats[6].textContent = commas(reqs.join("\n\n").length);
-                }
-                http.nodes.stats[7].textContent = commas(JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length);
+                // round trip time
+                http.nodes.stats[0].textContent = `${data.stats.time} seconds`;
+                // response header size
+                http.nodes.stats[1].textContent = `${commas(data.stats.response.size_header)} bytes`;
+                // response body size
+                http.nodes.stats[2].textContent = `${commas(data.stats.response.size_body)} bytes`;
+                // chunked?
+                http.nodes.stats[3].textContent = String(data.stats.chunks.chunked);
+                // chunk count
+                http.nodes.stats[4].textContent = commas(data.stats.chunks.count);
+                // request header size
+                http.nodes.stats[5].textContent = `${commas(data.stats.request.size_header)} bytes`;
+                // request body size
+                http.nodes.stats[6].textContent = `${commas(data.stats.request.size_body)} bytes`;
+                // if (reqs.length < 2) {
+                //     // request header size
+                //     http.nodes.stats[5].textContent = `${commas(data.stats.request.size_header)} bytes`;
+                //     // request body size
+                //     http.nodes.stats[6].textContent = "0 characters";
+                // } else {
+                //     http.nodes.stats[5].textContent = `${commas(reqs[0].length)} characters`;
+                //     reqs.splice(0, 1);
+                //     http.nodes.stats[6].textContent = `${commas(reqs.join("\n\n").length)} characters`;
+                // }
+                // URI length
+                http.nodes.stats[7].textContent = `${commas(JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length)} characters`;
             }
         },
         message:module_message = {
