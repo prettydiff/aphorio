@@ -109,6 +109,8 @@ declare global {
             base64: HTMLInputElement;
             button: HTMLButtonElement;
             digest: HTMLInputElement;
+            hash: HTMLInputElement;
+            hex: HTMLInputElement;
             output: HTMLTextAreaElement;
             size: HTMLElement;
             source: HTMLTextAreaElement;
@@ -116,6 +118,7 @@ declare global {
         };
         request: () => void;
         response: (data_item:socket_data) => void;
+        toggle_mode: (event:MouseEvent) => void;
     }
 
     interface module_http {
@@ -187,20 +190,20 @@ declare global {
             cpuSystem: HTMLElement;
             cpuUser: HTMLElement;
             cwd: HTMLElement;
-            memoryProcess: HTMLElement;
-            memoryPercent: HTMLElement;
-            memoryV8: HTMLElement;
             memoryExternal: HTMLElement;
-            platform: HTMLElement;
+            memoryPercent: HTMLElement;
+            memoryProcess: HTMLElement;
+            memoryV8: HTMLElement;
             pid: HTMLElement;
+            platform: HTMLElement;
             ppid: HTMLElement;
             uptime: HTMLElement;
         };
         update: HTMLElement;
         user: {
             gid: HTMLElement;
-            uid: HTMLElement;
             homedir: HTMLElement;
+            uid: HTMLElement;
         };
         versions: HTMLElement;
     }
@@ -245,6 +248,15 @@ declare global {
             shell: HTMLSelectElement;
         };
         socket: WebSocket;
+    }
+
+    interface module_tools {
+        baseline: () => void;
+        init: (data_item:socket_data) => void;
+        log: (item:services_dashboard_status) => void;
+        setState: () => void;
+        sort_html: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
+        status: (data_item:socket_data) => void;
     }
 
     interface module_websocket {

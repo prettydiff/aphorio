@@ -252,7 +252,7 @@ const file:file = {
             }
         });
     },
-    write: function utilities_fileWrite(config:file_write):void {console.log(config);
+    write: function utilities_fileWrite(config:file_write):void {
         node.fs.writeFile(config.location, config.contents, function utilities_fileWrite_write(erw:node_error):void {
             if (erw === null) {
                 if (config.callback !== null) {

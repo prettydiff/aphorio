@@ -182,6 +182,10 @@ interface store_compose {
     [key:string]: services_docker_compose;
 }
 
+interface store_elements {
+    [key:string]: HTMLElement;
+}
+
 interface store_flag {
     [key:string]: boolean;
 }
@@ -218,8 +222,8 @@ interface string_detect {
 interface terminal_config {
     cols: number;
     pty: string[];
-    shell: string[];
     rows: number;
+    shell: string[];
 }
 
 interface vars {
