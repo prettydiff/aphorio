@@ -1,7 +1,7 @@
 
 import node from "./node.js";
 
-/* cspell: words appdata, nmap */
+/* cspell: words conhost, appdata, nmap, ptmx */
 
 const gid:number = (typeof process.getgid === "undefined")
         ? 0
@@ -108,10 +108,10 @@ const gid:number = (typeof process.getgid === "undefined")
         terminal: {
             cols: 199,
             pty: (process.platform === "win32")
-                ? ["\\\\?\\C:\\Windows\\System32\\conhost.exe"]
+                ? ["C:\\Windows\\System32\\conhost.exe"]
                 : ["/dev/pts/ptmx"],
             shell: (process.platform === "win32")
-                ? ["\\\\?\\C:\\Windows\\System32\\cmd.exe"]
+                ? ["C:\\Windows\\System32\\cmd.exe"]
                 : ["/bin/sh"],
             rows: 50
         },

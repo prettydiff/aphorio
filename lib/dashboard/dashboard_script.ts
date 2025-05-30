@@ -2740,19 +2740,16 @@ const dashboard = function dashboard():void {
                             scheme:"ws"|"wss" = (encryption === "open")
                                 ? "ws"
                                 : "wss",
-                            message:services_terminal_request = {
-                                pty: terminal.nodes.pty[terminal.nodes.pty.selectedIndex].textContent,
-                                secure: encryption,
-                                shell: terminal.nodes.shell[terminal.nodes.shell.selectedIndex].textContent
-                            };
-                        terminal.socket = new WebSocket(`${scheme}://${location.host}`, ["dashboard-terminal"]);
+                            pty:string = terminal.nodes.pty[terminal.nodes.pty.selectedIndex].textContent,
+                            shell:string = terminal.nodes.shell[terminal.nodes.shell.selectedIndex].textContent;
+                        terminal.socket = new WebSocket(`${scheme}://${location.host}/?shell=${shell}&pty=${pty}`, ["dashboard-terminal"]);
                         terminal.socket.onmessage = terminal.events.firstData;
-                        terminal.socket.send(JSON.stringify(message));
                     } else {
                         terminal.socket.close();
                         terminal.nodes.output.textContent = "";
-                        terminal.item = null;
                         terminal.info = null;
+                        terminal.item = null;
+                        terminal.init();
                     }
                 },
                 data: function dashboard_terminalData(event:websocket_event):void {
@@ -2762,30 +2759,7 @@ const dashboard = function dashboard():void {
                     terminal.socket.onmessage = terminal.events.data;
                     terminal.info = JSON.parse(event.data);
                     terminal.nodes.output.setAttribute("data-info", event.data);
-                    terminal.item = new Terminal({
-                        cols: payload.terminal.cols,
-                        cursorBlink: true,
-                        cursorStyle: "underline",
-                        disableStdin: false,
-                        rows: payload.terminal.rows,
-                        theme: {
-                            background: "#222",
-                            selectionBackground: "#444"
-                        }
-                    });
-                    terminal.item.open(terminal.nodes.output);
-                    terminal.item.onKey(terminal.events.input);
-                    if (typeof navigator.clipboard === "undefined") {
-                        const em:HTMLElement = document.getElementById("terminal").getElementsByClassName("tab-description")[0].getElementsByTagName("em")[0] as HTMLElement;
-                        if (location.protocol === "http:") {
-                            em.textContent = "Terminal clipboard functionality only available when page is requested with HTTPS.";
-                            em.style.fontWeight = "bold";
-                        } else if (em !== undefined) {
-                            em.parentNode.removeChild(em);
-                        }
-                    } else {
-                        terminal.item.onSelectionChange(terminal.events.selection);
-                    }
+                    terminal.nodes.connect.textContent = "Disconnect";
                 },
                 input: function dashboard_terminalInput(input:terminal_input):void {
                     if (terminal.socket.readyState === 1) {
@@ -2808,6 +2782,7 @@ const dashboard = function dashboard():void {
                     let index:number = 0,
                         option:HTMLElement = null;
                     const len:number = payload.terminal[key].length;
+                    terminal.nodes[key].textContent = "";
                     if (len > 0) {
                         do {
                             option = document.createElement("option");
@@ -2825,6 +2800,31 @@ const dashboard = function dashboard():void {
                 terminal.nodes.connect.textContent = "Connect";
                 terminal.nodes.pty.onchange = terminal.events.select;
                 terminal.nodes.shell.onchange = terminal.events.select;
+                terminal.item = new Terminal({
+                    cols: payload.terminal.cols,
+                    cursorBlink: true,
+                    cursorStyle: "underline",
+                    disableStdin: false,
+                    rows: payload.terminal.rows,
+                    theme: {
+                        background: "#222",
+                        selectionBackground: "#444"
+                    }
+                });
+                terminal.item.write("Disconnected.");
+                terminal.item.open(terminal.nodes.output);
+                terminal.item.onKey(terminal.events.input);
+                if (typeof navigator.clipboard === "undefined") {
+                    const em:HTMLElement = document.getElementById("terminal").getElementsByClassName("tab-description")[0].getElementsByTagName("em")[0] as HTMLElement;
+                    if (location.protocol === "http:") {
+                        em.textContent = "Terminal clipboard functionality only available when page is requested with HTTPS.";
+                        em.style.fontWeight = "bold";
+                    } else if (em !== undefined) {
+                        em.parentNode.removeChild(em);
+                    }
+                } else {
+                    terminal.item.onSelectionChange(terminal.events.selection);
+                }
                 populate("pty");
                 populate("shell");
             },

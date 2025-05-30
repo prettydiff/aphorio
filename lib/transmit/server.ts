@@ -157,7 +157,24 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                                 vars.server_meta[server_name].server[security].removeAllListeners();
                                             }
                                             if (terminalFlag === true) {
-                                                terminal(socket);
+                                                const query:string[] = decodeURI(headerList[0].split(" ")[1].replace(/^\/\?/, "")).split("&"),
+                                                    items:store_string = (function terminal_server_connection_handshake_hash_clientRespond_query():store_string {
+                                                        const flags:store_string = {
+                                                            pty: "",
+                                                            shell: ""
+                                                        };
+                                                        let index:number = query.length;
+                                                        do {
+                                                            index = index - 1;
+                                                            if (query[index].indexOf("pty=") === 0) {
+                                                                flags.pty = query[index].replace("pty=", "");
+                                                            } else if (query[index].indexOf("shell=") === 0) {
+                                                                flags.shell = query[index].replace("shell=", "");
+                                                            }
+                                                        } while (index > 0);
+                                                        return flags;
+                                                    }());
+                                                terminal(socket, items.pty, items.shell);
                                             } else if (server_name === "dashboard" && type === "dashboard") {
                                                 const dashboard:transmit_dashboard = {
                                                     compose: vars.compose,
