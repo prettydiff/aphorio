@@ -731,6 +731,32 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="terminal">
             <h2>Terminal</h2>
             <p class="tab-description">A command terminal to interact with the local operating system. Expect this terminal to mirror the operating system terminal exactly. <em>Text selections in the console are automatically copied to the clipboard.</em></p>
+            <div class="defintions">
+                <h3>Terminals, Shells, and Pseudo Terminals <button class="expand">Expand</button></h3>
+                <div class="definition-body">
+                    <dl>
+                        <dt>Shell</dt>
+                        <dd>A shell is a command interface to the operating system.  Shells commonly include their own scripting language, interactive modules, and command structures.  Users do not interact with shells directly.</dd>
+                        <dt>Terminal</dt>
+                        <dd>A command terminal is an application that presents the inputs and outputs of a shell to users.  Command terminals provide their own means of user interaction, text display, and more. Primitive terminals for low level text processing are sometimes abbreviated <em>tty</em>.</dd>
+                        <dt>Pseudo Terminals</dt>
+                        <dd>A pseudo terminal provides the same function as a command terminal, but instead of displaying inputs and outputs directly pseudo terminals stream their outputs to other applications. Pseudo terminals are sometimes abbreviated <em>pty</em>.</dd>
+                    </dl>
+                    <p>When a user logs into an operating system without any graphic user interface they are logging to a computer's default, and often very primitive, command terminal.  When a user connects a command terminal across a network, such as via SSH, they are engaging a pseudo terminal.</p>
+                    <p>A shell typically has three streams:</p>
+                    <dl>
+                        <dt>stdin</dt>
+                        <dd>The standard input stream provides a writeable input interface between a shell and a terminal or pseudo terminal.</dd>
+                        <dt>stdout</dt>
+                        <dd>The standard output stream provides a read only output interface from a shell to a terminal or pseudo terminal.</dd>
+                        <dt>stderr</dt>
+                        <dd>The standard error stream provides a secondary read only output interface.  This interface can be used for error messaging separately from designed output, but is often repurposed for any alternate content provided from shell command.</dd>
+                    </dl>
+                    <p>All of this communication between the shells to the pseudo terminals and then to another terminal interface further downstream is entirely text based.  This text may be formatted with colors, underline, bold, or other formatting.  It may also be highly interactive.  All of that formatting and interaction occurs using hidden text control sequences via standard often called ANSI control codes.</p>
+                    <p>Since each layer of the shell, pseudo terminal, and terminal occurs via stream interfaces and all data flowing on these streams is just basic text this information if flowing in real time character by character no differently than the way the keyboard hardware interacts with an operating system, but these layers allow distribution across various applications and networks as well as a variety of independent features unique to each layer.</p>
+                    <p>All modern operating systems provide a default shell, terminal, and pseudo terminal. This is required in order for modern operating systems to allow standard interoperability over a network, or in the case of this application through a web browser and a network.  Additionally modern operating systems provide additional shells and terminal applications.  For example Windows provides ConHost as a default pseudo terminal with a built in shell that also allows connections to other shells, such as PowerShell.  When PowerShell is not executing through a streamed interface it typically executes with its own terminal interface, which is also called PowerShell.</p>
+                </div>
+            </div>
             <div class="section">
                 <h3>Connection Settings</h3>
                 <p><label>Shell File Path <select></select></label></p>
@@ -746,7 +772,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <h2>WebSocket Test</h2>
             <p class="tab-description">A tool to open and experiment with arbitrary WebSocket messaging.</p>
             <div class="definitions">
-                <h3>WebSockets <button class="expand">Expand</button></h3>
+                <h3>WebSocket Protocol (RFC 6455) <button class="expand">Expand</button></h3>
                 <div class="definition-body">
                     <p>WebSockets exist in two phases, a handshake phase to establish connection and then a messaging phase.</p>
                     <div class="section">

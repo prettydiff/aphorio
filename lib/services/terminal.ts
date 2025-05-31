@@ -75,11 +75,12 @@ const terminal = function services_terminal(socket:websocket_client, pty:string,
                                 ? "\r\n"
                                 : "";
                         },
-                        str:string = (pty.includes("conhost.exe") === true)
-                            ? output.toString().replace(/\r\n>> ?(\x1B\[\??\d*[A-Za-z]?(;\??\d*[A-Za-z]?)*)+(\r\n)?$/, replace)
-                            : output.toString();
-                    if (str !== "") {
-                        send(str, socket, 1);
+                        str:string = output.toString(),
+                        out:string = (pty.includes("conhost.exe") === true && (/>(?!>)/).test(str) === true)
+                            ? str.toString().replace(/\r\n>> ?(\x1B\[\??\d*[A-Za-z]?(;\??\d*[A-Za-z]?)*)+(\r\n)?/g, replace)
+                            : str.toString();
+                    if (out !== "") {
+                        send(out, socket, 1);
                     }
                 },
                 error_child = function services_terminal_ptyInstance_errorChild(err:node_error):void {
