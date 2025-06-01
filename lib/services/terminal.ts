@@ -48,8 +48,11 @@ const terminal = function services_terminal(socket:websocket_client, pty:string,
         //     return item;
         // }()),
         ptyInstance:node_childProcess_ChildProcess = (function services_terminal_ptyInstance():node_childProcess_ChildProcess {
-            const item:node_childProcess_ChildProcess = node.child_process.spawn(pty, [shell], {
+            const item:node_childProcess_ChildProcess = node.child_process.spawn(pty, [(process.platform === "win32") ? shell : ""], {
                     env: process.env,
+                    shell: (process.platform === "win32")
+                        ? false
+                        : shell,
                     windowsHide: true
                 }),
                 identifiers:terminal_identifiers = {
@@ -70,18 +73,7 @@ const terminal = function services_terminal(socket:websocket_client, pty:string,
                     }
                 },
                 out = function services_terminal_ptyInstance_out(output:Buffer):void {
-                    const replace = function services_terminal_ptyInstance_out_replace(input:string):string {
-                            return ((/\r\n$/).test(input) === true)
-                                ? "\r\n"
-                                : "";
-                        },
-                        str:string = output.toString(),
-                        out:string = (pty.includes("conhost.exe") === true)
-                            ? str.toString().replace(/\r\n(\x1B\[37m)?>> ?(\r\n)?/g, replace).replace(/(\r\n\x1B\[K)+/g, "\r\n\x1B[K")
-                            : str.toString();
-                    if (out !== "") {
-                        send(str, socket, 1);
-                    }
+                    send(output.toString(), socket, 1);
                 },
                 error_child = function services_terminal_ptyInstance_errorChild(err:node_error):void {
                     send(JSON.stringify(err), socket, 1);
@@ -103,6 +95,7 @@ const terminal = function services_terminal(socket:websocket_client, pty:string,
                 item.stdin.write(`$psWindow.width=${vars.terminal.cols}\r\n`);
                 item.stdin.write(`$psWindow.height=${vars.terminal.rows}\r\n`);
                 item.stdin.write("$psHost.WindowSize=$psWindow\r\n");
+                item.stdin.write("function prompt {return}\r\n");
                 item.stdin.write("$psVersionTable\r\n");
             }
             send(JSON.stringify(identifiers), socket, 1);
