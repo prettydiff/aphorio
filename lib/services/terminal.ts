@@ -76,11 +76,11 @@ const terminal = function services_terminal(socket:websocket_client, pty:string,
                                 : "";
                         },
                         str:string = output.toString(),
-                        out:string = (pty.includes("conhost.exe") === true && (/>(?!>)/).test(str) === true)
-                            ? str.toString().replace(/\r\n>> ?(\x1B\[\??\d*[A-Za-z]?(;\??\d*[A-Za-z]?)*)+(\r\n)?/g, replace)
+                        out:string = (pty.includes("conhost.exe") === true)
+                            ? str.toString().replace(/\r\n(\x1B\[37m)?>> ?(\r\n)?/g, replace).replace(/(\r\n\x1B\[K)+/g, "\r\n\x1B[K")
                             : str.toString();
                     if (out !== "") {
-                        send(out, socket, 1);
+                        send(str, socket, 1);
                     }
                 },
                 error_child = function services_terminal_ptyInstance_errorChild(err:node_error):void {
@@ -92,22 +92,18 @@ const terminal = function services_terminal(socket:websocket_client, pty:string,
             if (shell.includes("cmd.exe") === true) {
                 item.stdin.write(`mode con: cols=${vars.terminal.cols} lines=${vars.terminal.rows}\r\n`);
             } else if (shell.includes("powershell.exe") === true || shell.includes("pwsh.exe") === true) {
-                const inst:string[] = [
-                    "$PSStyle.OutputRendering='ANSI'",
-                    "$psGet=Get-Host",
-                    "$psHost=$psGet.UI.RawUI",
-                    "$psBuffer=psHost.BufferSize",
-                    `$psBuffer.width=${vars.terminal.cols}`,
-                    `$psBuffer.height=${vars.terminal.cols}`,
-                    "$psHost.BufferSize=$psBuffer",
-                    "$psWindow=psHost.WindowSize",
-                    `$psWindow.width=${vars.terminal.cols}`,
-                    `$psWindow.height=${vars.terminal.cols}`,
-                    "$psHost.WindowSize=$psWindow",
-                    "$psVersionTable",
-                    ""
-                ];
-                item.stdin.write(inst.join("\r\n"));
+                item.stdin.write("$PSStyle.OutputRendering='ANSI'\r\n");
+                item.stdin.write("$psGet=Get-Host\r\n");
+                item.stdin.write("$psHost=$psGet.UI.RawUI\r\n");
+                item.stdin.write("$psBuffer=$psHost.BufferSize\r\n");
+                item.stdin.write(`$psBuffer.width=${vars.terminal.cols}\r\n`);
+                item.stdin.write(`$psBuffer.height=${vars.terminal.rows}\r\n`);
+                item.stdin.write("$psHost.BufferSize=$psBuffer\r\n");
+                item.stdin.write("$psWindow=$psHost.WindowSize\r\n");
+                item.stdin.write(`$psWindow.width=${vars.terminal.cols}\r\n`);
+                item.stdin.write(`$psWindow.height=${vars.terminal.rows}\r\n`);
+                item.stdin.write("$psHost.WindowSize=$psWindow\r\n");
+                item.stdin.write("$psVersionTable\r\n");
             }
             send(JSON.stringify(identifiers), socket, 1);
             socket.handler = handler;
