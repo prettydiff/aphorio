@@ -248,6 +248,7 @@ declare global {
             shell: HTMLSelectElement;
         };
         socket: WebSocket;
+        spawn: (message:string) => void;
     }
 
     interface module_tools {

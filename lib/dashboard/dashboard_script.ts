@@ -2734,22 +2734,10 @@ const dashboard = function dashboard():void {
                 connect: function dashboard_terminalConnect(event:MouseEvent):void {
                     const target:HTMLElement = event.target;
                     if (target.textContent === "Connect") {
-                        const encryption:type_encryption = (location.protocol === "http:")
-                                ? "open"
-                                : "secure",
-                            scheme:"ws"|"wss" = (encryption === "open")
-                                ? "ws"
-                                : "wss",
-                            pty:string = terminal.nodes.pty[terminal.nodes.pty.selectedIndex].textContent,
-                            shell:string = terminal.nodes.shell[terminal.nodes.shell.selectedIndex].textContent;
-                        terminal.socket = new WebSocket(`${scheme}://${location.host}/?shell=${shell}&pty=${pty}`, ["dashboard-terminal"]);
-                        terminal.socket.onmessage = terminal.events.firstData;
+                        terminal.spawn("");
                     } else {
-                        terminal.socket.close();
-                        terminal.nodes.output.textContent = "";
-                        terminal.info = null;
-                        terminal.item = null;
-                        terminal.init();
+                        terminal.spawn("Disconnected.");
+                        terminal.nodes.connect.textContent = "Connect";
                     }
                 },
                 data: function dashboard_terminalData(event:websocket_event):void {
@@ -2767,7 +2755,6 @@ const dashboard = function dashboard():void {
                     }
                 },
                 select: function dashboard_terminalSelect(event:Event):void {
-                    const target:HTMLSelectElement = event.target as HTMLSelectElement;
                     tools.setState();
                 },
                 selection: function dashboard_terminalSelection():void {
@@ -2791,15 +2778,55 @@ const dashboard = function dashboard():void {
                             index = index + 1;
                         } while (index < len);
                     }
+                    terminal.nodes[key].selectedIndex = state.terminal[key];
                 };
                 terminal.nodes.connect.onclick = terminal.events.connect;
                 if (state.terminal !== undefined) {
                     terminal.nodes.pty.selectedIndex = state.terminal.pty;
                     terminal.nodes.shell.selectedIndex = state.terminal.shell;
                 }
-                terminal.nodes.connect.textContent = "Connect";
                 terminal.nodes.pty.onchange = terminal.events.select;
                 terminal.nodes.shell.onchange = terminal.events.select;
+                if (typeof navigator.clipboard === "undefined") {
+                    const em:HTMLElement = document.getElementById("terminal").getElementsByClassName("tab-description")[0].getElementsByTagName("em")[0] as HTMLElement;
+                    if (location.protocol === "http:") {
+                        em.textContent = "Terminal clipboard functionality only available when page is requested with HTTPS.";
+                        em.style.fontWeight = "bold";
+                    } else if (em !== undefined) {
+                        em.parentNode.removeChild(em);
+                    }
+                }
+                populate("pty");
+                populate("shell");
+                terminal.spawn("Disconnected.");
+            },
+            item: null,
+            nodes: {
+                connect: document.getElementById("terminal").getElementsByClassName("section")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
+                output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
+                pty: document.getElementById("terminal").getElementsByClassName("section")[0].getElementsByTagName("select")[1] as HTMLSelectElement,
+                shell: document.getElementById("terminal").getElementsByClassName("section")[0].getElementsByTagName("select")[0] as HTMLSelectElement
+            },
+            socket: null,
+            spawn: function dashboard_terminalSpawn(message:string):void {
+                if (terminal.socket !== null) {
+                    terminal.socket.close();
+                    terminal.socket = null;
+                }
+                if (message === "") {
+                    const encryption:type_encryption = (location.protocol === "http:")
+                            ? "open"
+                            : "secure",
+                        scheme:"ws"|"wss" = (encryption === "open")
+                            ? "ws"
+                            : "wss",
+                        pty:string = terminal.nodes.pty[terminal.nodes.pty.selectedIndex].textContent,
+                        shell:string = terminal.nodes.shell[terminal.nodes.shell.selectedIndex].textContent;
+                    terminal.socket = new WebSocket(`${scheme}://${location.host}/?shell=${shell}&pty=${pty}`, ["dashboard-terminal"]);
+                    terminal.socket.onmessage = terminal.events.firstData;
+                }
+                terminal.nodes.output.textContent = "";
+                terminal.info = null;
                 terminal.item = new Terminal({
                     cols: payload.terminal.cols,
                     cursorBlink: true,
@@ -2811,31 +2838,15 @@ const dashboard = function dashboard():void {
                         selectionBackground: "#444"
                     }
                 });
-                terminal.item.write("Disconnected.");
+                if (message !== "") {
+                    terminal.item.write(message);
+                }
                 terminal.item.open(terminal.nodes.output);
                 terminal.item.onKey(terminal.events.input);
-                if (typeof navigator.clipboard === "undefined") {
-                    const em:HTMLElement = document.getElementById("terminal").getElementsByClassName("tab-description")[0].getElementsByTagName("em")[0] as HTMLElement;
-                    if (location.protocol === "http:") {
-                        em.textContent = "Terminal clipboard functionality only available when page is requested with HTTPS.";
-                        em.style.fontWeight = "bold";
-                    } else if (em !== undefined) {
-                        em.parentNode.removeChild(em);
-                    }
-                } else {
+                if (typeof navigator.clipboard !== "undefined") {
                     terminal.item.onSelectionChange(terminal.events.selection);
                 }
-                populate("pty");
-                populate("shell");
-            },
-            item: null,
-            nodes: {
-                connect: document.getElementById("terminal").getElementsByClassName("section")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
-                output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
-                pty: document.getElementById("terminal").getElementsByClassName("section")[0].getElementsByTagName("select")[1] as HTMLSelectElement,
-                shell: document.getElementById("terminal").getElementsByClassName("section")[0].getElementsByTagName("select")[0] as HTMLSelectElement
-            },
-            socket: null
+            }
         },
         // websocket tester
         websocket:module_websocket = {

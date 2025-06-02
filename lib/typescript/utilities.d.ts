@@ -214,6 +214,10 @@ interface store_string {
     [key:string]: string;
 }
 
+interface store_string_list {
+    [key:string]: string[];
+}
+
 interface string_detect {
     confidence: number;
     encoding: string;
