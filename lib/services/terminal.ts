@@ -48,15 +48,18 @@ const terminal = function services_terminal(socket:websocket_client, pty:string,
         //     return item;
         // }()),
         ptyInstance:node_childProcess_ChildProcess = (function services_terminal_ptyInstance():node_childProcess_ChildProcess {
-            const options:store_string_list = {
+            const options_shell:store_string_list = {
                     "/bin/bash": ["--pretty-print", "--version", "-i"],
                     "/bin/sh": []
                 },
-                item:node_childProcess_ChildProcess = node.child_process.spawn(shell, options[shell], {
+                options_spawn:node_childProcess_SpawnOptions = {
                     env: process.env,
                     windowsHide: true
-                });
-            item.on("spawn", function services_terminal_ptyInstance_spawn():void {console.log("spawned");
+                },
+                item:node_childProcess_ChildProcess = (process.platform === "win32")
+                    ? node.child_process.spawn(pty, ["--headless", "--width", vars.terminal.cols.toString(), "--height", vars.terminal.rows.toString(), shell], options_spawn)
+                    : node.child_process.spawn(shell, options_shell[shell], options_spawn);
+            item.on("spawn", function services_terminal_ptyInstance_spawn():void {
                 const identifiers:terminal_identifiers = {
                         pid: item.pid,
                         port_browser: address.remote.port,
@@ -75,7 +78,8 @@ const terminal = function services_terminal(socket:websocket_client, pty:string,
                         }
                     },
                     out = function services_terminal_ptyInstance_out(output:Buffer):void {
-                        send(output.toString().replace(/(?<!\r)\n/g, "\r\n"), socket, 1);
+                        const str:string = output.toString();
+                        send(str, socket, 1);
                     },
                     error_child = function services_terminal_ptyInstance_spawn_errorChild(err:node_error):void {
                         send(JSON.stringify(err), socket, 1);
@@ -97,7 +101,6 @@ const terminal = function services_terminal(socket:websocket_client, pty:string,
                     item.stdin.write(`$psWindow.width=${vars.terminal.cols}\r\n`);
                     item.stdin.write(`$psWindow.height=${vars.terminal.rows}\r\n`);
                     item.stdin.write("$psHost.WindowSize=$psWindow\r\n");
-                    item.stdin.write("function prompt {return}\r\n");
                     item.stdin.write("$psVersionTable\r\n");
                 }
                 send(JSON.stringify(identifiers), socket, 1);

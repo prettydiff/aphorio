@@ -2754,7 +2754,7 @@ const dashboard = function dashboard():void {
                         terminal.socket.send(input.key);
                     }
                 },
-                select: function dashboard_terminalSelect(event:Event):void {
+                select: function dashboard_terminalSelect():void {
                     tools.setState();
                 },
                 selection: function dashboard_terminalSelection():void {
