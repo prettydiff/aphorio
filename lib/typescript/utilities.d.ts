@@ -178,31 +178,12 @@ interface server_ports {
     secure?: number;
 }
 
-interface state_store {
-    dns: {
-        hosts: string;
-        types: string;
-    };
-    fileSystem: {
-        path: string;
-        search: string;
-    };
-    hash: {
-        algorithm: string;
-        digest: "base64" | "hex";
-        hashFunction: "base64" | "hash";
-        source: string;
-        type: "file" | "string";
-    };
-    http: {
-        encryption: boolean;
-        request: string;
-    };
-    nav: string;
-}
-
 interface store_compose {
     [key:string]: services_docker_compose;
+}
+
+interface store_elements {
+    [key:string]: HTMLElement;
 }
 
 interface store_flag {
@@ -231,6 +212,10 @@ interface store_sockets {
 
 interface store_string {
     [key:string]: string;
+}
+
+interface store_string_list {
+    [key:string]: string[];
 }
 
 interface string_detect {

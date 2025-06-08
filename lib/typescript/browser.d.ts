@@ -109,6 +109,8 @@ declare global {
             base64: HTMLInputElement;
             button: HTMLButtonElement;
             digest: HTMLInputElement;
+            hash: HTMLInputElement;
+            hex: HTMLInputElement;
             output: HTMLTextAreaElement;
             size: HTMLElement;
             source: HTMLTextAreaElement;
@@ -116,6 +118,7 @@ declare global {
         };
         request: () => void;
         response: (data_item:socket_data) => void;
+        toggle_mode: (event:MouseEvent) => void;
     }
 
     interface module_http {
@@ -187,10 +190,10 @@ declare global {
             cpuSystem: HTMLElement;
             cpuUser: HTMLElement;
             cwd: HTMLElement;
-            memoryProcess: HTMLElement;
-            memoryPercent: HTMLElement;
-            memoryV8: HTMLElement;
             memoryExternal: HTMLElement;
+            memoryPercent: HTMLElement;
+            memoryProcess: HTMLElement;
+            memoryV8: HTMLElement;
             platform: HTMLElement;
             pid: HTMLElement;
             ppid: HTMLElement;
@@ -199,8 +202,8 @@ declare global {
         update: HTMLElement;
         user: {
             gid: HTMLElement;
-            uid: HTMLElement;
             homedir: HTMLElement;
+            uid: HTMLElement;
         };
         versions: HTMLElement;
     }
@@ -243,6 +246,15 @@ declare global {
         socket: WebSocket;
     }
 
+    interface module_tools {
+        baseline: () => void;
+        init: (data_item:socket_data) => void;
+        log: (item:services_dashboard_status) => void;
+        setState: () => void;
+        sort_html: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
+        status: (data_item:socket_data) => void;
+    }
+
     interface module_websocket {
         connected: boolean;
         frameBeautify: (target:"receive"|"send", value?:string) => void;
@@ -277,6 +289,33 @@ declare global {
         queue: (message:string) => void;
         queueStore: string[];
         socket: WebSocket;
+    }
+
+    interface state_store {
+        dns: {
+            hosts: string;
+            types: string;
+        };
+        fileSystem: {
+            path: string;
+            search: string;
+        };
+        hash: {
+            algorithm: string;
+            digest: "base64" | "hex";
+            hashFunction: "base64" | "hash";
+            source: string;
+            type: "file" | "string";
+        };
+        http: {
+            encryption: boolean;
+            request: string;
+        };
+        nav: string;
+        terminal: {
+            pty: number;
+            shell: number;
+        };
     }
 
     interface terminal_identifiers {

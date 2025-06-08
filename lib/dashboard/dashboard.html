@@ -1,7 +1,7 @@
 
 <!doctype html>
 <html lang="en">
-    <!-- cspell: words buildx, containerd, dpkg, endianness, healthcheck, IRSSI, keyrings, jellyfin, journalctl, libcap, lydell, NAPTR, nmap, PGID, POSIX, ppid, proxied, PUID, setgid, setuid, uptimeimages, webserver, winget -->
+    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, IRSSI, keyrings, jellyfin, journalctl, libcap, lydell, NAPTR, nmap, PGID, POSIX, ppid, prettydiff, proxied, PUID, setgid, setuid, uptimeimages, webserver, winget -->
 <head>
 <meta charset="utf-8"/>
 <title>Server Management Dashboard</title>
@@ -208,7 +208,7 @@
                     <ul>
                         <li>Some domains are very slow to return a response and can take up to 10 minutes.</li>
                         <li>Some domains drop the connection or return an erroneous response. This could be due to a misconfiguration at the server, but is more typically an intentional way for servers to abandon traffic they don't want.</li>
-                        <li>Some domains cause an EPROTO error.  This is a TLS protocol negotionation error.  It occurs because they server is using unsupported TLS 1.1 certificates, an error in this application, or mostly likely due to an error in Node.js. Examples of domains causing this error: <em>prettydiff.com</em>, <em>www.army.mil</em>, <em>www.treasury.gov</em></li>
+                        <li>Some domains cause an EPROTO error.  This is a TLS protocol negotiation error.  It occurs because they server is using unsupported TLS 1.1 certificates, an error in this application, or mostly likely due to an error in Node.js. Examples of domains causing this error: <em>prettydiff.com</em>, <em>www.army.mil</em>, <em>www.treasury.gov</em></li>
                     </ul>
                 </div>
                 <div class="section">
@@ -501,7 +501,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <h4>Scheme</h4>
                 <p><label class="radio">Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
                 <h4>Timeout</h4>
-                <p><label>Request timeout in miliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
+                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
                 <h4>Raw Request Text</h4>
                 <p><label>Complete raw HTTP request including header <textarea class="test-input" spellcheck="false"></textarea></label></p>
                 <p class="buttons"><button class="send_request">Send Request</button></p>
@@ -591,7 +591,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     <h4>Node.js Dependency Versions <button class="expand">Expand</button></h4>
                     <ul class="definition-body" data-name="versions"></ul>
                 </div>
-                <p><strong>[1]</strong> User CPU time and System CPU time meausre actual CPU cycle time across all logical CPU instances for this application's process.</p>
+                <p><strong>[1]</strong> User CPU time and System CPU time measure actual CPU cycle time across all logical CPU instances for this application's process.</p>
             </div>
             <div class="section">
                 <h3>User</h3>
@@ -737,7 +737,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <h2>WebSocket Test</h2>
             <p class="tab-description">A tool to open and experiment with arbitrary WebSocket messaging.</p>
             <div class="definitions">
-                <h3>WebSockets <button class="expand">Expand</button></h3>
+                <h3>WebSocket Protocol (RFC 6455) <button class="expand">Expand</button></h3>
                 <div class="definition-body">
                     <p>WebSockets exist in two phases, a handshake phase to establish connection and then a messaging phase.</p>
                     <div class="section">
@@ -749,7 +749,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     </div>
                     <div class="section">
                         <h4>Messaging</h4>
-                        <p>Messaging occurs in binary form. A single message may be divided into mulitple transmissions called <em>frames</em>. Each frame is composed of a frame header of 2 to 14 bytes immediately followed by the frame message.</p>
+                        <p>Messaging occurs in binary form. A single message may be divided into multiple transmissions called <em>frames</em>. Each frame is composed of a frame header of 2 to 14 bytes immediately followed by the frame message.</p>
                         <p>Message in WebSockets is also full-duplex.  This means a single socket comprises two separate and fully independent communication channels allowing each side of the socket to send messages without waiting on the other side.</p>
                         <p>This application represents frame headers using an object of type name <em>websocket_frame</em> that comprises these properties:</p>
                         <dl>
@@ -764,12 +764,12 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                             <dt>rsv3</dt> <dd>Same as rsv1.</dd>
                             <dt>startByte</dt> <dd>A number value only used internally by this application to indicate frame header length, and thus start position of the frame content body.</dd>
                         </dl>
-                        <p>For frame content lengths of less than 126 bytes their lengths are literally represented in the <em>len</em> property of the frame header and then <em>extended</em> property recevies a value of 0.
-                            For frame content lengths greater than 125 bytes but less than 65,536 bytes the <em>len</em> property receives a value of 126 and the <em>extended</em> property stores the actualy frame content length occupying exactly 2 bytes of storage.
+                        <p>For frame content lengths of less than 126 bytes their lengths are literally represented in the <em>len</em> property of the frame header and then <em>extended</em> property receives a value of 0.
+                            For frame content lengths greater than 125 bytes but less than 65,536 bytes the <em>len</em> property receives a value of 126 and the <em>extended</em> property stores the actually frame content length occupying exactly 2 bytes of storage.
                             For frame content lengths greater than 65,535 bytes the <em>len</em> property receives a value of 127 and the <em>extended</em> property stores the actual frame content length occupying exactly 8 bytes of storage.</p>
                         <p>The opcode property stores a 2 byte integer, values of 0 to 15. The first half of values indicate message format and the second half of values indicate control frames.  The value definitions are as follows:</p>
                         <dl>
-                            <dt>0</dt> <dd>A continuation frame, which is any frame after the first representing a emssage divided amongst multiple frames.</dd>
+                            <dt>0</dt> <dd>A continuation frame, which is any frame after the first representing a message divided amongst multiple frames.</dd>
                             <dt>1</dt> <dd>A text frame, which stores messages in a text compatible string format of unspecified string encoding.</dd>
                             <dt>2</dt> <dd>A binary frame, which means the content comprises a binary buffer.</dd>
                             <dt>3-7</dt> <dd>Reserved for future use.</dd>
@@ -792,7 +792,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <h4>Scheme</h4>
                 <p><label class="radio">Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label></p>
                 <h4>Handshake Timeout</h4>
-                <p><label>Request timeout in miliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
+                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
                 <h4>Raw Handshake Message</h4>
                 <div class="http_response">
                     <p><label>Handshake request messaging <textarea class="test-input" spellcheck="false"></textarea></label></p>

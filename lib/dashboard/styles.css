@@ -128,6 +128,7 @@ fieldset{background:var(--background_fieldset);border-color:var(--border_color);
 textarea{background:var(--background_textarea);border-style:solid;border-width:0.065em;color:var(--text)}
 #terminal .xterm{border-color:var(--border_input);overflow:hidden}
 #terminal .xterm-viewport{overflow:hidden}
+#terminal .terminal-output{width:180em}
 textarea{border-color:var(--textarea_border);box-shadow:0 0 0.1em var(--black)}
 #dashboard .xterm-rows{font-size:vars(--font-size)}
 .delay{height:50%;width:50%}
@@ -247,6 +248,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard button.server-cancel{color:var(--text_yellow)}
 #dashboard button.server-destroy{color:var(--fail_dark)}
 #dashboard input[type="text"],
+#dashboard select,
 #dashboard textarea{box-sizing:border-box;display:block;font-family:monospace;font-size:1em;margin:0 0 1em;width:100%}
 #dashboard .file-list{max-height:85em;overflow:scroll}
 #dashboard .file-list table{border-style:none}

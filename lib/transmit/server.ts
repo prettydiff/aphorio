@@ -178,7 +178,9 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                         terminalFlag:boolean = (server_name === "dashboard" && type === "dashboard-terminal"),
                                         identifier:string = (terminalFlag === true)
                                             ? `dashboard-terminal-${hashOutput.hash}`
-                                            : `browserSocket-${hashOutput.hash}`;
+                                            : (type === "websocket-test")
+                                                ? `websocketTest-browserSocket-${hashOutput.hash}`
+                                                : `browserSocket-${hashOutput.hash}`;
                                     socket_extension({
                                         callback: client_respond,
                                         handler: (type === "websocket-test")
@@ -268,9 +270,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 socket: socket,
                                 temporary: false,
                                 timeout: null,
-                                type: (type === "" && server.redirect_domain !== undefined && server.redirect_domain !== null && (server.redirect_domain[domain] !== undefined || (socket.encrypted === true && server.redirect_domain[`${domain}.secure`] !== undefined)))
-                                    ? `socket-${server_name}-${domain}`
-                                    : type
+                                type: `socket-${server_name}-${domain}`
                             });
                             // proxy socket
                             socket_extension({
@@ -283,9 +283,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 socket: proxy,
                                 temporary: false,
                                 timeout: null,
-                                type: (type === "" && server.redirect_domain !== undefined && server.redirect_domain !== null && (server.redirect_domain[domain] !== undefined || (socket.encrypted === true && server.redirect_domain[`${domain}.secure`] !== undefined)))
-                                    ? `proxy-${server_name}-${domain}`
-                                    : type
+                                type: `proxy-${server_name}-${domain}`
                             });
                         };
                     headerList.forEach(headerEach);

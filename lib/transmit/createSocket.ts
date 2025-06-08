@@ -77,9 +77,13 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                 });
             });
         },
-        callbackTimeout = function transmit_createSocket_hash_timeout():void {
-            const error:node_error = new Error("Socket handshake timedout.");
-            error.code = "ETIMEDOUT";
+        callbackTimeout = function transmit_createSocket_hash_timeout(ip:string, port:number, family:number, errorItem?:node_error):void {
+            const error:node_error = (errorItem === undefined)
+                ? new Error("Socket handshake timedout.")
+                : errorItem;
+            error.code = (errorItem === undefined)
+                ? "ETIMEDOUT"
+                : errorItem.code;
             config.callback(null, null, error);
             client.removeAllListeners("error");
             client.removeAllListeners("ready");
@@ -91,6 +95,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
     if (config.timeout > 0) {
         client.once("connectionAttemptTimeout", callbackTimeout);
     }
+    client.once("connectionAttemptFailed", callbackTimeout);
     client.once("error", callbackError);
     client.once("ready", callbackReady);
 };
