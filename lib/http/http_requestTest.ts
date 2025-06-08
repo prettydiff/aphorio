@@ -6,18 +6,34 @@ import vars from "../utilities/vars.js";
 const http_request = function http_request(socket_data:socket_data, transmit:transmit_socket):void {
     const data:services_http_test = socket_data.data as services_http_test,
         req:string = data.headers,
-        headers:string[] = req.split("\r\n\r\n")[0].replace(/\s+$/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n"),
+        header:string = req.split("\r\n\r\n")[0].replace(/\s+$/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n"),
+        headers:string[] = header.split("\n"),
         body:string = req.split("\r\n\r\n")[1],
         path:string = headers[0].replace(/^[A-Z]+\s+/, ""),
-        write = function http_request_write(body:string, headers:string, uri:boolean):void {
+        write = function http_request_write(response_body:string, response_headers:string, uri:boolean):void {
             const output:services_http_test = {
                 body: body,
-                chunked: chunked,
-                chunks: (chunked === true)
-                    ? chunkCount
-                    : 1,
                 encryption: data.encryption,
-                headers: headers,
+                headers: response_headers,
+                stats: {
+                    chunks: {
+                        chunked: chunked,
+                        count: (chunked === true)
+                            ? chunkCount
+                            : 1
+                    },
+                    request: {
+                        size_body: (body === undefined)
+                            ? 0
+                            : Buffer.byteLength(body),
+                        size_header: Buffer.byteLength(header)
+                    },
+                    response: {
+                        size_body: Buffer.byteLength(response_body),
+                        size_header: Buffer.byteLength(response_headers)
+                    },
+                    time: (Math.round(Number(process.hrtime.bigint() - startTime) / 1e6) / 1000)
+                },
                 timeout: Math.round(Number(process.hrtime.bigint() - startTime) / 1e6),
                 uri: (uri === true)
                     ? urlOutput()

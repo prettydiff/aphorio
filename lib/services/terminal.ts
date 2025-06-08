@@ -31,8 +31,7 @@ const terminal = function services_terminal(socket:websocket_client):void {
             close();
         },
         handler = function services_terminalShell_handler(socket:websocket_client, data:Buffer):void {
-            input = data.toString();
-            pty.write(input);
+            pty.write(data.toString());
         },
         out = function services_terminalShell_out(output:string):void {
             send(output, socket, 1);
@@ -47,7 +46,6 @@ const terminal = function services_terminal(socket:websocket_client):void {
             port_terminal: address.local.port,
             server_name: socket.server
         };
-    let input:string = null;
     socket.handler = handler;
     send(JSON.stringify(identifiers), socket, 1);
     pty.onData(out);

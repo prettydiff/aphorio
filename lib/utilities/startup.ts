@@ -242,18 +242,18 @@ const startup = function utilities_startup(callback:() => void):void {
         location: `${vars.path.project}compose.json`,
         no_file: null
     });
-    if (process.platform !== "win32") {
-        file.stat({
-            callback: function utilities_startup_bash(stat:node_fs_BigIntStats):void {
-                if (stat !== null) {
-                    vars.shell = "/bin/bash";
-                }
-            },
-            error_terminate: null,
-            location: "/bin/bash",
-            no_file: null
-        });
-    }
+    file.stat({
+        callback: function utilities_startup_bash(stat:node_fs_BigIntStats):void {
+            if (stat === null) {
+                vars.shell = (process.platform === "win32")
+                    ? "C:\\windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe"
+                    : "/bin/sh";
+            }
+        },
+        error_terminate: null,
+        location: vars.shell,
+        no_file: null
+    });
 };
 
 export default startup;
