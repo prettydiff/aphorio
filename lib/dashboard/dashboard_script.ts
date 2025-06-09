@@ -106,12 +106,6 @@ const dashboard = function dashboard():void {
                         time: Date.now(),
                         type: "log"
                     });
-                    // generate file system output
-                    tools.fileSystem.init();
-                    // populate the hash tool
-                    tools.hash.init();
-                    // populate the http content
-                    tools.http.init();
                     // populate the OS content
                     informational.os.init();
                     // populate port data
@@ -122,6 +116,12 @@ const dashboard = function dashboard():void {
                     services.servers.list();
                     // assign the dns events
                     tools.dns.init();
+                    // generate file system output
+                    tools.fileSystem.init();
+                    // populate the hash tool
+                    tools.hash.init();
+                    // populate the http content
+                    tools.http.init();
                     // start the terminal
                     tools.terminal.init();
                     // populate the websocket test tool
