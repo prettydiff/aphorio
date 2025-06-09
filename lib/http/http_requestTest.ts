@@ -8,37 +8,41 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
         req:string = data.headers,
         header:string = req.split("\r\n\r\n")[0].replace(/\s+$/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n"),
         headers:string[] = header.split("\n"),
-        body:string = req.split("\r\n\r\n")[1],
+        bodyRaw:string = req.split("\r\n\r\n")[1],
+        body:string = (bodyRaw === undefined)
+            ? ""
+            : bodyRaw,
         path:string = headers[0].replace(/^[A-Z]+\s+/, ""),
-        write = function http_request_write(response_body:string, response_headers:string, uri:boolean):void {
-            const output:services_http_test = {
-                body: body,
-                encryption: data.encryption,
-                headers: response_headers,
-                stats: {
-                    chunks: {
-                        chunked: chunked,
-                        count: (chunked === true)
-                            ? chunkCount
-                            : 1
+        write = function http_request_write(response_body_raw:string, response_headers:string, uri:boolean):void {
+            const response_body:string = (response_body_raw === undefined)
+                        ? ""
+                        : response_body_raw,
+                output:services_http_test = {
+                    body: response_body,
+                    encryption: data.encryption,
+                    headers: response_headers,
+                    stats: {
+                        chunks: {
+                            chunked: chunked,
+                            count: (chunked === true)
+                                ? chunkCount
+                                : 1
+                        },
+                        request: {
+                            size_body: Buffer.byteLength(body),
+                            size_header: Buffer.byteLength(header)
+                        },
+                        response: {
+                            size_body: Buffer.byteLength(response_body),
+                            size_header: Buffer.byteLength(response_headers)
+                        },
+                        time: (Math.round(Number(process.hrtime.bigint() - startTime) / 1e6) / 1000)
                     },
-                    request: {
-                        size_body: (body === undefined)
-                            ? 0
-                            : Buffer.byteLength(body),
-                        size_header: Buffer.byteLength(header)
-                    },
-                    response: {
-                        size_body: Buffer.byteLength(response_body),
-                        size_header: Buffer.byteLength(response_headers)
-                    },
-                    time: (Math.round(Number(process.hrtime.bigint() - startTime) / 1e6) / 1000)
-                },
-                timeout: Math.round(Number(process.hrtime.bigint() - startTime) / 1e6),
-                uri: (uri === true)
-                    ? urlOutput()
-                    : ""
-            };
+                    timeout: Math.round(Number(process.hrtime.bigint() - startTime) / 1e6),
+                    uri: (uri === true)
+                        ? urlOutput()
+                        : ""
+                };
             send({
                 data: output,
                 service: "dashboard-http"
@@ -152,7 +156,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
         }
         headers.push("");
         headers.push("");
-        if (body !== undefined && body.length > 0) {
+        if (body.length > 0) {
             headers.push(body);
         }
         startTime = process.hrtime.bigint();

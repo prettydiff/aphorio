@@ -137,12 +137,7 @@ declare global {
         response: (data_item:socket_data) => void;
     }
 
-    interface module_message {
-        receiver: (event:websocket_event) => void;
-        send: (data:type_socket_data, service:type_service) => void;
-    }
-
-    interface module_port {
+    interface module_ports {
         external: (input:external_ports) => void;
         html: (table:HTMLElement, list:type_external_port[]) => void;
         init: (port_list:external_ports) => void;
@@ -246,11 +241,13 @@ declare global {
         socket: WebSocket;
     }
 
-    interface module_tools {
+    interface module_utility {
         baseline: () => void;
         init: (data_item:socket_data) => void;
         log: (item:services_dashboard_status) => void;
+        message_send: (data:type_socket_data, service:type_service) => void;
         setState: () => void;
+        socket: socket_object;
         sort_html: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         status: (data_item:socket_data) => void;
     }
@@ -289,6 +286,26 @@ declare global {
         queue: (message:string) => void;
         queueStore: string[];
         socket: WebSocket;
+    }
+
+    interface structure_informational {
+        os: module_os;
+        ports: module_ports;
+    }
+
+    interface structure_services {
+        compose: module_compose;
+        servers: module_server;
+        shared: module_serviceItems;
+    }
+
+    interface structure_tools {
+        dns: module_dns;
+        fileSystem: module_fileSystem;
+        hash: module_hash;
+        http: module_http;
+        terminal: module_terminal;
+        websocket: module_websocket;
     }
 
     interface state_store {
