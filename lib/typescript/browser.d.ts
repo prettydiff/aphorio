@@ -33,6 +33,8 @@ declare global {
     }
 
     interface Number {
+        bytes: (input?:number) => string;
+        bytesLong: () => string;
         dateTime: (date:boolean) => string;
         time: () => string;
     }
@@ -153,6 +155,7 @@ declare global {
         interfaces: (data:NodeJS.Dict<node_os_NetworkInterfaceInfo[]>) => void;
         nodes: module_os_nodes;
         service: (data_item:socket_data) => void;
+        storage: (data:os_disk[]) => void;
     }
 
     interface module_os_nodes {
@@ -189,11 +192,12 @@ declare global {
             memoryPercent: HTMLElement;
             memoryProcess: HTMLElement;
             memoryV8: HTMLElement;
-            platform: HTMLElement;
             pid: HTMLElement;
+            platform: HTMLElement;
             ppid: HTMLElement;
             uptime: HTMLElement;
         };
+        storage: HTMLElement;
         update: HTMLElement;
         user: {
             gid: HTMLElement;

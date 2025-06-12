@@ -38,7 +38,6 @@ const startup = function utilities_startup(callback:() => void):void {
             }
             flags.compose = true;
             commandsCallback();
-            osUpdate();
         },
         readCSS = function utilities_startup_readCSS(fileContents:Buffer):void {
             const css:string = fileContents.toString();
@@ -184,48 +183,236 @@ const startup = function utilities_startup(callback:() => void):void {
             readComplete("docker");
         },
         osUpdate = function utilities_startup_osUpdate():void {
-            const mem:server_os_memoryUsage = process.memoryUsage(),
-                os:services_os = {
-                    machine: {
-                        cores: node.os.cpus().length,
-                        interfaces: node.os.networkInterfaces(),
-                        memory: {
-                            free: node.os.freemem(),
-                            total: node.os.totalmem()
+            const powershell:boolean = (vars.shell.includes("powershell.exe") === true || vars.shell.includes("pwsh.exe") === true),
+                commands:store_string = {
+                    disk: (powershell === true)
+                        ? "Get-Disk | ConvertTo-JSON -compress -depth 2"
+                        : "lsblk --json",
+                    part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
+                    volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
+                },
+                chunks:store_string_list = {
+                    disk: [],
+                    part: [],
+                    volu: []
+                },
+                flags:store_flag = {
+                    disk: false,
+                    part: false,
+                    volu: false,
+                },
+                spawn:store_children = {
+                    disk: null,
+                    part: null,
+                    volu: null
+                },
+                raw:os_disk_raw = {
+                    disk: null,
+                    part: null,
+                    volu: null
+                },
+                win_string:string = "\x1B[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of 2.\x1B[0m\r\n",
+                chunks_complete = function utilities_startup_osUpdate_chunksComplete(type:"disk"|"part"|"volu", segment:Buffer):void {
+                    if (flags[type] === false) {
+                        chunks[type].push(segment.toString());
+                        const temp:string = chunks[type].join("").replace(/\s+$/, "").replace(win_string, "");
+                        // eslint-disable-next-line no-restricted-syntax
+                        try {
+                            if (type === "disk") {
+                                if (powershell === true) {
+                                    raw.disk = JSON.parse(temp) as os_disk_windows[];
+                                } else {
+                                    raw.disk = JSON.parse(temp).blockdevices as os_disk_posix[];
+                                }
+                            } else {
+                                raw[type] = JSON.parse(temp);
+                            }
+                            flags[type] = true;
+                            spawn[type].kill();
+                            if (flags.disk === true && flags.part === true && flags.volu === true) {
+                                disk_callback();
+                            }
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        } catch (e:unknown) {
+                            return;
                         }
-                    },
-                    os: {
-                        uptime: node.os.uptime()
-                    },
-                    process: {
-                        // microseconds
-                        cpuSystem: process.cpuUsage().system / 1e6,
-                        cpuUser: process.cpuUsage().user / 1e6,
-                        memory: {
-                            external: mem.external,
-                            rss: process.memoryUsage.rss(),
-                            V8: mem.heapUsed
-                        },
-                        uptime: process.uptime()
-                    },
-                    time: Date.now()
+                    }
+                },
+                disk_callback = function utilities_startup_osUpdate_diskCallback():void {
+                    const data_posix:os_disk_posix[] = raw.disk as os_disk_posix[],
+                        data_win:os_disk_windows[] = raw.disk as os_disk_windows[],
+                        parts:os_disk_windows_partition[] = (powershell === true)
+                            ? raw.part
+                            : null,
+                        volumes:os_disk_windows_volume[] = (powershell === true)
+                            ? raw.volu
+                            : null,
+                        len:number = (powershell === true)
+                            ? data_win.length
+                            : data_posix.length,
+                        pLen:number = (parts === null)
+                            ? 0
+                            : parts.length,
+                        vLen:number = (volumes === null)
+                            ? 0
+                            : volumes.length,
+                        disks:os_disk[] = [],
+                        mem:server_os_memoryUsage = process.memoryUsage(),
+                        os:services_os = {
+                            machine: {
+                                cores: node.os.cpus().length,
+                                interfaces: node.os.networkInterfaces(),
+                                memory: {
+                                    free: node.os.freemem(),
+                                    total: node.os.totalmem()
+                                },
+                                storage: null
+                            },
+                            os: {
+                                uptime: node.os.uptime()
+                            },
+                            process: {
+                                // microseconds
+                                cpuSystem: process.cpuUsage().system / 1e6,
+                                cpuUser: process.cpuUsage().user / 1e6,
+                                memory: {
+                                    external: mem.external,
+                                    rss: process.memoryUsage.rss(),
+                                    V8: mem.heapUsed
+                                },
+                                uptime: process.uptime()
+                            },
+                            time: Date.now()
+                        };
+                    let index:number = 0,
+                        pIndex:number = 0,
+                        vIndex:number = 0,
+                        id:string = "",
+                        vol:string = "",
+                        part:os_disk_partition = null,
+                        disk:os_disk = null,
+                        child:os_disk_posix_partition = null;
+                    if (len > 0 && ((powershell === true && pLen > 0 && vLen > 0) || powershell === false)) {
+                        do {
+                            pIndex = 0;
+                            if (powershell === true) {
+                                disk = {
+                                    bus: data_win[index].BusType,
+                                    guid: data_win[index].Guid,
+                                    id: data_win[index].UniqueId,
+                                    name: data_win[index].FriendlyName,
+                                    partitions: [],
+                                    serial: data_win[index].SerialNumber,
+                                    size_disk: data_win[index].Size
+                                };
+                                do {
+                                    id = parts[pIndex].UniqueId.split("}")[1];
+                                    if (id === disk.id) {
+                                        part = {
+                                            active: parts[pIndex].IsActive,
+                                            bootable: parts[pIndex].IsBoot,
+                                            diskId: id,
+                                            file_system: null,
+                                            hidden: parts[pIndex].IsHidden,
+                                            id: parts[pIndex].Guid,
+                                            path: null,
+                                            read_only: parts[pIndex].IsReadOnly,
+                                            size_free: 0,
+                                            size_total: 0,
+                                            size_used: 0,
+                                            type: parts[pIndex].Type
+                                        };
+                                        vIndex = 0;
+                                        do {
+                                            vol = volumes[vIndex].UniqueId.split("Volume")[1].replace("\\", "");
+                                            if (vol === parts[pIndex].Guid) {
+                                                if (volumes[vIndex].FileSystem !== "") {
+                                                    part.file_system = volumes[vIndex].FileSystem;
+                                                }
+                                                if (volumes[vIndex].DriveLetter !== "") {
+                                                    part.path = volumes[vIndex].DriveLetter;
+                                                }
+                                                part.size_free = volumes[vIndex].SizeRemaining;
+                                                part.size_total = volumes[vIndex].Size;
+                                                part.size_used = volumes[vIndex].Size - volumes[vIndex].SizeRemaining;
+                                            }
+                                            vIndex = vIndex + 1;
+                                        } while (vIndex < vLen);
+                                        disk.partitions.push(part);
+                                    }
+                                    pIndex = pIndex + 1;
+                                } while (pIndex < pLen);
+                            } else {
+                                disk = {
+                                    bus: data_posix[index].tran,
+                                    guid: data_posix[index].uuid,
+                                    id: data_posix[index].uuid,
+                                    name: data_posix[index].model,
+                                    partitions: [],
+                                    serial: data_posix[index].serial,
+                                    size_disk: data_posix[index].size
+                                };
+                                do {
+                                    child = data_posix[index].children[pIndex];
+                                    disk.partitions.push({
+                                        active: (child.mountpoint !== null),
+                                        bootable: (child.partflags === "0x80"),
+                                        diskId: disk.id,
+                                        file_system: child.fstype,
+                                        hidden: (child.mountpoint !== null && child.mountpoint.charAt(0) !== "/"),
+                                        id: child.uuid,
+                                        path: child.path,
+                                        read_only: child.ro,
+                                        size_free: child.fsavail,
+                                        size_total: child.fssize,
+                                        size_used: child.fsused,
+                                        type: (child.type === "part")
+                                            ? child.parttypename
+                                            : child.type
+                                    });
+                                    pIndex = pIndex + 1;
+                                } while (pIndex < pLen);
+                            }
+                            disks.push(disk);
+                            index = index + 1;
+                        } while (index < len);
+                    }
+                    vars.os.machine.cpu.cores = os.machine.cores;
+                    vars.os.machine.storage = disks;
+                    vars.os.machine.interfaces = os.machine.interfaces;
+                    vars.os.machine.memory.free = os.machine.memory.free;
+                    vars.os.machine.memory.total = os.machine.memory.total;
+                    vars.os.os.uptime = os.os.uptime;
+                    vars.os.process.cpuSystem = os.process.cpuSystem;
+                    vars.os.process.cpuUser = os.process.cpuUser;
+                    vars.os.process.uptime = os.process.uptime;
+                    vars.os.process.memory.external = os.process.memory.external;
+                    vars.os.process.memory.rss = os.process.memory.rss;
+                    vars.os.process.memory.V8 = os.process.memory.V8;
+                    broadcast("dashboard", "dashboard", {
+                        data: os,
+                        service: "dashboard-os"
+                    });
+                    setTimeout(utilities_startup_osUpdate, 60000);
+                },
+                spawning = function utilities_startup_osUpdate_spawning(type:"disk"|"part"|"volu"):void {
+                    const data_callback = function utilities_startup_osUpdate_spawning_dataCallback(buf:Buffer):void {
+                            chunks_complete(type, buf);
+                        };
+                    spawn[type] = node.child_process.spawn(commands[type], [], {
+                        shell: vars.shell,
+                        windowsHide: true
+                    });
+                    spawn[type].stdout.on("data", data_callback);
                 };
-            vars.os.machine.cpu.cores = os.machine.cores;
-            vars.os.machine.interfaces = os.machine.interfaces;
-            vars.os.machine.memory.free = os.machine.memory.free;
-            vars.os.machine.memory.total = os.machine.memory.total;
-            vars.os.os.uptime = os.os.uptime;
-            vars.os.process.cpuSystem = os.process.cpuSystem;
-            vars.os.process.cpuUser = os.process.cpuUser;
-            vars.os.process.uptime = os.process.uptime;
-            vars.os.process.memory.external = os.process.memory.external;
-            vars.os.process.memory.rss = os.process.memory.rss;
-            vars.os.process.memory.V8 = os.process.memory.V8;
-            broadcast("dashboard", "dashboard", {
-                data: os,
-                service: "dashboard-os"
-            });
-            setTimeout(utilities_startup_osUpdate, 60000);
+            spawning("disk");
+            if (powershell === true) {
+                spawning("part");
+                spawning("volu");
+            } else {
+                flags.part = true;
+                flags.volu = true;
+            }
         };
 
     String.prototype.capitalize = capitalize;
@@ -249,6 +436,7 @@ const startup = function utilities_startup(callback:() => void):void {
                     ? "C:\\windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe"
                     : "/bin/sh";
             }
+            osUpdate();
         },
         error_terminate: null,
         location: vars.shell,

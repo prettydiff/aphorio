@@ -1,4 +1,6 @@
 
+import commas from "../utilities/commas.js";
+
 const core = function core(config:config_core):socket_object {
     const socketCall = function core_socketCall():WebSocket {
             const scheme:string = (location.protocol === "http:")
@@ -75,6 +77,71 @@ const core = function core(config:config_core):socket_object {
                     if (text !== "") {
                         element.appendChild(document.createTextNode(text));
                     }
+                },
+                // bytes - converts a number into something like "501,789,753,344 bytes (467.3GiB), 10%"
+                bytes = function core_dom_bytes(input?:number):string {
+                    if (input === undefined) {
+                        // eslint-disable-next-line no-restricted-syntax
+                        input = Number(this);
+                    }
+                    //find the string length of input and divide into triplets
+                    let output:string = "",
+                        length:number = input.toString().length;
+
+                    const triples:number = (function terminal_common_prettyBytes_triples():number {
+                            if (length < 22) {
+                                return Math.floor((length - 1) / 3);
+                            }
+                            //it seems the maximum supported length of integer is 22
+                            return 8;
+                        }()),
+                        //each triplet is worth an exponent of 1024 (2 ^ 10)
+                        power:number   = (function terminal_common_prettyBytes_power():number {
+                            let a:number = triples - 1,
+                                b:number = 1024;
+                            if (triples === 0) {
+                                return 0;
+                            }
+                            if (triples === 1) {
+                                return 1024;
+                            }
+                            do {
+                                b = b * 1024;
+                                a = a - 1;
+                            } while (a > 0);
+                            return b;
+                        }()),
+                        //kilobytes, megabytes, and so forth...
+                        unit:string[] = [
+                            "",
+                            "KiB",
+                            "MiB",
+                            "GiB",
+                            "TiB",
+                            "PiB",
+                            "EiB",
+                            "ZiB",
+                            "YiB"
+                        ];
+
+                    if (typeof input !== "number" || Number.isNaN(input) === true || input < 0 || input % 1 > 0) {
+                        //input not a positive integer
+                        output = "0B";
+                    } else if (triples === 0) {
+                        //input less than 1000
+                        output = `${input}B`;
+                    } else {
+                        //for input greater than 999
+                        length = Math.floor((input / power) * 100) / 100;
+                        output = length.toFixed(1) + unit[triples];
+                    }
+                    return output;
+                },
+                // bytes - converts a number into a format like ""
+                bytesLong = function core_dom_btyesLong():string {
+                    // eslint-disable-next-line no-restricted-syntax
+                    const input:number = Number(this);
+                    return `${commas(input)} bytes (${bytes(input)})`;
                 },
                 // capitalize a string
                 capitalize = function core_capitalize():string {
@@ -464,9 +531,11 @@ const core = function core(config:config_core):socket_object {
             Element.prototype.removeClass            = removeClass;
             Element.prototype.removeHighlight        = removeHighlight;
 
-            String.prototype.capitalize              = capitalize;
+            Number.prototype.bytes                   = bytes;
+            Number.prototype.bytesLong               = bytesLong;
             Number.prototype.dateTime                = dateTime;
             Number.prototype.time                    = time;
+            String.prototype.capitalize              = capitalize;
         };
     dom();
     return socket;

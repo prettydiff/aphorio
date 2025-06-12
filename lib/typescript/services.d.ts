@@ -2,7 +2,92 @@ import { IModes } from "@xterm/xterm";
 
 // cspell: words opencontainers
 
+// volu - UniqueiD    - "\\\\?\\Volume{5a1ad1e3-2d73-4154-bec9-e782fa046086}\\"
+// part - AccessPaths - "\\\\?\\Volume{5a1ad1e3-2d73-4154-bec9-e782fa046086}\\"
+
 declare global {
+
+    interface os_disk {
+        bus: string;
+        guid: string;
+        id: string;
+        name: string;
+        partitions: os_disk_partition[];
+        serial: string;
+        size_disk: number;
+    }
+
+    interface os_disk_partition {
+        active: boolean;
+        bootable: boolean;
+        diskId: string;
+        file_system: string;
+        hidden: boolean;
+        id: string;
+        path: string;
+        read_only: boolean;
+        size_free: number;
+        size_total: number;
+        size_used: number;
+        type: string;
+    }
+
+    interface os_disk_posix {
+        children: os_disk_posix_partition[];
+        model: string;
+        serial: string;
+        size: number;
+        tran: string;
+        uuid: string;
+    }
+
+    interface os_disk_posix_partition {
+        fsavail: number;
+        fsroots: string[];
+        fssize: number;
+        fstype: string;
+        fsused: number;
+        mountpoint: string;
+        partflags: string;
+        parttypename: string;
+        path: string;
+        ro: boolean;
+        type: string;
+        uuid: string;
+    }
+
+    interface os_disk_raw {
+        disk: os_disk_posix[]|os_disk_windows[];
+        part: os_disk_windows_partition[];
+        volu: os_disk_windows_volume[];
+    }
+
+    interface os_disk_windows {
+        BusType: string;
+        FriendlyName: string;
+        Guid: string;
+        SerialNumber: string;
+        Size: number;
+        UniqueId: string;
+    }
+
+    interface os_disk_windows_partition {
+        Guid: string;
+        IsActive: boolean;
+        IsBoot: boolean;
+        IsHidden: boolean;
+        IsReadOnly: boolean;
+        Type: string;
+        UniqueId: string;
+    }
+
+    interface os_disk_windows_volume {
+        DriveLetter: string;
+        FileSystem: string;
+        Size: number;
+        SizeRemaining: number;
+        UniqueId: string;
+    }
 
     interface services_action_compose {
         action: type_dashboard_action;
@@ -169,6 +254,7 @@ declare global {
                 free: number;
                 total: number;
             };
+            storage: os_disk[];
         };
         os: {
             uptime: number;
