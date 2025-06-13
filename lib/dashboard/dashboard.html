@@ -548,8 +548,14 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     <li><strong>Used</strong><span></span></li>
                     <li data-name="memoryFree"><strong>Total</strong><span></span></li>
                 </ul>
-                <h4>Network Interfaces <button class="expand">Expand</button></h4>
-                <ul class="definition-body" data-name="interfaces"></ul>
+                <div>
+                    <h4>Network Interfaces <button class="expand">Expand</button></h4>
+                    <ul class="definition-body" data-name="interfaces"></ul>
+                </div>
+                <div>
+                    <h4>Storage <button class="expand">Expand</button></h4>
+                    <ul class="definition-body" data-name="storage"></ul>
+                </div>
             </div>
             <div class="section">
                 <h3>Operating System</h3>
@@ -562,11 +568,11 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     <li data-name="uptime"><strong>Up Time</strong><span></span></li>
                 </ul>
                 <div>
-                    <h3>Path <button class="expand">Expand</button></h3>
+                    <h4>Path <button class="expand">Expand</button></h4>
                     <ul class="definition-body" data-name="path"></ul>
                 </div>
                 <div>
-                    <h3>Environmental Variables <button class="expand">Expand</button></h3>
+                    <h4>Environmental Variables <button class="expand">Expand</button></h4>
                     <ul class="definition-body" data-name="env"></ul>
                 </div>
             </div>

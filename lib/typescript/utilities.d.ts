@@ -130,6 +130,7 @@ interface server_os {
             free: number;
             total: number;
         };
+        storage: os_disk[];
     };
     os: {
         env: store_string;
@@ -176,6 +177,10 @@ interface server_os_memoryUsage {
 interface server_ports {
     open?: number;
     secure?: number;
+}
+
+interface store_children {
+    [key:string]: node_childProcess_ChildProcess;
 }
 
 interface store_compose {

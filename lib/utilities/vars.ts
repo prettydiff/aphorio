@@ -48,7 +48,8 @@ const gid:number = (typeof process.getgid === "undefined")
                 memory: {
                     free: node.os.freemem(),
                     total: node.os.totalmem()
-                }
+                },
+                storage: []
             },
             os: {
                 env: process.env,

@@ -537,10 +537,11 @@ const dashboard = function dashboard():void {
                     informational.os.nodes.cpu.endianness.textContent = payload.os.machine.cpu.endianness;
                     informational.os.nodes.cpu.frequency.textContent = `${commas(payload.os.machine.cpu.frequency)}mhz`;
                     informational.os.nodes.cpu.name.textContent = payload.os.machine.cpu.name;
-                    informational.os.nodes.memory.free.textContent = `${commas(payload.os.machine.memory.free)} bytes`;
-                    informational.os.nodes.memory.used.textContent = `${commas(payload.os.machine.memory.total - payload.os.machine.memory.free)} bytes`;
-                    informational.os.nodes.memory.total.textContent = `${commas(payload.os.machine.memory.total)} bytes`;
+                    informational.os.nodes.memory.free.textContent = payload.os.machine.memory.free.bytesLong();
+                    informational.os.nodes.memory.used.textContent = (payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong();
+                    informational.os.nodes.memory.total.textContent = payload.os.machine.memory.total.bytesLong();
                     informational.os.interfaces(payload.os.machine.interfaces);
+                    informational.os.storage(payload.os.machine.storage);
                     informational.os.nodes.os.hostname.textContent = payload.os.os.hostname;
                     informational.os.nodes.os.name.textContent = payload.os.os.name;
                     informational.os.nodes.os.platform.textContent = payload.os.os.platform;
@@ -556,10 +557,10 @@ const dashboard = function dashboard():void {
                     informational.os.nodes.process.pid.textContent = String(payload.os.process.pid);
                     informational.os.nodes.process.ppid.textContent = String(payload.os.process.ppid);
                     informational.os.nodes.process.uptime.textContent = payload.os.process.uptime.time();
-                    informational.os.nodes.process.memoryProcess.textContent = `${commas(payload.os.process.memory.rss)} bytes`;
+                    informational.os.nodes.process.memoryProcess.textContent = payload.os.process.memory.rss.bytesLong();
                     informational.os.nodes.process.memoryPercent.textContent = `${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
-                    informational.os.nodes.process.memoryV8.textContent = `${commas(payload.os.process.memory.V8)} bytes`;
-                    informational.os.nodes.process.memoryExternal.textContent = `${commas(payload.os.process.memory.external)} bytes`;
+                    informational.os.nodes.process.memoryV8.textContent = payload.os.process.memory.V8.bytesLong();
+                    informational.os.nodes.process.memoryExternal.textContent = payload.os.process.memory.external.bytesLong();
                     if (payload.os.process.platform === "win32") {
                         informational.os.nodes.user.gid.parentNode.style.display = "none";
                         informational.os.nodes.user.uid.parentNode.style.display = "none";
@@ -691,6 +692,7 @@ const dashboard = function dashboard():void {
                             os: sectionList[1].getElementsByTagName("ul")[0],
                             path: sectionList[1].getElementsByTagName("ul")[2],
                             process: sectionList[2].getElementsByTagName("ul")[0],
+                            storage: sectionList[0].getElementsByTagName("ul")[3],
                             user: sectionList[3].getElementsByTagName("ul")[0],
                             versions: sectionList[2].getElementsByTagName("ul")[1]
                         },
@@ -736,6 +738,7 @@ const dashboard = function dashboard():void {
                                 ppid: item("process", 11),
                                 uptime: item("process", 12)
                             },
+                            storage: sections.storage,
                             update: document.getElementById("os").getElementsByTagName("p")[2],
                             user: {
                                 gid: item("user", 0),
@@ -756,17 +759,127 @@ const dashboard = function dashboard():void {
                     payload.os.process.cpuUser = data.process.cpuUser;
                     payload.os.process.uptime = data.process.uptime;
                     informational.os.interfaces(data.machine.interfaces);
-                    informational.os.nodes.memory.free.textContent = `${commas(payload.os.machine.memory.free)} bytes`;
-                    informational.os.nodes.memory.used.textContent = `${commas(payload.os.machine.memory.total - payload.os.machine.memory.free)} bytes`;
-                    informational.os.nodes.memory.total.textContent = `${commas(payload.os.machine.memory.total)} bytes`;
+                    informational.os.storage(data.machine.storage);
+                    informational.os.nodes.memory.free.textContent = payload.os.machine.memory.free.bytesLong();
+                    informational.os.nodes.memory.used.textContent = (payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong();
+                    informational.os.nodes.memory.total.textContent = payload.os.machine.memory.total.bytesLong();
                     informational.os.nodes.os.uptime.textContent = payload.os.os.uptime.time();
                     informational.os.nodes.process.cpuSystem.textContent = payload.os.process.cpuSystem.time();
                     informational.os.nodes.process.cpuUser.textContent = payload.os.process.cpuUser.time();
                     informational.os.nodes.process.uptime.textContent = payload.os.process.uptime.time();
-                    informational.os.nodes.process.memoryProcess.textContent = `${commas(payload.os.process.memory.rss)} bytes`;
+                    informational.os.nodes.process.memoryProcess.textContent = payload.os.process.memory.rss.bytesLong();
                     informational.os.nodes.process.memoryPercent.textContent = `${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
-                    informational.os.nodes.process.memoryV8.textContent = `${commas(payload.os.process.memory.V8)} bytes`;
-                    informational.os.nodes.process.memoryExternal.textContent = `${commas(payload.os.process.memory.external)} bytes`;
+                    informational.os.nodes.process.memoryV8.textContent = payload.os.process.memory.V8.bytesLong();
+                    informational.os.nodes.process.memoryExternal.textContent = payload.os.process.memory.external.bytesLong();
+                },
+                storage: function dashboard_osStorage(data:os_disk[]):void {
+                    if (data === null) {
+                        return;
+                    }
+                    const output_old:HTMLElement = informational.os.nodes.storage,
+                        output_new:HTMLElement = document.createElement("ul"),
+                        len:number = data.length,
+                        data_item = function dashboard_osStorage_dataItem(ul:HTMLElement, item:os_disk_partition[]|string, key:"active"|"bootable"|"bus"|"file_system"|"guid"|"hidden"|"id"|"name"|"partitions"|"path"|"read_only"|"serial"|"size_disk"|"size_free"|"size_total"|"size_used"|"type"):void {
+                            const li:HTMLElement = document.createElement("li"),
+                                len:number = (key === "partitions")
+                                    ? data[index].partitions.length
+                                    : 0,
+                                strong:HTMLElement = (len > 0)
+                                    ? document.createElement("h6")
+                                    : document.createElement("strong"),
+                                span:HTMLElement = document.createElement("span"),
+                                cap = function dashboard_osStorage_dataItem_cap(input:string):string {
+                                    return ` ${input.replace("_", "").capitalize()}`;
+                                };
+                            strong.textContent = key.capitalize().replace(/_\w/, cap);
+                            li.appendChild(strong);
+                            if (key === "partitions" && len > 0) {
+                                let list:HTMLElement = null,
+                                    pIndex:number = 0;
+                                do {
+                                    list = document.createElement("ul");
+                                    list.setAttribute("class", "os-interface");
+                                    data_item(list, String(data[index].partitions[pIndex].active), "active");
+                                    data_item(list, String(data[index].partitions[pIndex].bootable), "bootable");
+                                    data_item(list, String(data[index].partitions[pIndex].file_system), "file_system");
+                                    data_item(list, String(data[index].partitions[pIndex].hidden), "hidden");
+                                    data_item(list, String(data[index].partitions[pIndex].id), "id");
+                                    data_item(list, String(data[index].partitions[pIndex].path), "path");
+                                    data_item(list, String(data[index].partitions[pIndex].read_only), "read_only");
+                                    if (data[index].partitions[pIndex].size_free === 0 || data[index].partitions[pIndex].size_total === 0) {
+                                        data_item(list, data[index].partitions[pIndex].size_free.bytesLong(), "size_free");
+                                    } else {
+                                        data_item(list, `${data[index].partitions[pIndex].size_free.bytesLong()}, ${Math.round((data[index].partitions[pIndex].size_free / data[index].partitions[pIndex].size_total) * 100)}%`, "size_free");
+                                    }
+                                    if (data[index].partitions[pIndex].size_total === 0) {
+                                        data_item(list, "0", "size_total");
+                                    } else {
+                                        data_item(list, `${data[index].partitions[pIndex].size_total.bytesLong()}, 100%`, "size_total");
+                                    }
+                                    if (data[index].partitions[pIndex].size_free === 0 || data[index].partitions[pIndex].size_total === 0) {
+                                        data_item(list, `${data[index].partitions[pIndex].size_used.bytesLong()}`, "size_used");
+                                    } else {
+                                        data_item(list, `${data[index].partitions[pIndex].size_used.bytesLong()}, ${Math.round((data[index].partitions[pIndex].size_used / data[index].partitions[pIndex].size_total) * 100)}%`, "size_used");
+                                    }
+                                    data_item(list, data[index].partitions[pIndex].type, "type");
+                                    li.appendChild(list);
+                                    pIndex = pIndex + 1;
+                                } while (pIndex < len);
+                            } else {
+                                if (key === "size_free") {
+                                    const val:string = item as string,
+                                        index:number = val.indexOf(", ") + 2,
+                                        percent:number = (val === "0")
+                                            ? 0
+                                            : Number(val.slice(index, val.indexOf("%")));
+                                    if (val !== "0" && percent < 16) {
+                                        const bad:HTMLElement = document.createElement("strong");
+                                        bad.textContent = `${percent}%`;
+                                        bad.setAttribute("class", "fail");
+                                        span.textContent = val.slice(0, index);
+                                        span.appendChild(bad);
+                                    } else {
+                                        span.textContent = item as string;
+                                    }
+                                } else {
+                                    if (key === "partitions") {
+                                        span.textContent = "none";
+                                    } else {
+                                        span.textContent = item as string;
+                                    }
+                                }
+                                li.appendChild(span);
+                            }
+                            ul.setAttribute("class", "os-interface");
+                            ul.appendChild(li);
+                        };
+                    let li:HTMLElement = null,
+                        ul:HTMLElement = null,
+                        h5:HTMLElement = null,
+                        index:number = 0;
+                    output_new.setAttribute("class", "definition-body");
+                    output_new.setAttribute("data-name", output_old.dataset.name);
+                    if (len > 0) {
+                        do {
+                            li = document.createElement("li");
+                            ul = document.createElement("ul");
+                            h5 = document.createElement("h5");
+                            h5.textContent = data[index].name;
+                            li.appendChild(h5);
+                            data_item(ul, String(data[index].bus), "bus");
+                            data_item(ul, String(data[index].guid), "guid");
+                            data_item(ul, String(data[index].name), "name");
+                            data_item(ul, String(data[index].serial), "serial");
+                            data_item(ul, data[index].size_disk.bytesLong(), "size_disk");
+                            data_item(ul, data[index].partitions, "partitions");
+                            li.appendChild(ul);
+                            output_new.appendChild(li);
+                            index = index + 1;
+                        } while (index < len);
+                    }
+                    output_old.parentNode.appendChild(output_new);
+                    output_old.parentNode.removeChild(output_old);
+                    informational.os.nodes.storage = output_new;
                 }
             },
             ports: {
@@ -2757,17 +2870,17 @@ const dashboard = function dashboard():void {
                     // round trip time
                     tools.http.nodes.stats[0].textContent = `${data.stats.time} seconds`;
                     // response header size
-                    tools.http.nodes.stats[1].textContent = `${commas(data.stats.response.size_header)} bytes`;
+                    tools.http.nodes.stats[1].textContent = data.stats.response.size_header.bytesLong();
                     // response body size
-                    tools.http.nodes.stats[2].textContent = `${commas(data.stats.response.size_body)} bytes`;
+                    tools.http.nodes.stats[2].textContent = data.stats.response.size_body.bytesLong();
                     // chunked?
                     tools.http.nodes.stats[3].textContent = String(data.stats.chunks.chunked);
                     // chunk count
                     tools.http.nodes.stats[4].textContent = commas(data.stats.chunks.count);
                     // request header size
-                    tools.http.nodes.stats[5].textContent = `${commas(data.stats.request.size_header)} bytes`;
+                    tools.http.nodes.stats[5].textContent = data.stats.request.size_header.bytesLong();
                     // request body size
-                    tools.http.nodes.stats[6].textContent = `${commas(data.stats.request.size_body)} bytes`;
+                    tools.http.nodes.stats[6].textContent = data.stats.request.size_body.bytesLong();
                     // URI length
                     tools.http.nodes.stats[7].textContent = `${commas(JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length)} characters`;
                 }
