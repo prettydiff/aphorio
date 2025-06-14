@@ -187,7 +187,7 @@ const startup = function utilities_startup(callback:() => void):void {
                 commands:store_string = {
                     disk: (powershell === true)
                         ? "Get-Disk | ConvertTo-JSON -compress -depth 2"
-                        : "lsblk --json",
+                        : "lsblk -Ob --json",
                     part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
                     volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
                 },
@@ -291,7 +291,8 @@ const startup = function utilities_startup(callback:() => void):void {
                         vol:string = "",
                         part:os_disk_partition = null,
                         disk:os_disk = null,
-                        child:os_disk_posix_partition = null;
+                        child:os_disk_posix_partition = null,
+                        child_len:number = 0;
                     if (len > 0 && ((powershell === true && pLen > 0 && vLen > 0) || powershell === false)) {
                         do {
                             pIndex = 0;
@@ -352,26 +353,38 @@ const startup = function utilities_startup(callback:() => void):void {
                                     serial: data_posix[index].serial,
                                     size_disk: data_posix[index].size
                                 };
-                                do {
-                                    child = data_posix[index].children[pIndex];
-                                    disk.partitions.push({
-                                        active: (child.mountpoint !== null),
-                                        bootable: (child.partflags === "0x80"),
-                                        diskId: disk.id,
-                                        file_system: child.fstype,
-                                        hidden: (child.mountpoint !== null && child.mountpoint.charAt(0) !== "/"),
-                                        id: child.uuid,
-                                        path: child.path,
-                                        read_only: child.ro,
-                                        size_free: child.fsavail,
-                                        size_total: child.fssize,
-                                        size_used: child.fsused,
-                                        type: (child.type === "part")
-                                            ? child.parttypename
-                                            : child.type
-                                    });
-                                    pIndex = pIndex + 1;
-                                } while (pIndex < pLen);
+                                child_len = (data_posix[index].children === undefined || data_posix[index].children === null)
+                                    ? 0
+                                    : data_posix[index].children.length;
+                                if (child_len > 0) {
+                                    do {
+                                        child = data_posix[index].children[pIndex];
+                                        part = {
+                                            active: (child.mountpoint !== null),
+                                            bootable: (child.partflags === "0x80"),
+                                            diskId: disk.id,
+                                            file_system: child.fstype,
+                                            hidden: (child.mountpoint !== null && child.mountpoint.charAt(0) !== "/"),
+                                            id: child.uuid,
+                                            path: child.path,
+                                            read_only: child.ro,
+                                            size_free: (child.fsavail === null)
+                                                ? 0
+                                                : child.fsavail,
+                                            size_total: (child.fssize === null)
+                                                ? 0
+                                                : child.fssize,
+                                            size_used: (child.fsused === null)
+                                                ? 0
+                                                : child.fsused,
+                                            type: (child.type === "part")
+                                                ? child.parttypename
+                                                : child.type
+                                        };
+                                        disk.partitions.push(part);
+                                        pIndex = pIndex + 1;
+                                    } while (pIndex < child_len);
+                                }
                             }
                             disks.push(disk);
                             index = index + 1;

@@ -783,13 +783,13 @@ const dashboard = function dashboard():void {
                         len:number = data.length,
                         data_item = function dashboard_osStorage_dataItem(ul:HTMLElement, item:os_disk_partition[]|string, key:"active"|"bootable"|"bus"|"file_system"|"guid"|"hidden"|"id"|"name"|"partitions"|"path"|"read_only"|"serial"|"size_disk"|"size_free"|"size_total"|"size_used"|"type"):void {
                             const li:HTMLElement = document.createElement("li"),
+                                len:number = (key === "partitions")
+                                    ? data[index].partitions.length
+                                    : 0,
                                 strong:HTMLElement = (key === "partitions")
                                     ? document.createElement("h6")
                                     : document.createElement("strong"),
                                 span:HTMLElement = document.createElement("span"),
-                                len:number = (key === "partitions")
-                                    ? data[index].partitions.length
-                                    : 0,
                                 cap = function dashboard_osStorage_dataItem_cap(input:string):string {
                                     return ` ${input.replace("_", "").capitalize()}`;
                                 };
@@ -805,7 +805,7 @@ const dashboard = function dashboard():void {
                                     data_item(list, String(data[index].partitions[pIndex].bootable), "bootable");
                                     data_item(list, String(data[index].partitions[pIndex].file_system), "file_system");
                                     data_item(list, String(data[index].partitions[pIndex].hidden), "hidden");
-                                    data_item(list, data[index].partitions[pIndex].id, "id");
+                                    data_item(list, String(data[index].partitions[pIndex].id), "id");
                                     data_item(list, String(data[index].partitions[pIndex].path), "path");
                                     data_item(list, String(data[index].partitions[pIndex].read_only), "read_only");
                                     if (data[index].partitions[pIndex].size_free === 0 || data[index].partitions[pIndex].size_total === 0) {
@@ -844,7 +844,11 @@ const dashboard = function dashboard():void {
                                         span.textContent = item as string;
                                     }
                                 } else {
-                                    span.textContent = item as string;
+                                    if (key === "partitions") {
+                                        span.textContent = "none";
+                                    } else {
+                                        span.textContent = item as string;
+                                    }
                                 }
                                 li.appendChild(span);
                             }
@@ -864,10 +868,10 @@ const dashboard = function dashboard():void {
                             h5 = document.createElement("h5");
                             h5.textContent = data[index].name;
                             li.appendChild(h5);
-                            data_item(ul, data[index].bus, "bus");
-                            data_item(ul, data[index].guid, "guid");
-                            data_item(ul, data[index].name, "name");
-                            data_item(ul, data[index].serial, "serial");
+                            data_item(ul, String(data[index].bus), "bus");
+                            data_item(ul, String(data[index].guid), "guid");
+                            data_item(ul, String(data[index].name), "name");
+                            data_item(ul, String(data[index].serial), "serial");
                             data_item(ul, data[index].size_disk.bytesLong(), "size_disk");
                             data_item(ul, data[index].partitions, "partitions");
                             li.appendChild(ul);
