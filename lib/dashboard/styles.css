@@ -64,6 +64,7 @@ h2{font-size:2em}
 h3{font-size:var(--h3-size)}
 h4{font-size:1.6em}
 h5{font-size:1.4em}
+h6{font-size:1.2em}
 h1,h2,h3,h4,h5,h6{margin:0 0 1em}
 #dashboard #http h4,
 #dashboard #websocket h4{margin:1em 0 0.25em}
@@ -129,7 +130,7 @@ fieldset{background:var(--background_fieldset);border-color:var(--border_color);
 textarea{background:var(--background_textarea);border-style:solid;border-width:0.065em;color:var(--text)}
 #terminal .xterm{border-color:var(--border_input);overflow:hidden}
 #terminal .xterm-viewport{overflow:hidden}
-#terminal .terminal-output{width:180em}
+#terminal .terminal-output{width:100%}
 textarea{border-color:var(--textarea_border);box-shadow:0 0 0.1em var(--black)}
 #dashboard .xterm-rows{font-size:vars(--font-size)}
 .delay{height:50%;width:50%}

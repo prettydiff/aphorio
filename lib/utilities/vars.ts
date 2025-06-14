@@ -101,18 +101,20 @@ const gid:number = (typeof process.getgid === "undefined")
         sep: node.path.sep,
         servers: {},
         server_meta: {},
-        shell: (process.platform === "win32")
-            ? "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
-            : "/bin/bash",
         system_ports: {
             list: [],
             time: 0
         },
         start_time: process.hrtime.bigint(),
-        terminal: {
-            cols: 199,
-            rows: 50
-        },
+        terminal: (process.platform === "win32")
+            ? [
+                "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+                "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                "C:\\Windows\\System32\\cmd.exe",
+                "C:\\Program Files\\Git\\bin\\bash.exe",
+                "C:\\Program Files (x86)\\Git\\bin\\bash.exe"
+            ]
+            : [],
         text: {
             angry    : "\u001b[1m\u001b[31m",
             blue     : "\u001b[34m",

@@ -32,7 +32,8 @@ const dashboard = function dashboard():void {
                     encryption: true,
                     request: ""
                 },
-                nav: "servers"
+                nav: "servers",
+                terminal: ""
             }
             : JSON.parse(local),
         utility:module_utility = {
@@ -177,6 +178,7 @@ const dashboard = function dashboard():void {
                 state.hash.source = tools.hash.nodes.source.value;
                 state.http.encryption = (tools.http.nodes.encryption.checked === true);
                 state.http.request = tools.http.nodes.request.value;
+                state.terminal = tools.terminal.nodes.select[tools.terminal.nodes.select.selectedIndex].textContent;
                 localStorage.state = JSON.stringify(state);
             },
             socket: core({
@@ -2883,7 +2885,16 @@ const dashboard = function dashboard():void {
             },
             terminal: {
                 // https://xtermjs.org/docs/
+                cols: 0,
                 events: {
+                    change: function dashboard_terminalChange():void {
+                        utility.setState();
+                        tools.terminal.item.dispose();
+                        tools.terminal.socket.close();
+                        tools.terminal.item = null;
+                        tools.terminal.socket = null;
+                        tools.terminal.shell();
+                    },
                     data: function dashboard_terminalData(event:websocket_event):void {
                         tools.terminal.item.write(event.data);
                     },
@@ -2897,6 +2908,28 @@ const dashboard = function dashboard():void {
                             tools.terminal.socket.send(input.key);
                         }
                     },
+                    resize: function dashboard_terminalResize():void {
+                        const char_height:number = 17,
+                            char_width:number = 9,
+                            output_height:number = window.innerHeight - 110,
+                            output_width:number = tools.terminal.nodes.output.clientWidth;
+                        tools.terminal.cols = Math.floor(output_width / char_width);
+                        tools.terminal.rows = Math.floor(output_height / char_height);
+                        tools.terminal.nodes.output.style.height = `${output_height / 10}em`;
+                        if (tools.terminal.item !== null) {
+                            tools.terminal.item.resize(tools.terminal.cols, tools.terminal.rows);
+                        }
+                        if (tools.terminal.info !== null) {
+                            utility.message_send({
+                                cols: tools.terminal.cols,
+                                hash: tools.terminal.info.socket_hash,
+                                rows: tools.terminal.rows,
+                                secure: (location.protocol === "http:")
+                                    ? "open"
+                                    : "secure"
+                            } as services_terminal_resize, "dashboard-terminal-resize");
+                        }
+                    },
                     selection: function dashboard_terminalSelection():void {
                         navigator.clipboard.write([
                             new ClipboardItem({["text/plain"]: tools.terminal.item.getSelection()})
@@ -2906,48 +2939,74 @@ const dashboard = function dashboard():void {
                 id: null,
                 info: null,
                 init: function dashboard_terminalItem():void {
+                    const len:number = payload.terminal.length;
+                    let option:HTMLElement = null,
+                        index:number = 0;
+                    if (len > 0) {
+                        do {
+                            option = document.createElement("option");
+                            option.textContent = payload.terminal[index];
+                            if (payload.terminal[index] === state.terminal) {
+                                option.setAttribute("selected", "selected");
+                            }
+                            tools.terminal.nodes.select.appendChild(option);
+                            index = index + 1;
+                        } while (index < len);
+                        tools.terminal.nodes.select.onchange = tools.terminal.events.change;
+                        if (state.terminal === "") {
+                            tools.terminal.nodes.select.selectedIndex = 0;
+                            utility.setState();
+                        }
+                    }
+                    tools.terminal.events.resize();
+                    window.onresize = tools.terminal.events.resize;
                     if (typeof Terminal === "undefined") {
                         setTimeout(dashboard_terminalItem, 200);
                     } else {
-                        const encryption:type_encryption = (location.protocol === "http:")
-                                ? "open"
-                                : "secure",
-                            scheme:"ws"|"wss" = (encryption === "open")
-                                ? "ws"
-                                : "wss";
-                        tools.terminal.item = new Terminal({
-                            cols: payload.terminal.cols,
-                            cursorBlink: true,
-                            cursorStyle: "underline",
-                            disableStdin: false,
-                            rows: payload.terminal.rows,
-                            theme: {
-                                background: "#222",
-                                selectionBackground: "#444"
-                            }
-                        });
-                        tools.terminal.item.open(tools.terminal.nodes.output);
-                        tools.terminal.item.onKey(tools.terminal.events.input);
-                        tools.terminal.item.write("Terminal emulator pending connection...\r\n");
-                        // client-side terminal is ready, so alert the backend to initiate a pseudo-terminal
-                        tools.terminal.socket = new WebSocket(`${scheme}://${location.host}`, ["dashboard-terminal"]);
-                        tools.terminal.socket.onmessage = tools.terminal.events.firstData;
-                        if (typeof navigator.clipboard === "undefined") {
-                            const em:HTMLElement = document.getElementById("terminal").getElementsByClassName("tab-description")[0].getElementsByTagName("em")[0] as HTMLElement;
-                            if (location.protocol === "http:") {
-                                em.textContent = "Terminal clipboard functionality only available when page is requested with HTTPS.";
-                                em.style.fontWeight = "bold";
-                            } else if (em !== undefined) {
-                                em.parentNode.removeChild(em);
-                            }
-                        } else {
-                            tools.terminal.item.onSelectionChange(tools.terminal.events.selection);
-                        }
+                        tools.terminal.shell();
                     }
                 },
                 item: null,
                 nodes: {
-                    output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement
+                    output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
+                    select: document.getElementById("terminal").getElementsByTagName("select")[0] as HTMLSelectElement
+                },
+                rows: 0,
+                shell: function dashboard_terminalShell():void {
+                    const encryption:type_encryption = (location.protocol === "http:")
+                            ? "open"
+                            : "secure",
+                        scheme:"ws"|"wss" = (encryption === "open")
+                            ? "ws"
+                            : "wss";
+                    tools.terminal.item = new Terminal({
+                        cols: tools.terminal.cols,
+                        cursorBlink: true,
+                        cursorStyle: "underline",
+                        disableStdin: false,
+                        rows: tools.terminal.rows,
+                        theme: {
+                            background: "#222",
+                            selectionBackground: "#444"
+                        }
+                    });
+                    tools.terminal.item.open(tools.terminal.nodes.output);
+                    tools.terminal.item.onKey(tools.terminal.events.input);
+                    tools.terminal.item.write("Terminal emulator pending connection...\r\n");
+                    // client-side terminal is ready, so alert the backend to initiate a pseudo-terminal
+                    tools.terminal.socket = new WebSocket(`${scheme}://${location.host}/?shell=${encodeURIComponent(state.terminal)}&cols=${tools.terminal.cols}&rows=${tools.terminal.rows}`, ["dashboard-terminal"]);
+                    tools.terminal.socket.onmessage = tools.terminal.events.firstData;
+                    if (typeof navigator.clipboard === "undefined") {
+                        const em:HTMLElement = document.getElementById("terminal").getElementsByClassName("tab-description")[0].getElementsByTagName("em")[0] as HTMLElement;
+                        if (location.protocol === "http:") {
+                            em.textContent = "Terminal clipboard functionality only available when page is requested with HTTPS.";
+                            em.style.fontWeight = "bold";
+                        } else if (em !== undefined) {
+                            em.parentNode.removeChild(em);
+                        }
+                    } else {
+                        tools.terminal.item.onSelectionChange(tools.terminal.events.selection);
+                    }
                 },
                 socket: null
             },
