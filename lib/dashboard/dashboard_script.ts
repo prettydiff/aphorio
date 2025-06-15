@@ -2917,7 +2917,9 @@ const dashboard = function dashboard():void {
                     resize: function dashboard_terminalResize():void {
                         const char_height:number = (tools.terminal.item === null)
                                 ? 17
-                                : Number(document.getElementById("terminal").getElementsByClassName("xterm-rows")[0].getElementsByTagName("div")[0].style.height.replace("px", "")),
+                                : (document.getElementById("terminal").getElementsByClassName("xterm-rows")[0] === undefined)
+                                    ? 17
+                                    : Number(document.getElementById("terminal").getElementsByClassName("xterm-rows")[0].getElementsByTagName("div")[0].style.height.replace("px", "")),
                             char_width:number = 9,
                             output_height:number = window.innerHeight - 110,
                             output_width:number = tools.terminal.nodes.output.clientWidth,
