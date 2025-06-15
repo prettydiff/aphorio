@@ -2918,22 +2918,26 @@ const dashboard = function dashboard():void {
                                 : Number(document.getElementById("terminal").getElementsByClassName("xterm-rows")[0].getElementsByTagName("div")[0].style.height.replace("px", "")),
                             char_width:number = 9,
                             output_height:number = window.innerHeight - 110,
-                            output_width:number = tools.terminal.nodes.output.clientWidth;
-                        tools.terminal.cols = Math.floor(output_width / char_width);
-                        tools.terminal.rows = Math.floor(output_height / char_height);
-                        tools.terminal.nodes.output.style.height = `${output_height / 10}em`;
-                        if (tools.terminal.item !== null) {
-                            tools.terminal.item.resize(tools.terminal.cols, tools.terminal.rows);
-                        }
-                        if (tools.terminal.info !== null) {
-                            utility.message_send({
-                                cols: tools.terminal.cols,
-                                hash: tools.terminal.info.socket_hash,
-                                rows: tools.terminal.rows,
-                                secure: (location.protocol === "http:")
-                                    ? "open"
-                                    : "secure"
-                            } as services_terminal_resize, "dashboard-terminal-resize");
+                            output_width:number = tools.terminal.nodes.output.clientWidth,
+                            cols:number = Math.floor(output_width / char_width),
+                            rows:number = Math.floor(output_height / char_height);console.log(cols+" "+rows);
+                        if (tools.terminal.cols !== cols && tools.terminal.rows !== rows) {
+                            tools.terminal.cols = cols;
+                            tools.terminal.rows = rows;
+                            tools.terminal.nodes.output.style.height = `${output_height / 10}em`;
+                            if (tools.terminal.item !== null) {
+                                tools.terminal.item.resize(tools.terminal.cols, tools.terminal.rows);
+                            }
+                            if (tools.terminal.info !== null) {
+                                utility.message_send({
+                                    cols: tools.terminal.cols,
+                                    hash: tools.terminal.info.socket_hash,
+                                    rows: tools.terminal.rows,
+                                    secure: (location.protocol === "http:")
+                                        ? "open"
+                                        : "secure"
+                                } as services_terminal_resize, "dashboard-terminal-resize");
+                            }
                         }
                     },
                     selection: function dashboard_terminalSelection():void {
