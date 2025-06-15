@@ -27,7 +27,7 @@ const terminal:services_terminal = {
             pty:pty = (socket === null)
                 ? null
                 : socket.pty;
-        if (pty !== null && Number.isNaN(data.cols) === false && Number.isNaN(data.rows) === false) {
+        if (pty !== null && Number.isNaN(data.cols) === false && Number.isNaN(data.rows) === false && data.cols > 0 && data.rows > 0) {
             pty.resize(Math.floor(data.cols), Math.floor(data.rows));
         }
     },
