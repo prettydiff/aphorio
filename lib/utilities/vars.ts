@@ -1,7 +1,7 @@
 
 import node from "./node.js";
 
-/* cspell: words appdata, nmap */
+/* cspell: words appdata, nmap, pwsh */
 
 const gid:number = (typeof process.getgid === "undefined")
         ? 0
