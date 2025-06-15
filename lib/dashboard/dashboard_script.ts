@@ -2913,7 +2913,9 @@ const dashboard = function dashboard():void {
                         }
                     },
                     resize: function dashboard_terminalResize():void {
-                        const char_height:number = 17,
+                        const char_height:number = (tools.terminal.item === null)
+                                ? 17
+                                : Number(document.getElementById("terminal").getElementsByClassName("xterm-rows")[0].getElementsByTagName("div")[0].style.height.replace("px", "")),
                             char_width:number = 9,
                             output_height:number = window.innerHeight - 110,
                             output_width:number = tools.terminal.nodes.output.clientWidth;
@@ -2962,7 +2964,6 @@ const dashboard = function dashboard():void {
                             utility.setState();
                         }
                     }
-                    tools.terminal.events.resize();
                     window.onresize = tools.terminal.events.resize;
                     if (typeof Terminal === "undefined") {
                         setTimeout(dashboard_terminalItem, 200);
@@ -2997,6 +2998,7 @@ const dashboard = function dashboard():void {
                     tools.terminal.item.open(tools.terminal.nodes.output);
                     tools.terminal.item.onKey(tools.terminal.events.input);
                     tools.terminal.item.write("Terminal emulator pending connection...\r\n");
+                    tools.terminal.events.resize();
                     // client-side terminal is ready, so alert the backend to initiate a pseudo-terminal
                     tools.terminal.socket = new WebSocket(`${scheme}://${location.host}/?shell=${encodeURIComponent(state.terminal)}&cols=${tools.terminal.cols}&rows=${tools.terminal.rows}`, ["dashboard-terminal"]);
                     tools.terminal.socket.onmessage = tools.terminal.events.firstData;

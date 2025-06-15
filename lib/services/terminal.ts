@@ -14,12 +14,14 @@ const terminal:services_terminal = {
             socket:websocket_pty = (function services_terminalResize():websocket_pty {
                 const sockets:websocket_client[] = vars.server_meta.dashboard.sockets[data.secure];
                 let index:number = sockets.length;
-                do {
-                    index = index - 1;
-                    if (sockets[index].hash === data.hash) {
-                        return sockets[index] as websocket_pty;
-                    }
-                } while (index > 0);
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        if (sockets[index].hash === data.hash) {
+                            return sockets[index] as websocket_pty;
+                        }
+                    } while (index > 0);
+                }
                 return null;
             }()),
             pty:pty = (socket === null)

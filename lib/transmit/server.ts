@@ -156,11 +156,15 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                                     : "open";
                                                 vars.server_meta[server_name].server[security].removeAllListeners();
                                             }
-                                            if (terminalFlag === true) {
+                                            if (terminalFlag === true && headerList[0].includes("shell") === true) {
                                                 const url:URL = new URL(decodeURIComponent(`http://www.x${headerList[0].split(" ")[1]}`)),
                                                     params:string[] = url.search.slice(1).split("&"),
-                                                    cols:number = Number(params[1].split("=")[1]),
-                                                    rows:number = Number(params[2].split("=")[1]),
+                                                    cols:number = (params[1] === undefined)
+                                                        ? null
+                                                        : Number(params[1].split("=")[1]),
+                                                    rows:number = (params[2] === undefined)
+                                                        ? null
+                                                        : Number(params[2].split("=")[1]),
                                                     term:terminal = {
                                                         cols: (Number.isNaN(cols) === true)
                                                             ? 199
