@@ -202,6 +202,19 @@
                 </div>
             </div>
             <div class="section">
+                <h3>Terminal</h3>
+                <div class="section">
+                    <h4>Why is my preferreed choice of shell is not listed in the select list?</h4>
+                    <p>Linux provides a catalogue of all installed shells in the file <em>/etc/shells</em>. Not all shells may add an entry to file upon their installation.</p>
+                    <p>Windows provides no such catalogue. Instead I must guess at the default locations for the most commonly used shells on Windows.</p>
+                    <p>
+                        To add additional options for the select list scroll to the bottom of the <em>/lib/utilities/vars.js</em> file of this project looking for the vars.terminal property.
+                        Additional entries may be manually added here and then rebuild the application with <em>npm run build</em>.
+                        Please ensure all entries are absolute file system paths to the local executable for any desired shell application.
+                    </p>
+                </div>
+            </div>
+            <div class="section">
                 <h3>HTTP Test</h3>
                 <div class="section">
                     <h4>What are the common error states demonstrated by this HTTP Test tool?</h4>
@@ -214,6 +227,24 @@
                 <div class="section">
                     <h4>What is the fastest observed response from a public domain?</h4>
                     <p>The fastest I have seen consistently is <em>www.microsoft.com</em> which completes a roundtrip in about 0.065 seconds.</p>
+                </div>
+            </div>
+            <div class="section">
+                <h3>WebSocket Test</h3>
+                <div class="section">
+                    <h4>Why does this not connect if a port number is specified but otherwise connects to the same destination?</h4>
+                    <p>
+                        The most likely answer is encryption mismatch, which is to say you are either attempting an encrypted connection to an insecure service or the opposite.
+                        This will absolutely occur if a port is specified for the destination, but may not occur if the port number is not provided.
+                        That is because the destination will likely direct your socket to the correct service location either by redirection or by implicit default port number.
+                    </p>
+                </div>
+                <div class="section">
+                    <h4>Why is it that some servers impose strange behaviors on WebSocket headers that don't work anywhere else?</h4>
+                    <p>
+                        The conventions specified in RFC 6455 provide the common requirements for interconnection and messaging so that unrelated systems can talk in a commonly agreed upon way.
+                        When interconnectivity between different unrelated systems is not necessary, such as one application talking to a different instance of the same application, then the application developer can modify the connection and messaging conventions as they wish.
+                    </p>
                 </div>
             </div>
             <div class="section">
@@ -737,7 +768,14 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="terminal">
             <h2>Terminal</h2>
             <p class="tab-description">A command terminal to interact with the local operating system. Expect this terminal to mirror the operating system terminal exactly. <em>Text selections in the console are automatically copied to the clipboard.</em></p>
-            <div class="terminal-output"></div>
+            <div class="section">
+                <h3>Switch Shells</h3>
+                <p><label>Available Shells <select></select></label></p>
+            </div>
+            <div class="section">
+                <h3>Terminal Display</h3>
+                <div class="terminal-output"></div>
+            </div>
         </div>
         <div class="tab" id="websocket">
             <h2>WebSocket Test</h2>

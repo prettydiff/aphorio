@@ -183,7 +183,7 @@ const startup = function utilities_startup(callback:() => void):void {
             readComplete("docker");
         },
         osUpdate = function utilities_startup_osUpdate():void {
-            const powershell:boolean = (vars.shell.includes("powershell.exe") === true || vars.shell.includes("pwsh.exe") === true),
+            const powershell:boolean = (process.platform === "win32"),
                 commands:store_string = {
                     disk: (powershell === true)
                         ? "Get-Disk | ConvertTo-JSON -compress -depth 2"
@@ -413,7 +413,9 @@ const startup = function utilities_startup(callback:() => void):void {
                             chunks_complete(type, buf);
                         };
                     spawn[type] = node.child_process.spawn(commands[type], [], {
-                        shell: vars.shell,
+                        shell: (powershell === true)
+                            ? "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+                            : "/bin/sh",
                         windowsHide: true
                     });
                     spawn[type].stdout.on("data", data_callback);
@@ -442,19 +444,56 @@ const startup = function utilities_startup(callback:() => void):void {
         location: `${vars.path.project}compose.json`,
         no_file: null
     });
-    file.stat({
-        callback: function utilities_startup_bash(stat:node_fs_BigIntStats):void {
-            if (stat === null) {
-                vars.shell = (process.platform === "win32")
-                    ? "C:\\windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe"
-                    : "/bin/sh";
-            }
-            osUpdate();
-        },
-        error_terminate: null,
-        location: vars.shell,
-        no_file: null
-    });
+    // build shell list
+    if (process.platform === "win32") {
+        const stats = function utilities_startup_shellWin(index:number):void {
+            node.fs.stat(vars.terminal[index], function utilities_startup_shellWin_callback(err:node_error) {
+                if (err !== null) {
+                    vars.terminal.splice(index, 1);
+                }
+                if (index > 0) {
+                    utilities_startup_shellWin(index - 1);
+                } else {
+                    osUpdate();
+                }
+            });
+        };
+        stats(vars.terminal.length - 1);
+    } else {
+        file.stat({
+            callback: function utilities_startup_shellStat(stat:node_fs_BigIntStats):void {
+                if (stat === null) {
+                    vars.terminal.push("/bin/sh");
+                } else {
+                    file.read({
+                        callback: function utilities_startup_shellStat_shellRead(contents:Buffer):void {
+                            const lines:string[] = contents.toString().split("\n"),
+                                len:number = lines.length;
+                            let index:number = 1;
+                            if (len > 1) {
+                                do {
+                                    if (lines[index].indexOf("/bin/") === 0) {
+                                        vars.terminal.push(lines[index]);
+                                    }
+                                    index = index + 1;
+                                } while (index < len);
+                            }
+                            if (vars.terminal.length < 1) {
+                                vars.terminal.push("/bin/sh");
+                            }
+                            osUpdate();
+                        },
+                        error_terminate: null,
+                        location: "/etc/shells",
+                        no_file: null
+                    });
+                }
+            },
+            error_terminate: null,
+            location: "/etc/shells",
+            no_file: null
+        });
+    }
 };
 
 export default startup;

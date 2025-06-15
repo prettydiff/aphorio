@@ -228,9 +228,10 @@ interface string_detect {
     encoding: string;
 }
 
-interface terminal_size {
+interface terminal {
     cols: number;
     rows: number;
+    shell: string;
 }
 
 interface vars {
@@ -254,10 +255,9 @@ interface vars {
     sep: "/" | "\\";
     server_meta: server_meta;
     servers: store_servers;
-    shell: string;
     start_time: bigint;
     system_ports: external_ports;
-    terminal: terminal_size;
+    terminal: string[];
     text: store_string;
 }
 

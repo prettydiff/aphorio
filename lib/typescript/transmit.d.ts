@@ -39,7 +39,7 @@ interface transmit_dashboard {
         time: number;
     };
     servers: store_servers;
-    terminal: terminal_size;
+    terminal: string[];
 }
 
 interface transmit_receiver {
@@ -85,6 +85,10 @@ interface websocket_client extends node_tls_TLSSocket {
     server: string;
     status: type_socket_status;
     type: string;
+}
+
+interface websocket_pty extends websocket_client {
+    pty: pty;
 }
 
 interface websocket_event extends Event {

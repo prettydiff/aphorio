@@ -156,8 +156,25 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                                     : "open";
                                                 vars.server_meta[server_name].server[security].removeAllListeners();
                                             }
-                                            if (terminalFlag === true) {
-                                                terminal(socket);
+                                            if (terminalFlag === true && headerList[0].includes("shell") === true) {
+                                                const url:URL = new URL(decodeURIComponent(`http://www.x${headerList[0].split(" ")[1]}`)),
+                                                    params:string[] = url.search.slice(1).split("&"),
+                                                    cols:number = (params[1] === undefined)
+                                                        ? null
+                                                        : Number(params[1].split("=")[1]),
+                                                    rows:number = (params[2] === undefined)
+                                                        ? null
+                                                        : Number(params[2].split("=")[1]),
+                                                    term:terminal = {
+                                                        cols: (Number.isNaN(cols) === true)
+                                                            ? 199
+                                                            : cols,
+                                                        rows: (Number.isNaN(rows) === true)
+                                                            ? 50
+                                                            : rows,
+                                                        shell: params[0].split("=")[1].replace(/%20/g, " ")
+                                                    };
+                                                terminal.shell(socket as websocket_pty, term);
                                             } else if (server_name === "dashboard" && type === "dashboard") {
                                                 const dashboard:transmit_dashboard = {
                                                     compose: vars.compose,

@@ -312,7 +312,19 @@ declare global {
         type: string;
     }
 
+    interface services_terminal {
+        resize: receiver;
+        shell: (socket:websocket_pty, terminal:terminal) => void;
+    }
+
     interface services_terminal_request {
+        secure: "open" | "secure";
+    }
+
+    interface services_terminal_resize {
+        cols: number;
+        hash: string;
+        rows: number;
         secure: "open" | "secure";
     }
 

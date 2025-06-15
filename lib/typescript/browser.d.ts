@@ -229,10 +229,13 @@ declare global {
     }
 
     interface module_terminal {
+        cols: number;
         events: {
+            change: (event:Event) => void;
             data: (event:websocket_event) => void;
             firstData: (event:websocket_event) => void;
             input: (input:terminal_input) => void;
+            resize: () => void;
             selection: () => void;
         };
         id: string;
@@ -241,7 +244,10 @@ declare global {
         item: Terminal;
         nodes: {
             output: HTMLElement;
+            select: HTMLSelectElement;
         };
+        rows: number;
+        shell: () => void;
         socket: WebSocket;
     }
 
@@ -333,10 +339,7 @@ declare global {
             request: string;
         };
         nav: string;
-        terminal: {
-            pty: number;
-            shell: number;
-        };
+        terminal: string;
     }
 
     interface terminal_identifiers {
@@ -344,6 +347,7 @@ declare global {
         port_browser: number;
         port_terminal: number;
         server_name: string;
+        socket_hash: string;
     }
 
     interface terminal_input {
