@@ -27,8 +27,8 @@ const terminal:services_terminal = {
             pty:pty = (socket === null)
                 ? null
                 : socket.pty;
-        if (pty !== null) {
-            pty.resize(data.cols, data.rows);
+        if (pty !== null && Number.isNaN(data.cols) === false && Number.isNaN(data.rows) === false) {
+            pty.resize(Math.floor(data.cols), Math.floor(data.rows));
         }
     },
     shell: function services_terminalShell(socket:websocket_pty, terminal:terminal):void {
