@@ -35,8 +35,8 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                 len:number = list.length - 1,
                 self:type_directory_item = list[0];
             let index:number = 0;
-            list.splice(0, 1);
             if (data.search === null) {
+                list.splice(0, 1);
                 if (len > 1) {
                     do {
                         if (list[index][3] === 0) {

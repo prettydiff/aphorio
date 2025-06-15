@@ -80,7 +80,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
         // eslint-disable-next-line max-params
         callbackTimeout = function transmit_createSocket_hash_timeout(ip:string, port:number, family:number, errorItem?:node_error):void {
             const error:node_error = (errorItem === undefined)
-                ? new Error("Socket handshake timedout.")
+                ? new Error("Socket handshake timed out.")
                 : errorItem;
             error.code = (errorItem === undefined)
                 ? "ETIMEDOUT"

@@ -27,7 +27,7 @@
         <h2>Navigation</h2>
         <div>
             <h3>Services</h3>
-            <ul><li><button class="nav-focus" data-section="servers">Servers</button></li><li><button data-section="compose">Docker Compose</button></li></ul>
+            <ul><li><button class="nav-focus" data-section="servers">Web Servers</button></li><li><button data-section="compose">Docker Compose</button></li></ul>
         </div>
         <div>
             <h3>Tools</h3>
@@ -104,7 +104,7 @@
             <h2>Frequently Asked Questions</h2>
             <p class="tab-description">Please review these items to help troubleshoot common problems.</p>
             <div class="section">
-                <h3>Servers</h3>
+                <h3>Web Servers</h3>
                 <div class="section">
                     <h4>On Windows I can create servers using ports 80 and 443, but it keeps resulting in an error on Linux.</h4>
                     <p>
@@ -204,7 +204,7 @@
             <div class="section">
                 <h3>Terminal</h3>
                 <div class="section">
-                    <h4>Why is my preferreed choice of shell is not listed in the select list?</h4>
+                    <h4>Why is my preferred choice of shell is not listed in the select list?</h4>
                     <p>Linux provides a catalogue of all installed shells in the file <em>/etc/shells</em>. Not all shells may add an entry to file upon their installation.</p>
                     <p>Windows provides no such catalogue. Instead I must guess at the default locations for the most commonly used shells on Windows.</p>
                     <p>
@@ -243,7 +243,7 @@
                     <h4>Why is it that some servers impose strange behaviors on WebSocket headers that don't work anywhere else?</h4>
                     <p>
                         The conventions specified in RFC 6455 provide the common requirements for interconnection and messaging so that unrelated systems can talk in a commonly agreed upon way.
-                        When interconnectivity between different unrelated systems is not necessary, such as one application talking to a different instance of the same application, then the application developer can modify the connection and messaging conventions as they wish.
+                        When inter-connectivity between different unrelated systems is not necessary, such as one application talking to a different instance of the same application, then the application developer can modify the connection and messaging conventions as they wish.
                     </p>
                 </div>
             </div>
@@ -422,9 +422,9 @@ sudo systemctl status &lt;service name here&gt;
                     <p>To inspect output written to the shell by the application use this command: <code>sudo journalctl -u &lt;service name here&gt; --since "2 minutes ago".</code></p>
                 </div>
                 <div class="section">
-                    <h4>Servers</h4>
+                    <h4>Web Servers</h4>
                     <h5>Proxies</h5>
-                    <p>The servers feature fully capable, though optional, support for proxies. The proxy support is divided between redirection to resources outside the given server and resources within the given server.  See the 'Definitions of Server Object Properties' on the Servers tab for more information.</p>
+                    <p>The servers feature fully capable, though optional, support for proxies. The proxy support is divided between redirection to resources outside the given server and resources within the given server.  See the 'Definitions of Server Object Properties' on the Web Servers tab for more information.</p>
                     <p>The servers also feature full support for WebSockets and partial support for HTTP.  HTTP is served over WebSockets which allows both protocols to coexist on the same port. All HTTP and WebSocket traffic receives full and equivalent proxy support.</p>
                     <h5>HTTP Methods</h5>
                     <p>HTTP methods <em>DELETE</em>, <em>POST</em>, and <em>PUT</em> are supported by this application but are not handled by this application. If these HTTP methods are to be used a given server must specify a file system path to corresponding libraries executed as child processes. Simply populate the respective properties on a new server's configuration object.</p>
@@ -670,7 +670,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <div class="tab" id="servers">
-            <h2>Servers</h2>
+            <h2>Web Servers</h2>
             <p class="tab-description">A list of configured HTTP/WS servers hosted by this application and their respective status.</p>
             <div class="definitions">
                 <h3>Definitions of Server Object Properties <button class="expand">Expand</button></h3>
@@ -768,6 +768,46 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="terminal">
             <h2>Terminal</h2>
             <p class="tab-description">A command terminal to interact with the local operating system. Expect this terminal to mirror the operating system terminal exactly. <em>Text selections in the console are automatically copied to the clipboard.</em></p>
+            <div class="definitions">
+                <h3>Shells, Terminals, and Pseudo-Terminals <button class="expand">Expand</button></h3>
+                <div class="definition-body">
+                    <div class="section">
+                        <p>To provide human interaction directly to modern operating systems these modern operating systems include shells, terminals, and pseudo-terminals.</p>
+                        <p>
+                            Shells, also called command shells, provide a means for human users to send instructions to operating systems directly without need to interact through other application processes.
+                            Human users, however, do not typically interact directly with command shells.
+                            The job of a shell is to provide a means to write commands, and optionally programmable automation, and that the operating system interprets and possibly responds to.
+                        </p>
+                        <p>
+                            All the inputs and outputs through command shells occurs in raw text characters, as in text characters that can be typed directly from a physical keyboard.
+                            The reason humans do not typically engage with shells directly is because much of this raw text contains formatting and instructions and signals for interaction.
+                            These control sequences are comprised of raw text that greatly impedes the other raw text meant for humans to read.
+                            To properly interpret these formatting and control sequences, such as colors and focus movement, humans indirectly interact with shells through terminal applications.
+                        </p>
+                        <p>
+                            A command terminal is an application that interprets shell output and provides a friendlier interface of human input to command shells.
+                            In other words shells are for computers to achieve human interaction and terminals are for humans to achieve shell interaction.
+                            Command terminals are sometimes referred to as <em>tty</em> devices, which refers to teletypewriter like an old typewriter for phone lines.
+                        </p>
+                        <p>
+                            If shells are for computers and terminals are for humans then how do other applications interact with command shells?
+                            That is the job of pseudo-terminals, which are sometimes referred to as <em>pty</em> devices.
+                            Pseudo-terminals do the same job as terminal applications, but instead of graphically rendering text into pretty colors they send more friendly binary messages to consuming applications.
+                            For example when a user connects to a remote computer using SSH and sees a command shell they are interacting through pseudo-terminals on each side of the network with one side talking to a shell and the other side talking to a terminal for the human user.
+                        </p>
+                        <p>
+                            Linux provides a functional API to engage with a PTY.
+                            This requires writing a C language file that makes use of functions <em>open_pty</em> or <em>fork_pty</em> from file pty.h and then compiling these custom instructions to binary.
+                            Windows provides its own functional API via the ConPTY architecture with functions in C# language.
+                            That requires writing a C# file that makes use of the Microsoft functions and then compiling to binary.
+                        </p>
+                        <p>
+                            To solve for this in JavaScript world Microsoft maintains a package called <em>node-pty</em> that provides these binaries for both Windows, Linux, and FreeBSD.
+                            This application makes use of node-pty via package Xterm.js, as does every other application that wishes to provide a terminal interface to a web browser.
+                        </p>
+                    </div>
+                </div>
+            </div>
             <div class="section">
                 <h3>Switch Shells</h3>
                 <p><label>Available Shells <select></select></label></p>

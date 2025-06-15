@@ -10,7 +10,7 @@ import node from "./node.js";
 import port_map from "../services/port_map.js";
 import vars from "./vars.js";
 
-// cspell: words bestaudio, keyid, multistreams, nmap, pathlen
+// cspell: words bestaudio, blockdevices, bootable, fsavail, fssize, fstype, fsused, keyid, mountpoint, multistreams, nmap, partflags, parttypename, pathlen, pwsh, volu
 
 const startup = function utilities_startup(callback:() => void):void {
     const flags:store_flag = {

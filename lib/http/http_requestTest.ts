@@ -3,6 +3,8 @@ import node from "../utilities/node.js";
 import send from "../transmit/send.js";
 import vars from "../utilities/vars.js";
 
+// cspell: words prettydiff
+
 const http_request = function http_request(socket_data:socket_data, transmit:transmit_socket):void {
     const data:services_http_test = socket_data.data as services_http_test,
         req:string = data.headers,

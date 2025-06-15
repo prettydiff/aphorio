@@ -1,9 +1,6 @@
 import { IModes } from "@xterm/xterm";
 
-// cspell: words opencontainers
-
-// volu - UniqueiD    - "\\\\?\\Volume{5a1ad1e3-2d73-4154-bec9-e782fa046086}\\"
-// part - AccessPaths - "\\\\?\\Volume{5a1ad1e3-2d73-4154-bec9-e782fa046086}\\"
+// cspell: words bootable, fsavail, fsroots, fssize, fstype, fsused, mountpoint, opencontainers, partflags, parttypename, volu
 
 declare global {
 

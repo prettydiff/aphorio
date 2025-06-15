@@ -4,7 +4,7 @@ import core from "../browser/core.js";
 // @ts-expect-error - TypeScript claims xterm has no default export, but this is how the documentation says to use it.
 import Terminal from "@xterm/xterm";
 
-// cspell: words buildx, containerd, nmap, PUID, PGID, winget
+// cspell: words bootable, buildx, containerd, nmap, PUID, PGID, winget
 const dashboard = function dashboard():void {
     let payload:transmit_dashboard = null,
         loaded:boolean = false,
@@ -165,7 +165,9 @@ const dashboard = function dashboard():void {
                 state.dns.types = tools.dns.nodes.types.value;
                 state.fileSystem.path = tools.fileSystem.nodes.path.value;
                 state.fileSystem.search = tools.fileSystem.nodes.search.value;
-                state.hash.algorithm = tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex].textContent;
+                state.hash.algorithm = (tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex] === undefined)
+                    ? tools.hash.nodes.algorithm[0].textContent
+                    : tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex].textContent;
                 state.hash.hashFunction = (hashInput[1].checked === true)
                     ? "base64"
                     : "hash";
@@ -786,7 +788,7 @@ const dashboard = function dashboard():void {
                                 len:number = (key === "partitions")
                                     ? data[index].partitions.length
                                     : 0,
-                                strong:HTMLElement = (key === "partitions")
+                                strong:HTMLElement = (key === "partitions" && len > 0)
                                     ? document.createElement("h6")
                                     : document.createElement("strong"),
                                 span:HTMLElement = document.createElement("span"),
@@ -2920,8 +2922,8 @@ const dashboard = function dashboard():void {
                             output_height:number = window.innerHeight - 110,
                             output_width:number = tools.terminal.nodes.output.clientWidth,
                             cols:number = Math.floor(output_width / char_width),
-                            rows:number = Math.floor(output_height / char_height);console.log(cols+" "+rows);
-                        if (tools.terminal.cols !== cols && tools.terminal.rows !== rows) {
+                            rows:number = Math.floor(output_height / char_height);
+                        if (tools.terminal.cols !== cols || tools.terminal.rows !== rows) {
                             tools.terminal.cols = cols;
                             tools.terminal.rows = rows;
                             tools.terminal.nodes.output.style.height = `${output_height / 10}em`;
