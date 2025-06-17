@@ -166,7 +166,7 @@ const dashboard = function dashboard():void {
                 state.fileSystem.path = tools.fileSystem.nodes.path.value;
                 state.fileSystem.search = tools.fileSystem.nodes.search.value;
                 state.hash.algorithm = (tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex] === undefined)
-                    ? tools.hash.nodes.algorithm[0].textContent
+                    ? ""
                     : tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex].textContent;
                 state.hash.hashFunction = (hashInput[1].checked === true)
                     ? "base64"
