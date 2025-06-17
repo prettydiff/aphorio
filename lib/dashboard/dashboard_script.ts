@@ -2956,6 +2956,7 @@ const dashboard = function dashboard():void {
                     const len:number = payload.terminal.length;
                     let option:HTMLElement = null,
                         index:number = 0;
+                    tools.terminal.nodes.select.textContent = "";
                     if (len > 0) {
                         do {
                             option = document.createElement("option");
@@ -3237,6 +3238,9 @@ const dashboard = function dashboard():void {
                     navButtons[index].removeAttribute("class");
                 } while (index > 0);
                 document.getElementById(section).style.display = "block";
+                if (section === "terminal" && (tools.terminal.cols < 10 || tools.terminal.rows < 10)) {
+                    tools.terminal.events.resize();
+                }
                 state.nav = target.dataset.section;
                 utility.setState();
                 target.setAttribute("class", "nav-focus");
