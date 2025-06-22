@@ -186,10 +186,7 @@ declare global {
         };
         processes: os_proc[];
         services: os_service[];
-        sockets: {
-            tcp: os_sockets_tcp[];
-            udp: os_sockets_udp[];
-        };
+        sockets: os_sockets[];
         storage: os_disk[];
         time: number;
     }
@@ -210,9 +207,8 @@ declare global {
     }
 
     interface services_os_sockets {
-        tcp: os_sockets_tcp[];
+        sockets: os_sockets[];
         time: number;
-        udp: os_sockets_udp[];
     }
 
     interface services_processKill {

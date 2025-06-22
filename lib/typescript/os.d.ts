@@ -93,58 +93,47 @@ interface os_proc_windows {
 interface os_raw {
     disk: os_disk_posix[] | os_disk_windows[];
     part: os_disk_windows_partition[];
-    proc: os_proc_windows[];
+    proc: string[] | os_proc_windows[];
     serv: os_service_posix[] | os_service_windows[];
-    socT: string | os_sockets_tcp_windows[];
-    socU: string | os_sockets_udp_windows[];
+    socT: string[] | os_sockets_tcp_windows[];
+    socU: os_sockets_udp_windows[];
     volu: os_disk_windows_volume[];
 }
 
 interface os_service {
     description: string;
-    name_display: string;
-    name_service: string;
-    path: string;
-    start_type: string;
+    name: string;
     status: string;
 }
 
-interface os_service_posix {}
+interface os_service_posix {
+    active: "active" | "activating" | "deactivating" | "dead" | "exited" | "failed" | "inactive" | "running";
+    description: string;
+    unit: string;
+}
 
 interface os_service_windows {
-    BinaryPathName: string;
     Description: string;
-    DisplayName: string;
     Name: string;
-    ServiceName: string;
-    StartType: number;
     Status: number;
 }
 
-interface os_sockets_tcp {
+interface os_sockets {
     "local-address": string;
     "local-port": number;
-    process: number;
     "remote-address": string;
     "remote-port": number;
+    type: "tcp" | "udp";
 }
 
 interface os_sockets_tcp_windows {
     LocalAddress: string;
     LocalPort: number;
-    OwningProcess: number;
     RemoteAddress: string;
     RemotePort: number;
-}
-
-interface os_sockets_udp {
-    address: string;
-    port: number;
-    process: number;
 }
 
 interface os_sockets_udp_windows {
     LocalAddress: string;
     LocalPort: number;
-    OwningProcess: number;
 }

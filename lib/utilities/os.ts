@@ -21,23 +21,22 @@ const os = function utilities_os(type_os:type_os):void {
                 part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
                 proc: (win32 === true)
                     ? "Get-Process | Select-Object id, cpu, pm, name | ConvertTo-JSON"
-                    : "ps -eo pid,time,rss,comm=",
+                    : "ps -eo pid,etimes=,rss,comm= | tail -n +2 | tr -s \" \" \",\"",
                 serv: (win32 === true)
                     ? "Get-Service | ConvertTo-JSON -compress -depth 2"
                     : "systemctl list-units --type=service --all --output json",
                 socT: (win32 === true)
                     ? "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2"
-                    : "ss -a -t",
+                    : "ss -atu | tail -n +2 | tr -s \" \" \",\"",
                 socU: (win32 === true)
                     ? "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2"
-                    : "ss -a -u",
+                    : "",
                 volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
             },
             disks:os_disk[] = [],
             processes:os_proc[] = [],
             services:os_service[] = [],
-            sockets_tcp: os_sockets_tcp[] = [],
-            sockets_udp: os_sockets_udp[] = [],
+            sockets: os_sockets[] = [],
             chunks:store_string_list = {
                 disk: [],
                 part: [],
@@ -207,29 +206,19 @@ const os = function utilities_os(type_os:type_os):void {
                         index = index + 1;
                     } while (index < len);
                 }
-                if (type_os === "disk") {
-                    const service:services_os_disk = {
-                        disks: disks,
-                        time: Date.now()
-                    };
-                    broadcast("dashboard", "dashboard", {
-                        data: service,
-                        service: "dashboard-os-disk"
-                    });
-                } else {
-                    complete.part = true;
-                    complete.volu = true;
-                    completed("disk");
-                }
+                complete.part = true;
+                complete.volu = true;
+                completed("disk");
             },
             proc_callback = function utilities_os_populate_procCallback():void {
                 const data_win:os_proc_windows[] = raw.proc as os_proc_windows[],
-                    data_posix:os_service_posix[] = raw.serv as os_service_posix[],
+                    data_posix:string[] = raw.proc as string[],
                     len:number = (win32 === true)
                         ? data_win.length
                         : data_posix.length;
                 let index:number = 0,
-                    proc:os_proc = null;
+                    proc:os_proc = null,
+                    line:string[] = null;
                 if (len > 0) {
                     do {
                         if (win32 === true) {
@@ -240,28 +229,24 @@ const os = function utilities_os(type_os:type_os):void {
                                 time: data_win[index].CPU
                             };
                         } else {
-                            // service = {
-                            //     description: data_posix[index].Description,
-                            //     name_display: data_posix[index].DisplayName,
-                            //     name_service: data_posix[index].Name,
-                            //     path: data_posix[index].BinaryPathName,
-                            //     start_type: numeric("start_type", data_posix[index].StartType),
-                            //     status: numeric("status", data_posix[index].Status)
-                            // };
+                            line = data_posix[index].split(",");
+                            proc = {
+                                id: Number(line[1]),
+                                memory: Number(line[3]),
+                                name: line[4],
+                                time: Number(line[2])
+                            };
                         }
                         processes.push(proc);
                         index = index + 1;
                     } while (index < len);
                 }
-                if (type_os === "proc") {
-                    const service:services_os_proc = {
-                        processes: processes,
-                        time: Date.now()
-                    };
-                    broadcast("dashboard", "dashboard", {
-                        data: service,
-                        service: "dashboard-os-proc"
-                    });
+                completed("proc");
+            },
+            proc_child = function utilities_os_populate_procChild(err:node_childProcess_ExecException, stdout:string):void {
+                if (err === null) {
+                    raw.proc = stdout.replace(",\n", "\n").split("\n");
+                    proc_callback();
                 } else {
                     completed("proc");
                 }
@@ -286,134 +271,101 @@ const os = function utilities_os(type_os:type_os):void {
                         if (win32 === true) {
                             service = {
                                 description: data_win[index].Description,
-                                name_display: data_win[index].DisplayName,
-                                name_service: data_win[index].Name,
-                                path: data_win[index].BinaryPathName,
-                                start_type: numeric("start_type", data_win[index].StartType),
+                                name: data_win[index].Name,
                                 status: numeric("status", data_win[index].Status)
                             };
                         } else {
-                            // service = {
-                            //     description: data_posix[index].Description,
-                            //     name_display: data_posix[index].DisplayName,
-                            //     name_service: data_posix[index].Name,
-                            //     path: data_posix[index].BinaryPathName,
-                            //     start_type: numeric("start_type", data_posix[index].StartType),
-                            //     status: numeric("status", data_posix[index].Status)
-                            // };
+                            service = {
+                                description: data_posix[index].description,
+                                name: data_posix[index].unit,
+                                status: data_posix[index].active
+                            };
                         }
                         services.push(service);
                         index = index + 1;
                     } while (index < len);
                 }
-                if (type_os === "serv") {
-                    const service:services_os_service = {
-                        services: services,
-                        time: Date.now()
-                    };
-                    broadcast("dashboard", "dashboard", {
-                        data: service,
-                        service: "dashboard-os-serv"
-                    });
-                } else {
-                    completed("serv");
-                }
+                completed("serv");
             },
             socT_callback = function utilities_os_populate_socTCallback():void {
                 const data_win:os_sockets_tcp_windows[] = raw.socT as os_sockets_tcp_windows[],
-                    data_posix:string = raw.socT as string,
+                    data_posix:string[] = raw.socT as string[],
                     len:number = (win32 === true)
                         ? data_win.length
                         : data_posix.length;
                 let index:number = 0,
-                    sock:os_sockets_tcp = null;
+                    sock:os_sockets = null,
+                    line:string[] = null,
+                    local:string[] = null,
+                    remote:string[] = null,
+                    port_local:number = 0,
+                    port_remote:number = 0;
                 if (len > 0) {
                     do {
                         if (win32 === true) {
                             sock = {
                                 "local-address": data_win[index].LocalAddress,
                                 "local-port": data_win[index].LocalPort,
-                                "process": data_win[index].OwningProcess,
                                 "remote-address": data_win[index].RemoteAddress,
-                                "remote-port": data_win[index].RemotePort
+                                "remote-port": data_win[index].RemotePort,
+                                "type": "tcp"
                             };
                         } else {
-                            // service = {
-                            //     description: data_posix[index].Description,
-                            //     name_display: data_posix[index].DisplayName,
-                            //     name_service: data_posix[index].Name,
-                            //     path: data_posix[index].BinaryPathName,
-                            //     start_type: numeric("start_type", data_posix[index].StartType),
-                            //     status: numeric("status", data_posix[index].Status)
-                            // };
+                            line = data_posix[index].split(",");
+                            if (line.length > 5) {
+                                local = line[4].split(":");
+                                remote = line[5].split(":");
+                                port_local = Number(local[1]);
+                                port_remote = Number(remote[1]);
+                                sock = {
+                                    "local-address": local[0],
+                                    "local-port": (Number.isNaN(port_local))
+                                        ? 0
+                                        : port_local,
+                                    "remote-address": remote[0],
+                                    "remote-port": (Number.isNaN(port_remote))
+                                        ? 0
+                                        : port_remote,
+                                    "type": line[0] as "tcp"
+                                };
+                            }
                         }
-                        sockets_tcp.push(sock);
+                        sockets.push(sock);
                         index = index + 1;
                     } while (index < len);
                 }
-                if (type_os === "sock") {
-                    flags.socT = true;
-                    if (flags.socT === true && flags.socU === true) {
-                        const sockets:services_os_sockets = {
-                            tcp: sockets_tcp,
-                            time: Date.now(),
-                            udp: sockets_udp
-                        };
-                        broadcast("dashboard", "dashboard", {
-                            data: sockets,
-                            service: "dashboard-os-sockets"
-                        });
-                    }
+                completed("socT");
+            },
+            socT_child = function utilities_os_populate_childSocT(err:node_childProcess_ExecException, stdout:string):void {
+                complete.socU = true;
+                if (err === null) {
+                    raw.socT = stdout.replace(",\n", "\n").split("\n");
+                    socT_callback();
                 } else {
                     completed("socT");
                 }
             },
             socU_callback = function utilities_os_populate_socTCallback():void {
                 const data_win:os_sockets_udp_windows[] = raw.socU as os_sockets_udp_windows[],
-                    data_posix:string = raw.socU as string,
-                    len:number = (win32 === true)
-                        ? data_win.length
-                        : data_posix.length;
+                    len:number = data_win.length;
                 let index:number = 0,
-                    sock:os_sockets_udp = null;
+                    sock:os_sockets = null;
                 if (len > 0) {
                     do {
                         if (win32 === true) {
                             sock = {
-                                "address": data_win[index].LocalAddress,
-                                "port": data_win[index].LocalPort,
-                                "process": data_win[index].OwningProcess
+                                "local-address": data_win[index].LocalAddress,
+                                "local-port": data_win[index].LocalPort,
+                                "remote-address": null,
+                                "remote-port": null,
+                                "type": "udp"
                             };
-                        } else {
-                            // service = {
-                            //     description: data_posix[index].Description,
-                            //     name_display: data_posix[index].DisplayName,
-                            //     name_service: data_posix[index].Name,
-                            //     path: data_posix[index].BinaryPathName,
-                            //     start_type: numeric("start_type", data_posix[index].StartType),
-                            //     status: numeric("status", data_posix[index].Status)
-                            // };
                         }
-                        sockets_udp.push(sock);
+                        sockets.push(sock);
                         index = index + 1;
                     } while (index < len);
                 }
-                if (type_os === "sock") {
-                    flags.socU = true;
-                    if (flags.socT === true && flags.socU === true) {
-                        const sockets:services_os_sockets = {
-                            tcp: sockets_tcp,
-                            time: Date.now(),
-                            udp: sockets_udp
-                        };
-                        broadcast("dashboard", "dashboard", {
-                            data: sockets,
-                            service: "dashboard-os-sockets"
-                        });
-                    }
-                } else {
-                    completed("socU");
-                }
+                completed("socU");
             },
             main = function utilities_os_populate_main():services_os_all {
                 const mem:server_os_memoryUsage = process.memoryUsage(),
@@ -443,10 +395,7 @@ const os = function utilities_os(type_os:type_os):void {
                         },
                         processes: [],
                         services: [],
-                        sockets: {
-                            tcp: [],
-                            udp: []
-                        },
+                        sockets: [],
                         storage: [],
                         time: Date.now()
                     };
@@ -462,49 +411,81 @@ const os = function utilities_os(type_os:type_os):void {
                 vars.os.process.memory.external = output.process.memory.external;
                 vars.os.process.memory.rss = output.process.memory.rss;
                 vars.os.process.memory.V8 = output.process.memory.V8;
-                if (type_os === "main") {
-                    broadcast("dashboard", "dashboard", {
-                        data: output,
-                        service: "dashboard-os-main"
-                    });
-                }
                 return output;
             },
             completed = function utilities_os_populate_complete(type:type_os_key):void {
                 complete[type] = true;
 
-                const keys:string[] = Object.keys(complete),
-                    output:services_os_all = main();
+                const keys:string[] = Object.keys(complete);
                 let index:number = keys.length;
 
-                if (index > 0) {
+                if (type_os === "all" && index > 0) {
+                    const output:services_os_all = main();
                     do {
                         index = index - 1;
                         if (complete[keys[index]] === false) {
                             return;
                         }
                     } while (index > 0);
+                    output.storage = disks;
+                    vars.os.storage = disks;
+                    output.processes = processes;
+                    vars.os.processes = processes;
+                    output.services = services;
+                    vars.os.services = services;
+                    output.sockets = sockets;
+                    vars.os.sockets = sockets;
+                    broadcast("dashboard", "dashboard", {
+                        data: output,
+                        service: "dashboard-os-all"
+                    });
+                    setTimeout(utilities_os_populate, 60000);
+                } else if (type_os === "main") {
+                    broadcast("dashboard", "dashboard", {
+                        data: main(),
+                        service: "dashboard-os-all"
+                    });
+                } else if (type_os === "disk") {
+                    const service:services_os_disk = {
+                        disks: disks,
+                        time: Date.now()
+                    };
+                    vars.os.storage = disks;
+                    broadcast("dashboard", "dashboard", {
+                        data: service,
+                        service: "dashboard-os-disk"
+                    });
+                } else if (type_os === "proc") {
+                    const service:services_os_proc = {
+                        processes: processes,
+                        time: Date.now()
+                    };
+                    vars.os.processes = processes;
+                    broadcast("dashboard", "dashboard", {
+                        data: service,
+                        service: "dashboard-os-proc"
+                    });
+                } else if (type_os === "serv") {
+                    const service:services_os_service = {
+                        services: services,
+                        time: Date.now()
+                    };
+                    vars.os.services = services;
+                    broadcast("dashboard", "dashboard", {
+                        data: service,
+                        service: "dashboard-os-serv"
+                    });
+                } else if (type_os === "sock") {
+                    const service:services_os_sockets = {
+                        sockets: sockets,
+                        time: Date.now()
+                    };
+                    vars.os.sockets = sockets;
+                    broadcast("dashboard", "dashboard", {
+                        data: service,
+                        service: "dashboard-os-sockets"
+                    });
                 }
-                output.storage = disks;
-                vars.os.storage = disks;
-                output.processes = processes;
-                vars.os.processes = processes;
-                output.services = services;
-                vars.os.services = services;
-                output.sockets = {
-                    tcp: sockets_tcp,
-                    udp: sockets_udp
-                };
-                vars.os.sockets = {
-                    tcp: sockets_tcp,
-                    udp: sockets_udp
-                };
-
-                broadcast("dashboard", "dashboard", {
-                    data: output,
-                    service: "dashboard-os-all"
-                });
-                setTimeout(utilities_os_populate, 60000);
             },
             spawning = function utilities_os_populate_spawning(type:type_os_key):void {
                 const chunks_complete = function utilities_os_populate_chunksComplete(type:type_os_key, segment:Buffer):void {
@@ -553,20 +534,22 @@ const os = function utilities_os(type_os:type_os):void {
             };
         if (type_os === "all" || type_os === undefined || type_os === null) {
             type_os = "all";
-            spawning("proc");
             spawning("serv");
             spawning("disk");
-            spawning("socT");
-            spawning("socU");
             if (win32 === true) {
                 spawning("part");
+                spawning("proc");
+                spawning("socT");
+                spawning("socU");
                 spawning("volu");
             } else {
                 flags.part = true;
+                flags.socU = true;
                 flags.volu = true;
+                node.child_process.exec(commands.proc, proc_child);
+                node.child_process.exec(commands.socT, socT_child);
             }
         } else if (type_os === "disk") {
-            spawning("disk");
             if (win32 === true) {
                 spawning("part");
                 spawning("volu");
@@ -574,15 +557,25 @@ const os = function utilities_os(type_os:type_os):void {
                 flags.part = true;
                 flags.volu = true;
             }
+            spawning("disk");
         } else if (type_os === "proc") {
-            spawning("proc");
+            if (win32 === true) {
+                spawning("proc");
+            } else {
+                node.child_process.exec(commands.proc, proc_child);
+            }
         } else if (type_os === "serv") {
             spawning("serv");
         } else if (type_os === "sock") {
-            spawning("socT");
-            spawning("socU");
+            if (win32 === true) {
+                spawning("socT");
+                spawning("socU");
+            } else {
+                flags.socU = true;
+                node.child_process.exec(commands.socT, socT_child);
+            }
         } else if (type_os === "main") {
-            main();
+            completed("disk");
         }
     };
     // build shell list

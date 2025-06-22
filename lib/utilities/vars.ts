@@ -83,10 +83,7 @@ const gid:number = (typeof process.getgid === "undefined")
             },
             processes: [],
             services: [],
-            sockets: {
-                tcp: [],
-                udp: []
-            },
+            sockets: [],
             storage: [],
             user: {
                 gid: (gid === 0)

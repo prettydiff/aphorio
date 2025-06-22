@@ -160,10 +160,7 @@ interface server_os {
     };
     processes: os_proc[];
     services: os_service[];
-    sockets: {
-        tcp: os_sockets_tcp[];
-        udp: os_sockets_udp[];
-    };
+    sockets: os_sockets[];
     storage: os_disk[];
     user: {
         gid: number;
