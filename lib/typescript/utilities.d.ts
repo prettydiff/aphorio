@@ -130,7 +130,6 @@ interface server_os {
             free: number;
             total: number;
         };
-        storage: os_disk[];
     };
     os: {
         env: store_string;
@@ -159,6 +158,13 @@ interface server_os {
         uptime: number;
         versions: store_string;
     };
+    processes: os_proc[];
+    services: os_service[];
+    sockets: {
+        tcp: os_sockets_tcp[];
+        udp: os_sockets_udp[];
+    };
+    storage: os_disk[];
     user: {
         gid: number;
         homedir: string;

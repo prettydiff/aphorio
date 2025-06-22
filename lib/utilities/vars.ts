@@ -48,8 +48,7 @@ const gid:number = (typeof process.getgid === "undefined")
                 memory: {
                     free: node.os.freemem(),
                     total: node.os.totalmem()
-                },
-                storage: []
+                }
             },
             os: {
                 env: process.env,
@@ -82,6 +81,13 @@ const gid:number = (typeof process.getgid === "undefined")
                 uptime: process.uptime(),
                 versions: process.versions
             },
+            processes: [],
+            services: [],
+            sockets: {
+                tcp: [],
+                udp: []
+            },
+            storage: [],
             user: {
                 gid: (gid === 0)
                     ? 1000

@@ -45,7 +45,7 @@ const spawn = function utilities_spawn(config:config_spawn):node_childProcess_Ch
         stdout:Buffer[] = [],
         spawn:node_childProcess_ChildProcess = node.child_process.spawn(config.command, config.args, {
             cwd: vars.path.project,
-            shell: true,
+            //shell: true,
             timeout: (typeof config.timeout === "number")
                 ? config.timeout
                 : undefined

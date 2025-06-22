@@ -205,10 +205,10 @@ const dashboard = function dashboard():void {
                     if (typeof event.data === "string") {
                         const message_item:socket_data = JSON.parse(event.data),
                             service_map:map_messages = {
-                                "dashboard-dns": tools.dns.response,
+                                "dashboard-dns": tools.dns.receive,
                                 "dashboard-fileSystem": tools.fileSystem.receive,
-                                "dashboard-hash": tools.hash.response,
-                                "dashboard-http": tools.http.response,
+                                "dashboard-hash": tools.hash.receive,
+                                "dashboard-http": tools.http.receive,
                                 "dashboard-payload": utility.init,
                                 "dashboard-os": informational.os.service,
                                 "dashboard-status": utility.status,
@@ -545,7 +545,7 @@ const dashboard = function dashboard():void {
                     informational.os.nodes.memory.used.textContent = (payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong();
                     informational.os.nodes.memory.total.textContent = payload.os.machine.memory.total.bytesLong();
                     informational.os.interfaces(payload.os.machine.interfaces);
-                    informational.os.storage(payload.os.machine.storage);
+                    informational.os.storage(payload.os.storage);
                     informational.os.nodes.os.hostname.textContent = payload.os.os.hostname;
                     informational.os.nodes.os.name.textContent = payload.os.os.name;
                     informational.os.nodes.os.platform.textContent = payload.os.os.platform;
@@ -754,7 +754,7 @@ const dashboard = function dashboard():void {
                     return nodeList;
                 }()),
                 service: function dashboard_osService(data_item:socket_data):void {
-                    const data:services_os = data_item.data as services_os;
+                    const data:services_os_all = data_item.data as services_os_all;
                     informational.os.nodes.update.textContent = data.time.dateTime(true);
                     payload.os.machine.interfaces = data.machine.interfaces;
                     payload.os.machine.memory = data.machine.memory;
@@ -763,7 +763,7 @@ const dashboard = function dashboard():void {
                     payload.os.process.cpuUser = data.process.cpuUser;
                     payload.os.process.uptime = data.process.uptime;
                     informational.os.interfaces(data.machine.interfaces);
-                    informational.os.storage(data.machine.storage);
+                    informational.os.storage(data.storage);
                     informational.os.nodes.memory.free.textContent = payload.os.machine.memory.free.bytesLong();
                     informational.os.nodes.memory.used.textContent = (payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong();
                     informational.os.nodes.memory.total.textContent = payload.os.machine.memory.total.bytesLong();
@@ -2377,24 +2377,13 @@ const dashboard = function dashboard():void {
                     resolve: document.getElementById("dns").getElementsByTagName("button")[1],
                     types: document.getElementById("dns").getElementsByTagName("input")[1]
                 },
-                resolve: function dashboard_dnsResolve():void {
-                    const values:string[] = tools.dns.nodes.hosts.value.replace(/,\s+/g, ",").split(","),
-                        types:string = tools.dns.nodes.types.value,
-                        payload:services_dns_input = {
-                            names: values,
-                            types: types
-                        };
-                    utility.setState();
-                    utility.message_send(payload, "dashboard-dns");
-                    tools.dns.nodes.output.value = "";
-                },
-                response: function dashboard_dnsResponse(data_item:socket_data):void {
+                receive: function dashboard_dnsReceive(data_item:socket_data):void {
                     const result:services_dns_output = data_item.data as services_dns_output,
                         hosts:string[] = Object.keys(result),
                         len_hosts:number = hosts.length;
                     if (len_hosts > 0) {
                         const output:string[] = ["{"],
-                            sort = function dashboard_dnsResponse(a:string, b:string):-1|1 {
+                            sort = function dashboard_dnsReceive_sort(a:string, b:string):-1|1 {
                                 if (a < b) {
                                     return -1;
                                 }
@@ -2402,7 +2391,7 @@ const dashboard = function dashboard():void {
                             },
                             types:type_dns_types[] = Object.keys(result[hosts[0]]) as type_dns_types[],
                             len_types:number = types.length,
-                            get_max = function dashboard_dnsResponse_getMax(input:string[]):number {
+                            get_max = function dashboard_dnsReceive_getMax(input:string[]):number {
                                 let index_input:number = input.length,
                                     max:number = 0;
                                 do {
@@ -2414,7 +2403,7 @@ const dashboard = function dashboard():void {
                                 return max;
                             },
                             max_type:number = get_max(types),
-                            pad = function dashboard_dnsResponse_pad(input:string, max:number):string {
+                            pad = function dashboard_dnsReceive_pad(input:string, max:number):string {
                                 input = `"${input}"`;
                                 max = max + 2;
                                 if (input.length === max) {
@@ -2425,7 +2414,7 @@ const dashboard = function dashboard():void {
                                 } while (input.length < max);
                                 return input;
                             },
-                            object = function dashboard_dnsResponse_object(object:node_dns_soaRecord, soa:boolean):void {
+                            object = function dashboard_dnsReceive_object(object:node_dns_soaRecord, soa:boolean):void {
                                 const indent:string = (soa === true)
                                         ? ""
                                         : "    ",
@@ -2529,6 +2518,17 @@ const dashboard = function dashboard():void {
                     } else {
                         tools.dns.nodes.output.value = "{}";
                     }
+                },
+                resolve: function dashboard_dnsResolve():void {
+                    const values:string[] = tools.dns.nodes.hosts.value.replace(/,\s+/g, ",").split(","),
+                        types:string = tools.dns.nodes.types.value,
+                        payload:services_dns_input = {
+                            names: values,
+                            types: types
+                        };
+                    utility.setState();
+                    utility.message_send(payload, "dashboard-dns");
+                    tools.dns.nodes.output.value = "";
                 }
             },
             fileSystem: {
@@ -2781,6 +2781,11 @@ const dashboard = function dashboard():void {
                     source: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0],
                     type: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[3]
                 },
+                receive: function dashboard_hashReceive(data_item:socket_data):void {
+                    const data:services_hash = data_item.data as services_hash;
+                    tools.hash.nodes.output.value = data.value;
+                    tools.hash.nodes.size.textContent = commas(data.size);
+                },
                 request: function dashboard_hashRequest():void {
                     const option:HTMLOptionElement = tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex] as HTMLOptionElement,
                         selectValue:string = option.value,
@@ -2799,11 +2804,6 @@ const dashboard = function dashboard():void {
                     tools.hash.nodes.output.value = "";
                     utility.setState();
                     utility.message_send(service, "dashboard-hash");
-                },
-                response: function dashboard_hashResponse(data_item:socket_data):void {
-                    const data:services_hash = data_item.data as services_hash;
-                    tools.hash.nodes.output.value = data.value;
-                    tools.hash.nodes.size.textContent = commas(data.size);
                 },
                 toggle_mode: function dashboard_hashToggleMode(event:MouseEvent):void {
                     const target:HTMLElement = (event === null)
@@ -2839,6 +2839,28 @@ const dashboard = function dashboard():void {
                     stats: document.getElementById("http").getElementsByClassName("summary-stats")[0].getElementsByTagName("strong"),
                     timeout: document.getElementById("http").getElementsByTagName("input")[2]
                 },
+                receive: function dashboard_httpReceive(data_item:socket_data):void {
+                    const data:services_http_test = data_item.data as services_http_test;
+                    tools.http.nodes.responseBody.value = data.body;
+                    tools.http.nodes.responseHeaders.value = data.headers;
+                    tools.http.nodes.responseURI.value = data.uri;
+                    // round trip time
+                    tools.http.nodes.stats[0].textContent = `${data.stats.time} seconds`;
+                    // response header size
+                    tools.http.nodes.stats[1].textContent = data.stats.response.size_header.bytesLong();
+                    // response body size
+                    tools.http.nodes.stats[2].textContent = data.stats.response.size_body.bytesLong();
+                    // chunked?
+                    tools.http.nodes.stats[3].textContent = String(data.stats.chunks.chunked);
+                    // chunk count
+                    tools.http.nodes.stats[4].textContent = commas(data.stats.chunks.count);
+                    // request header size
+                    tools.http.nodes.stats[5].textContent = data.stats.request.size_header.bytesLong();
+                    // request body size
+                    tools.http.nodes.stats[6].textContent = data.stats.request.size_body.bytesLong();
+                    // URI length
+                    tools.http.nodes.stats[7].textContent = `${commas(JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length)} characters`;
+                },
                 request: function dashboard_httpRequest():void {
                     const encryption:boolean = tools.http.nodes.encryption.checked,
                         timeout:number = Number(tools.http.nodes.timeout.value),
@@ -2865,28 +2887,6 @@ const dashboard = function dashboard():void {
                     tools.http.nodes.stats[5].textContent = "";
                     tools.http.nodes.stats[6].textContent = "";
                     tools.http.nodes.stats[7].textContent = "";
-                },
-                response: function dashboard_httpResponse(data_item:socket_data):void {
-                    const data:services_http_test = data_item.data as services_http_test;
-                    tools.http.nodes.responseBody.value = data.body;
-                    tools.http.nodes.responseHeaders.value = data.headers;
-                    tools.http.nodes.responseURI.value = data.uri;
-                    // round trip time
-                    tools.http.nodes.stats[0].textContent = `${data.stats.time} seconds`;
-                    // response header size
-                    tools.http.nodes.stats[1].textContent = data.stats.response.size_header.bytesLong();
-                    // response body size
-                    tools.http.nodes.stats[2].textContent = data.stats.response.size_body.bytesLong();
-                    // chunked?
-                    tools.http.nodes.stats[3].textContent = String(data.stats.chunks.chunked);
-                    // chunk count
-                    tools.http.nodes.stats[4].textContent = commas(data.stats.chunks.count);
-                    // request header size
-                    tools.http.nodes.stats[5].textContent = data.stats.request.size_header.bytesLong();
-                    // request body size
-                    tools.http.nodes.stats[6].textContent = data.stats.request.size_body.bytesLong();
-                    // URI length
-                    tools.http.nodes.stats[7].textContent = `${commas(JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length)} characters`;
                 }
             },
             terminal: {

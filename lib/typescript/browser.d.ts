@@ -85,8 +85,8 @@ declare global {
             resolve: HTMLButtonElement;
             types: HTMLInputElement;
         };
+        receive: (data_item:socket_data) => void;
         resolve: (event:MouseEvent) => void;
-        response: (data_item:socket_data) => void;
     }
 
     interface module_fileSystem {
@@ -118,8 +118,8 @@ declare global {
             source: HTMLTextAreaElement;
             type: HTMLInputElement;
         };
+        receive: (data_item:socket_data) => void;
         request: () => void;
-        response: (data_item:socket_data) => void;
         toggle_mode: (event:MouseEvent) => void;
     }
 
@@ -135,8 +135,8 @@ declare global {
             stats: HTMLCollectionOf<HTMLElement>;
             timeout: HTMLInputElement;
         };
+        receive: (data_item:socket_data) => void;
         request: (event:MouseEvent) => void;
-        response: (data_item:socket_data) => void;
     }
 
     interface module_ports {
