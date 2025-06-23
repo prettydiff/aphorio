@@ -210,7 +210,7 @@ const dashboard = function dashboard():void {
                                 "dashboard-hash": tools.hash.receive,
                                 "dashboard-http": tools.http.receive,
                                 "dashboard-payload": utility.init,
-                                "dashboard-os": informational.os.service,
+                                "dashboard-os-all": informational.os.service,
                                 "dashboard-status": utility.status,
                                 "dashboard-websocket-message": tools.websocket.message_receive,
                                 "dashboard-websocket-status": tools.websocket.status

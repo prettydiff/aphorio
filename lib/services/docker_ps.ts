@@ -118,6 +118,9 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 });
             }
         };
+    if (process.platform !== "win32") {
+        args.splice(0, 0, "compose");
+    }
     spawn({
         args: args,
         callback: callbackFirst,

@@ -13,7 +13,7 @@ const gid:number = (typeof process.getgid === "undefined")
         commands: {
             compose: (process.platform === "win32")
                 ? "docker-compose"
-                : "docker compose",
+                : "docker",
             docker: "docker",
             nmap: "nmap"
         },
