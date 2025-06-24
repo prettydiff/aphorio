@@ -4,7 +4,7 @@ import file from "./file.js";
 import node from "./node.js";
 import vars from "./vars.js";
 
-// cspell: words blockdevices, bootable, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, volu
+// cspell: words blockdevices, bootable, etimes, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, volu
 
 const os = function utilities_os(type_os:type_os):void {
     const populate = function utilities_os_populate():void {
@@ -370,9 +370,9 @@ const os = function utilities_os(type_os:type_os):void {
             main = function utilities_os_populate_main():services_os_all {
                 const mem:server_os_memoryUsage = process.memoryUsage(),
                     output:services_os_all = {
+                        interfaces: node.os.networkInterfaces(),
                         machine: {
                             cores: node.os.cpus().length,
-                            interfaces: node.os.networkInterfaces(),
                             memory: {
                                 free: node.os.freemem(),
                                 total: node.os.totalmem()
@@ -401,7 +401,7 @@ const os = function utilities_os(type_os:type_os):void {
                     };
 
                 vars.os.machine.cpu.cores = output.machine.cores;
-                vars.os.machine.interfaces = output.machine.interfaces;
+                vars.os.interfaces = output.interfaces;
                 vars.os.machine.memory.free = output.machine.memory.free;
                 vars.os.machine.memory.total = output.machine.memory.total;
                 vars.os.os.uptime = output.os.uptime;
@@ -411,6 +411,7 @@ const os = function utilities_os(type_os:type_os):void {
                 vars.os.process.memory.external = output.process.memory.external;
                 vars.os.process.memory.rss = output.process.memory.rss;
                 vars.os.process.memory.V8 = output.process.memory.V8;
+                vars.os.time = Date.now();
                 return output;
             },
             completed = function utilities_os_populate_complete(type:type_os_key):void {

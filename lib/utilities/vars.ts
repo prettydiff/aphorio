@@ -1,7 +1,7 @@
 
 import node from "./node.js";
 
-/* cspell: words appdata, nmap, pwsh */
+/* cspell: words appdata, pwsh */
 
 const gid:number = (typeof process.getgid === "undefined")
         ? 0
@@ -14,8 +14,7 @@ const gid:number = (typeof process.getgid === "undefined")
             compose: (process.platform === "win32")
                 ? "docker-compose"
                 : "docker",
-            docker: "docker",
-            nmap: "nmap"
+            docker: "docker"
         },
         compose: {
             containers: {},
@@ -31,11 +30,11 @@ const gid:number = (typeof process.getgid === "undefined")
             "[::1]"
         ],
         intervals: {
-            compose: 0,
-            nmap: 60000
+            compose: 0
         },
         logs: [],
         os: {
+            interfaces: node.os.networkInterfaces(),
             machine: {
                 cpu: {
                     arch: node.os.arch(),
@@ -44,7 +43,6 @@ const gid:number = (typeof process.getgid === "undefined")
                     frequency: node.os.cpus()[0].speed,
                     name: node.os.cpus()[0].model,
                 },
-                interfaces: node.os.networkInterfaces(),
                 memory: {
                     free: node.os.freemem(),
                     total: node.os.totalmem()
@@ -85,6 +83,7 @@ const gid:number = (typeof process.getgid === "undefined")
             services: [],
             sockets: [],
             storage: [],
+            time: 0,
             user: {
                 gid: (gid === 0)
                     ? 1000

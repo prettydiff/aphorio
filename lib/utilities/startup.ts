@@ -7,10 +7,7 @@ import docker_ps from "../services/docker_ps.js";
 import file from "./file.js";
 import node from "./node.js";
 import os from "./os.js";
-import port_map from "../services/port_map.js";
 import vars from "./vars.js";
-
-// cspell: words nmap
 
 const startup = function utilities_startup(callback:() => void):void {
     const flags:store_flag = {
@@ -18,8 +15,7 @@ const startup = function utilities_startup(callback:() => void):void {
             config: false,
             css: false,
             docker: false,
-            html: false,
-            ports: false
+            html: false
         },
         readComplete = function utilities_startup_readComplete(flag:"config"|"css"|"docker"|"html"):void {
             flags[flag] = true;
@@ -121,7 +117,6 @@ const startup = function utilities_startup(callback:() => void):void {
                     const xterm:string = xtermFile.toString().replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
                         script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
                     vars.dashboard = fileContents.toString()
-                        .replace("${payload.intervals.nmap}", (vars.intervals.nmap / 1000).toString())
                         .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
                         .replace("replace_javascript", `${xterm}const commas=${commas.toString()};(${script}(${core.toString()}));`);
                     readComplete("html");
@@ -153,31 +148,25 @@ const startup = function utilities_startup(callback:() => void):void {
             return this.charAt(0).toUpperCase() + this.slice(1);
         },
         commandsCallback = function utilities_startup_commandsCallback():void {
-            if (flags.compose === true && flags.ports === true) {
-                docker_ps(dockerCallback);
-                file.read({
-                    callback: readConfig,
-                    error_terminate: null,
-                    location: `${vars.path.project}servers.json`,
-                    no_file: null
-                });
-                file.read({
-                    callback: readXterm,
-                    error_terminate: null,
-                    location: `${vars.path.project}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}lib${vars.sep}xterm.js`,
-                    no_file: null
-                });
-                file.read({
-                    callback: readCSS,
-                    error_terminate: null,
-                    location: `${vars.path.project}lib${vars.sep}dashboard${vars.sep}styles.css`,
-                    no_file: null
-                });
-            }
-        },
-        portCallback = function utilities_startup_portCallback():void {
-            flags.ports = true;
-            commandsCallback();
+            docker_ps(dockerCallback);
+            file.read({
+                callback: readConfig,
+                error_terminate: null,
+                location: `${vars.path.project}servers.json`,
+                no_file: null
+            });
+            file.read({
+                callback: readXterm,
+                error_terminate: null,
+                location: `${vars.path.project}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}lib${vars.sep}xterm.js`,
+                no_file: null
+            });
+            file.read({
+                callback: readCSS,
+                error_terminate: null,
+                location: `${vars.path.project}lib${vars.sep}dashboard${vars.sep}styles.css`,
+                no_file: null
+            });
         },
         dockerCallback = function utilities_startup_dockerCallback():void {
             readComplete("docker");
@@ -190,7 +179,6 @@ const startup = function utilities_startup(callback:() => void):void {
     vars.path.project = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}js${vars.sep}`)) + vars.sep;
     vars.path.compose = `${vars.path.project}compose${vars.sep}`;
     vars.path.servers = `${vars.path.project}servers${vars.sep}`;
-    port_map(portCallback);
     file.read({
         callback: readCompose,
         error_terminate: null,

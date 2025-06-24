@@ -162,9 +162,9 @@ declare global {
     }
 
     interface services_os_all {
+        interfaces: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
         machine: {
             cores: number;
-            interfaces: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
             memory: {
                 free: number;
                 total: number;

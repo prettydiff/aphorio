@@ -13,6 +13,7 @@
     --border_color:#999;
     --border_input:#666;
     --border_soft:#555;
+    --fail_background:#322;
     --fail_bright:#f66;
     --fail_dark:#911;
     --status_amber:#443;
@@ -115,7 +116,9 @@ table{border-collapse:collapse}
 td{background:var(--background);font-family:monospace}
 td .icon{display:inline-block;width:1.5em}
 #dashboard td,
-td{padding:0.5em;text-align:right}
+td{padding:0.5em}
+#dashboard td.right,
+td.right{text-align:right}
 th{border-color:var(--background_button);border-style:solid;border-width:0.1em;padding:0.2em 0.5em;text-align:left}
 th{background:var(--background_textarea);min-width:9em}
 td button{padding:0}
@@ -291,9 +294,18 @@ label span.checked{background:var(--background_dark)}
 #dashboard .summary-stats span{display:inline-block;width:12em}
 #dashboard #file-system ul{margin:0 0 0 4em;padding:0}
 #dashboard .summary-stats .file-system-summary-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}
-#dashboard #os li{border-style:none;list-style:none}
-#dashboard #os strong{display:inline-block;width:18em}
+#dashboard #storage .os-interface.fail-list{background:var(--fail_background)}
+#dashboard #interfaces .os-interface,
+#dashboard #storage .os-interface,
 #dashboard #os .os-interface{border-color:var(--border_soft);border-style:solid;border-width:0.1em}
+#dashboard #interfaces li,
+#dashboard #storage li,
+#dashboard #os li{border-style:none;list-style:none}
+#dashboard #interfaces strong,
+#dashboard #storage strong,
+#dashboard #os strong{display:inline-block;width:18em}
+#dashboard #interfaces ul,
+#dashboard #storage ul,
 #dashboard #os ul{margin:0 0 1em 2em;padding:0 1em 1em}
 #dashboard #os .section{padding-bottom:0}
 #dashboard #hash .output{height:15em}

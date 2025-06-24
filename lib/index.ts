@@ -5,8 +5,6 @@ import startup from "./utilities/startup.js";
 import yt_config from "./services/yt_config.js";
 import vars from "./utilities/vars.js";
 
-// cspell: words nmap
-
 startup(function index():void {
     const default_server = function index_defaultServer(name:string):services_server {
         return {

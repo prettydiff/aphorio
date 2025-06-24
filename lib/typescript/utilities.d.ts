@@ -117,6 +117,7 @@ interface server_meta_item {
 }
 
 interface server_os {
+    interfaces: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
     machine: {
         cpu: {
             arch: string;
@@ -125,7 +126,6 @@ interface server_os {
             frequency: number;
             name: string;
         };
-        interfaces: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
         memory: {
             free: number;
             total: number;
@@ -162,6 +162,7 @@ interface server_os {
     services: os_service[];
     sockets: os_sockets[];
     storage: os_disk[];
+    time: number;
     user: {
         gid: number;
         homedir: string;

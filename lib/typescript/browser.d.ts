@@ -139,23 +139,18 @@ declare global {
         request: (event:MouseEvent) => void;
     }
 
-    interface module_ports {
-        external: (input:external_ports) => void;
-        html: (table:HTMLElement, list:type_external_port[]) => void;
-        init: (port_list:external_ports) => void;
-        internal: () => void;
+    interface module_interfaces {
+        list: (data:NodeJS.Dict<node_os_NetworkInterfaceInfo[]>, time:string) => void;
         nodes: {
-            external: HTMLElement;
-            internal: HTMLElement;
+            list: HTMLElement;
+            update: HTMLElement;
         };
     }
 
     interface module_os {
         init: () => void;
-        interfaces: (data:NodeJS.Dict<node_os_NetworkInterfaceInfo[]>) => void;
         nodes: module_os_nodes;
         service: (data_item:socket_data) => void;
-        storage: (data:os_disk[]) => void;
     }
 
     interface module_os_nodes {
@@ -167,7 +162,6 @@ declare global {
             name: HTMLElement;
         };
         env: HTMLElement;
-        interfaces: HTMLElement;
         memory: {
             free: HTMLElement;
             total: HTMLElement;
@@ -197,7 +191,6 @@ declare global {
             ppid: HTMLElement;
             uptime: HTMLElement;
         };
-        storage: HTMLElement;
         update: HTMLElement;
         user: {
             gid: HTMLElement;
@@ -207,25 +200,36 @@ declare global {
         versions: HTMLElement;
     }
 
-    interface module_server {
-        activePorts: (name_server:string) => HTMLElement;
-        create: (event:MouseEvent) => void;
-        list: () => void;
-        message: (event:MouseEvent) => void;
+    interface module_processes {
+        list: (data:os_proc[], time:string) => void;
         nodes: {
             list: HTMLElement;
-            server_new: HTMLButtonElement;
+            update: HTMLElement;
         };
-        socket_add: (config:services_socket) => void;
-        validate: (event:FocusEvent|KeyboardEvent) => void;
     }
 
-    interface module_serviceItems {
+    interface module_serverItems {
         cancel: (event:MouseEvent) => void;
         color: (name_server:string, type:type_dashboard_list) => type_activation_status;
         details: (event:MouseEvent) => void;
         edit: (event:MouseEvent) => void;
         title: (name_server:string, type:type_dashboard_list) => HTMLElement;
+    }
+
+    interface module_services {
+        list: (data:os_service[], time:string) => void;
+        nodes: {
+            list: HTMLElement;
+            update: HTMLElement;
+        };
+    }
+
+    interface module_storage {
+        list: (data:os_disk[], time:string) => void;
+        nodes: {
+            list: HTMLElement;
+            update: HTMLElement;
+        };
     }
 
     interface module_terminal {
@@ -260,6 +264,19 @@ declare global {
         socket: socket_object;
         sort_html: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         status: (data_item:socket_data) => void;
+    }
+
+    interface module_web {
+        activePorts: (name_server:string) => HTMLElement;
+        create: (event:MouseEvent) => void;
+        list: () => void;
+        message: (event:MouseEvent) => void;
+        nodes: {
+            list: HTMLElement;
+            server_new: HTMLButtonElement;
+        };
+        socket_add: (config:services_socket) => void;
+        validate: (event:FocusEvent|KeyboardEvent) => void;
     }
 
     interface module_websocket {
@@ -298,15 +315,22 @@ declare global {
         socket: WebSocket;
     }
 
-    interface structure_informational {
-        os: module_os;
-        ports: module_ports;
+    interface structure_network {
+        interfaces: module_interfaces;
+        //sockets: module_sockets;
     }
 
-    interface structure_services {
+    interface structure_servers {
         compose: module_compose;
-        servers: module_server;
-        shared: module_serviceItems;
+        web: module_web;
+        shared: module_serverItems;
+    }
+
+    interface structure_system {
+        os: module_os;
+        processes: module_processes;
+        services: module_services;
+        storage: module_storage;
     }
 
     interface structure_tools {
