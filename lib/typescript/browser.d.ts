@@ -226,6 +226,15 @@ declare global {
         };
     }
 
+    interface module_sockets {
+        list: (data:os_sockets[], time:string) => void;
+        nodes: {
+            count: HTMLElement;
+            list: HTMLElement;
+            update: HTMLElement;
+        };
+    }
+
     interface module_storage {
         list: (data:os_disk[], time:string) => void;
         nodes: {
@@ -319,7 +328,7 @@ declare global {
 
     interface structure_network {
         interfaces: module_interfaces;
-        //sockets: module_sockets;
+        sockets: module_sockets;
     }
 
     interface structure_servers {

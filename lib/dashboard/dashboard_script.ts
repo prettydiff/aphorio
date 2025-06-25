@@ -4,7 +4,7 @@ import core from "../browser/core.js";
 // @ts-expect-error - TypeScript claims xterm has no default export, but this is how the documentation says to use it.
 import Terminal from "@xterm/xterm";
 
-// cspell: words bootable, buildx, containerd, PUID, PGID, winget
+// cspell: words bootable, buildx, containerd, PUID, PGID, serv, winget
 const dashboard = function dashboard():void {
     let payload:transmit_dashboard = null,
         loaded:boolean = false,
@@ -239,6 +239,11 @@ const dashboard = function dashboard():void {
                                 "dashboard-http": tools.http.receive,
                                 "dashboard-payload": utility.init,
                                 "dashboard-os-all": system.os.service,
+                                "dashboard-os-disk": system.os.service,
+                                "dashboard-os-main": system.os.service,
+                                "dashboard-os-proc": system.os.service,
+                                "dashboard-os-serv": system.os.service,
+                                "dashboard-os-sockets": system.os.service,
                                 "dashboard-status": utility.status,
                                 "dashboard-websocket-message": tools.websocket.message_receive,
                                 "dashboard-websocket-status": tools.websocket.status
@@ -604,11 +609,50 @@ const dashboard = function dashboard():void {
                         output_old.parentNode.removeChild(output_old);
                         network.interfaces.nodes.list = output_new;
                         network.interfaces.nodes.update.textContent = time;
+                        payload.os.interfaces = data;
                     }
                 },
                 nodes: {
                     list: document.getElementById("interfaces").getElementsByTagName("ul")[0],
                     update: document.getElementById("interfaces").getElementsByTagName("p")[1].getElementsByTagName("em")[0]
+                }
+            },
+            sockets: {
+                list: function dashboard_servicesList(data:os_sockets[], time:string):void {
+                    const len:number = data.length;
+                    if (len > 0) {
+                        const populate = function dashboard_servicesList_populate(parent:HTMLElement, item:string):void {
+                                const td:HTMLElement = document.createElement("td");
+                                td.textContent = item;
+                                parent.appendChild(td);
+                            },
+                            list_new:HTMLElement = document.createElement("tbody"),
+                            list_old:HTMLElement = network.sockets.nodes.list;
+                        let index:number = 0,
+                            tr:HTMLElement = null;
+                        do {
+                            tr = document.createElement("tr");
+                            tr.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
+                            populate(tr, data[index].type);
+                            populate(tr, data[index]["local-address"]);
+                            populate(tr, String(data[index]["local-port"]));
+                            populate(tr, data[index]["remote-address"]);
+                            populate(tr, String(data[index]["remote-port"]));
+                            list_new.appendChild(tr);
+                            index = index + 1;
+                        } while (index < len);
+                        list_old.parentNode.insertBefore(list_new, list_old);
+                        list_old.parentNode.removeChild(list_old);
+                        network.sockets.nodes.list = list_new;
+                        network.sockets.nodes.update.textContent = time;
+                        network.sockets.nodes.count.textContent = String(data.length);
+                        payload.os.sockets = data;
+                    }
+                },
+                nodes: {
+                    count: document.getElementById("sockets").getElementsByTagName("p")[1].getElementsByTagName("em")[0],
+                    list: document.getElementById("sockets").getElementsByTagName("tbody")[1],
+                    update: document.getElementById("sockets").getElementsByTagName("p")[4].getElementsByTagName("em")[0]
                 }
             }
         },
@@ -1920,6 +1964,7 @@ const dashboard = function dashboard():void {
                     network.interfaces.list(payload.os.interfaces, time);
                     system.processes.list(payload.os.processes, time);
                     system.services.list(payload.os.services, time);
+                    network.sockets.list(payload.os.sockets, time);
                     system.storage.list(payload.os.storage, time);
                     if (payload.os.process.platform === "win32") {
                         system.os.nodes.user.gid.parentNode.style.display = "none";
@@ -2044,30 +2089,45 @@ const dashboard = function dashboard():void {
                 }()),
                 service: function dashboard_osService(data_item:socket_data):void {
                     const data:services_os_all = data_item.data as services_os_all,
-                        time:string = data.time.dateTime(true);
-                    system.os.nodes.update.textContent = time;
-                    payload.os.interfaces = data.interfaces;
-                    payload.os.machine.memory = data.machine.memory;
-                    payload.os.os.uptime = data.os.uptime;
-                    payload.os.process.cpuSystem = data.process.cpuSystem;
-                    payload.os.process.cpuUser = data.process.cpuUser;
-                    payload.os.process.uptime = data.process.uptime;
-                    system.os.nodes.memory.free.textContent = payload.os.machine.memory.free.bytesLong();
-                    system.os.nodes.memory.used.textContent = (payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong();
-                    system.os.nodes.memory.total.textContent = payload.os.machine.memory.total.bytesLong();
-                    system.os.nodes.os.uptime.textContent = payload.os.os.uptime.time();
-                    system.os.nodes.process.cpuSystem.textContent = payload.os.process.cpuSystem.time();
-                    system.os.nodes.process.cpuUser.textContent = payload.os.process.cpuUser.time();
-                    system.os.nodes.process.uptime.textContent = payload.os.process.uptime.time();
-                    system.os.nodes.process.memoryProcess.textContent = payload.os.process.memory.rss.bytesLong();
-                    system.os.nodes.process.memoryPercent.textContent = `${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
-                    system.os.nodes.process.memoryV8.textContent = payload.os.process.memory.V8.bytesLong();
-                    system.os.nodes.process.memoryExternal.textContent = payload.os.process.memory.external.bytesLong();
-                    
-                    network.interfaces.list(data.interfaces, time);
-                    system.processes.list(data.processes, time);
-                    system.services.list(data.services, time);
-                    system.storage.list(data.storage, time);
+                        time:string = data.time.dateTime(true),
+                        main = function dashboard_osService_main():void {
+                            system.os.nodes.update.textContent = time;
+                            payload.os.machine.memory = data.machine.memory;
+                            payload.os.os.uptime = data.os.uptime;
+                            payload.os.process.cpuSystem = data.process.cpuSystem;
+                            payload.os.process.cpuUser = data.process.cpuUser;
+                            payload.os.process.uptime = data.process.uptime;
+                            system.os.nodes.memory.free.textContent = payload.os.machine.memory.free.bytesLong();
+                            system.os.nodes.memory.used.textContent = (payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong();
+                            system.os.nodes.memory.total.textContent = payload.os.machine.memory.total.bytesLong();
+                            system.os.nodes.os.uptime.textContent = payload.os.os.uptime.time();
+                            system.os.nodes.process.cpuSystem.textContent = payload.os.process.cpuSystem.time();
+                            system.os.nodes.process.cpuUser.textContent = payload.os.process.cpuUser.time();
+                            system.os.nodes.process.uptime.textContent = payload.os.process.uptime.time();
+                            system.os.nodes.process.memoryProcess.textContent = payload.os.process.memory.rss.bytesLong();
+                            system.os.nodes.process.memoryPercent.textContent = `${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
+                            system.os.nodes.process.memoryV8.textContent = payload.os.process.memory.V8.bytesLong();
+                            system.os.nodes.process.memoryExternal.textContent = payload.os.process.memory.external.bytesLong();
+                        };
+                    if (data_item.service === "dashboard-os-all") {
+                        main();
+                        network.interfaces.list(data.interfaces, time);
+                        system.processes.list(data.processes, time);
+                        system.services.list(data.services, time);
+                        network.sockets.list(data.sockets, time);
+                        system.storage.list(data.storage, time);
+                        payload.os.sockets = data.sockets;
+                    } else if (data_item.service === "dashboard-os-disk") {
+                        system.storage.list(data.storage, time);
+                    } else if (data_item.service === "dashboard-os-main") {
+                        main();
+                    } else if (data_item.service === "dashboard-os-proc") {
+                        system.processes.list(data.processes, time);
+                    } else if (data_item.service === "dashboard-os-serv") {
+                        system.services.list(data.services, time);
+                    } else if (data_item.service === "dashboard-os-sockets") {
+                        network.sockets.list(data.sockets, time);
+                    }
                 }
             },
             processes: {
@@ -2125,6 +2185,7 @@ const dashboard = function dashboard():void {
                         system.processes.nodes.list = list_new;
                         system.processes.nodes.update.textContent = time;
                         system.processes.nodes.count.textContent = String(data.length);
+                        payload.os.processes = data;
                     }
                 },
                 nodes: {
@@ -2160,6 +2221,7 @@ const dashboard = function dashboard():void {
                         system.services.nodes.list = list_new;
                         system.services.nodes.update.textContent = time;
                         system.services.nodes.count.textContent = String(data.length);
+                        payload.os.services = data;
                     }
                 },
                 nodes: {

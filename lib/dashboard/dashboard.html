@@ -736,6 +736,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="sockets">
             <h2>Sockets / Ports</h2>
             <p class="tab-description">A list of connected sockets. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket.</p>
+            <p>Total sockets: <em></em></p>
             <div class="section">
                 <h3>Application Sockets</h3>
                 <p>These sockets are created and/or managed by this application.</p>
@@ -756,24 +757,20 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
             <div class="section">
-                <h3>External Sockets</h3>
+                <h3>All Sockets</h3>
                 <p>These sockets have open ports on this local operating system instance, but are not created and/or managed by this application.</p>
                 <table data-column="0">
                     <thead><tr>
-                        <th><button data-dir="1">Server</button></th>
-                        <th><button data-dir="1">ID</button></th>
-                        <th><button data-dir="1">Type Descriptor</button></th>
-                        <th><button data-dir="1">Role</button></th>
-                        <th><button data-dir="1">Proxy</button></th>
-                        <th><button data-dir="1">Encrypted</button></th>
-                        <th><button data-dir="1">Local Server IP</button></th>
-                        <th><button data-dir="1">Local Server Port</button></th>
-                        <th><button data-dir="1">Remote IP</button></th>
+                        <th><button data-dir="1">Type</button></th>
+                        <th><button data-dir="1">Local Address</button></th>
+                        <th><button data-dir="1">Local Port</button></th>
+                        <th><button data-dir="1">Remote Address</button></th>
                         <th><button data-dir="1">Remote Port</button></th>
                     </tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
+            <p>Last updated: <em></em></p>
         </div>
         <div class="tab" id="storage">
             <h2>Storage Devices</h2>

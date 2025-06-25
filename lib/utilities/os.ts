@@ -4,7 +4,7 @@ import file from "./file.js";
 import node from "./node.js";
 import vars from "./vars.js";
 
-// cspell: words blockdevices, bootable, etimes, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, volu
+// cspell: words blockdevices, bootable, cputime, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, volu
 
 const os = function utilities_os(type_os:type_os):void {
     const populate = function utilities_os_populate():void {
@@ -306,10 +306,18 @@ const os = function utilities_os(type_os:type_os):void {
                     do {
                         if (win32 === true) {
                             sock = {
-                                "local-address": data_win[index].LocalAddress,
-                                "local-port": data_win[index].LocalPort,
-                                "remote-address": data_win[index].RemoteAddress,
-                                "remote-port": data_win[index].RemotePort,
+                                "local-address": (data_win[index].LocalAddress === null)
+                                    ? ""
+                                    : data_win[index].LocalAddress,
+                                "local-port": (Number.isNaN(data_win[index].LocalPort) === true)
+                                    ? 0
+                                    : data_win[index].LocalPort,
+                                "remote-address": (data_win[index].RemoteAddress === null)
+                                    ? ""
+                                    : data_win[index].RemoteAddress,
+                                "remote-port": (Number.isNaN(data_win[index].RemotePort) === true)
+                                    ? 0
+                                    : data_win[index].RemotePort,
                                 "type": "tcp"
                             };
                         } else {
@@ -320,12 +328,16 @@ const os = function utilities_os(type_os:type_os):void {
                                 port_local = Number(local[1]);
                                 port_remote = Number(remote[1]);
                                 sock = {
-                                    "local-address": local[0],
-                                    "local-port": (Number.isNaN(port_local))
+                                    "local-address": (local[0] === null)
+                                        ? ""
+                                        : local[0],
+                                    "local-port": (Number.isNaN(port_local) === true)
                                         ? 0
                                         : port_local,
-                                    "remote-address": remote[0],
-                                    "remote-port": (Number.isNaN(port_remote))
+                                    "remote-address": (remote[0] === null)
+                                        ? ""
+                                        : remote[0],
+                                    "remote-port": (Number.isNaN(port_remote) === true)
                                         ? 0
                                         : port_remote,
                                     "type": line[0] as "tcp"
@@ -356,10 +368,14 @@ const os = function utilities_os(type_os:type_os):void {
                     do {
                         if (win32 === true) {
                             sock = {
-                                "local-address": data_win[index].LocalAddress,
-                                "local-port": data_win[index].LocalPort,
-                                "remote-address": null,
-                                "remote-port": null,
+                                "local-address": (data_win[index].LocalAddress === null)
+                                    ? ""
+                                    : data_win[index].LocalAddress,
+                                "local-port": (Number.isNaN(data_win[index].LocalPort) === true)
+                                    ? 0
+                                    : data_win[index].LocalPort,
+                                "remote-address": "",
+                                "remote-port": 0,
                                 "type": "udp"
                             };
                         }
