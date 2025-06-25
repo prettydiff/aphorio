@@ -34,6 +34,7 @@ interface transmit_dashboard {
         project: string;
         servers: string;
     };
+    platform: string;
     ports: {
         list: type_external_port[];
         time: number;

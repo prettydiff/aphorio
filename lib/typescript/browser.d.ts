@@ -203,6 +203,7 @@ declare global {
     interface module_processes {
         list: (data:os_proc[], time:string) => void;
         nodes: {
+            count: HTMLElement;
             list: HTMLElement;
             update: HTMLElement;
         };
@@ -219,6 +220,7 @@ declare global {
     interface module_services {
         list: (data:os_service[], time:string) => void;
         nodes: {
+            count: HTMLElement;
             list: HTMLElement;
             update: HTMLElement;
         };

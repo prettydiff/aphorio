@@ -2109,7 +2109,9 @@ const dashboard = function dashboard():void {
                             td = document.createElement("td");
                             td.textContent = (data[index].time === null)
                                 ? ""
-                                : data[index].time.time().replace(/000$/, "");
+                                : (payload.platform === "win32")
+                                    ? data[index].time.time().replace(/000$/, "")
+                                    : data[index].time.time().replace(/\.0+$/, "");
                             td.setAttribute("class", "right");
                             td.setAttribute("data-raw", (data[index].time === null)
                                 ? "0"
@@ -2122,11 +2124,13 @@ const dashboard = function dashboard():void {
                         list_old.parentNode.removeChild(list_old);
                         system.processes.nodes.list = list_new;
                         system.processes.nodes.update.textContent = time;
+                        system.processes.nodes.count.textContent = String(data.length);
                     }
                 },
                 nodes: {
+                    count: document.getElementById("processes").getElementsByTagName("p")[1].getElementsByTagName("em")[0],
                     list: document.getElementById("processes").getElementsByTagName("tbody")[0],
-                    update: document.getElementById("processes").getElementsByTagName("p")[1].getElementsByTagName("em")[0]
+                    update: document.getElementById("processes").getElementsByTagName("p")[2].getElementsByTagName("em")[0]
                 }
             },
             services: {
@@ -2155,11 +2159,13 @@ const dashboard = function dashboard():void {
                         list_old.parentNode.removeChild(list_old);
                         system.services.nodes.list = list_new;
                         system.services.nodes.update.textContent = time;
+                        system.services.nodes.count.textContent = String(data.length);
                     }
                 },
                 nodes: {
+                    count: document.getElementById("services").getElementsByTagName("p")[1].getElementsByTagName("em")[0],
                     list: document.getElementById("services").getElementsByTagName("tbody")[0],
-                    update: document.getElementById("services").getElementsByTagName("p")[1].getElementsByTagName("em")[0]
+                    update: document.getElementById("services").getElementsByTagName("p")[2].getElementsByTagName("em")[0]
                 }
             },
             storage: {
