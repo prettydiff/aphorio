@@ -227,7 +227,9 @@ const os = function utilities_os(type_os:type_os):void {
                                 id: data_win[index].Id,
                                 memory: data_win[index].PM,
                                 name: data_win[index].Name,
-                                time: data_win[index].CPU
+                                time: (data_win[index].CPU === null)
+                                    ? 0
+                                    : data_win[index].CPU
                             };
                         } else {
                             line = data_posix[index].split(",");

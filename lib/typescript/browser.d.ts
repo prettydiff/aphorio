@@ -374,6 +374,12 @@ declare global {
             request: string;
         };
         nav: string;
+        tables: {
+            [key:string]: {
+                col: number;
+                dir: -1|1;
+            };
+        };
         terminal: string;
     }
 
