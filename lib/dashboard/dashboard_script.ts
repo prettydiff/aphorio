@@ -32,6 +32,7 @@ const dashboard = function dashboard():void {
                     request: ""
                 },
                 nav: "servers",
+                tables: {},
                 terminal: ""
             }
             : JSON.parse(local),
@@ -304,7 +305,8 @@ const dashboard = function dashboard():void {
                         button:HTMLElement = (event === null)
                             ? th.getElementsByTagName("button")[0]
                             : target,
-                        direction:-1|1 = Number(button.dataset.dir) as -1;
+                        direction:-1|1 = Number(button.dataset.dir) as -1,
+                        id:string = table.getAncestor("tab", "class").getAttribute("id");
                     let index_th:number = (event === null)
                             ? heading_index
                             : cells_length,
@@ -314,7 +316,6 @@ const dashboard = function dashboard():void {
                     } else {
                         button.setAttribute("data-dir", "-1");
                     }
-
                     if (event !== null) {
                         // find which column to sort by
                         do {
@@ -325,7 +326,11 @@ const dashboard = function dashboard():void {
                         } while (index_th > 0);
                         tableElement.setAttribute("data-column", String(index_th));
                     }
-
+                    state.tables[id] = {
+                        col: index_tr,
+                        dir: direction
+                    };
+                    utility.setState();
                     do {
                         records.push(tr_list[index_tr]);
                         index_tr = index_tr + 1;
@@ -608,6 +613,7 @@ const dashboard = function dashboard():void {
                         output_old.parentNode.insertBefore(output_new, output_old);
                         output_old.parentNode.removeChild(output_old);
                         network.interfaces.nodes.list = output_new;
+                        utility.sort_html(null, network.interfaces.nodes.list.parentNode);
                         network.interfaces.nodes.update.textContent = time;
                         payload.os.interfaces = data;
                     }
@@ -1925,7 +1931,16 @@ const dashboard = function dashboard():void {
         system:structure_system = {
             os: {
                 init: function dashboard_osInit():void {
-                    const time:string = payload.os.time.dateTime(true);
+                    const time:string = payload.os.time.dateTime(true),
+                        table_state = function dashboard_osInit_tableState(module:structure_network|structure_system, key_name:"interfaces"|"processes"|"services"|"sockets"|"storage"):void {
+                            if (state.tables[key_name] !== undefined) {
+                                const mod:structure_network = module as structure_network,
+                                    key:"interfaces" = key_name as "interfaces",
+                                    section:module_interfaces = mod[key] as module_interfaces;
+                                section.nodes.list.parentNode.setAttribute("data-column", String(state.tables[key].col));
+                                section.nodes.list.getElementsByTagName("thead")[0].getElementsByTagName("th")[state.tables[key].col].setAttribute("data-dir", String(state.tables[key].dir));
+                            }
+                        };
                     let keys:string[] = null,
                         li:HTMLElement = null,
                         strong:HTMLElement = null,
@@ -1960,12 +1975,6 @@ const dashboard = function dashboard():void {
                     system.os.nodes.process.memoryPercent.textContent = `${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
                     system.os.nodes.process.memoryV8.textContent = payload.os.process.memory.V8.bytesLong();
                     system.os.nodes.process.memoryExternal.textContent = payload.os.process.memory.external.bytesLong();
-
-                    network.interfaces.list(payload.os.interfaces, time);
-                    system.processes.list(payload.os.processes, time);
-                    system.services.list(payload.os.services, time);
-                    network.sockets.list(payload.os.sockets, time);
-                    system.storage.list(payload.os.storage, time);
                     if (payload.os.process.platform === "win32") {
                         system.os.nodes.user.gid.parentNode.style.display = "none";
                         system.os.nodes.user.uid.parentNode.style.display = "none";
@@ -1974,6 +1983,17 @@ const dashboard = function dashboard():void {
                         system.os.nodes.user.uid.textContent = String(payload.os.user.uid);
                     }
                     system.os.nodes.user.homedir.textContent = payload.os.user.homedir;
+
+                    network.interfaces.list(payload.os.interfaces, time);
+                    system.processes.list(payload.os.processes, time);
+                    system.services.list(payload.os.services, time);
+                    network.sockets.list(payload.os.sockets, time);
+                    system.storage.list(payload.os.storage, time);
+                    table_state(network, "interfaces");
+                    table_state(system, "processes");
+                    table_state(system, "services");
+                    table_state(network, "sockets");
+                    table_state(system, "storage");
     
                     // System Path
                     len = payload.os.os.path.length;
@@ -2203,8 +2223,7 @@ const dashboard = function dashboard():void {
                                 td.textContent = item;
                                 parent.appendChild(td);
                             },
-                            list_new:HTMLElement = document.createElement("tbody"),
-                            list_old:HTMLElement = system.services.nodes.list;
+                            list_new:HTMLElement = document.createElement("tbody");
                         let index:number = 0,
                             tr:HTMLElement = null;
                         do {
@@ -2216,8 +2235,8 @@ const dashboard = function dashboard():void {
                             list_new.appendChild(tr);
                             index = index + 1;
                         } while (index < len);
-                        list_old.parentNode.insertBefore(list_new, list_old);
-                        list_old.parentNode.removeChild(list_old);
+                        system.services.nodes.list.parentNode.insertBefore(list_new, system.services.nodes.list);
+                        system.services.nodes.list.parentNode.removeChild(system.services.nodes.list);
                         system.services.nodes.list = list_new;
                         system.services.nodes.update.textContent = time;
                         system.services.nodes.count.textContent = String(data.length);
