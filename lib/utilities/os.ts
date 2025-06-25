@@ -21,7 +21,7 @@ const os = function utilities_os(type_os:type_os):void {
                 part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
                 proc: (win32 === true)
                     ? "Get-Process | Select-Object id, cpu, pm, name | ConvertTo-JSON"
-                    : "ps -eo pid,etimes=,rss,comm= | tail -n +2 | tr -s \" \" \",\"",
+                    : "ps -eo pid,cputime,rss,comm= | tail -n +2 | tr -s \" \" \",\"",
                 serv: (win32 === true)
                     ? "Get-Service | ConvertTo-JSON -compress -depth 2"
                     : "systemctl list-units --type=service --all --output json",
@@ -218,7 +218,8 @@ const os = function utilities_os(type_os:type_os):void {
                         : data_posix.length;
                 let index:number = 0,
                     proc:os_proc = null,
-                    line:string[] = null;
+                    line:string[] = null,
+                    time:string[] = null;
                 if (len > 0) {
                     do {
                         if (win32 === true) {
@@ -230,11 +231,12 @@ const os = function utilities_os(type_os:type_os):void {
                             };
                         } else {
                             line = data_posix[index].split(",");
+                            time = line[1].split(":");
                             proc = {
-                                id: Number(line[1]),
-                                memory: Number(line[3]),
-                                name: line[4],
-                                time: Number(line[2])
+                                id: Number(line[0]),
+                                memory: Number(line[2]),
+                                name: line[3],
+                                time: (Number(time[0]) * 3600) + (Number(time[1]) * 60) + Number(time[2])
                             };
                         }
                         processes.push(proc);
@@ -245,7 +247,7 @@ const os = function utilities_os(type_os:type_os):void {
             },
             proc_child = function utilities_os_populate_procChild(err:node_childProcess_ExecException, stdout:string):void {
                 if (err === null) {
-                    raw.proc = stdout.replace(",\n", "\n").split("\n");
+                    raw.proc = stdout.replace(/^,/, "").replace(/\n,/g, "\n").replace(/\s+$/, "").split("\n");
                     proc_callback();
                 } else {
                     completed("proc");

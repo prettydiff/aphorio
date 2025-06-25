@@ -116,7 +116,7 @@ table{border-collapse:collapse}
 td{background:var(--background);font-family:monospace}
 td .icon{display:inline-block;width:1.5em}
 #dashboard td,
-td{padding:0.5em}
+td{padding:0.5em 1.5em}
 #dashboard td.right,
 td.right{text-align:right}
 th{border-color:var(--background_button);border-style:solid;border-width:0.1em;padding:0.2em 0.5em;text-align:left}

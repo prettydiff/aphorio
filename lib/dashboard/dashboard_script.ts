@@ -2096,9 +2096,13 @@ const dashboard = function dashboard():void {
 
                             // memory
                             td = document.createElement("td");
-                            td.textContent = commas(data[index].memory);
+                            td.textContent = (data[index].memory === null)
+                                ? "0"
+                                : commas(data[index].memory);
                             td.setAttribute("class", "right");
-                            td.setAttribute("data-raw", String(data[index].memory));
+                            td.setAttribute("data-raw", (data[index].memory === null)
+                                ? "0"
+                                : String(data[index].memory));
                             tr.appendChild(td);
 
                             // cpu time
