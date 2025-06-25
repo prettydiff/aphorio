@@ -1,6 +1,7 @@
 
 import { exec } from "child_process";
 
+// cspell: words buildx, containerd, winget
 // global console, process
 
 (function install() {
@@ -52,16 +53,11 @@ import { exec } from "child_process";
                     logger(`Built as module type: ${text.cyan + moduleType + text.none}`);
                     logger(`Installation complete in ${end} seconds!`);
                     logger(`To run the server execute: ${text.bold + text.green}npm run server${text.none}`);
-                    logger("Be sure to install the external dependencies: OpenSSL, NMap, and Docker Compose.");
+                    logger("Be sure to install the external dependencies: OpenSSL and Docker Compose.");
                     // eslint-disable-next-line no-undef
                     logger((process.platform === "win32")
                         ? `* OpenSSL:        ${text.cyan}winget install --id=ShiningLight.OpenSSL.Dev -e${text.none}`
                         : `* OpenSSL:        ${text.cyan}sudo apt install openssl${text.none}`
-                    );
-                    // eslint-disable-next-line no-undef
-                    logger((process.platform === "win32")
-                        ? `* NMap:           ${text.cyan}winget install -e --id Insecure.Nmap${text.none}`
-                        : `* NMap:           ${text.cyan}sudo apt-get install nmap${text.none}`
                     );
                     // eslint-disable-next-line no-undef
                     logger((process.platform === "win32")

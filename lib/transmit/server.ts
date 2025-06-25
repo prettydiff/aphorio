@@ -182,6 +182,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                                     logs: vars.logs,
                                                     os: vars.os,
                                                     path: vars.path,
+                                                    platform: process.platform,
                                                     ports: vars.system_ports,
                                                     servers: vars.servers,
                                                     terminal: vars.terminal

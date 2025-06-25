@@ -84,7 +84,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                     config: error,
                     message: (error === null)
                         ? stderr.replace(/(\w|"|')(\.|:|,) /g, lines)
-                        : "Exeucting command 'docker ps' returned an error.",
+                        : "Executing command 'docker ps' returned an error.",
                     status: "error",
                     type: "compose-containers"
                 });
@@ -118,6 +118,9 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 });
             }
         };
+    if (process.platform !== "win32") {
+        args.splice(0, 0, "compose");
+    }
     spawn({
         args: args,
         callback: callbackFirst,

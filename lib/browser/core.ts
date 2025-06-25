@@ -499,7 +499,7 @@ const core = function core(config:config_core):socket_object {
                                     a = a + 1;
                                 } while (a < 9);
                             }
-                            return nano.replace(/0+$/, "");
+                            return nano;
                         }()),
                         secondString:string = (nanoString === "")
                             ? numberString(seconds)
