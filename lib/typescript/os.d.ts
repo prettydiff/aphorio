@@ -93,9 +93,9 @@ interface os_proc_windows {
 interface os_raw {
     disk: os_disk_posix[] | os_disk_windows[];
     part: os_disk_windows_partition[];
-    proc: string[] | os_proc_windows[];
+    proc: os_proc_windows[] | string[];
     serv: os_service_posix[] | os_service_windows[];
-    socT: string[] | os_sockets_tcp_windows[];
+    socT: os_sockets_tcp_windows[] | string[];
     socU: os_sockets_udp_windows[];
     volu: os_disk_windows_volume[];
 }
@@ -107,13 +107,14 @@ interface os_service {
 }
 
 interface os_service_posix {
-    active: "active" | "activating" | "deactivating" | "dead" | "exited" | "failed" | "inactive" | "running";
+    active: "activating" | "active" | "deactivating" | "dead" | "exited" | "failed" | "inactive" | "running";
     description: string;
     unit: string;
 }
 
 interface os_service_windows {
     Description: string;
+    DisplayName: string;
     Name: string;
     Status: number;
 }

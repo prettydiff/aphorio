@@ -333,8 +333,8 @@ declare global {
 
     interface structure_servers {
         compose: module_compose;
-        web: module_web;
         shared: module_serverItems;
+        web: module_web;
     }
 
     interface structure_system {

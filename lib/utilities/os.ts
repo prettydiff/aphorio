@@ -84,7 +84,13 @@ const os = function utilities_os(type_os:type_os):void {
             },
             disk_callback = function utilities_os_populate_diskCallback():void {
                 const data_posix:os_disk_posix[] = raw.disk as os_disk_posix[],
-                    data_win:os_disk_windows[] = raw.disk as os_disk_windows[],
+                    data_win:os_disk_windows[] = (function utilities_os_populate_diskCallback_win32():os_disk_windows[] {
+                        if (raw.disk.length === undefined) {
+                            // @ts-expect-error - in the case of one disk powershell returns a single object not wrapped in an array
+                            return [raw.disk] as os_disk_windows[];
+                        }
+                        return raw.disk as os_disk_windows[];
+                    }()),
                     parts:os_disk_windows_partition[] = (win32 === true)
                         ? raw.part
                         : null,
@@ -274,7 +280,9 @@ const os = function utilities_os(type_os:type_os):void {
                     do {
                         if (win32 === true) {
                             service = {
-                                description: data_win[index].Description,
+                                description: (data_win[index].Description === undefined)
+                                    ? data_win[index].DisplayName
+                                    : data_win[index].Description,
                                 name: data_win[index].Name,
                                 status: numeric("status", data_win[index].Status)
                             };

@@ -209,7 +209,9 @@ const dashboard = function dashboard():void {
                 state.hash.source = tools.hash.nodes.source.value;
                 state.http.encryption = (tools.http.nodes.encryption.checked === true);
                 state.http.request = tools.http.nodes.request.value;
-                state.terminal = tools.terminal.nodes.select[tools.terminal.nodes.select.selectedIndex].textContent;
+                if (tools.terminal.nodes.select[tools.terminal.nodes.select.selectedIndex] !== undefined) {
+                    state.terminal = tools.terminal.nodes.select[tools.terminal.nodes.select.selectedIndex].textContent;
+                }
                 localStorage.state = JSON.stringify(state);
             },
             socket: core({
@@ -325,6 +327,9 @@ const dashboard = function dashboard():void {
                             }
                         } while (index_th > 0);
                         tableElement.setAttribute("data-column", String(index_th));
+                    }
+                    if (state.tables === undefined) {
+                        state.tables = {};
                     }
                     state.tables[id] = {
                         col: index_tr,
@@ -613,7 +618,6 @@ const dashboard = function dashboard():void {
                         output_old.parentNode.insertBefore(output_new, output_old);
                         output_old.parentNode.removeChild(output_old);
                         network.interfaces.nodes.list = output_new;
-                        utility.sort_html(null, network.interfaces.nodes.list.parentNode);
                         network.interfaces.nodes.update.textContent = time;
                         payload.os.interfaces = data;
                     }
@@ -1938,7 +1942,7 @@ const dashboard = function dashboard():void {
                                     key:"interfaces" = key_name as "interfaces",
                                     section:module_interfaces = mod[key] as module_interfaces;
                                 section.nodes.list.parentNode.setAttribute("data-column", String(state.tables[key].col));
-                                section.nodes.list.getElementsByTagName("thead")[0].getElementsByTagName("th")[state.tables[key].col].setAttribute("data-dir", String(state.tables[key].dir));
+                                section.nodes.list.parentNode.getElementsByTagName("thead")[0].getElementsByTagName("th")[state.tables[key].col].setAttribute("data-dir", String(state.tables[key].dir));
                             }
                         };
                     let keys:string[] = null,
@@ -1989,11 +1993,9 @@ const dashboard = function dashboard():void {
                     system.services.list(payload.os.services, time);
                     network.sockets.list(payload.os.sockets, time);
                     system.storage.list(payload.os.storage, time);
-                    table_state(network, "interfaces");
                     table_state(system, "processes");
                     table_state(system, "services");
                     table_state(network, "sockets");
-                    table_state(system, "storage");
     
                     // System Path
                     len = payload.os.os.path.length;
@@ -3464,7 +3466,7 @@ const dashboard = function dashboard():void {
         tools.dns.nodes.types.value = state.dns.types;
         tools.fileSystem.nodes.path.value = state.fileSystem.path;
         tools.fileSystem.nodes.search.value = state.fileSystem.search;
-        if (state.hash.algorithm !== "sha3-512") {
+        if (state.hash.algorithm !== "sha3-512" && index > 0) {
             do {
                 index = index - 1;
                 if (hashOptions[index].textContent === state.hash.algorithm) {
