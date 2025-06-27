@@ -301,9 +301,9 @@ label span.checked{background:var(--background_dark)}
 #dashboard #interfaces li,
 #dashboard #storage li,
 #dashboard #os li{border-style:none;list-style:none}
-#dashboard #interfaces strong,
-#dashboard #storage strong,
-#dashboard #os strong{display:inline-block;width:18em}
+#dashboard #interfaces li > strong,
+#dashboard #storage li > strong,
+#dashboard #os li > strong{display:inline-block;width:18em}
 #dashboard #interfaces ul,
 #dashboard #storage ul,
 #dashboard #os ul{margin:0 0 1em 2em;padding:0 1em 1em}

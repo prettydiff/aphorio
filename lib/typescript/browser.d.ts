@@ -201,7 +201,6 @@ declare global {
     }
 
     interface module_processes {
-        list: (data:os_proc[], time:string) => void;
         nodes: {
             count: HTMLElement;
             list: HTMLElement;
@@ -218,7 +217,6 @@ declare global {
     }
 
     interface module_services {
-        list: (data:os_service[], time:string) => void;
         nodes: {
             count: HTMLElement;
             list: HTMLElement;
@@ -227,7 +225,6 @@ declare global {
     }
 
     interface module_sockets {
-        list: (data:os_sockets[], time:string) => void;
         nodes: {
             count: HTMLElement;
             list: HTMLElement;
@@ -275,6 +272,7 @@ declare global {
         socket: socket_object;
         sort_html: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         status: (data_item:socket_data) => void;
+        tables: (module:module_processes|module_services|module_sockets, data:os_proc[]|os_service[]|os_sockets[], time:string) => void;
     }
 
     interface module_web {

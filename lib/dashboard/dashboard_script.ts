@@ -37,13 +37,13 @@ const dashboard = function dashboard():void {
             }
             : JSON.parse(local),
         utility:module_utility = {
-            baseline: function dashboard_toolsBaseline():void {
+            baseline: function dashboard_utilityBaseline():void {
                 const serverList:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
                     logs_old:HTMLElement = document.getElementById("application-logs").getElementsByTagName("ul")[0],
                     sockets_old:HTMLElement = document.getElementById("sockets").getElementsByTagName("tbody")[0],
                     status:HTMLElement = document.getElementById("connection-status"),
                     terminal_output:HTMLElement = document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
-                    replace = function dashboard_toolsBaseline_replace(node:HTMLElement, className:boolean):HTMLElement {
+                    replace = function dashboard_utilityBaseline_replace(node:HTMLElement, className:boolean):HTMLElement {
                         if (node !== null && node !== undefined && node.parentNode !== null) {
                             const node_new:HTMLElement = document.createElement(node.lowName());
                             if (className === true) {
@@ -122,11 +122,28 @@ const dashboard = function dashboard():void {
                     tools.websocket.nodes.message_receive_frame.value = "";
                 }
             },
-            init: function dashboard_toolsInit(data_item:socket_data):void {
+            init: function dashboard_utilityInit(data_item:socket_data):void {
                 if (loaded === false) {
+                    const keys:string[] = (state.tables === undefined)
+                        ? []
+                        : Object.keys(state.tables);
+                    let index:number = keys.length,
+                        table:HTMLElement = null,
+                        key:string[] = null;
+                    if (index > 0) {
+                        do {
+                            index = index - 1;
+                            key = keys[index].split("-");
+                            table = document.getElementById(key[0]).getElementsByTagName("table")[Number(key[1])];
+                            if (table !== undefined) {
+                                table.setAttribute("data-column", String(state.tables[keys[index]].col));
+                                table.getElementsByTagName("thead")[0].getElementsByTagName("th")[state.tables[keys[index]].col].getElementsByTagName("button")[0].setAttribute("data-dir", String(state.tables[keys[index]].dir));
+                            }
+                        } while (index > 0);
+                    }
                     payload = data_item.data as transmit_dashboard;
                     // populate log data
-                    payload.logs.forEach(function dashboard_toolsInit_logsEach(item:services_dashboard_status):void {
+                    payload.logs.forEach(function dashboard_utilityInit_logsEach(item:services_dashboard_status):void {
                         utility.log(item);
                     });
                     loaded = true;
@@ -138,6 +155,7 @@ const dashboard = function dashboard():void {
                         time: Date.now(),
                         type: "log"
                     });
+
                     // populate docker containers
                     servers.compose.init();
                     // populate server list
@@ -158,7 +176,7 @@ const dashboard = function dashboard():void {
                     tools.websocket.init();
                 }
             },
-            log: function dashboard_toolsLog(item:services_dashboard_status):void {
+            log: function dashboard_utilityLog(item:services_dashboard_status):void {
                 const li:HTMLElement = document.createElement("li"),
                     timeElement:HTMLElement = document.createElement("time"),
                     ul:HTMLElement = document.getElementById("application-logs").getElementsByTagName("ul")[0],
@@ -181,14 +199,14 @@ const dashboard = function dashboard():void {
                 }
                 ul.appendChild(li);
             },
-            message_send: function dashboard_toolsMessageSend(data:type_socket_data, service:type_service):void {
+            message_send: function dashboard_utilityMessageSend(data:type_socket_data, service:type_service):void {
                 const message:socket_data = {
                         data: data,
                         service: service
                     };
                 utility.socket.queue(JSON.stringify(message));
             },
-            setState: function dashboard_toolsSetState():void {
+            setState: function dashboard_utilitySetState():void {
                 const hashInput:HTMLCollectionOf<HTMLInputElement> = document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input");
                 state.dns.hosts = tools.dns.nodes.hosts.value;
                 state.dns.types = tools.dns.nodes.types.value;
@@ -285,7 +303,7 @@ const dashboard = function dashboard():void {
                 },
                 type: "dashboard"
             }),
-            sort_html: function dashboard_toolsSortHTML(event:MouseEvent, table?:HTMLElement, heading_index?:number):void {
+            sort_html: function dashboard_utilitySortHTML(event:MouseEvent, table?:HTMLElement, heading_index?:number):void {
                 const target:HTMLElement = (event === null)
                         ? null
                         : event.target,
@@ -308,17 +326,21 @@ const dashboard = function dashboard():void {
                             ? th.getElementsByTagName("button")[0]
                             : target,
                         direction:-1|1 = Number(button.dataset.dir) as -1,
-                        id:string = table.getAncestor("tab", "class").getAttribute("id");
+                        id:string = tableElement.getAncestor("tab", "class").getAttribute("id");
                     let index_th:number = (event === null)
                             ? heading_index
                             : cells_length,
                         index_tr:number = 0;
-                    if (direction === -1) {
-                        button.setAttribute("data-dir", "1");
-                    } else {
-                        button.setAttribute("data-dir", "-1");
-                    }
                     if (event !== null) {
+                        const tables:HTMLCollectionOf<HTMLElement> = document.getElementById(id).getElementsByTagName("table");
+                        let tables_index:number = tables.length;
+                        // apply change of direction
+                        if (direction === -1) {
+                            button.setAttribute("data-dir", "1");
+                        } else {
+                            button.setAttribute("data-dir", "-1");
+                        }
+
                         // find which column to sort by
                         do {
                             index_th = index_th - 1;
@@ -327,21 +349,26 @@ const dashboard = function dashboard():void {
                             }
                         } while (index_th > 0);
                         tableElement.setAttribute("data-column", String(index_th));
+
+                        // save state
+                        if (state.tables === undefined) {
+                            state.tables = {};
+                        }
+                        do {
+                            tables_index = tables_index - 1;
+                        } while (tables_index > 0 && tables[tables_index] !== tableElement);
+                        state.tables[`${id}-${tables_index}`] = {
+                            col: index_th,
+                            dir: direction
+                        };
+                        utility.setState();
                     }
-                    if (state.tables === undefined) {
-                        state.tables = {};
-                    }
-                    state.tables[id] = {
-                        col: index_tr,
-                        dir: direction
-                    };
-                    utility.setState();
                     do {
                         records.push(tr_list[index_tr]);
                         index_tr = index_tr + 1;
                     } while (index_tr < tr_length);
 
-                    records.sort(function dashboard_toolsSortHTML_records(a:HTMLElement, b:HTMLElement):-1|0|1 {
+                    records.sort(function dashboard_utilitySortHTML_records(a:HTMLElement, b:HTMLElement):-1|0|1 {
                         const td_a:HTMLElement = a.getElementsByTagName("td")[index_th],
                             td_b:HTMLElement = b.getElementsByTagName("td")[index_th],
                             text_a:string = (td_a.dataset.raw === undefined)
@@ -380,9 +407,9 @@ const dashboard = function dashboard():void {
                     tbody_old.parentNode.removeChild(tbody_old);
                 }
             },
-            status: function dashboard_toolsStatus(data_item:socket_data):void {
+            status: function dashboard_utilityStatus(data_item:socket_data):void {
                 const data:services_dashboard_status = data_item.data as services_dashboard_status,
-                    socket_destroy = function dashboard_toolsStatus_socketDestroy(hash:string):void {
+                    socket_destroy = function dashboard_utilityStatus_socketDestroy(hash:string):void {
                         const tbody:HTMLElement = document.getElementById("sockets").getElementsByTagName("tbody")[0],
                             tr:HTMLCollectionOf<HTMLElement> = tbody.getElementsByTagName("tr");
                         let index:number = tr.length;
@@ -560,6 +587,93 @@ const dashboard = function dashboard():void {
                         servers.compose.list("variables");
                     }
                 }
+            },
+            tables: function dashboard_utilityTables(module:module_processes|module_services|module_sockets, data:os_proc[]|os_service[]|os_sockets[], time:string):void {
+                const len:number = data.length;
+                if (len > 0) {
+                    const list:HTMLElement = module.nodes.list,
+                        table:HTMLElement = list.parentNode,
+                        cell = function dashboard_utilityTables_cell(tr:HTMLElement, text:string, raw:string):void {
+                            const td:HTMLElement = document.createElement("td");
+                            td.textContent = text;
+                            if (raw !== null) {
+                                td.setAttribute("class", "right");
+                                if (raw !== text) {
+                                    td.setAttribute("data-raw", raw);
+                                }
+                            }
+                            tr.appendChild(td);
+                        },
+                        populate_process = function dashboard_utilityTables_populateProcess(tr:HTMLElement, record:os_proc):void {
+                            const time:string = (record.time === null)
+                                    ? (payload.platform === "win32")
+                                        ? (0).time().replace(/000$/, "")
+                                        : (0).time().replace(/\.0+$/, "")
+                                    : (payload.platform === "win32")
+                                        ? record.time.time().replace(/000$/, "")
+                                        : record.time.time().replace(/\.0+$/, ""),
+                                memory:string = (record.memory === null)
+                                    ? "0"
+                                    : commas(record.memory),
+                                id:string = String(record.id);
+                            cell(tr, record.name, null);
+                            cell(tr, id, id);
+                            cell(tr, memory, (record.memory === null)
+                                ? "0"
+                                : String(record.memory));
+                            cell(tr, time, (record.time === null)
+                                ? "0"
+                                : String(record.time));
+                            payload.os.processes = data as os_proc[];
+                        },
+                        populate_services = function dashboard_utilityTables_populateServices(tr:HTMLElement, record:os_service):void {
+                            cell(tr, record.name, null);
+                            cell(tr, record.status, null);
+                            cell(tr, record.description, null);
+                            payload.os.services = data as os_service[];
+                        },
+                        populate_sockets = function dashboard_utilityTable_populateSockets(tr:HTMLElement, record:os_sockets):void {
+                            cell(tr, record.type, null);
+                            cell(tr, record["local-address"], null);
+                            cell(tr, String(record["local-port"]), null);
+                            cell(tr, record["remote-address"], null);
+                            cell(tr, String(record["remote-port"]), null);
+                            payload.os.sockets = data as os_sockets[];
+                        },
+                        sort_index:number = Number(table.dataset.column),
+                        sort_name:string = (module === network.sockets)
+                            ? ["type", "local-address", "local-port", "remote-address", "remote-port"][sort_index]
+                            : (module === system.processes)
+                                ? ["name", "id", "memory", "time"][sort_index]
+                                : ["name", "status", "description"][sort_index],
+                        sort_direction:-1|1 = Number(table.getElementsByTagName("th")[sort_index].getElementsByTagName("button")[0].dataset.dir) as -1|1;
+                    let index:number = 0,
+                        row:HTMLElement = null;
+                    list.textContent = "";
+                    data.sort(function dashboard_utilityTable_sort(a:os_proc|os_service|os_sockets,b:os_proc|os_service|os_sockets):-1|1 {
+                        // @ts-expect-error - inferring types based upon property names across unrelated objects of dissimilar property name is problematic
+                        if (a[sort_name as "name"|"type"] as string < b[sort_name as "name"|"type"] as string) {
+                            return sort_direction;
+                        }
+                        return (sort_direction * -1) as 1;
+                    });
+                    do {
+                        row = document.createElement("tr");
+                        if (module === system.processes) {
+                            populate_process(row, data[index] as os_proc);
+                        } else if (module === system.services) {
+                            populate_services(row, data[index] as os_service);
+                        } else if (module === network.sockets) {
+                            populate_sockets(row, data[index] as os_sockets);
+                        }
+                        row.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
+                        list.appendChild(row);
+                        index = index + 1;
+                    } while (index < len);
+                    module.nodes.update.textContent = time;
+                    module.nodes.count.textContent = String(data.length);
+                    module.nodes.list = table.getElementsByTagName("tbody")[0];
+                }
             }
         },
         network:structure_network = {
@@ -628,37 +742,6 @@ const dashboard = function dashboard():void {
                 }
             },
             sockets: {
-                list: function dashboard_servicesList(data:os_sockets[], time:string):void {
-                    const len:number = data.length;
-                    if (len > 0) {
-                        const populate = function dashboard_servicesList_populate(parent:HTMLElement, item:string):void {
-                                const td:HTMLElement = document.createElement("td");
-                                td.textContent = item;
-                                parent.appendChild(td);
-                            },
-                            list_new:HTMLElement = document.createElement("tbody"),
-                            list_old:HTMLElement = network.sockets.nodes.list;
-                        let index:number = 0,
-                            tr:HTMLElement = null;
-                        do {
-                            tr = document.createElement("tr");
-                            tr.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
-                            populate(tr, data[index].type);
-                            populate(tr, data[index]["local-address"]);
-                            populate(tr, String(data[index]["local-port"]));
-                            populate(tr, data[index]["remote-address"]);
-                            populate(tr, String(data[index]["remote-port"]));
-                            list_new.appendChild(tr);
-                            index = index + 1;
-                        } while (index < len);
-                        list_old.parentNode.insertBefore(list_new, list_old);
-                        list_old.parentNode.removeChild(list_old);
-                        network.sockets.nodes.list = list_new;
-                        network.sockets.nodes.update.textContent = time;
-                        network.sockets.nodes.count.textContent = String(data.length);
-                        payload.os.sockets = data;
-                    }
-                },
                 nodes: {
                     count: document.getElementById("sockets").getElementsByTagName("p")[1].getElementsByTagName("em")[0],
                     list: document.getElementById("sockets").getElementsByTagName("tbody")[1],
@@ -1935,16 +2018,7 @@ const dashboard = function dashboard():void {
         system:structure_system = {
             os: {
                 init: function dashboard_osInit():void {
-                    const time:string = payload.os.time.dateTime(true),
-                        table_state = function dashboard_osInit_tableState(module:structure_network|structure_system, key_name:"interfaces"|"processes"|"services"|"sockets"|"storage"):void {
-                            if (state.tables[key_name] !== undefined) {
-                                const mod:structure_network = module as structure_network,
-                                    key:"interfaces" = key_name as "interfaces",
-                                    section:module_interfaces = mod[key] as module_interfaces;
-                                section.nodes.list.parentNode.setAttribute("data-column", String(state.tables[key].col));
-                                section.nodes.list.parentNode.getElementsByTagName("thead")[0].getElementsByTagName("th")[state.tables[key].col].setAttribute("data-dir", String(state.tables[key].dir));
-                            }
-                        };
+                    const time:string = payload.os.time.dateTime(true);
                     let keys:string[] = null,
                         li:HTMLElement = null,
                         strong:HTMLElement = null,
@@ -1989,13 +2063,10 @@ const dashboard = function dashboard():void {
                     system.os.nodes.user.homedir.textContent = payload.os.user.homedir;
 
                     network.interfaces.list(payload.os.interfaces, time);
-                    system.processes.list(payload.os.processes, time);
-                    system.services.list(payload.os.services, time);
-                    network.sockets.list(payload.os.sockets, time);
                     system.storage.list(payload.os.storage, time);
-                    table_state(system, "processes");
-                    table_state(system, "services");
-                    table_state(network, "sockets");
+                    utility.tables(system.processes, payload.os.processes, time);
+                    utility.tables(system.services, payload.os.services, time);
+                    utility.tables(network.sockets, payload.os.sockets, time);
     
                     // System Path
                     len = payload.os.os.path.length;
@@ -2130,86 +2201,31 @@ const dashboard = function dashboard():void {
                             system.os.nodes.process.memoryPercent.textContent = `${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
                             system.os.nodes.process.memoryV8.textContent = payload.os.process.memory.V8.bytesLong();
                             system.os.nodes.process.memoryExternal.textContent = payload.os.process.memory.external.bytesLong();
+                            network.interfaces.list(data.interfaces, time);
+                            payload.os.interfaces = data.interfaces;
                         };
                     if (data_item.service === "dashboard-os-all") {
                         main();
-                        network.interfaces.list(data.interfaces, time);
-                        system.processes.list(data.processes, time);
-                        system.services.list(data.services, time);
-                        network.sockets.list(data.sockets, time);
                         system.storage.list(data.storage, time);
-                        payload.os.sockets = data.sockets;
+                        payload.os.storage = data.storage;
+                        utility.tables(system.processes, data.processes, time);
+                        utility.tables(system.services, data.services, time);
+                        utility.tables(network.sockets, data.sockets, time);
                     } else if (data_item.service === "dashboard-os-disk") {
                         system.storage.list(data.storage, time);
+                        payload.os.storage = data.storage;
                     } else if (data_item.service === "dashboard-os-main") {
                         main();
                     } else if (data_item.service === "dashboard-os-proc") {
-                        system.processes.list(data.processes, time);
+                        utility.tables(system.processes, data.processes, time);
                     } else if (data_item.service === "dashboard-os-serv") {
-                        system.services.list(data.services, time);
+                        utility.tables(system.services, data.services, time);
                     } else if (data_item.service === "dashboard-os-sockets") {
-                        network.sockets.list(data.sockets, time);
+                        utility.tables(network.sockets, data.sockets, time);
                     }
                 }
             },
             processes: {
-                list: function dashboard_processList(data:os_proc[], time:string):void {
-                    const len:number = data.length;
-                    if (len > 0) {
-                        const list_new:HTMLElement = document.createElement("tbody"),
-                            list_old:HTMLElement = system.processes.nodes.list;
-                        let index:number = 0,
-                            tr:HTMLElement = null,
-                            td:HTMLElement = null;
-                        do {
-                            tr = document.createElement("tr");
-                            tr.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
-
-                            // name
-                            td = document.createElement("td");
-                            td.textContent = data[index].name;
-                            tr.appendChild(td);
-
-                            // pid
-                            td = document.createElement("td");
-                            td.textContent = String(data[index].id);
-                            td.setAttribute("class", "right");
-                            tr.appendChild(td);
-
-                            // memory
-                            td = document.createElement("td");
-                            td.textContent = (data[index].memory === null)
-                                ? "0"
-                                : commas(data[index].memory);
-                            td.setAttribute("class", "right");
-                            td.setAttribute("data-raw", (data[index].memory === null)
-                                ? "0"
-                                : String(data[index].memory));
-                            tr.appendChild(td);
-
-                            // cpu time
-                            td = document.createElement("td");
-                            td.textContent = (data[index].time === null)
-                                ? ""
-                                : (payload.platform === "win32")
-                                    ? data[index].time.time().replace(/000$/, "")
-                                    : data[index].time.time().replace(/\.0+$/, "");
-                            td.setAttribute("class", "right");
-                            td.setAttribute("data-raw", (data[index].time === null)
-                                ? "0"
-                                : String(data[index].time));
-                            tr.appendChild(td);
-                            list_new.appendChild(tr);
-                            index = index + 1;
-                        } while (index < len);
-                        list_old.parentNode.insertBefore(list_new, list_old);
-                        list_old.parentNode.removeChild(list_old);
-                        system.processes.nodes.list = list_new;
-                        system.processes.nodes.update.textContent = time;
-                        system.processes.nodes.count.textContent = String(data.length);
-                        payload.os.processes = data;
-                    }
-                },
                 nodes: {
                     count: document.getElementById("processes").getElementsByTagName("p")[1].getElementsByTagName("em")[0],
                     list: document.getElementById("processes").getElementsByTagName("tbody")[0],
@@ -2217,34 +2233,6 @@ const dashboard = function dashboard():void {
                 }
             },
             services: {
-                list: function dashboard_servicesList(data:os_service[], time:string):void {
-                    const len:number = data.length;
-                    if (len > 0) {
-                        const populate = function dashboard_servicesList_populate(parent:HTMLElement, item:string):void {
-                                const td:HTMLElement = document.createElement("td");
-                                td.textContent = item;
-                                parent.appendChild(td);
-                            },
-                            list_new:HTMLElement = document.createElement("tbody");
-                        let index:number = 0,
-                            tr:HTMLElement = null;
-                        do {
-                            tr = document.createElement("tr");
-                            tr.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
-                            populate(tr, data[index].name);
-                            populate(tr, data[index].status);
-                            populate(tr, data[index].description);
-                            list_new.appendChild(tr);
-                            index = index + 1;
-                        } while (index < len);
-                        system.services.nodes.list.parentNode.insertBefore(list_new, system.services.nodes.list);
-                        system.services.nodes.list.parentNode.removeChild(system.services.nodes.list);
-                        system.services.nodes.list = list_new;
-                        system.services.nodes.update.textContent = time;
-                        system.services.nodes.count.textContent = String(data.length);
-                        payload.os.services = data;
-                    }
-                },
                 nodes: {
                     count: document.getElementById("services").getElementsByTagName("p")[1].getElementsByTagName("em")[0],
                     list: document.getElementById("services").getElementsByTagName("tbody")[0],
@@ -2275,10 +2263,24 @@ const dashboard = function dashboard():void {
                             li.appendChild(strong);
                             if (key === "partitions" && len > 0) {
                                 let list:HTMLElement = null,
-                                    pIndex:number = 0;
+                                    pIndex:number = 0,
+                                    warn:HTMLElement = null,
+                                    p:HTMLElement = null,
+                                    percent:number = 0;
                                 do {
                                     list = document.createElement("ul");
                                     list.setAttribute("class", "os-interface");
+                                    percent = (data[index].partitions[pIndex].size_free === 0 || data[index].partitions[pIndex].size_total === 0)
+                                        ? 100
+                                        : Math.round((data[index].partitions[pIndex].size_free / data[index].partitions[pIndex].size_total) * 100);
+                                    if (percent < 16) {
+                                        warn = document.createElement("strong");
+                                        p = document.createElement("p");
+                                        warn.textContent = "Warning!";
+                                        p.appendChild(warn);
+                                        p.appendText(` Disk partition ${String(data[index].partitions[pIndex].id)} only has ${percent}% capacity free.`);
+                                        li.appendChild(p);
+                                    }
                                     data_item(list, String(data[index].partitions[pIndex].active), "active");
                                     data_item(list, String(data[index].partitions[pIndex].bootable), "bootable");
                                     data_item(list, String(data[index].partitions[pIndex].file_system), "file_system");
@@ -2289,7 +2291,7 @@ const dashboard = function dashboard():void {
                                     if (data[index].partitions[pIndex].size_free === 0 || data[index].partitions[pIndex].size_total === 0) {
                                         data_item(list, data[index].partitions[pIndex].size_free.bytesLong(), "size_free");
                                     } else {
-                                        data_item(list, `${data[index].partitions[pIndex].size_free.bytesLong()}, ${Math.round((data[index].partitions[pIndex].size_free / data[index].partitions[pIndex].size_total) * 100)}%`, "size_free");
+                                        data_item(list, `${data[index].partitions[pIndex].size_free.bytesLong()}, ${percent}%`, "size_free");
                                     }
                                     if (data[index].partitions[pIndex].size_total === 0) {
                                         data_item(list, "0", "size_total");
@@ -2368,185 +2370,6 @@ const dashboard = function dashboard():void {
                     update: document.getElementById("storage").getElementsByTagName("p")[1].getElementsByTagName("em")[0]
                 }
             }
-            // ports: {
-            //     external: function dashboard_portsExternal(input:external_ports):void {
-            //         if (ports_external === true || payload === null) {
-            //             return;
-            //         }
-            //         const servers:string[] = Object.keys(payload.servers),
-            //             compose:string[] = (payload.compose === null)
-            //                 ? null
-            //                 : Object.keys(payload.compose.containers),
-            //             loop_ports = function dashboard_portsExternal(number:number, protocol:"tcp"|"udp"):void {
-            //                 let indexPorts:number = input.list.length;
-            //                 if (indexPorts > 0) {
-            //                     do {
-            //                         indexPorts = indexPorts - 1;
-            //                         if (number === input.list[indexPorts][0] && protocol.toUpperCase() === input.list[indexPorts][1]) {
-            //                             input.list.splice(indexPorts, 1);
-            //                         }
-            //                     } while (indexPorts > 0);
-            //                 }
-            //             },
-            //             portElement:HTMLElement = document.getElementById("ports"),
-            //             updated:HTMLElement = portElement.getElementsByClassName("updated")[0] as HTMLElement;
-            //         if (input.list[0] === null) {
-            //             if (updated.style.display !== "none") {
-            //                 ports_external = true;
-            //             }
-            //             return;
-            //         }
-            //         let indexServers:number = servers.length,
-            //             indexPorts:number = input.list.length,
-            //             indexKeys:number = 0,
-            //             keys:string[] = null;
-            //         if (indexPorts < 1) {
-            //             return;
-            //         }
-    
-            //         // per server
-            //         if (indexServers > 0) {
-            //             do {
-            //                 indexPorts = input.list.length;
-            //                 if (indexPorts < 1) {
-            //                     break;
-            //                 }
-            //                 indexServers = indexServers - 1;
-            //                 // per port, per server
-            //                 loop_ports(payload.servers[servers[indexServers]].status.open, "tcp");
-            //                 loop_ports(payload.servers[servers[indexServers]].status.secure, "tcp");
-            //                 keys = (payload.servers[servers[indexServers]].config.redirect_domain === null || payload.servers[servers[indexServers]].config.redirect_domain === undefined)
-            //                     ? null
-            //                     : Object.keys(payload.servers[servers[indexServers]].config.redirect_domain);
-            //                 indexKeys = (keys === null)
-            //                     ? 0
-            //                     : keys.length;
-            //                 if (indexKeys > 0) {
-            //                     do {
-            //                         indexKeys = indexKeys - 1;
-            //                         if (
-            //                             payload.servers[servers[indexServers]].config.redirect_domain[keys[indexKeys]] !== null &&
-            //                             typeof payload.servers[servers[indexServers]].config.redirect_domain[keys[indexKeys]][0] === "string" &&
-            //                             payload.servers[servers[indexServers]].config.redirect_domain[keys[indexKeys]][0] !== ""
-            //                         ) {
-            //                             loop_ports(payload.servers[servers[indexServers]].config.redirect_domain[keys[indexKeys]][1], "tcp");
-            //                         }
-            //                     } while (indexKeys > 0);
-            //                 }
-            //             } while (indexServers > 0);
-            //         }
-            //         // per container
-            //         indexServers = (compose === null)
-            //             ? 0
-            //             : compose.length;
-            //         if (indexServers > 0) {
-            //             do {
-            //                 indexServers = indexServers - 1;
-            //                 indexKeys = payload.compose.containers[compose[indexServers]].ports.length;
-            //                 if (indexKeys > 0 && payload.compose.containers[compose[indexServers]].status.indexOf("Up ") === 0) {
-            //                     do {
-            //                         indexKeys = indexKeys - 1;
-            //                         loop_ports(payload.compose.containers[compose[indexServers]].publishers[indexKeys].PublishedPort, payload.compose.containers[compose[indexServers]].publishers[indexKeys].Protocol);
-            //                     } while (indexKeys > 0);
-            //                 }
-            //             } while (indexServers > 0);
-            //         }
-            //         informational.ports.html(informational.ports.nodes.external, input.list);
-            //         updated.getElementsByTagName("em")[0].textContent = input.time.dateTime(true);
-            //     },
-            //     html: function dashboard_portsHTML(table:HTMLElement, list:type_external_port[]):void {
-            //         const len:number = list.length;
-            //         if (len > 0) {
-            //             let tr:HTMLElement = null,
-            //                 td:HTMLElement = null,
-            //                 index:number = 0;
-            //             const tbody_new:HTMLElement = document.createElement("tbody"),
-            //                 tbody_old:HTMLElement = table.getElementsByTagName("tbody")[0];
-            //             do {
-            //                 tr = document.createElement("tr");
-    
-            //                 td = document.createElement("td");
-            //                 td.appendText(String(list[index][0]));
-            //                 tr.appendChild(td);
-    
-            //                 td = document.createElement("td");
-            //                 td.appendText(list[index][1]);
-            //                 tr.appendChild(td);
-    
-            //                 td = document.createElement("td");
-            //                 td.appendText((table === informational.ports.nodes.external) ? "external": list[index][2]);
-            //                 tr.appendChild(td);
-    
-            //                 td = document.createElement("td");
-            //                 td.appendText(list[index][3]);
-            //                 tr.appendChild(td);
-    
-            //                 tbody_new.appendChild(tr);
-            //                 index = index + 1;
-            //             } while (index < len);
-            //             tbody_old.parentNode.appendChild(tbody_new);
-            //             tbody_old.parentNode.removeChild(tbody_old);
-            //             utility.sort_html(null, table, Number(table.dataset.column));
-            //         }
-            //     },
-            //     init: function dashboard_portsInit(port_list:external_ports):void {
-            //         informational.ports.external(port_list);
-            //         informational.ports.internal();
-            //     },
-            //     internal: function dashboard_portsInternal():void {
-            //         const output:type_external_port[] = [],
-            //             servers:string[] = Object.keys(payload.servers),
-            //             compose:string[] = (payload.compose === null)
-            //                 ? null
-            //                 : Object.keys(payload.compose.containers),
-            //             populate = function dashboard_portsInternal_populate(index:number, key:"open"|"secure"):void {
-            //                 if (typeof payload.servers[servers[index]].status[key] === "number" && payload.servers[servers[index]].status[key] > 0) {
-            //                     output.push([payload.servers[servers[index]].status[key], "TCP", `server (${key})`, servers[index]]);
-            //                 }
-            //             };
-            //         let indexServers:number = servers.length,
-            //             indexPorts:number = 0;
-            //         // per server
-            //         informational.ports.external(payload.ports);
-            //         if (indexServers > 0) {
-            //             do {
-            //                 indexServers = indexServers - 1;
-            //                 populate(indexServers, "open");
-            //                 populate(indexServers, "secure");
-            //             } while (indexServers > 0);
-            //         }
-    
-            //         // per container
-            //         indexServers = (compose === null)
-            //             ? 0
-            //             : compose.length;
-            //         if (indexServers > 0) {
-            //             do {
-            //                 indexServers = indexServers - 1;
-            //                 indexPorts = payload.compose.containers[compose[indexServers]].ports.length;
-            //                 if (indexPorts > 0 && payload.compose.containers[compose[indexServers]].status.indexOf("Up ") === 0) {
-            //                     payload.compose.containers[compose[indexServers]].publishers.sort(function dashboard_portsInternal_sort(a:services_docker_compose_publishers, b:services_docker_compose_publishers):-1|1 {
-            //                         if (a.URL < b.URL) {
-            //                             return -1;
-            //                         }
-            //                         return 1;
-            //                     });
-            //                     do {
-            //                         indexPorts = indexPorts - 1;
-            //                         if (payload.compose.containers[compose[indexServers]].publishers[indexPorts].URL === "0.0.0.0" || payload.compose.containers[compose[indexServers]].publishers[0].URL === "::") {
-            //                             output.push([payload.compose.containers[compose[indexServers]].publishers[indexPorts].PublishedPort, payload.compose.containers[compose[indexServers]].publishers[indexPorts].Protocol.toUpperCase(), "container", compose[indexServers]]);
-            //                         }
-            //                     } while (indexPorts > 0);
-            //                 }
-            //             } while (indexServers > 0);
-            //         }
-            //         informational.ports.html(informational.ports.nodes.internal, output);
-            //     },
-            //     nodes: {
-            //         external: document.getElementById("ports").getElementsByTagName("table")[0],
-            //         internal: document.getElementById("ports").getElementsByTagName("table")[1]
-            //     }
-            // }
         },
         tools:structure_tools = {
             dns: {
