@@ -205,8 +205,12 @@ declare global {
     interface module_processes {
         nodes: {
             count: HTMLElement;
+            filter_column: HTMLSelectElement;
+            filter_value: HTMLInputElement;
+            filtered: HTMLElement;
             list: HTMLElement;
-            update: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
         };
     }
 
@@ -221,16 +225,24 @@ declare global {
     interface module_services {
         nodes: {
             count: HTMLElement;
+            filter_column: HTMLSelectElement;
+            filter_value: HTMLInputElement;
+            filtered: HTMLElement;
             list: HTMLElement;
-            update: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
         };
     }
 
     interface module_sockets {
         nodes: {
             count: HTMLElement;
+            filter_column: HTMLSelectElement;
+            filter_value: HTMLInputElement;
+            filtered: HTMLElement;
             list: HTMLElement;
-            update: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
         };
     }
 

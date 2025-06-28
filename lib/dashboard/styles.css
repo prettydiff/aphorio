@@ -291,6 +291,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard .http_response .form{float:left;margin:2em 0.5%;padding:2em 0.5%;width:47.65%}
 #dashboard #websocket .http_response p.float-last{width:82%}
 #dashboard textarea.test-input{height:15em}
+#dashboard .table-stats span,
 #dashboard .summary-stats span{display:inline-block;width:12em}
 #dashboard #file-system ul{margin:0 0 0 4em;padding:0}
 #dashboard .summary-stats .file-system-summary-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}

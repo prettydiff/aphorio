@@ -669,7 +669,7 @@ const dashboard = function dashboard():void {
                         list.appendChild(row);
                         index = index + 1;
                     } while (index < len);
-                    module.nodes.update.textContent = item.time.dateTime(true);
+                    module.nodes.update_text.textContent = item.time.dateTime(true);
                     module.nodes.count.textContent = String(item.data.length);
                     module.nodes.list = table.getElementsByTagName("tbody")[0];
                 }
@@ -742,9 +742,13 @@ const dashboard = function dashboard():void {
             },
             sockets: {
                 nodes: {
-                    count: document.getElementById("sockets").getElementsByTagName("p")[1].getElementsByTagName("em")[0],
-                    list: document.getElementById("sockets").getElementsByTagName("tbody")[1],
-                    update: document.getElementById("sockets").getElementsByTagName("p")[4].getElementsByTagName("em")[0]
+                    count: document.getElementById("sockets").getElementsByClassName("section")[3].getElementsByTagName("p")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("sockets").getElementsByClassName("section")[2].getElementsByTagName("select")[0],
+                    filter_value: document.getElementById("sockets").getElementsByClassName("section")[2].getElementsByTagName("input")[0],
+                    filtered: document.getElementById("sockets").getElementsByClassName("section")[3].getElementsByTagName("p")[1].getElementsByTagName("em")[0],
+                    list: document.getElementById("sockets").getElementsByClassName("section")[3].getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("sockets").getElementsByClassName("section")[2].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets").getElementsByClassName("section")[3].getElementsByTagName("p")[2].getElementsByTagName("em")[0]
                 }
             }
         },
@@ -2203,6 +2207,7 @@ const dashboard = function dashboard():void {
                         };
                     if (data_item.service === "dashboard-os-all") {
                         main();
+                        network.interfaces.list(data.interfaces);
                         system.storage.list(data.storage);
                         utility.tables(system.processes, data.processes);
                         utility.tables(system.services, data.services);
@@ -2224,16 +2229,24 @@ const dashboard = function dashboard():void {
             },
             processes: {
                 nodes: {
-                    count: document.getElementById("processes").getElementsByTagName("p")[1].getElementsByTagName("em")[0],
-                    list: document.getElementById("processes").getElementsByTagName("tbody")[0],
-                    update: document.getElementById("processes").getElementsByTagName("p")[2].getElementsByTagName("em")[0]
+                    count: document.getElementById("processes").getElementsByClassName("section")[1].getElementsByTagName("p")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("processes").getElementsByClassName("section")[0].getElementsByTagName("select")[0],
+                    filter_value: document.getElementById("processes").getElementsByClassName("section")[0].getElementsByTagName("input")[0],
+                    filtered: document.getElementById("processes").getElementsByClassName("section")[1].getElementsByTagName("p")[1].getElementsByTagName("em")[0],
+                    list: document.getElementById("processes").getElementsByClassName("section")[1].getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("processes").getElementsByClassName("section")[0].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("processes").getElementsByClassName("section")[1].getElementsByTagName("p")[2].getElementsByTagName("em")[0]
                 }
             },
             services: {
                 nodes: {
-                    count: document.getElementById("services").getElementsByTagName("p")[1].getElementsByTagName("em")[0],
-                    list: document.getElementById("services").getElementsByTagName("tbody")[0],
-                    update: document.getElementById("services").getElementsByTagName("p")[2].getElementsByTagName("em")[0]
+                    count: document.getElementById("services").getElementsByClassName("section")[1].getElementsByTagName("p")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("select")[0],
+                    filter_value: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("input")[0],
+                    filtered: document.getElementById("services").getElementsByClassName("section")[1].getElementsByTagName("p")[1].getElementsByTagName("em")[0],
+                    list: document.getElementById("services").getElementsByClassName("section")[1].getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("services").getElementsByClassName("section")[1].getElementsByTagName("p")[2].getElementsByTagName("em")[0]
                 }
             },
             storage: {

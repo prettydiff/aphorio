@@ -189,6 +189,10 @@ interface store_children {
     [key:string]: node_childProcess_ChildProcess;
 }
 
+interface store_children_os {
+    [key:string]: os_child;
+}
+
 interface store_compose {
     [key:string]: services_docker_compose;
 }
@@ -199,6 +203,10 @@ interface store_elements {
 
 interface store_flag {
     [key:string]: boolean;
+}
+
+interface store_function {
+    [key:string]: () => void;
 }
 
 interface store_number {

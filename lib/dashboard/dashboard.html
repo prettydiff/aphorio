@@ -630,17 +630,29 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="processes">
             <h2>Processes</h2>
             <p class="tab-description">A list of processes running in the local operating system.</p>
-            <p>Total processes: <em></em></p>
-            <table data-column="0">
-                <thead><tr>
-                    <th><button data-dir="1">Name</button></th>
-                    <th><button data-dir="1">ID</button></th>
-                    <th><button data-dir="1">Memory (bytes)</button></th>
-                    <th><button data-dir="1">CPU Time</button></th>
-                </tr></thead>
-                <tbody></tbody>
-            </table>
-            <p>Last updated: <em></em></p>
+            <div class="section">
+                <h3>List Controls</h3>
+                <p><label>Column(s) To Filter <input spellcheck="false" type="text"/></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><button>Refresh List</button></p>
+            </div>
+            <div class="section">
+                <h3>Process List</h3>
+                <div class="table-stats">
+                    <p><span>Total services</span> <em></em></p>
+                    <p><span>Filtered services</span> <em></em></p>
+                    <p><span>Last updated</span> <em></em></p>
+                </div>
+                <table data-column="0">
+                    <thead><tr>
+                        <th><button data-dir="1">Name</button></th>
+                        <th><button data-dir="1">ID</button></th>
+                        <th><button data-dir="1">Memory (bytes)</button></th>
+                        <th><button data-dir="1">CPU Time</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
         <div class="tab" id="servers">
             <h2>Web Servers</h2>
@@ -722,16 +734,28 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="services">
             <h2>Services</h2>
             <p class="tab-description">A list of application services on the local operating system.</p>
-            <p>Total services: <em></em></p>
-            <table data-column="0">
-                <thead><tr>
-                    <th><button data-dir="1">Name</button></th>
-                    <th><button data-dir="1">Status</button></th>
-                    <th><button data-dir="1">Description</button></th>
-                </tr></thead>
-                <tbody></tbody>
-            </table>
-            <p>Last updated: <em></em></p>
+            <div class="section">
+                <h3>List Controls</h3>
+                <p><label>Column(s) To Filter <input spellcheck="false" type="text"/></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><button>Refresh List</button></p>
+            </div>
+            <div class="section">
+                <h3>Service List</h3>
+                <div class="table-stats">
+                    <p><span>Total services</span> <em></em></p>
+                    <p><span>Filtered services</span> <em></em></p>
+                    <p><span>Last updated</span> <em></em></p>
+                </div>
+                <table data-column="0">
+                    <thead><tr>
+                        <th><button data-dir="1">Name</button></th>
+                        <th><button data-dir="1">Status</button></th>
+                        <th><button data-dir="1">Description</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
         <div class="tab" id="sockets">
             <h2>Sockets / Ports</h2>
@@ -759,18 +783,31 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <div class="section">
                 <h3>All Sockets</h3>
                 <p>This list presents all sockets and their ports reported by the local operating system including the <em>Application Sockets</em> listed above.</p>
-                <table data-column="0">
-                    <thead><tr>
-                        <th><button data-dir="1">Type</button></th>
-                        <th><button data-dir="1">Local Address</button></th>
-                        <th><button data-dir="1">Local Port</button></th>
-                        <th><button data-dir="1">Remote Address</button></th>
-                        <th><button data-dir="1">Remote Port</button></th>
-                    </tr></thead>
-                    <tbody></tbody>
-                </table>
+                <div class="section">
+                    <h4>List Controls</h4>
+                    <p><label>Column(s) To Filter <input spellcheck="false" type="text"/></label></p>
+                    <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                    <p><button>Refresh List</button></p>
+                </div>
+                <div class="section">
+                    <h4>Socket List</h4>
+                    <div class="table-stats">
+                        <p><span>Total services</span> <em></em></p>
+                        <p><span>Filtered services</span> <em></em></p>
+                        <p><span>Last updated</span> <em></em></p>
+                    </div>
+                    <table data-column="0">
+                        <thead><tr>
+                            <th><button data-dir="1">Type</button></th>
+                            <th><button data-dir="1">Local Address</button></th>
+                            <th><button data-dir="1">Local Port</button></th>
+                            <th><button data-dir="1">Remote Address</button></th>
+                            <th><button data-dir="1">Remote Port</button></th>
+                        </tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
-            <p>Last updated: <em></em></p>
         </div>
         <div class="tab" id="storage">
             <h2>Storage Devices</h2>

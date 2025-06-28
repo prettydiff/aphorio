@@ -33,9 +33,10 @@ startup(function index():void {
             callback = function index_start_serverCallback():void {
                 count = count + 1;
                 if (count === total) {
-                    const logs:string[] = [
+                    const time:number = Number(process.hrtime.bigint() - vars.start_time),
+                        logs:string[] = [
                             "",
-                            `${vars.text.underline}Web Servers started.${vars.text.none}`,
+                            `${vars.text.underline}Application started in ${time / 1e9} seconds.${vars.text.none}`,
                             "",
                             `Process ID: ${vars.text.cyan + process.pid + vars.text.none}`,
                             "",
