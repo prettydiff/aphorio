@@ -1,12 +1,11 @@
 
-import broadcast from "../transmit/broadcast.js";
 import file from "./file.js";
 import node from "./node.js";
 import vars from "./vars.js";
 
 // cspell: words blockdevices, bootable, cputime, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, volu
 
-const os = function utilities_os(type_os:type_os):void {
+const os = function utilities_os(type_os:type_os, callback:(output:socket_data) => void):void {
     const populate = function utilities_os_populate():void {
         const win32:boolean = (process.platform === "win32"),
             shell:string = (win32 === true)
@@ -398,7 +397,10 @@ const os = function utilities_os(type_os:type_os):void {
             main = function utilities_os_populate_main():services_os_all {
                 const mem:server_os_memoryUsage = process.memoryUsage(),
                     output:services_os_all = {
-                        interfaces: node.os.networkInterfaces(),
+                        interfaces: {
+                            data: {},
+                            time: 0
+                        },
                         machine: {
                             cores: node.os.cpus().length,
                             memory: {
@@ -421,10 +423,22 @@ const os = function utilities_os(type_os:type_os):void {
                             },
                             uptime: process.uptime()
                         },
-                        processes: [],
-                        services: [],
-                        sockets: [],
-                        storage: [],
+                        processes: {
+                            data: [],
+                            time: 0
+                        },
+                        services: {
+                            data: [],
+                            time: 0
+                        },
+                        sockets: {
+                            data: [],
+                            time: 0
+                        },
+                        storage: {
+                            data: [],
+                            time: 0
+                        },
                         time: Date.now()
                     };
 
@@ -443,76 +457,100 @@ const os = function utilities_os(type_os:type_os):void {
                 return output;
             },
             completed = function utilities_os_populate_complete(type:type_os_key):void {
-                complete[type] = true;
-
-                const keys:string[] = Object.keys(complete);
+                const keys:string[] = Object.keys(complete),
+                    now:number = Date.now();
                 let index:number = keys.length;
 
                 if (type_os === "all" && index > 0) {
                     const output:services_os_all = main();
+                    complete[type] = true;
                     do {
                         index = index - 1;
                         if (complete[keys[index]] === false) {
                             return;
                         }
                     } while (index > 0);
-                    output.storage = disks;
-                    vars.os.storage = disks;
-                    output.processes = processes;
-                    vars.os.processes = processes;
-                    output.services = services;
-                    vars.os.services = services;
-                    output.sockets = sockets;
-                    vars.os.sockets = sockets;
-                    broadcast("dashboard", "dashboard", {
+                    output.interfaces = {
+                        data: node.os.networkInterfaces(),
+                        time: now
+                    };
+                    output.processes = {
+                        data: processes,
+                        time: now
+                    };
+                    output.services = {
+                        data: services,
+                        time: now
+                    };
+                    output.sockets = {
+                        data: sockets,
+                        time: now
+                    };
+                    output.storage = {
+                        data: disks,
+                        time: now
+                    };
+                    vars.os.interfaces = output.interfaces;
+                    vars.os.processes = output.processes;
+                    vars.os.services = output.services;
+                    vars.os.sockets = output.sockets;
+                    vars.os.storage = output.storage;
+                    vars.os.time = now;
+                    callback({
                         data: output,
                         service: "dashboard-os-all"
                     });
-                    setTimeout(utilities_os_populate, 60000);
                 } else if (type_os === "main") {
-                    broadcast("dashboard", "dashboard", {
-                        data: main(),
-                        service: "dashboard-os-all"
+                    const output:services_os_all = main();
+                    output.time = now;
+                    callback({
+                        data: output,
+                        service: "dashboard-os-main"
                     });
                 } else if (type_os === "disk") {
-                    const service:services_os_disk = {
-                        disks: disks,
-                        time: Date.now()
+                    vars.os.storage = {
+                        data: disks,
+                        time: now
                     };
-                    vars.os.storage = disks;
-                    broadcast("dashboard", "dashboard", {
-                        data: service,
+                    callback({
+                        data: vars.os.storage,
                         service: "dashboard-os-disk"
                     });
-                } else if (type_os === "proc") {
-                    const service:services_os_proc = {
-                        processes: processes,
-                        time: Date.now()
+                } else if (type_os === "intr") {
+                    vars.os.interfaces = {
+                        data: node.os.networkInterfaces(),
+                        time: now
                     };
-                    vars.os.processes = processes;
-                    broadcast("dashboard", "dashboard", {
-                        data: service,
+                    callback({
+                        data: vars.os.interfaces,
+                        service: "dashboard-os-intr"
+                    });
+                } else if (type_os === "proc") {
+                    vars.os.processes = {
+                        data: processes,
+                        time: now
+                    };
+                    callback({
+                        data: vars.os.processes,
                         service: "dashboard-os-proc"
                     });
                 } else if (type_os === "serv") {
-                    const service:services_os_service = {
-                        services: services,
-                        time: Date.now()
+                    vars.os.services =  {
+                        data: services,
+                        time: now
                     };
-                    vars.os.services = services;
-                    broadcast("dashboard", "dashboard", {
-                        data: service,
+                    callback({
+                        data: vars.os.services,
                         service: "dashboard-os-serv"
                     });
                 } else if (type_os === "sock") {
-                    const service:services_os_sockets = {
-                        sockets: sockets,
-                        time: Date.now()
+                    vars.os.sockets = {
+                        data: sockets,
+                        time: now
                     };
-                    vars.os.sockets = sockets;
-                    broadcast("dashboard", "dashboard", {
-                        data: service,
-                        service: "dashboard-os-sockets"
+                    callback({
+                        data: vars.os.sockets,
+                        service: "dashboard-os-sock"
                     });
                 }
             },
@@ -563,8 +601,6 @@ const os = function utilities_os(type_os:type_os):void {
             };
         if (type_os === "all" || type_os === undefined || type_os === null) {
             type_os = "all";
-            spawning("serv");
-            spawning("disk");
             if (win32 === true) {
                 spawning("part");
                 spawning("proc");
@@ -578,6 +614,8 @@ const os = function utilities_os(type_os:type_os):void {
                 node.child_process.exec(commands.proc, proc_child);
                 node.child_process.exec(commands.socT, socT_child);
             }
+            spawning("serv");
+            spawning("disk");
         } else if (type_os === "disk") {
             if (win32 === true) {
                 spawning("part");
@@ -587,6 +625,8 @@ const os = function utilities_os(type_os:type_os):void {
                 flags.volu = true;
             }
             spawning("disk");
+        } else if (type_os === "intr") {
+            completed("disk");
         } else if (type_os === "proc") {
             if (win32 === true) {
                 spawning("proc");

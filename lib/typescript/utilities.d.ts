@@ -1,4 +1,6 @@
 
+// cspell: words serv
+
 interface configuration_compose {
     containers: store_compose;
     variables: store_string;
@@ -117,7 +119,7 @@ interface server_meta_item {
 }
 
 interface server_os {
-    interfaces: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
+    interfaces: services_os_intr;
     machine: {
         cpu: {
             arch: string;
@@ -158,10 +160,10 @@ interface server_os {
         uptime: number;
         versions: store_string;
     };
-    processes: os_proc[];
-    services: os_service[];
-    sockets: os_sockets[];
-    storage: os_disk[];
+    processes: services_os_proc;
+    services: services_os_serv;
+    sockets: services_os_sock;
+    storage: services_os_disk;
     time: number;
     user: {
         gid: number;

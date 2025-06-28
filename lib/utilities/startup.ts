@@ -7,6 +7,7 @@ import docker_ps from "../services/docker_ps.js";
 import file from "./file.js";
 import node from "./node.js";
 import os from "./os.js";
+import time from "./time.js";
 import vars from "./vars.js";
 
 const startup = function utilities_startup(callback:() => void):void {
@@ -15,11 +16,12 @@ const startup = function utilities_startup(callback:() => void):void {
             config: false,
             css: false,
             docker: false,
-            html: false
+            html: false,
+            os: false
         },
-        readComplete = function utilities_startup_readComplete(flag:"config"|"css"|"docker"|"html"):void {
+        readComplete = function utilities_startup_readComplete(flag:"config"|"css"|"docker"|"html"|"os"):void {
             flags[flag] = true;
-            if (flags.config === true && flags.css === true && flags.docker === true && flags.html === true) {
+            if (flags.config === true && flags.css === true && flags.docker === true && flags.html === true && flags.os === true) {
                 callback();
             }
         },
@@ -118,7 +120,7 @@ const startup = function utilities_startup(callback:() => void):void {
                         script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
                     vars.dashboard = fileContents.toString()
                         .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
-                        .replace("replace_javascript", `${xterm}const commas=${commas.toString()};(${script}(${core.toString()}));`);
+                        .replace("replace_javascript", `${xterm}const commas=${commas.toString()},dateTime=${dateTime.toString()},time=${time.toString()};(${script}(${core.toString()}));`);
                     readComplete("html");
                 },
                 error_terminate: null,
@@ -170,10 +172,15 @@ const startup = function utilities_startup(callback:() => void):void {
         },
         dockerCallback = function utilities_startup_dockerCallback():void {
             readComplete("docker");
+        },
+        osCallback = function utilities_startup_osCallback():void {
+            readComplete("os");
         };
 
     String.prototype.capitalize = capitalize;
+    Number.prototype.commas = commas;
     Number.prototype.dateTime = dateTime;
+    Number.prototype.time = time;
 
     options("no_color", "text");
     vars.path.project = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}js${vars.sep}`)) + vars.sep;
@@ -185,7 +192,7 @@ const startup = function utilities_startup(callback:() => void):void {
         location: `${vars.path.project}compose.json`,
         no_file: null
     });
-    os("all");
+    os("all", osCallback);
 };
 
 export default startup;

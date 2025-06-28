@@ -1,3 +1,4 @@
+// cspell: words serv
 
 import { Terminal } from "@xterm/xterm";
 
@@ -35,6 +36,7 @@ declare global {
     interface Number {
         bytes: (input?:number) => string;
         bytesLong: () => string;
+        commas: () => string;
         dateTime: (date:boolean) => string;
         time: () => string;
     }
@@ -140,7 +142,7 @@ declare global {
     }
 
     interface module_interfaces {
-        list: (data:NodeJS.Dict<node_os_NetworkInterfaceInfo[]>, time:string) => void;
+        list: (item:services_os_intr) => void;
         nodes: {
             list: HTMLElement;
             update: HTMLElement;
@@ -233,7 +235,7 @@ declare global {
     }
 
     interface module_storage {
-        list: (data:os_disk[], time:string) => void;
+        list: (item:services_os_disk) => void;
         nodes: {
             list: HTMLElement;
             update: HTMLElement;
@@ -272,7 +274,7 @@ declare global {
         socket: socket_object;
         sort_html: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         status: (data_item:socket_data) => void;
-        tables: (module:module_processes|module_services|module_sockets, data:os_proc[]|os_service[]|os_sockets[], time:string) => void;
+        tables: (module:module_processes|module_services|module_sockets, item:services_os_proc|services_os_serv|services_os_sock) => void;
     }
 
     interface module_web {

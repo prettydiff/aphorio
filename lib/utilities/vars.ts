@@ -34,7 +34,10 @@ const gid:number = (typeof process.getgid === "undefined")
         },
         logs: [],
         os: {
-            interfaces: node.os.networkInterfaces(),
+            interfaces: {
+                data: node.os.networkInterfaces(),
+                time: 0
+            },
             machine: {
                 cpu: {
                     arch: node.os.arch(),
@@ -79,10 +82,22 @@ const gid:number = (typeof process.getgid === "undefined")
                 uptime: process.uptime(),
                 versions: process.versions
             },
-            processes: [],
-            services: [],
-            sockets: [],
-            storage: [],
+            processes: {
+                data: [],
+                time: 0
+            },
+            services: {
+                data: [],
+                time: 0
+            },
+            sockets: {
+                data: [],
+                time: 0
+            },
+            storage: {
+                data: [],
+                time: 0
+            },
             time: 0,
             user: {
                 gid: (gid === 0)

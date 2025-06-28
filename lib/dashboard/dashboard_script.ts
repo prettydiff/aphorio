@@ -1,5 +1,4 @@
 
-import commas from "../utilities/commas.js";
 import core from "../browser/core.js";
 // @ts-expect-error - TypeScript claims xterm has no default export, but this is how the documentation says to use it.
 import Terminal from "@xterm/xterm";
@@ -588,8 +587,8 @@ const dashboard = function dashboard():void {
                     }
                 }
             },
-            tables: function dashboard_utilityTables(module:module_processes|module_services|module_sockets, data:os_proc[]|os_service[]|os_sockets[], time:string):void {
-                const len:number = data.length;
+            tables: function dashboard_utilityTables(module:module_processes|module_services|module_sockets, item:services_os_proc|services_os_serv|services_os_sock):void {
+                const len:number = item.data.length;
                 if (len > 0) {
                     const list:HTMLElement = module.nodes.list,
                         table:HTMLElement = list.parentNode,
@@ -614,7 +613,7 @@ const dashboard = function dashboard():void {
                                         : record.time.time().replace(/\.0+$/, ""),
                                 memory:string = (record.memory === null)
                                     ? "0"
-                                    : commas(record.memory),
+                                    : record.memory.commas(),
                                 id:string = String(record.id);
                             cell(tr, record.name, null);
                             cell(tr, id, id);
@@ -624,13 +623,13 @@ const dashboard = function dashboard():void {
                             cell(tr, time, (record.time === null)
                                 ? "0"
                                 : String(record.time));
-                            payload.os.processes = data as os_proc[];
+                            payload.os.processes = item as services_os_proc;
                         },
                         populate_services = function dashboard_utilityTables_populateServices(tr:HTMLElement, record:os_service):void {
                             cell(tr, record.name, null);
                             cell(tr, record.status, null);
                             cell(tr, record.description, null);
-                            payload.os.services = data as os_service[];
+                            payload.os.services = item as services_os_serv;
                         },
                         populate_sockets = function dashboard_utilityTable_populateSockets(tr:HTMLElement, record:os_sockets):void {
                             cell(tr, record.type, null);
@@ -638,7 +637,7 @@ const dashboard = function dashboard():void {
                             cell(tr, String(record["local-port"]), null);
                             cell(tr, record["remote-address"], null);
                             cell(tr, String(record["remote-port"]), null);
-                            payload.os.sockets = data as os_sockets[];
+                            payload.os.sockets = item as services_os_sock;
                         },
                         sort_index:number = Number(table.dataset.column),
                         sort_name:string = (module === network.sockets)
@@ -650,7 +649,7 @@ const dashboard = function dashboard():void {
                     let index:number = 0,
                         row:HTMLElement = null;
                     list.textContent = "";
-                    data.sort(function dashboard_utilityTable_sort(a:os_proc|os_service|os_sockets,b:os_proc|os_service|os_sockets):-1|1 {
+                    item.data.sort(function dashboard_utilityTable_sort(a:os_proc|os_service|os_sockets,b:os_proc|os_service|os_sockets):-1|1 {
                         // @ts-expect-error - inferring types based upon property names across unrelated objects of dissimilar property name is problematic
                         if (a[sort_name as "name"|"type"] as string < b[sort_name as "name"|"type"] as string) {
                             return sort_direction;
@@ -660,28 +659,28 @@ const dashboard = function dashboard():void {
                     do {
                         row = document.createElement("tr");
                         if (module === system.processes) {
-                            populate_process(row, data[index] as os_proc);
+                            populate_process(row, item.data[index] as os_proc);
                         } else if (module === system.services) {
-                            populate_services(row, data[index] as os_service);
+                            populate_services(row, item.data[index] as os_service);
                         } else if (module === network.sockets) {
-                            populate_sockets(row, data[index] as os_sockets);
+                            populate_sockets(row, item.data[index] as os_sockets);
                         }
                         row.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
                         list.appendChild(row);
                         index = index + 1;
                     } while (index < len);
-                    module.nodes.update.textContent = time;
-                    module.nodes.count.textContent = String(data.length);
+                    module.nodes.update.textContent = item.time.dateTime(true);
+                    module.nodes.count.textContent = String(item.data.length);
                     module.nodes.list = table.getElementsByTagName("tbody")[0];
                 }
             }
         },
         network:structure_network = {
             interfaces: {
-                list: function dashboard_interfacesList(data:NodeJS.Dict<node_os_NetworkInterfaceInfo[]>, time:string):void {
+                list: function dashboard_interfacesList(item:services_os_intr):void {
                     const output_old:HTMLElement = network.interfaces.nodes.list,
                         output_new:HTMLElement = document.createElement("ul"),
-                        keys:string[] = Object.keys(data),
+                        keys:string[] = Object.keys(item.data),
                         len:number = keys.length,
                         data_item = function dashboard_interfacesList_dataItem(ul:HTMLElement, item:node_os_NetworkInterfaceInfo, key:"address"|"cidr"|"family"|"internal"|"mac"|"netmask"|"scopeid"):void {
                             if (item[key] !== undefined) {
@@ -698,13 +697,13 @@ const dashboard = function dashboard():void {
                         property = function dashboard_interfacesList_property():void {
                             const ul:HTMLElement = document.createElement("ul");
                             ul.setAttribute("class", "os-interface");
-                            data_item(ul, payload.os.interfaces[keys[index]][index_child], "address");
-                            data_item(ul, payload.os.interfaces[keys[index]][index_child], "netmask");
-                            data_item(ul, payload.os.interfaces[keys[index]][index_child], "family");
-                            data_item(ul, payload.os.interfaces[keys[index]][index_child], "mac");
-                            data_item(ul, payload.os.interfaces[keys[index]][index_child], "internal");
-                            data_item(ul, payload.os.interfaces[keys[index]][index_child], "cidr");
-                            data_item(ul, payload.os.interfaces[keys[index]][index_child], "scopeid");
+                            data_item(ul, item.data[keys[index]][index_child], "address");
+                            data_item(ul, item.data[keys[index]][index_child], "netmask");
+                            data_item(ul, item.data[keys[index]][index_child], "family");
+                            data_item(ul, item.data[keys[index]][index_child], "mac");
+                            data_item(ul, item.data[keys[index]][index_child], "internal");
+                            data_item(ul, item.data[keys[index]][index_child], "cidr");
+                            data_item(ul, item.data[keys[index]][index_child], "scopeid");
                             li.appendChild(ul);
                         };
                     let index:number = 0,
@@ -718,7 +717,7 @@ const dashboard = function dashboard():void {
                             h3 = document.createElement("h3");
                             h3.textContent = keys[index];
                             li.appendChild(h3);
-                            len_child = payload.os.interfaces[keys[index]].length;
+                            len_child = item.data[keys[index]].length;
                             if (len_child > 0) {
                                 index_child = 0;
                                 do {
@@ -732,8 +731,8 @@ const dashboard = function dashboard():void {
                         output_old.parentNode.insertBefore(output_new, output_old);
                         output_old.parentNode.removeChild(output_old);
                         network.interfaces.nodes.list = output_new;
-                        network.interfaces.nodes.update.textContent = time;
-                        payload.os.interfaces = data;
+                        network.interfaces.nodes.update.textContent = item.time.dateTime(true);
+                        payload.os.interfaces = item;
                     }
                 },
                 nodes: {
@@ -1173,7 +1172,7 @@ const dashboard = function dashboard():void {
                 },
                 // server and docker compose instance details
                 details: function dashboard_commonDetails(event:MouseEvent):void {
-                const target:HTMLElement = event.target,
+                    const target:HTMLElement = event.target,
                         classy:string = target.getAttribute("class"),
                         newFlag:boolean = (classy === "server-new" || classy === "compose-container-new"),
                         serverItem:HTMLElement = (newFlag === true)
@@ -1316,7 +1315,7 @@ const dashboard = function dashboard():void {
                                     output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
                                     return `${output.join("\n    ")}\n}`;
                                 }())
-                                : (newFlag === true)
+                                : (newFlag === true || payload.compose === null)
                                     ? ""
                                     : payload.compose.containers[name_server].compose,
                             summary:HTMLElement = document.createElement("div"),
@@ -2027,9 +2026,9 @@ const dashboard = function dashboard():void {
                         index:number = 0;
                     system.os.nodes.update.textContent = time;
                     system.os.nodes.cpu.arch.textContent = payload.os.machine.cpu.arch;
-                    system.os.nodes.cpu.cores.textContent = commas(payload.os.machine.cpu.cores);
+                    system.os.nodes.cpu.cores.textContent = payload.os.machine.cpu.cores.commas();
                     system.os.nodes.cpu.endianness.textContent = payload.os.machine.cpu.endianness;
-                    system.os.nodes.cpu.frequency.textContent = `${commas(payload.os.machine.cpu.frequency)}mhz`;
+                    system.os.nodes.cpu.frequency.textContent = `${payload.os.machine.cpu.frequency.commas()}mhz`;
                     system.os.nodes.cpu.name.textContent = payload.os.machine.cpu.name;
                     system.os.nodes.memory.free.textContent = payload.os.machine.memory.free.bytesLong();
                     system.os.nodes.memory.used.textContent = (payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong();
@@ -2062,11 +2061,11 @@ const dashboard = function dashboard():void {
                     }
                     system.os.nodes.user.homedir.textContent = payload.os.user.homedir;
 
-                    network.interfaces.list(payload.os.interfaces, time);
-                    system.storage.list(payload.os.storage, time);
-                    utility.tables(system.processes, payload.os.processes, time);
-                    utility.tables(system.services, payload.os.services, time);
-                    utility.tables(network.sockets, payload.os.sockets, time);
+                    network.interfaces.list(payload.os.interfaces);
+                    system.storage.list(payload.os.storage);
+                    utility.tables(system.processes, payload.os.processes);
+                    utility.tables(system.services, payload.os.services);
+                    utility.tables(network.sockets, payload.os.sockets);
     
                     // System Path
                     len = payload.os.os.path.length;
@@ -2201,27 +2200,25 @@ const dashboard = function dashboard():void {
                             system.os.nodes.process.memoryPercent.textContent = `${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
                             system.os.nodes.process.memoryV8.textContent = payload.os.process.memory.V8.bytesLong();
                             system.os.nodes.process.memoryExternal.textContent = payload.os.process.memory.external.bytesLong();
-                            network.interfaces.list(data.interfaces, time);
-                            payload.os.interfaces = data.interfaces;
                         };
                     if (data_item.service === "dashboard-os-all") {
                         main();
-                        system.storage.list(data.storage, time);
-                        payload.os.storage = data.storage;
-                        utility.tables(system.processes, data.processes, time);
-                        utility.tables(system.services, data.services, time);
-                        utility.tables(network.sockets, data.sockets, time);
+                        system.storage.list(data.storage);
+                        utility.tables(system.processes, data.processes);
+                        utility.tables(system.services, data.services);
+                        utility.tables(network.sockets, data.sockets);
                     } else if (data_item.service === "dashboard-os-disk") {
-                        system.storage.list(data.storage, time);
-                        payload.os.storage = data.storage;
+                        system.storage.list(data.storage);
+                    } else if (data_item.service === "dashboard-os-intr") {
+                        network.interfaces.list(data.interfaces);
                     } else if (data_item.service === "dashboard-os-main") {
                         main();
                     } else if (data_item.service === "dashboard-os-proc") {
-                        utility.tables(system.processes, data.processes, time);
+                        utility.tables(system.processes, data.processes);
                     } else if (data_item.service === "dashboard-os-serv") {
-                        utility.tables(system.services, data.services, time);
-                    } else if (data_item.service === "dashboard-os-sockets") {
-                        utility.tables(network.sockets, data.sockets, time);
+                        utility.tables(system.services, data.services);
+                    } else if (data_item.service === "dashboard-os-sock") {
+                        utility.tables(network.sockets, data.sockets);
                     }
                 }
             },
@@ -2240,17 +2237,17 @@ const dashboard = function dashboard():void {
                 }
             },
             storage: {
-                list: function dashboard_storageList(data:os_disk[], time:string):void {
-                    if (data === null) {
+                list: function dashboard_storageList(item:services_os_disk):void {
+                    if (item.data === null) {
                         return;
                     }
                     const output_old:HTMLElement = system.storage.nodes.list,
                         output_new:HTMLElement = document.createElement("ul"),
-                        len:number = data.length,
-                        data_item = function dashboard_storageList_dataItem(ul:HTMLElement, item:os_disk_partition[]|string, key:"active"|"bootable"|"bus"|"file_system"|"guid"|"hidden"|"id"|"name"|"partitions"|"path"|"read_only"|"serial"|"size_disk"|"size_free"|"size_total"|"size_used"|"type"):void {
+                        len:number = item.data.length,
+                        data_item = function dashboard_storageList_dataItem(ul:HTMLElement, disk:os_disk_partition[]|string, key:"active"|"bootable"|"bus"|"file_system"|"guid"|"hidden"|"id"|"name"|"partitions"|"path"|"read_only"|"serial"|"size_disk"|"size_free"|"size_total"|"size_used"|"type"):void {
                             const li:HTMLElement = document.createElement("li"),
                                 len:number = (key === "partitions")
-                                    ? data[index].partitions.length
+                                    ? item.data[index].partitions.length
                                     : 0,
                                 strong:HTMLElement = (key === "partitions" && len > 0)
                                     ? document.createElement("h6")
@@ -2270,46 +2267,46 @@ const dashboard = function dashboard():void {
                                 do {
                                     list = document.createElement("ul");
                                     list.setAttribute("class", "os-interface");
-                                    percent = (data[index].partitions[pIndex].size_free === 0 || data[index].partitions[pIndex].size_total === 0)
+                                    percent = (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0)
                                         ? 100
-                                        : Math.round((data[index].partitions[pIndex].size_free / data[index].partitions[pIndex].size_total) * 100);
+                                        : Math.round((item.data[index].partitions[pIndex].size_free / item.data[index].partitions[pIndex].size_total) * 100);
                                     if (percent < 16) {
                                         warn = document.createElement("strong");
                                         p = document.createElement("p");
                                         warn.textContent = "Warning!";
                                         p.appendChild(warn);
-                                        p.appendText(` Disk partition ${String(data[index].partitions[pIndex].id)} only has ${percent}% capacity free.`);
+                                        p.appendText(` Disk partition ${String(item.data[index].partitions[pIndex].id)} only has ${percent}% capacity free.`);
                                         li.appendChild(p);
                                     }
-                                    data_item(list, String(data[index].partitions[pIndex].active), "active");
-                                    data_item(list, String(data[index].partitions[pIndex].bootable), "bootable");
-                                    data_item(list, String(data[index].partitions[pIndex].file_system), "file_system");
-                                    data_item(list, String(data[index].partitions[pIndex].hidden), "hidden");
-                                    data_item(list, String(data[index].partitions[pIndex].id), "id");
-                                    data_item(list, String(data[index].partitions[pIndex].path), "path");
-                                    data_item(list, String(data[index].partitions[pIndex].read_only), "read_only");
-                                    if (data[index].partitions[pIndex].size_free === 0 || data[index].partitions[pIndex].size_total === 0) {
-                                        data_item(list, data[index].partitions[pIndex].size_free.bytesLong(), "size_free");
+                                    data_item(list, String(item.data[index].partitions[pIndex].active), "active");
+                                    data_item(list, String(item.data[index].partitions[pIndex].bootable), "bootable");
+                                    data_item(list, String(item.data[index].partitions[pIndex].file_system), "file_system");
+                                    data_item(list, String(item.data[index].partitions[pIndex].hidden), "hidden");
+                                    data_item(list, String(item.data[index].partitions[pIndex].id), "id");
+                                    data_item(list, String(item.data[index].partitions[pIndex].path), "path");
+                                    data_item(list, String(item.data[index].partitions[pIndex].read_only), "read_only");
+                                    if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
+                                        data_item(list, item.data[index].partitions[pIndex].size_free.bytesLong(), "size_free");
                                     } else {
-                                        data_item(list, `${data[index].partitions[pIndex].size_free.bytesLong()}, ${percent}%`, "size_free");
+                                        data_item(list, `${item.data[index].partitions[pIndex].size_free.bytesLong()}, ${percent}%`, "size_free");
                                     }
-                                    if (data[index].partitions[pIndex].size_total === 0) {
+                                    if (item.data[index].partitions[pIndex].size_total === 0) {
                                         data_item(list, "0", "size_total");
                                     } else {
-                                        data_item(list, `${data[index].partitions[pIndex].size_total.bytesLong()}, 100%`, "size_total");
+                                        data_item(list, `${item.data[index].partitions[pIndex].size_total.bytesLong()}, 100%`, "size_total");
                                     }
-                                    if (data[index].partitions[pIndex].size_free === 0 || data[index].partitions[pIndex].size_total === 0) {
-                                        data_item(list, `${data[index].partitions[pIndex].size_used.bytesLong()}`, "size_used");
+                                    if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
+                                        data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}`, "size_used");
                                     } else {
-                                        data_item(list, `${data[index].partitions[pIndex].size_used.bytesLong()}, ${Math.round((data[index].partitions[pIndex].size_used / data[index].partitions[pIndex].size_total) * 100)}%`, "size_used");
+                                        data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}, ${Math.round((item.data[index].partitions[pIndex].size_used / item.data[index].partitions[pIndex].size_total) * 100)}%`, "size_used");
                                     }
-                                    data_item(list, data[index].partitions[pIndex].type, "type");
+                                    data_item(list, item.data[index].partitions[pIndex].type, "type");
                                     li.appendChild(list);
                                     pIndex = pIndex + 1;
                                 } while (pIndex < len);
                             } else {
                                 if (key === "size_free") {
-                                    const val:string = item as string,
+                                    const val:string = disk as string,
                                         index:number = val.indexOf(", ") + 2,
                                         percent:number = (val === "0")
                                             ? 0
@@ -2322,13 +2319,13 @@ const dashboard = function dashboard():void {
                                         span.appendChild(bad);
                                         ul.setAttribute("class", "os-interface fail-list");
                                     } else {
-                                        span.textContent = item as string;
+                                        span.textContent = disk as string;
                                     }
                                 } else {
                                     if (key === "partitions") {
                                         span.textContent = "none";
                                     } else {
-                                        span.textContent = item as string;
+                                        span.textContent = disk as string;
                                     }
                                 }
                                 li.appendChild(span);
@@ -2347,14 +2344,14 @@ const dashboard = function dashboard():void {
                             li = document.createElement("li");
                             ul = document.createElement("ul");
                             h3 = document.createElement("h3");
-                            h3.textContent = data[index].name;
+                            h3.textContent = item.data[index].name;
                             li.appendChild(h3);
-                            data_item(ul, String(data[index].bus), "bus");
-                            data_item(ul, String(data[index].guid), "guid");
-                            data_item(ul, String(data[index].name), "name");
-                            data_item(ul, String(data[index].serial), "serial");
-                            data_item(ul, data[index].size_disk.bytesLong(), "size_disk");
-                            data_item(ul, data[index].partitions, "partitions");
+                            data_item(ul, String(item.data[index].bus), "bus");
+                            data_item(ul, String(item.data[index].guid), "guid");
+                            data_item(ul, String(item.data[index].name), "name");
+                            data_item(ul, String(item.data[index].serial), "serial");
+                            data_item(ul, item.data[index].size_disk.bytesLong(), "size_disk");
+                            data_item(ul, item.data[index].partitions, "partitions");
                             li.appendChild(ul);
                             output_new.appendChild(li);
                             index = index + 1;
@@ -2363,7 +2360,7 @@ const dashboard = function dashboard():void {
                     output_old.parentNode.insertBefore(output_new, output_old);
                     output_old.parentNode.removeChild(output_old);
                     system.storage.nodes.list = output_new;
-                    system.storage.nodes.update.textContent = time;
+                    system.storage.nodes.update.textContent = item.time.dateTime(true);
                 },
                 nodes: {
                     list: document.getElementById("storage").getElementsByTagName("ul")[0],
@@ -2632,7 +2629,7 @@ const dashboard = function dashboard():void {
     
                             td = document.createElement("td");
                             td.setAttribute("data-raw", String(item[5].size));
-                            td.appendText(commas(item[5].size));
+                            td.appendText(item[5].size.commas());
                             tr.appendChild(td);
     
                             td = document.createElement("td");
@@ -2650,7 +2647,7 @@ const dashboard = function dashboard():void {
     
                             td = document.createElement("td");
                             td.setAttribute("data-raw", String(item[4]));
-                            td.appendText(commas(item[4]));
+                            td.appendText(item[4].commas());
                             tr.appendChild(td);
                             tbody_new.appendChild(tr);
                         };
@@ -2686,15 +2683,15 @@ const dashboard = function dashboard():void {
                     }
                     if (fs.dirs[0][1] === "directory" || fs.search !== null) {
                         const li:HTMLCollectionOf<HTMLElement> = tools.fileSystem.nodes.summary.getElementsByTagName("li");
-                        li[0].getElementsByTagName("strong")[0].textContent = commas(size);
-                        li[1].getElementsByTagName("strong")[0].textContent = commas(fs.dirs.length - 1);
-                        li[2].getElementsByTagName("strong")[0].textContent = commas(summary.block_device);
-                        li[3].getElementsByTagName("strong")[0].textContent = commas(summary.character_device);
-                        li[4].getElementsByTagName("strong")[0].textContent = commas(summary.directory);
-                        li[5].getElementsByTagName("strong")[0].textContent = commas(summary.fifo_pipe);
-                        li[6].getElementsByTagName("strong")[0].textContent = commas(summary.file);
-                        li[7].getElementsByTagName("strong")[0].textContent = commas(summary.socket);
-                        li[8].getElementsByTagName("strong")[0].textContent = commas(summary.symbolic_link);
+                        li[0].getElementsByTagName("strong")[0].textContent = size.commas();
+                        li[1].getElementsByTagName("strong")[0].textContent = (fs.dirs.length - 1).commas();
+                        li[2].getElementsByTagName("strong")[0].textContent = summary.block_device.commas();
+                        li[3].getElementsByTagName("strong")[0].textContent = summary.character_device.commas();
+                        li[4].getElementsByTagName("strong")[0].textContent = summary.directory.commas();
+                        li[5].getElementsByTagName("strong")[0].textContent = summary.fifo_pipe.commas();
+                        li[6].getElementsByTagName("strong")[0].textContent = summary.file.commas();
+                        li[7].getElementsByTagName("strong")[0].textContent = summary.socket.commas();
+                        li[8].getElementsByTagName("strong")[0].textContent = summary.symbolic_link.commas();
                         tools.fileSystem.nodes.summary.style.display = "block";
                     } else {
                         tools.fileSystem.nodes.summary.style.display = "none";
@@ -2790,7 +2787,7 @@ const dashboard = function dashboard():void {
                 receive: function dashboard_hashReceive(data_item:socket_data):void {
                     const data:services_hash = data_item.data as services_hash;
                     tools.hash.nodes.output.value = data.value;
-                    tools.hash.nodes.size.textContent = commas(data.size);
+                    tools.hash.nodes.size.textContent = data.size.commas();
                 },
                 request: function dashboard_hashRequest():void {
                     const option:HTMLOptionElement = tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex] as HTMLOptionElement,
@@ -2859,13 +2856,13 @@ const dashboard = function dashboard():void {
                     // chunked?
                     tools.http.nodes.stats[3].textContent = String(data.stats.chunks.chunked);
                     // chunk count
-                    tools.http.nodes.stats[4].textContent = commas(data.stats.chunks.count);
+                    tools.http.nodes.stats[4].textContent = data.stats.chunks.count.commas();
                     // request header size
                     tools.http.nodes.stats[5].textContent = data.stats.request.size_header.bytesLong();
                     // request body size
                     tools.http.nodes.stats[6].textContent = data.stats.request.size_body.bytesLong();
                     // URI length
-                    tools.http.nodes.stats[7].textContent = `${commas(JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length)} characters`;
+                    tools.http.nodes.stats[7].textContent = `${JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length.commas()} characters`;
                 },
                 request: function dashboard_httpRequest():void {
                     const encryption:boolean = tools.http.nodes.encryption.checked,

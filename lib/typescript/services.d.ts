@@ -1,6 +1,6 @@
 import { IModes } from "@xterm/xterm";
 
-// cspell: words opencontainers
+// cspell: words opencontainers, serv
 
 declare global {
 
@@ -162,7 +162,7 @@ declare global {
     }
 
     interface services_os_all {
-        interfaces: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
+        interfaces: services_os_intr;
         machine: {
             cores: number;
             memory: {
@@ -184,30 +184,35 @@ declare global {
             };
             uptime: number;
         };
-        processes: os_proc[];
-        services: os_service[];
-        sockets: os_sockets[];
-        storage: os_disk[];
+        processes: services_os_proc;
+        services: services_os_serv;
+        sockets: services_os_sock;
+        storage: services_os_disk;
         time: number;
     }
 
     interface services_os_disk {
-        disks: os_disk[];
+        data: os_disk[];
+        time: number;
+    }
+
+    interface services_os_intr {
+        data: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
         time: number;
     }
 
     interface services_os_proc {
-        processes: os_proc[];
+        data: os_proc[];
         time: number;
     }
 
-    interface services_os_service {
-        services: os_service[];
+    interface services_os_serv {
+        data: os_service[];
         time: number;
     }
 
-    interface services_os_sockets {
-        sockets: os_sockets[];
+    interface services_os_sock {
+        data: os_sockets[];
         time: number;
     }
 
