@@ -145,7 +145,8 @@ declare global {
         list: (item:services_os_intr) => void;
         nodes: {
             list: HTMLElement;
-            update: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
         };
     }
 
@@ -204,8 +205,10 @@ declare global {
 
     interface module_processes {
         nodes: {
+            caseSensitive: HTMLInputElement;
             count: HTMLElement;
             filter_column: HTMLSelectElement;
+            filter_count: HTMLElement;
             filter_value: HTMLInputElement;
             filtered: HTMLElement;
             list: HTMLElement;
@@ -224,8 +227,10 @@ declare global {
 
     interface module_services {
         nodes: {
+            caseSensitive: HTMLInputElement;
             count: HTMLElement;
             filter_column: HTMLSelectElement;
+            filter_count: HTMLElement;
             filter_value: HTMLInputElement;
             filtered: HTMLElement;
             list: HTMLElement;
@@ -236,8 +241,10 @@ declare global {
 
     interface module_sockets {
         nodes: {
+            caseSensitive: HTMLInputElement;
             count: HTMLElement;
             filter_column: HTMLSelectElement;
+            filter_count: HTMLElement;
             filter_value: HTMLInputElement;
             filtered: HTMLElement;
             list: HTMLElement;
@@ -250,7 +257,8 @@ declare global {
         list: (item:services_os_disk) => void;
         nodes: {
             list: HTMLElement;
-            update: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
         };
     }
 
@@ -287,6 +295,8 @@ declare global {
         sort_html: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         status: (data_item:socket_data) => void;
         tables: (module:module_processes|module_services|module_sockets, item:services_os_proc|services_os_serv|services_os_sock) => void;
+        table_filter: (event:Event, target?:HTMLInputElement) => void;
+        table_update: (event:MouseEvent) => void;
     }
 
     interface module_web {
@@ -386,6 +396,23 @@ declare global {
             request: string;
         };
         nav: string;
+        table_os: {
+            processes: {
+                filter_column: number;
+                filter_sensitive: boolean;
+                filter_value: string;
+            };
+            services: {
+                filter_column: number;
+                filter_sensitive: boolean;
+                filter_value: string;
+            };
+            sockets: {
+                filter_column: number;
+                filter_sensitive: boolean;
+                filter_value: string;
+            };
+        };
         tables: {
             [key:string]: {
                 col: number;
