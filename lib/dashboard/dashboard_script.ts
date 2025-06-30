@@ -5,10 +5,10 @@ import Terminal from "@xterm/xterm";
 
 // cspell: words bootable, buildx, containerd, PUID, PGID, serv, winget
 const dashboard = function dashboard():void {
-    let payload:transmit_dashboard = null,
-        loaded:boolean = false,
+    let loaded:boolean = false,
         section:type_dashboard_sections = "web";
-    const local:string = localStorage.state,
+    const payload:transmit_dashboard = null,
+        local:string = localStorage.state,
         state:state_store = (local === undefined || local === null)
             ? {
                 dns: {
@@ -280,10 +280,11 @@ const dashboard = function dashboard():void {
                                 "dashboard-http": tools.http.receive,
                                 "dashboard-os-all": system.os.service,
                                 "dashboard-os-disk": system.os.service,
+                                "dashboard-os-intr": system.os.service,
                                 "dashboard-os-main": system.os.service,
                                 "dashboard-os-proc": system.os.service,
                                 "dashboard-os-serv": system.os.service,
-                                "dashboard-os-sockets": system.os.service,
+                                "dashboard-os-sock": system.os.service,
                                 "dashboard-status": utility.status,
                                 "dashboard-websocket-message": tools.websocket.message_receive,
                                 "dashboard-websocket-status": tools.websocket.status

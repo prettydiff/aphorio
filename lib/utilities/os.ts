@@ -542,18 +542,19 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             },
             spawning = function utilities_os_populate_spawning(type:type_os_key):void {
                 const data_callback = function utilities_os_populate_spawning_dataCallback(buf:Buffer):void {
-                        // eslint-disable-next-line no-restricted-syntax
+                        // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                         const child:os_child = this;
-                        chunks[type].push(buf.toString());
+                        chunks[child.type].push(buf.toString());
                     },
                     close = function utilities_os_populate_spawning_close():void {
-                        // eslint-disable-next-line no-restricted-syntax
+                        // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                         const child:os_child = this,
                             type:type_os_key = child.type,
                             win_string:string = "\x1B[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of 2.\x1B[0m\r\n",
                             temp:string = chunks[type].join("").replace(/\s+$/, "").replace(win_string, "");
                         flags[type] = true;
                         spawn[type].kill();
+                        // eslint-disable-next-line no-restricted-syntax
                         try {
                             if (type === "disk") {
                                 if (win32 === true) {

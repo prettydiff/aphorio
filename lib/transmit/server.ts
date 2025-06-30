@@ -8,7 +8,6 @@ import message_handler from "./messageHandler.js";
 import node from "../utilities/node.js";
 import read_certs from "../utilities/read_certs.js";
 import redirection from "./redirection.js";
-import send from "./send.js";
 import server_halt from "../services/server_halt.js";
 import socket_extension from "./socketExtension.js";
 import terminal from "../services/terminal.js";

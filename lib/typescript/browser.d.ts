@@ -1,7 +1,6 @@
 // cspell: words serv
 
 import { Terminal } from "@xterm/xterm";
-import { inherits } from "util";
 
 declare global {
     interface Document {
@@ -302,9 +301,9 @@ declare global {
         sort_column_names: (table:HTMLElement, select:HTMLSelectElement) => void;
         sort_tables: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         status: (data_item:socket_data) => void;
-        tables: (module:module_processes|module_services|module_sockets, item:services_os_proc|services_os_serv|services_os_sock) => void;
         table_filter: (event:Event, target?:HTMLInputElement) => void;
         table_update: (event:MouseEvent) => void;
+        tables: (module:module_processes|module_services|module_sockets, item:services_os_proc|services_os_serv|services_os_sock) => void;
     }
 
     interface module_web {
