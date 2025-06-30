@@ -316,7 +316,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     servers: vars.servers,
                     terminal: vars.terminal
                 },
-                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/let\s+payload\s?=\s?null/, `let payload=${JSON.stringify(payload)}`),
+                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s?=\s?null/, `const payload=${JSON.stringify(payload)}`),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",

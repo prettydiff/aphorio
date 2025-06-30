@@ -3138,7 +3138,7 @@ const dashboard = function dashboard():void {
             },
             terminal: {
                 // https://xtermjs.org/docs/
-                cols: 0,
+                cols: 60,
                 events: {
                     change: function dashboard_terminalChange():void {
                         utility.setState();
@@ -3232,7 +3232,7 @@ const dashboard = function dashboard():void {
                     output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
                     select: document.getElementById("terminal").getElementsByTagName("select")[0] as HTMLSelectElement
                 },
-                rows: 0,
+                rows: 60,
                 shell: function dashboard_terminalShell():void {
                     const encryption:type_encryption = (location.protocol === "http:")
                             ? "open"
@@ -3254,7 +3254,9 @@ const dashboard = function dashboard():void {
                     tools.terminal.item.open(tools.terminal.nodes.output);
                     tools.terminal.item.onKey(tools.terminal.events.input);
                     tools.terminal.item.write("Terminal emulator pending connection...\r\n");
-                    tools.terminal.events.resize();
+                    if (section === "terminal") {
+                        tools.terminal.events.resize();
+                    }
                     // client-side terminal is ready, so alert the backend to initiate a pseudo-terminal
                     tools.terminal.socket = new WebSocket(`${scheme}://${location.host}/?shell=${encodeURIComponent(state.terminal)}&cols=${tools.terminal.cols}&rows=${tools.terminal.rows}`, ["dashboard-terminal"]);
                     tools.terminal.socket.onmessage = tools.terminal.events.firstData;
@@ -3485,7 +3487,7 @@ const dashboard = function dashboard():void {
                     navButtons[index].removeAttribute("class");
                 } while (index > 0);
                 document.getElementById(section).style.display = "block";
-                if (section === "terminal" && (tools.terminal.cols < 10 || tools.terminal.rows < 10)) {
+                if (section === "terminal") {
                     tools.terminal.events.resize();
                 }
                 state.nav = target.dataset.section;
