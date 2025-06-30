@@ -299,8 +299,8 @@ declare global {
         message_send: (data:type_socket_data, service:type_service) => void;
         setState: () => void;
         socket: socket_object;
-        sort_columns: (table:HTMLElement, select:HTMLSelectElement) => void;
-        sort_html: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
+        sort_column_names: (table:HTMLElement, select:HTMLSelectElement) => void;
+        sort_tables: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         status: (data_item:socket_data) => void;
         tables: (module:module_processes|module_services|module_sockets, item:services_os_proc|services_os_serv|services_os_sock) => void;
         table_filter: (event:Event, target?:HTMLInputElement) => void;
@@ -350,6 +350,7 @@ declare global {
     }
 
     interface socket_object {
+        connected: boolean;
         invoke: () => void;
         queue: (message:string) => void;
         queueStore: string[];

@@ -29,6 +29,7 @@ const core = function core(config:config_core):socket_object {
             return socketItem;
         },
         socket:socket_object = {
+            connected: false,
             invoke: socketCall,
             queueStore: [],
             queue: function core_queue(message_item:string):void {

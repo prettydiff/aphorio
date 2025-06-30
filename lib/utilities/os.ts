@@ -212,8 +212,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                             index = index + 1;
                         } while (index < len);
                     }
-                    complete.part = true;
-                    complete.volu = true;
                     completed("disk");
                 },
                 proc: function utilities_os_populate_builderProc():void {
@@ -568,12 +566,16 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                             }
                             if (flags.disk === true && flags.part === true && flags.volu === true && (type === "disk" || type === "part" || type === "volu")) {
                                 builder.disk();
-                            } else {
+                            } else if (type !== "disk" && type !== "part" && type !== "volu") {
                                 builder[type]();
                             }
                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         } catch (e:unknown) {
-                            completed(type);
+                            if (flags.disk === true && flags.part === true && flags.volu === true && (type === "disk" || type === "part" || type === "volu")) {
+                                completed("disk");
+                            } else if (type !== "disk" && type !== "part" && type !== "volu") {
+                                completed(type);
+                            }
                         }
                     };
                 spawn[type] = node.child_process.spawn(commands[type], [], {
