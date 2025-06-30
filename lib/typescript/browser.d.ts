@@ -1,6 +1,7 @@
 // cspell: words serv
 
 import { Terminal } from "@xterm/xterm";
+import { inherits } from "util";
 
 declare global {
     interface Document {
@@ -113,11 +114,13 @@ declare global {
             base64: HTMLInputElement;
             button: HTMLButtonElement;
             digest: HTMLInputElement;
+            file: HTMLInputElement;
             hash: HTMLInputElement;
             hex: HTMLInputElement;
             output: HTMLTextAreaElement;
             size: HTMLElement;
             source: HTMLTextAreaElement;
+            string: HTMLInputElement;
             type: HTMLInputElement;
         };
         receive: (data_item:socket_data) => void;
@@ -142,8 +145,10 @@ declare global {
     }
 
     interface module_interfaces {
+        init: () => void;
         list: (item:services_os_intr) => void;
         nodes: {
+            count: HTMLElement;
             list: HTMLElement;
             update_button: HTMLButtonElement;
             update_text: HTMLElement;
@@ -194,7 +199,8 @@ declare global {
             ppid: HTMLElement;
             uptime: HTMLElement;
         };
-        update: HTMLElement;
+        update_button: HTMLButtonElement;
+        update_text: HTMLElement;
         user: {
             gid: HTMLElement;
             homedir: HTMLElement;
@@ -204,13 +210,13 @@ declare global {
     }
 
     interface module_processes {
+        init: () => void;
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
             filter_column: HTMLSelectElement;
             filter_count: HTMLElement;
             filter_value: HTMLInputElement;
-            filtered: HTMLElement;
             list: HTMLElement;
             update_button: HTMLButtonElement;
             update_text: HTMLElement;
@@ -226,13 +232,13 @@ declare global {
     }
 
     interface module_services {
+        init: () => void;
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
             filter_column: HTMLSelectElement;
             filter_count: HTMLElement;
             filter_value: HTMLInputElement;
-            filtered: HTMLElement;
             list: HTMLElement;
             update_button: HTMLButtonElement;
             update_text: HTMLElement;
@@ -240,13 +246,13 @@ declare global {
     }
 
     interface module_sockets {
+        init: () => void;
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
             filter_column: HTMLSelectElement;
             filter_count: HTMLElement;
             filter_value: HTMLInputElement;
-            filtered: HTMLElement;
             list: HTMLElement;
             update_button: HTMLButtonElement;
             update_text: HTMLElement;
@@ -254,8 +260,10 @@ declare global {
     }
 
     interface module_storage {
+        init: () => void;
         list: (item:services_os_disk) => void;
         nodes: {
+            count: HTMLElement;
             list: HTMLElement;
             update_button: HTMLButtonElement;
             update_text: HTMLElement;
@@ -287,11 +295,11 @@ declare global {
 
     interface module_utility {
         baseline: () => void;
-        init: (data_item:socket_data) => void;
         log: (item:services_dashboard_status) => void;
         message_send: (data:type_socket_data, service:type_service) => void;
         setState: () => void;
         socket: socket_object;
+        sort_columns: (table:HTMLElement, select:HTMLSelectElement) => void;
         sort_html: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         status: (data_item:socket_data) => void;
         tables: (module:module_processes|module_services|module_sockets, item:services_os_proc|services_os_serv|services_os_sock) => void;

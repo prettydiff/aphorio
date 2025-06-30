@@ -53,6 +53,7 @@ const dashboard = function dashboard():void {
             }
             : JSON.parse(local),
         utility:module_utility = {
+            // reset the UI to a near empty baseline
             baseline: function dashboard_utilityBaseline():void {
                 const serverList:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
                     logs_old:HTMLElement = document.getElementById("application-logs").getElementsByTagName("ul")[0],
@@ -80,7 +81,7 @@ const dashboard = function dashboard():void {
 
                     network.interfaces.nodes.list.textContent = "";
                     network.interfaces.nodes.update_text.textContent = "";
-                    system.os.nodes.update.textContent = "";
+                    system.os.nodes.update_text.textContent = "";
                     system.os.nodes.cpu.arch.textContent = "";
                     system.os.nodes.cpu.cores.textContent = "";
                     system.os.nodes.cpu.endianness.textContent = "";
@@ -138,43 +139,7 @@ const dashboard = function dashboard():void {
                     tools.websocket.nodes.message_receive_frame.value = "";
                 }
             },
-            init: function dashboard_utilityInit(data_item:socket_data):void {
-                if (loaded === false) {
-                    payload = data_item.data as transmit_dashboard;
-                    // populate log data
-                    payload.logs.forEach(function dashboard_utilityInit_logsEach(item:services_dashboard_status):void {
-                        utility.log(item);
-                    });
-                    loaded = true;
-                    utility.log({
-                        action: "activate",
-                        configuration: null,
-                        message: "Dashboard browser connection online.",
-                        status: "informational",
-                        time: Date.now(),
-                        type: "log"
-                    });
-
-                    // populate docker containers
-                    servers.compose.init();
-                    // populate server list
-                    servers.web.list();
-                    // populate the OS content
-                    system.os.init();
-                    // assign the dns events
-                    tools.dns.init();
-                    // generate file system output
-                    tools.fileSystem.init();
-                    // populate the hash tool
-                    tools.hash.init();
-                    // populate the http content
-                    tools.http.init();
-                    // start the terminal
-                    tools.terminal.init();
-                    // populate the websocket test tool
-                    tools.websocket.init();
-                }
-            },
+            // populate the log utility
             log: function dashboard_utilityLog(item:services_dashboard_status):void {
                 const li:HTMLElement = document.createElement("li"),
                     timeElement:HTMLElement = document.createElement("time"),
@@ -198,6 +163,7 @@ const dashboard = function dashboard():void {
                 }
                 ul.appendChild(li);
             },
+            // send dashboard service messages
             message_send: function dashboard_utilityMessageSend(data:type_socket_data, service:type_service):void {
                 const message:socket_data = {
                         data: data,
@@ -205,6 +171,7 @@ const dashboard = function dashboard():void {
                     };
                 utility.socket.queue(JSON.stringify(message));
             },
+            // gathers state artifacts and saves state data
             setState: function dashboard_utilitySetState():void {
                 const hashInput:HTMLCollectionOf<HTMLInputElement> = document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input");
                 state.dns.hosts = tools.dns.nodes.hosts.value;
@@ -285,7 +252,6 @@ const dashboard = function dashboard():void {
                                 "dashboard-fileSystem": tools.fileSystem.receive,
                                 "dashboard-hash": tools.hash.receive,
                                 "dashboard-http": tools.http.receive,
-                                "dashboard-payload": utility.init,
                                 "dashboard-os-all": system.os.service,
                                 "dashboard-os-disk": system.os.service,
                                 "dashboard-os-main": system.os.service,
@@ -327,9 +293,57 @@ const dashboard = function dashboard():void {
                         } while (utility.socket.queueStore.length > 0);
                     }
                     utility.message_send(fileRequest, "dashboard-fileSystem");
+                    if (loaded === false) {
+                        // populate log data
+                        payload.logs.forEach(function dashboard_utilityInit_logsEach(item:services_dashboard_status):void {
+                            utility.log(item);
+                        });
+                        loaded = true;
+                        utility.log({
+                            action: "activate",
+                            configuration: null,
+                            message: "Dashboard browser connection online.",
+                            status: "informational",
+                            time: Date.now(),
+                            type: "log"
+                        });
+
+                        servers.web.list();
+                        servers.compose.init();
+                        network.sockets.init();
+                        network.interfaces.init();
+                        system.os.init();
+                        system.processes.init();
+                        system.services.init();
+                        system.storage.init();
+                        tools.terminal.init();
+                        tools.fileSystem.init();
+                        tools.http.init();
+                        tools.websocket.init();
+                        tools.dns.init();
+                        tools.hash.init();
+                    }
                 },
                 type: "dashboard"
             }),
+            // dynamically populates the filter select elements used for filtering tables
+            sort_columns: function dashboard_utilitySortColumns(table:HTMLElement, select:HTMLSelectElement):void {
+                const th:HTMLCollectionOf<HTMLElement> = table.getElementsByTagName("th"),
+                    len:number = th.length;
+                let index:number = 0,
+                    option:HTMLElement = document.createElement("option");
+                option.textContent = "All";
+                select.appendChild(option);
+                if (len > 0) {
+                    do {
+                        option = document.createElement("option");
+                        option.textContent = th[index].getElementsByTagName("button")[0].textContent;
+                        select.appendChild(option);
+                        index = index + 1;
+                    } while (index < len);
+                }
+            },
+            // sort data from html tables
             sort_html: function dashboard_utilitySortHTML(event:MouseEvent, table?:HTMLElement, heading_index?:number):void {
                 const target:HTMLElement = (event === null)
                         ? null
@@ -434,6 +448,7 @@ const dashboard = function dashboard():void {
                     tbody_old.parentNode.removeChild(tbody_old);
                 }
             },
+            // living status updates for servers, containers, and their sockets
             status: function dashboard_utilityStatus(data_item:socket_data):void {
                 const data:services_dashboard_status = data_item.data as services_dashboard_status,
                     socket_destroy = function dashboard_utilityStatus_socketDestroy(hash:string):void {
@@ -615,6 +630,7 @@ const dashboard = function dashboard():void {
                     }
                 }
             },
+            // populate large data tables
             tables: function dashboard_utilityTables(module:module_processes|module_services|module_sockets, item:services_os_proc|services_os_serv|services_os_sock):void {
                 const len:number = item.data.length;
                 if (len > 0) {
@@ -703,6 +719,7 @@ const dashboard = function dashboard():void {
                     utility.table_filter(null, module.nodes.filter_value);
                 }
             },
+            // filter large data tables
             table_filter: function dashboard_utilityTableFilter(event:Event, target?:HTMLInputElement):void {
                 if (event !== null) {
                     const key:KeyboardEvent = event as KeyboardEvent;
@@ -763,10 +780,15 @@ const dashboard = function dashboard():void {
                     module.nodes.filter_count.textContent = String(count);
                 }
             },
+            // request updated table data
             table_update: function dashboard_utilityTableUpdate(event:MouseEvent):void {}
         },
         network:structure_network = {
             interfaces: {
+                init: function dashboard_interfaceInit():void {
+                    network.interfaces.nodes.update_button.onclick = utility.table_update;
+                    network.interfaces.list(payload.os.interfaces);
+                },
                 list: function dashboard_interfacesList(item:services_os_intr):void {
                     const output_old:HTMLElement = network.interfaces.nodes.list,
                         output_new:HTMLElement = document.createElement("ul"),
@@ -826,21 +848,34 @@ const dashboard = function dashboard():void {
                     }
                 },
                 nodes: {
+                    count: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
                     list: document.getElementById("interfaces").getElementsByTagName("ul")[0],
-                    update_text: document.getElementById("interfaces").getElementsByTagName("p")[1].getElementsByTagName("em")[0]
+                    update_button: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1]
                 }
             },
             sockets: {
+                init: function dashboard_socketsInit():void {
+                    network.sockets.nodes.filter_column.selectedIndex = state.table_os.sockets.filter_column;
+                    network.sockets.nodes.caseSensitive.checked = state.table_os.sockets.filter_sensitive;
+                    network.sockets.nodes.filter_value.value = state.table_os.sockets.filter_value;
+                    network.sockets.nodes.filter_column.onchange = utility.table_filter;
+                    network.sockets.nodes.caseSensitive.onclick = utility.setState;
+                    network.sockets.nodes.filter_value.onblur = utility.table_filter;
+                    network.sockets.nodes.filter_value.onkeyup = utility.table_filter;
+                    network.sockets.nodes.update_button.onclick = utility.table_update;
+                    utility.sort_columns(network.sockets.nodes.list.parentNode, network.sockets.nodes.filter_column);
+                    utility.tables(network.sockets, payload.os.sockets);
+                },
                 nodes: {
                     caseSensitive: document.getElementById("sockets").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
-                    count: document.getElementById("sockets").getElementsByClassName("section")[2].getElementsByTagName("p")[0].getElementsByTagName("em")[0],
+                    count: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
                     filter_column: document.getElementById("sockets").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("sockets").getElementsByClassName("section")[2].getElementsByTagName("p")[1].getElementsByTagName("em")[0],
+                    filter_count: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
                     filter_value: document.getElementById("sockets").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
-                    filtered: document.getElementById("sockets").getElementsByClassName("section")[2].getElementsByTagName("p")[1].getElementsByTagName("em")[0],
                     list: document.getElementById("sockets").getElementsByClassName("section")[2].getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("sockets").getElementsByClassName("table-filters")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("sockets").getElementsByClassName("section")[2].getElementsByTagName("p")[2].getElementsByTagName("em")[0]
+                    update_button: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[2]
                 }
             }
         },
@@ -2120,7 +2155,7 @@ const dashboard = function dashboard():void {
                         span:HTMLElement = null,
                         len:number = 0,
                         index:number = 0;
-                    system.os.nodes.update.textContent = time;
+                    system.os.nodes.update_text.textContent = time;
                     system.os.nodes.cpu.arch.textContent = payload.os.machine.cpu.arch;
                     system.os.nodes.cpu.cores.textContent = payload.os.machine.cpu.cores.commas();
                     system.os.nodes.cpu.endianness.textContent = payload.os.machine.cpu.endianness;
@@ -2156,12 +2191,7 @@ const dashboard = function dashboard():void {
                         system.os.nodes.user.uid.textContent = String(payload.os.user.uid);
                     }
                     system.os.nodes.user.homedir.textContent = payload.os.user.homedir;
-
-                    network.interfaces.list(payload.os.interfaces);
-                    system.storage.list(payload.os.storage);
-                    utility.tables(system.processes, payload.os.processes);
-                    utility.tables(system.services, payload.os.services);
-                    utility.tables(network.sockets, payload.os.sockets);
+                    system.os.nodes.update_button.onclick = utility.table_update;
     
                     // System Path
                     len = payload.os.os.path.length;
@@ -2265,7 +2295,8 @@ const dashboard = function dashboard():void {
                                 ppid: item("process", 11),
                                 uptime: item("process", 12)
                             },
-                            update: document.getElementById("os").getElementsByTagName("p")[2].getElementsByTagName("em")[0],
+                            update_button: document.getElementById("os").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
+                            update_text: document.getElementById("os").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
                             user: {
                                 gid: item("user", 0),
                                 uid: item("user", 1),
@@ -2279,7 +2310,7 @@ const dashboard = function dashboard():void {
                     const data:services_os_all = data_item.data as services_os_all,
                         time:string = data.time.dateTime(true),
                         main = function dashboard_osService_main():void {
-                            system.os.nodes.update.textContent = time;
+                            system.os.nodes.update_text.textContent = time;
                             payload.os.machine.memory = data.machine.memory;
                             payload.os.os.uptime = data.os.uptime;
                             payload.os.process.cpuSystem = data.process.cpuSystem;
@@ -2320,32 +2351,58 @@ const dashboard = function dashboard():void {
                 }
             },
             processes: {
+                init: function dashboard_processesInit():void {
+                    system.processes.nodes.filter_column.selectedIndex = state.table_os.processes.filter_column;
+                    system.processes.nodes.caseSensitive.checked = state.table_os.processes.filter_sensitive;
+                    system.processes.nodes.filter_value.value = state.table_os.processes.filter_value;
+                    system.processes.nodes.filter_column.onchange = utility.table_filter;
+                    system.processes.nodes.caseSensitive.onclick = utility.setState;
+                    system.processes.nodes.filter_value.onblur = utility.table_filter;
+                    system.processes.nodes.filter_value.onkeyup = utility.table_filter;
+                    system.processes.nodes.update_button.onclick = utility.table_update;
+                    utility.sort_columns(system.processes.nodes.list.parentNode, system.processes.nodes.filter_column);
+                    utility.tables(system.processes, payload.os.processes);
+                },
                 nodes: {
                     caseSensitive: document.getElementById("processes").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
-                    count: document.getElementById("processes").getElementsByClassName("section")[0].getElementsByTagName("p")[0].getElementsByTagName("em")[0],
+                    count: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
                     filter_column: document.getElementById("processes").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("processes").getElementsByClassName("section")[0].getElementsByTagName("p")[1].getElementsByTagName("em")[0],
+                    filter_count: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
                     filter_value: document.getElementById("processes").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
-                    filtered: document.getElementById("processes").getElementsByClassName("section")[0].getElementsByTagName("p")[1].getElementsByTagName("em")[0],
                     list: document.getElementById("processes").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("processes").getElementsByClassName("table-filters")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("processes").getElementsByClassName("section")[0].getElementsByTagName("p")[2].getElementsByTagName("em")[0]
+                    update_button: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[2]
                 }
             },
             services: {
+                init: function dashboard_servicesInit():void {
+                    system.services.nodes.filter_column.selectedIndex = state.table_os.services.filter_column;
+                    system.services.nodes.caseSensitive.checked = state.table_os.services.filter_sensitive;
+                    system.services.nodes.filter_value.value = state.table_os.services.filter_value;
+                    system.services.nodes.filter_column.onchange = utility.table_filter;
+                    system.services.nodes.caseSensitive.onclick = utility.setState;
+                    system.services.nodes.filter_value.onblur = utility.table_filter;
+                    system.services.nodes.filter_value.onkeyup = utility.table_filter;
+                    system.services.nodes.update_button.onclick = utility.table_update;
+                    utility.sort_columns(system.services.nodes.list.parentNode, system.services.nodes.filter_column);
+                    utility.tables(system.services, payload.os.services);
+                },
                 nodes: {
                     caseSensitive: document.getElementById("services").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
-                    count: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("p")[0].getElementsByTagName("em")[0],
+                    count: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
                     filter_column: document.getElementById("services").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("p")[1].getElementsByTagName("em")[0],
+                    filter_count: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
                     filter_value: document.getElementById("services").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
-                    filtered: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("p")[1].getElementsByTagName("em")[0],
                     list: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("services").getElementsByClassName("table-filters")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("p")[2].getElementsByTagName("em")[0]
+                    update_button: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1]
                 }
             },
             storage: {
+                init: function dashboard_storageInit():void {
+                    system.storage.nodes.update_button.onclick = utility.table_update;
+                    system.storage.list(payload.os.storage);
+                },
                 list: function dashboard_storageList(item:services_os_disk):void {
                     if (item.data === null) {
                         return;
@@ -2472,8 +2529,10 @@ const dashboard = function dashboard():void {
                     system.storage.nodes.update_text.textContent = item.time.dateTime(true);
                 },
                 nodes: {
+                    count: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
                     list: document.getElementById("storage").getElementsByTagName("ul")[0],
-                    update_text: document.getElementById("storage").getElementsByTagName("p")[1].getElementsByTagName("em")[0]
+                    update_button: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0]
                 }
             }
         },
@@ -2482,6 +2541,8 @@ const dashboard = function dashboard():void {
                 init: function dashboard_dnsInit():void {
                     tools.dns.nodes.resolve.onclick = tools.dns.resolve;
                     tools.dns.nodes.output.value = "";
+                    tools.dns.nodes.hosts.value = state.dns.hosts;
+                    tools.dns.nodes.types.value = state.dns.types;
                 },
                 nodes: {
                     hosts: document.getElementById("dns").getElementsByTagName("input")[0],
@@ -2649,6 +2710,8 @@ const dashboard = function dashboard():void {
                     tools.fileSystem.nodes.search.onblur = tools.fileSystem.send;
                     tools.fileSystem.nodes.path.onkeydown = tools.fileSystem.key;
                     tools.fileSystem.nodes.search.onkeydown = tools.fileSystem.key;
+                    tools.fileSystem.nodes.path.value = state.fileSystem.path;
+                    tools.fileSystem.nodes.search.value = state.fileSystem.search;
                 },
                 key: function dashboard_fileSystemKey(event:KeyboardEvent):void {
                     if (event.key.toLowerCase() === "enter") {
@@ -2867,16 +2930,33 @@ const dashboard = function dashboard():void {
                     const len:number = payload.hashes.length;
                     let index:number = 0,
                         option:HTMLElement = null;
-                    tools.hash.nodes.button.onclick = tools.hash.request;
                     do {
                         option = document.createElement("option");
                         option.textContent = payload.hashes[index];
-                        if (payload.hashes[index] === "sha3-512") {
+                        if (state.hash.algorithm === payload.hashes[index] || (state.hash.algorithm === "" && payload.hashes[index] === "sha3-512")) {
                             option.setAttribute("selected", "selected");
                         }
                         tools.hash.nodes.algorithm.appendChild(option);
                         index = index + 1;
                     } while (index < len);
+                    if (state.hash.hashFunction === "hash") {
+                        tools.hash.nodes.hash.checked = true;
+                    } else {
+                        tools.hash.nodes.base64.checked = true;
+                    }
+                    if (state.hash.type === "string") {
+                        tools.hash.nodes.string.checked = true;
+                    } else {
+                        tools.hash.nodes.file.checked = true;
+                    }
+                    if (state.hash.digest === "hex") {
+                        tools.hash.nodes.hex.checked = true;
+                    } else {
+                        tools.hash.nodes.digest.checked = true;
+                    }
+
+                    tools.hash.nodes.source.value = state.hash.source;
+                    tools.hash.nodes.button.onclick = tools.hash.request;
                     tools.hash.nodes.base64.onclick = tools.hash.toggle_mode;
                     tools.hash.nodes.hash.onclick = tools.hash.toggle_mode;
                     tools.hash.toggle_mode(null);
@@ -2886,11 +2966,13 @@ const dashboard = function dashboard():void {
                     base64: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[1],
                     button: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("button")[0],
                     digest: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[5],
+                    file: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[3],
                     hash: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[0],
                     hex: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[4],
                     output: document.getElementById("hash").getElementsByClassName("form")[1].getElementsByTagName("textarea")[0],
                     size: document.getElementById("hash").getElementsByClassName("form")[1].getElementsByTagName("strong")[0],
                     source: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0],
+                    string: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[2],
                     type: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[3]
                 },
                 receive: function dashboard_hashReceive(data_item:socket_data):void {
@@ -2940,6 +3022,12 @@ const dashboard = function dashboard():void {
                     tools.http.nodes.responseBody.value = "";
                     tools.http.nodes.responseHeaders.value = "";
                     tools.http.nodes.responseURI.value = "";
+                    if (state.http.encryption === true) {
+                        document.getElementById("http").getElementsByTagName("input")[1].checked =  true;
+                    } else {
+                        document.getElementById("http").getElementsByTagName("input")[0].checked =  true;
+                    }
+                    tools.http.nodes.request.value = state.http.request;
                 },
                 nodes: {
                     encryption: document.getElementById("http").getElementsByTagName("input")[1],
@@ -3382,41 +3470,36 @@ const dashboard = function dashboard():void {
             },
             th:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("th"),
             expand:HTMLCollectionOf<HTMLButtonElement> = document.getElementsByClassName("expand") as HTMLCollectionOf<HTMLButtonElement>,
-            hashInputs:HTMLCollectionOf<HTMLInputElement> = document.getElementById("hash").getElementsByTagName("input"),
-            hashOptions:HTMLCollectionOf<HTMLOptionElement> = document.getElementById("hash").getElementsByTagName("option"),
             table_keys:string[] = (state.tables === undefined)
                 ? []
                 : Object.keys(state.tables);
-        let index:number = hashOptions.length,
+        let index:number = 0,
             button:HTMLElement = null,
-            table_filters:HTMLCollectionOf<Element> = document.getElementsByClassName("table-filters"),
-            th_list:HTMLCollectionOf<Element> = null,
-            select:HTMLElement = null,
-            option:HTMLElement = null,
-            th_index:number = 0,
-            th_len:number = 0,
             table_key:string[] = null,
             table:HTMLElement = null;
 
-        // invoke web socket connection to application
-        utility.socket.invoke();
-
-        // restore state
-        tools.dns.nodes.hosts.value = state.dns.hosts;
-        tools.dns.nodes.types.value = state.dns.types;
-        tools.fileSystem.nodes.path.value = state.fileSystem.path;
-        tools.fileSystem.nodes.search.value = state.fileSystem.search;
-
-
-        if (state.hash.algorithm !== "sha3-512" && index > 0) {
-            do {
-                index = index - 1;
-                if (hashOptions[index].textContent === state.hash.algorithm) {
-                    hashOptions[index].selected = true;
-                    break;
+        // restore state of table filter controls
+        if (state.table_os === undefined) {
+            state.table_os = {
+                processes: {
+                    filter_column: 0,
+                    filter_sensitive: true,
+                    filter_value: ""
+                },
+                services: {
+                    filter_column: 0,
+                    filter_sensitive: true,
+                    filter_value: ""
+                },
+                sockets: {
+                    filter_column: 0,
+                    filter_sensitive: true,
+                    filter_value: ""
                 }
-            } while (index > 0);
+            };
         }
+
+        // restore table sorting direction and column
         index = table_keys.length;
         if (index > 0) {
             do {
@@ -3429,85 +3512,18 @@ const dashboard = function dashboard():void {
                 }
             } while (index > 0);
         }
-        index = table_filters.length;
-        if (index > 0) {
-            // populate events and select lists of data tables with filters
-            do {
-                index = index - 1;
-                th_index = 0;
-                th_list = table_filters[index].parentNode.getElementsByTagName("th");
-                th_len = th_list.length;
-                select = table_filters[index].getElementsByTagName("select")[0];
-                option = document.createElement("option");
-                option.textContent = "All";
-                select.appendChild(option);
-                do {
-                    option = document.createElement("option");
-                    option.textContent = th_list[th_index].getElementsByTagName("button")[0].textContent;
-                    select.appendChild(option);
-                    th_index = th_index + 1;
-                } while (th_index < th_len);
-                select.onchange = utility.table_filter;
-                table_filters[index].getElementsByTagName("input")[1].onclick = utility.setState;
-                table_filters[index].getElementsByTagName("input")[0].onblur = utility.table_filter;
-                table_filters[index].getElementsByTagName("input")[0].onkeyup = utility.table_filter;
-                table_filters[index].getElementsByTagName("button")[0].onclick = utility.table_update;
-            } while (index > 0);
 
-            // restore state of table filter controls
-            if (state.table_os === undefined) {
-                state.table_os = {
-                    processes: {
-                        filter_column: 0,
-                        filter_sensitive: true,
-                        filter_value: ""
-                    },
-                    services: {
-                        filter_column: 0,
-                        filter_sensitive: true,
-                        filter_value: ""
-                    },
-                    sockets: {
-                        filter_column: 0,
-                        filter_sensitive: true,
-                        filter_value: ""
-                    }
-                };
-            } else {
-                system.processes.nodes.filter_column.selectedIndex = state.table_os.processes.filter_column;
-                system.processes.nodes.caseSensitive.checked = state.table_os.processes.filter_sensitive;
-                system.processes.nodes.filter_value.value = state.table_os.processes.filter_value;
-                system.services.nodes.filter_column.selectedIndex = state.table_os.services.filter_column;
-                system.services.nodes.caseSensitive.checked = state.table_os.services.filter_sensitive;
-                system.services.nodes.filter_value.value = state.table_os.services.filter_value;
-                network.sockets.nodes.filter_column.selectedIndex = state.table_os.sockets.filter_column;
-                network.sockets.nodes.caseSensitive.checked = state.table_os.sockets.filter_sensitive;
-                network.sockets.nodes.filter_value.value = state.table_os.sockets.filter_value;
+        // table header sort buttons
+        index = th.length;
+        do {
+            index = index - 1;
+            button = th[index].getElementsByTagName("button")[0];
+            if (button !== undefined) {
+                button.onclick = utility.sort_html;
             }
+        } while (index > 0);
 
-        }
-        tools.hash.nodes.source.value = state.hash.source;
-        if (state.hash.hashFunction === "hash") {
-            hashInputs[0].checked = true;
-        } else {
-            hashInputs[1].checked = true;
-        }
-        if (state.hash.type === "string") {
-            hashInputs[2].checked = true;
-        } else {
-            hashInputs[3].checked = true;
-        }
-        if (state.hash.digest === "hex") {
-            hashInputs[4].checked = true;
-        } else {
-            hashInputs[5].checked = true;
-        }
-        if (state.http.encryption === true) {
-            document.getElementById("http").getElementsByTagName("input")[1].checked =  true;
-        } else {
-            document.getElementById("http").getElementsByTagName("input")[0].checked =  true;
-        }
-        tools.http.nodes.request.value = state.http.request;
+        // set active tab from state
         if (state.nav !== "servers") {
             index = navButtons.length;
             do {
@@ -3522,16 +3538,6 @@ const dashboard = function dashboard():void {
             document.getElementById(state.nav).style.display = "block";
         }
 
-        // table header sort buttons
-        index = th.length;
-        do {
-            index = index - 1;
-            button = th[index].getElementsByTagName("button")[0];
-            if (button !== undefined) {
-                button.onclick = utility.sort_html;
-            }
-        } while (index > 0);
-
         // expand buttons
         index = expand.length;
         if (index > 0) {
@@ -3542,6 +3548,9 @@ const dashboard = function dashboard():void {
                 }
             } while (index > 0);
         }
+
+        // invoke web socket connection to application
+        utility.socket.invoke();
     }
 };
 

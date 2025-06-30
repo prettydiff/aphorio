@@ -175,22 +175,6 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                                         shell: params[0].split("=")[1].replace(/%20/g, " ")
                                                     };
                                                 terminal.shell(socket as websocket_pty, term);
-                                            } else if (server_name === "dashboard" && type === "dashboard") {
-                                                const dashboard:transmit_dashboard = {
-                                                    compose: vars.compose,
-                                                    hashes: vars.hashes,
-                                                    logs: vars.logs,
-                                                    os: vars.os,
-                                                    path: vars.path,
-                                                    platform: process.platform,
-                                                    ports: vars.system_ports,
-                                                    servers: vars.servers,
-                                                    terminal: vars.terminal
-                                                };
-                                                send({
-                                                    data: dashboard,
-                                                    service: "dashboard-payload"
-                                                }, socket, 3);
                                             }
                                         },
                                         terminalFlag:boolean = (server_name === "dashboard" && type === "dashboard-terminal"),

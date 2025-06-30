@@ -305,7 +305,18 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
     if (server_name === "dashboard") {
         if (decoded === "") {
             const list:string = headerList.join("\n"),
-                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``),
+                payload:transmit_dashboard = {
+                    compose: vars.compose,
+                    hashes: vars.hashes,
+                    logs: vars.logs,
+                    os: vars.os,
+                    path: vars.path,
+                    platform: process.platform,
+                    ports: vars.system_ports,
+                    servers: vars.servers,
+                    terminal: vars.terminal
+                },
+                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/let\s+payload\s?=\s?null/, `let payload=${JSON.stringify(payload)}`),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",
