@@ -170,6 +170,7 @@ interface server_os {
         homedir: string;
         uid: number;
     };
+    users: services_os_user;
 }
 
 interface server_os_memoryUsage {

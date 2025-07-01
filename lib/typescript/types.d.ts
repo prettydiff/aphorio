@@ -29,8 +29,8 @@ type type_halt_action = "deactivate" | "destroy" | "modify";
 type type_hash_input = "direct" | "file";
 type type_http_method = "connect" | "delete" | "get" | "head" | "post" | "put";
 type type_keys = "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "Backspace" | "c" | "Delete" | "Enter" | "v";
-type type_os = "all" | "disk" | "intr" | "main" | "proc" | "serv" | "sock";
-type type_os_key = "disk" | "part" | "proc" | "serv" | "socT" | "socU" | "volu";
+type type_os = "all" | "disk" | "intr" | "main" | "proc" | "serv" | "sock" | "user";
+type type_os_key = "disk" | "part" | "proc" | "serv" | "socT" | "socU" | "user" | "volu";
 type type_paths = "storage" | "web_root";
 type type_search = "fragment" | "negation" | "regex";
 type type_selector = "class" | "id" | "tag";
@@ -52,8 +52,8 @@ type type_server_property = "block_list" | "domain_local" | "encryption" | "http
 // * dashboard-os-sock           - services_os_sockets       - only the socket information of dashboard-os-all
 // * dashboard-server            - services_dashboard_status - A single server's configuration data plus an action to perform
 // * dashboard-status            - services_dashboard_status - Typically conveys log entries
-type type_service = "dashboard-compose-container" | "dashboard-compose-variables" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-os-all" | "dashboard-os-disk" | "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-sock" | "dashboard-server" | "dashboard-status" | "dashboard-terminal-resize" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "youtube-download-status";
-type type_socket_data = services_action_compose | services_action_server | services_dashboard_status | services_dashboard_terminal | services_dns_input | services_dns_output | services_docker_compose | services_fileSystem | services_hash | services_http_test | services_os_all | services_os_disk | services_os_intr | services_os_proc | services_os_serv | services_os_sock | services_processKill | services_terminal_resize | services_websocket_handshake | services_websocket_message | services_websocket_status | services_youtubeDownload | services_youtubeStatus | store_string | string[] | transmit_dashboard;
+type type_service = "dashboard-compose-container" | "dashboard-compose-variables" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-os-all" | "dashboard-os-disk" | "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-sock" | "dashboard-os-user" | "dashboard-server" | "dashboard-status" | "dashboard-terminal-resize" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "youtube-download-status";
+type type_socket_data = services_action_compose | services_action_server | services_dashboard_status | services_dashboard_terminal | services_dns_input | services_dns_output | services_docker_compose | services_fileSystem | services_hash | services_http_test | services_os_all | services_os_disk | services_os_intr | services_os_proc | services_os_serv | services_os_sock | services_os_user | services_processKill | services_terminal_resize | services_websocket_handshake | services_websocket_message | services_websocket_status | services_youtubeDownload | services_youtubeStatus | store_string | string[] | transmit_dashboard;
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";

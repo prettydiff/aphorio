@@ -90,6 +90,7 @@ interface os_proc {
     memory: number;
     name: string;
     time: number;
+    user: string;
 }
 
 interface os_proc_windows {
@@ -97,6 +98,7 @@ interface os_proc_windows {
     Id: number;
     Name: string;
     PM: number;
+    UserName: string;
 }
 
 interface os_raw {
@@ -106,6 +108,7 @@ interface os_raw {
     serv: os_service_posix[] | os_service_windows[];
     socT: os_sockets_tcp_windows[] | string[];
     socU: os_sockets_udp_windows[];
+    user: os_user_windows[] | string[];
     volu: os_disk_windows_volume[];
 }
 
@@ -146,4 +149,17 @@ interface os_sockets_tcp_windows {
 interface os_sockets_udp_windows {
     LocalAddress: string;
     LocalPort: number;
+}
+
+interface os_user {
+    lastLogin: number;
+    name: string;
+    proc: number;
+    uid: number;
+}
+
+interface os_user_windows {
+    LastLogon: string;
+    Name: string;
+    SID: string;
 }

@@ -292,6 +292,20 @@ declare global {
         socket: WebSocket;
     }
 
+    interface module_users {
+        init: () => void;
+        nodes: {
+            caseSensitive: HTMLInputElement;
+            count: HTMLElement;
+            filter_column: HTMLSelectElement;
+            filter_count: HTMLElement;
+            filter_value: HTMLInputElement;
+            list: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
+        };
+    }
+
     interface module_utility {
         baseline: () => void;
         log: (item:services_dashboard_status) => void;
@@ -303,7 +317,7 @@ declare global {
         status: (data_item:socket_data) => void;
         table_filter: (event:Event, target?:HTMLInputElement) => void;
         table_update: (event:MouseEvent) => void;
-        tables: (module:module_processes|module_services|module_sockets, item:services_os_proc|services_os_serv|services_os_sock) => void;
+        tables: (module:module_processes|module_services|module_sockets|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user) => void;
     }
 
     interface module_web {
@@ -372,6 +386,7 @@ declare global {
         processes: module_processes;
         services: module_services;
         storage: module_storage;
+        users: module_users;
     }
 
     interface structure_tools {
@@ -416,6 +431,11 @@ declare global {
                 filter_value: string;
             };
             sockets: {
+                filter_column: number;
+                filter_sensitive: boolean;
+                filter_value: string;
+            };
+            users: {
                 filter_column: number;
                 filter_sensitive: boolean;
                 filter_value: string;

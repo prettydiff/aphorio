@@ -35,7 +35,7 @@
         </div>
         <div>
             <h3>System</h3>
-            <ul><li><button data-section="os">OS/Machine</button></li><li><button data-section="processes">Processes</button></li><li><button data-section="services">Services</button></li><li><button data-section="storage">Storage</button></li></ul>
+            <ul><li><button data-section="os">OS/Machine</button></li><li><button data-section="processes">Processes</button></li><li><button data-section="services">Services</button></li><li><button data-section="storage">Storage</button></li><li><button data-section="users">Users</button></li></ul>
         </div>
         <div>
             <h3>Tools</h3>
@@ -46,7 +46,6 @@
             <ul><li><button data-section="application-logs">Application Logs</button></li><li><button data-section="help">Help</button></li><li><button data-section="faq">FAQ</button></li></ul>
         </div>
     </nav>
-    <span class="clear"></span>
     <main>
         <div class="tab" id="application-logs">
             <h2>Logs</h2>
@@ -552,88 +551,91 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="interfaces">
             <h2>Network Interfaces</h2>
             <p class="tab-description">A list of network interfaces and their addressing information.</p>
-            <div class="table-stats">
-                <p class="update-button"><button>Update List</button></p>
-                <p><span>Total Interfaces</span> <em></em></p>
-                <p><span>Last Updated</span> <em></em></p>
+            <div class="section">
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Interfaces</span> <em></em></p>
+                    <p><span>Last Updated</span> <em></em></p>
+                </div>
+                <ul></ul>
             </div>
-            <ul></ul>
         </div>
         <div class="tab" id="os">
             <h2>OS/Machine</h2>
             <p class="tab-description">A list of descriptive and statistical data about the application's executing environment.</p>
-            <div class="table-stats">
-                <p class="update-button"><button>Update List</button></p>
-                <p><span>Last Updated</span> <em></em></p>
-            </div>
             <div class="section">
-                <h3>Machine</h3>
-                <h4>CPU</h4>
-                <ul>
-                    <li data-name="arch"><strong>Architecture</strong><span></span></li>
-                    <li data-name="cores"><strong>Logical CPU Cores</strong><span></span></li>
-                    <li data-name="endianness"><strong>Endianness</strong><span></span></li>
-                    <li data-name="frequency"><strong>Frequency</strong><span></span></li>
-                    <li data-name="name"><strong>Name</strong><span></span></li>
-                </ul>
-                <h4>Memory</h4>
-                <ul>
-                    <li data-name="memoryFree"><strong>Free</strong><span></span></li>
-                    <li><strong>Used</strong><span></span></li>
-                    <li data-name="memoryFree"><strong>Total</strong><span></span></li>
-                </ul>
-            </div>
-            <div class="section">
-                <h3>Operating System</h3>
-                <ul>
-                    <li data-name="hostname"><strong>Hostname</strong><span></span></li>
-                    <li data-name="name"><strong>Name</strong><span></span></li>
-                    <li data-name="platform"><strong>Platform</strong><span></span></li>
-                    <li data-name="release"><strong>Release</strong><span></span></li>
-                    <li data-name="type"><strong>Type</strong><span></span></li>
-                    <li data-name="uptime"><strong>Up Time</strong><span></span></li>
-                </ul>
-                <div>
-                    <h4>Path <button class="expand">Expand</button></h4>
-                    <ul class="definition-body" data-name="path"></ul>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Last Updated</span> <em></em></p>
                 </div>
-                <div>
-                    <h4>Environmental Variables <button class="expand">Expand</button></h4>
-                    <ul class="definition-body" data-name="env"></ul>
+                <div class="section">
+                    <h3>Machine</h3>
+                    <h4>CPU</h4>
+                    <ul>
+                        <li data-name="arch"><strong>Architecture</strong><span></span></li>
+                        <li data-name="cores"><strong>Logical CPU Cores</strong><span></span></li>
+                        <li data-name="endianness"><strong>Endianness</strong><span></span></li>
+                        <li data-name="frequency"><strong>Frequency</strong><span></span></li>
+                        <li data-name="name"><strong>Name</strong><span></span></li>
+                    </ul>
+                    <h4>Memory</h4>
+                    <ul>
+                        <li data-name="memoryFree"><strong>Free</strong><span></span></li>
+                        <li><strong>Used</strong><span></span></li>
+                        <li data-name="memoryFree"><strong>Total</strong><span></span></li>
+                    </ul>
+                </div>
+                <div class="section">
+                    <h3>Operating System</h3>
+                    <ul>
+                        <li data-name="hostname"><strong>Hostname</strong><span></span></li>
+                        <li data-name="name"><strong>Name</strong><span></span></li>
+                        <li data-name="platform"><strong>Platform</strong><span></span></li>
+                        <li data-name="release"><strong>Release</strong><span></span></li>
+                        <li data-name="type"><strong>Type</strong><span></span></li>
+                        <li data-name="uptime"><strong>Up Time</strong><span></span></li>
+                    </ul>
+                    <div>
+                        <h4>Path <button class="expand">Expand</button></h4>
+                        <ul class="definition-body" data-name="path"></ul>
+                    </div>
+                    <div>
+                        <h4>Environmental Variables <button class="expand">Expand</button></h4>
+                        <ul class="definition-body" data-name="env"></ul>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Application Process</h3>
+                    <ul>
+                        <li data-name="arch"><strong>Architecture</strong><span></span></li>
+                        <li data-name="argv"><strong>Arguments</strong><span></span></li>
+                        <li data-name="cpuSystem"><strong>CPU System Time<sup>1</sup></strong><span></span></li>
+                        <li data-name="cpuUser"><strong>CPU User Time<sup>1</sup></strong><span></span></li>
+                        <li data-name="cwd"><strong>Current Working Directory</strong><span></span></li>
+                        <li data-name="memory-process"><strong>Total Process Memory</strong><span></span></li>
+                        <li data-name="memory-percent"><strong>Percentage of Total Memory</strong><span></span></li>
+                        <li data-name="memory-v8"><strong>V8 Memory</strong><span></span></li>
+                        <li data-name="memory-external"><strong>Buffers and V8 Helpers Memory</strong><span></span></li>
+                        <li data-name="platform"><strong>Platform</strong><span></span></li>
+                        <li data-name="pid"><strong>Process ID</strong><span></span></li>
+                        <li data-name="ppid"><strong>Parent Process ID</strong><span></span></li>
+                        <li data-name="uptime"><strong>Up Time</strong><span></span></li>
+                    </ul>
+                    <div>
+                        <h4>Node.js Dependency Versions <button class="expand">Expand</button></h4>
+                        <ul class="definition-body" data-name="versions"></ul>
+                    </div>
+                    <p><strong>[1]</strong> User CPU time and System CPU time measure actual CPU cycle time across all logical CPU instances for this application's process.</p>
+                </div>
+                <div class="section">
+                    <h3>User</h3>
+                    <ul>
+                        <li data-name="gid"><strong>Group ID</strong><span></span></li>
+                        <li data-name="uid"><strong>User ID</strong><span></span></li>
+                        <li data-name="homedir"><strong>Home Directory</strong><span></span></li>
+                    </ul>
                 </div>
             </div>
-            <div class="section">
-                <h3>Application Process</h3>
-                <ul>
-                    <li data-name="arch"><strong>Architecture</strong><span></span></li>
-                    <li data-name="argv"><strong>Arguments</strong><span></span></li>
-                    <li data-name="cpuSystem"><strong>CPU System Time<sup>1</sup></strong><span></span></li>
-                    <li data-name="cpuUser"><strong>CPU User Time<sup>1</sup></strong><span></span></li>
-                    <li data-name="cwd"><strong>Current Working Directory</strong><span></span></li>
-                    <li data-name="memory-process"><strong>Total Process Memory</strong><span></span></li>
-                    <li data-name="memory-percent"><strong>Percentage of Total Memory</strong><span></span></li>
-                    <li data-name="memory-v8"><strong>V8 Memory</strong><span></span></li>
-                    <li data-name="memory-external"><strong>Buffers and V8 Helpers Memory</strong><span></span></li>
-                    <li data-name="platform"><strong>Platform</strong><span></span></li>
-                    <li data-name="pid"><strong>Process ID</strong><span></span></li>
-                    <li data-name="ppid"><strong>Parent Process ID</strong><span></span></li>
-                    <li data-name="uptime"><strong>Up Time</strong><span></span></li>
-                </ul>
-                <div>
-                    <h4>Node.js Dependency Versions <button class="expand">Expand</button></h4>
-                    <ul class="definition-body" data-name="versions"></ul>
-                </div>
-                <p><strong>[1]</strong> User CPU time and System CPU time measure actual CPU cycle time across all logical CPU instances for this application's process.</p>
-            </div>
-            <div class="section">
-                <h3>User</h3>
-                <ul>
-                    <li data-name="gid"><strong>Group ID</strong><span></span></li>
-                    <li data-name="uid"><strong>User ID</strong><span></span></li>
-                    <li data-name="homedir"><strong>Home Directory</strong><span></span></li>
-                </ul>
-            </div>
-            <p>Last updated: <em></em></p>
         </div>
         <div class="tab" id="processes">
             <h2>Processes</h2>
@@ -658,6 +660,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <th><button data-dir="1">ID</button></th>
                         <th><button data-dir="1">Memory (bytes)</button></th>
                         <th><button data-dir="1">CPU Time</button></th>
+                        <th><button data-dir="1">User</button></th>
                     </tr></thead>
                     <tbody></tbody>
                 </table>
@@ -822,12 +825,14 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="storage">
             <h2>Storage Devices</h2>
             <p class="tab-description">A list of storage devices and their partitions.</p>
-            <div class="table-stats">
-                <p class="update-button"><button>Update List</button></p>
-                <p><span>Total Drives</span> <em></em></p>
-                <p><span>Last Updated</span> <em></em></p>
+            <div class="section">
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Drives</span> <em></em></p>
+                    <p><span>Last Updated</span> <em></em></p>
+                </div>
+                <ul></ul>
             </div>
-            <ul></ul>
         </div>
         <div class="tab" id="terminal">
             <h2>Terminal</h2>
@@ -879,6 +884,34 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <div class="section">
                 <h3>Terminal Display</h3>
                 <div class="terminal-output"></div>
+            </div>
+        </div>
+        <div class="tab" id="users">
+            <h2>Users</h2>
+            <p class="tab-description">A list of user accounts on the local operating system.</p>
+            <div class="table-filters">
+                <h3>List Controls</h3>
+                <p><label>Column(s) To Filter  <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+            </div>
+            <div class="section">
+                <h3>User List</h3>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Users</span> <em></em></p>
+                    <p><span>Filtered Users</span> <em></em></p>
+                    <p><span>Last Updated</span> <em></em></p>
+                </div>
+                <table data-column="0">
+                    <thead><tr>
+                        <th><button data-dir="1">Name</button></th>
+                        <th><button data-dir="1">SID/UID</button></th>
+                        <th><button data-dir="1">Last Login</button></th>
+                        <th><button data-dir="1">Process Count</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
         <div class="tab" id="websocket">

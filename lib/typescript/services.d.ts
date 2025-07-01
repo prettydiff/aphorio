@@ -189,6 +189,7 @@ declare global {
         sockets: services_os_sock;
         storage: services_os_disk;
         time: number;
+        users: services_os_user;
     }
 
     interface services_os_disk {
@@ -213,6 +214,11 @@ declare global {
 
     interface services_os_sock {
         data: os_sockets[];
+        time: number;
+    }
+
+    interface services_os_user {
+        data: os_user[];
         time: number;
     }
 

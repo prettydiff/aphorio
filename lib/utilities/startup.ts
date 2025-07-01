@@ -17,11 +17,12 @@ const startup = function utilities_startup(callback:() => void):void {
             css: false,
             docker: false,
             html: false,
-            os: false
+            os: false,
+            terminal: false
         },
-        readComplete = function utilities_startup_readComplete(flag:"config"|"css"|"docker"|"html"|"os"):void {
+        readComplete = function utilities_startup_readComplete(flag:"config"|"css"|"docker"|"html"|"os"|"terminal"):void {
             flags[flag] = true;
-            if (flags.config === true && flags.css === true && flags.docker === true && flags.html === true && flags.os === true) {
+            if (flags.config === true && flags.css === true && flags.docker === true && flags.html === true && flags.os === true && flags.terminal === true) {
                 callback();
             }
         },
@@ -192,6 +193,57 @@ const startup = function utilities_startup(callback:() => void):void {
         location: `${vars.path.project}compose.json`,
         no_file: null
     });
+
+    // build shell list
+    if (process.platform === "win32") {
+        const stats = function utilities_os_shellWin(index:number):void {
+            node.fs.stat(vars.terminal[index], function utilities_os_shellWin_callback(err:node_error) {
+                if (err !== null) {
+                    vars.terminal.splice(index, 1);
+                }
+                if (index > 0) {
+                    utilities_os_shellWin(index - 1);
+                } else {
+                    readComplete("terminal");
+                }
+            });
+        };
+        stats(vars.terminal.length - 1);
+    } else {
+        file.stat({
+            callback: function utilities_os_shellStat(stat:node_fs_BigIntStats):void {
+                if (stat === null) {
+                    vars.terminal.push("/bin/sh");
+                } else {
+                    file.read({
+                        callback: function utilities_os_shellStat_shellRead(contents:Buffer):void {
+                            const lines:string[] = contents.toString().split("\n"),
+                                len:number = lines.length;
+                            let index:number = 1;
+                            if (len > 1) {
+                                do {
+                                    if (lines[index].indexOf("/bin/") === 0) {
+                                        vars.terminal.push(lines[index]);
+                                    }
+                                    index = index + 1;
+                                } while (index < len);
+                            }
+                            if (vars.terminal.length < 1) {
+                                vars.terminal.push("/bin/sh");
+                            }
+                            readComplete("terminal");
+                        },
+                        error_terminate: null,
+                        location: "/etc/shells",
+                        no_file: null
+                    });
+                }
+            },
+            error_terminate: null,
+            location: "/etc/shells",
+            no_file: null
+        });
+    }
     os("all", osCallback);
 };
 
