@@ -869,7 +869,7 @@ const dashboard = function dashboard():void {
                         } else {
                             list[index].style.display = "none";
                         }
-                    } while (index > 0);console.log(module.nodes.filter_count);
+                    } while (index > 0);
                     module.nodes.filter_count.textContent = String(count);
                 }
             },

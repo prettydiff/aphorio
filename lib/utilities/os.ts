@@ -28,10 +28,10 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             socU: (win32 === true)
                 ? "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2"
                 : "",
-            volu: "Get-Volume | ConvertTo-JSON -compress -depth 2",
             user: (win32 === true)
                 ? "Get-LocalUser | ConvertTo-JSON -compress -depth 1"
-                : "lslogins -uo user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\""
+                : "lslogins -uo user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
+            volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
         },
         disks:os_disk[] = [],
         processes:os_proc[] = [],
@@ -45,8 +45,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             serv: [],
             socT: [],
             socU: [],
-            volu: [],
-            user: []
+            user: [],
+            volu: []
         },
         flags:store_flag = {
             disk: false,
@@ -55,8 +55,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             serv: false,
             socT: false,
             socU: (win32 === false),
-            volu: (win32 === false),
-            user: false
+            user: false,
+            volu: (win32 === false)
         },
         spawn:store_children_os = {
             disk: null,
@@ -65,8 +65,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             serv: null,
             socT: null,
             socU: null,
-            volu: null,
-            user: null
+            user: null,
+            volu: null
         },
         raw:os_raw = {
             disk: null,
@@ -75,8 +75,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             serv: null,
             socT: null,
             socU: null,
-            volu: null,
-            user: null
+            user: null,
+            volu: null
         },
         complete:store_flag = {
             disk: false,
@@ -85,8 +85,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             serv: false,
             socT: false,
             socU: false,
-            volu: true,
-            user: false
+            user: false,
+            volu: true
         },
         builder:store_function = {
             disk: function utilities_os_builderDisk():void {
@@ -412,7 +412,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         return count;
                     };
                 let index:number = 0,
-                    user:os_user = null;
+                    user:os_user = null,
+                    line:string[] = null;
                 if (len > 0) {
                     do {
                         if (win32 === true) {
@@ -423,7 +424,15 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                 uid: Number(data_win[index].SID.slice(data_win[index].SID.lastIndexOf("-") + 1))
                             };
                         } else {
-
+                            line = data_posix[index].split(",");
+                            user = {
+                                lastLogin: (line[3] === undefined || line[3] === null || line[3] === "")
+                                    ? 0
+                                    : new Date(line[3]).getTime(),
+                                name: line[0],
+                                proc: Number(line[2]),
+                                uid: Number(line[1])
+                            };
                         }
                         users.push(user);
                         index = index + 1;
@@ -631,6 +640,9 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                             } else {
                                 raw.disk = JSON.parse(temp).blockdevices as os_disk_posix[];
                             }
+                        // these guys are just pseudo-csv so do not parse as JSON
+                        } else if (win32 === false && (type === "proc" || type === "socT" || type === "user")) {
+                            raw[type] = temp.split("\n");
                         } else {
                             raw[type] = JSON.parse(temp);
                         }
