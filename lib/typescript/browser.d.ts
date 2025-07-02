@@ -1,3 +1,4 @@
+// cspell: words serv
 
 import { Terminal } from "@xterm/xterm";
 
@@ -35,6 +36,7 @@ declare global {
     interface Number {
         bytes: (input?:number) => string;
         bytesLong: () => string;
+        commas: () => string;
         dateTime: (date:boolean) => string;
         time: () => string;
     }
@@ -85,8 +87,8 @@ declare global {
             resolve: HTMLButtonElement;
             types: HTMLInputElement;
         };
+        receive: (data_item:socket_data) => void;
         resolve: (event:MouseEvent) => void;
-        response: (data_item:socket_data) => void;
     }
 
     interface module_fileSystem {
@@ -111,15 +113,17 @@ declare global {
             base64: HTMLInputElement;
             button: HTMLButtonElement;
             digest: HTMLInputElement;
+            file: HTMLInputElement;
             hash: HTMLInputElement;
             hex: HTMLInputElement;
             output: HTMLTextAreaElement;
             size: HTMLElement;
             source: HTMLTextAreaElement;
+            string: HTMLInputElement;
             type: HTMLInputElement;
         };
+        receive: (data_item:socket_data) => void;
         request: () => void;
-        response: (data_item:socket_data) => void;
         toggle_mode: (event:MouseEvent) => void;
     }
 
@@ -135,27 +139,25 @@ declare global {
             stats: HTMLCollectionOf<HTMLElement>;
             timeout: HTMLInputElement;
         };
+        receive: (data_item:socket_data) => void;
         request: (event:MouseEvent) => void;
-        response: (data_item:socket_data) => void;
     }
 
-    interface module_ports {
-        external: (input:external_ports) => void;
-        html: (table:HTMLElement, list:type_external_port[]) => void;
-        init: (port_list:external_ports) => void;
-        internal: () => void;
+    interface module_interfaces {
+        init: () => void;
+        list: (item:services_os_intr) => void;
         nodes: {
-            external: HTMLElement;
-            internal: HTMLElement;
+            count: HTMLElement;
+            list: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
         };
     }
 
     interface module_os {
         init: () => void;
-        interfaces: (data:NodeJS.Dict<node_os_NetworkInterfaceInfo[]>) => void;
         nodes: module_os_nodes;
         service: (data_item:socket_data) => void;
-        storage: (data:os_disk[]) => void;
     }
 
     interface module_os_nodes {
@@ -167,7 +169,6 @@ declare global {
             name: HTMLElement;
         };
         env: HTMLElement;
-        interfaces: HTMLElement;
         memory: {
             free: HTMLElement;
             total: HTMLElement;
@@ -197,8 +198,8 @@ declare global {
             ppid: HTMLElement;
             uptime: HTMLElement;
         };
-        storage: HTMLElement;
-        update: HTMLElement;
+        update_button: HTMLButtonElement;
+        update_text: HTMLElement;
         user: {
             gid: HTMLElement;
             homedir: HTMLElement;
@@ -207,25 +208,65 @@ declare global {
         versions: HTMLElement;
     }
 
-    interface module_server {
-        activePorts: (name_server:string) => HTMLElement;
-        create: (event:MouseEvent) => void;
-        list: () => void;
-        message: (event:MouseEvent) => void;
+    interface module_processes {
+        init: () => void;
         nodes: {
+            caseSensitive: HTMLInputElement;
+            count: HTMLElement;
+            filter_column: HTMLSelectElement;
+            filter_count: HTMLElement;
+            filter_value: HTMLInputElement;
             list: HTMLElement;
-            server_new: HTMLButtonElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
         };
-        socket_add: (config:services_socket) => void;
-        validate: (event:FocusEvent|KeyboardEvent) => void;
     }
 
-    interface module_serviceItems {
+    interface module_serverItems {
         cancel: (event:MouseEvent) => void;
         color: (name_server:string, type:type_dashboard_list) => type_activation_status;
         details: (event:MouseEvent) => void;
         edit: (event:MouseEvent) => void;
         title: (name_server:string, type:type_dashboard_list) => HTMLElement;
+    }
+
+    interface module_services {
+        init: () => void;
+        nodes: {
+            caseSensitive: HTMLInputElement;
+            count: HTMLElement;
+            filter_column: HTMLSelectElement;
+            filter_count: HTMLElement;
+            filter_value: HTMLInputElement;
+            list: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
+        };
+    }
+
+    interface module_sockets {
+        init: () => void;
+        nodes: {
+            caseSensitive: HTMLInputElement;
+            count: HTMLElement;
+            filter_column: HTMLSelectElement;
+            filter_count: HTMLElement;
+            filter_value: HTMLInputElement;
+            list: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
+        };
+    }
+
+    interface module_storage {
+        init: () => void;
+        list: (item:services_os_disk) => void;
+        nodes: {
+            count: HTMLElement;
+            list: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
+        };
     }
 
     interface module_terminal {
@@ -251,15 +292,45 @@ declare global {
         socket: WebSocket;
     }
 
+    interface module_users {
+        init: () => void;
+        nodes: {
+            caseSensitive: HTMLInputElement;
+            count: HTMLElement;
+            filter_column: HTMLSelectElement;
+            filter_count: HTMLElement;
+            filter_value: HTMLInputElement;
+            list: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
+        };
+    }
+
     interface module_utility {
         baseline: () => void;
-        init: (data_item:socket_data) => void;
         log: (item:services_dashboard_status) => void;
         message_send: (data:type_socket_data, service:type_service) => void;
         setState: () => void;
         socket: socket_object;
-        sort_html: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
+        sort_column_names: (table:HTMLElement, select:HTMLSelectElement) => void;
+        sort_tables: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         status: (data_item:socket_data) => void;
+        table_filter: (event:Event, target?:HTMLInputElement) => void;
+        table_update: (event:MouseEvent) => void;
+        tables: (module:module_processes|module_services|module_sockets|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user) => void;
+    }
+
+    interface module_web {
+        activePorts: (name_server:string) => HTMLElement;
+        create: (event:MouseEvent) => void;
+        list: () => void;
+        message: (event:MouseEvent) => void;
+        nodes: {
+            list: HTMLElement;
+            server_new: HTMLButtonElement;
+        };
+        socket_add: (config:services_socket) => void;
+        validate: (event:FocusEvent|KeyboardEvent) => void;
     }
 
     interface module_websocket {
@@ -292,21 +363,30 @@ declare global {
     }
 
     interface socket_object {
+        connected: boolean;
         invoke: () => void;
         queue: (message:string) => void;
         queueStore: string[];
         socket: WebSocket;
     }
 
-    interface structure_informational {
-        os: module_os;
-        ports: module_ports;
+    interface structure_network {
+        interfaces: module_interfaces;
+        sockets: module_sockets;
     }
 
-    interface structure_services {
+    interface structure_servers {
         compose: module_compose;
-        servers: module_server;
-        shared: module_serviceItems;
+        shared: module_serverItems;
+        web: module_web;
+    }
+
+    interface structure_system {
+        os: module_os;
+        processes: module_processes;
+        services: module_services;
+        storage: module_storage;
+        users: module_users;
     }
 
     interface structure_tools {
@@ -339,6 +419,34 @@ declare global {
             request: string;
         };
         nav: string;
+        table_os: {
+            processes: {
+                filter_column: number;
+                filter_sensitive: boolean;
+                filter_value: string;
+            };
+            services: {
+                filter_column: number;
+                filter_sensitive: boolean;
+                filter_value: string;
+            };
+            sockets: {
+                filter_column: number;
+                filter_sensitive: boolean;
+                filter_value: string;
+            };
+            users: {
+                filter_column: number;
+                filter_sensitive: boolean;
+                filter_value: string;
+            };
+        };
+        tables: {
+            [key:string]: {
+                col: number;
+                dir: -1|1;
+            };
+        };
         terminal: string;
     }
 

@@ -1,4 +1,6 @@
 
+// cspell: words serv
+
 interface configuration_compose {
     containers: store_compose;
     variables: store_string;
@@ -117,6 +119,7 @@ interface server_meta_item {
 }
 
 interface server_os {
+    interfaces: services_os_intr;
     machine: {
         cpu: {
             arch: string;
@@ -125,12 +128,10 @@ interface server_os {
             frequency: number;
             name: string;
         };
-        interfaces: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
         memory: {
             free: number;
             total: number;
         };
-        storage: os_disk[];
     };
     os: {
         env: store_string;
@@ -159,11 +160,17 @@ interface server_os {
         uptime: number;
         versions: store_string;
     };
+    processes: services_os_proc;
+    services: services_os_serv;
+    sockets: services_os_sock;
+    storage: services_os_disk;
+    time: number;
     user: {
         gid: number;
         homedir: string;
         uid: number;
     };
+    users: services_os_user;
 }
 
 interface server_os_memoryUsage {
@@ -183,6 +190,10 @@ interface store_children {
     [key:string]: node_childProcess_ChildProcess;
 }
 
+interface store_children_os {
+    [key:string]: os_child;
+}
+
 interface store_compose {
     [key:string]: services_docker_compose;
 }
@@ -193,6 +204,10 @@ interface store_elements {
 
 interface store_flag {
     [key:string]: boolean;
+}
+
+interface store_function {
+    [key:string]: () => void;
 }
 
 interface store_number {

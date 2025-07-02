@@ -1,10 +1,12 @@
 
+// cspell: words serv, volu
+
 type type_activation_status = ["amber" | "green" | "red", "deactivated" | "new" | "offline" | "online" | "partially online"];
 type type_certKey = "ca" | "crt" | "key";
 type type_dashboard_action = type_halt_action | "activate" | "add";
 type type_dashboard_config = config_websocket_create | config_websocket_server | external_ports | node_childProcess_ExecException | node_error | server | services_dashboard_activate | services_docker_compose | services_socket | store_string;
 type type_dashboard_list = "container" | "server";
-type type_dashboard_sections = "compose" | "help" | "log" | "port" | "servers" | "socket" | "terminal";
+type type_dashboard_sections = "compose" | "dns" | "faq" | "file-system" | "hash" | "help" | "http" | "interfaces" | "log" | "os" | "processes" | "services" | "sockets" | "storage" | "terminal" | "web" | "websocket";
 type type_dashboard_status = "error" | "informational" | "success";
 type type_dashboard_type = "compose-containers" | "compose-variables" | "log" | "port" | "server" | "socket" | "terminal" | "websocket-test";
 // type_directory_type
@@ -27,19 +29,31 @@ type type_halt_action = "deactivate" | "destroy" | "modify";
 type type_hash_input = "direct" | "file";
 type type_http_method = "connect" | "delete" | "get" | "head" | "post" | "put";
 type type_keys = "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "Backspace" | "c" | "Delete" | "Enter" | "v";
+type type_os = "all" | "disk" | "intr" | "main" | "proc" | "serv" | "sock" | "user";
+type type_os_key = "disk" | "part" | "proc" | "serv" | "socT" | "socU" | "user" | "volu";
 type type_paths = "storage" | "web_root";
 type type_search = "fragment" | "negation" | "regex";
 type type_selector = "class" | "id" | "tag";
 type type_server_property = "block_list" | "domain_local" | "encryption" | "http" | "name" | "ports" | "redirect_asset" | "redirect_domain";
 
-//   service name            - data type transmitted     - description
+//   service name                - data type transmitted     - description
+//   ---
 // * dashboard-compose-container - store_string              - Docker compose variables
 // * dashboard-compose-variables - store_string              - Stores YAML configuration content and a name for a single docker container
-// * dashboard-payload           - transmit_dashboard        - Contains all dynamic data for populating a browser page
+// * dashboard-dns               - services_dns_output       - data response to a dns query
+// * dashboard-fileSystem        - services_fileSystem       - file system list
+// * dashboard-hash              - services_hash             - hash and base64 computational output
+// * dashboard-http              - services_http_test        - response messaging for an HTTP test request
+// * dashboard-os-all            - services_os_all           - all the information regarding machine, application, process, and more
+// * dashboard-os-disks          - services_os_disk          - only the disk portion of dashboard-os-all
+// * dashboard-os-main           - services_os_all           - only the hardware, application, and process information of dashboard-os-all
+// * dashboard-os-proc           - services_os_proc          - only the process list information of dashboard-os-all
+// * dashboard-os-serv           - services_os_serv          - only the service information of dashboard-os-all
+// * dashboard-os-sock           - services_os_sockets       - only the socket information of dashboard-os-all
 // * dashboard-server            - services_dashboard_status - A single server's configuration data plus an action to perform
 // * dashboard-status            - services_dashboard_status - Typically conveys log entries
-type type_service = "dashboard-compose-container" | "dashboard-compose-variables" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-os" | "dashboard-payload" | "dashboard-server" | "dashboard-status" | "dashboard-terminal-resize" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "youtube-download-status";
-type type_socket_data = services_action_compose | services_action_server | services_dashboard_status | services_dashboard_terminal | services_dns_input | services_dns_output | services_docker_compose | services_fileSystem | services_hash | services_http_test | services_os | services_processKill | services_terminal_resize | services_websocket_handshake | services_websocket_message | services_websocket_status | services_youtubeDownload | services_youtubeStatus | store_string | string[] | transmit_dashboard;
+type type_service = "dashboard-compose-container" | "dashboard-compose-variables" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-os-all" | "dashboard-os-disk" | "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-sock" | "dashboard-os-user" | "dashboard-server" | "dashboard-status" | "dashboard-terminal-resize" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "youtube-download-status";
+type type_socket_data = services_action_compose | services_action_server | services_dashboard_status | services_dashboard_terminal | services_dns_input | services_dns_output | services_docker_compose | services_fileSystem | services_hash | services_http_test | services_os_all | services_os_disk | services_os_intr | services_os_proc | services_os_serv | services_os_sock | services_os_user | services_processKill | services_terminal_resize | services_websocket_handshake | services_websocket_message | services_websocket_status | services_youtubeDownload | services_youtubeStatus | store_string | string[] | transmit_dashboard;
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";

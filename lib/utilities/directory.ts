@@ -1,5 +1,4 @@
 
-import commas from "./commas.js";
 import hash from "./hash.js";
 import node from "./node.js";
 import vars from "./vars.js";
@@ -301,7 +300,7 @@ const directory = function utilities_directory(args:config_directory):void {
                                                 : (type === "file")
                                                     ? "file     "
                                                     : "directory",
-                                            comma:string = commas(stats.size),
+                                            comma:string = stats.size.commas(),
                                             size:number = comma.length;
                                         if (size > longest) {
                                             longest = size;

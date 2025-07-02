@@ -13,6 +13,7 @@
     --border_color:#999;
     --border_input:#666;
     --border_soft:#555;
+    --fail_background:#322;
     --fail_bright:#f66;
     --fail_dark:#911;
     --status_amber:#443;
@@ -45,13 +46,16 @@
 .highlight::before{animation-delay:-1s}
 
 html{font-size:10px}
-body{background:var(--background);color:var(--text);font-family:sans-serif}
+body{background:var(--background);color:var(--text);font-family:sans-serif;margin:0}
 #dashboard .file-list,
 #dashboard .file-system-content,
 #dashboard .summary-stats,
 div.form,
 div.definitions,
-div.section{border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:2em;padding:2em}
+div.table-filters,
+div.section{border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:0 0 2em;padding:2em}
+div.section:last-child{margin:0}
+div.table-filters p:last-child{margin:0}
 div.form h3{margin:1.5em 0 0.5em}
 #dashboard #http .form h3,
 #dashboard #websocket .form h3,
@@ -115,7 +119,9 @@ table{border-collapse:collapse}
 td{background:var(--background);font-family:monospace}
 td .icon{display:inline-block;width:1.5em}
 #dashboard td,
-td{padding:0.5em;text-align:right}
+td{padding:0.5em 1.5em}
+#dashboard td.right,
+td.right{text-align:right}
 th{border-color:var(--background_button);border-style:solid;border-width:0.1em;padding:0.2em 0.5em;text-align:left}
 th{background:var(--background_textarea);min-width:9em}
 td button{padding:0}
@@ -161,6 +167,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard select{display:block}
 #dashboard #servers li,
 #dashboard #compose li{border-color:var(--border_color);border-style:solid;border-width:0.1em}
+#connection-status{margin:0 1em 1em}
 #connection-status,
 #dashboard p#websocket-status{border-color:var(--border_color);border-style:solid;border-width:0.1em;padding:0.2em}
 #dashboard p#websocket-status{margin:-1.75em -1.75em 1.5em}
@@ -169,20 +176,20 @@ label span.checked{background:var(--background_dark)}
 #dashboard button:hover:disabled{background:var(--background_button);color:var(--border_input);cursor:auto}
 #dashboard .buttons button:disabled{color:var(--border_input)}
 #dashboard code {background:var(--background_textarea);border-color:var(--border_soft);border-style:solid;border-width:0.1em;margin:0.5em 2em;padding:0.5em}
-#dashboard nav div{border-color:var(--border_color);border-style:none solid none none;border-width:0.1em;float:left;margin:0 0 4em}
-#dashboard nav div:hover{background:var(--background_nav)}
+#dashboard nav{background:var(--background_nav);border-color:var(--background_button);border-style:solid;border-width:0.1em;float:left}
+#dashboard nav div{border-color:var(--border_color);border-style:none none solid none;border-width:0.1em;margin:2em 0 0;padding:0 0 2em}
 #dashboard nav div:last-child{border-style:none}
 #dashboard nav h2{font-size:0.01em;position:absolute;left:-1000em}
 #dashboard nav h3{color:var(--border_color);padding:0 0 0 0.5em;margin:0}
-#dashboard nav ul{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0;padding:0 0 1em}
-#dashboard nav li{border-color:var(--border_color);border-style:none solid none none;border-width:0.1em;display:inline-block;padding:0 0.5em}
+#dashboard nav ul{margin:0;padding:0}
+#dashboard nav li{display:block;padding:0 0.5em}
 #dashboard nav li:last-child{border-style:none}
-#dashboard nav button{background:transparent;border-color:transparent;border-style:solid;border-width:0.1em;box-shadow:none;color:var(--text)}
+#dashboard nav button{background:transparent;border-color:transparent;border-style:solid;border-width:0.1em;box-shadow:none;color:var(--text);padding-left:2em;text-align:left;width:12em}
 #dashboard nav .nav-focus{background:var(--background_dark);border-color:var(--border_soft);color:var(--text_input)}
 #dashboard nav button:hover{color:var(--text)}
 #dashboard .tab-description{border-color:var(--border_soft);border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 0.5em}
-#dashboard h1,
 #servers .detail_item p{margin:0 0 0.5em}
+#dashboard h1{margin:0 0.5em 0.5em}
 #dashboard h2{margin:0 0 0.5em}
 #dashboard .compose-container-list,
 #dashboard .server-list{padding:0}
@@ -216,6 +223,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard h3 .expand{font-size:0.6em}
 #dashboard h4 .expand{font-size:0.675em}
 #dashboard .edit .summary ul{font-size:1em;margin:1em 0 0;padding:0}
+#dashboard main{margin:0 0 0 15em;padding:2em}
 #dashboard main li{list-style:none}
 #dashboard main #faq li{list-style:disc}
 #help ul{padding:0}
@@ -288,12 +296,23 @@ label span.checked{background:var(--background_dark)}
 #dashboard .http_response .form{float:left;margin:2em 0.5%;padding:2em 0.5%;width:47.65%}
 #dashboard #websocket .http_response p.float-last{width:82%}
 #dashboard textarea.test-input{height:15em}
+#dashboard .table-stats span,
 #dashboard .summary-stats span{display:inline-block;width:12em}
 #dashboard #file-system ul{margin:0 0 0 4em;padding:0}
 #dashboard .summary-stats .file-system-summary-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}
-#dashboard #os li{border-style:none;list-style:none}
-#dashboard #os strong{display:inline-block;width:18em}
+#dashboard #storage .os-interface.fail-list{background:var(--fail_background)}
+#dashboard #interfaces .os-interface,
+#dashboard #storage .os-interface,
 #dashboard #os .os-interface{border-color:var(--border_soft);border-style:solid;border-width:0.1em}
+#dashboard #interfaces li,
+#dashboard #storage li,
+#dashboard #os li{border-style:none;list-style:none}
+#dashboard #interfaces li > strong,
+#dashboard #storage li > strong,
+#dashboard #storage li > h6,
+#dashboard #os li > strong{display:inline-block;width:18em}
+#dashboard #interfaces ul,
+#dashboard #storage ul,
 #dashboard #os ul{margin:0 0 1em 2em;padding:0 1em 1em}
 #dashboard #os .section{padding-bottom:0}
 #dashboard #hash .output{height:15em}

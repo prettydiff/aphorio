@@ -5,8 +5,6 @@ import startup from "./utilities/startup.js";
 import yt_config from "./services/yt_config.js";
 import vars from "./utilities/vars.js";
 
-// cspell: words nmap
-
 startup(function index():void {
     const default_server = function index_defaultServer(name:string):services_server {
         return {
@@ -35,11 +33,29 @@ startup(function index():void {
             callback = function index_start_serverCallback():void {
                 count = count + 1;
                 if (count === total) {
-                    const logs:string[] = [
-                            "Web Servers started.",
+                    const time:number = Number(process.hrtime.bigint() - vars.start_time),
+                        logs:string[] = [
+                            "",
+                            `${vars.text.underline}Application started in ${time / 1e9} seconds.${vars.text.none}`,
+                            "",
+                            `Process ID: ${vars.text.cyan + process.pid + vars.text.none}`,
                             "",
                             "Ports:",
                         ],
+                        pad = function index_start_serverCallback_pad(str:string, num:number, dir:"left"|"right"):string {
+                            let item:number = num - str.length;
+                            if (item > 0) {
+                                do {
+                                    if (dir === "left") {
+                                        str = ` ${str}`;
+                                    } else {
+                                        str = `${str} `;
+                                    }
+                                    item = item - 1;
+                                } while (item > 0);
+                            }
+                            return str;
+                        },
                         logItem = function index_start_serverCallback_logItem(name:string, encryption:"open"|"secure"):void {
                             const conflict:boolean = (vars.servers[name].status[encryption] === 0),
                                 portNumber:number = (conflict === true)
@@ -48,7 +64,7 @@ startup(function index():void {
                                 portDisplay:string = (conflict === true)
                                     ? vars.text.angry + portNumber + vars.text.none
                                     : portNumber.toString(),
-                                str:string = `${vars.text.angry}*${vars.text.none} ${name} - ${portDisplay}, ${encryption}`;
+                                str:string = `${vars.text.angry}*${vars.text.none} ${pad(name, longest.name, "right")} - ${pad(encryption, longest.encryption, "right")} - ${vars.text.green + pad(portDisplay, longest.port, "left") + vars.text.none}`;
                             if (conflict === true) {
                                 if (portNumber < 1025) {
                                     logs.push(`${str} (Server offline, typically due to insufficient access for reserved port or port conflict.)`);
@@ -58,20 +74,53 @@ startup(function index():void {
                             } else {
                                 logs.push(str);
                             }
+                        },
+                        longest:store_number = {
+                            encryption: 4,
+                            name: 0,
+                            port: 0
                         };
                     servers.sort();
-                    let items:number = 0;
+                    let index:number = 0;
+                    // get string column width
                     do {
-                        if (vars.servers[servers[items]].config.encryption === "both") {
-                            logItem(servers[items], "open");
-                            logItem(servers[items], "secure");
-                        } else if (vars.servers[servers[items]].config.encryption === "open") {
-                            logItem(servers[items], "open");
-                        } else if (vars.servers[servers[items]].config.encryption === "secure") {
-                            logItem(servers[items], "secure");
+                        if (servers[index].length > longest.name) {
+                            longest.name = servers[index].length;
                         }
-                        items = items + 1;
-                    } while (items < servers.length);
+                        if (vars.servers[servers[index]].config.encryption === "both") {
+                            if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest.port) {
+                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                            }
+                            if (vars.servers[servers[index]].config.ports["open"].toString().length > longest.port) {
+                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                            }
+                            longest.encryption = 6;
+                        } else if (vars.servers[servers[index]].config.encryption === "secure") {
+                            if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest.port) {
+                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                            }
+                            longest.encryption = 6;
+                        } else {
+                            if (vars.servers[servers[index]].config.ports["open"].toString().length > longest.port) {
+                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                            }
+                        }
+                        index = index + 1;
+                    } while (index < servers.length);
+
+                    index = 0;
+                    do {
+                        if (vars.servers[servers[index]].config.encryption === "both") {
+                            logItem(servers[index], "open");
+                            logItem(servers[index], "secure");
+                        } else if (vars.servers[servers[index]].config.encryption === "open") {
+                            logItem(servers[index], "open");
+                        } else if (vars.servers[servers[index]].config.encryption === "secure") {
+                            logItem(servers[index], "secure");
+                        }
+                        index = index + 1;
+                    } while (index < servers.length);
+                    logs.push("");
                     // eslint-disable-next-line no-console
                     console.log(logs.join("\n"));
                 }

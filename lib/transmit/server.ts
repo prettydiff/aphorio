@@ -8,7 +8,6 @@ import message_handler from "./messageHandler.js";
 import node from "../utilities/node.js";
 import read_certs from "../utilities/read_certs.js";
 import redirection from "./redirection.js";
-import send from "./send.js";
 import server_halt from "../services/server_halt.js";
 import socket_extension from "./socketExtension.js";
 import terminal from "../services/terminal.js";
@@ -175,21 +174,6 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                                         shell: params[0].split("=")[1].replace(/%20/g, " ")
                                                     };
                                                 terminal.shell(socket as websocket_pty, term);
-                                            } else if (server_name === "dashboard" && type === "dashboard") {
-                                                const dashboard:transmit_dashboard = {
-                                                    compose: vars.compose,
-                                                    hashes: vars.hashes,
-                                                    logs: vars.logs,
-                                                    os: vars.os,
-                                                    path: vars.path,
-                                                    ports: vars.system_ports,
-                                                    servers: vars.servers,
-                                                    terminal: vars.terminal
-                                                };
-                                                send({
-                                                    data: dashboard,
-                                                    service: "dashboard-payload"
-                                                }, socket, 3);
                                             }
                                         },
                                         terminalFlag:boolean = (server_name === "dashboard" && type === "dashboard-terminal"),

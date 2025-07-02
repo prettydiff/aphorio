@@ -1,90 +1,8 @@
 import { IModes } from "@xterm/xterm";
 
-// cspell: words bootable, fsavail, fsroots, fssize, fstype, fsused, mountpoint, opencontainers, partflags, parttypename, volu
+// cspell: words opencontainers, serv
 
 declare global {
-
-    interface os_disk {
-        bus: string;
-        guid: string;
-        id: string;
-        name: string;
-        partitions: os_disk_partition[];
-        serial: string;
-        size_disk: number;
-    }
-
-    interface os_disk_partition {
-        active: boolean;
-        bootable: boolean;
-        diskId: string;
-        file_system: string;
-        hidden: boolean;
-        id: string;
-        path: string;
-        read_only: boolean;
-        size_free: number;
-        size_total: number;
-        size_used: number;
-        type: string;
-    }
-
-    interface os_disk_posix {
-        children: os_disk_posix_partition[];
-        model: string;
-        serial: string;
-        size: number;
-        tran: string;
-        uuid: string;
-    }
-
-    interface os_disk_posix_partition {
-        fsavail: number;
-        fsroots: string[];
-        fssize: number;
-        fstype: string;
-        fsused: number;
-        mountpoint: string;
-        partflags: string;
-        parttypename: string;
-        path: string;
-        ro: boolean;
-        type: string;
-        uuid: string;
-    }
-
-    interface os_disk_raw {
-        disk: os_disk_posix[]|os_disk_windows[];
-        part: os_disk_windows_partition[];
-        volu: os_disk_windows_volume[];
-    }
-
-    interface os_disk_windows {
-        BusType: string;
-        FriendlyName: string;
-        Guid: string;
-        SerialNumber: string;
-        Size: number;
-        UniqueId: string;
-    }
-
-    interface os_disk_windows_partition {
-        Guid: string;
-        IsActive: boolean;
-        IsBoot: boolean;
-        IsHidden: boolean;
-        IsReadOnly: boolean;
-        Type: string;
-        UniqueId: string;
-    }
-
-    interface os_disk_windows_volume {
-        DriveLetter: string;
-        FileSystem: string;
-        Size: number;
-        SizeRemaining: number;
-        UniqueId: string;
-    }
 
     interface services_action_compose {
         action: type_dashboard_action;
@@ -243,17 +161,17 @@ declare global {
         uri: string;
     }
 
-    interface services_os {
+    interface services_os_all {
+        interfaces: services_os_intr;
         machine: {
             cores: number;
-            interfaces: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
             memory: {
                 free: number;
                 total: number;
             };
-            storage: os_disk[];
         };
         os: {
+            services: os_service[];
             uptime: number;
         };
         process: {
@@ -266,6 +184,41 @@ declare global {
             };
             uptime: number;
         };
+        processes: services_os_proc;
+        services: services_os_serv;
+        sockets: services_os_sock;
+        storage: services_os_disk;
+        time: number;
+        users: services_os_user;
+    }
+
+    interface services_os_disk {
+        data: os_disk[];
+        time: number;
+    }
+
+    interface services_os_intr {
+        data: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
+        time: number;
+    }
+
+    interface services_os_proc {
+        data: os_proc[];
+        time: number;
+    }
+
+    interface services_os_serv {
+        data: os_service[];
+        time: number;
+    }
+
+    interface services_os_sock {
+        data: os_sockets[];
+        time: number;
+    }
+
+    interface services_os_user {
+        data: os_user[];
         time: number;
     }
 

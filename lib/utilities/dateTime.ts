@@ -1,5 +1,5 @@
 
-const dateTime =  function utilities_dateTime(date:boolean):string {
+const dateTime = function utilities_dateTime(date:boolean):string {
     // eslint-disable-next-line no-restricted-syntax
     const dateItem:Date = new Date(this),
         month:number = dateItem.getMonth(),

@@ -1,5 +1,7 @@
 
 import commas from "../utilities/commas.js";
+import dateTime from "../utilities/dateTime.js";
+import time from "../utilities/time.js";
 
 const core = function core(config:config_core):socket_object {
     const socketCall = function core_socketCall():WebSocket {
@@ -27,6 +29,7 @@ const core = function core(config:config_core):socket_object {
             return socketItem;
         },
         socket:socket_object = {
+            connected: false,
             invoke: socketCall,
             queueStore: [],
             queue: function core_queue(message_item:string):void {
@@ -139,73 +142,14 @@ const core = function core(config:config_core):socket_object {
                 },
                 // bytes - converts a number into a format like ""
                 bytesLong = function core_dom_bytesLong():string {
-                    // eslint-disable-next-line no-restricted-syntax
-                    const input:number = Number(this);
-                    return `${commas(input)} bytes (${bytes(input)})`;
+                    // eslint-disable-next-line no-restricted-syntax, @typescript-eslint/no-this-alias
+                    const input:number = this;
+                    return `${input.commas()} bytes (${bytes(input)})`;
                 },
                 // capitalize a string
                 capitalize = function core_capitalize():string {
                     // eslint-disable-next-line no-restricted-syntax
                     return this.charAt(0).toUpperCase() + this.slice(1);
-                },
-                // return a formatted date and time string from a number
-                // * date: the date portion is optional
-                dateTime = function core_dateTime(date:boolean):string {
-                    // eslint-disable-next-line no-restricted-syntax
-                    const dateItem:Date = new Date(this),
-                        month:number = dateItem.getMonth(),
-                        output:string[] = [],
-                        pad = function core_dateTime_pad(input:number, milliseconds:boolean):string {
-                            const str:string = String(input);
-                            if (milliseconds === true) {
-                                if (str.length === 1) {
-                                    return `${str}00`;
-                                }
-                                if (str.length === 2) {
-                                    return `${str}0`;
-                                }
-                            } else if (str.length === 1) {
-                                return `0${str}`;
-                            }
-                            return str;
-                        },
-                        hours:string = pad(dateItem.getHours(), false),
-                        minutes:string = pad(dateItem.getMinutes(), false),
-                        seconds:string = pad(dateItem.getSeconds(), false),
-                        milliseconds:string = pad(dateItem.getMilliseconds(), true);
-                    output.push(pad(dateItem.getDate(), false));
-                    if (month === 0) {
-                        output.push("JAN");
-                    } else if (month === 1) {
-                        output.push("FEB");
-                    } else if (month === 2) {
-                        output.push("MAR");
-                    } else if (month === 3) {
-                        output.push("APR");
-                    } else if (month === 4) {
-                        output.push("MAY");
-                    } else if (month === 5) {
-                        output.push("JUN");
-                    } else if (month === 6) {
-                        output.push("JUL");
-                    } else if (month === 7) {
-                        output.push("AUG");
-                    } else if (month === 8) {
-                        output.push("SEP");
-                    } else if (month === 9) {
-                        output.push("OCT");
-                    } else if (month === 10) {
-                        output.push("NOV");
-                    } else if (month === 11) {
-                        output.push("DEC");
-                    }
-                    if (date === false) {
-                        return `${hours}:${minutes}:${seconds}.${milliseconds}`;
-                    }
-                    output.push(`${dateItem.getUTCFullYear()},`);
-                    output.push(`${hours}:${minutes}:${seconds}.${milliseconds}`);
-                    return output.join(" ");
-                
                 },
                 // getAncestor - A method to walk up the DOM towards the documentElement.
                 // * identifier: string - The string value to search for.
@@ -467,49 +411,6 @@ const core = function core(config:config_core):socket_object {
                     if (style !== null && style.indexOf("position") > -1) {
                         el.style.position = "static";
                     }
-                },
-                // converts a number into clock time format
-                time = function core_time():string {
-                    const numberString = function utilities_humanTime_numberString(numb:bigint):string {
-                            const str:string = numb.toString();
-                            return (str.length < 2)
-                                ? `0${str}`
-                                : str;
-                        },
-                        // eslint-disable-next-line no-restricted-syntax
-                        elapsed:bigint     = BigInt(Math.floor(this * 1e9)),
-                        factorSec:bigint   = BigInt(1e9),
-                        factorMin:bigint   = (60n * factorSec),
-                        factorHour:bigint  = (3600n * factorSec),
-                        factorDay:bigint   = (86400n * factorSec),
-                        days:bigint        = (elapsed / factorDay),
-                        elapsedDay:bigint  = (days * factorDay),
-                        hours:bigint       = ((elapsed - elapsedDay) / factorHour),
-                        elapsedHour:bigint = (hours * factorHour),
-                        minutes:bigint     = ((elapsed - (elapsedDay + elapsedHour)) / factorMin),
-                        elapsedMin:bigint  = (minutes * factorMin),
-                        seconds:bigint     = ((elapsed - (elapsedDay + elapsedHour + elapsedMin)) / factorSec),
-                        nanosecond:bigint  = (elapsed - (elapsedDay + elapsedHour + elapsedMin + (seconds * factorSec))),
-                        nanoString:string  = (function utilities_humanTime_nanoString():string {
-                            let nano:string = nanosecond.toString(),
-                                a:number = nano.length;
-                            if (a < 9) {
-                                do {
-                                    nano = `0${nano}`;
-                                    a = a + 1;
-                                } while (a < 9);
-                            }
-                            return nano.replace(/0+$/, "");
-                        }()),
-                        secondString:string = (nanoString === "")
-                            ? numberString(seconds)
-                            : `${numberString(seconds)}.${nanoString}`,
-                        minuteString:string = numberString(minutes),
-                        hourString:string = numberString(hours),
-                        dayString:string = (days === 1n)
-                            ? "1 day, "
-                            : `${days.toString()} days, `;
-                    return `${dayString}${hourString}:${minuteString}:${secondString}`;
                 };
         
             // Create a document method
@@ -533,6 +434,7 @@ const core = function core(config:config_core):socket_object {
 
             Number.prototype.bytes                   = bytes;
             Number.prototype.bytesLong               = bytesLong;
+            Number.prototype.commas                  = commas;
             Number.prototype.dateTime                = dateTime;
             Number.prototype.time                    = time;
             String.prototype.capitalize              = capitalize;
