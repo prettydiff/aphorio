@@ -164,6 +164,10 @@ label span.checked{background:var(--background_dark)}
 .linux-options select{display:block;width:20em}
 .linux-options legend{font-size:2em;font-weight:bold}
 
+#dashboard #clock{float:right;margin:-2.75em 1em 0 0}
+#dashboard #clock em{font-style:normal;font-weight:bold}
+#dashboard li h3{font-size:1.5em}
+#dashboard li h6{font-size:1em}
 #dashboard select{display:block}
 #dashboard #servers li,
 #dashboard #compose li{border-color:var(--border_color);border-style:solid;border-width:0.1em}

@@ -142,7 +142,7 @@ const core = function core(config:config_core):socket_object {
                 },
                 // bytes - converts a number into a format like ""
                 bytesLong = function core_dom_bytesLong():string {
-                    // eslint-disable-next-line no-restricted-syntax, @typescript-eslint/no-this-alias
+                    // eslint-disable-next-line no-restricted-syntax
                     const input:number = Number(this);
                     return `${input.commas()} bytes (${bytes(input)})`;
                 },

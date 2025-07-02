@@ -55,30 +55,30 @@ const dashboard = function dashboard():void {
         utility:module_utility = {
             // reset the UI to a near empty baseline
             baseline: function dashboard_utilityBaseline():void {
-                const serverList:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
-                    logs_old:HTMLElement = document.getElementById("application-logs").getElementsByTagName("ul")[0],
-                    sockets_old:HTMLElement = document.getElementById("sockets").getElementsByTagName("tbody")[0],
-                    status:HTMLElement = document.getElementById("connection-status"),
-                    terminal_output:HTMLElement = document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
-                    replace = function dashboard_utilityBaseline_replace(node:HTMLElement, className:boolean):HTMLElement {
-                        if (node !== null && node !== undefined && node.parentNode !== null) {
-                            const node_new:HTMLElement = document.createElement(node.lowName());
-                            if (className === true) {
-                                node_new.setAttribute("class", node.getAttribute("class"));
-                            }
-                            node.parentNode.appendChild(node_new);
-                            node.parentNode.removeChild(node);
-                            return node_new;
-                        }
-                        return null;
-                    };
                 if (loaded === true) {
-                    const server_new:HTMLButtonElement = document.getElementById("servers").getElementsByClassName("server-new")[0] as HTMLButtonElement;
-                    loaded = false;
-                    server_new.disabled = false;
-                    status.setAttribute("class", "connection-offline");
-                    status.getElementsByTagName("strong")[0].textContent = "Offline";
+                    const serverList:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
+                        logs_old:HTMLElement = document.getElementById("application-logs").getElementsByTagName("ul")[0],
+                        sockets_old:HTMLElement = document.getElementById("sockets").getElementsByTagName("tbody")[0],
+                        status:HTMLElement = document.getElementById("connection-status"),
+                        terminal_output:HTMLElement = document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
+                        replace = function dashboard_utilityBaseline_replace(node:HTMLElement, className:boolean):HTMLElement {
+                            if (node !== null && node !== undefined && node.parentNode !== null) {
+                                const node_new:HTMLElement = document.createElement(node.lowName());
+                                if (className === true) {
+                                    node_new.setAttribute("class", node.getAttribute("class"));
+                                }
+                                node.parentNode.appendChild(node_new);
+                                node.parentNode.removeChild(node);
+                                return node_new;
+                            }
+                            return null;
+                        },
+                        server_new:HTMLButtonElement = document.getElementById("servers").getElementsByClassName("server-new")[0] as HTMLButtonElement;
 
+                    loaded = false;
+
+                    replace(logs_old, false);
+                    replace(sockets_old, false);
                     network.interfaces.nodes.count.textContent = "";
                     network.interfaces.nodes.list.textContent = "";
                     network.interfaces.nodes.update_text.textContent = "";
@@ -89,6 +89,22 @@ const dashboard = function dashboard():void {
                     network.sockets.nodes.filter_value.value = "";
                     network.sockets.nodes.list.textContent = "";
                     network.sockets.nodes.update_text.textContent = "";
+                    if (servers.compose.nodes !== null) {
+                        servers.compose.nodes.containers_list = replace(servers.compose.nodes.containers_list, true);
+                        servers.compose.nodes.variables_list = replace(servers.compose.nodes.variables_list, true);
+                        if (servers.compose.nodes.containers_new.disabled === true) {
+                            const compose_containers_cancel:HTMLButtonElement = document.getElementById("compose").getElementsByClassName("section")[1].getElementsByClassName("server-cancel")[0] as HTMLButtonElement;
+                            compose_containers_cancel.click();
+                        }
+                        if (servers.compose.nodes.variables_new.disabled === true) {
+                            const compose_variable_cancel:HTMLButtonElement = document.getElementById("compose").getElementsByClassName("section")[0].getElementsByClassName("server-cancel")[0] as HTMLButtonElement;
+                            compose_variable_cancel.click();
+                        }
+                    }
+                    server_new.disabled = false;
+                    servers.web.nodes.list = replace(serverList, true);
+                    status.setAttribute("class", "connection-offline");
+                    status.getElementsByTagName("strong")[0].textContent = "Offline";
                     system.os.nodes.update_text.textContent = "";
                     system.os.nodes.cpu.arch.textContent = "";
                     system.os.nodes.cpu.cores.textContent = "";
@@ -134,23 +150,7 @@ const dashboard = function dashboard():void {
                     system.storage.nodes.count.textContent = "";
                     system.storage.nodes.list.textContent = "";
                     system.storage.nodes.update_text.textContent = "";
-                    if (servers.compose.nodes !== null) {
-                        servers.compose.nodes.containers_list = replace(servers.compose.nodes.containers_list, true);
-                        servers.compose.nodes.variables_list = replace(servers.compose.nodes.variables_list, true);
-                        if (servers.compose.nodes.containers_new.disabled === true) {
-                            const compose_containers_cancel:HTMLButtonElement = document.getElementById("compose").getElementsByClassName("section")[1].getElementsByClassName("server-cancel")[0] as HTMLButtonElement;
-                            compose_containers_cancel.click();
-                        }
-                        if (servers.compose.nodes.variables_new.disabled === true) {
-                            const compose_variable_cancel:HTMLButtonElement = document.getElementById("compose").getElementsByClassName("section")[0].getElementsByClassName("server-cancel")[0] as HTMLButtonElement;
-                            compose_variable_cancel.click();
-                        }
-                    }
                     tools.terminal.nodes.output = replace(terminal_output, true);
-                    servers.web.nodes.list = replace(serverList, true);
-                    replace(logs_old, false);
-                    replace(sockets_old, false);
-                    utility.socket.socket = null;
                     if (tools.terminal.socket !== null) {
                         tools.terminal.socket.close();
                         tools.terminal.socket = null;
@@ -160,8 +160,29 @@ const dashboard = function dashboard():void {
                     tools.websocket.nodes.status.setAttribute("class", "connection-offline");
                     tools.websocket.nodes.message_receive_body.value = "";
                     tools.websocket.nodes.message_receive_frame.value = "";
+                    utility.clock_node.textContent = "00:00:00";
+                    utility.socket.socket = null;
                 }
             },
+            // provides server time
+            clock: function dashboard_utilityClock(data_item:socket_data):void {
+                const time:number = data_item.data as number,
+                    date:Date = new Date(time),
+                    hour:string = String(date.getHours()),
+                    minute:string = String(date.getMinutes()),
+                    second:string = String(date.getSeconds()),
+                    hours:string = (hour.length === 1)
+                        ? `0${hour}`
+                        : hour,
+                    minutes:string = (minute.length === 1)
+                        ? `0${minute}`
+                        : minute,
+                    seconds:string = (second.length === 1)
+                        ? `0${second}`
+                        : second;
+                utility.clock_node.textContent = `${hours}:${minutes}:${seconds}`;
+            },
+            clock_node: document.getElementById("clock").getElementsByTagName("em")[0],
             // populate the log utility
             log: function dashboard_utilityLog(item:services_dashboard_status):void {
                 const li:HTMLElement = document.createElement("li"),
@@ -314,6 +335,7 @@ const dashboard = function dashboard():void {
                     if (typeof event.data === "string") {
                         const message_item:socket_data = JSON.parse(event.data),
                             service_map:map_messages = {
+                                "dashboard-clock": utility.clock,
                                 "dashboard-dns": tools.dns.receive,
                                 "dashboard-fileSystem": tools.fileSystem.receive,
                                 "dashboard-hash": tools.hash.receive,
