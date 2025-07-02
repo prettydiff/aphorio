@@ -1,4 +1,5 @@
 
+import broadcast from "../transmit/broadcast.js";
 import commas from "./commas.js";
 import core from "../browser/core.js";
 import dashboard_script from "../dashboard/dashboard_script.js";
@@ -23,6 +24,14 @@ const startup = function utilities_startup(callback:() => void):void {
         readComplete = function utilities_startup_readComplete(flag:"config"|"css"|"docker"|"html"|"os"|"terminal"):void {
             flags[flag] = true;
             if (flags.config === true && flags.css === true && flags.docker === true && flags.html === true && flags.os === true && flags.terminal === true) {
+                const clock = function utilities_startup_readComplete_clock():void {
+                    broadcast("dashboard", "dashboard", {
+                        data: Date.now(),
+                        service: "dashboard-clock"
+                    });
+                    setTimeout(utilities_startup_readComplete_clock, 1000);
+                };
+                clock();
                 callback();
             }
         },

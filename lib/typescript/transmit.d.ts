@@ -1,6 +1,6 @@
 
 interface socket_data {
-    data: type_socket_data;
+    data: type_socket_data | number;
     service: type_service;
 }
 
