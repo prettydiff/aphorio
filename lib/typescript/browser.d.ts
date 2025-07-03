@@ -88,7 +88,7 @@ declare global {
             types: HTMLInputElement;
         };
         receive: (data_item:socket_data) => void;
-        resolve: (event:MouseEvent) => void;
+        resolve: (event:KeyboardEvent|MouseEvent) => void;
     }
 
     interface module_fileSystem {

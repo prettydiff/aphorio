@@ -155,6 +155,7 @@ interface os_user {
     lastLogin: number;
     name: string;
     proc: number;
+    type: "system" | "user";
     uid: number;
 }
 
