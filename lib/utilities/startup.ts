@@ -29,7 +29,7 @@ const startup = function utilities_startup(callback:() => void):void {
                         data: Date.now(),
                         service: "dashboard-clock"
                     });
-                    setTimeout(utilities_startup_readComplete_clock, 1000);
+                    setTimeout(utilities_startup_readComplete_clock, 950);
                 };
                 clock();
                 callback();

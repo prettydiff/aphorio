@@ -190,7 +190,6 @@ declare global {
             cpuUser: HTMLElement;
             cwd: HTMLElement;
             memoryExternal: HTMLElement;
-            memoryPercent: HTMLElement;
             memoryProcess: HTMLElement;
             memoryV8: HTMLElement;
             pid: HTMLElement;

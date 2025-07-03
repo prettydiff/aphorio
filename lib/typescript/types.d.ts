@@ -8,7 +8,7 @@ type type_dashboard_config = config_websocket_create | config_websocket_server |
 type type_dashboard_list = "container" | "server";
 type type_dashboard_sections = "compose" | "dns" | "faq" | "file-system" | "hash" | "help" | "http" | "interfaces" | "log" | "os" | "processes" | "services" | "sockets" | "storage" | "terminal" | "web" | "websocket";
 type type_dashboard_status = "error" | "informational" | "success";
-type type_dashboard_type = "compose-containers" | "compose-variables" | "log" | "port" | "server" | "socket" | "terminal" | "websocket-test";
+type type_dashboard_type = "compose-containers" | "compose-variables" | "log" | "os" | "server" | "socket" | "terminal" | "websocket-test";
 // type_directory_type
 // 0 - absolute path
 // 1 - file system item type
