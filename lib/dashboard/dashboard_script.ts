@@ -724,7 +724,7 @@ const dashboard = function dashboard():void {
             // populate large data tables
             tables: function dashboard_utilityTables(module:module_processes|module_services|module_sockets|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user):void {
                 const len:number = item.data.length;
-                if (len > 0) {
+                if (len > 0 && module.nodes.list !== null && module.nodes.list.parentNode !== null) {
                     const list:HTMLElement = module.nodes.list,
                         table:HTMLElement = list.parentNode,
                         cell = function dashboard_utilityTables_cell(tr:HTMLElement, text:string, raw:string):void {
@@ -781,6 +781,7 @@ const dashboard = function dashboard():void {
                                 ? "never"
                                 : record.lastLogin.dateTime(true), String(record.lastLogin));
                             cell(tr, proc, proc);
+                            cell(tr, record.type, null);
                         },
                         sort_index:number = Number(table.dataset.column),
                         sort_name:string = (module === network.sockets)
@@ -2704,6 +2705,8 @@ const dashboard = function dashboard():void {
                     tools.dns.nodes.output.value = "";
                     tools.dns.nodes.hosts.value = state.dns.hosts;
                     tools.dns.nodes.types.value = state.dns.types;
+                    tools.dns.nodes.hosts.onkeyup = tools.dns.resolve;
+                    tools.dns.nodes.types.onkeyup = tools.dns.resolve;
                 },
                 nodes: {
                     hosts: document.getElementById("dns").getElementsByTagName("input")[0],
@@ -2853,16 +2856,20 @@ const dashboard = function dashboard():void {
                         tools.dns.nodes.output.value = "{}";
                     }
                 },
-                resolve: function dashboard_dnsResolve():void {
-                    const values:string[] = tools.dns.nodes.hosts.value.replace(/,\s+/g, ",").split(","),
-                        types:string = tools.dns.nodes.types.value,
-                        payload:services_dns_input = {
-                            names: values,
-                            types: types
-                        };
-                    utility.setState();
-                    utility.message_send(payload, "dashboard-dns");
-                    tools.dns.nodes.output.value = "";
+                resolve: function dashboard_dnsResolve(event:KeyboardEvent|MouseEvent):void {
+                    const target:HTMLElement = event.target,
+                        key:KeyboardEvent = event as KeyboardEvent;
+                    if (target === tools.dns.nodes.resolve || (target !== tools.dns.nodes.resolve && key.key === "Enter")) {
+                        const values:string[] = tools.dns.nodes.hosts.value.replace(/,\s+/g, ",").split(","),
+                            types:string = tools.dns.nodes.types.value,
+                            payload:services_dns_input = {
+                                names: values,
+                                types: types
+                            };
+                        utility.setState();
+                        utility.message_send(payload, "dashboard-dns");
+                        tools.dns.nodes.output.value = "";
+                    }
                 }
             },
             fileSystem: {

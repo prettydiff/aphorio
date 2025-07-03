@@ -31,7 +31,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 : "",
             user: (win32 === true)
                 ? "Get-LocalUser | ConvertTo-JSON -compress -depth 1"
-                : "lslogins -uo user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
+                : "lslogins -o user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
             volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
         },
         disks:os_disk[] = [],
@@ -249,7 +249,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                         : data_win[index].UserName
                             };
                         } else {
-                            line = data_posix[index].split(",");
+                            line = data_posix[index].replace(/^,/, "").split(",");
                             time = line[1].split(":");
                             proc = {
                                 id: Number(line[0]),
@@ -414,25 +414,34 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     };
                 let index:number = 0,
                     user:os_user = null,
-                    line:string[] = null;
+                    line:string[] = null,
+                    uid:number = 0;
                 if (len > 0) {
                     do {
                         if (win32 === true) {
+                            uid = Number(data_win[index].SID.slice(data_win[index].SID.lastIndexOf("-") + 1));
                             user = {
                                 lastLogin: new Date(data_win[index].LastLogon).getTime(),
                                 name: data_win[index].Name,
                                 proc: proc(data_win[index].Name),
-                                uid: Number(data_win[index].SID.slice(data_win[index].SID.lastIndexOf("-") + 1))
+                                type: (uid < 1000)
+                                    ? "system"
+                                    : "user",
+                                uid: uid
                             };
                         } else {
                             line = data_posix[index].split(",");
+                            uid = Number(line[1]);
                             user = {
                                 lastLogin: (line[3] === undefined || line[3] === null || line[3] === "")
                                     ? 0
                                     : new Date(line[3]).getTime(),
                                 name: line[0],
                                 proc: Number(line[2]),
-                                uid: Number(line[1])
+                                type: (uid > 0 && (uid < 1000 || uid > 65530))
+                                    ? "system"
+                                    : "user",
+                                uid: uid
                             };
                         }
                         users.push(user);
@@ -643,7 +652,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                             }
                         // these guys are just pseudo-csv so do not parse as JSON
                         } else if (win32 === false && (type === "proc" || type === "socT" || type === "user")) {
-                            raw[type] = temp.split("\n");
+                            raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
                         } else {
                             raw[type] = JSON.parse(temp);
                         }

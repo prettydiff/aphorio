@@ -17,9 +17,9 @@ import vars from "../utilities/vars.js";
 // 8. call the callback
 
 const server_halt = function services_serverHalt(data:services_action_server, callback:() => void):void {
-    const old:string = (data.server.modification_name === undefined)
-            ? data.server.name
-            : data.server.modification_name,
+    const old:string = (data.server.modification_name === undefined || data.server.modification_name === null || data.server.modification_name === "")
+            ? String(data.server.name)
+            : String(data.server.modification_name),
         temporary:boolean = vars.servers[old].config.temporary;
     if (vars.servers[old] === undefined) {
         log({
@@ -167,6 +167,20 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 keys:string[] = Object.keys(vars.servers),
                 total:number = keys.length;
             let index:number = 0;
+            if (data.action === "modify") {
+                if (data.server.name !== data.server.modification_name) {
+                    delete vars.servers[data.server.name];
+                }
+                delete data.server.modification_name;
+                vars.servers[old] = {
+                    config: data.server,
+                    sockets: [],
+                    status: {
+                        open: 0,
+                        secure: 0
+                    }
+                };
+            }
             // the servers.json file only stores the config property of each server's data
             if (total > 0) {
                 do {
