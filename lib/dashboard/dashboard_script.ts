@@ -130,7 +130,6 @@ const dashboard = function dashboard():void {
                     system.os.nodes.process.ppid.textContent = "";
                     system.os.nodes.process.uptime.textContent = "";
                     system.os.nodes.process.memoryProcess.textContent = "";
-                    system.os.nodes.process.memoryPercent.textContent = "";
                     system.os.nodes.process.memoryV8.textContent = "";
                     system.os.nodes.process.memoryExternal.textContent = "";
                     system.processes.nodes.caseSensitive.checked = true;
@@ -557,7 +556,7 @@ const dashboard = function dashboard():void {
                             } while (index > 0);
                         }
                     };
-                if (data.type !== "port" && data.type !== "socket" && data.message !== "Container status refreshed.") {
+                if (data.type !== "socket" && data.message !== "Container status refreshed.") {
                     utility.log(data);
                 }
                 if (data.status === "error") {
@@ -918,7 +917,7 @@ const dashboard = function dashboard():void {
                 },
                 list: function dashboard_interfacesList(item:services_os_intr):void {
                     const output_old:HTMLElement = network.interfaces.nodes.list,
-                        output_new:HTMLElement = document.createElement("ul"),
+                        output_new:HTMLElement = document.createElement("div"),
                         keys:string[] = Object.keys(item.data),
                         len:number = keys.length,
                         data_item = function dashboard_interfacesList_dataItem(ul:HTMLElement, item:node_os_NetworkInterfaceInfo, key:"address"|"cidr"|"family"|"internal"|"mac"|"netmask"|"scopeid"):void {
@@ -943,19 +942,19 @@ const dashboard = function dashboard():void {
                             data_item(ul, item.data[keys[index]][index_child], "internal");
                             data_item(ul, item.data[keys[index]][index_child], "cidr");
                             data_item(ul, item.data[keys[index]][index_child], "scopeid");
-                            li.appendChild(ul);
+                            div.appendChild(ul);
                         };
                     let index:number = 0,
                         index_child:number = 0,
                         len_child:number = 0,
-                        li:HTMLElement = null,
+                        div:HTMLElement = null,
                         h3:HTMLElement = null;
                     if (len > 0) {
                         do {
-                            li = document.createElement("li");
+                            div = document.createElement("div");
                             h3 = document.createElement("h3");
                             h3.textContent = keys[index];
-                            li.appendChild(h3);
+                            div.appendChild(h3);
                             len_child = item.data[keys[index]].length;
                             if (len_child > 0) {
                                 index_child = 0;
@@ -964,9 +963,11 @@ const dashboard = function dashboard():void {
                                     index_child = index_child + 1;
                                 } while (index_child < len_child);
                             }
-                            output_new.appendChild(li);
+                            div.setAttribute("class", "section");
+                            output_new.appendChild(div);
                             index = index + 1;
                         } while (index < len);
+                        output_new.setAttribute("class", "item-list");
                         output_old.parentNode.insertBefore(output_new, output_old);
                         output_old.parentNode.removeChild(output_old);
                         network.interfaces.nodes.list = output_new;
@@ -977,7 +978,7 @@ const dashboard = function dashboard():void {
                 },
                 nodes: {
                     count: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-                    list: document.getElementById("interfaces").getElementsByTagName("ul")[0],
+                    list: document.getElementById("interfaces").getElementsByClassName("item-list")[0] as HTMLElement,
                     update_button: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                     update_text: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1]
                 }
@@ -2289,9 +2290,9 @@ const dashboard = function dashboard():void {
                     system.os.nodes.cpu.endianness.textContent = payload.os.machine.cpu.endianness;
                     system.os.nodes.cpu.frequency.textContent = `${payload.os.machine.cpu.frequency.commas()}mhz`;
                     system.os.nodes.cpu.name.textContent = payload.os.machine.cpu.name;
-                    system.os.nodes.memory.free.textContent = payload.os.machine.memory.free.bytesLong();
-                    system.os.nodes.memory.used.textContent = (payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong();
-                    system.os.nodes.memory.total.textContent = payload.os.machine.memory.total.bytesLong();
+                    system.os.nodes.memory.free.textContent = `${payload.os.machine.memory.free.bytesLong()}, ${((payload.os.machine.memory.free / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
+                    system.os.nodes.memory.used.textContent = `${(payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong()}, ${(((payload.os.machine.memory.total - payload.os.machine.memory.free) / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
+                    system.os.nodes.memory.total.textContent = `${payload.os.machine.memory.total.bytesLong()}, 100%`;
                     system.os.nodes.os.hostname.textContent = payload.os.os.hostname;
                     system.os.nodes.os.name.textContent = payload.os.os.name;
                     system.os.nodes.os.platform.textContent = payload.os.os.platform;
@@ -2307,8 +2308,7 @@ const dashboard = function dashboard():void {
                     system.os.nodes.process.pid.textContent = String(payload.os.process.pid);
                     system.os.nodes.process.ppid.textContent = String(payload.os.process.ppid);
                     system.os.nodes.process.uptime.textContent = payload.os.process.uptime.time();
-                    system.os.nodes.process.memoryProcess.textContent = payload.os.process.memory.rss.bytesLong();
-                    system.os.nodes.process.memoryPercent.textContent = `${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
+                    system.os.nodes.process.memoryProcess.textContent = `${payload.os.process.memory.rss.bytesLong()}, ${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
                     system.os.nodes.process.memoryV8.textContent = payload.os.process.memory.V8.bytesLong();
                     system.os.nodes.process.memoryExternal.textContent = payload.os.process.memory.external.bytesLong();
                     if (payload.os.process.platform === "win32") {
@@ -2415,13 +2415,12 @@ const dashboard = function dashboard():void {
                                 cpuUser: item("process", 3),
                                 cwd: item("process", 4),
                                 memoryProcess: item("process", 5),
-                                memoryPercent: item("process", 6),
-                                memoryV8: item("process", 7),
-                                memoryExternal: item("process", 8),
-                                platform: item("process", 9),
-                                pid: item("process", 10),
-                                ppid: item("process", 11),
-                                uptime: item("process", 12)
+                                memoryV8: item("process", 6),
+                                memoryExternal: item("process", 7),
+                                platform: item("process", 8),
+                                pid: item("process", 9),
+                                ppid: item("process", 10),
+                                uptime: item("process", 11)
                             },
                             update_button: document.getElementById("os").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                             update_text: document.getElementById("os").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
@@ -2442,15 +2441,14 @@ const dashboard = function dashboard():void {
                             payload.os.process.cpuSystem = data.process.cpuSystem;
                             payload.os.process.cpuUser = data.process.cpuUser;
                             payload.os.process.uptime = data.process.uptime;
-                            system.os.nodes.memory.free.textContent = payload.os.machine.memory.free.bytesLong();
-                            system.os.nodes.memory.used.textContent = (payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong();
-                            system.os.nodes.memory.total.textContent = payload.os.machine.memory.total.bytesLong();
+                            system.os.nodes.memory.free.textContent = `${payload.os.machine.memory.free.bytesLong()}, ${((payload.os.machine.memory.free / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
+                            system.os.nodes.memory.used.textContent = `${(payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong()}, ${(((payload.os.machine.memory.total - payload.os.machine.memory.free) / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
+                            system.os.nodes.memory.total.textContent = `${payload.os.machine.memory.total.bytesLong()}, 100%`;
                             system.os.nodes.os.uptime.textContent = payload.os.os.uptime.time();
                             system.os.nodes.process.cpuSystem.textContent = payload.os.process.cpuSystem.time();
                             system.os.nodes.process.cpuUser.textContent = payload.os.process.cpuUser.time();
                             system.os.nodes.process.uptime.textContent = payload.os.process.uptime.time();
-                            system.os.nodes.process.memoryProcess.textContent = payload.os.process.memory.rss.bytesLong();
-                            system.os.nodes.process.memoryPercent.textContent = `${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
+                            system.os.nodes.process.memoryProcess.textContent = `${payload.os.process.memory.rss.bytesLong()}, ${((payload.os.process.memory.rss / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
                             system.os.nodes.process.memoryV8.textContent = payload.os.process.memory.V8.bytesLong();
                             system.os.nodes.process.memoryExternal.textContent = payload.os.process.memory.external.bytesLong();
                         };
@@ -2545,7 +2543,7 @@ const dashboard = function dashboard():void {
                         return;
                     }
                     const output_old:HTMLElement = system.storage.nodes.list,
-                        output_new:HTMLElement = document.createElement("ul"),
+                        output_new:HTMLElement = document.createElement("div"),
                         len:number = item.data.length,
                         data_item = function dashboard_storageList_dataItem(ul:HTMLElement, disk:os_disk_partition[]|string, key:"active"|"bootable"|"bus"|"file_system"|"guid"|"hidden"|"id"|"name"|"partitions"|"path"|"read_only"|"serial"|"size_disk"|"size_free"|"size_total"|"size_used"|"type"):void {
                             const li:HTMLElement = document.createElement("li"),
@@ -2595,15 +2593,15 @@ const dashboard = function dashboard():void {
                                     } else {
                                         data_item(list, `${item.data[index].partitions[pIndex].size_free.bytesLong()}, ${percent}%`, "size_free");
                                     }
-                                    if (item.data[index].partitions[pIndex].size_total === 0) {
-                                        data_item(list, "0", "size_total");
-                                    } else {
-                                        data_item(list, `${item.data[index].partitions[pIndex].size_total.bytesLong()}, 100%`, "size_total");
-                                    }
                                     if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
                                         data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}`, "size_used");
                                     } else {
                                         data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}, ${Math.round((item.data[index].partitions[pIndex].size_used / item.data[index].partitions[pIndex].size_total) * 100)}%`, "size_used");
+                                    }
+                                    if (item.data[index].partitions[pIndex].size_total === 0) {
+                                        data_item(list, "0 bytes (0B)", "size_total");
+                                    } else {
+                                        data_item(list, `${item.data[index].partitions[pIndex].size_total.bytesLong()}, 100%`, "size_total");
                                     }
                                     data_item(list, item.data[index].partitions[pIndex].type, "type");
                                     li.appendChild(list);
@@ -2635,33 +2633,32 @@ const dashboard = function dashboard():void {
                                 }
                                 li.appendChild(span);
                             }
-                            if (ul.getAttribute("class") === null) {
-                                ul.setAttribute("class", "os-interface");
-                            }
                             ul.appendChild(li);
                         };
-                    let li:HTMLElement = null,
+                    let div:HTMLElement = null,
                         ul:HTMLElement = null,
                         h3:HTMLElement = null,
                         index:number = 0;
                     if (len > 0) {
                         do {
-                            li = document.createElement("li");
+                            div = document.createElement("div");
                             ul = document.createElement("ul");
                             h3 = document.createElement("h3");
                             h3.textContent = item.data[index].name;
-                            li.appendChild(h3);
+                            div.appendChild(h3);
                             data_item(ul, String(item.data[index].bus), "bus");
                             data_item(ul, String(item.data[index].guid), "guid");
                             data_item(ul, String(item.data[index].name), "name");
                             data_item(ul, String(item.data[index].serial), "serial");
                             data_item(ul, item.data[index].size_disk.bytesLong(), "size_disk");
                             data_item(ul, item.data[index].partitions, "partitions");
-                            li.appendChild(ul);
-                            output_new.appendChild(li);
+                            div.appendChild(ul);
+                            div.setAttribute("class", "section");
+                            output_new.appendChild(div);
                             index = index + 1;
                         } while (index < len);
                     }
+                    output_new.setAttribute("class", "item-list");
                     output_old.parentNode.insertBefore(output_new, output_old);
                     output_old.parentNode.removeChild(output_old);
                     system.storage.nodes.list = output_new;
@@ -2670,7 +2667,7 @@ const dashboard = function dashboard():void {
                 },
                 nodes: {
                     count: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-                    list: document.getElementById("storage").getElementsByTagName("ul")[0],
+                    list: document.getElementById("storage").getElementsByClassName("item-list")[0] as HTMLElement,
                     update_button: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                     update_text: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1]
                 }

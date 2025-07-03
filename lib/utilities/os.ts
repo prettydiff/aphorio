@@ -1,4 +1,5 @@
 
+import log from "./log.js";
 import node from "./node.js";
 import vars from "./vars.js";
 
@@ -662,12 +663,28 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         }
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     } catch (e:unknown) {
+                        log({
+                            action: "activate",
+                            config: e as node_error,
+                            message: `Error reading operating system data of type ${type}.`,
+                            status: "error",
+                            type: "os"
+                        });
                         if (flags.disk === true && flags.part === true && flags.volu === true && (type === "disk" || type === "part" || type === "volu")) {
                             completed("disk");
                         } else if (type !== "disk" && type !== "part" && type !== "volu") {
                             completed(type);
                         }
                     }
+                },
+                spawn_error = function utilities_os_spawning_spawnError(err:node_error):void {
+                    log({
+                        action: "activate",
+                        config: err,
+                        message: `Error reading operating system data of type ${type}.`,
+                        status: "error",
+                        type: "os"
+                    });
                 };
             spawn[type] = node.child_process.spawn(commands[type], [], {
                 shell: shell,
@@ -677,6 +694,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             spawn[type].stdout.type = type;
             spawn[type].stdout.on("data", data_callback);
             spawn[type].on("close", close);
+            spawn[type].on("error", spawn_error);
         };
     if (type_os === "all" || type_os === undefined || type_os === null) {
         type_os = "all";

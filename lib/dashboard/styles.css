@@ -227,7 +227,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard h3 .expand{font-size:0.6em}
 #dashboard h4 .expand{font-size:0.675em}
 #dashboard .edit .summary ul{font-size:1em;margin:1em 0 0;padding:0}
-#dashboard main{margin:0 0 0 15em;padding:2em}
+#dashboard main{margin:0 0 0 15.75em;padding:0 1.2em}
 #dashboard main li{list-style:none}
 #dashboard main #faq li{list-style:disc}
 #help ul{padding:0}
@@ -307,7 +307,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard #storage .os-interface.fail-list{background:var(--fail_background)}
 #dashboard #interfaces .os-interface,
 #dashboard #storage .os-interface,
-#dashboard #os .os-interface{border-color:var(--border_soft);border-style:solid;border-width:0.1em}
+#dashboard #os .os-interface{border-color:var(--border_soft);border-style:solid;border-width:0.1em;margin:0 0 1em 2em;padding:0 1em 1em}
 #dashboard #interfaces li,
 #dashboard #storage li,
 #dashboard #os li{border-style:none;list-style:none}
@@ -316,8 +316,14 @@ label span.checked{background:var(--background_dark)}
 #dashboard #storage li > h6,
 #dashboard #os li > strong{display:inline-block;width:18em}
 #dashboard #interfaces ul,
-#dashboard #storage ul,
-#dashboard #os ul{margin:0 0 1em 2em;padding:0 1em 1em}
+#dashboard #storage ul{margin:0 0 1em;padding:0}
+#dashboard #os ul{padding:0 0 1em 2em}
+#dashboard #interfaces ul:last-child,
+#dashboard #storage ul:last-child,
+#dashboard #os ul:last-child{margin-bottom:0}
+#dashboard #interfaces ul ul:last-child,
+#dashboard #storage ul ul:last-child,
+#dashboard #os ul ul:last-child{margin-bottom:0}
 #dashboard #os .section{padding-bottom:0}
 #dashboard #hash .output{height:15em}
 
