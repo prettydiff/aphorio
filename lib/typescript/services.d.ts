@@ -90,7 +90,13 @@ declare global {
 
     interface services_dns_input {
         names: string[];
+        reverse: boolean;
         types: string;
+    }
+
+    interface services_dns_reverse {
+        hostnames: store_string_list;
+        reverse: true;
     }
 
     interface services_dns_output {
