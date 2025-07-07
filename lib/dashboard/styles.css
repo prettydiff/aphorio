@@ -166,6 +166,9 @@ label span.checked{background:var(--background_dark)}
 
 #dashboard #clock{float:right;margin:-2.75em 1.7em 0 0}
 #dashboard #clock em{font-style:normal;font-weight:bold}
+#dashboard input:disabled,
+#dashboard select:disabled,
+#dashboard textarea:disabled{background:var(--background_button)}
 #dashboard li h3{font-size:1.5em}
 #dashboard li h6{font-size:1em}
 #dashboard select{display:block}

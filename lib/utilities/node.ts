@@ -3,7 +3,7 @@
 import { isAscii, isUtf8 } from "node:buffer";
 import { exec, spawn } from "node:child_process";
 import { constants as constantsCrypto, createHash, createPrivateKey, createPublicKey, generateKeyPair, getHashes, Hash, privateDecrypt, publicEncrypt } from "node:crypto";
-import { resolve as resolveDNS } from "node:dns";
+import { resolve as resolveDNS, reverse } from "node:dns";
 import { cp, createReadStream, createWriteStream, lstat, mkdir, open, read, readdir, readFile, readlink, realpath, rename, rm, rmdir, stat, Stats, symlink, unlink, utimes, writeFile } from "node:fs";
 import { createServer as httpServer, get as httpGet, request as httpRequest, STATUS_CODES } from "node:http";
 import { createServer as httpsServer, get as httpsGet, request as httpsRequest } from "node:https";
@@ -37,7 +37,8 @@ const node = {
         Hash: Hash
     },
     dns: {
-        resolve: resolveDNS
+        resolve: resolveDNS,
+        reverse: reverse
     },
     fs: {
         cp: cp,

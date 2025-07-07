@@ -80,15 +80,19 @@ declare global {
     }
 
     interface module_dns {
+        direction: (reverse:boolean) => void;
+        directionEvent: (event:MouseEvent) => void;
         init: () => void;
         nodes: {
             hosts: HTMLInputElement;
+            lookup: HTMLInputElement;
             output: HTMLTextAreaElement;
-            resolve: HTMLButtonElement;
+            query: HTMLButtonElement;
+            reverse: HTMLInputElement;
             types: HTMLInputElement;
         };
+        query: (event:KeyboardEvent|MouseEvent) => void;
         receive: (data_item:socket_data) => void;
-        resolve: (event:KeyboardEvent|MouseEvent) => void;
     }
 
     interface module_fileSystem {
@@ -402,6 +406,7 @@ declare global {
     interface state_store {
         dns: {
             hosts: string;
+            reverse: boolean;
             types: string;
         };
         fileSystem: {

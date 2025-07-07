@@ -40,7 +40,7 @@
         </div>
         <div>
             <h3>Tools</h3>
-            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="http">HTTP Test</button></li><li><button data-section="websocket">WebSocket Test</button></li><li><button data-section="dns">DNS Resolve</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
+            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="http">HTTP Test</button></li><li><button data-section="websocket">WebSocket Test</button></li><li><button data-section="dns">DNS Query</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
         </div>
         <div>
             <h3>Informational</h3>
@@ -68,7 +68,7 @@
             </div>
         </div>
         <div class="tab" id="dns">
-            <h2>DNS Resolve</h2>
+            <h2>DNS Query</h2>
             <p class="tab-description">Test DNS name resolution from the application's location.</p>
             <div class="definitions">
                 <h3>DNS Type Definitions <button class="expand">Expand</button></h3>
@@ -99,9 +99,11 @@
             </div>
             <div class="section">
                 <h3>Input</h3>
+                <h4>Query Direction</h4>
+                <p><label class="radio">DNS Name Resolve <input checked="checked" name="dns_direction" type="radio" value="resolve"/></label> <label class="radio">Reverse DNS Lookup <input checked="checked" name="dns_direction" type="radio" value="reverse"/></label></p>
                 <p><label>Comma separated list of domains and/or hostname entries <input type="text"/></label></p>
                 <p><label>Comma separated list of record types. Leave blank for all types. Supported types: A, AAAA, CAA, CNAME, MX, NAPTR, NS, PTR, SOA, SRV, TXT <input type="text"/></label></p>
-                <p class="buttons"><button>Resolve</button></p>
+                <p class="buttons"><button>Execute Query</button></p>
             </div>
             <div class="section">
                 <h3>Output</h3>
