@@ -149,6 +149,13 @@ const dashboard = function dashboard():void {
                     system.storage.nodes.count.textContent = "";
                     system.storage.nodes.list.textContent = "";
                     system.storage.nodes.update_text.textContent = "";
+                    system.users.nodes.caseSensitive.checked = true;
+                    system.users.nodes.count.textContent = "";
+                    system.users.nodes.filter_column.textContent = "";
+                    system.users.nodes.filter_count.textContent = "";
+                    system.users.nodes.filter_value.value = "";
+                    system.users.nodes.list.textContent = "";
+                    system.users.nodes.update_text.textContent = "";
                     tools.terminal.nodes.output = replace(terminal_output, true);
                     if (tools.terminal.socket !== null) {
                         tools.terminal.socket.close();
