@@ -29,6 +29,7 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-os-proc": os,
             "dashboard-os-serv": os,
             "dashboard-os-sock": os,
+            "dashboard-os-user": os,
             "dashboard-server": servers,
             "dashboard-terminal-resize": terminal.resize,
             "dashboard-websocket-handshake": websocket_test.handshake,

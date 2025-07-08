@@ -913,7 +913,8 @@ const dashboard = function dashboard():void {
                         processes: "proc",
                         services: "serv",
                         sockets: "sock",
-                        storage: "disk"
+                        storage: "disk",
+                        users: "user"
                     };
                 utility.message_send(null, `dashboard-os-${map[id]}` as type_service);
             }
