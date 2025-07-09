@@ -619,8 +619,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     service: "dashboard-os-sock"
                 });
             } else if (type_os === "user") {
-                vars.os.sockets = {
-                    data: sockets,
+                vars.os.users = {
+                    data: users,
                     time: now
                 };
                 callback({
@@ -670,7 +670,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         } else {
                             builder[type]();
                         }
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     } catch (e:unknown) {
                         log({
                             action: "activate",

@@ -185,7 +185,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                 do {
                                     if (list[index_item][3] === 0 && list[index_item][0].indexOf(input) !== list[index_item][0].length - input.length) {
                                         address = `${scheme}://${host + index0[1].replace(/\/$/, "") + vars.sep + list[index_item][0]}`;
-                                        dtg = list[index_item][5].mtimeMs.dateTime(true).split(", ");
+                                        dtg = list[index_item][5].mtimeMs.dateTime(true, null).split(", ");
                                         content.push(`<tr class="${(index_item % 2 === 0) ? "even" : "odd"}"><td class="file-name"><span class="icon">${icon[list[index_item][1]]}</span> <a href="${address}">${list[index_item][0]}</a></td><td>${list[index_item][1]}</td><td data-raw="${list[index_item][5].size}">${list[index_item][5].size.commas()}</td><td data-raw="${list[index_item][5].mtimeMs}">${dtg[0]}</td><td>${dtg[1]}</td><td>${list[index_item][5].mode === null ? "" : (list[index_item][5].mode & parseInt("777", 8)).toString(8)}</td><td data-raw="${list[index_item][4]}">${list[index_item][4].commas()}</td></tr>`);
                                     }
                                     index_item = index_item + 1;
@@ -314,7 +314,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     platform: process.platform,
                     ports: vars.system_ports,
                     servers: vars.servers,
-                    terminal: vars.terminal
+                    terminal: vars.terminal,
+                    timeZone_offset: vars.timeZone_offset
                 },
                 dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s?=\s?null/, `const payload=${JSON.stringify(payload)}`),
                 headers:string[] = [

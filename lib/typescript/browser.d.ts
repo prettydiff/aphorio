@@ -37,7 +37,7 @@ declare global {
         bytes: (input?:number) => string;
         bytesLong: () => string;
         commas: () => string;
-        dateTime: (date:boolean) => string;
+        dateTime: (date:boolean, zulu:number) => string;
         time: () => string;
     }
 

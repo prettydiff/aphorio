@@ -14,6 +14,11 @@ declare global {
         server: services_server;
     }
 
+    interface services_clock {
+        time_local: number;
+        time_zulu: number;
+    }
+
     interface services_dashboard {
         "activate": type_server_action;
         "add": type_server_action;
