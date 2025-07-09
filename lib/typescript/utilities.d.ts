@@ -274,6 +274,7 @@ interface vars {
     system_ports: external_ports;
     terminal: string[];
     text: store_string;
+    timeZone_offset: number;
 }
 
 interface windows_drives {

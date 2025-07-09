@@ -1,6 +1,6 @@
 
 interface socket_data {
-    data: type_socket_data | number;
+    data: type_socket_data;
     service: type_service;
 }
 
@@ -41,6 +41,7 @@ interface transmit_dashboard {
     };
     servers: store_servers;
     terminal: string[];
+    timeZone_offset: number;
 }
 
 interface transmit_receiver {

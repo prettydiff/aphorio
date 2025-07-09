@@ -1,7 +1,8 @@
 
-const dateTime = function utilities_dateTime(date:boolean):string {
-    // eslint-disable-next-line no-restricted-syntax
-    const dateItem:Date = new Date(this),
+const dateTime = function utilities_dateTime(date:boolean, timeZone_offset:number):string {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
+    const epoch:number = this,
+        dateItem:Date = new Date(epoch),
         month:number = dateItem.getMonth(),
         output:string[] = [],
         pad = function utilities_dateTime_pad(input:number, milliseconds:boolean):string {
@@ -21,7 +22,11 @@ const dateTime = function utilities_dateTime(date:boolean):string {
         hours:string = pad(dateItem.getHours(), false),
         minutes:string = pad(dateItem.getMinutes(), false),
         seconds:string = pad(dateItem.getSeconds(), false),
-        milliseconds:string = pad(dateItem.getMilliseconds(), true);
+        milliseconds:string = pad(dateItem.getMilliseconds(), true),
+        zulu_test:boolean = (isNaN(timeZone_offset) === false && timeZone_offset > 0),
+        lima:string = (zulu_test === true)
+            ? "L"
+            : "";
     output.push(pad(dateItem.getDate(), false));
     if (month === 0) {
         output.push("JAN");
@@ -52,7 +57,11 @@ const dateTime = function utilities_dateTime(date:boolean):string {
         return `${hours}:${minutes}:${seconds}.${milliseconds}`;
     }
     output.push(`${dateItem.getUTCFullYear()},`);
-    output.push(`${hours}:${minutes}:${seconds}.${milliseconds}`);
+    output.push(`${hours}:${minutes}:${seconds}.${milliseconds + lima}`);
+    if (zulu_test === true) {
+        const zulu:number = epoch + timeZone_offset;
+        output.push(`(${zulu.dateTime(false, null)}Z)`);
+    }
     return output.join(" ");
 
 };

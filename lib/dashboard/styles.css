@@ -174,7 +174,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard select{display:block}
 #dashboard #servers li,
 #dashboard #compose li{border-color:var(--border_color);border-style:solid;border-width:0.1em}
-#connection-status{margin:0 1.7em 1.8em 1.8em}
+#connection-status{margin:0 1.7em 1.8em}
 #connection-status,
 #dashboard p#websocket-status{border-color:var(--border_color);border-style:solid;border-width:0.1em;padding:0.2em 0.4em}
 #dashboard p#websocket-status{margin:-1.75em -1.75em 1.5em}
@@ -196,7 +196,7 @@ label span.checked{background:var(--background_dark)}
 #dashboard nav button:hover{color:var(--text)}
 #dashboard .tab-description{border-color:var(--border_soft);border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 0.5em}
 #servers .detail_item p{margin:0 0 0.5em}
-#dashboard h1{margin:0 0.5em 0.5em}
+#dashboard h1{margin:0 0.67em 0.5em}
 #dashboard h2{margin:0 0 0.5em}
 #dashboard .compose-container-list,
 #dashboard .server-list{padding:0}

@@ -25,8 +25,13 @@ const startup = function utilities_startup(callback:() => void):void {
             flags[flag] = true;
             if (flags.config === true && flags.css === true && flags.docker === true && flags.html === true && flags.os === true && flags.terminal === true) {
                 const clock = function utilities_startup_readComplete_clock():void {
+                    const now:number = Date.now(),
+                        payload:services_clock = {
+                            time_local: now,
+                            time_zulu: (now + (new Date().getTimezoneOffset() * 60000))
+                        };
                     broadcast("dashboard", "dashboard", {
-                        data: Date.now(),
+                        data: payload,
                         service: "dashboard-clock"
                     });
                     setTimeout(utilities_startup_readComplete_clock, 950);
@@ -185,6 +190,25 @@ const startup = function utilities_startup(callback:() => void):void {
         },
         osCallback = function utilities_startup_osCallback():void {
             readComplete("os");
+        },
+        midnight:number = (function utilities_startup_midnight():number {
+            const date:Date = new Date(),
+                hours:number = date.getHours(),
+                minutes:number = date.getMinutes(),
+                seconds:number = date.getSeconds(),
+                mill:number = date.getMilliseconds(),
+                night:number = ((23 - hours) * 3600 * 1000) + ((59 - minutes) * 60 * 1000) + ((59 - seconds) * 1000) + (1000 - mill);
+            vars.timeZone_offset = date.getTimezoneOffset() * 60000;
+            return night - 25;
+        }()),
+        osDelay = function utilities_startup_osDelay():void {
+            os("all", function utilities_startup_osDelay(payload:socket_data):void {
+                broadcast("dashboard", "dashboard", payload);
+            });
+            osDaily();
+        },
+        osDaily = function utilities_startup_osDaily():void {
+            setTimeout(osDelay, 86399975);
         };
 
     String.prototype.capitalize = capitalize;
@@ -254,6 +278,7 @@ const startup = function utilities_startup(callback:() => void):void {
         });
     }
     os("all", osCallback);
+    setTimeout(osDelay, midnight);
 };
 
 export default startup;

@@ -107,6 +107,10 @@ const gid:number = (typeof process.getgid === "undefined")
                 uid: (gid === 0)
                     ? 1000
                     : uid
+            },
+            users: {
+                data: [],
+                time: 0
             }
         },
         path: {
@@ -146,7 +150,8 @@ const gid:number = (typeof process.getgid === "undefined")
             red      : "\u001b[31m",
             underline: "\u001b[4m",
             yellow   : "\u001b[33m"
-        }
+        },
+        timeZone_offset: 0
     };
 
 export default vars;

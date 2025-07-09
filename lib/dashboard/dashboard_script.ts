@@ -172,21 +172,24 @@ const dashboard = function dashboard():void {
             },
             // provides server time
             clock: function dashboard_utilityClock(data_item:socket_data):void {
-                const time:number = data_item.data as number,
-                    date:Date = new Date(time),
-                    hour:string = String(date.getHours()),
-                    minute:string = String(date.getMinutes()),
-                    second:string = String(date.getSeconds()),
-                    hours:string = (hour.length === 1)
-                        ? `0${hour}`
-                        : hour,
-                    minutes:string = (minute.length === 1)
-                        ? `0${minute}`
-                        : minute,
-                    seconds:string = (second.length === 1)
-                        ? `0${second}`
-                        : second;
-                utility.clock_node.textContent = `${hours}:${minutes}:${seconds}`;
+                const data:services_clock = data_item.data as services_clock,
+                    str = function dashboard_utilityClock_str(num:number):string {
+                        const date:Date = new Date(num),
+                            hour:string = String(date.getHours()),
+                            minute:string = String(date.getMinutes()),
+                            second:string = String(date.getSeconds()),
+                            hours:string = (hour.length === 1)
+                                ? `0${hour}`
+                                : hour,
+                            minutes:string = (minute.length === 1)
+                                ? `0${minute}`
+                                : minute,
+                            seconds:string = (second.length === 1)
+                                ? `0${second}`
+                                : second;
+                        return `${hours}:${minutes}:${seconds}`;
+                    };
+                utility.clock_node.textContent = `${str(data.time_local)}L (${str(data.time_zulu)}Z)`;
             },
             clock_node: document.getElementById("clock").getElementsByTagName("em")[0],
             // populate the log utility
@@ -196,7 +199,7 @@ const dashboard = function dashboard():void {
                     ul:HTMLElement = document.getElementById("application-logs").getElementsByTagName("ul")[0],
                     strong:HTMLElement = document.createElement("strong"),
                     code:HTMLElement = document.createElement("code"),
-                    time:string = item.time.dateTime(false);
+                    time:string = item.time.dateTime(false, null);
                 timeElement.appendText(time);
                 li.appendChild(timeElement);
                 li.setAttribute("class", `log-${item.status}`);
@@ -787,7 +790,7 @@ const dashboard = function dashboard():void {
                             cell(tr, uid, uid);
                             cell(tr, (record.lastLogin === 0)
                                 ? "never"
-                                : record.lastLogin.dateTime(true), String(record.lastLogin));
+                                : record.lastLogin.dateTime(true, null), String(record.lastLogin));
                             cell(tr, proc, proc);
                             cell(tr, record.type, null);
                         },
@@ -825,7 +828,7 @@ const dashboard = function dashboard():void {
                         list.appendChild(row);
                         index = index + 1;
                     } while (index < len);
-                    module.nodes.update_text.textContent = item.time.dateTime(true);
+                    module.nodes.update_text.textContent = item.time.dateTime(true, payload.timeZone_offset);
                     module.nodes.count.textContent = String(item.data.length);
                     module.nodes.list = table.getElementsByTagName("tbody")[0];
                     utility.table_filter(null, module.nodes.filter_value);
@@ -982,7 +985,7 @@ const dashboard = function dashboard():void {
                         output_old.parentNode.removeChild(output_old);
                         network.interfaces.nodes.list = output_new;
                         network.interfaces.nodes.count.textContent = String(len);
-                        network.interfaces.nodes.update_text.textContent = item.time.dateTime(true);
+                        network.interfaces.nodes.update_text.textContent = item.time.dateTime(true, payload.timeZone_offset);
                         payload.os.interfaces = item;
                     }
                 },
@@ -2287,7 +2290,7 @@ const dashboard = function dashboard():void {
         system:structure_system = {
             os: {
                 init: function dashboard_osInit():void {
-                    const time:string = payload.os.time.dateTime(true);
+                    const time:string = payload.os.time.dateTime(true, payload.timeZone_offset);
                     let keys:string[] = null,
                         li:HTMLElement = null,
                         strong:HTMLElement = null,
@@ -2445,7 +2448,7 @@ const dashboard = function dashboard():void {
                 }()),
                 service: function dashboard_osService(data_item:socket_data):void {
                     const main = function dashboard_osService_main(data:services_os_all):void {
-                            system.os.nodes.update_text.textContent = data.time.dateTime(true);
+                            system.os.nodes.update_text.textContent = data.time.dateTime(true, payload.timeZone_offset);
                             payload.os.machine.memory = data.machine.memory;
                             payload.os.os.uptime = data.os.uptime;
                             payload.os.process.cpuSystem = data.process.cpuSystem;
@@ -2673,7 +2676,7 @@ const dashboard = function dashboard():void {
                     output_old.parentNode.removeChild(output_old);
                     system.storage.nodes.list = output_new;
                     system.storage.nodes.count.textContent = String(len);
-                    system.storage.nodes.update_text.textContent = item.time.dateTime(true);
+                    system.storage.nodes.update_text.textContent = item.time.dateTime(true, payload.timeZone_offset);
                 },
                 nodes: {
                     count: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
@@ -2802,7 +2805,7 @@ const dashboard = function dashboard():void {
                     } else {
                         const result:services_dns_output = data_item.data as services_dns_output,
                             hosts:string[] = Object.keys(result),
-                            len_hosts:number = hosts.length
+                            len_hosts:number = hosts.length;
                         if (len_hosts > 0) {
                             const output:string[] = ["{"],
                                 sort = function dashboard_dnsReceive_sort(a:string, b:string):-1|1 {
@@ -3016,7 +3019,7 @@ const dashboard = function dashboard():void {
                                 dtg:string[] = null;
                             summary[item[1]] = summary[item[1]] + 1;
                             size = size + item[5].size;
-                            dtg = item[5].mtimeMs.dateTime(true).split(", ");
+                            dtg = item[5].mtimeMs.dateTime(true, payload.timeZone_offset).split(", ");
                             button = document.createElement("button");
                             tr = document.createElement("tr");
                             span = document.createElement("span");
