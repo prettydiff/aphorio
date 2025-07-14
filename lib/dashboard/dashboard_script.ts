@@ -3667,7 +3667,8 @@ const dashboard = function dashboard():void {
 
     // start up logic for browser
     {
-        window.onerror = function dashboard_windowError(message:string|Event, source:string, lineno:number, colno:number, error:Error):void {
+        // eslint-disable-next-line max-params
+        window.onerror = function dashboard_windowError(message:Event|string, source:string, lineno:number, colno:number, error:Error):void {
             utility.log({
                 action: "modify",
                 configuration: null,
