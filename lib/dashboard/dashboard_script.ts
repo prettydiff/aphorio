@@ -3667,6 +3667,17 @@ const dashboard = function dashboard():void {
 
     // start up logic for browser
     {
+        // eslint-disable-next-line max-params
+        window.onerror = function dashboard_windowError(message:Event|string, source:string, lineno:number, colno:number, error:Error):void {
+            utility.log({
+                action: "modify",
+                configuration: null,
+                message: `JavaScript UI error in browser on line ${lineno} and column ${colno} in ${source}.\n\nError message:\n${message.toString()}\n\nError object:\n${JSON.stringify(error)}`,
+                status: "error",
+                time: 0,
+                type: "log"
+            });
+        };
         const navButtons:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("nav")[0].getElementsByTagName("button"),
             navigation = function dashboard_navigation(event:MouseEvent):void {
                 const target:HTMLElement = event.target;
