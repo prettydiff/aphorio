@@ -212,7 +212,6 @@ declare global {
     }
 
     interface module_processes {
-        init: () => void;
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
@@ -234,7 +233,6 @@ declare global {
     }
 
     interface module_services {
-        init: () => void;
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
@@ -248,7 +246,6 @@ declare global {
     }
 
     interface module_sockets {
-        init: () => void;
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
@@ -270,6 +267,14 @@ declare global {
             update_button: HTMLButtonElement;
             update_text: HTMLElement;
         };
+    }
+
+    interface module_tables {
+        filter: (event:Event, target?:HTMLInputElement) => void;
+        init: (module:module_processes|module_services|module_sockets|module_users, state_name:"processes"|"services"|"sockets"|"users") => void;
+        populate: (module:module_processes|module_services|module_sockets|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user) => void;
+        sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
+        update: (event:MouseEvent) => void;
     }
 
     interface module_terminal {
@@ -296,7 +301,6 @@ declare global {
     }
 
     interface module_users {
-        init: () => void;
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
@@ -317,12 +321,7 @@ declare global {
         message_send: (data:type_socket_data, service:type_service) => void;
         setState: () => void;
         socket: socket_object;
-        sort_column_names: (table:HTMLElement, select:HTMLSelectElement) => void;
-        sort_tables: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         status: (data_item:socket_data) => void;
-        table_filter: (event:Event, target?:HTMLInputElement) => void;
-        table_update: (event:MouseEvent) => void;
-        tables: (module:module_processes|module_services|module_sockets|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user) => void;
     }
 
     interface module_web {

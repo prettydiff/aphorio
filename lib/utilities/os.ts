@@ -644,6 +644,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     spawn[type].kill();
                     // eslint-disable-next-line no-restricted-syntax
                     try {
+                        // parse string output into a data structure
                         if (type === "disk") {
                             if (win32 === true) {
                                 raw.disk = JSON.parse(temp) as os_disk_windows[];
@@ -656,6 +657,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         } else {
                             raw[type] = JSON.parse(temp);
                         }
+
+                        // building the uniform data output
                         if ((type === "proc" || type === "user")) {
                             if (win32 === true && flags.proc === true && flags.user === true) {
                                 builder.proc();
@@ -725,6 +728,9 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
     } else if (type_os === "intr") {
         completed("disk");
     } else if (type_os === "proc") {
+        if (win32 === true) {
+            spawning("user");
+        }
         spawning("proc");
     } else if (type_os === "serv") {
         spawning("serv");
