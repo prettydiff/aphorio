@@ -267,17 +267,17 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         headerText:string[] = [
                             "HTTP/1.1 200",
                             `content-type: ${content_type}`,
-                            `content-length: ${Number(stat.size)}`,
+                            "transfer-encoding: chunked",
                             "server: prettydiff/webserver",
                             "",
                             ""
                         ];
                     // sometimes stat.size reports the wrong file size
                     if (stat.size < (stat.blksize + 1n) && content_type.includes("utf8") === true) {
-                        node.fs.readFile(input, function http_get_statTest_fileItem_read(err:node_error, file:Buffer):void {
+                        node.fs.readFile(input, function http_get_statTest_fileItem_read(err:node_error, fileItem:Buffer):void {
                             if (err === null) {
-                                headerText[2] = `content-length: ${file.length}`;
-                                write(payload(headerText, file.toString()));
+                                headerText[2] = `content-length: ${Buffer.byteLength(fileItem)}`;
+                                write(payload(headerText, fileItem.toString()));
                             } else {
                                 serverError(err, `Error attempting to read file: ${index0[1]}`);
                             }
@@ -286,10 +286,13 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         write(headerText.join("\r\n"));
                     } else {
                         const stream:node_fs_ReadStream = node.fs.createReadStream(input);
-                        socket.write(headerText.join("\r\n"));
-                        stream.pipe(socket);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
+                            socket.write("0\r\n\r\n");
                             socket.destroy();
+                        });
+                        socket.write(headerText.join("\r\n"));
+                        stream.on("data", function http_get_statTest_fileItem_data(data:Buffer):void {
+                            socket.write(`${Buffer.byteLength(data).toString(16)}\r\n${data}\r\n`);
                         });
                     }
                 };
@@ -303,7 +306,11 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         },
         decoded:string = decodeURI(fileFragment);
     if (server_name === "dashboard") {
-        if (decoded === "") {
+        if (decoded.includes("styles.css") === true) {
+            input = `${vars.path.project}lib${vars.sep}dashboard${vars.sep}styles.css`;
+        } else if (decoded.includes("xterm.css") === true) {
+            input = `${vars.path.project}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}css${vars.sep}xterm.css`;
+        } else if (decoded === "" || decoded.includes("/") === true) {
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {
                     compose: vars.compose,
@@ -328,11 +335,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                 ];
             write(headers.join("\r\n") + dashboard);
             return;
-        }
-        if (decoded.includes("node_modules") === true) {
-            input = vars.path.project + decoded;
-        } else {
-            input = `${vars.path.project}lib${vars.sep}dashboard${vars.sep}` + decoded;
         }
     } else if (fileFragment === "") {
         // server root html file takes the name of the server, not index.html

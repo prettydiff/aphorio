@@ -52,6 +52,339 @@ const dashboard = function dashboard():void {
                 terminal: ""
             }
             : JSON.parse(local),
+        tables:module_tables = {
+            // filter large data tables
+            filter: function dashboard_tablesFilter(event:Event, target?:HTMLInputElement):void {
+                if (event !== null) {
+                    const key:KeyboardEvent = event as KeyboardEvent;
+                    if (event.type === "keyup" && key.key !== "Enter") {
+                        return;
+                    }
+                    target = event.target as HTMLInputElement;
+                    utility.setState();
+                }
+                const section:string = target.getAncestor("tab", "class").getAttribute("id"),
+                    module:module_processes|module_services|module_sockets|module_users = (section === "processes")
+                        ? system.processes
+                        : (section === "services")
+                            ? system.services
+                            : (section === "sockets")
+                                ? network.sockets
+                                : system.users,
+                    select:HTMLSelectElement = module.nodes.filter_column,
+                    columnIndex:number = select.selectedIndex - 1,
+                    list:HTMLCollectionOf<HTMLElement> = module.nodes.list.getElementsByTagName("tr"),
+                    cell_length:number = module.nodes.list.parentNode.getElementsByTagName("th").length,
+                    sensitive:boolean = module.nodes.caseSensitive.checked,
+                    value:string = (sensitive === true)
+                        ? module.nodes.filter_value.value
+                        : module.nodes.filter_value.value.toLowerCase();
+                let index:number = list.length,
+                    cells:HTMLCollectionOf<HTMLElement> = null,
+                    count:number = 0,
+                    test:boolean = false,
+                    cell_index:number = 0;
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        cells = list[index].getElementsByTagName("td");
+                        cell_index = cell_length;
+                        if (value === "") {
+                            list[index].style.display = "table-row";
+                            count = count + 1;
+                        } else if (columnIndex < 0) {
+                            test = false;
+                            do {
+                                cell_index = cell_index - 1;
+                                if ((sensitive === true && cells[cell_index].textContent.includes(value) === true) || (sensitive === false && cells[cell_index].textContent.toLowerCase().includes(value) === true)) {
+                                    list[index].style.display = "table-row";
+                                    count = count + 1;
+                                    test = true;
+                                    break;
+                                }
+                            } while (cell_index > 0);
+                            if (test === false) {
+                                list[index].style.display = "none";
+                            }
+                        } else if ((sensitive === true && cells[columnIndex].textContent.includes(value) === true) || (sensitive === false && cells[columnIndex].textContent.toLowerCase().includes(value) === true)) {
+                            list[index].style.display = "table-row";
+                            count = count + 1;
+                        } else {
+                            list[index].style.display = "none";
+                        }
+                    } while (index > 0);
+                    module.nodes.filter_count.textContent = String(count);
+                }
+            },
+            // attaches event listeners to data tables and restores state
+            init: function dashboard_tablesInit(module:module_processes|module_services|module_sockets|module_users, state_name:"processes"|"services"|"sockets"|"users"):void {
+                const select = function dashboard_tablesSelect(table:HTMLElement, select:HTMLSelectElement):void {
+                    const th:HTMLCollectionOf<HTMLElement> = table.getElementsByTagName("th"),
+                        len:number = th.length;
+                    let index:number = 0,
+                        option:HTMLElement = document.createElement("option");
+                    option.textContent = "All";
+                    select.appendChild(option);
+                    if (len > 0) {
+                        do {
+                            option = document.createElement("option");
+                            option.textContent = th[index].getElementsByTagName("button")[0].textContent;
+                            select.appendChild(option);
+                            index = index + 1;
+                        } while (index < len);
+                    }
+                };
+                if (state.table_os[state_name] === undefined) {
+                    state.table_os[state_name] = {
+                        filter_column: module.nodes.filter_column.selectedIndex,
+                        filter_sensitive: module.nodes.caseSensitive.checked,
+                        filter_value: module.nodes.filter_value.value
+                    };
+                } else {
+                    state.table_os[state_name].filter_column = module.nodes.filter_column.selectedIndex;
+                    state.table_os[state_name].filter_sensitive = module.nodes.caseSensitive.checked;
+                    state.table_os[state_name].filter_value = module.nodes.filter_value.value;
+                }
+                module.nodes.filter_column.onchange = tables.filter;
+                module.nodes.caseSensitive.onclick = utility.setState;
+                module.nodes.filter_value.onblur = tables.filter;
+                module.nodes.filter_value.onkeyup = tables.filter;
+                module.nodes.update_button.onclick = tables.update;
+                select(module.nodes.list.parentNode, module.nodes.filter_column);
+                tables.populate(module, payload.os[state_name]);
+            },
+            // populate large data tables
+            populate: function dashboard_tablesPopulate(module:module_processes|module_services|module_sockets|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user):void {
+                const len:number = item.data.length;
+                if (len > 0 && module.nodes.list !== null && module.nodes.list.parentNode !== null) {
+                    const list:HTMLElement = module.nodes.list,
+                        table:HTMLElement = list.parentNode,
+                        cell = function dashboard_tablesPopulate_cell(tr:HTMLElement, text:string, raw:string):void {
+                            const td:HTMLElement = document.createElement("td");
+                            td.textContent = text;
+                            if (raw !== null) {
+                                td.setAttribute("class", "right");
+                                if (raw !== text) {
+                                    td.setAttribute("data-raw", raw);
+                                }
+                            }
+                            tr.appendChild(td);
+                        },
+                        populate_process = function dashboard_tablesPopulate_populateProcess(tr:HTMLElement, record:os_proc):void {
+                            const time:string = (record.time === null)
+                                    ? (payload.platform === "win32")
+                                        ? (0).time().replace(/000$/, "")
+                                        : (0).time().replace(/\.0+$/, "")
+                                    : (payload.platform === "win32")
+                                        ? record.time.time().replace(/000$/, "")
+                                        : record.time.time().replace(/\.0+$/, ""),
+                                memory:string = (record.memory === null)
+                                    ? "0"
+                                    : record.memory.commas(),
+                                id:string = String(record.id);
+                            cell(tr, record.name, null);
+                            cell(tr, id, id);
+                            cell(tr, memory, (record.memory === null)
+                                ? "0"
+                                : String(record.memory));
+                            cell(tr, time, (record.time === null)
+                                ? "0"
+                                : String(record.time));
+                            cell(tr, record.user, null);
+                        },
+                        populate_services = function dashboard_tablesPopulate_populateServices(tr:HTMLElement, record:os_service):void {
+                            cell(tr, record.name, null);
+                            cell(tr, record.status, null);
+                            cell(tr, record.description, null);
+                        },
+                        populate_sockets = function dashboard_tablesPopulate_populateSockets(tr:HTMLElement, record:os_sockets):void {
+                            cell(tr, record.type, null);
+                            cell(tr, record["local-address"], null);
+                            cell(tr, String(record["local-port"]), null);
+                            cell(tr, record["remote-address"], null);
+                            cell(tr, String(record["remote-port"]), null);
+                        },
+                        populate_users = function dashboard_tablesPopulate_populateUsers(tr:HTMLElement, record:os_user):void {
+                            const uid:string = String(record.uid),
+                                proc:string = String(record.proc);
+                            cell(tr, record.name, null);
+                            cell(tr, uid, uid);
+                            cell(tr, (record.lastLogin === 0)
+                                ? "never"
+                                : record.lastLogin.dateTime(true, null), String(record.lastLogin));
+                            cell(tr, proc, proc);
+                            cell(tr, record.type, null);
+                        },
+                        sort_index:number = Number(table.dataset.column),
+                        sort_name:string = (module === network.sockets)
+                            ? ["type", "local-address", "local-port", "remote-address", "remote-port"][sort_index]
+                            : (module === system.processes)
+                                ? ["name", "id", "memory", "time", "user"][sort_index]
+                                : (module === system.services)
+                                    ? ["name", "status", "description"][sort_index]
+                                    : ["name", "uid", "lastLogin", "proc"][sort_index],
+                        sort_direction:-1|1 = Number(table.getElementsByTagName("th")[sort_index].getElementsByTagName("button")[0].dataset.dir) as -1|1;
+                    let index:number = 0,
+                        row:HTMLElement = null;
+                    list.textContent = "";
+                    item.data.sort(function dashboard_tablesPopulate_sort(a:os_proc|os_service|os_sockets|os_user,b:os_proc|os_service|os_sockets|os_user):-1|1 {
+                        // @ts-expect-error - inferring types based upon property names across unrelated objects of dissimilar property name is problematic
+                        if (a[sort_name as "name"|"type"] as string < b[sort_name as "name"|"type"] as string) {
+                            return sort_direction;
+                        }
+                        return (sort_direction * -1) as 1;
+                    });
+                    do {
+                        row = document.createElement("tr");
+                        if (module === system.processes) {
+                            populate_process(row, item.data[index] as os_proc);
+                        } else if (module === system.services) {
+                            populate_services(row, item.data[index] as os_service);
+                        } else if (module === network.sockets) {
+                            populate_sockets(row, item.data[index] as os_sockets);
+                        } else if (module === system.users) {
+                            populate_users(row, item.data[index] as os_user);
+                        }
+                        row.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
+                        list.appendChild(row);
+                        index = index + 1;
+                    } while (index < len);
+                    module.nodes.update_text.textContent = item.time.dateTime(true, payload.timeZone_offset);
+                    module.nodes.count.textContent = String(item.data.length);
+                    module.nodes.list = table.getElementsByTagName("tbody")[0];
+                    tables.filter(null, module.nodes.filter_value);
+                    if (module === system.processes) {
+                        payload.os.processes = item as services_os_proc;
+                    } else if (module === system.services) {
+                        payload.os.services = item as services_os_serv;
+                    } else if (module === network.sockets) {
+                        payload.os.sockets = item as services_os_sock;
+                    } else if (module === system.users) {
+                        payload.os.users = item as services_os_user;
+                    }
+                }
+            },
+            // sort data from html tables
+            sort: function dashboard_tablesSort(event:MouseEvent, table?:HTMLElement, heading_index?:number):void {
+                const target:HTMLElement = (event === null)
+                        ? null
+                        : event.target,
+                    tableElement:HTMLElement = (event === null)
+                        ? table
+                        : target.getAncestor("table", "tag"),
+                    tbody_old:HTMLElement = tableElement.getElementsByTagName("tbody")[0],
+                    tbody_new:HTMLElement = document.createElement("tbody"),
+                    tr_list:HTMLCollectionOf<HTMLElement> = tbody_old.getElementsByTagName("tr"),
+                    records:HTMLElement[] = [],
+                    tr_length:number = tr_list.length;
+                if (tr_length > 0) {
+                    const th:HTMLElement = (event === null)
+                            ? table.getElementsByTagName("th")[heading_index]
+                            : target.parentNode,
+                        tr_head:HTMLElement = th.parentNode,
+                        ths:HTMLCollectionOf<HTMLElement> = tr_head.getElementsByTagName("th"),
+                        cells_length:number = ths.length,
+                        button:HTMLElement = (event === null)
+                            ? th.getElementsByTagName("button")[0]
+                            : target,
+                        direction:-1|1 = Number(button.dataset.dir) as -1,
+                        id:string = tableElement.getAncestor("tab", "class").getAttribute("id");
+                    let index_th:number = (event === null)
+                            ? heading_index
+                            : cells_length,
+                        index_tr:number = 0;
+                    if (event !== null) {
+                        const tables:HTMLCollectionOf<HTMLElement> = document.getElementById(id).getElementsByTagName("table");
+                        let tables_index:number = tables.length;
+                        // apply change of direction
+                        if (direction === -1) {
+                            button.setAttribute("data-dir", "1");
+                        } else {
+                            button.setAttribute("data-dir", "-1");
+                        }
+
+                        // find which column to sort by
+                        do {
+                            index_th = index_th - 1;
+                            if (ths[index_th] === th) {
+                                break;
+                            }
+                        } while (index_th > 0);
+                        tableElement.setAttribute("data-column", String(index_th));
+
+                        // save state
+                        if (state.tables === undefined) {
+                            state.tables = {};
+                        }
+                        do {
+                            tables_index = tables_index - 1;
+                        } while (tables_index > 0 && tables[tables_index] !== tableElement);
+                        state.tables[`${id}-${tables_index}`] = {
+                            col: index_th,
+                            dir: direction
+                        };
+                        utility.setState();
+                    }
+                    do {
+                        records.push(tr_list[index_tr]);
+                        index_tr = index_tr + 1;
+                    } while (index_tr < tr_length);
+
+                    records.sort(function dashboard_tablesSort_records(a:HTMLElement, b:HTMLElement):-1|0|1 {
+                        const td_a:HTMLElement = a.getElementsByTagName("td")[index_th],
+                            td_b:HTMLElement = b.getElementsByTagName("td")[index_th],
+                            text_a:string = (td_a.dataset.raw === undefined)
+                                ? td_a.textContent
+                                : td_a.dataset.raw,
+                            text_b:string = (td_b.dataset.raw === undefined)
+                                ? td_b.textContent
+                                : td_b.dataset.raw,
+                            numb_a:number = Number(text_a),
+                            numb_b:number = Number(text_b);
+                        if (isNaN(numb_a) === false && isNaN(numb_b) === false) {
+                            if (numb_a < numb_b) {
+                                return direction;
+                            }
+                            if (numb_a > numb_b) {
+                                return (direction * -1 as -1);
+                            }
+                            return 0;
+                        }
+                        if (text_a < text_b) {
+                            return direction;
+                        }
+                        if (text_a > text_b) {
+                            return (direction * -1 as -1);
+                        }
+                        return 0;
+                    });
+
+                    index_tr = 0;
+                    do {
+                        records[index_tr].setAttribute("class", (index_tr % 2 === 0) ? "even" : "odd");
+                        tbody_new.appendChild(records[index_tr]);
+                        index_tr = index_tr + 1;
+                    } while (index_tr < tr_length);
+                    tbody_old.parentNode.appendChild(tbody_new);
+                    tbody_old.parentNode.removeChild(tbody_old);
+                }
+            },
+            // request updated table data
+            update: function dashboard_tablesUpdate(event:MouseEvent):void {
+                const target:HTMLElement = event.target,
+                    id:string = target.getAncestor("tab", "class").getAttribute("id"),
+                    map:store_string = {
+                        interfaces: "intr",
+                        os: "main",
+                        processes: "proc",
+                        services: "serv",
+                        sockets: "sock",
+                        storage: "disk",
+                        users: "user"
+                    };
+                utility.message_send(null, `dashboard-os-${map[id]}` as type_service);
+            }
+        },
         utility:module_utility = {
             // reset the UI to a near empty baseline
             baseline: function dashboard_utilityBaseline():void {
@@ -275,50 +608,18 @@ const dashboard = function dashboard():void {
                             }
                         };
                     }
-                    if (state.table_os.processes === undefined) {
-                        state.table_os.processes = {
-                            filter_column: system.processes.nodes.filter_column.selectedIndex,
-                            filter_sensitive: system.processes.nodes.caseSensitive.checked,
-                            filter_value: system.processes.nodes.filter_value.value
-                        };
-                    } else {
-                        state.table_os.processes.filter_column = system.processes.nodes.filter_column.selectedIndex;
-                        state.table_os.processes.filter_sensitive = system.processes.nodes.caseSensitive.checked;
-                        state.table_os.processes.filter_value = system.processes.nodes.filter_value.value;
-                    }
-                    if (state.table_os.services === undefined) {
-                        state.table_os.services = {
-                            filter_column: system.processes.nodes.filter_column.selectedIndex,
-                            filter_sensitive: system.processes.nodes.caseSensitive.checked,
-                            filter_value: system.processes.nodes.filter_value.value
-                        };
-                    } else {
-                        state.table_os.services.filter_column = system.services.nodes.filter_column.selectedIndex;
-                        state.table_os.services.filter_sensitive = system.services.nodes.caseSensitive.checked;
-                        state.table_os.services.filter_value = system.services.nodes.filter_value.value;
-                    }
-                    if (state.table_os.sockets === undefined) {
-                        state.table_os.sockets = {
-                            filter_column: system.processes.nodes.filter_column.selectedIndex,
-                            filter_sensitive: system.processes.nodes.caseSensitive.checked,
-                            filter_value: system.processes.nodes.filter_value.value
-                        };
-                    } else {
-                        state.table_os.sockets.filter_column = network.sockets.nodes.filter_column.selectedIndex;
-                        state.table_os.sockets.filter_sensitive = network.sockets.nodes.caseSensitive.checked;
-                        state.table_os.sockets.filter_value = network.sockets.nodes.filter_value.value;
-                    }
-                    if (state.table_os.users === undefined) {
-                        state.table_os.users = {
-                            filter_column: system.processes.nodes.filter_column.selectedIndex,
-                            filter_sensitive: system.processes.nodes.caseSensitive.checked,
-                            filter_value: system.processes.nodes.filter_value.value
-                        };
-                    } else {
-                        state.table_os.users.filter_column = system.users.nodes.filter_column.selectedIndex;
-                        state.table_os.users.filter_sensitive = system.users.nodes.caseSensitive.checked;
-                        state.table_os.users.filter_value = system.users.nodes.filter_value.value;
-                    }
+                    state.table_os.processes.filter_column = system.processes.nodes.filter_column.selectedIndex;
+                    state.table_os.processes.filter_sensitive = system.processes.nodes.caseSensitive.checked;
+                    state.table_os.processes.filter_value = system.processes.nodes.filter_value.value;
+                    state.table_os.services.filter_column = system.services.nodes.filter_column.selectedIndex;
+                    state.table_os.services.filter_sensitive = system.services.nodes.caseSensitive.checked;
+                    state.table_os.services.filter_value = system.services.nodes.filter_value.value;
+                    state.table_os.sockets.filter_column = network.sockets.nodes.filter_column.selectedIndex;
+                    state.table_os.sockets.filter_sensitive = network.sockets.nodes.caseSensitive.checked;
+                    state.table_os.sockets.filter_value = network.sockets.nodes.filter_value.value;
+                    state.table_os.users.filter_column = system.users.nodes.filter_column.selectedIndex;
+                    state.table_os.users.filter_sensitive = system.users.nodes.caseSensitive.checked;
+                    state.table_os.users.filter_value = system.users.nodes.filter_value.value;
                     localStorage.state = JSON.stringify(state);
                 }
             },
@@ -411,13 +712,13 @@ const dashboard = function dashboard():void {
 
                         servers.web.list();
                         servers.compose.init();
-                        network.sockets.init();
                         network.interfaces.init();
                         system.os.init();
-                        system.processes.init();
-                        system.services.init();
                         system.storage.init();
-                        system.users.init();
+                        tables.init(network.sockets, "sockets");
+                        tables.init(system.processes, "processes");
+                        tables.init(system.services, "services");
+                        tables.init(system.users, "users");
                         tools.terminal.init();
                         tools.fileSystem.init();
                         tools.http.init();
@@ -428,128 +729,6 @@ const dashboard = function dashboard():void {
                 },
                 type: "dashboard"
             }),
-            // dynamically populates the filter select elements used for filtering tables
-            sort_column_names: function dashboard_utilitySortColumnNames(table:HTMLElement, select:HTMLSelectElement):void {
-                const th:HTMLCollectionOf<HTMLElement> = table.getElementsByTagName("th"),
-                    len:number = th.length;
-                let index:number = 0,
-                    option:HTMLElement = document.createElement("option");
-                option.textContent = "All";
-                select.appendChild(option);
-                if (len > 0) {
-                    do {
-                        option = document.createElement("option");
-                        option.textContent = th[index].getElementsByTagName("button")[0].textContent;
-                        select.appendChild(option);
-                        index = index + 1;
-                    } while (index < len);
-                }
-            },
-            // sort data from html tables
-            sort_tables: function dashboard_utilitySortTables(event:MouseEvent, table?:HTMLElement, heading_index?:number):void {
-                const target:HTMLElement = (event === null)
-                        ? null
-                        : event.target,
-                    tableElement:HTMLElement = (event === null)
-                        ? table
-                        : target.getAncestor("table", "tag"),
-                    tbody_old:HTMLElement = tableElement.getElementsByTagName("tbody")[0],
-                    tbody_new:HTMLElement = document.createElement("tbody"),
-                    tr_list:HTMLCollectionOf<HTMLElement> = tbody_old.getElementsByTagName("tr"),
-                    records:HTMLElement[] = [],
-                    tr_length:number = tr_list.length;
-                if (tr_length > 0) {
-                    const th:HTMLElement = (event === null)
-                            ? table.getElementsByTagName("th")[heading_index]
-                            : target.parentNode,
-                        tr_head:HTMLElement = th.parentNode,
-                        ths:HTMLCollectionOf<HTMLElement> = tr_head.getElementsByTagName("th"),
-                        cells_length:number = ths.length,
-                        button:HTMLElement = (event === null)
-                            ? th.getElementsByTagName("button")[0]
-                            : target,
-                        direction:-1|1 = Number(button.dataset.dir) as -1,
-                        id:string = tableElement.getAncestor("tab", "class").getAttribute("id");
-                    let index_th:number = (event === null)
-                            ? heading_index
-                            : cells_length,
-                        index_tr:number = 0;
-                    if (event !== null) {
-                        const tables:HTMLCollectionOf<HTMLElement> = document.getElementById(id).getElementsByTagName("table");
-                        let tables_index:number = tables.length;
-                        // apply change of direction
-                        if (direction === -1) {
-                            button.setAttribute("data-dir", "1");
-                        } else {
-                            button.setAttribute("data-dir", "-1");
-                        }
-
-                        // find which column to sort by
-                        do {
-                            index_th = index_th - 1;
-                            if (ths[index_th] === th) {
-                                break;
-                            }
-                        } while (index_th > 0);
-                        tableElement.setAttribute("data-column", String(index_th));
-
-                        // save state
-                        if (state.tables === undefined) {
-                            state.tables = {};
-                        }
-                        do {
-                            tables_index = tables_index - 1;
-                        } while (tables_index > 0 && tables[tables_index] !== tableElement);
-                        state.tables[`${id}-${tables_index}`] = {
-                            col: index_th,
-                            dir: direction
-                        };
-                        utility.setState();
-                    }
-                    do {
-                        records.push(tr_list[index_tr]);
-                        index_tr = index_tr + 1;
-                    } while (index_tr < tr_length);
-
-                    records.sort(function dashboard_utilitySortHTML_records(a:HTMLElement, b:HTMLElement):-1|0|1 {
-                        const td_a:HTMLElement = a.getElementsByTagName("td")[index_th],
-                            td_b:HTMLElement = b.getElementsByTagName("td")[index_th],
-                            text_a:string = (td_a.dataset.raw === undefined)
-                                ? td_a.textContent
-                                : td_a.dataset.raw,
-                            text_b:string = (td_b.dataset.raw === undefined)
-                                ? td_b.textContent
-                                : td_b.dataset.raw,
-                            numb_a:number = Number(text_a),
-                            numb_b:number = Number(text_b);
-                        if (isNaN(numb_a) === false && isNaN(numb_b) === false) {
-                            if (numb_a < numb_b) {
-                                return direction;
-                            }
-                            if (numb_a > numb_b) {
-                                return (direction * -1 as -1);
-                            }
-                            return 0;
-                        }
-                        if (text_a < text_b) {
-                            return direction;
-                        }
-                        if (text_a > text_b) {
-                            return (direction * -1 as -1);
-                        }
-                        return 0;
-                    });
-
-                    index_tr = 0;
-                    do {
-                        records[index_tr].setAttribute("class", (index_tr % 2 === 0) ? "even" : "odd");
-                        tbody_new.appendChild(records[index_tr]);
-                        index_tr = index_tr + 1;
-                    } while (index_tr < tr_length);
-                    tbody_old.parentNode.appendChild(tbody_new);
-                    tbody_old.parentNode.removeChild(tbody_old);
-                }
-            },
             // living status updates for servers, containers, and their sockets
             status: function dashboard_utilityStatus(data_item:socket_data):void {
                 const data:services_dashboard_status = data_item.data as services_dashboard_status,
@@ -731,201 +910,12 @@ const dashboard = function dashboard():void {
                         servers.compose.list("variables");
                     }
                 }
-            },
-            // populate large data tables
-            tables: function dashboard_utilityTables(module:module_processes|module_services|module_sockets|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user):void {
-                const len:number = item.data.length;
-                if (len > 0 && module.nodes.list !== null && module.nodes.list.parentNode !== null) {
-                    const list:HTMLElement = module.nodes.list,
-                        table:HTMLElement = list.parentNode,
-                        cell = function dashboard_utilityTables_cell(tr:HTMLElement, text:string, raw:string):void {
-                            const td:HTMLElement = document.createElement("td");
-                            td.textContent = text;
-                            if (raw !== null) {
-                                td.setAttribute("class", "right");
-                                if (raw !== text) {
-                                    td.setAttribute("data-raw", raw);
-                                }
-                            }
-                            tr.appendChild(td);
-                        },
-                        populate_process = function dashboard_utilityTables_populateProcess(tr:HTMLElement, record:os_proc):void {
-                            const time:string = (record.time === null)
-                                    ? (payload.platform === "win32")
-                                        ? (0).time().replace(/000$/, "")
-                                        : (0).time().replace(/\.0+$/, "")
-                                    : (payload.platform === "win32")
-                                        ? record.time.time().replace(/000$/, "")
-                                        : record.time.time().replace(/\.0+$/, ""),
-                                memory:string = (record.memory === null)
-                                    ? "0"
-                                    : record.memory.commas(),
-                                id:string = String(record.id);
-                            cell(tr, record.name, null);
-                            cell(tr, id, id);
-                            cell(tr, memory, (record.memory === null)
-                                ? "0"
-                                : String(record.memory));
-                            cell(tr, time, (record.time === null)
-                                ? "0"
-                                : String(record.time));
-                            cell(tr, record.user, null);
-                        },
-                        populate_services = function dashboard_utilityTables_populateServices(tr:HTMLElement, record:os_service):void {
-                            cell(tr, record.name, null);
-                            cell(tr, record.status, null);
-                            cell(tr, record.description, null);
-                        },
-                        populate_sockets = function dashboard_utilityTable_populateSockets(tr:HTMLElement, record:os_sockets):void {
-                            cell(tr, record.type, null);
-                            cell(tr, record["local-address"], null);
-                            cell(tr, String(record["local-port"]), null);
-                            cell(tr, record["remote-address"], null);
-                            cell(tr, String(record["remote-port"]), null);
-                        },
-                        populate_users = function dashboard_utilityTable_populateUsers(tr:HTMLElement, record:os_user):void {
-                            const uid:string = String(record.uid),
-                                proc:string = String(record.proc);
-                            cell(tr, record.name, null);
-                            cell(tr, uid, uid);
-                            cell(tr, (record.lastLogin === 0)
-                                ? "never"
-                                : record.lastLogin.dateTime(true, null), String(record.lastLogin));
-                            cell(tr, proc, proc);
-                            cell(tr, record.type, null);
-                        },
-                        sort_index:number = Number(table.dataset.column),
-                        sort_name:string = (module === network.sockets)
-                            ? ["type", "local-address", "local-port", "remote-address", "remote-port"][sort_index]
-                            : (module === system.processes)
-                                ? ["name", "id", "memory", "time", "user"][sort_index]
-                                : (module === system.services)
-                                    ? ["name", "status", "description"][sort_index]
-                                    : ["name", "uid", "lastLogin", "proc"][sort_index],
-                        sort_direction:-1|1 = Number(table.getElementsByTagName("th")[sort_index].getElementsByTagName("button")[0].dataset.dir) as -1|1;
-                    let index:number = 0,
-                        row:HTMLElement = null;
-                    list.textContent = "";
-                    item.data.sort(function dashboard_utilityTable_sort(a:os_proc|os_service|os_sockets|os_user,b:os_proc|os_service|os_sockets|os_user):-1|1 {
-                        // @ts-expect-error - inferring types based upon property names across unrelated objects of dissimilar property name is problematic
-                        if (a[sort_name as "name"|"type"] as string < b[sort_name as "name"|"type"] as string) {
-                            return sort_direction;
-                        }
-                        return (sort_direction * -1) as 1;
-                    });
-                    do {
-                        row = document.createElement("tr");
-                        if (module === system.processes) {
-                            populate_process(row, item.data[index] as os_proc);
-                        } else if (module === system.services) {
-                            populate_services(row, item.data[index] as os_service);
-                        } else if (module === network.sockets) {
-                            populate_sockets(row, item.data[index] as os_sockets);
-                        } else if (module === system.users) {
-                            populate_users(row, item.data[index] as os_user);
-                        }
-                        row.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
-                        list.appendChild(row);
-                        index = index + 1;
-                    } while (index < len);
-                    module.nodes.update_text.textContent = item.time.dateTime(true, payload.timeZone_offset);
-                    module.nodes.count.textContent = String(item.data.length);
-                    module.nodes.list = table.getElementsByTagName("tbody")[0];
-                    utility.table_filter(null, module.nodes.filter_value);
-                    if (module === system.processes) {
-                        payload.os.processes = item as services_os_proc;
-                    } else if (module === system.services) {
-                        payload.os.services = item as services_os_serv;
-                    } else if (module === network.sockets) {
-                        payload.os.sockets = item as services_os_sock;
-                    } else if (module === system.users) {
-                        payload.os.users = item as services_os_user;
-                    }
-                }
-            },
-            // filter large data tables
-            table_filter: function dashboard_utilityTableFilter(event:Event, target?:HTMLInputElement):void {
-                if (event !== null) {
-                    const key:KeyboardEvent = event as KeyboardEvent;
-                    if (event.type === "keyup" && key.key !== "Enter") {
-                        return;
-                    }
-                    target = event.target as HTMLInputElement;
-                    utility.setState();
-                }
-                const section:string = target.getAncestor("tab", "class").getAttribute("id"),
-                    module:module_processes|module_services|module_sockets|module_users = (section === "processes")
-                        ? system.processes
-                        : (section === "services")
-                            ? system.services
-                            : (section === "sockets")
-                                ? network.sockets
-                                : system.users,
-                    select:HTMLSelectElement = module.nodes.filter_column,
-                    columnIndex:number = select.selectedIndex - 1,
-                    list:HTMLCollectionOf<HTMLElement> = module.nodes.list.getElementsByTagName("tr"),
-                    cell_length:number = module.nodes.list.parentNode.getElementsByTagName("th").length,
-                    sensitive:boolean = module.nodes.caseSensitive.checked,
-                    value:string = (sensitive === true)
-                        ? module.nodes.filter_value.value
-                        : module.nodes.filter_value.value.toLowerCase();
-                let index:number = list.length,
-                    cells:HTMLCollectionOf<HTMLElement> = null,
-                    count:number = 0,
-                    test:boolean = false,
-                    cell_index:number = 0;
-                if (index > 0) {
-                    do {
-                        index = index - 1;
-                        cells = list[index].getElementsByTagName("td");
-                        cell_index = cell_length;
-                        if (value === "") {
-                            list[index].style.display = "table-row";
-                            count = count + 1;
-                        } else if (columnIndex < 0) {
-                            test = false;
-                            do {
-                                cell_index = cell_index - 1;
-                                if ((sensitive === true && cells[cell_index].textContent.includes(value) === true) || (sensitive === false && cells[cell_index].textContent.toLowerCase().includes(value) === true)) {
-                                    list[index].style.display = "table-row";
-                                    count = count + 1;
-                                    test = true;
-                                    break;
-                                }
-                            } while (cell_index > 0);
-                            if (test === false) {
-                                list[index].style.display = "none";
-                            }
-                        } else if ((sensitive === true && cells[columnIndex].textContent.includes(value) === true) || (sensitive === false && cells[columnIndex].textContent.toLowerCase().includes(value) === true)) {
-                            list[index].style.display = "table-row";
-                            count = count + 1;
-                        } else {
-                            list[index].style.display = "none";
-                        }
-                    } while (index > 0);
-                    module.nodes.filter_count.textContent = String(count);
-                }
-            },
-            // request updated table data
-            table_update: function dashboard_utilityTableUpdate(event:MouseEvent):void {
-                const target:HTMLElement = event.target,
-                    id:string = target.getAncestor("tab", "class").getAttribute("id"),
-                    map:store_string = {
-                        interfaces: "intr",
-                        os: "main",
-                        processes: "proc",
-                        services: "serv",
-                        sockets: "sock",
-                        storage: "disk",
-                        users: "user"
-                    };
-                utility.message_send(null, `dashboard-os-${map[id]}` as type_service);
             }
         },
         network:structure_network = {
             interfaces: {
                 init: function dashboard_interfaceInit():void {
-                    network.interfaces.nodes.update_button.onclick = utility.table_update;
+                    network.interfaces.nodes.update_button.onclick = tables.update;
                     network.interfaces.list(payload.os.interfaces);
                 },
                 list: function dashboard_interfacesList(item:services_os_intr):void {
@@ -997,18 +987,6 @@ const dashboard = function dashboard():void {
                 }
             },
             sockets: {
-                init: function dashboard_socketsInit():void {
-                    network.sockets.nodes.filter_column.selectedIndex = state.table_os.sockets.filter_column;
-                    network.sockets.nodes.caseSensitive.checked = state.table_os.sockets.filter_sensitive;
-                    network.sockets.nodes.filter_value.value = state.table_os.sockets.filter_value;
-                    network.sockets.nodes.filter_column.onchange = utility.table_filter;
-                    network.sockets.nodes.caseSensitive.onclick = utility.setState;
-                    network.sockets.nodes.filter_value.onblur = utility.table_filter;
-                    network.sockets.nodes.filter_value.onkeyup = utility.table_filter;
-                    network.sockets.nodes.update_button.onclick = utility.table_update;
-                    utility.sort_column_names(network.sockets.nodes.list.parentNode, network.sockets.nodes.filter_column);
-                    utility.tables(network.sockets, payload.os.sockets);
-                },
                 nodes: {
                     caseSensitive: document.getElementById("sockets").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
                     count: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
@@ -1961,7 +1939,7 @@ const dashboard = function dashboard():void {
                     tr.appendChild(td);
     
                     tbody.appendChild(tr);
-                    utility.sort_tables(null, table, Number(table.dataset.column));
+                    tables.sort(null, table, Number(table.dataset.column));
                 },
                 validate: function dashboard_serverValidate(event:FocusEvent|KeyboardEvent):void {
                     const target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
@@ -2332,7 +2310,7 @@ const dashboard = function dashboard():void {
                         system.os.nodes.user.uid.textContent = String(payload.os.user.uid);
                     }
                     system.os.nodes.user.homedir.textContent = payload.os.user.homedir;
-                    system.os.nodes.update_button.onclick = utility.table_update;
+                    system.os.nodes.update_button.onclick = tables.update;
     
                     // System Path
                     len = payload.os.os.path.length;
@@ -2470,10 +2448,10 @@ const dashboard = function dashboard():void {
                         main(data);
                         network.interfaces.list(data.interfaces);
                         system.storage.list(data.storage);
-                        utility.tables(system.processes, data.processes);
-                        utility.tables(system.services, data.services);
-                        utility.tables(network.sockets, data.sockets);
-                        utility.tables(system.users, data.users);
+                        tables.populate(system.processes, data.processes);
+                        tables.populate(system.services, data.services);
+                        tables.populate(network.sockets, data.sockets);
+                        tables.populate(system.users, data.users);
                     } else if (data_item.service === "dashboard-os-disk") {
                         const data:services_os_disk = data_item.data as services_os_disk;
                         system.storage.list(data);
@@ -2485,32 +2463,20 @@ const dashboard = function dashboard():void {
                         main(data);
                     } else if (data_item.service === "dashboard-os-proc") {
                         const data:services_os_proc = data_item.data as services_os_proc;
-                        utility.tables(system.processes, data);
+                        tables.populate(system.processes, data);
                     } else if (data_item.service === "dashboard-os-serv") {
                         const data:services_os_serv = data_item.data as services_os_serv;
-                        utility.tables(system.services, data);
+                        tables.populate(system.services, data);
                     } else if (data_item.service === "dashboard-os-sock") {
                         const data:services_os_sock = data_item.data as services_os_sock;
-                        utility.tables(network.sockets, data);
+                        tables.populate(network.sockets, data);
                     } else if (data_item.service === "dashboard-os-user") {
                         const data:services_os_sock = data_item.data as services_os_sock;
-                        utility.tables(system.users, data);
+                        tables.populate(system.users, data);
                     }
                 }
             },
             processes: {
-                init: function dashboard_processesInit():void {
-                    system.processes.nodes.filter_column.selectedIndex = state.table_os.processes.filter_column;
-                    system.processes.nodes.caseSensitive.checked = state.table_os.processes.filter_sensitive;
-                    system.processes.nodes.filter_value.value = state.table_os.processes.filter_value;
-                    system.processes.nodes.filter_column.onchange = utility.table_filter;
-                    system.processes.nodes.caseSensitive.onclick = utility.setState;
-                    system.processes.nodes.filter_value.onblur = utility.table_filter;
-                    system.processes.nodes.filter_value.onkeyup = utility.table_filter;
-                    system.processes.nodes.update_button.onclick = utility.table_update;
-                    utility.sort_column_names(system.processes.nodes.list.parentNode, system.processes.nodes.filter_column);
-                    utility.tables(system.processes, payload.os.processes);
-                },
                 nodes: {
                     caseSensitive: document.getElementById("processes").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
                     count: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
@@ -2523,18 +2489,6 @@ const dashboard = function dashboard():void {
                 }
             },
             services: {
-                init: function dashboard_servicesInit():void {
-                    system.services.nodes.filter_column.selectedIndex = state.table_os.services.filter_column;
-                    system.services.nodes.caseSensitive.checked = state.table_os.services.filter_sensitive;
-                    system.services.nodes.filter_value.value = state.table_os.services.filter_value;
-                    system.services.nodes.filter_column.onchange = utility.table_filter;
-                    system.services.nodes.caseSensitive.onclick = utility.setState;
-                    system.services.nodes.filter_value.onblur = utility.table_filter;
-                    system.services.nodes.filter_value.onkeyup = utility.table_filter;
-                    system.services.nodes.update_button.onclick = utility.table_update;
-                    utility.sort_column_names(system.services.nodes.list.parentNode, system.services.nodes.filter_column);
-                    utility.tables(system.services, payload.os.services);
-                },
                 nodes: {
                     caseSensitive: document.getElementById("services").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
                     count: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
@@ -2548,7 +2502,7 @@ const dashboard = function dashboard():void {
             },
             storage: {
                 init: function dashboard_storageInit():void {
-                    system.storage.nodes.update_button.onclick = utility.table_update;
+                    system.storage.nodes.update_button.onclick = tables.update;
                     system.storage.list(payload.os.storage);
                 },
                 list: function dashboard_storageList(item:services_os_disk):void {
@@ -2686,18 +2640,6 @@ const dashboard = function dashboard():void {
                 }
             },
             users: {
-                init: function dashboard_usersInit():void {
-                    system.users.nodes.filter_column.selectedIndex = state.table_os.users.filter_column;
-                    system.users.nodes.caseSensitive.checked = state.table_os.users.filter_sensitive;
-                    system.users.nodes.filter_value.value = state.table_os.users.filter_value;
-                    system.users.nodes.filter_column.onchange = utility.table_filter;
-                    system.users.nodes.caseSensitive.onclick = utility.setState;
-                    system.users.nodes.filter_value.onblur = utility.table_filter;
-                    system.users.nodes.filter_value.onkeyup = utility.table_filter;
-                    system.users.nodes.update_button.onclick = utility.table_update;
-                    utility.sort_column_names(system.users.nodes.list.parentNode, system.users.nodes.filter_column);
-                    utility.tables(system.users, payload.os.users);
-                },
                 nodes: {
                     caseSensitive: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
                     count: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
@@ -3779,7 +3721,7 @@ const dashboard = function dashboard():void {
             index = index - 1;
             button = th[index].getElementsByTagName("button")[0];
             if (button !== undefined) {
-                button.onclick = utility.sort_tables;
+                button.onclick = tables.sort;
             }
         } while (index > 0);
 
