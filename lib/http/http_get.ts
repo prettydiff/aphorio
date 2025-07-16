@@ -287,12 +287,14 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     } else {
                         const stream:node_fs_ReadStream = node.fs.createReadStream(input);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
-                            socket.write("0\r\n\r\n");
                             socket.destroy();
                         });
                         socket.write(headerText.join("\r\n"));
                         stream.on("data", function http_get_statTest_fileItem_data(data:Buffer):void {
                             socket.write(`${Buffer.byteLength(data).toString(16)}\r\n${data}\r\n`);
+                            if (stream.bytesRead === Number(stat.size)) {
+                                socket.write("0\r\n\r\n");
+                            }
                         });
                     }
                 };
