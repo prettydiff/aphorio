@@ -272,29 +272,19 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             "",
                             ""
                         ];
-                    // sometimes stat.size reports the wrong file size
-                    if (stat.size < (stat.blksize + 1n) && content_type.includes("utf8") === true) {
-                        node.fs.readFile(input, function http_get_statTest_fileItem_read(err:node_error, fileItem:Buffer):void {
-                            if (err === null) {
-                                headerText[2] = `content-length: ${Buffer.byteLength(fileItem)}`;
-                                write(payload(headerText, fileItem.toString()));
-                            } else {
-                                serverError(err, `Error attempting to read file: ${index0[1]}`);
-                            }
-                        });
-                    } else if (method === "HEAD") {
+                    if (method === "HEAD") {
                         write(headerText.join("\r\n"));
                     } else {
                         const stream:node_fs_ReadStream = node.fs.createReadStream(input);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
-                            socket.destroy();
+                            socket.write("0\r\n\r\n");
+                            setTimeout(function http_get_statTest_fileItem_close_delay():void {
+                                socket.destroy();
+                            }, 250);
                         });
                         socket.write(headerText.join("\r\n"));
                         stream.on("data", function http_get_statTest_fileItem_data(data:Buffer):void {
                             socket.write(`${Buffer.byteLength(data).toString(16)}\r\n${data}\r\n`);
-                            if (stream.bytesRead === Number(stat.size)) {
-                                socket.write("0\r\n\r\n");
-                            }
                         });
                     }
                 };
