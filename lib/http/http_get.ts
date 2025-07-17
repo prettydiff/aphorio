@@ -122,21 +122,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             }));
         },
         statTest = function http_get_statTest(stat:node_fs_BigIntStats):void {
-            const serverError = function http_get_statTest_serverError(errorObject:node_error, errorText:string):void {
-                    write(html({
-                        content: [
-                            errorText,
-                            JSON.stringify(errorObject)
-                        ],
-                        content_type: "text/html; utf8",
-                        core: false,
-                        page_title: "500",
-                        script: null,
-                        status: 500,
-                        template: true
-                    }));
-                },
-                directory_item = function http_get_statTest_directoryItem():void {
+            const directory_item = function http_get_statTest_directoryItem():void {
                     const indexFile:string = `${input.replace(/\\|\/$/, "") + vars.sep}index.html`;
                     file.stat({
                         callback: function http_get_statItem_directoryItem_callback():void {
@@ -283,8 +269,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             }, 250);
                         });
                         socket.write(headerText.join("\r\n"));
-                        stream.on("data", function http_get_statTest_fileItem_data(data:Buffer):void {
-                            socket.write(`${Buffer.byteLength(data).toString(16)}\r\n${data}\r\n`);
+                        stream.on("data", function http_get_statTest_fileItem_data(chunk:Buffer|string):void {
+                            socket.write(`${Buffer.byteLength(chunk).toString(16)}\r\n${chunk}\r\n`);
                         });
                     }
                 };
