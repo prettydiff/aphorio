@@ -466,7 +466,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         }
                     },
                     os: {
-                        services: services,
                         uptime: node.os.uptime()
                     },
                     process: {

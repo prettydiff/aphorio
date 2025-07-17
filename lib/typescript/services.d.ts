@@ -182,7 +182,6 @@ declare global {
             };
         };
         os: {
-            services: os_service[];
             uptime: number;
         };
         process: {
