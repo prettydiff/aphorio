@@ -250,23 +250,41 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             }
                             return "text/plain; utf8";
                         }()),
+                        binary:boolean = (content_type.includes("audio/") === true || content_type.includes("image/") === true || content_type.includes("video/") === true),
                         headerText:string[] = [
                             "HTTP/1.1 200",
                             `content-type: ${content_type}`,
-                            "transfer-encoding: chunked",
+                            (binary === true)
+                                ? `content-length: ${Number(stat.size)}`
+                                : "transfer-encoding: chunked",
                             "server: prettydiff/webserver",
                             "",
                             ""
                         ];
                     if (method === "HEAD") {
                         write(headerText.join("\r\n"));
+                    } else if (binary === true) {
+                        // binary media types use content-length type response
+                        // - binary formats were failing on chunked responses because the browser only processed the first chunk
+                        // - this approach has a lower processing overhead and is thus presumed to be faster to transfer
+                        // - this approach looks like a single payload, but the pipe writes data chunks to the wire as they are available, which is still media streaming
+                        const stream:node_fs_ReadStream = node.fs.createReadStream(input);
+                        socket.write(headerText.join("\r\n"));
+                        stream.pipe(socket);
+                        stream.on("close", function http_get_statTest_fileItem_close():void {
+                            socket.destroy();
+                        });
                     } else {
+                        // text media types use chunked type response
+                        // - on TLS some text media was failing to fully transfer on content length type responses, so all text formats are not chunked
+                        // - this is the most flexible approach when things like TLS impose segmentation separate from chunks piped to the socket
                         const stream:node_fs_ReadStream = node.fs.createReadStream(input);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
+                            const delay:number = Math.max(250, stream.bytesRead / 10000);
                             socket.write("0\r\n\r\n");
                             setTimeout(function http_get_statTest_fileItem_close_delay():void {
                                 socket.destroy();
-                            }, 250);
+                            }, delay);
                         });
                         socket.write(headerText.join("\r\n"));
                         stream.on("data", function http_get_statTest_fileItem_data(chunk:Buffer|string):void {
