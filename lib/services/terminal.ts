@@ -1,8 +1,8 @@
 
-import get_address from "../utilities/getAddress.js";
-import log from "../utilities/log.js";
-import send from "../transmit/send.js";
-import vars from "../utilities/vars.js";
+import get_address from "../utilities/getAddress.ts";
+import log from "../utilities/log.ts";
+import send from "../transmit/send.ts";
+import vars from "../utilities/vars.ts";
 
 import { spawn } from "@lydell/node-pty";
 

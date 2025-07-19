@@ -1,7 +1,7 @@
 
-import log from "../utilities/log.js";
-import node from "../utilities/node.js";
-import socket_extension from "./socketExtension.js";
+import log from "../utilities/log.ts";
+import node from "../utilities/node.ts";
+import socket_extension from "./socketExtension.ts";
 
 const create_socket = function transmit_createSocket(config:config_websocket_create):void {
     let startTime:bigint = null;

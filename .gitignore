@@ -5,3 +5,4 @@
 /servers
 /compose/**
 !/compose/empty.yml
+install.js

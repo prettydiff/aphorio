@@ -1,7 +1,7 @@
 
-import node from "../utilities/node.js";
-import send from "../transmit/send.js";
-import vars from "../utilities/vars.js";
+import node from "../utilities/node.ts";
+import send from "../transmit/send.ts";
+import vars from "../utilities/vars.ts";
 
 // cspell: words prettydiff
 

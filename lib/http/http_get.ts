@@ -1,12 +1,12 @@
 
 // this file supports HTTP methods GET and HEAD
 
-import core from "../browser/core.js";
-import directory from "../utilities/directory.js";
-import file from "../utilities/file.js";
-import file_list from "../browser/file_list.js";
-import node from "../utilities/node.js";
-import vars from "../utilities/vars.js";
+import core from "../browser/core.ts";
+import directory from "../utilities/directory.ts";
+import file from "../utilities/file.ts";
+import file_list from "../browser/file_list.ts";
+import node from "../utilities/node.ts";
+import vars from "../utilities/vars.ts";
 
 /* cspell: words msvideo, nofollow, onnection, prettydiff */
 
@@ -320,7 +320,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     terminal: vars.terminal,
                     timeZone_offset: vars.timeZone_offset
                 },
-                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s?=\s?null/, `const payload=${JSON.stringify(payload)}`),
+                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",
@@ -335,9 +335,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
     } else if (fileFragment === "") {
         // server root html file takes the name of the server, not index.html
         input = `${path}index.html`;
-    } else if (fileFragment.indexOf(".js") === fileFragment.length - 3 && fileFragment.includes("/js/lib/assets/") === false) {
-        // normalizes compiled JS path to web_root path
-        input = path.replace(/(\/|\\)lib(\/|\\)assets(\/|\\)/, `${vars.sep}js${vars.sep}lib${vars.sep}assets${vars.sep}`) + decoded;
     } else {
         // all other HTTP requests
         input = path + decoded;

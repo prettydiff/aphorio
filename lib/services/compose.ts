@@ -1,8 +1,8 @@
 
-import file from "../utilities/file.js";
-import log from "../utilities/log.js";
-import spawn from "../utilities/spawn.js";
-import vars from "../utilities/vars.js";
+import file from "../utilities/file.ts";
+import log from "../utilities/log.ts";
+import spawn from "../utilities/spawn.ts";
+import vars from "../utilities/vars.ts";
 
 const compose = function services_compose(socket_data:socket_data):void {
     const data:services_action_compose = socket_data.data as services_action_compose;
@@ -119,7 +119,7 @@ const compose = function services_compose(socket_data:socket_data):void {
                             write = function services_compose_kill_container_write():void {
                                 delete vars.compose.containers[data.compose.name];
                                 file.write({
-                                    callback: function services_compose_stat_wwriteContents_compose():void {
+                                    callback: function services_compose_stat_writeContents_compose():void {
                                         log({
                                             action: "destroy",
                                             config: data.compose,

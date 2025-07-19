@@ -1,7 +1,7 @@
 
-import broadcast from "./broadcast.js";
-import get_address from "../utilities/getAddress.js";
-import vars from "../utilities/vars.js";
+import broadcast from "./broadcast.ts";
+import get_address from "../utilities/getAddress.ts";
+import vars from "../utilities/vars.ts";
 
 const socket_end = function transmit_socketEnd(socket_input:websocket_client):void {
     const socket:websocket_client = (typeof socket_input === "object")

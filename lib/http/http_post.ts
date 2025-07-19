@@ -2,8 +2,8 @@
 // supports HTTP methods DELETE, POST, PUT
 // cspell: words prettydiff
 
-import node from "../utilities/node.js";
-import vars from "../utilities/vars.js";
+import node from "../utilities/node.ts";
+import vars from "../utilities/vars.ts";
 
 const http_post:http_action = function http_post(headerList:string[], socket:websocket_client, payload:Buffer):void {
     const server_name:string = socket.server,

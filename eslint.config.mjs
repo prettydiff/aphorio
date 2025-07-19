@@ -1,6 +1,5 @@
 
 import eslint from "@eslint/js";
-import globals from "globals";
 import stylistic from "@stylistic/eslint-plugin-ts";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
@@ -28,11 +27,6 @@ export default [
             "@stylistic": stylistic
         },
         languageOptions: {
-            globals: {
-                ...globals.browser,
-                ...globals.node,
-            },
-
             parser: tsParser,
             ecmaVersion: 11,
             sourceType: "module",

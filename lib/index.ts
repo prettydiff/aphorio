@@ -1,11 +1,11 @@
 
-import server from "./transmit/server.js";
-import server_create from "./services/server_create.js";
-import startup from "./utilities/startup.js";
-import yt_config from "./services/yt_config.js";
-import vars from "./utilities/vars.js";
+import server from "./transmit/server.ts";
+import server_create from "./services/server_create.ts";
+import startup from "./utilities/startup.ts";
+import yt_config from "./services/yt_config.ts";
+import vars from "./utilities/vars.ts";
 
-startup(function index():void {
+const index = function index():void {
     const default_server = function index_defaultServer(name:string):services_server {
         return {
             activate: true,
@@ -152,4 +152,6 @@ startup(function index():void {
             start();
         }
     }
-});
+};
+
+startup(index);

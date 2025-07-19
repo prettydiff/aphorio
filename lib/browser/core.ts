@@ -1,7 +1,7 @@
 
-import commas from "../utilities/commas.js";
-import dateTime from "../utilities/dateTime.js";
-import time from "../utilities/time.js";
+import commas from "../utilities/commas.ts";
+import dateTime from "../utilities/dateTime.ts";
+import time from "../utilities/time.ts";
 
 const core = function core(config:config_core):socket_object {
     const socketCall = function core_socketCall():WebSocket {

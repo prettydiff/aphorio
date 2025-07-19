@@ -219,7 +219,6 @@
                     <p>Windows provides no such catalogue. Instead I must guess at the default locations for the most commonly used shells on Windows.</p>
                     <p>
                         To add additional options for the select list scroll to the bottom of the <em>/lib/utilities/vars.js</em> file of this project looking for the vars.terminal property.
-                        Additional entries may be manually added here and then rebuild the application with <em>npm run build</em>.
                         Please ensure all entries are absolute file system paths to the local executable for any desired shell application.
                     </p>
                 </div>
@@ -399,7 +398,7 @@
                 <h3>Conventions</h3>
                 <div class="section">
                     <h4>General</h4>
-                    <p>From the command line build the application code with <code>npm run build</code> and execute the application with <code>npm run server</code></p>
+                    <p>From the command line execute the application with <code>npm run server</code></p>
                     <p>By default the application assigns random ports for the dashboard. I recommend changing these to a port of your preference, such as 3000.  Then the dashboard can be accessed by http://localhost:3000.</p>
                     <p>If extending the application code checks can be performed using <code>npm run tsc</code> and <code>npm run lint</code></p>
                 </div>
@@ -436,7 +435,7 @@ sudo systemctl status &lt;service name here&gt;
                     <h5>HTTP Methods</h5>
                     <p>HTTP methods <em>DELETE</em>, <em>POST</em>, and <em>PUT</em> are supported by this application but are not handled by this application. If these HTTP methods are to be used a given server must specify a file system path to corresponding libraries executed as child processes. Simply populate the respective properties on a new server's configuration object.</p>
                     <h5>Custom WebSocket Message Handling</h5>
-                    <p>Custom WebSocket messaging handling is supported by supplying a custom function to library <em>/lib/transmit/messageHandler.ts</em>. Simply add a new property to the library object where the key name is the same as the name of the respective server and then rebuild the application.  For example:
+                    <p>Custom WebSocket messaging handling is supported by supplying a custom function to library <em>/lib/transmit/messageHandler.ts</em>. Simply add a new property to the library object where the key name is the same as the name of the respective server.  For example:
 <code>const message_handler:transmit_socket_messageHandler = {
     default: function transmit_messageHandler(bufferData:Buffer):void {
         // default message handling
@@ -454,7 +453,7 @@ sudo systemctl status &lt;service name here&gt;
                 </div>
                 <div class="section">
                     <h4>Terminal</h4>
-                    <p>The terminal makes use of NPM modules <em>@xterm/xterm</em> and <em>@lydell/node-pty</em>. These packages expose a shell to the browser front-end with full support for SSH, VIM, IRSSI, and more. The default supported shells are PowerShell in Windows and /bin/sh elsewhere. To customize that to a different shell, such as Bash, simply modify the appropriate one line of code at <em>/lib/services/terminal.ts</em> and then rebuild the application.</p>
+                    <p>The terminal makes use of NPM modules <em>@xterm/xterm</em> and <em>@lydell/node-pty</em>. These packages expose a shell to the browser front-end with full support for SSH, VIM, IRSSI, and more. The default supported shells are PowerShell in Windows and /bin/sh elsewhere. To customize that to a different shell, such as Bash, simply modify the appropriate one line of code at <em>/lib/services/terminal.ts</em>.</p>
                     <p>Please see this guide for <a href="https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797">ANSI Escape Codes</a> to extend and modify output to the terminal.</p>
                 </div>
             </div>
@@ -788,7 +787,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <table data-column="0">
                     <thead><tr>
                         <th><button data-dir="1">Server</button></th>
-                        <th><button data-dir="1">ID</button></th>
+                        <th><button data-dir="1">Socket ID</button></th>
                         <th><button data-dir="1">Type Descriptor</button></th>
                         <th><button data-dir="1">Role</button></th>
                         <th><button data-dir="1">Proxy</button></th>

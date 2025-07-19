@@ -1,12 +1,12 @@
 
-import get_address from "../utilities/getAddress.js";
-import log from "../utilities/log.js";
-import message_handler from "./messageHandler.js";
-import receiver from "./receiver.js";
-import send from "./send.js";
-import server_halt from "../services/server_halt.js";
-import socket_end from "./socketEnd.js";
-import vars from "../utilities/vars.js";
+import get_address from "../utilities/getAddress.ts";
+import log from "../utilities/log.ts";
+import message_handler from "./messageHandler.ts";
+import receiver from "./receiver.ts";
+import send from "./send.ts";
+import server_halt from "../services/server_halt.ts";
+import socket_end from "./socketEnd.ts";
+import vars from "../utilities/vars.ts";
 
 const socket_extension = function transmit_socketExtension(config:config_websocket_extensions):void {
     const encryption:type_encryption = (config.socket.secure === true)

@@ -1,8 +1,8 @@
 
-import humanTime from "../utilities/humanTime.js";
-import node from "../utilities/node.js";
-import send from "../transmit/send.js";
-import vars from "../utilities/vars.js";
+import humanTime from "../utilities/humanTime.ts";
+import node from "../utilities/node.ts";
+import send from "../transmit/send.ts";
+import vars from "../utilities/vars.ts";
 
 const youtube_download = function services_youtubeDownload(socketData:socket_data, transmit:transmit_socket):void {
     const data:services_youtubeDownload = socketData.data as services_youtubeDownload,

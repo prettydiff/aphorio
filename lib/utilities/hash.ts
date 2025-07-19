@@ -1,6 +1,6 @@
 
-import log from "./log.js";
-import node from "./node.js";
+import log from "./log.ts";
+import node from "./node.ts";
 
 const hash = function utilities_hash(config:config_hash):void {
     const hashOutput:hash_output = {

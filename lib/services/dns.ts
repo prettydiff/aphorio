@@ -1,6 +1,6 @@
 
-import node from "../utilities/node.js";
-import send from "../transmit/send.js";
+import node from "../utilities/node.ts";
+import send from "../transmit/send.ts";
 
 const dns = function services_dns(socket_data:socket_data, transmit:transmit_socket):void {
     const data:services_dns_input = socket_data.data as services_dns_input,

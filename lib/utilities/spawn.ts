@@ -1,6 +1,6 @@
 
-import node from "./node.js";
-import vars from "./vars.js";
+import node from "./node.ts";
+import vars from "./vars.ts";
 
 const spawn = function utilities_spawn(config:config_spawn):node_childProcess_ChildProcess {
     let err:boolean = false;

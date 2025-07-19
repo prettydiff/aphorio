@@ -1,9 +1,9 @@
 
-import core from "../browser/core.js";
+import core from "../browser/core.ts";
 // @ts-expect-error - TypeScript claims xterm has no default export, but this is how the documentation says to use it.
 import Terminal from "@xterm/xterm";
 
-// cspell: words bootable, buildx, containerd, PUID, PGID, serv, winget
+// cspell: words bootable, containerd, PUID, PGID, serv, winget
 const dashboard = function dashboard():void {
     let loaded:boolean = false,
         section:type_dashboard_sections = "web";

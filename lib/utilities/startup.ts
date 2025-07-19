@@ -1,15 +1,15 @@
 
-import broadcast from "../transmit/broadcast.js";
-import commas from "./commas.js";
-import core from "../browser/core.js";
-import dashboard_script from "../dashboard/dashboard_script.js";
-import dateTime from "./dateTime.js";
-import docker_ps from "../services/docker_ps.js";
-import file from "./file.js";
-import node from "./node.js";
-import os from "./os.js";
-import time from "./time.js";
-import vars from "./vars.js";
+import broadcast from "../transmit/broadcast.ts";
+import commas from "./commas.ts";
+import core from "../browser/core.ts";
+import dashboard_script from "../dashboard/dashboard_script.ts";
+import dateTime from "./dateTime.ts";
+import docker_ps from "../services/docker_ps.ts";
+import file from "./file.ts";
+import node from "./node.ts";
+import os from "./os.ts";
+import time from "./time.ts";
+import vars from "./vars.ts";
 
 const startup = function utilities_startup(callback:() => void):void {
     const flags:store_flag = {
@@ -217,7 +217,7 @@ const startup = function utilities_startup(callback:() => void):void {
     Number.prototype.time = time;
 
     options("no_color", "text");
-    vars.path.project = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}js${vars.sep}`)) + vars.sep;
+    vars.path.project = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}lib${vars.sep}`)) + vars.sep;
     vars.path.compose = `${vars.path.project}compose${vars.sep}`;
     vars.path.servers = `${vars.path.project}servers${vars.sep}`;
     file.read({

@@ -1,7 +1,7 @@
 
-import log from "../utilities/log.js";
-import spawn from "../utilities/spawn.js";
-import vars from "../utilities/vars.js";
+import log from "../utilities/log.ts";
+import spawn from "../utilities/spawn.ts";
+import vars from "../utilities/vars.ts";
 
 const docker_ps = function services_dockerPS(callback:() => void):void {
     const args:string[] = ["-f", `${vars.path.compose}empty.yml`, "ps", "--format=json"],

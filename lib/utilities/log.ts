@@ -1,6 +1,6 @@
 
-import broadcast from "../transmit/broadcast.js";
-import vars from "./vars.js";
+import broadcast from "../transmit/broadcast.ts";
+import vars from "./vars.ts";
 
 const log = function utilities_log(config:config_log):void {
     const data:services_dashboard_status = {

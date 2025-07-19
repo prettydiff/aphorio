@@ -1,6 +1,6 @@
 
-import os from "../utilities/os.js";
-import send from "../transmit/send.js";
+import os from "../utilities/os.ts";
+import send from "../transmit/send.ts";
 
 const osService = function services_os(socket_data:socket_data, transmit:transmit_socket):void {
     const type_os:type_os = socket_data.service.replace("dashboard-os-", "") as type_os;

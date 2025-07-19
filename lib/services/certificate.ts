@@ -1,8 +1,8 @@
 
-import file from "../utilities/file.js";
-import log from "../utilities/log.js";
-import node from "../utilities/node.js";
-import vars from "../utilities/vars.js";
+import file from "../utilities/file.ts";
+import log from "../utilities/log.ts";
+import node from "../utilities/node.ts";
+import vars from "../utilities/vars.ts";
 
 // cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey, keyid, pathlen
 

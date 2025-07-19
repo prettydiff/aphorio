@@ -1,6 +1,6 @@
 
-import node from "../utilities/node.js";
-import router from "./router.js";
+import node from "../utilities/node.ts";
+import router from "./router.ts";
 
 const message_handler:transmit_socket_messageHandler = {
     default: function transmit_messageHandler(socket:websocket_client, bufferData:Buffer):void {

@@ -1,15 +1,15 @@
 
-import compose from "../services/compose.js";
-import dns from "../services/dns.js";
-import fileSystem from "../services/fileSystem.js";
-import hash from "../services/hash.js";
-import http_request from "../http/http_requestTest.js";
-import os from "../services/os.js";
-import process_kill from "../services/processKill.js";
-import servers from "../services/server.js";
-import terminal from "../services/terminal.js";
-import websocket_test from "../services/websocket.js";
-import youtube_download from "../services/youtubeDownload.js";
+import compose from "../services/compose.ts";
+import dns from "../services/dns.ts";
+import fileSystem from "../services/fileSystem.ts";
+import hash from "../services/hash.ts";
+import http_request from "../http/http_requestTest.ts";
+import os from "../services/os.ts";
+import process_kill from "../services/processKill.ts";
+import servers from "../services/server.ts";
+import terminal from "../services/terminal.ts";
+import websocket_test from "../services/websocket.ts";
+import youtube_download from "../services/youtubeDownload.ts";
 
 // cspell: words serv
 

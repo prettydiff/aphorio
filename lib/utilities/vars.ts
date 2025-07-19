@@ -1,5 +1,5 @@
 
-import node from "./node.js";
+import node from "./node.ts";
 
 /* cspell: words appdata, pwsh */
 
@@ -136,21 +136,37 @@ const gid:number = (typeof process.getgid === "undefined")
                 "C:\\Program Files (x86)\\Git\\bin\\bash.exe"
             ]
             : [],
-        text: {
-            angry    : "\u001b[1m\u001b[31m",
-            blue     : "\u001b[34m",
-            bold     : "\u001b[1m",
-            boldLine : "\u001b[1m\u001b[4m",
-            clear    : "\u001b[24m\u001b[22m",
-            cyan     : "\u001b[36m",
-            green    : "\u001b[32m",
-            noColor  : "\u001b[39m",
-            none     : "\u001b[0m",
-            purple   : "\u001b[35m",
-            red      : "\u001b[31m",
-            underline: "\u001b[4m",
-            yellow   : "\u001b[33m"
-        },
+        text: (process.argv.includes("no-color") === true)
+            ? {
+                angry    : "",
+                blue     : "",
+                bold     : "",
+                boldLine : "",
+                clear    : "",
+                cyan     : "",
+                green    : "",
+                noColor  : "",
+                none     : "",
+                purple   : "",
+                red      : "",
+                underline: "",
+                yellow   : ""
+            }
+            : {
+                angry    : "\u001b[1m\u001b[31m",
+                blue     : "\u001b[34m",
+                bold     : "\u001b[1m",
+                boldLine : "\u001b[1m\u001b[4m",
+                clear    : "\u001b[24m\u001b[22m",
+                cyan     : "\u001b[36m",
+                green    : "\u001b[32m",
+                noColor  : "\u001b[39m",
+                none     : "\u001b[0m",
+                purple   : "\u001b[35m",
+                red      : "\u001b[31m",
+                underline: "\u001b[4m",
+                yellow   : "\u001b[33m"
+            },
         timeZone_offset: 0
     };
 

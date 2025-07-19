@@ -1,18 +1,18 @@
 
-import file from "../utilities/file.js";
-import get_address from "../utilities/getAddress.js";
-import hash from "../utilities/hash.js";
-import http from "../http/index.js";
-import log from "../utilities/log.js";
-import message_handler from "./messageHandler.js";
-import node from "../utilities/node.js";
-import read_certs from "../utilities/read_certs.js";
-import redirection from "./redirection.js";
-import server_halt from "../services/server_halt.js";
-import socket_extension from "./socketExtension.js";
-import terminal from "../services/terminal.js";
-import vars from "../utilities/vars.js";
-import websocket_test from "../services/websocket.js";
+import file from "../utilities/file.ts";
+import get_address from "../utilities/getAddress.ts";
+import hash from "../utilities/hash.ts";
+import http from "../http/index.ts";
+import log from "../utilities/log.ts";
+import message_handler from "./messageHandler.ts";
+import node from "../utilities/node.ts";
+import read_certs from "../utilities/read_certs.ts";
+import redirection from "./redirection.ts";
+import server_halt from "../services/server_halt.ts";
+import socket_extension from "./socketExtension.ts";
+import terminal from "../services/terminal.ts";
+import vars from "../utilities/vars.ts";
+import websocket_test from "../services/websocket.ts";
 
 // cspell: words untrapped
 

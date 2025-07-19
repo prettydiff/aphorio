@@ -1,5 +1,5 @@
 
-import log from "../utilities/log.js";
+import log from "../utilities/log.ts";
 
 const send = function transmit_send(body:Buffer|socket_data|string, socketItem:websocket_client, opcode:number):void {
     const writeFrame = function transmit_send_writeFrame():void {

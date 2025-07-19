@@ -1,7 +1,7 @@
 
-import file from "../utilities/file.js";
-import log from "../utilities/log.js";
-import vars from "../utilities/vars.js";
+import file from "../utilities/file.ts";
+import log from "../utilities/log.ts";
+import vars from "../utilities/vars.ts";
 
 // cspell: words bestaudio, keyid, multistreams, pathlen
 

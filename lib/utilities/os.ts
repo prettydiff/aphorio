@@ -1,7 +1,7 @@
 
-import log from "./log.js";
-import node from "./node.js";
-import vars from "./vars.js";
+import log from "./log.ts";
+import node from "./node.ts";
+import vars from "./vars.ts";
 
 // cspell: words blockdevices, bootable, cputime, fsavail, fssize, fstype, fsused, lslogins, mountpoint, partflags, parttypename, pwsh, serv, volu
 
@@ -644,32 +644,30 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     // eslint-disable-next-line no-restricted-syntax
                     try {
                         // parse string output into a data structure
-                        if (type === "disk") {
-                            if (win32 === true) {
-                                raw.disk = JSON.parse(temp) as os_disk_windows[];
-                            } else {
-                                raw.disk = JSON.parse(temp).blockdevices as os_disk_posix[];
-                            }
-                        // these guys are just pseudo-csv so do not parse as JSON
-                        } else if (win32 === false && (type === "proc" || type === "socT" || type === "user")) {
-                            raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
-                        } else {
+                        if (win32 === true) {
                             raw[type] = JSON.parse(temp);
+                        } else {
+                            if (type === "disk") {
+                                raw.disk = JSON.parse(temp).blockdevices as os_disk_posix[];
+                            // these are a pseudo-csv output
+                            } else if (type === "proc" || type === "socT" || type === "user") {
+                                raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
+                            } else {
+                                raw[type] = JSON.parse(temp);
+                            }
                         }
 
                         // building the uniform data output
                         if ((type === "proc" || type === "user")) {
-                            if (win32 === true && flags.proc === true && flags.user === true) {
+                            if (win32 === true && type_os !== "proc" && flags.proc === true && flags.user === true) {
                                 builder.proc();
                                 builder.user();
-                            } else if (win32 === false) {
+                            } else if (win32 === false || type_os === "proc") {
                                 builder[type]();
                             }
-                        } else if (type === "disk" || type === "part" || type === "volu") {
-                            if (flags.disk === true && flags.part === true && flags.volu === true) {
-                                builder.disk();
-                            }
-                        } else {
+                        } else if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
+                            builder.disk();
+                        } else if (type !== "disk" && type !== "part" && type !== "volu") {
                             builder[type]();
                         }
                     } catch (e:unknown) {
@@ -680,7 +678,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                             status: "error",
                             type: "os"
                         });
-                        if (flags.disk === true && flags.part === true && flags.volu === true && (type === "disk" || type === "part" || type === "volu")) {
+                        if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
                             completed("disk");
                         } else if (type !== "disk" && type !== "part" && type !== "volu") {
                             completed(type);
@@ -712,6 +710,10 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             spawning("part");
             spawning("socU");
             spawning("volu");
+        } else {
+            flags.part = true;
+            flags.socU = true;
+            flags.volu = true;
         }
         spawning("disk");
         spawning("proc");
@@ -722,20 +724,22 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
         if (win32 === true) {
             spawning("part");
             spawning("volu");
+        } else {
+            flags.part = true;
+            flags.volu = true;
         }
         spawning("disk");
     } else if (type_os === "intr") {
         completed("disk");
     } else if (type_os === "proc") {
-        if (win32 === true) {
-            spawning("user");
-        }
         spawning("proc");
     } else if (type_os === "serv") {
         spawning("serv");
     } else if (type_os === "sock") {
         if (win32 === true) {
             spawning("socU");
+        } else {
+            flags.socU = true;
         }
         spawning("socT");
     } else if (type_os === "user") {

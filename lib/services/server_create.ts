@@ -1,9 +1,9 @@
 
-import certificate from "./certificate.js";
-import file from "../utilities/file.js";
-import log from "../utilities/log.js";
-import server from "../transmit/server.js";
-import vars from "../utilities/vars.js";
+import certificate from "./certificate.ts";
+import file from "../utilities/file.ts";
+import log from "../utilities/log.ts";
+import server from "../transmit/server.ts";
+import vars from "../utilities/vars.ts";
 
 // 1. add server to the vars.servers object
 // 2. add server to servers.json file
