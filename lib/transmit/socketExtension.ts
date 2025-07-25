@@ -130,7 +130,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         if (config.callback !== null && config.callback !== undefined) {
             config.callback(config.socket, config.timeout);
         }
-        log(log_config);
+        log.application(log_config);
     }
 };
 

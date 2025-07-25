@@ -218,7 +218,7 @@
                     <p>Linux provides a catalogue of all installed shells in the file <em>/etc/shells</em>. Not all shells may add an entry to file upon their installation.</p>
                     <p>Windows provides no such catalogue. Instead I must guess at the default locations for the most commonly used shells on Windows.</p>
                     <p>
-                        To add additional options for the select list scroll to the bottom of the <em>/lib/utilities/vars.js</em> file of this project looking for the vars.terminal property.
+                        To add additional options for the select list scroll to the bottom of the <em>/lib/utilities/vars.ts</em> file of this project looking for the vars.terminal property.
                         Please ensure all entries are absolute file system paths to the local executable for any desired shell application.
                     </p>
                 </div>
@@ -413,7 +413,7 @@ After=network.target
 [Service]
 Type=simple
 User=root
-ExecStart=/home/cheney/.nvm/versions/node/v23.1.0/bin/node /home/cheney/webserver/js/lib/index.js
+ExecStart=/home/cheney/.nvm/versions/node/v23.1.0/bin/node /home/cheney/webserver/lib/index.ts
 Restart=always
 RestartSec=3
 WorkingDirectory=/home/cheney/webserver

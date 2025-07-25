@@ -34,10 +34,12 @@
         "url": "git+https://github.com/prettydiff/webserver.git"
     },
     "scripts": {
-        "lint":   "node --disable-warning=ExperimentalWarning node_modules/eslint/bin/eslint.js ./",
-        "server": "node --disable-warning=ExperimentalWarning lib/index.ts",
+        "lint":            "node --disable-warning=ExperimentalWarning node_modules/eslint/bin/eslint.js ./",
+        "server":          "node --disable-warning=ExperimentalWarning lib/index.ts",
         "server-no-color": "node --disable-warning=ExperimentalWarning lib/index.ts no-color",
-        "tsc":    "node --disable-warning=ExperimentalWarning node_modules/typescript/bin/tsc --pretty"
+        "test":            "node --disable-warning=ExperimentalWarning lib/index.ts test",
+        "test-no-color":   "node --disable-warning=ExperimentalWarning lib/index.ts test no-color",
+        "tsc":             "node --disable-warning=ExperimentalWarning node_modules/typescript/bin/tsc --pretty"
     },
     "types": "/lib/typescript",
     "type": "module",

@@ -432,6 +432,7 @@ const core = function core(config:config_core):socket_object {
             Element.prototype.removeClass            = removeClass;
             Element.prototype.removeHighlight        = removeHighlight;
 
+            BigInt.prototype.time                    = time;
             Number.prototype.bytes                   = bytes;
             Number.prototype.bytesLong               = bytesLong;
             Number.prototype.commas                  = commas;

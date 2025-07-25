@@ -3,7 +3,7 @@ import log from "./log.ts";
 import node from "./node.ts";
 import vars from "./vars.ts";
 
-// cspell: words blockdevices, bootable, cputime, fsavail, fssize, fstype, fsused, lslogins, mountpoint, partflags, parttypename, pwsh, serv, volu
+// cspell: words blockdevices, bootable, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, volu
 
 const os = function utilities_os(type_os:type_os, callback:(output:socket_data) => void):void {
     const win32:boolean = (process.platform === "win32"),
@@ -12,28 +12,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 ? "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
                 : "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
             : "/bin/sh",
-        commands:store_string = {
-            disk: (win32 === true)
-                ? "Get-Disk | ConvertTo-JSON -compress -depth 2"
-                : "lsblk -Ob --json",
-            part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
-            proc: (win32 === true)
-                ? "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON"
-                : "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
-            serv: (win32 === true)
-                ? "Get-Service | ConvertTo-JSON -compress -depth 2"
-                : "systemctl list-units --type=service --all --output json",
-            socT: (win32 === true)
-                ? "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2"
-                : "ss -atu | tail -n +2 | tr -s \" \" \",\"",
-            socU: (win32 === true)
-                ? "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2"
-                : "",
-            user: (win32 === true)
-                ? "Get-LocalUser | ConvertTo-JSON -compress -depth 1"
-                : "lslogins -o user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
-            volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
-        },
         disks:os_disk[] = [],
         processes:os_proc[] = [],
         services:os_service[] = [],
@@ -671,7 +649,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                             builder[type]();
                         }
                     } catch (e:unknown) {
-                        log({
+                        log.application({
                             action: "activate",
                             config: e as node_error,
                             message: `Error reading operating system data of type ${type}.`,
@@ -686,7 +664,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     }
                 },
                 spawn_error = function utilities_os_spawning_spawnError(err:node_error):void {
-                    log({
+                    log.application({
                         action: "activate",
                         config: err,
                         message: `Error reading operating system data of type ${type}.`,
@@ -694,7 +672,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         type: "os"
                     });
                 };
-            spawn[type] = node.child_process.spawn(commands[type], [], {
+            spawn[type] = node.child_process.spawn(vars.commands[type], [], {
                 shell: shell,
                 windowsHide: true
             }) as os_child;

@@ -1,7 +1,6 @@
 **/node_modules
 /compose.json
 /servers.json
-/js
 /servers
 /compose/**
 !/compose/empty.yml

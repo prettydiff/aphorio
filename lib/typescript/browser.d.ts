@@ -3,6 +3,10 @@
 import { Terminal } from "@xterm/xterm";
 
 declare global {
+    interface BigInt {
+        time:(start:bigint) => string;
+    }
+
     interface Document {
         activeElement: HTMLElement;
         getElementsByAttribute: (name:string, value:string) => HTMLElement[];
@@ -37,7 +41,7 @@ declare global {
         bytes: (input?:number) => string;
         bytesLong: () => string;
         commas: () => string;
-        dateTime: (date:boolean, zulu:number) => string;
+        dateTime: (date:boolean, timezone_offset:number) => string;
         time: () => string;
     }
 

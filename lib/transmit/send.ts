@@ -137,7 +137,7 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
             writeFrame();
         }
     } else {
-        log({
+        log.application({
             action: null,
             config: null,
             message: `Error queueing message for socket transmission on socket ${socketItem.hash} of server ${socketItem.server}. Opcode ${String(opcode)} is not supported.`,

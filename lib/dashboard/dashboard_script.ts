@@ -2984,6 +2984,7 @@ const dashboard = function dashboard():void {
                             tr.appendChild(td);
     
                             td = document.createElement("td");
+                            td.setAttribute("class", "right");
                             td.setAttribute("data-raw", String(item[5].size));
                             td.appendText(item[5].size.commas());
                             tr.appendChild(td);
@@ -3002,6 +3003,7 @@ const dashboard = function dashboard():void {
                             tr.appendChild(td);
     
                             td = document.createElement("td");
+                            td.setAttribute("class", "right");
                             td.setAttribute("data-raw", String(item[4]));
                             td.appendText(item[4].commas());
                             tr.appendChild(td);

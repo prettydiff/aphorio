@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 
 export default [
     {
-        ignores: ["**/js/*", "**/node_modules", "**/files/*", "**/node.ts", "**/node.d.ts", "**/servers"]
+        ignores: ["**/node_modules", "**/files/*", "**/node.ts", "**/node.d.ts", "**/servers"]
     },
         ...ts_eslint.config(
             eslint.configs.recommended,

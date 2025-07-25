@@ -44,7 +44,7 @@ const server_create = function services_serverCreate(data:services_action_server
                             callback();
                         }
                     };
-                log({
+                log.application({
                     action: "add",
                     config: config,
                     message: `Server named ${config.name} created.`,
@@ -144,7 +144,7 @@ const server_create = function services_serverCreate(data:services_action_server
         // 2. add server to servers.json file
         write();
     } else {
-        log({
+        log.application({
             action: "add",
             config: config,
             message: `Server named ${config.name} already exists.  Called on library server_create.`,

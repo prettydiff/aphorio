@@ -34,7 +34,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
             ]
             : config.headers,
         callbackError = function transmit_createSocket_hash_error(errorMessage:node_error):void {
-            log({
+            log.application({
                 action: "add",
                 config: errorMessage,
                 message: `Error attempting websocket connect from client side on server. ${(config.proxy === null)

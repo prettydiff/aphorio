@@ -15,7 +15,7 @@ const hash = function utilities_hash(config:config_hash):void {
             const output:string = `Source is either not a file or resulted in an error.\n\n${JSON.stringify(err)}`;
             hashOutput.hash = output;
             config.callback(hashOutput);
-            log({
+            log.application({
                 action: "add",
                 config: null,
                 message: output,

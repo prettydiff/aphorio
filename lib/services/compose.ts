@@ -18,7 +18,7 @@ const compose = function services_compose(socket_data:socket_data):void {
                         message:string = (service === "dashboard-compose-container")
                             ? `Compose container ${data.compose.name} updated.`
                             : "Compose environmental variables updated.";
-                    log({
+                    log.application({
                         action: "modify",
                         config: (type === "containers")
                             ? vars.compose.containers[name]
@@ -90,7 +90,7 @@ const compose = function services_compose(socket_data:socket_data):void {
                                     compose.compose = vars.compose.containers[data.name].compose;
                                     compose.description = vars.compose.containers[data.name].description;
                                     vars.compose.containers[data.name] = compose;
-                                    log({
+                                    log.application({
                                         action: "activate",
                                         config: compose,
                                         message: `Docker container ${data.name} is online.`,
@@ -120,7 +120,7 @@ const compose = function services_compose(socket_data:socket_data):void {
                                 delete vars.compose.containers[data.compose.name];
                                 file.write({
                                     callback: function services_compose_stat_writeContents_compose():void {
-                                        log({
+                                        log.application({
                                             action: "destroy",
                                             config: data.compose,
                                             message: `Destroyed container ${data.compose.name}`,

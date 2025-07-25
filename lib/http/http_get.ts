@@ -224,7 +224,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             if (extension === "jpg" || extension === "jpeg") {
                                 return "image/jpeg";
                             }
-                            if (extension === "js") {
+                            if (extension === "js" || extension === "ts") {
                                 return "application/javascript; utf8";
                             }
                             if (extension === "json") {

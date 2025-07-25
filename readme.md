@@ -28,7 +28,7 @@ A simple web based dashboard for the following features.
 2. Install [git](https://git-scm.com/)
 3. Execute `git clone https://github.com/prettydiff/webserver.git`
 4. Execute `cd webserver`
-5. Execute `node install.js`
+5. Execute `npm install`
 7. Run the application: `npm run server`.
 6. Access the dashboard in a browser on the specified random port.
 

@@ -88,6 +88,11 @@ interface hash_output {
     size: number;
 }
 
+interface log {
+    application: (config:config_log) => void;
+    shell: (input:string[], summary?:boolean) => void;
+}
+
 interface server {
     config: services_server;
     sockets: services_socket[];
@@ -254,6 +259,10 @@ interface vars {
     compose: configuration_compose;
     css: string;
     dashboard: string;
+    environment: {
+        date_commit: number;
+        hash: string;
+    };
     hashes: string[];
     interfaces: string[];
     intervals: store_number;

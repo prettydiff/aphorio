@@ -6,7 +6,7 @@ import vars from "../utilities/vars.ts";
 const docker_ps = function services_dockerPS(callback:() => void):void {
     const args:string[] = ["-f", `${vars.path.compose}empty.yml`, "ps", "--format=json"],
         logger = function services_dockerPS_logger(action:"activate"|"deactivate", config:services_docker_compose):void {
-            log({
+            log.application({
                 action: action,
                 config: config,
                 message: (action === "activate")
@@ -79,7 +79,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 const lines = function services_dockerPS_callbackFirst_lines(input:string):string {
                     return input.replace(" ", "\n");
                 };
-                log({
+                log.application({
                     action: "activate",
                     config: error,
                     message: (error === null)
@@ -105,7 +105,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                     }
                 }
             } else {
-                log({
+                log.application({
                     action: "modify",
                     config: (stderr === "")
                         ? error

@@ -26,7 +26,7 @@ const certificate = function services_certificate(config:config_certificate):voi
                                 config.callback();
                             }
                         } else {
-                            log({
+                            log.application({
                                 action: "add",
                                 config: vars.servers[config.name],
                                 message: `Error executing command: ${commands[index]}`,

@@ -339,7 +339,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                             : "open";
                     vars.server_meta[serverItem.name].server[secure] = serverItem;
                     vars.servers[serverItem.name].status[secure] = address.port;
-                    log({
+                    log.application({
                         action: "activate",
                         config: {
                             name: serverItem.name,
@@ -358,7 +358,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                         const secure:"open"|"secure" = (serverItem.secure === true)
                             ? "secure"
                             : "open";
-                        log({
+                        log.application({
                             action: "activate",
                             config: vars.servers[serverItem.name],
                             message: `Port conflict on port ${vars.servers[serverItem.name].config.ports[secure]} of ${secure} server named ${serverItem.name}.`,
@@ -366,7 +366,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                             type: "server"
                         });
                     } else {
-                        log({
+                        log.application({
                             action: "activate",
                             config: ser,
                             message: `Error activating ${(serverItem.secure === true) ? "secure" : "open"} server ${serverItem.name}.`,

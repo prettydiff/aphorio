@@ -50,7 +50,7 @@ const terminal:services_terminal = {
                     status: "error",
                     type: "terminal"
                 };
-                log(config);
+                log.application(config);
                 close();
             },
             handler = function services_terminalShell_handler(socket:websocket_client, data:Buffer):void {

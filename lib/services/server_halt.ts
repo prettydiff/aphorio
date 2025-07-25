@@ -22,7 +22,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
             : String(data.server.modification_name),
         temporary:boolean = vars.servers[old].config.temporary;
     if (vars.servers[old] === undefined) {
-        log({
+        log.application({
             action: data.action,
             config: data.server,
             message: `Server named ${old} does not exist.  Called on library server_halt.`,
@@ -54,7 +54,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                     if (data.action === "modify") {
                         data.server.modification_name = old;
                     }
-                    log({
+                    log.application({
                         action: data.action,
                         config: data.server,
                         message: `Server named ${data.server.name} ${actionText}.`,
@@ -79,7 +79,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                         complete("restart");
                         file.remove(file_remove);
                     } else {
-                        log({
+                        log.application({
                             action: "modify",
                             config: data.server,
                             message: "Error copying files from old server location to new server location.",

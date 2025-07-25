@@ -35,7 +35,7 @@ const file:file = {
                         errorCallback();
                         return;
                     }
-                    log({
+                    log.application({
                         action: null,
                         config: errorInstance,
                         message: `Error making directory ${config.location}`,
@@ -53,7 +53,7 @@ const file:file = {
                     }
                     return;
                 }
-                log({
+                log.application({
                     action: null,
                     config: new Error(`Destination directory, '${vars.text.cyan + config.location + vars.text.none}', is a ${type}.`),
                     message: `Destination for mkdir, ${config.location}, already exists.`,
@@ -75,7 +75,7 @@ const file:file = {
                                     config.callback();
                                 }
                             } else {
-                                log({
+                                log.application({
                                     action: null,
                                     config: errB,
                                     message: `Error making directory ${config.location}`,
@@ -114,7 +114,7 @@ const file:file = {
                     config.callback(file_raw);
                 }
             } else {
-                log({
+                log.application({
                     action: null,
                     config: err,
                     message: `Error reading file: ${config.location}`,
@@ -151,7 +151,7 @@ const file:file = {
                                     utilities_fileRemove_removeItems_destroy(item);
                                     return;
                                 }
-                                log({
+                                log.application({
                                     action: null,
                                     config: er,
                                     message: `Error removing file system artifact ${item[0]}`,
@@ -239,7 +239,7 @@ const file:file = {
                     config.callback(stat);
                 }
             } else {
-                log({
+                log.application({
                     action: null,
                     config: ers,
                     message: `Error reading file: ${config.location}`,
@@ -259,7 +259,7 @@ const file:file = {
                     config.callback();
                 }
             } else {
-                log({
+                log.application({
                     action: null,
                     config: erw,
                     message: `Error writing file: ${config.location}`,

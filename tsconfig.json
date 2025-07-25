@@ -4,7 +4,6 @@
         "alwaysStrict": true,
         "module": "ES2020",
         "moduleResolution": "node",
-        "outDir": "./js",
         "noEmit": true,
         "noImplicitAny": true,
         "pretty": false,
@@ -14,7 +13,6 @@
         "typeRoots": ["./node_modules/@types"]
     },
     "exclude": [
-        "./js",
         "./compose",
         "./servers",
         "**/node_modules",

@@ -1,9 +1,10 @@
 
 import node from "./node.ts";
 
-/* cspell: words appdata, pwsh */
+/* cspell: words appdata, cputime, lslogins, pwsh, serv, volu */
 
-const gid:number = (typeof process.getgid === "undefined")
+const win32:boolean = (process.platform === "win32"),
+    gid:number = (typeof process.getgid === "undefined")
         ? 0
         : process.getgid(),
     uid:number = (typeof process.getuid === "undefined")
@@ -14,7 +15,27 @@ const gid:number = (typeof process.getgid === "undefined")
             compose: (process.platform === "win32")
                 ? "docker-compose"
                 : "docker",
-            docker: "docker"
+            docker: "docker",
+            disk: (win32 === true)
+                ? "Get-Disk | ConvertTo-JSON -compress -depth 2"
+                : "lsblk -Ob --json",
+            part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
+            proc: (win32 === true)
+                ? "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON -compress -depth 1"
+                : "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
+            serv: (win32 === true)
+                ? "Get-Service | ConvertTo-JSON -compress -depth 2"
+                : "systemctl list-units --type=service --all --output json",
+            socT: (win32 === true)
+                ? "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2"
+                : "ss -atu | tail -n +2 | tr -s \" \" \",\"",
+            socU: (win32 === true)
+                ? "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2"
+                : "",
+            user: (win32 === true)
+                ? "Get-LocalUser | ConvertTo-JSON -compress -depth 1"
+                : "lslogins -o user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
+            volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
         },
         compose: {
             containers: {},
@@ -22,6 +43,10 @@ const gid:number = (typeof process.getgid === "undefined")
         },
         css: "",
         dashboard: "",
+        environment: {
+            date_commit: 0,
+            hash: ""
+        },
         hashes: node.crypto.getHashes(),
         interfaces: [
             "localhost",

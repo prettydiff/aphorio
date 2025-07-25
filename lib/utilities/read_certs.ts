@@ -22,7 +22,7 @@ const read_certs = function utilities_readCerts(name:string, callback:(name:stri
         certCheck = function utilities_readCerts_certCheck():void {
             if (https.fileFlag.ca === true && https.fileFlag.crt === true && https.fileFlag.key === true) {
                 if (https.options.ca === "" || https.options.cert === "" || https.options.key === "") {
-                    log({
+                    log.application({
                         action: "activate",
                         config: vars.servers[name],
                         message: `Required certificate files are missing for server ${name}.`,
