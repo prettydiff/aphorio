@@ -1,6 +1,7 @@
 
 interface test_assertion_command {
     format?: "json" | "lines" | "string";
+    nullable?: boolean;
     properties?: (number|string)[];
     qualifier: test_qualifier;
     type: "stderr" | "stdout";
@@ -19,8 +20,18 @@ interface test_browserDOM extends Array<type_browserDOM> {
     nodeString?: string;
 }
 
+interface test_config_summary {
+    fail_assertions: number;
+    fail_tests: number;
+    name: string;
+    time_end: bigint;
+    time_start: bigint;
+    total_assertions: number;
+    total_tests: number;
+}
+
 interface test_evaluations {
-    [key:string]: (value:string, comparator:string) => boolean;
+    [key:string]: (value:string, comparator:string, nullable:boolean) => [boolean, string];
 }
 
 interface test_event {

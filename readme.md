@@ -24,7 +24,7 @@ A simple web based dashboard for the following features.
   - Hash and Base64 tool
 
 ## Installation
-1. Install [Node.js](https://nodejs.org/)
+1. Install [Node.js](https://nodejs.org/) version 24 or later.
 2. Install [git](https://git-scm.com/)
 3. Execute `git clone https://github.com/prettydiff/webserver.git`
 4. Execute `cd webserver`
@@ -33,10 +33,15 @@ A simple web based dashboard for the following features.
 6. Access the dashboard in a browser on the specified random port.
 
 ## Shell commands
-* `npm run server` - Executes the application
-* `npm run server-no-color` - Executes the application without ANSI control characters to color output to the shell
-* `npm run tsc` - Executes the TypeScript compiler to perform explicit type checking
 * `npm run lint` - Executes ESLint for TypeScript to analyze the application against a bunch of draconian rules
+* `npm run server` - Executes the application
+* `npm run tsc` - Executes the TypeScript compiler to perform explicit type checking
+
+### Supported shell command arguments
+All arguments are supported only on the server command, example: `npm run server test no-color`
+
+* `no-color` - Eliminates use of ANSI color codes in terminal output
+* `test` - Executes the test automation
 
 <!--
 ## Optional steps to reduce the dependency count to 3:

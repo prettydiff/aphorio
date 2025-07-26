@@ -3,83 +3,80 @@ import log from "../utilities/log.ts";
 import node from "../utilities/node.ts";
 import vars from "../utilities/vars.ts";
 
-const test = function test_runner(start:bigint, list:test_list):void {
+const test_runner = function test_runner(start:bigint, list:test_list, callback:(config:test_config_summary) => void):void {
     const assert:test_evaluations = {
-            "begins": function test_runner_execCommand_assertBegins(value:string, comparator:string):boolean {
+            "begins": function test_runner_execCommand_assertBegins(value:string, comparator:string, nullable:boolean):[boolean, string] {
+                if (nullable === true && value === null) {
+                    return [true, `value is null, which is accepted`];
+                }
                 if (value.indexOf(comparator) === 0) {
-                    return true;
+                    return [true, `begins with ${comparator}`];
                 }
-                return false;
+                return [false, `begins with ${value.toString().slice(0, 8)}, not ${comparator}`];
             },
-            "contains": function test_runner_execCommand_assertContains(value:string, comparator:string):boolean {
-                return value.includes(comparator);
+            "contains": function test_runner_execCommand_assertContains(value:string, comparator:string, nullable:boolean):[boolean, string] {
+                if (nullable === true && value === null) {
+                    return [true, `value is null, which is accepted`];
+                }
+                if (value.includes(comparator) === true) {
+                    return [true, `contains ${comparator}`];
+                }
+                return [false, `does not contain ${value}`];
             },
-            "ends": function test_runner_execCommand_assertEnds(value:string, comparator:string):boolean {
+            "ends": function test_runner_execCommand_assertEnds(value:string, comparator:string, nullable:boolean):[boolean, string] {
+                if (nullable === true && value === null) {
+                    return [true, `value is null, which is accepted`];
+                }
                 if (value.indexOf(comparator) === value.length - comparator.length) {
-                    return true;
+                    return [true, `ends with ${comparator}`];
                 }
-                return false;
+                return [false, `ends with ${value.slice(value.length - 8)}, not ${comparator}`];
             },
-            "greater": function test_runner_execCommand_assertGreater(value:string, comparator:string):boolean {
+            "greater": function test_runner_execCommand_assertGreater(value:string, comparator:string, nullable:boolean):[boolean, string] {
+                if (nullable === true && value === null) {
+                    return [true, `value is null, which is accepted`];
+                }
                 if (Number(value) > Number(comparator)) {
-                    return true;
+                    return [true, `is greater than ${comparator}`];
                 }
-                return false;
+                return [false, `is ${value}, which is not greater than ${comparator}`];
             },
-            "is": function test_runner_execCommand_assertIs(value:string, comparator:string):boolean {
+            "is": function test_runner_execCommand_assertIs(value:string, comparator:string, nullable:boolean):[boolean, string] {
+                if (nullable === true && value === null) {
+                    return [true, `value is null, which is accepted`];
+                }
                 if (value === comparator) {
-                    return true;
+                    return [true, `is exactly ${value}`];
                 }
-                return false;
+                return [false, `is ${value}, not ${comparator}`];
             },
-            "lesser": function test_runner_execCommand_assertLesser(value:string, comparator:string):boolean {
+            "lesser": function test_runner_execCommand_assertLesser(value:string, comparator:string, nullable:boolean):[boolean, string] {
+                if (nullable === true && value === null) {
+                    return [true, `value is null, which is accepted`];
+                }
                 if (Number(value) < Number(comparator)) {
-                    return true;
+                    return [true, `is lesser than ${comparator}`];
                 }
-                return false;
+                return [false, `is ${value}, which is not lesser than ${comparator}`];
             },
-            "not contains": function test_runner_execCommand_assertNotContains(value:string, comparator:string):boolean {
+            "not contains": function test_runner_execCommand_assertNotContains(value:string, comparator:string, nullable:boolean):[boolean, string] {
+                if (nullable === true && value === null) {
+                    return [true, `value is null, which is accepted`];
+                }
                 if (value.includes(comparator) === false) {
-                    return true;
+                    return [true, `does not contain ${comparator}`];
                 }
-                return false;
+                return [false, `contains ${value}`];
             },
-            "not": function test_runner_execCommand_assertBegins(value:string, comparator:string):boolean {
-                if (value !== comparator) {
-                    return true;
+            "not": function test_runner_execCommand_assertBegins(value:string, comparator:string, nullable:boolean):[boolean, string] {
+                if (nullable === true && value === null) {
+                    return [true, `value is null, which is accepted`];
                 }
-                return false;
+                if (value !== comparator) {
+                    return [true, `is not ${value}`];
+                }
+                return [false, `is exactly ${value}`];
             }
-        },
-        assert_text_negative:store_string = {
-            "begins": "does not begin with",
-            "contains": "does not contain",
-            "ends": "does not end with",
-            "greater": "is not greater than",
-            "is": "is not",
-            "lesser": "is not lesser than",
-            "not contains": "does contain",
-            "not": "is"
-        },
-        assert_text_positive:store_string = {
-            "begins": "begins with",
-            "contains": "contains",
-            "ends": "ends with",
-            "greater": "is greater than",
-            "is": "is exactly",
-            "lesser": "is lesser than",
-            "not contains": "does not contain",
-            "not": "is not"
-        },
-        pad_right = function test_runner_padRight(len:number, input:string):string {
-            let count:number = input.length;
-            if (count < len) {
-                do {
-                    input = " " + input;
-                    count = count + 1;
-                } while (count < len);
-            }
-            return input;
         },
         utility:store_function = {
             complete: function test_runner_utilityComplete():void {
@@ -87,22 +84,21 @@ const test = function test_runner(start:bigint, list:test_list):void {
                 if (index_list < len_list) {
                     utility.next();
                 } else {
-                    const summary:string[] = [""],
-                        color:"angry"|"green" = (fail_assert === 0)
-                            ? "green"
-                            : "angry";
-                    summary.push(`${vars.text.underline}Testing complete for list ${vars.text.cyan + list.name + vars.text.none}`);
-                    summary.push(`    ${vars.text.angry}*${vars.text.none} Total list time  : ${utility.time()}`);
-                    summary.push(`    ${vars.text.angry}*${vars.text.none} Total tests      : ${pad_right(18, len_list.commas())}`);
-                    summary.push(`    ${vars.text.angry}*${vars.text.none} Total assertions : ${pad_right(18, total_assert.commas())}`);
-                    summary.push(`    ${vars.text.angry}*${vars.text.none} Failed tests     : ${vars.text[color] + pad_right(18, fail_test.commas()) + vars.text.none}`);
-                    summary.push(`    ${vars.text.angry}*${vars.text.none} Failed assertions: ${vars.text[color] + pad_right(18, fail_assert.commas()) + vars.text.none}`);
-                    summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage pass  : tests - ${vars.text[color] + (((len_list - fail_test) / len_list) * 100).toFixed(2) + vars.text.none}%, assertions - ${vars.text[color] + (((total_assert - fail_assert) / total_assert) * 100).toFixed(2) + vars.text.none}%`);
-                    log.shell(summary, true);
+                    callback({
+                        fail_assertions: fail_assert,
+                        fail_tests: fail_test,
+                        name: list.name,
+                        time_end: process.hrtime.bigint(),
+                        time_start: start,
+                        total_assertions: total_assert,
+                        total_tests: len_list,
+                    });
                 }
             },
             next: function test_runner_utilityNext():void {
-                if (list[index_list].type === "command") {
+                if (list[index_list] === null) {
+                    utility.complete();
+                } else if (list[index_list].type === "command") {
                     exec.command();
                 } else if (list[index_list].type === "dom") {
                     exec.dom();
@@ -138,16 +134,18 @@ const test = function test_runner(start:bigint, list:test_list):void {
                                 const len_prop:number = unit.properties.length,
                                     start:string = (unit.type === "stderr")
                                         ? str_stderr
-                                        : str_stdout;
+                                        : str_stdout,
+                                    props:string[] = [unit.type];
                                 let index_prop:number = 0,
                                     prop:number|string = null,
+                                    type_of:boolean = false,
                                     format:number|object|string = (unit.format === "lines")
                                         ? start.replace(/\n\s+/, "\n").split("\n")
                                         : (unit.format === "json")
                                             ? (function test_runner_execCommand_getValue_json():object {
                                                 // eslint-disable-next-line no-restricted-syntax
                                                 try {
-                                                    return JSON.parse(start);
+                                                    return JSON.parse(start.replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\r\n/, ""));
                                                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                                 } catch (e:unknown) {
                                                     parse_fail = true;
@@ -160,47 +158,62 @@ const test = function test_runner(start:bigint, list:test_list):void {
                                 }
                                 do {
                                     prop = unit.properties[index_prop];
-                                    format = (format as Array<string>)[prop as number];
+                                    if (prop === "typeof") {
+                                        type_of = true;
+                                    } else {
+                                        props.push(`[${prop}]`);
+                                        format = (format as Array<string>)[prop as number];
+                                    }
                                     if (format === null || format === undefined) {
                                         break;
                                     }
                                     index_prop = index_prop + 1;
                                 } while (index_prop < len_prop);
+                                if (type_of === true) {
+                                    prop_string = `typeof ${props.join("")}`;
+                                    return typeof format;
+                                }
+                                prop_string = props.join("");
                                 return format;
                             },
                             str_stderr:string = stderr.join(""),
                             str_stdout:string = stdout.join("");
                         let index_command:number = 0,
                             value:string = "",
+                            prop_string:string = "",
                             parse_fail:boolean = false,
-                            unit:test_assertion_command = null;
+                            unit:test_assertion_command = null,
+                            assertion:[boolean, string] = null;
                         if (len_unit > 0) {
                             do {
                                 unit = item.unit[index_command];
-                                value = get_value() as string;
-                                // @ts-expect-error - ts cannot detect the assignment above
-                                if (parse_fail === true) {
-                                    fail_output.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.angry + unit.type} failed to parse into JSON ${unit.value + vars.text.none}`);
-                                    parse_fail = false;
-                                    fail = true;
-                                    fail_assert = fail_assert + 1;
-                                } else if (assert[unit.qualifier](value, unit.value as string) === true) {
-                                    fail_output.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.green + vars.text.bold + unit.type} ${assert_text_positive[unit.qualifier]} ${unit.value + vars.text.none}`);
-                                } else {
-                                    fail_output.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.angry + unit.type} ${assert_text_negative[unit.qualifier]} ${unit.value + vars.text.none}`);
-                                    fail = true;
-                                    fail_assert = fail_assert + 1;
+                                if (unit !== null) {
+                                    value = get_value() as string;
+                                    assertion = assert[unit.qualifier](value, unit.value as string, (unit.nullable === true));
+                                    // @ts-expect-error - ts cannot detect the assignment above
+                                    if (parse_fail === true) {
+                                        fail_output.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.angry + unit.type} failed to parse into JSON - ${unit.value + vars.text.none}`);
+                                        parse_fail = false;
+                                        fail = true;
+                                        fail_assert = fail_assert + 1;
+                                    } else if (assertion[0] === true) {
+                                        fail_output.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.green + vars.text.bold + prop_string} ${assertion[1] + vars.text.none}`);
+                                    } else {
+                                        fail_output.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.angry + prop_string} ${assertion[1] + vars.text.none}`);
+                                        fail = true;
+                                        fail_assert = fail_assert + 1;
+                                    }
+                                    total_assert = total_assert + 1;
                                 }
-                                total_assert = total_assert + 1;
                                 index_command = index_command + 1;
                             } while (index_command < len_unit);
                             if (fail === true) {
-                                fail_output.splice(0, 0, `[${utility.time()}] ${index_list + 1} ${vars.text.angry}Fail${vars.text.none} ${item.name}`);
+                                fail_output.splice(0, 0, `[${utility.time()}] ${index_list + 1} ${vars.text.angry}Fail${vars.text.none} ${item.name}:  ${item.command}`);
                                 log.shell(fail_output);
                                 fail = false;
                                 fail_test = fail_test + 1;
                             } else {
-                                log.shell([`[${utility.time()}] ${index_list + 1} ${vars.text.green}Pass${vars.text.none} ${item.name}`]);
+                                log.shell([`[${utility.time()}] ${index_list + 1} ${vars.text.green}Pass${vars.text.none} ${item.name}:  ${item.command}`]);
                             }
                         }
                         spawn.kill();
@@ -241,4 +254,4 @@ const test = function test_runner(start:bigint, list:test_list):void {
     utility.next();
 };
 
-export default test;
+export default test_runner;
