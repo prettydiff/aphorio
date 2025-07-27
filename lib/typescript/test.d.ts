@@ -1,11 +1,11 @@
 
 interface test_assertion_command {
-    format?: "json" | "lines" | "string";
+    format?: "csv" | "json" | "lines" | "string";
     nullable?: boolean;
     properties?: (number|string)[];
     qualifier: test_qualifier;
     type: "stderr" | "stdout";
-    value: number | string;
+    value: boolean | number | string;
 }
 
 interface test_assertion_dom {
@@ -18,6 +18,13 @@ interface test_assertion_dom {
 
 interface test_browserDOM extends Array<type_browserDOM> {
     nodeString?: string;
+}
+
+interface test_command_format {
+    csv: () => string[][];
+    json: () => object;
+    lines: () => string[];
+    string: () => string;
 }
 
 interface test_config_summary {

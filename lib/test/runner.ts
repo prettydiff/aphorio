@@ -73,7 +73,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                     return [true, `value is null, which is accepted`];
                 }
                 if (value !== comparator) {
-                    return [true, `is not ${value}`];
+                    return [true, `is ${value}, not ${comparator}`];
                 }
                 return [false, `is exactly ${value}`];
             }
@@ -91,17 +91,20 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                         time_end: process.hrtime.bigint(),
                         time_start: start,
                         total_assertions: total_assert,
-                        total_tests: len_list,
+                        total_tests: count_test,
                     });
                 }
             },
             next: function test_runner_utilityNext():void {
                 if (list[index_list] === null) {
                     utility.complete();
-                } else if (list[index_list].type === "command") {
-                    exec.command();
-                } else if (list[index_list].type === "dom") {
-                    exec.dom();
+                } else {
+                    count_test = count_test + 1;
+                    if (list[index_list].type === "command") {
+                        exec.command();
+                    } else if (list[index_list].type === "dom") {
+                        exec.dom();
+                    }
                 }
             },
             time: function test_runner_utilityTime():string {
@@ -130,29 +133,78 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                     spawn_close = function test_runner_execCommand_close():void {
                         const len_unit:number = item.unit.length,
                             fail_output:string[] = [],
-                            get_value = function test_runner_execCommand_getValue():number|object|string {
+                            get_value = function test_runner_execCommand_getValue():boolean|number|object|string {
                                 const len_prop:number = unit.properties.length,
                                     start:string = (unit.type === "stderr")
                                         ? str_stderr
                                         : str_stdout,
-                                    props:string[] = [unit.type];
+                                    props:string[] = [unit.type],
+                                    formats:test_command_format = {
+                                        "csv": function test_runner_execCommand_close_csv():string[][] {
+                                            const output:string[][] = [],
+                                                len_csv:number = start.length;
+                                            let index_csv:number = 0,
+                                                line:string[] = [],
+                                                field:string[] = [],
+                                                quote:boolean = false;
+                                            if (len_csv > 0) {
+                                                do {
+                                                    if (start.charAt(index_csv) === "\"") {
+                                                        if (quote === true) {
+                                                            if (start.charAt(index_csv - 1) === "\"") {
+                                                                field.push("\"");
+                                                            } else {
+                                                                quote = false;
+                                                            }
+                                                        } else {
+                                                            quote = true;
+                                                        }
+                                                    } else if (quote === false) {
+                                                        if (start.charAt(index_csv) === "\r" && start.charAt(index_csv + 1) === "\n") {
+                                                            index_csv = index_csv + 1;
+                                                            output.push(line);
+                                                            line = [];
+                                                        } else if (start.charAt(index_csv) === "\n") {
+                                                            line.push(field.join(""));
+                                                            field = [];
+                                                            output.push(line);
+                                                            line = [];
+                                                        } else if (start.charAt(index_csv) === ",") {
+                                                            line.push(field.join(""));
+                                                            field = [];
+                                                        } else {
+                                                            field.push(start.charAt(index_csv));
+                                                        }
+                                                    }
+                                                    index_csv = index_csv + 1;
+                                                } while (index_csv < len_csv);
+                                                if (line.length > 0) {
+                                                    output.push(line);
+                                                }
+                                            }
+                                            return output;
+                                        },
+                                        "json": function test_runner_execCommand_close_json():object {
+                                            // eslint-disable-next-line no-restricted-syntax
+                                            try {
+                                                return JSON.parse(start.replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\r\n/, ""));
+                                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                            } catch (e:unknown) {
+                                                parse_fail = true;
+                                                return null;
+                                            }
+                                        },
+                                        "lines": function tests_runner_execCommand_close_lines():string[] {
+                                            return start.replace(/\n\s+/, "\n").split("\n");
+                                        },
+                                        "string": function tests_runner_execCommand_close_lines():string {
+                                            return start;
+                                        }
+                                    };
                                 let index_prop:number = 0,
                                     prop:number|string = null,
                                     type_of:boolean = false,
-                                    format:number|object|string = (unit.format === "lines")
-                                        ? start.replace(/\n\s+/, "\n").split("\n")
-                                        : (unit.format === "json")
-                                            ? (function test_runner_execCommand_getValue_json():object {
-                                                // eslint-disable-next-line no-restricted-syntax
-                                                try {
-                                                    return JSON.parse(start.replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\r\n/, ""));
-                                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                                } catch (e:unknown) {
-                                                    parse_fail = true;
-                                                    return null;
-                                                }
-                                            }())
-                                            : start;
+                                    format:boolean|object|string|string[]|string[][] = formats[unit.format]();
                                 if (len_prop < 1 || format === null) {
                                     return format;
                                 }
@@ -160,9 +212,17 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                                     prop = unit.properties[index_prop];
                                     if (prop === "typeof") {
                                         type_of = true;
-                                    } else {
+                                    } else if (prop === "isNaN") {
+                                        format = isNaN(Number(format));
+                                    } else if (prop !== "" && prop !== null && prop !== undefined) {
                                         props.push(`[${prop}]`);
-                                        format = (format as Array<string>)[prop as number];
+                                        // @ts-expect-error
+                                        if (typeof prop === "string" && prop.includes("(") === true && prop.includes(")") === true && (format as object)[prop.slice(0, prop.indexOf("("))] !== undefined) {
+                                            // @ts-expect-error
+                                            format = format[prop.slice(0, prop.indexOf("("))](prop.slice(prop.indexOf("(") + 1, prop.lastIndexOf(")")));
+                                        } else {
+                                            format = (format as Array<string>)[prop as number];
+                                        }
                                     }
                                     if (format === null || format === undefined) {
                                         break;
@@ -208,20 +268,22 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                                 index_command = index_command + 1;
                             } while (index_command < len_unit);
                             if (fail === true) {
-                                fail_output.splice(0, 0, `[${utility.time()}] ${index_list + 1} ${vars.text.angry}Fail${vars.text.none} ${item.name}:  ${item.command}`);
+                                fail_output.splice(0, 0, `[${utility.time()}] ${count_test} ${vars.text.angry}Fail${vars.text.none} ${item.name}:  ${item.command}`);
                                 log.shell(fail_output);
                                 fail = false;
                                 fail_test = fail_test + 1;
                             } else {
-                                log.shell([`[${utility.time()}] ${index_list + 1} ${vars.text.green}Pass${vars.text.none} ${item.name}:  ${item.command}`]);
+                                log.shell([`[${utility.time()}] ${count_test} ${vars.text.green}Pass${vars.text.none} ${item.name}:  ${item.command}`]);
                             }
+                        } else {
+                            log.shell([`[${utility.time()}] ${count_test} No assertions ${item.name}:  ${item.command}`]);
                         }
                         spawn.kill();
                         utility.complete();
                     },
                     spawn_error = function test_runner_execCommand_error(err:node_error):void {
                         log.shell([
-                            `[${utility.time()}] ${index_list + 1} ${vars.text.angry}Fail${vars.text.none} ${item.name}`,
+                            `[${utility.time()}] ${count_test} ${vars.text.angry}Fail${vars.text.none} ${item.name}`,
                             `    ${vars.text.angry}*${vars.text.none} Test failed with error: ${err.code}, ${err.message}`
                         ]);
                         fail_test = fail_test + 1;
@@ -249,6 +311,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
     let fail_assert:number = 0,
         fail_test:number = 0,
         index_list:number = 0,
+        count_test:number = 0,
         total_assert:number = 0;
     log.shell([`Test list ${vars.text.cyan + list.name + vars.text.none}`]);
     utility.next();

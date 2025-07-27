@@ -18,21 +18,21 @@ const win32:boolean = (process.platform === "win32"),
             unit: [
                 {
                     format: "json",
-                    properties: ["length"],
+                    properties: [(win32 === true) ? "" : "blockdevices", "length"],
                     qualifier: "greater",
                     type: "stdout",
                     value: 1
                 },
                 {
                     format: "json",
-                    properties: [0, (win32 === true) ? "BusType" : "tran", "typeof"],
+                    properties: [(win32 === true) ? "" : "blockdevices", 0, (win32 === true) ? "BusType" : "tran", "typeof"],
                     qualifier: "is",
                     type: "stdout",
                     value: "string"
                 },
                 {
                     format: "json",
-                    properties: [0, (win32 === true) ? "Guid" : "uuid", "typeof"],
+                    properties: [(win32 === true) ? "" : "blockdevices", 0, (win32 === true) ? "Guid" : "uuid", "typeof"],
                     qualifier: "is",
                     type: "stdout",
                     value: "string"
@@ -48,21 +48,21 @@ const win32:boolean = (process.platform === "win32"),
                     : null,
                 {
                     format: "json",
-                    properties: [0, (win32 === true) ? "FriendlyName" : "model", "typeof"],
+                    properties: [(win32 === true) ? "" : "blockdevices", 0, (win32 === true) ? "FriendlyName" : "model", "typeof"],
                     qualifier: "is",
                     type: "stdout",
                     value: "string"
                 },
                 {
                     format: "json",
-                    properties: [0, (win32 === true) ? "SerialNumber" : "serial", "typeof"],
+                    properties: [(win32 === true) ? "" : "blockdevices", 0, (win32 === true) ? "SerialNumber" : "serial", "typeof"],
                     qualifier: "is",
                     type: "stdout",
                     value: "string"
                 },
                 {
                     format: "json",
-                    properties: [0, (win32 === true) ? "Size" : "size", "typeof"],
+                    properties: [(win32 === true) ? "" : "blockdevices", 0, (win32 === true) ? "Size" : "size", "typeof"],
                     qualifier: "is",
                     type: "stdout",
                     value: "number"
@@ -71,26 +71,17 @@ const win32:boolean = (process.platform === "win32"),
                     ? null
                     : {
                         format: "json",
-                        properties: [0, "children", "length"],
+                        properties: ["blockdevices", 0, "children", "length"],
                         qualifier: "greater",
                         type: "stdout",
-                        value: 1
+                        value: 0
                     },
                 (win32 === true)
                     ? null
                     : {
                         format: "json",
                         nullable: true,
-                        properties: [0, "children", 0, "mountpoint", "typeof"],
-                        qualifier: "not",
-                        type: "stdout",
-                        value: "string"
-                    },
-                (win32 === true)
-                    ? null
-                    : {
-                        format: "json",
-                        properties: [0, "children", 0, "partflags", "typeof"],
+                        properties: ["blockdevices", 0, "children", 0, "mountpoint", "typeof"],
                         qualifier: "is",
                         type: "stdout",
                         value: "string"
@@ -99,7 +90,8 @@ const win32:boolean = (process.platform === "win32"),
                     ? null
                     : {
                         format: "json",
-                        properties: [0, "children", 0, "fstype", "typeof"],
+                        nullable: true,
+                        properties: ["blockdevices", 0, "children", 0, "partflags", "typeof"],
                         qualifier: "is",
                         type: "stdout",
                         value: "string"
@@ -108,7 +100,7 @@ const win32:boolean = (process.platform === "win32"),
                     ? null
                     : {
                         format: "json",
-                        properties: [0, "children", 0, "fsavail", "typeof"],
+                        properties: ["blockdevices", 0, "children", 0, "fstype", "typeof"],
                         qualifier: "is",
                         type: "stdout",
                         value: "string"
@@ -117,25 +109,34 @@ const win32:boolean = (process.platform === "win32"),
                     ? null
                     : {
                         format: "json",
-                        properties: [0, "children", 0, "fssize", "typeof"],
+                        properties: ["blockdevices", 0, "children", 0, "fsavail", "typeof"],
                         qualifier: "is",
                         type: "stdout",
-                        value: "string"
+                        value: "number"
                     },
                 (win32 === true)
                     ? null
                     : {
                         format: "json",
-                        properties: [0, "children", 0, "fsused", "typeof"],
+                        properties: ["blockdevices", 0, "children", 0, "fssize", "typeof"],
                         qualifier: "is",
                         type: "stdout",
-                        value: "string"
+                        value: "number"
                     },
                 (win32 === true)
                     ? null
                     : {
                         format: "json",
-                        properties: [0, "children", 0, "mountpoint"],
+                        properties: ["blockdevices", 0, "children", 0, "fsused", "typeof"],
+                        qualifier: "is",
+                        type: "stdout",
+                        value: "number"
+                    },
+                (win32 === true)
+                    ? null
+                    : {
+                        format: "json",
+                        properties: ["blockdevices", 0, "children", 0, "mountpoint"],
                         qualifier: "not",
                         type: "stdout",
                         value: null
@@ -144,8 +145,8 @@ const win32:boolean = (process.platform === "win32"),
                     ? null
                     : {
                         format: "json",
-                        properties: [0, "children", 0, "uuid", "typeof"],
-                        qualifier: "not",
+                        properties: ["blockdevices", 0, "children", 0, "uuid", "typeof"],
+                        qualifier: "is",
                         type: "stdout",
                         value: "string"
                     },
@@ -153,8 +154,8 @@ const win32:boolean = (process.platform === "win32"),
                     ? null
                     : {
                         format: "json",
-                        properties: [0, "children", 0, "path", "typeof"],
-                        qualifier: "not",
+                        properties: ["blockdevices", 0, "children", 0, "path", "typeof"],
+                        qualifier: "is",
                         type: "stdout",
                         value: "string"
                     },
@@ -162,8 +163,8 @@ const win32:boolean = (process.platform === "win32"),
                     ? null
                     : {
                         format: "json",
-                        properties: [0, "children", 0, "ro", "typeof"],
-                        qualifier: "not",
+                        properties: ["blockdevices", 0, "children", 0, "ro", "typeof"],
+                        qualifier: "is",
                         type: "stdout",
                         value: "boolean"
                     },
@@ -171,8 +172,8 @@ const win32:boolean = (process.platform === "win32"),
                     ? null
                     : {
                         format: "json",
-                        properties: [0, "children", 0, "type", "typeof"],
-                        qualifier: "not",
+                        properties: ["blockdevices", 0, "children", 0, "type", "typeof"],
+                        qualifier: "is",
                         type: "stdout",
                         value: "string"
                     }
@@ -293,7 +294,36 @@ const win32:boolean = (process.platform === "win32"),
                         value: "string"
                     },
                 ]
-                : []
+                : [
+                    {
+                        format: "csv",
+                        properties: ["length"],
+                        qualifier: "greater",
+                        type: "stdout",
+                        value: 10
+                    },
+                    {
+                        format: "csv",
+                        properties: [0, "length"],
+                        qualifier: "is",
+                        type: "stdout",
+                        value: 6
+                    },
+                    {
+                        format: "csv",
+                        properties: [0, 2, "search(\\d{1,2}:\\d{1,2}:\\d{1,2})"],
+                        qualifier: "is",
+                        type: "stdout",
+                        value: 0
+                    },
+                    {
+                        format: "csv",
+                        properties: [0, 3, "isNaN"],
+                        qualifier: "is",
+                        type: "stdout",
+                        value: false
+                    }
+                ]
         },
         // os.serv
         {
@@ -380,7 +410,31 @@ const win32:boolean = (process.platform === "win32"),
                         value: "number"
                     }
                 ]
-            : []
+            : [
+                {
+                    format: "csv",
+                    properties: ["length"],
+                    qualifier: "greater",
+                    type: "stdout",
+                    value: 10
+                },
+                {
+                    format: "csv",
+                    nullable: true,
+                    properties: [0, 4, "search(:\\d+)"],
+                    qualifier: "greater",
+                    type: "stdout",
+                    value: 6
+                },
+                {
+                    format: "csv",
+                    nullable: true,
+                    properties: [0, 5, "search(:(\\d+|(domain)))"],
+                    qualifier: "greater",
+                    type: "stdout",
+                    value: 6
+                }
+            ]
         },
         // os.socU
         (win32 === true)
@@ -455,7 +509,52 @@ const win32:boolean = (process.platform === "win32"),
                         value: "string"
                     }
                 ]
-            : []
+            : [
+                {
+                    format: "csv",
+                    properties: ["length"],
+                    qualifier: "greater",
+                    type: "stdout",
+                    value: 2
+                },
+                {
+                    format: "csv",
+                    properties: [0, "length"],
+                    qualifier: "is",
+                    type: "stdout",
+                    value: 4
+                },
+                {
+                    format: "csv",
+                    properties: [0, 1, "isNaN"],
+                    qualifier: "is",
+                    type: "stdout",
+                    value: false
+                },
+                {
+                    format: "csv",
+                    properties: [0, 2, "isNaN"],
+                    qualifier: "is",
+                    type: "stdout",
+                    value: false
+                },
+                {
+                    format: "csv",
+                    properties: [0, 3, "search(|(^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}-\\d{2}:\\d{2}$))"],
+                    qualifier: "is",
+                    type: "stdout",
+                    value: 0
+                }
+            ]
+            // lastLogin: (line[3] === undefined || line[3] === null || line[3] === "")
+            //     ? 0
+            //     : new Date(line[3]).getTime(),
+            // name: line[0],
+            // proc: Number(line[2]),
+            // type: (uid > 0 && (uid < 1000 || uid > 65530))
+            //     ? "system"
+            //     : "user",
+            // uid: uid
         },
         // os.volu
         (win32 === true)
