@@ -85,13 +85,21 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                     utility.next();
                 } else {
                     callback({
-                        fail_assertions: fail_assert,
-                        fail_tests: fail_test,
+                        final: false,
+                        list_assertions: total_assert,
+                        list_fail_assertions: fail_assert,
+                        list_fail_tests: fail_test,
+                        list_tests: count_test,
                         name: list.name,
-                        time_end: process.hrtime.bigint(),
-                        time_start: start,
-                        total_assertions: total_assert,
-                        total_tests: count_test,
+                        time_list_end: process.hrtime.bigint(),
+                        time_list_start: start,
+                        time_total_end: null,
+                        time_total_start: null,
+                        total_assertions: null,
+                        total_fail_assertions: null,
+                        total_fail_tests: null,
+                        total_lists: null,
+                        total_tests: null
                     });
                 }
             },
@@ -238,7 +246,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                             },
                             str_stderr:string = stderr.join(""),
                             str_stdout:string = stdout.join("");
-                        let index_command:number = 0,
+                        let index_units:number = 0,
                             value:string = "",
                             prop_string:string = "",
                             parse_fail:boolean = false,
@@ -246,7 +254,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                             assertion:[boolean, string] = null;
                         if (len_unit > 0) {
                             do {
-                                unit = item.unit[index_command];
+                                unit = item.unit[index_units];
                                 if (unit !== null) {
                                     value = get_value() as string;
                                     assertion = assert[unit.qualifier](value, unit.value as string, (unit.nullable === true));
@@ -265,8 +273,8 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                                     }
                                     total_assert = total_assert + 1;
                                 }
-                                index_command = index_command + 1;
-                            } while (index_command < len_unit);
+                                index_units = index_units + 1;
+                            } while (index_units < len_unit);
                             if (fail === true) {
                                 fail_output.splice(0, 0, `[${utility.time()}] ${count_test} ${vars.text.angry}Fail${vars.text.none} ${item.name}:  ${item.command}`);
                                 log.shell(fail_output);

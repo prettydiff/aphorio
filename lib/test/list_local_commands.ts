@@ -1,6 +1,6 @@
 import vars from "../utilities/vars.ts";
 
-// cspell: words fsavail, fssize, fsused, fstype, mountpoint, partflags, pwsh, serv, volu
+// cspell: words blockdevices, fsavail, fssize, fsused, fstype, mountpoint, partflags, pwsh, serv, volu
 
 const win32:boolean = (process.platform === "win32"),
     shell:string = (win32 === true)

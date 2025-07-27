@@ -28,12 +28,20 @@ interface test_command_format {
 }
 
 interface test_config_summary {
-    fail_assertions: number;
-    fail_tests: number;
+    list_assertions: number;
+    list_fail_assertions: number;
+    list_fail_tests: number;
+    list_tests: number;
+    final: boolean;
     name: string;
-    time_end: bigint;
-    time_start: bigint;
+    time_list_end: bigint;
+    time_list_start: bigint;
+    time_total_end: bigint;
+    time_total_start: bigint;
     total_assertions: number;
+    total_fail_assertions: number;
+    total_fail_tests: number;
+    total_lists: number;
     total_tests: number;
 }
 
