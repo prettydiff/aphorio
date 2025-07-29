@@ -28,11 +28,11 @@ interface test_command_format {
 }
 
 interface test_config_summary {
+    final: boolean;
     list_assertions: number;
     list_fail_assertions: number;
     list_fail_tests: number;
     list_tests: number;
-    final: boolean;
     name: string;
     time_list_end: bigint;
     time_list_start: bigint;

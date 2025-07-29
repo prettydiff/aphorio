@@ -282,6 +282,7 @@ interface vars {
     start_time: bigint;
     system_ports: external_ports;
     terminal: string[];
+    testing: boolean;
     text: store_string;
     timeZone_offset: number;
 }

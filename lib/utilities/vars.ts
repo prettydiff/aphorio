@@ -161,6 +161,7 @@ const win32:boolean = (process.platform === "win32"),
                 "C:\\Program Files (x86)\\Git\\bin\\bash.exe"
             ]
             : [],
+        testing: false,
         text: (process.argv.includes("no-color") === true)
             ? {
                 angry    : "",

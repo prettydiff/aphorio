@@ -184,12 +184,12 @@ const file:file = {
                                         destruction(null);
                                         return;
                                     }
-                                } while (b < 0);
+                                } while (b > 0);
                                 node.fs.rmdir(item[0], destruction);
                             } else {
                                 node.fs.rmdir(item[0], destruction);
                             }
-                        } else if (config.exclusions !== null && config.exclusions.indexOf(item[0]) < 0) {
+                        } else if (config.exclusions === null || (config.exclusions !== null && config.exclusions.indexOf(item[0]) < 0)) {
                             if (item[1] === "symbolic_link") {
                                 node.fs.rm(item[0], destruction);
                             } else {

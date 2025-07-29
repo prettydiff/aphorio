@@ -7,7 +7,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
     const assert:test_evaluations = {
             "begins": function test_runner_execCommand_assertBegins(value:string, comparator:string, nullable:boolean):[boolean, string] {
                 if (nullable === true && value === null) {
-                    return [true, `value is null, which is accepted`];
+                    return [true, "value is null, which is accepted"];
                 }
                 if (value.indexOf(comparator) === 0) {
                     return [true, `begins with ${comparator}`];
@@ -16,7 +16,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
             },
             "contains": function test_runner_execCommand_assertContains(value:string, comparator:string, nullable:boolean):[boolean, string] {
                 if (nullable === true && value === null) {
-                    return [true, `value is null, which is accepted`];
+                    return [true, "value is null, which is accepted"];
                 }
                 if (value.includes(comparator) === true) {
                     return [true, `contains ${comparator}`];
@@ -25,7 +25,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
             },
             "ends": function test_runner_execCommand_assertEnds(value:string, comparator:string, nullable:boolean):[boolean, string] {
                 if (nullable === true && value === null) {
-                    return [true, `value is null, which is accepted`];
+                    return [true, "value is null, which is accepted"];
                 }
                 if (value.indexOf(comparator) === value.length - comparator.length) {
                     return [true, `ends with ${comparator}`];
@@ -34,7 +34,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
             },
             "greater": function test_runner_execCommand_assertGreater(value:string, comparator:string, nullable:boolean):[boolean, string] {
                 if (nullable === true && value === null) {
-                    return [true, `value is null, which is accepted`];
+                    return [true, "value is null, which is accepted"];
                 }
                 if (Number(value) > Number(comparator)) {
                     return [true, `is greater than ${comparator}`];
@@ -43,7 +43,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
             },
             "is": function test_runner_execCommand_assertIs(value:string, comparator:string, nullable:boolean):[boolean, string] {
                 if (nullable === true && value === null) {
-                    return [true, `value is null, which is accepted`];
+                    return [true, "value is null, which is accepted"];
                 }
                 if (value === comparator) {
                     return [true, `is exactly ${value}`];
@@ -52,7 +52,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
             },
             "lesser": function test_runner_execCommand_assertLesser(value:string, comparator:string, nullable:boolean):[boolean, string] {
                 if (nullable === true && value === null) {
-                    return [true, `value is null, which is accepted`];
+                    return [true, "value is null, which is accepted"];
                 }
                 if (Number(value) < Number(comparator)) {
                     return [true, `is lesser than ${comparator}`];
@@ -61,7 +61,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
             },
             "not contains": function test_runner_execCommand_assertNotContains(value:string, comparator:string, nullable:boolean):[boolean, string] {
                 if (nullable === true && value === null) {
-                    return [true, `value is null, which is accepted`];
+                    return [true, "value is null, which is accepted"];
                 }
                 if (value.includes(comparator) === false) {
                     return [true, `does not contain ${comparator}`];
@@ -70,7 +70,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
             },
             "not": function test_runner_execCommand_assertBegins(value:string, comparator:string, nullable:boolean):[boolean, string] {
                 if (nullable === true && value === null) {
-                    return [true, `value is null, which is accepted`];
+                    return [true, "value is null, which is accepted"];
                 }
                 if (value !== comparator) {
                     return [true, `is ${value}, not ${comparator}`];
@@ -212,7 +212,7 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                                 let index_prop:number = 0,
                                     prop:number|string = null,
                                     type_of:boolean = false,
-                                    format:boolean|object|string|string[]|string[][] = formats[unit.format]();
+                                    format:boolean|object|string = formats[unit.format]();
                                 if (len_prop < 1 || format === null) {
                                     return format;
                                 }
@@ -224,9 +224,9 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                                         format = isNaN(Number(format));
                                     } else if (prop !== "" && prop !== null && prop !== undefined) {
                                         props.push(`[${prop}]`);
-                                        // @ts-expect-error
+                                        // @ts-expect-error - dynamically infers a property on a static object
                                         if (typeof prop === "string" && prop.includes("(") === true && prop.includes(")") === true && (format as object)[prop.slice(0, prop.indexOf("("))] !== undefined) {
-                                            // @ts-expect-error
+                                            // @ts-expect-error - dynamically infers a property on a static object
                                             format = format[prop.slice(0, prop.indexOf("("))](prop.slice(prop.indexOf("(") + 1, prop.lastIndexOf(")")));
                                         } else {
                                             format = (format as Array<string>)[prop as number];

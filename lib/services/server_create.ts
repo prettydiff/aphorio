@@ -84,9 +84,7 @@ const server_create = function services_serverCreate(data:services_action_server
             let index:number = 0;
             do {
                 delete vars.servers[keys[index]].config.modification_name;
-                if (vars.servers[keys[index]].config.temporary !== true) {
-                    servers[keys[index]] = vars.servers[keys[index]].config;
-                }
+                servers[keys[index]] = vars.servers[keys[index]].config;
                 index = index + 1;
             } while (index < total);
             file.write({
@@ -142,7 +140,11 @@ const server_create = function services_serverCreate(data:services_action_server
             }
         };
         // 2. add server to servers.json file
-        write();
+        if (config.temporary === true) {
+            complete("config");
+        } else {
+            write();
+        }
     } else {
         log.application({
             action: "add",

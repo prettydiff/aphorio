@@ -25,7 +25,7 @@ const test_summary = function test_summary(config:test_config_summary):void {
     summary.push(`    ${vars.text.angry}*${vars.text.none} List failed tests     : ${vars.text[color] + pad_right(18, config.list_fail_tests.commas()) + vars.text.none}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} List failed assertions: ${vars.text[color] + pad_right(18, config.list_fail_assertions.commas()) + vars.text.none}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage pass       : tests - ${vars.text[color] + (((config.list_tests - config.list_fail_tests) / config.list_tests) * 100).toFixed(2) + vars.text.none}%, assertions - ${vars.text[color] + (((config.list_assertions - config.list_fail_assertions) / config.list_assertions) * 100).toFixed(2) + vars.text.none}%`);
-    if (config.final === true) {
+    if (config.final === true && config.total_lists > 1) {
         summary.push("");
         summary.push("---");
         summary.push("");
@@ -39,6 +39,11 @@ const test_summary = function test_summary(config:test_config_summary):void {
         summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage pass        : tests - ${vars.text[color] + (((config.total_tests - config.total_fail_tests) / config.total_tests) * 100).toFixed(2) + vars.text.none}%, assertions - ${vars.text[color] + (((config.total_assertions - config.total_fail_assertions) / config.total_assertions) * 100).toFixed(2) + vars.text.none}%`);
     }
     log.shell(summary, config.final);
+    if (config.total_fail_assertions > 1) {
+        process.kill(1);
+    } else {
+        process.kill(0);
+    }
 };
 
 export default test_summary;

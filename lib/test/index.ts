@@ -1,5 +1,6 @@
 
 import log from "../utilities/log.ts";
+import test_listLocalBrowser from "./list_local_browser.ts";
 import test_listLocalCommands from "./list_local_commands.ts";
 import test_runner from "./runner.ts";
 import test_summary from "./summary.ts";
@@ -12,7 +13,8 @@ const test_index = function test_index():void {
         total_tests:number = 0;
     const start:bigint = process.hrtime.bigint(),
         list:test_list[] = [
-            test_listLocalCommands
+            test_listLocalBrowser
+            // test_listLocalCommands
         ],
         len_list:number = list.length,
         complete = function test_index_complete(config:test_config_summary):void {
@@ -40,7 +42,7 @@ const test_index = function test_index():void {
                 complete(config);
             });
         };
-    log.shell([`Starting test automation for ${len_list} lists.`, ""]);
+    log.shell(["", `Starting test automation for ${len_list} lists.`, ""]);
     runner();
 };
 

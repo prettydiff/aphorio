@@ -3,5 +3,6 @@
 /servers.json
 /servers
 /compose/**
+/test
 !/compose/empty.yml
 install.js
