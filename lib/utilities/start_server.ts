@@ -11,6 +11,7 @@ import node from "./node.ts";
 import os from "./os.ts";
 import server from "../transmit/server.ts";
 import server_create from "../services/server_create.ts";
+import test_browser from "../dashboard/test_browser.ts";
 import test_index from "../test/index.ts";
 import time from "./time.ts";
 import vars from "./vars.ts";
@@ -18,6 +19,7 @@ import vars from "./vars.ts";
 const start_server = function utilities_startServer():void {
     const testing:boolean = process.argv.includes("test"),
         flags:store_flag = {
+            browser_stat: false,
             compose: false,
             css: false,
             git: false,
@@ -28,6 +30,7 @@ const start_server = function utilities_startServer():void {
             shell: false
         },
         task_definitions:store_string = {
+            browser_stat: "",
             compose: "Reads the compose.json file and restores the docker compose containers if docker is available.",
             css: "Reads the dashboard's CSS file to cache the contents to a variable and automatically add these contents to the dashboard HTML file.",
             git: "Read's the project's git file to determine the current commit hash, which is helpful when performing maintenance across multiple machines simultaneously.",
@@ -38,6 +41,52 @@ const start_server = function utilities_startServer():void {
             shell: "Determines a list of available shells from the local machine."
         },
         tasks:store_function = {
+            browser_stat: function utilities_startServer_taskBrowserStat():void {
+                if (testing === false) {
+                    task_definitions.browser_stat = "Ignored unless executing tests.";
+                    readComplete("browser_stat");
+                } else {
+                    const stat = function utilities_startServer_testBrowserStat_stat(err:node_error, details:node_fs_Stats):void {
+                            if (err === null && details !== null && details !== undefined) {
+                                if (vars.test.browser_args.length > 0) {
+                                    task_definitions.browser_stat = `File found for testing in browser: ${vars.text.green + address.replace(/\\\\/g, "\\")} ${vars.test.browser_args.join(" ")} ${vars.text.none}`;
+                                } else {
+                                    task_definitions.browser_stat = `File found for testing in browser: ${vars.text.green + address.replace(/\\\\/g, "\\") + vars.text.none}`;
+                                }
+                                vars.test.browser = address;
+                            } else {
+                                task_definitions.browser_stat = `File ${vars.text.angry}not${vars.text.none} found for testing in browser: ${vars.text.red + address.replace(/\\\\/g, "\\") + vars.text.none}`;
+                            }
+                            readComplete("browser_stat");
+                        },
+                        len_browser:number = process.argv.length;
+                    let index_browser:number = len_browser,
+                        address:string = "",
+                        address_length:number = 0;
+                    if (index_browser > 0) {
+                        do {
+                            index_browser = index_browser - 1;
+                            if (process.argv[index_browser].indexOf("browser:") === 0) {
+                                address = process.argv[index_browser].replace("browser:", "");
+                                address_length = address.length;
+                                if ((address.charAt(0) === "\"" && address.charAt(address_length - 1) === "\"") || (address.charAt(0) === "'" && address.charAt(address_length - 1) === "'")) {
+                                    address = `"${address.slice(1, address_length - 1)}"`;
+                                    if (process.platform === "win32") {
+                                        address = address.replace(/\\/g, "\"\\\"").replace("\"\\", "\\");
+                                    }
+                                }
+                                if (index_browser < len_browser - 1) {
+                                    vars.test.browser_args = process.argv.slice(index_browser + 1);
+                                }
+                                node.fs.stat(address, stat);
+                                return;
+                            }
+                        } while (index_browser > 0);
+                    }
+                    task_definitions.browser_stat = "No option supplied beginning with 'browser:'";
+                    readComplete("browser_stat");
+                }
+            },
             compose: function utilities_startServer_taskCompose():void {
                 const readCompose = function utilities_startServer_taskCompose_readCompose(fileContents:Buffer):void {
                     const callback = function utilities_startServer_taskCompose_readCompose_dockerCallback():void {
@@ -101,8 +150,12 @@ const start_server = function utilities_startServer():void {
                 const readXterm = function utilities_startServer_taskHTML_readXterm(xtermFile:Buffer):void {
                     file.read({
                         callback: function utilities_startServer_taskHTML_readXterm_readHTML(fileContents:Buffer):void {
-                            const xterm:string = xtermFile.toString().replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
-                                script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
+                            const xterm:string = xtermFile.toString().replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, "");
+                            let script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
+                            if (testing === true) {
+                                const testBrowser:string = test_browser.toString().replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
+                                script = script.replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`).replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
+                            }
                             vars.dashboard = fileContents.toString()
                                 .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
                                 .replace("replace_javascript", `${xterm}const commas=${commas.toString()},dateTime=${dateTime.toString()},time=${time.toString()};(${script}(${core.toString()}));`);
@@ -302,7 +355,7 @@ const start_server = function utilities_startServer():void {
                 }
             }
         },
-        readComplete = function utilities_startServer_readComplete(flag:"compose"|"css"|"git"|"html"|"options"|"os"|"servers"|"shell"):void {
+        readComplete = function utilities_startServer_readComplete(flag:"browser_stat"|"compose"|"css"|"git"|"html"|"options"|"os"|"servers"|"shell"):void {
             flags[flag] = true;
             // sends a server time update every 950ms
             const clock = function utilities_startServer_readComplete_clock():void {
@@ -337,6 +390,7 @@ const start_server = function utilities_startServer():void {
                                 "/lib/assets/*": "/lib/dashboard/*"
                             }
                         },
+                        single_socket: false,
                         temporary: testing
                     };
                 },
@@ -486,7 +540,7 @@ const start_server = function utilities_startServer():void {
         // eslint-disable-next-line no-restricted-syntax
         return this.charAt(0).toUpperCase() + this.slice(1);
     };
-    vars.testing = testing;
+    vars.test.testing = testing;
     vars.path.project = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}lib${vars.sep}`)) + vars.sep;
     vars.path.compose = (testing === true)
         ? `${vars.path.project}test${vars.sep}compose${vars.sep}`

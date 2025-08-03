@@ -94,6 +94,7 @@ interface config_websocket_extensions {
     proxy: websocket_client;
     role: "client"|"server";
     server: string;
+    single_socket: boolean;
     socket: websocket_client;
     temporary: boolean;
     timeout: bigint;

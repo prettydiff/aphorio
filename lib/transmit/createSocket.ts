@@ -70,6 +70,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     proxy: config.proxy,
                     role: "client",
                     server: config.server,
+                    single_socket: false,
                     socket: client,
                     temporary: false,
                     timeout: startTime,

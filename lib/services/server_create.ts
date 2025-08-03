@@ -140,7 +140,7 @@ const server_create = function services_serverCreate(data:services_action_server
             }
         };
         // 2. add server to servers.json file
-        if (config.temporary === true) {
+        if (config.single_socket === true || config.temporary === true) {
             complete("config");
         } else {
             write();

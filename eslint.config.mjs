@@ -30,7 +30,6 @@ export default [
             parser: tsParser,
             ecmaVersion: 11,
             sourceType: "module",
-
             parserOptions: {
                 project: true,
                 tsconfigRootDir: __dirname,

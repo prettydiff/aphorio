@@ -282,7 +282,13 @@ interface vars {
     start_time: bigint;
     system_ports: external_ports;
     terminal: string[];
-    testing: boolean;
+    test: {
+        browser: string;
+        browser_args: string[];
+        browser_child: node_childProcess_ChildProcess;
+        browser_start: boolean;
+        testing: boolean;
+    };
     text: store_string;
     timeZone_offset: number;
 }

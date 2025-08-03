@@ -1,3 +1,5 @@
+<!-- cspell: words webserver -->
+
 # Web Server
 A simple web based dashboard for the following features.
 
@@ -34,14 +36,15 @@ A simple web based dashboard for the following features.
 
 ## Shell commands
 * `npm run lint` - Executes ESLint for TypeScript to analyze the application against a bunch of draconian rules
-* `npm run server` - Executes the application
+* `npm run server` or `node ./list/index.ts` - Executes the application
+* `npm run test` or  `node ./list/index.ts test` - Runs the test automation
 * `npm run tsc` - Executes the TypeScript compiler to perform explicit type checking
 
 ### Supported shell command arguments
 All arguments are supported only on the server command, example: `npm run server test no-color`
 
-* `no-color` - Eliminates use of ANSI color codes in terminal output
-* `test` - Executes the test automation
+* `no-color` - Eliminates use of ANSI color codes in terminal output.
+* `browser:<file_path>` - *This option is ignored unless in test mode.* Provides a custom file path for a web browser executable to test against. The file path value can be quoted, but if not quoted then spaces must be escaped according to the given shells syntax rules. Any arguments following this argument will be passed directly to that web browser.
 
 <!--
 ## Optional steps to reduce the dependency count to 3:

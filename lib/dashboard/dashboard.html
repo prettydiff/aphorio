@@ -738,10 +738,16 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     </p><p>
                         If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003]</code>
                     </p></dd>
+                    <dt><em>single_socket</em> (boolean)</dt>
+                    <dd><p>
+                        Providing property <em>single_socket</em> with value <em>true</em> will create a server that only accepts a first successful HTTP or WebSocket connection.
+                        All other connections will be ignored and the server will automatically remove itself once that connection completes.
+                        This server will never writing configuration data and so it will be forever lost once this application closes.
+                    </p></dd>
                     <dt><em>temporary</em> (boolean)</dt>
                     <dd><p>
-                        Providing property <em>temporary</em> with value <em>true</em> will create a server that only accepts a first successful HTTP or WebSocket connection.
-                        All other connections will be ignored and the server will automatically remove itself once that connection completes.
+                        Providing property <em>temporary</em> with value <em>true</em> will create a server that never writes configuration data.
+                        This server will be forever lost once this application closes.
                     </p></dd>
                 </dl>
             </div>

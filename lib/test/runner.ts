@@ -1,6 +1,7 @@
 
 import log from "../utilities/log.ts";
 import node from "../utilities/node.ts";
+import send from "../transmit/send.ts";
 import vars from "../utilities/vars.ts";
 
 const test_runner = function test_runner(start:bigint, list:test_list, callback:(config:test_config_summary) => void):void {
@@ -79,6 +80,34 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
             }
         },
         utility:store_function = {
+            browser: function test_runner_utilityBrowser():void {
+                const keyword:string = (process.platform === "darwin")
+                        ? "open"
+                        : (process.platform === "win32")
+                            ? "start"
+                            : "xdg-open",
+                    browserCommand = function test_runner_utilityBrowser_browserCommand():string {
+                        const path:string = `http://localhost:${vars.servers.dashboard.status.open}/?test_browser`;
+                        if (vars.test.browser !== "" && vars.test.browser !== null) {
+                            if (vars.test.browser_args.length > 0) {
+                                return `${keyword} ${vars.test.browser} ${path} ${vars.test.browser_args.join(" ")}`;
+                            }
+                            return `${keyword} ${vars.test.browser} ${path}`;
+                        }
+                        return `${keyword} ${path}`;
+                    },
+                    call_dom = function test_runner_utilityBrowser_callDom():void {
+                        if (vars.server_meta.dashboard.sockets.open[0] === undefined || vars.server_meta.dashboard.sockets.open[0].queue === undefined) {
+                            setTimeout(test_runner_utilityBrowser_callDom, 50);
+                        } else {
+                            exec.dom();
+                        }
+                    };
+                vars.test.browser_child = node.child_process.exec(browserCommand(), function test_runner_utilityBrowser_child():void {
+                    vars.test.browser_start = true;
+                    call_dom();
+                });
+            },
             complete: function test_runner_utilityComplete():void {
                 index_list = index_list + 1;
                 if (index_list < len_list) {
@@ -104,14 +133,12 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                 }
             },
             next: function test_runner_utilityNext():void {
-                if (list[index_list] === null) {
+                if (list[index_list] === null || list[index_list] === undefined) {
                     utility.complete();
                 } else {
                     count_test = count_test + 1;
-                    if (list[index_list].type === "command") {
-                        exec.command();
-                    } else if (list[index_list].type === "dom") {
-                        exec.dom();
+                    if (exec[list[index_list].type] !== undefined) {
+                        exec[list[index_list].type]();
                     }
                 }
             },
@@ -305,14 +332,24 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                 spawn.on("error", spawn_error);
             },
             dom: function test_runner_execDOM():void {
-                const item:test_item_dom = list[index_list] as test_item_dom,
-                    len_interaction:number = item.interaction.length;
-                let index_dom:number = 0;
-                if (len_interaction > 0) {
-                    do {
-                        index_dom = index_dom + 1;
-                    } while (index_dom < len_interaction);
+                if (vars.test.browser_start === false) {
+                    utility.browser();
+                    return;
                 }
+                const item_test:test_item_dom = list[index_list] as test_item_dom,
+                    item_service:services_testBrowser = {
+                        action: "result",
+                        exit: null,
+                        index: index_list,
+                        result: null,
+                        test: item_test
+                    },
+                    socket:websocket_client = vars.server_meta.dashboard.sockets.open[0],
+                    payload:socket_data = {
+                        data: item_service,
+                        service: "test-browser"
+                    };
+                send(payload, socket, 3);
             },
         },
         len_list:number = list.length;

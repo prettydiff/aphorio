@@ -306,7 +306,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             input = `${vars.path.project}lib${vars.sep}dashboard${vars.sep}styles.css`;
         } else if (decoded.includes("xterm.css") === true) {
             input = `${vars.path.project}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}css${vars.sep}xterm.css`;
-        } else if (decoded === "" || decoded.includes("/") === true) {
+        } else if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {
                     compose: vars.compose,

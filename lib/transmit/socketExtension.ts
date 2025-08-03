@@ -91,8 +91,8 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 config.socket.queue = [];                 // stores messages for transmit, because websocket protocol cannot intermix messages
             }
             config.socket.status = "open";            // sets the status flag for the socket
-            if (config.temporary === true) {
-                const temporary = function transmit_socketExtension_temporary():void {
+            if (config.single_socket === true) {
+                const death = function transmit_socketExtension_death():void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const socket:websocket_client = this;
                     server_halt({
@@ -100,9 +100,9 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                         server: vars.servers[socket.server].config
                     }, null);
                 };
-                config.socket.on("close", temporary);
-                config.socket.on("end", temporary);
-                config.socket.on("error", temporary);
+                config.socket.on("close", death);
+                config.socket.on("end", death);
+                config.socket.on("error", death);
             } else {
                 config.socket.on("close", socketError);
                 config.socket.on("end", socketError);

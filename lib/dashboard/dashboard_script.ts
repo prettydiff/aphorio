@@ -646,6 +646,7 @@ const dashboard = function dashboard():void {
                     if (typeof event.data === "string") {
                         const message_item:socket_data = JSON.parse(event.data),
                             service_map:map_messages = {
+                                // "test-browser": testBrowser,
                                 "dashboard-clock": utility.clock,
                                 "dashboard-dns": tools.dns.receive,
                                 "dashboard-fileSystem": tools.fileSystem.receive,
@@ -2121,7 +2122,7 @@ const dashboard = function dashboard():void {
                                                 config.supported.splice(indexSupported, 1);
                                             } else if (config.name === "ports" && ((serverData.encryption === "open" && config.supported[indexSupported] === "secure") || (serverData.encryption === "secure" && config.supported[indexSupported] === "open"))) {
                                                 config.supported.splice(indexSupported, 1);
-                                            } else if (config.name === null && keys.includes(config.supported[indexSupported]) === false && (config.supported[indexSupported] === "block_list" || config.supported[indexSupported] === "domain_local" || config.supported[indexSupported] === "http" || config.supported[indexSupported] === "redirect_domain" || config.supported[indexSupported] === "redirect_asset") || config.supported[indexSupported] === "temporary") {
+                                            } else if (config.name === null && keys.includes(config.supported[indexSupported]) === false && (config.supported[indexSupported] === "block_list" || config.supported[indexSupported] === "domain_local" || config.supported[indexSupported] === "http" || config.supported[indexSupported] === "redirect_domain" || config.supported[indexSupported] === "redirect_asset") || config.supported[indexSupported] === "single_socket" || config.supported[indexSupported] === "temporary") {
                                                 config.supported.splice(indexSupported, 1);
                                             }
                                         } while (indexSupported > 0);
@@ -2157,7 +2158,7 @@ const dashboard = function dashboard():void {
                                 }
                             }
                         },
-                        rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "http", "name", "ports", "redirect_asset", "redirect_domain", "temporary"];
+                        rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "http", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary"];
                     let serverData:services_server = null,
                         failures:number = 0;
                     summary.style.display = "block";
@@ -2245,6 +2246,14 @@ const dashboard = function dashboard():void {
                         supported: [],
                         type: "array"
                     });
+                    // single_socket
+                    if (typeof serverData.single_socket === "boolean") {
+                        populate(true, "Optional property 'single_socket' has boolean type value.");
+                    } else if (serverData.single_socket === null || serverData.single_socket === undefined) {
+                        populate(true, "Optional property 'single_socket' is either null or undefined.");
+                    } else {
+                        populate(false, "Optional property 'single_socket' expects a boolean type value.");
+                    }
                     // temporary
                     if (typeof serverData.temporary === "boolean") {
                         populate(true, "Optional property 'temporary' has boolean type value.");

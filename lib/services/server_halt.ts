@@ -20,6 +20,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
     const old:string = (data.server.modification_name === undefined || data.server.modification_name === null || data.server.modification_name === "")
             ? String(data.server.name)
             : String(data.server.modification_name),
+        single_socket:boolean = vars.servers[old].config.single_socket,
         temporary:boolean = vars.servers[old].config.temporary;
     if (vars.servers[old] === undefined) {
         log.application({
@@ -95,7 +96,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 let index:number = (sockets_open === undefined)
                     ? 0
                     : sockets_open.length;
-                if (temporary === true) {
+                if (single_socket === true || temporary === true) {
                     data.action = "destroy";
                 }
                 // 2. turn off active servers

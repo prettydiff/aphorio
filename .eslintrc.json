@@ -1,4 +1,5 @@
 {
+    "comment": "cspell: words freelist, iife, linebreak, paren, plusplus, singleline, smalloc,",
     "env": {
         "browser": true,
         "es6": true,

@@ -37,6 +37,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                             : dataString.replace(/^\s+/, ""),
                         headerList:string[] = headerString.split("\r\n"),
                         testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*/),
+                        single_socket:boolean = (server.single_socket === true),
                         temporary:boolean = (server.temporary === true),
                         address:transmit_addresses_socket = get_address({
                             socket: socket,
@@ -101,7 +102,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                             ? null
                                             : data.subarray(Buffer.byteLength(headerString))
                                         );
-                                        if (server.temporary === true) {
+                                        if (server.single_socket === true) {
                                             const terminate = function transmit_server_connection_handshake_localService_httpAction_terminate():void {
                                                 // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                                                 const this_socket:websocket_client = this;
@@ -126,6 +127,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                     proxy: null,
                                     role: "server",
                                     server: server_name,
+                                    single_socket: single_socket,
                                     socket: socket,
                                     temporary: temporary,
                                     timeout: null,
@@ -149,7 +151,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                             headers.push("");
                                             headers.push("");
                                             socket.write(headers.join("\r\n"));
-                                            if (server.temporary === true) {
+                                            if (single_socket === true || temporary === true) {
                                                 const security:"open"|"secure" = (socket.secure === true)
                                                     ? "secure"
                                                     : "open";
@@ -191,6 +193,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                         proxy: null,
                                         role: "server",
                                         server: server_name,
+                                        single_socket: single_socket,
                                         socket: socket,
                                         temporary: temporary,
                                         timeout: null,
@@ -268,6 +271,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 proxy: proxy,
                                 role: "server",
                                 server: server_name,
+                                single_socket: false,
                                 socket: socket,
                                 temporary: false,
                                 timeout: null,
@@ -281,6 +285,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 proxy: socket,
                                 role: "client",
                                 server: server_name,
+                                single_socket: false,
                                 socket: proxy,
                                 temporary: false,
                                 timeout: null,
@@ -409,7 +414,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
         };
     }
     if (vars.servers[data.server.name].config.encryption === "open") {
-        if (vars.servers[data.server.name].config.temporary === true) {
+        if (vars.servers[data.server.name].config.single_socket === true || vars.servers[data.server.name].config.temporary === true) {
             file.remove({
                 callback: function transmit_server_readCerts_starterOpen():void {
                     start(null);
@@ -429,7 +434,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                 }
                 start(options);
             };
-            if (vars.servers[server_name].config.temporary === true) {
+            if (vars.servers[data.server.name].config.single_socket === true || vars.servers[server_name].config.temporary === true) {
                 file.remove({
                     callback: starter,
                     error_terminate: null,
