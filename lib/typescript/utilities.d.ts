@@ -287,7 +287,28 @@ interface vars {
         browser_args: string[];
         browser_child: node_childProcess_ChildProcess;
         browser_start: boolean;
+        counts: {
+            [key:string]: {
+                assertions: number;
+                assertions_fail: number;
+                tests_attempted: number;
+                tests_failed: number;
+                tests_skipped: number;
+                tests_total: number;
+                time_end: bigint;
+                time_start: bigint;
+            }
+        };
+        index: number;
+        list: (test_item_command|test_item_dom)[];
         testing: boolean;
+        total_assertions: number;
+        total_assertions_fail: number;
+        total_lists: number;
+        total_tests: number;
+        total_tests_fail: number;
+        total_time_end: bigint;
+        total_time_start: bigint;
     };
     text: store_string;
     timeZone_offset: number;

@@ -4,7 +4,7 @@ import node from "../utilities/node.ts";
 import send from "../transmit/send.ts";
 import vars from "../utilities/vars.ts";
 
-const test_runner = function test_runner(start:bigint, list:test_list, callback:(config:test_config_summary) => void):void {
+const test_runner = function test_runner(list:test_list, callback:(name:string) => void):void {
     const assert:test_evaluations = {
             "begins": function test_runner_execCommand_assertBegins(value:string, comparator:string, nullable:boolean):[boolean, string] {
                 if (nullable === true && value === null) {
@@ -109,47 +109,36 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                 });
             },
             complete: function test_runner_utilityComplete():void {
-                index_list = index_list + 1;
-                if (index_list < len_list) {
+                vars.test.index = vars.test.index + 1;
+                if (vars.test.index < len_list) {
                     utility.next();
                 } else {
-                    callback({
-                        final: false,
-                        list_assertions: total_assert,
-                        list_fail_assertions: fail_assert,
-                        list_fail_tests: fail_test,
-                        list_tests: count_test,
-                        name: list.name,
-                        time_list_end: process.hrtime.bigint(),
-                        time_list_start: start,
-                        time_total_end: null,
-                        time_total_start: null,
-                        total_assertions: null,
-                        total_fail_assertions: null,
-                        total_fail_tests: null,
-                        total_lists: null,
-                        total_tests: null
-                    });
+                    vars.test.counts[list.name].time_end = process.hrtime.bigint();
+                    callback(list.name);
                 }
             },
             next: function test_runner_utilityNext():void {
-                if (list[index_list] === null || list[index_list] === undefined) {
+                if (list[vars.test.index] === null) {
+                    vars.test.counts[list.name].tests_skipped = vars.test.counts[list.name].tests_skipped + 1;
+                    utility.complete();
+                } else if (list[vars.test.index] === undefined) {
                     utility.complete();
                 } else {
                     count_test = count_test + 1;
-                    if (exec[list[index_list].type] !== undefined) {
-                        exec[list[index_list].type]();
+                    vars.test.counts[list.name].tests_attempted = vars.test.counts[list.name].tests_attempted + 1;
+                    if (exec[list[vars.test.index].type] !== undefined) {
+                        exec[list[vars.test.index].type]();
                     }
                 }
             },
             time: function test_runner_utilityTime():string {
-                return `${vars.text.cyan}${process.hrtime.bigint().time(start)}${vars.text.none}`;
+                return `${vars.text.cyan}${process.hrtime.bigint().time(vars.test.counts[list.name].time_start)}${vars.text.none}`;
             }
         },
         exec:store_function = {
             command: function test_runner_execCommand():void {
                 let fail:boolean = false;
-                const item:test_item_command = list[index_list] as test_item_command,
+                const item:test_item_command = list[vars.test.index] as test_item_command,
                     opts:node_childProcess_SpawnOptions = (typeof item.shell === "string" && item.shell !== "")
                         ? {
                             shell: item.shell,
@@ -290,15 +279,18 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                                         fail_output.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.angry + unit.type} failed to parse into JSON - ${unit.value + vars.text.none}`);
                                         parse_fail = false;
                                         fail = true;
-                                        fail_assert = fail_assert + 1;
+                                        vars.test.total_assertions_fail = vars.test.total_assertions_fail + 1;
+                                        vars.test.counts[list.name].assertions_fail = vars.test.counts[list.name].assertions_fail + 1;
                                     } else if (assertion[0] === true) {
                                         fail_output.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.green + vars.text.bold + prop_string} ${assertion[1] + vars.text.none}`);
                                     } else {
                                         fail_output.push(`    ${vars.text.angry}*${vars.text.none} ${vars.text.angry + prop_string} ${assertion[1] + vars.text.none}`);
                                         fail = true;
-                                        fail_assert = fail_assert + 1;
+                                        vars.test.total_assertions_fail = vars.test.total_assertions_fail + 1;
+                                        vars.test.counts[list.name].assertions_fail = vars.test.counts[list.name].assertions_fail + 1;
                                     }
-                                    total_assert = total_assert + 1;
+                                    vars.test.total_assertions = vars.test.total_assertions + 1;
+                                    vars.test.counts[list.name].assertions = vars.test.counts[list.name].assertions + 1;
                                 }
                                 index_units = index_units + 1;
                             } while (index_units < len_unit);
@@ -306,7 +298,8 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                                 fail_output.splice(0, 0, `[${utility.time()}] ${count_test} ${vars.text.angry}Fail${vars.text.none} ${item.name}:  ${item.command}`);
                                 log.shell(fail_output);
                                 fail = false;
-                                fail_test = fail_test + 1;
+                                vars.test.total_tests_fail = vars.test.total_tests_fail + 1;
+                                vars.test.counts[list.name].tests_failed = vars.test.counts[list.name].tests_failed + 1;
                             } else {
                                 log.shell([`[${utility.time()}] ${count_test} ${vars.text.green}Pass${vars.text.none} ${item.name}:  ${item.command}`]);
                             }
@@ -321,7 +314,8 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                             `[${utility.time()}] ${count_test} ${vars.text.angry}Fail${vars.text.none} ${item.name}`,
                             `    ${vars.text.angry}*${vars.text.none} Test failed with error: ${err.code}, ${err.message}`
                         ]);
-                        fail_test = fail_test + 1;
+                        vars.test.total_tests_fail = vars.test.total_tests_fail + 1;
+                        vars.test.counts[list.name].tests_failed = vars.test.counts[list.name].tests_failed + 1;
                         fail = false;
                         spawn.kill();
                         utility.complete();
@@ -336,11 +330,11 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                     utility.browser();
                     return;
                 }
-                const item_test:test_item_dom = list[index_list] as test_item_dom,
+                const item_test:test_item_dom = list[vars.test.index] as test_item_dom,
                     item_service:services_testBrowser = {
                         action: "result",
                         exit: null,
-                        index: index_list,
+                        index: vars.test.index,
                         result: null,
                         test: item_test
                     },
@@ -350,15 +344,24 @@ const test_runner = function test_runner(start:bigint, list:test_list, callback:
                         service: "test-browser"
                     };
                 send(payload, socket, 3);
-            },
+            }
         },
         len_list:number = list.length;
-    let fail_assert:number = 0,
-        fail_test:number = 0,
-        index_list:number = 0,
-        count_test:number = 0,
-        total_assert:number = 0;
+    let count_test:number = 0;
     log.shell([`Test list ${vars.text.cyan + list.name + vars.text.none}`]);
+    vars.test.list = list;
+    vars.test.total_lists = vars.test.total_lists + 1;
+    vars.test.total_tests = vars.test.total_tests + len_list;
+    vars.test.counts[list.name] = {
+        assertions: 0,
+        assertions_fail: 0,
+        tests_attempted: 0,
+        tests_failed: 0,
+        tests_skipped: 0,
+        tests_total: len_list,
+        time_end: 0n,
+        time_start: process.hrtime.bigint()
+    };
     utility.next();
 };
 

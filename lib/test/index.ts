@@ -4,46 +4,28 @@ import test_listLocalBrowser from "./list_local_browser.ts";
 import test_listLocalCommands from "./list_local_commands.ts";
 import test_runner from "./runner.ts";
 import test_summary from "./summary.ts";
+import vars from "../utilities/vars.ts";
 
 const test_index = function test_index():void {
-    let total_assertions:number = 0,
-        total_fail_assertions:number = 0,
-        total_fail_tests:number = 0,
-        total_lists:number = 0,
-        total_tests:number = 0;
-    const start:bigint = process.hrtime.bigint(),
-        list:test_list[] = [
-            test_listLocalBrowser
-            // test_listLocalCommands
+    let total_lists:number = 0;
+    const list:test_list[] = [
+            // test_listLocalBrowser
+            test_listLocalCommands()
         ],
         len_list:number = list.length,
-        complete = function test_index_complete(config:test_config_summary):void {
+        callback = function test_index_callback(name:string):void {
             total_lists = total_lists + 1;
-            total_assertions = total_assertions + config.list_assertions;
-            total_fail_assertions = total_fail_assertions + config.list_fail_assertions;
-            total_fail_tests = total_fail_tests + config.list_fail_tests;
-            total_tests = total_tests + config.list_tests;
             if (total_lists < len_list) {
-                runner();
+                test_runner(list[total_lists], test_index_callback);
+                test_summary(name, false);
             } else {
-                config.final = true;
-                config.time_total_end = process.hrtime.bigint();
-                config.time_total_start = start;
-                config.total_assertions = total_assertions;
-                config.total_fail_assertions = total_fail_assertions;
-                config.total_fail_tests = total_fail_tests;
-                config.total_lists = total_lists;
-                config.total_tests = total_tests;
+                vars.test.total_time_end = process.hrtime.bigint();
+                test_summary(name, true);
             }
-            test_summary(config);
-        },
-        runner = function test_index_runner():void {
-            test_runner(process.hrtime.bigint(), list[total_lists], function test_index_commands(config:test_config_summary):void {
-                complete(config);
-            });
         };
     log.shell(["", `Starting test automation for ${len_list} lists.`, ""]);
-    runner();
+    vars.test.total_time_start = process.hrtime.bigint();
+    test_runner(list[total_lists], callback);
 };
 
 export default test_index;

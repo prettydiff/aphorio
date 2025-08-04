@@ -166,7 +166,17 @@ const win32:boolean = (process.platform === "win32"),
             browser_args: [],
             browser_child: null,
             browser_start: false,
-            testing: false
+            counts: {},
+            index: 0,
+            list: null,
+            testing: false,
+            total_assertions: 0,
+            total_assertions_fail: 0,
+            total_lists: 0,
+            total_tests: 0,
+            total_tests_fail: 0,
+            total_time_end: 0n,
+            total_time_start: 0n
         },
         text: (process.argv.includes("no-color") === true)
             ? {
