@@ -11,7 +11,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             const delay:number = 25,
                 maxTries:number = 200,
                 delayFunction = function testBrowser_delay_timeout():void {
-                    const testResult:[boolean, string, string] = remote.evaluate(config.delay);
+                    const testResult:test_assertionItem = remote.evaluate(config.delay);
                     if (testResult[0] === true) {
                         if (config.unit === null || config.unit.length < 1) {
                             remote.sendTest([testResult], remote.index, remote.action);
@@ -27,7 +27,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                             element.highlight();
                         }
                         remote.sendTest([
-                            [false, "delay timeout", config.delay.node.nodeString],
+                            [false, "delay timeout", "", config.delay.node.nodeString],
                             remote.evaluate(config.delay)
                         ], remote.index, remote.action);
                         return;
@@ -55,63 +55,137 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 stack: (error === null)
                     ? null
                     : error.stack
-            }), "error"]], remote.index, remote.action);
+            }), "", "error"]], remote.index, remote.action);
         },
 
         /* Determine whether a given test item is pass or fail */
-        evaluate: function testBrowser_evaluate(test:test_assertion_dom):[boolean, string, string] {
+        evaluate: function testBrowser_evaluate(test:test_assertion_dom):test_assertionItem {
             const rawValue:[HTMLElement, test_primitive] = remote.getProperty(test),
                 value:HTMLElement|test_primitive = (test.type === "element")
                     ? rawValue[0]
                     : rawValue[1],
                 qualifier:test_qualifier = test.qualifier,
-                configString:string = test.value as string,
+                nullable:boolean = (test.nullable === true),
+                comparator:string = test.value as string,
                 highlight = function testBrowser_evaluate_highlight():void {
                     if (test !== remote.test_item.test.delay && rawValue[0] !== null && rawValue[0] !== undefined && rawValue[0].nodeType === 1) {
                         rawValue[0].highlight();
                     }
                 };
-            if (qualifier === "is" && value === configString) {
-                return [true, "", test.node.nodeString];
+            if (qualifier === "begins") {
+                if (nullable === true && value === null) {
+                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                }
+                if (typeof value !== "string") {
+                    return [false, String(value), test.node.nodeString, `value not of type string`];
+                }
+                if (value.indexOf(comparator) === 0) {
+                    return [true, value, test.node.nodeString, `begins with "${comparator}"`];
+                }
+                return [false, value, test.node.nodeString, `begins with "${value.toString().slice(0, 8)}", not "${comparator}"`];
             }
-            if (qualifier === "not" && value !== configString) {
-                return [true, "", test.node.nodeString];
+            if (qualifier === "contains") {
+                if (nullable === true && value === null) {
+                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                }
+                if (typeof value !== "string") {
+                    return [false, String(value), test.node.nodeString, `value not of type string`];
+                }
+                if (value.includes(comparator) === true) {
+                    return [true, value, test.node.nodeString, `contains "${comparator}"`];
+                }
+                return [false, value, test.node.nodeString, `does not contain "${value}"`];
             }
-            if (typeof value !== typeof configString) {
-                highlight();
-                return [false, remote.stringify(value as test_primitive), test.node.nodeString.replace(/\s?highlight/, "")];
+            if (qualifier === "ends") {
+                if (nullable === true && value === null) {
+                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                }
+                if (typeof value !== "string") {
+                    return [false, String(value), test.node.nodeString, `value not of type string`];
+                }
+                if (value.indexOf(comparator) === value.length - comparator.length) {
+                    return [true, value, test.node.nodeString, `ends with "${comparator}"`];
+                }
+                return [false, value, test.node.nodeString, `ends with "${value.slice(value.length - 8)}", not "${comparator}"`];
             }
-            if (typeof value === "string") {
-                const index:number = value.indexOf(configString);
-                if (qualifier === "begins" && index === 0) {
-                    return [true, "", test.node.nodeString];
+            if (qualifier === "greater") {
+                if (nullable === true && value === null) {
+                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
                 }
-                if (qualifier === "contains" && index > -1) {
-                    return [true, "", test.node.nodeString];
+                if (typeof value === "number" || typeof value === "bigint") {
+                    if (typeof value !== typeof comparator) {
+                        return [false, String(value), test.node.nodeString, "value is not of same numeric type as comparator"];
+                    }
+                    if ((typeof value === "number" && value > Number(comparator)) || (typeof value === "bigint" && value > BigInt(comparator))) {
+                        return [true, String(value), test.node.nodeString, `is greater than ${comparator}`];
+                    }
+                    return [false, String(value), test.node.nodeString, `is ${value}, which is not greater than ${comparator}`];
                 }
-                if (qualifier === "ends" && value.slice(value.length - configString.length) === configString) {
-                    return [true, "", test.node.nodeString];
-                }
-                if (qualifier === "not contains" && index < 0) {
-                    return [true, "", test.node.nodeString];
-                }
+                return [false, String(value), test.node.nodeString, "value is not number or bigint"];
             }
-            if (typeof value === "number") {
-                // @ts-expect-error - value is type primitive but operator > requires type number
-                if (qualifier === "greater" && value > test.value) {
-                    return [true, "", test.node.nodeString];
+            if (qualifier === "is") {
+                const s_value:string = (typeof value === "string")
+                        ? `"${value}"`
+                        : String(value),
+                    s_comparator:string = (typeof comparator === "string")
+                        ? `"${comparator}"`
+                        : String(comparator);
+                if (nullable === true && value === null) {
+                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
                 }
-                // @ts-expect-error - value is type primitive but operator < requires type number
-                if (qualifier === "lesser" && value < test.value) {
-                    return [true, "", test.node.nodeString];
+                if (value === comparator) {
+                    return [true, String(value), test.node.nodeString, `is exactly ${s_value}`];
                 }
+                return [false, String(value), test.node.nodeString, `${s_value} is not ${s_comparator}`];
+            }
+            if (qualifier === "lesser") {
+                if (nullable === true && value === null) {
+                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                }
+                if (typeof value === "number" || typeof value === "bigint") {
+                    if (typeof value !== typeof comparator) {
+                        return [false, String(value), test.node.nodeString, "value is not of same numeric type as comparator"];
+                    }
+                    if ((typeof value === "number" && value < Number(comparator)) || (typeof value === "bigint" && value < BigInt(comparator))) {
+                        return [true, String(value), test.node.nodeString, `is lesser than ${comparator}`];
+                    }
+                    return [false, String(value), test.node.nodeString, `is ${value}, which is not lesser than ${comparator}`];
+                }
+                return [false, String(value), test.node.nodeString, "value is not number or bigint"];
+            }
+            if (qualifier === "not") {
+                const s_value:string = (typeof value === "string")
+                        ? `"${value}"`
+                        : String(value),
+                    s_comparator:string = (typeof comparator === "string")
+                        ? `"${comparator}"`
+                        : String(comparator);
+                if (nullable === true && value === null) {
+                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                }
+                if (value !== comparator) {
+                    return [true, String(value), test.node.nodeString, `is ${s_value}, not ${s_comparator}`];
+                }
+                return [false, String(value), test.node.nodeString, `is exactly ${s_value}`];
+            }
+            if (qualifier === "not contains") {
+                if (nullable === true && value === null) {
+                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                }
+                if (typeof value !== "string") {
+                    return [false, String(value), test.node.nodeString, `value not of type string`];
+                }
+                if (value.includes(comparator) === false) {
+                    return [true, value, test.node.nodeString, `does not contain ${comparator}`];
+                }
+                return [false, value, test.node.nodeString, `contains ${value}`];
             }
             if (test.type === "element") {
                 highlight();
-                return [false, "element", test.node.nodeString.replace(/\s?highlight/, "")];
+                return [false, "element", test.node.nodeString.replace(/\s?highlight/, ""), "value is of type dom element"];
             }
             highlight();
-            return [false, remote.stringify(value as test_primitive), test.node.nodeString.replace(/\s?highlight/, "")];
+            return [false, remote.stringify(value as test_primitive), test.node.nodeString.replace(/\s?highlight/, ""), "value does not match other assertion criteria"];
         },
 
         /* Process a single event instance */
@@ -156,7 +230,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                             } else if (config.event === "resize" && config.node[0][0] === "window") {
                                 if (config.coords === undefined || config.coords === null || config.coords.length !== 2 || isNaN(Number(config.coords[0])) === true || isNaN(Number(config.coords[0])) === true) {
                                     remote.sendTest([
-                                        [false, `event error ${String(element)}`, config.node.nodeString]
+                                        [false, `event error ${String(element)}`, config.node.nodeString, "event error on resize"]
                                     ], item.index, item.action);
                                     remote.test_item = null;
                                     return;
@@ -170,7 +244,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                                 }
                                 if (element === null || element === undefined) {
                                     remote.sendTest([
-                                        [false, `event error ${String(element)}`, config.node.nodeString]
+                                        [false, `event error ${String(element)}`, config.node.nodeString, "event error on refresh"]
                                     ], item.index, item.action);
                                     remote.test_item = null;
                                     return;
@@ -424,7 +498,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             dom.nodeString = str.join("");
             if (fail !== "") {
                 remote.sendTest([
-                    [false, fail, dom.nodeString]
+                    [false, fail, dom.nodeString, fail]
                 ], remote.index, remote.action);
                 remote.domFailure = true;
                 return null;
@@ -435,7 +509,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         /* Process all cases of a test scenario for a given test item */
         report: function testBrowser_report(test:test_assertion_dom[], index:number):void {
             let a:number = 0;
-            const result:[boolean, string, string][] = [],
+            const result:test_assertionItem[] = [],
                 length:number = test.length;
             if (length > 0) {
                 do {
@@ -451,7 +525,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         },
 
         /* A single location to package test evaluations into a format for transfer across the network */
-        sendTest: function testBrowser_sendTest(payload:[boolean, string, string][], index:number, task:test_browserAction):services_testBrowser {
+        sendTest: function testBrowser_sendTest(payload:test_assertionItem[], index:number, task:test_browserAction):services_testBrowser {
             const test:services_testBrowser = {
                 action: task,
                 exit: (task === "reset-complete")

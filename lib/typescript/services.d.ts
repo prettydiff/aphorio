@@ -293,7 +293,7 @@ declare global {
         action: test_browserAction;
         exit: string;
         index: number;
-        result: [boolean, string, string][];
+        result: test_assertionItem[];
         test: test_browserItem;
     }
 

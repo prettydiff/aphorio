@@ -300,7 +300,7 @@ interface vars {
             }
         };
         index: number;
-        list: (test_item_command|test_item_dom)[];
+        list: test_list;
         testing: boolean;
         total_assertions: number;
         total_assertions_fail: number;

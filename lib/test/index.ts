@@ -16,7 +16,7 @@ const test_index = function test_index():void {
         callback = function test_index_callback(name:string):void {
             total_lists = total_lists + 1;
             if (total_lists < len_list) {
-                test_runner(list[total_lists], test_index_callback);
+                test_runner.list(list[total_lists], test_index_callback);
                 test_summary(name, false);
             } else {
                 vars.test.total_time_end = process.hrtime.bigint();
@@ -25,7 +25,7 @@ const test_index = function test_index():void {
         };
     log.shell(["", `Starting test automation for ${len_list} lists.`, ""]);
     vars.test.total_time_start = process.hrtime.bigint();
-    test_runner(list[total_lists], callback);
+    test_runner.list(list[total_lists], callback);
 };
 
 export default test_index;

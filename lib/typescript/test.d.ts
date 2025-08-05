@@ -10,6 +10,7 @@ interface test_assertion_command {
 
 interface test_assertion_dom {
     node: test_browserDOM;
+    nullable?: boolean;
     qualifier: test_qualifier;
     target: string[];
     type: "attribute" | "element" | "property";
@@ -59,10 +60,6 @@ interface test_config_summary {
     total_tests: number;
 }
 
-interface test_evaluations {
-    [key:string]: (value:string, comparator:string, nullable:boolean) => [boolean, string];
-}
-
 interface test_event {
     coords?: [number, number];
     event: test_eventName;
@@ -90,6 +87,27 @@ interface test_list extends Array<test_item_command|test_item_dom> {
     name?: string;
 }
 
+interface test_runner {
+    execution: {
+        command: () => void;
+        dom: () => void;
+    };
+    list: (list:test_list, callback:(name:string) => void) => void;
+    tools: {
+        assert: {
+            [key:string]: (value:string, unit:test_assertion_command|test_assertion_dom, location:string) => test_assertionItem;
+        };
+        browser_open: () => void;
+        callback: (name:string) => void;
+        complete: () => void;
+        logs: string[];
+        next: () => void;
+        time: () => string;
+    };
+}
+
+// pass/fail, actual value, location, assessment
+type test_assertionItem = [boolean, string, string, string];
 type test_browserAction = "close" | "exit" | "nothing" | "reset-complete" | "reset" | "result";
 type test_domMethod = "activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window";
 type test_eventName = "blur" | "click" | "command" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh-interaction" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
