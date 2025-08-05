@@ -88,19 +88,22 @@ interface test_list extends Array<test_item_command|test_item_dom> {
 }
 
 interface test_runner {
+    assert: {
+        [key:string]: (value:string, unit:test_assertion_command|test_assertion_dom, location:string) => test_assertionItem;
+    };
+    count: number;
     execution: {
         command: () => void;
         dom: () => void;
     };
     list: (list:test_list, callback:(name:string) => void) => void;
+    logger: (assertions:test_assertionItem[], name:string) => void;
+    logs: string[];
+    receive: (socket_data:socket_data) => void;
     tools: {
-        assert: {
-            [key:string]: (value:string, unit:test_assertion_command|test_assertion_dom, location:string) => test_assertionItem;
-        };
         browser_open: () => void;
         callback: (name:string) => void;
         complete: () => void;
-        logs: string[];
         next: () => void;
         time: () => string;
     };

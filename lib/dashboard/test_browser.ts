@@ -71,114 +71,108 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                     if (test !== remote.test_item.test.delay && rawValue[0] !== null && rawValue[0] !== undefined && rawValue[0].nodeType === 1) {
                         rawValue[0].highlight();
                     }
-                };
+                },
+                s_value:string = (typeof value === "string")
+                    ? `"${value}"`
+                    : String(value),
+                s_comparator:string = (typeof comparator === "string")
+                    ? `"${comparator}"`
+                    : String(comparator);
             if (qualifier === "begins") {
                 if (nullable === true && value === null) {
-                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                    return [true, "null", test.node.nodeString, " is null, which is accepted"];
                 }
                 if (typeof value !== "string") {
-                    return [false, String(value), test.node.nodeString, `value not of type string`];
+                    return [false, String(value), test.node.nodeString, ` is ${value}, which is not of type string`];
                 }
                 if (value.indexOf(comparator) === 0) {
-                    return [true, value, test.node.nodeString, `begins with "${comparator}"`];
+                    return [true, value, test.node.nodeString, ` begins with "${comparator}"`];
                 }
-                return [false, value, test.node.nodeString, `begins with "${value.toString().slice(0, 8)}", not "${comparator}"`];
+                return [false, value, test.node.nodeString, ` begins with "${value.toString().slice(0, 8)}", not "${comparator}"`];
             }
             if (qualifier === "contains") {
                 if (nullable === true && value === null) {
-                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                    return [true, "null", test.node.nodeString, " is null, which is accepted"];
                 }
                 if (typeof value !== "string") {
-                    return [false, String(value), test.node.nodeString, `value not of type string`];
+                    return [false, String(value), test.node.nodeString, ` is ${value}, which is not of type string`];
                 }
                 if (value.includes(comparator) === true) {
-                    return [true, value, test.node.nodeString, `contains "${comparator}"`];
+                    return [true, value, test.node.nodeString, ` is "${value}", which contains "${comparator}"`];
                 }
-                return [false, value, test.node.nodeString, `does not contain "${value}"`];
+                return [false, value, test.node.nodeString, ` is "${value}", which does not contain "${comparator}"`];
             }
             if (qualifier === "ends") {
                 if (nullable === true && value === null) {
-                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                    return [true, "null", test.node.nodeString, " is null, which is accepted"];
                 }
                 if (typeof value !== "string") {
-                    return [false, String(value), test.node.nodeString, `value not of type string`];
+                    return [false, String(value), test.node.nodeString, ` is ${value}, which is not of type string`];
                 }
                 if (value.indexOf(comparator) === value.length - comparator.length) {
-                    return [true, value, test.node.nodeString, `ends with "${comparator}"`];
+                    return [true, value, test.node.nodeString, ` ends with "${comparator}"`];
                 }
-                return [false, value, test.node.nodeString, `ends with "${value.slice(value.length - 8)}", not "${comparator}"`];
+                return [false, value, test.node.nodeString, ` ends with "${value.slice(value.length - 8)}", not "${comparator}"`];
             }
             if (qualifier === "greater") {
                 if (nullable === true && value === null) {
-                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                    return [true, "null", test.node.nodeString, " is null, which is accepted"];
                 }
                 if (typeof value === "number" || typeof value === "bigint") {
                     if (typeof value !== typeof comparator) {
-                        return [false, String(value), test.node.nodeString, "value is not of same numeric type as comparator"];
+                        return [false, String(value), test.node.nodeString, " is not of same numeric type as comparator"];
                     }
                     if ((typeof value === "number" && value > Number(comparator)) || (typeof value === "bigint" && value > BigInt(comparator))) {
-                        return [true, String(value), test.node.nodeString, `is greater than ${comparator}`];
+                        return [true, String(value), test.node.nodeString, ` is greater than ${comparator}`];
                     }
-                    return [false, String(value), test.node.nodeString, `is ${value}, which is not greater than ${comparator}`];
+                    return [false, String(value), test.node.nodeString, ` is ${s_value}, which is not greater than ${s_comparator}`];
                 }
-                return [false, String(value), test.node.nodeString, "value is not number or bigint"];
+                return [false, String(value), test.node.nodeString, ` is ${s_value}, which is not type number or bigint`];
             }
             if (qualifier === "is") {
-                const s_value:string = (typeof value === "string")
-                        ? `"${value}"`
-                        : String(value),
-                    s_comparator:string = (typeof comparator === "string")
-                        ? `"${comparator}"`
-                        : String(comparator);
                 if (nullable === true && value === null) {
-                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                    return [true, "null", test.node.nodeString, " is null, which is accepted"];
                 }
                 if (value === comparator) {
-                    return [true, String(value), test.node.nodeString, `is exactly ${s_value}`];
+                    return [true, String(value), test.node.nodeString, ` is exactly ${s_value}`];
                 }
-                return [false, String(value), test.node.nodeString, `${s_value} is not ${s_comparator}`];
+                return [false, String(value), test.node.nodeString, `is ${s_value}, which is not ${s_comparator}`];
             }
             if (qualifier === "lesser") {
                 if (nullable === true && value === null) {
-                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                    return [true, "null", test.node.nodeString, " is null, which is accepted"];
                 }
                 if (typeof value === "number" || typeof value === "bigint") {
                     if (typeof value !== typeof comparator) {
-                        return [false, String(value), test.node.nodeString, "value is not of same numeric type as comparator"];
+                        return [false, String(value), test.node.nodeString, " is not of same numeric type as comparator"];
                     }
                     if ((typeof value === "number" && value < Number(comparator)) || (typeof value === "bigint" && value < BigInt(comparator))) {
-                        return [true, String(value), test.node.nodeString, `is lesser than ${comparator}`];
+                        return [true, String(value), test.node.nodeString, ` is lesser than ${comparator}`];
                     }
-                    return [false, String(value), test.node.nodeString, `is ${value}, which is not lesser than ${comparator}`];
+                    return [false, String(value), test.node.nodeString, ` is ${s_value}, which is not lesser than ${s_comparator}`];
                 }
-                return [false, String(value), test.node.nodeString, "value is not number or bigint"];
+                return [false, String(value), test.node.nodeString, ` is ${s_value}, which is not type number or bigint`];
             }
             if (qualifier === "not") {
-                const s_value:string = (typeof value === "string")
-                        ? `"${value}"`
-                        : String(value),
-                    s_comparator:string = (typeof comparator === "string")
-                        ? `"${comparator}"`
-                        : String(comparator);
                 if (nullable === true && value === null) {
-                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                    return [true, "null", test.node.nodeString, " is null, which is accepted"];
                 }
                 if (value !== comparator) {
-                    return [true, String(value), test.node.nodeString, `is ${s_value}, not ${s_comparator}`];
+                    return [true, String(value), test.node.nodeString, ` is ${s_value}, not ${s_comparator}`];
                 }
-                return [false, String(value), test.node.nodeString, `is exactly ${s_value}`];
+                return [false, String(value), test.node.nodeString, ` is exactly ${s_value}`];
             }
             if (qualifier === "not contains") {
                 if (nullable === true && value === null) {
-                    return [true, String(value), test.node.nodeString, "value is null, which is accepted"];
+                    return [true, "null", test.node.nodeString, " is null, which is accepted"];
                 }
                 if (typeof value !== "string") {
-                    return [false, String(value), test.node.nodeString, `value not of type string`];
+                    return [false, String(value), test.node.nodeString, ` is ${value}, which is not of type string`];
                 }
                 if (value.includes(comparator) === false) {
-                    return [true, value, test.node.nodeString, `does not contain ${comparator}`];
+                    return [true, value, test.node.nodeString, ` is "${value}", which does not contain "${comparator}"`];
                 }
-                return [false, value, test.node.nodeString, `contains ${value}`];
+                return [false, value, test.node.nodeString, ` is "${value}", which does contains "${comparator}"`];
             }
             if (test.type === "element") {
                 highlight();

@@ -9,15 +9,15 @@ import vars from "../utilities/vars.ts";
 const test_index = function test_index():void {
     let total_lists:number = 0;
     const list:test_list[] = [
-            // test_listLocalBrowser
-            test_listLocalCommands()
+            test_listLocalCommands(),
+            test_listLocalBrowser
         ],
         len_list:number = list.length,
         callback = function test_index_callback(name:string):void {
             total_lists = total_lists + 1;
             if (total_lists < len_list) {
-                test_runner.list(list[total_lists], test_index_callback);
                 test_summary(name, false);
+                test_runner.list(list[total_lists], test_index_callback);
             } else {
                 vars.test.total_time_end = process.hrtime.bigint();
                 test_summary(name, true);

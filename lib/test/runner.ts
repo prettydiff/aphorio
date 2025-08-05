@@ -5,6 +5,123 @@ import send from "../transmit/send.ts";
 import vars from "../utilities/vars.ts";
 
 const test_runner:test_runner = {
+    assert: {
+        "begins": function test_runner_execCommand_assertBegins(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
+            if (unit.nullable === true && value === null) {
+                return [true, "null", location, " is null, which is accepted"];
+            }
+            if (typeof value !== "string") {
+                return [false, value, location, ` is ${value}, which is not of type string`];
+            }
+            if (value.indexOf(String(unit.value)) === 0) {
+                return [true, value, location, ` begins with "${unit.value}"`];
+            }
+            return [false, value, location, ` begins with "${value.toString().slice(0, 8)}", not "${unit.value}"`];
+        },
+        "contains": function test_runner_execCommand_assertContains(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
+            if (unit.nullable === true && value === null) {
+                return [true, "null", location, " is null, which is accepted"];
+            }
+            if (typeof value !== "string") {
+                return [false, value, location, ` is ${value}, which is not of type string`];
+            }
+            if (value.includes(String(unit.value)) === true) {
+                return [true, value, location, ` is "${value}", which contains "${unit.value}"`];
+            }
+            return [false, value, location, ` is "${value}", which does not contain "${unit.value}"`];
+        },
+        "ends": function test_runner_execCommand_assertEnds(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
+            if (unit.nullable === true && value === null) {
+                return [true, "null", location, " is null, which is accepted"];
+            }
+            if (typeof value !== "string") {
+                return [false, value, location, ` is ${value}, which is not of type string`];
+            }
+            if (value.indexOf(String(unit.value)) === value.length - String(unit.value).length) {
+                return [true, value, location, ` is ${value}, which ends with ${unit.value}`];
+            }
+            return [false, value, location, ` ends with ${value.slice(value.length - 8)}, not ${unit.value}`];
+        },
+        "greater": function test_runner_execCommand_assertGreater(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
+            if (unit.nullable === true && value === null) {
+                return [true, "null", location, " is null, which is accepted"];
+            }
+            if (typeof value === "number" || typeof value === "bigint") {
+                if (typeof value !== typeof unit.value) {
+                    return [false, String(value), location, " is not of same numeric type as comparator"];
+                }
+                if ((typeof value === "number" && value > Number(unit.value)) || (typeof value === "bigint" && value > BigInt(unit.value))) {
+                    return [true, String(value), location, ` is ${value}, which is greater than ${unit.value}`];
+                }
+                return [false, String(value), location, ` is ${value}, which is not greater than ${unit.value}`];
+            }
+            return [false, value, location, ` is not greater than ${unit.value}`];
+        },
+        "is": function test_runner_execCommand_assertIs(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
+            const s_value:string = (typeof value === "string")
+                    ? `"${value}"`
+                    : String(value),
+                s_unit:string = (typeof unit.value === "string")
+                    ? `"${unit.value}"`
+                    : String(unit.value);
+            if (unit.nullable === true && value === null) {
+                return [true, "null", location, " is null, which is accepted"];
+            }
+            if (value === unit.value) {
+                return [true, value, location, ` is exactly ${s_unit}`];
+            }
+            return [false, value, location, ` is ${s_value}, which is not ${s_unit}`];
+        },
+        "lesser": function test_runner_execCommand_assertLesser(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
+            if (unit.nullable === true && value === null) {
+                return [true, "null", location, " is null, which is accepted"];
+            }
+            if (typeof value === "number" || typeof value === "bigint") {
+                if (typeof value !== typeof unit.value) {
+                    return [false, String(value), location, " is not of same numeric type as comparator"];
+                }
+                if ((typeof value === "number" && value < Number(unit.value)) || (typeof value === "bigint" && value < BigInt(unit.value))) {
+                    return [true, String(value), location, ` is ${value}, which is lesser than ${unit.value}`];
+                }
+                return [false, String(value), location, ` is ${value}, which is not lesser than ${unit.value}`];
+            }
+            return [false, value, location, ` is ${value}, which is not of type number or bigint`];
+        },
+        "not": function test_runner_execCommand_assertBegins(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
+            const s_value:string = (typeof value === "string")
+                    ? `"${value}"`
+                    : String(value),
+                s_unit:string = (typeof unit.value === "string")
+                    ? `"${unit.value}"`
+                    : String(unit.value);
+            if (unit.nullable === true && value === null) {
+                return [true, "null", location, " is null, which is accepted"];
+            }
+            if (value !== unit.value) {
+                return [true, value, location, ` is ${s_value}, not ${s_unit}`];
+            }
+            return [false, value, location, ` is exactly ${s_value}`];
+        },
+        "not contains": function test_runner_execCommand_assertNotContains(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
+            const s_value:string = (typeof value === "string")
+                    ? `"${value}"`
+                    : String(value),
+                s_unit:string = (typeof unit.value === "string")
+                    ? `"${unit.value}"`
+                    : String(unit.value);
+            if (unit.nullable === true && value === null) {
+                return [true, "null", location, " is null, which is accepted"];
+            }
+            if (typeof value !== "string") {
+                return [false, value, location, ` is ${value}, which is not of type string`];
+            }
+            if (value.includes(String(unit.value)) === false) {
+                return [true, value, location, ` is ${s_value}, which does not contain ${s_unit}`];
+            }
+            return [false, value, location, ` is ${s_value}, which contains ${s_unit}`];
+        }
+    },
+    count: 0,
     execution: {
         command: function test_runner_executeCommand():void {
             const item:test_item_command = vars.test.list[vars.test.index] as test_item_command,
@@ -82,7 +199,6 @@ const test_runner:test_runner = {
                                             return JSON.parse(start.replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\r\n/, ""));
                                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                         } catch (e:unknown) {
-                                            parse_fail = true;
                                             return null;
                                         }
                                     },
@@ -97,8 +213,11 @@ const test_runner:test_runner = {
                                 prop:number|string = null,
                                 type_of:boolean = false,
                                 format:boolean|object|string = formats[unit.format]();
+                            if (unit.format === "json" && format === null) {
+                                return [false, null, null, "failed to parse output into JSON"];
+                            }
                             if (len_prop < 1 || format === null) {
-                                return test_runner.tools.assert[unit.qualifier](format as string, unit, null);
+                                return test_runner.assert[unit.qualifier](format as string, unit, null);
                             }
                             do {
                                 prop = unit.properties[index_prop];
@@ -122,51 +241,31 @@ const test_runner:test_runner = {
                                 index_prop = index_prop + 1;
                             } while (index_prop < len_prop);
                             if (type_of === true) {
-                                return test_runner.tools.assert[unit.qualifier](format as string, unit, `typeof ${props.join("")}`);
+                                return test_runner.assert[unit.qualifier](typeof format as string, unit, `typeof ${props.join("")}`);
                             }
-                            return test_runner.tools.assert[unit.qualifier](format as string, unit, props.join(""));
+                            return test_runner.assert[unit.qualifier](format as string, unit, props.join(""));
                         },
                         str_stderr:string = stderr.join(""),
-                        str_stdout:string = stdout.join("");
+                        str_stdout:string = stdout.join(""),
+                        assertion_list:test_assertionItem[] = [];
                     let index_units:number = 0,
-                        fail:boolean = false,
-                        parse_fail:boolean = false,
-                        unit:test_assertion_command = null,
-                        assertion:test_assertionItem = null;
+                        unit:test_assertion_command = null;
                     if (len_unit > 0) {
                         do {
                             unit = item.unit[index_units];
                             if (unit !== null) {
-                                assertion = get_value();
-                                // @ts-expect-error - ts cannot detect the assignment above
-                                if (parse_fail === true) {
-                                    assertion[0] = false;
-                                    assertion[3] = "failed to parse into JSON";
-                                    parse_fail = false;
-                                    fail = true;
-                                    vars.test.total_assertions_fail = vars.test.total_assertions_fail + 1;
-                                    vars.test.counts[vars.test.list.name].assertions_fail = vars.test.counts[vars.test.list.name].assertions_fail + 1;
-                                } else if (assertion[0] === false) {
-                                    fail = true;
-                                    vars.test.total_assertions_fail = vars.test.total_assertions_fail + 1;
-                                    vars.test.counts[vars.test.list.name].assertions_fail = vars.test.counts[vars.test.list.name].assertions_fail + 1;
-                                }
-                                vars.test.total_assertions = vars.test.total_assertions + 1;
-                                vars.test.counts[vars.test.list.name].assertions = vars.test.counts[vars.test.list.name].assertions + 1;
+                                assertion_list.push(get_value());
                             }
                             index_units = index_units + 1;
                         } while (index_units < len_unit);
-                        if (fail === true) {
-                            vars.test.total_tests_fail = vars.test.total_tests_fail + 1;
-                            vars.test.counts[vars.test.list.name].tests_failed = vars.test.counts[vars.test.list.name].tests_failed + 1;
-                        }
+                        test_runner.logger(assertion_list, item.name);
                     }
                     spawn.kill();
                     test_runner.tools.complete();
                 },
                 spawn_error = function test_runner_execCommand_error(err:node_error):void {
                     log.shell([
-                        `[${test_runner.tools.time()}] ${count_test} ${vars.text.angry}Fail${vars.text.none} ${item.name}`,
+                        `[${test_runner.tools.time()}] ${test_runner.count} ${vars.text.angry}Fail${vars.text.none} ${item.name}`,
                         `    ${vars.text.angry}*${vars.text.none} Test failed with error: ${err.code}, ${err.message}`
                     ]);
                     vars.test.total_tests_fail = vars.test.total_tests_fail + 1;
@@ -203,6 +302,7 @@ const test_runner:test_runner = {
     list: function test_runner_list(list:test_list, callback:(name:string) => void):void {
         const len_list:number = list.length;
         log.shell([`Test list ${vars.text.cyan + list.name + vars.text.none}`]);
+        vars.test.index = 0;
         vars.test.list = list;
         vars.test.total_lists = vars.test.total_lists + 1;
         vars.test.total_tests = vars.test.total_tests + len_list;
@@ -216,127 +316,58 @@ const test_runner:test_runner = {
             time_end: 0n,
             time_start: process.hrtime.bigint()
         };
+        test_runner.count = 0;
         test_runner.tools.callback = callback;
         test_runner.tools.next();
     },
+    logs: [],
+    logger: function test_runner_toolsLogger(assertions:test_assertionItem[], name:string):void {
+        const logs:string[] = [""],
+            len:number = assertions.length,
+            star:string = `    ${vars.text.angry}*${vars.text.none} `,
+            pass:string = `${vars.text.green}Pass${vars.text.none}: `,
+            fail:string = `${vars.text.angry}Fail${vars.text.none}: `;
+        let index:number = 0,
+            fail_test:boolean = false;
+        if (len > 0) {
+            do {
+                if (assertions[index][0] === true) {
+                    logs.push(star + vars.text.green + assertions[index][2] + assertions[index][3] + vars.text.none);
+                } else {
+                    fail_test = true;
+                    logs.push(star + vars.text.red + assertions[index][2] + assertions[index][3] + vars.text.none);
+                    vars.test.total_assertions_fail = vars.test.total_assertions_fail + 1;
+                    vars.test.counts[vars.test.list.name].assertions_fail = vars.test.counts[vars.test.list.name].assertions_fail + 1;
+                }
+                vars.test.total_assertions = vars.test.total_assertions + 1;
+                vars.test.counts[vars.test.list.name].assertions = vars.test.counts[vars.test.list.name].assertions + 1;
+                index = index + 1;
+            } while (index < len);
+        }
+        test_runner.count = test_runner.count + 1;
+        if (fail_test === true) {
+            logs[0] = `${test_runner.tools.time()} ${test_runner.count} ${fail + name}`;
+            log.shell(logs);
+            vars.test.total_tests_fail = vars.test.total_tests_fail + 1;
+            vars.test.counts[vars.test.list.name].tests_failed = vars.test.counts[vars.test.list.name].tests_failed + 1;
+        } else {
+            log.shell([`${test_runner.tools.time()} ${test_runner.count} ${pass + name}`]);
+        }
+    },
+    receive: function test_runner_receive(socket_data:socket_data):void {
+        const data:services_testBrowser = socket_data.data as services_testBrowser,
+            results:test_assertionItem[] = data.result;
+        test_runner.logger(results, vars.test.list.name);
+        test_runner.tools.complete();
+    },
     tools: {
-        assert: {
-            "begins": function test_runner_execCommand_assertBegins(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
-                if (unit.nullable === true && value === null) {
-                    return [true, value, location, "value is null, which is accepted"];
-                }
-                if (typeof value !== "string") {
-                    return [false, value, location, "values is not of type string"];
-                }
-                if (value.indexOf(String(unit.value)) === 0) {
-                    return [true, value, location, `begins with ${unit.value}`];
-                }
-                return [false, value, location, `begins with ${value.toString().slice(0, 8)}, not ${unit.value}`];
-            },
-            "contains": function test_runner_execCommand_assertContains(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
-                if (unit.nullable === true && value === null) {
-                    return [true, value, location, "value is null, which is accepted"];
-                }
-                if (typeof value !== "string") {
-                    return [false, value, location, "values is not of type string"];
-                }
-                if (value.includes(String(unit.value)) === true) {
-                    return [true, value, location, `contains ${unit.value}`];
-                }
-                return [false, value, location, `does not contain ${unit.value}`];
-            },
-            "ends": function test_runner_execCommand_assertEnds(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
-                if (unit.nullable === true && value === null) {
-                    return [true, value, location, "value is null, which is accepted"];
-                }
-                if (typeof value !== "string") {
-                    return [false, value, location, "values is not of type string"];
-                }
-                if (value.indexOf(String(unit.value)) === value.length - String(unit.value).length) {
-                    return [true, value, location, `ends with ${unit.value}`];
-                }
-                return [false, value, location, `ends with ${value.slice(value.length - 8)}, not ${unit.value}`];
-            },
-            "greater": function test_runner_execCommand_assertGreater(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
-                if (unit.nullable === true && value === null) {
-                    return [true, value, location, "value is null, which is accepted"];
-                }
-                if (typeof value === "number" || typeof value === "bigint") {
-                    if (typeof value !== typeof unit.value) {
-                        return [false, String(value), location, "value is not of same numeric type as comparator"];
-                    }
-                    if ((typeof value === "number" && value > Number(unit.value)) || (typeof value === "bigint" && value > BigInt(unit.value))) {
-                        return [true, String(value), location, `is greater than ${unit.value}`];
-                    }
-                    return [false, String(value), location, `is ${value}, which is not greater than ${unit.value}`];
-                }
-                return [false, value, location, `is ${value}, which is not greater than ${unit.value}`];
-            },
-            "is": function test_runner_execCommand_assertIs(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
-                const s_value:string = (typeof value === "string")
-                        ? `"${value}"`
-                        : String(value),
-                    s_unit:string = (typeof unit.value === "string")
-                        ? `"${unit.value}"`
-                        : String(unit.value);
-                if (unit.nullable === true && value === null) {
-                    return [true, value, location, "value is null, which is accepted"];
-                }
-                if (value === unit.value) {
-                    return [true, value, location, `is exactly ${s_unit}`];
-                }
-                return [false, value, location, `${s_value} is not ${s_unit}`];
-            },
-            "lesser": function test_runner_execCommand_assertLesser(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
-                if (unit.nullable === true && value === null) {
-                    return [true, value, location, "value is null, which is accepted"];
-                }
-                if (typeof value === "number" || typeof value === "bigint") {
-                    if (typeof value !== typeof unit.value) {
-                        return [false, String(value), location, "value is not of same numeric type as comparator"];
-                    }
-                    if ((typeof value === "number" && value < Number(unit.value)) || (typeof value === "bigint" && value < BigInt(unit.value))) {
-                        return [true, String(value), location, `is lesser than ${unit.value}`];
-                    }
-                    return [false, String(value), location, `is ${value}, which is not lesser than ${unit.value}`];
-                }
-                return [false, value, location, `is ${value}, which is not lesser than ${unit.value}`];
-            },
-            "not": function test_runner_execCommand_assertBegins(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
-                const s_value:string = (typeof value === "string")
-                        ? `"${value}"`
-                        : String(value),
-                    s_unit:string = (typeof unit.value === "string")
-                        ? `"${unit.value}"`
-                        : String(unit.value);
-                if (unit.nullable === true && value === null) {
-                    return [true, value, location, "value is null, which is accepted"];
-                }
-                if (value !== unit.value) {
-                    return [true, value, location, `is ${s_value}, not ${s_unit}`];
-                }
-                return [false, value, location, `is exactly ${s_value}`];
-            },
-            "not contains": function test_runner_execCommand_assertNotContains(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assertionItem {
-                if (unit.nullable === true && value === null) {
-                    return [true, value, location, "value is null, which is accepted"];
-                }
-                if (typeof value !== "string") {
-                    return [false, value, location, "values is not of type string"];
-                }
-                if (value.includes(String(unit.value)) === false) {
-                    return [true, value, location, `does not contain ${unit.value}`];
-                }
-                return [false, value, location, `contains ${value}`];
-            }
-        },
-        browser_open: function test_runner_utilityBrowser():void {
+        browser_open: function test_runner_toolsBrowser():void {
             const keyword:string = (process.platform === "darwin")
                     ? "open"
                     : (process.platform === "win32")
                         ? "start"
                         : "xdg-open",
-                browserCommand = function test_runner_utilityBrowser_browserCommand():string {
+                browserCommand = function test_runner_toolsBrowser_browserCommand():string {
                     const path:string = `http://localhost:${vars.servers.dashboard.status.open}/?test_browser`;
                     if (vars.test.browser !== "" && vars.test.browser !== null) {
                         if (vars.test.browser_args.length > 0) {
@@ -346,20 +377,20 @@ const test_runner:test_runner = {
                     }
                     return `${keyword} ${path}`;
                 },
-                call_dom = function test_runner_utilityBrowser_callDom():void {
+                call_dom = function test_runner_toolsBrowser_callDom():void {
                     if (vars.server_meta.dashboard.sockets.open[0] === undefined || vars.server_meta.dashboard.sockets.open[0].queue === undefined) {
-                        setTimeout(test_runner_utilityBrowser_callDom, 50);
+                        setTimeout(test_runner_toolsBrowser_callDom, 50);
                     } else {
                         test_runner.execution.dom();
                     }
                 };
-            vars.test.browser_child = node.child_process.exec(browserCommand(), function test_runner_utilityBrowser_child():void {
+            vars.test.browser_child = node.child_process.exec(browserCommand(), function test_runner_toolsBrowser_child():void {
                 vars.test.browser_start = true;
                 call_dom();
             });
         },
         callback: null,
-        complete: function test_runner_utilityComplete():void {
+        complete: function test_runner_toolsComplete():void {
             vars.test.index = vars.test.index + 1;
             if (vars.test.index < vars.test.list.length) {
                 test_runner.tools.next();
@@ -368,22 +399,20 @@ const test_runner:test_runner = {
                 test_runner.tools.callback(vars.test.list.name);
             }
         },
-        logs: [],
-        next: function test_runner_utilityNext():void {
+        next: function test_runner_toolsNext():void {
             if (vars.test.list[vars.test.index] === null) {
                 vars.test.counts[vars.test.list.name].tests_skipped = vars.test.counts[vars.test.list.name].tests_skipped + 1;
                 test_runner.tools.complete();
             } else if (vars.test.list[vars.test.index] === undefined) {
                 test_runner.tools.complete();
             } else {
-                count_test = count_test + 1;
                 vars.test.counts[vars.test.list.name].tests_attempted = vars.test.counts[vars.test.list.name].tests_attempted + 1;
                 if (test_runner.execution[vars.test.list[vars.test.index].type] !== undefined) {
                     test_runner.execution[vars.test.list[vars.test.index].type]();
                 }
             }
         },
-        time: function test_runner_utilityTime():string {
+        time: function test_runner_toolsTime():string {
             return `${vars.text.cyan}${process.hrtime.bigint().time(vars.test.counts[vars.test.list.name].time_start)}${vars.text.none}`;
         }
     }

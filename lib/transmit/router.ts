@@ -7,6 +7,7 @@ import http_request from "../http/http_requestTest.ts";
 import os from "../services/os.ts";
 import servers from "../services/server.ts";
 import terminal from "../services/terminal.ts";
+import test_runner from "../test/runner.ts";
 import websocket_test from "../services/websocket.ts";
 
 // cspell: words serv
@@ -31,7 +32,8 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-server": servers,
             "dashboard-terminal-resize": terminal.resize,
             "dashboard-websocket-handshake": websocket_test.handshake,
-            "dashboard-websocket-message": websocket_test.message
+            "dashboard-websocket-message": websocket_test.message,
+            "test-browser": test_runner.receive
         };
     if (actions[services] !== undefined) {
         actions[services](socketData, transmit);

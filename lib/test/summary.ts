@@ -41,10 +41,12 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage pass        : tests - ${vars.text[color] + (((vars.test.total_tests - vars.test.total_tests_fail) / vars.test.total_tests) * 100).toFixed(2) + vars.text.none}%, assertions - ${vars.text[color] + (((vars.test.total_assertions - vars.test.total_assertions_fail) / vars.test.total_assertions) * 100).toFixed(2) + vars.text.none}%`);
     }
     log.shell(summary, complete);
-    if (vars.test.total_assertions_fail > 1) {
-        process.exit(1);
-    } else {
-        process.exit(0);
+    if (complete === true) {
+        if (vars.test.total_assertions_fail > 1) {
+            process.exit(1);
+        } else {
+            process.exit(0);
+        }
     }
 };
 
