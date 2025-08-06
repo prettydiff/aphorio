@@ -261,7 +261,7 @@ const test_runner:test_runner = {
                         test_runner.logger(assertion_list, item.name);
                     }
                     spawn.kill();
-                    test_runner.tools.complete();
+                    test_runner.tools.next();
                 },
                 spawn_error = function test_runner_execCommand_error(err:node_error):void {
                     log.shell([
@@ -271,7 +271,7 @@ const test_runner:test_runner = {
                     vars.test.total_tests_fail = vars.test.total_tests_fail + 1;
                     vars.test.counts[vars.test.list.name].tests_failed = vars.test.counts[vars.test.list.name].tests_failed + 1;
                     spawn.kill();
-                    test_runner.tools.complete();
+                    test_runner.tools.next();
                 };
             spawn.stderr.on("data", stderr_callback);
             spawn.stdout.on("data", stdout_callback);
@@ -301,7 +301,7 @@ const test_runner:test_runner = {
     },
     list: function test_runner_list(list:test_list, callback:(name:string) => void):void {
         const len_list:number = list.length;
-        log.shell([`Test list ${vars.text.cyan + list.name + vars.text.none}`]);
+        log.shell(["", "", `Test list ${vars.text.cyan + list.name + vars.text.none}`]);
         vars.test.index = 0;
         vars.test.list = list;
         vars.test.total_lists = vars.test.total_lists + 1;
@@ -318,7 +318,11 @@ const test_runner:test_runner = {
         };
         test_runner.count = 0;
         test_runner.tools.callback = callback;
-        test_runner.tools.next();
+        if (test_runner.execution[vars.test.list[vars.test.index].type] === undefined) {
+            test_runner.tools.next();
+        } else {
+            test_runner.execution[vars.test.list[vars.test.index].type]();
+        }
     },
     logs: [],
     logger: function test_runner_toolsLogger(assertions:test_assertionItem[], name:string):void {
@@ -358,7 +362,7 @@ const test_runner:test_runner = {
         const data:services_testBrowser = socket_data.data as services_testBrowser,
             results:test_assertionItem[] = data.result;
         test_runner.logger(results, vars.test.list.name);
-        test_runner.tools.complete();
+        test_runner.tools.next();
     },
     tools: {
         browser_open: function test_runner_toolsBrowser():void {
@@ -390,26 +394,23 @@ const test_runner:test_runner = {
             });
         },
         callback: null,
-        complete: function test_runner_toolsComplete():void {
+        next: function test_runner_toolsNext():void {
             vars.test.index = vars.test.index + 1;
             if (vars.test.index < vars.test.list.length) {
-                test_runner.tools.next();
+                if (vars.test.list[vars.test.index] === null) {
+                    vars.test.counts[vars.test.list.name].tests_skipped = vars.test.counts[vars.test.list.name].tests_skipped + 1;
+                    test_runner_toolsNext();
+                } else if (vars.test.list[vars.test.index] === undefined) {
+                    test_runner_toolsNext();
+                } else {
+                    vars.test.counts[vars.test.list.name].tests_attempted = vars.test.counts[vars.test.list.name].tests_attempted + 1;
+                    if (test_runner.execution[vars.test.list[vars.test.index].type] !== undefined) {
+                        test_runner.execution[vars.test.list[vars.test.index].type]();
+                    }
+                }
             } else {
                 vars.test.counts[vars.test.list.name].time_end = process.hrtime.bigint();
                 test_runner.tools.callback(vars.test.list.name);
-            }
-        },
-        next: function test_runner_toolsNext():void {
-            if (vars.test.list[vars.test.index] === null) {
-                vars.test.counts[vars.test.list.name].tests_skipped = vars.test.counts[vars.test.list.name].tests_skipped + 1;
-                test_runner.tools.complete();
-            } else if (vars.test.list[vars.test.index] === undefined) {
-                test_runner.tools.complete();
-            } else {
-                vars.test.counts[vars.test.list.name].tests_attempted = vars.test.counts[vars.test.list.name].tests_attempted + 1;
-                if (test_runner.execution[vars.test.list[vars.test.index].type] !== undefined) {
-                    test_runner.execution[vars.test.list[vars.test.index].type]();
-                }
             }
         },
         time: function test_runner_toolsTime():string {

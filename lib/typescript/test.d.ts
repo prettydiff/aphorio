@@ -103,7 +103,6 @@ interface test_runner {
     tools: {
         browser_open: () => void;
         callback: (name:string) => void;
-        complete: () => void;
         next: () => void;
         time: () => string;
     };
