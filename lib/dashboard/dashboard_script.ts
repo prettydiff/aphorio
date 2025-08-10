@@ -499,7 +499,7 @@ const dashboard = function dashboard():void {
                     tools.websocket.nodes.status.setAttribute("class", "connection-offline");
                     tools.websocket.nodes.message_receive_body.value = "";
                     tools.websocket.nodes.message_receive_frame.value = "";
-                    utility.clock_node.textContent = "00:00:00";
+                    utility.clock_node.textContent = "00:00:00L (00:00:00Z)";
                     utility.socket.socket = null;
                 }
             },
@@ -522,6 +522,7 @@ const dashboard = function dashboard():void {
                                 : second;
                         return `${hours}:${minutes}:${seconds}`;
                     };
+                utility.clock_node.setAttribute("data-local", String(data.time_local));
                 utility.clock_node.textContent = `${str(data.time_local)}L (${str(data.time_zulu)}Z)`;
             },
             clock_node: document.getElementById("clock").getElementsByTagName("em")[0],

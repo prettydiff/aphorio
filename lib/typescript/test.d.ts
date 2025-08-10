@@ -1,20 +1,30 @@
 
+interface test_assert {
+    assessment: string;
+    location: string;
+    pass: boolean;
+    store: boolean;
+    value: test_primitive;
+}
+
 interface test_assertion_command {
     format?: "csv" | "json" | "lines" | "string";
     nullable?: boolean;
     properties?: (number|string)[];
     qualifier: test_qualifier;
+    store?: boolean;
     type: "stderr" | "stdout";
-    value: boolean | number | string;
+    value: test_primitive;
 }
 
 interface test_assertion_dom {
     node: test_browserDOM;
     nullable?: boolean;
     qualifier: test_qualifier;
+    store?: boolean;
     target: string[];
     type: "attribute" | "element" | "property";
-    value: boolean | number | string | null;
+    value: test_primitive;
 }
 
 interface test_browserDOM extends Array<type_browserDOM> {
@@ -60,6 +70,17 @@ interface test_config_summary {
     total_tests: number;
 }
 
+interface test_counts {
+    assertions: number;
+    assertions_fail: number;
+    tests_attempted: number;
+    tests_failed: number;
+    tests_skipped: number;
+    tests_total: number;
+    time_end: bigint;
+    time_start: bigint;
+}
+
 interface test_event {
     coords?: [number, number];
     event: test_eventName;
@@ -89,7 +110,7 @@ interface test_list extends Array<test_item_command|test_item_dom> {
 
 interface test_runner {
     assert: {
-        [key:string]: (value:string, unit:test_assertion_command|test_assertion_dom, location:string) => test_assertionItem;
+        [key:string]: (value:string, unit:test_assertion_command|test_assertion_dom, location:string) => test_assert;
     };
     count: number;
     execution: {
@@ -97,7 +118,7 @@ interface test_runner {
         dom: () => void;
     };
     list: (list:test_list, callback:(name:string) => void) => void;
-    logger: (assertions:test_assertionItem[], name:string) => void;
+    logger: (assertions:test_assert[]) => void;
     logs: string[];
     receive: (socket_data:socket_data) => void;
     tools: {
@@ -108,12 +129,9 @@ interface test_runner {
     };
 }
 
-// pass/fail, actual value, location, assessment
-type test_assertionItem = [boolean, string, string, string];
-type test_browserAction = "close" | "exit" | "nothing" | "reset-complete" | "reset" | "result";
 type test_domMethod = "activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window";
 type test_eventName = "blur" | "click" | "command" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh-interaction" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
-type test_primitive = boolean | number | string | null | undefined;
+type test_primitive = bigint | boolean | number | string | null | undefined;
 type test_qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not contains" | "not";
 
 // type test_type = "command" | "dom" | "file" | "http" | "websocket"

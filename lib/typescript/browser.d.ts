@@ -229,12 +229,10 @@ declare global {
     }
 
     interface module_remote {
-        action: test_browserAction;
         delay: (config:test_browserItem) => void;
         domFailure: boolean;
-        // eslint-disable-next-line
         error: (message:string, source:string, line:number, col:number, error:Error) => void;
-        evaluate: (test:test_assertion_dom) => test_assertionItem;
+        evaluate: (test:test_assertion_dom) => test_assert;
         event: (item:services_testBrowser, pageLoad:boolean) => void;
         getProperty: (test:test_assertion_dom) => [HTMLElement, test_primitive];
         index: number;
@@ -243,7 +241,7 @@ declare global {
         keyShift: boolean;
         node: (dom:test_browserDOM, property:string) => HTMLElement;
         report: (test:test_assertion_dom[], index:number) => void;
-        sendTest: (payload:test_assertionItem[], index:number, task:test_browserAction) => services_testBrowser;
+        sendTest: (payload:test_assert[], index:number) => services_testBrowser;
         stringify: (primitive:test_primitive) => string;
         test_item: services_testBrowser;
     }

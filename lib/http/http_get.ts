@@ -300,7 +300,10 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                 notFound();
             }
         },
-        decoded:string = decodeURI(fileFragment);
+        decode:string = decodeURI(fileFragment),
+        decoded:string = (decode.includes("?") === true)
+            ? decode.slice(0, decode.indexOf("?"))
+            : decode;
     if (server_name === "dashboard") {
         if (decoded.includes("styles.css") === true) {
             input = `${vars.path.project}lib${vars.sep}dashboard${vars.sep}styles.css`;

@@ -290,10 +290,8 @@ declare global {
     }
 
     interface services_testBrowser {
-        action: test_browserAction;
-        exit: string;
         index: number;
-        result: test_assertionItem[];
+        result: test_assert[];
         test: test_browserItem;
     }
 

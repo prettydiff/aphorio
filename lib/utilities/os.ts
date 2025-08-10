@@ -616,7 +616,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const child:os_child = this,
                         type:type_os_key = child.type,
-                        temp:string = chunks[type].join("").replace(/\s+$/, "").replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\r\n/, "");
+                        temp:string = chunks[type].join("").trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, "");
                     flags[type] = true;
                     spawn[type].kill();
                     // eslint-disable-next-line no-restricted-syntax

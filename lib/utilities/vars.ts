@@ -169,6 +169,7 @@ const win32:boolean = (process.platform === "win32"),
             counts: {},
             index: 0,
             list: null,
+            store: null,
             testing: false,
             total_assertions: 0,
             total_assertions_fail: 0,
@@ -178,7 +179,7 @@ const win32:boolean = (process.platform === "win32"),
             total_time_end: 0n,
             total_time_start: 0n
         },
-        text: (process.argv.includes("no-color") === true)
+        text: (process.stdout.isTTY === false || process.argv.includes("no-color") === true)
             ? {
                 angry    : "",
                 blue     : "",

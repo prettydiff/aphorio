@@ -1,5 +1,6 @@
 
 import log from "../utilities/log.ts";
+import send from "../transmit/send.ts";
 import vars from "../utilities/vars.ts";
 
 
@@ -18,7 +19,8 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         color:"angry"|"green" = (vars.test.counts[name].assertions_fail === 0)
             ? "green"
             : "angry",
-        list = vars.test.counts[name];
+        list:test_counts = vars.test.counts[name],
+        exit:boolean = (process.argv.includes("no-exit") === false);
     summary.push(`${vars.text.underline}Testing complete for list ${vars.text.cyan + name + vars.text.none}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} List time                : ${vars.text.cyan + list.time_end.time(list.time_start) + vars.text.none}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} List tests               : ${pad_right(18, list.tests_total.commas())}`);
@@ -43,7 +45,18 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage assertion pass: ${vars.text[color] + pad_right(17, (((vars.test.total_assertions - vars.test.total_assertions_fail) / vars.test.total_assertions) * 100).toFixed(2)) + vars.text.none}%`);
     }
     log.shell(summary, complete);
-    if (complete === true) {
+    if (complete === true && exit === true) {
+        const item_service:services_testBrowser = {
+                index: -10,
+                result: null,
+                test: null
+            },
+            socket:websocket_client = vars.server_meta.dashboard.sockets.open[0],
+            payload:socket_data = {
+                data: item_service,
+                service: "test-browser"
+            };
+        send(payload, socket, 3);
         if (vars.test.total_assertions_fail > 1) {
             process.exit(1);
         } else {

@@ -288,19 +288,11 @@ interface vars {
         browser_child: node_childProcess_ChildProcess;
         browser_start: boolean;
         counts: {
-            [key:string]: {
-                assertions: number;
-                assertions_fail: number;
-                tests_attempted: number;
-                tests_failed: number;
-                tests_skipped: number;
-                tests_total: number;
-                time_end: bigint;
-                time_start: bigint;
-            }
+            [key:string]: test_counts;
         };
         index: number;
         list: test_list;
+        store: test_primitive;
         testing: boolean;
         total_assertions: number;
         total_assertions_fail: number;
