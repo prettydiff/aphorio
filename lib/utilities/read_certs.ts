@@ -27,6 +27,7 @@ const read_certs = function utilities_readCerts(name:string, callback:(name:stri
                         config: vars.servers[name],
                         message: `Required certificate files are missing for server ${name}.`,
                         status: "error",
+                        time: Date.now(),
                         type: "server"
                     });
                 }

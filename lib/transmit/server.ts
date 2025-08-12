@@ -352,6 +352,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                         },
                         message: `${secure.capitalize()} server ${serverItem.name} came online.`,
                         status: "informational",
+                        time: Date.now(),
                         type: "server"
                     });
                     complete(serverItem.name);
@@ -368,6 +369,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                             config: vars.servers[serverItem.name],
                             message: `Port conflict on port ${vars.servers[serverItem.name].config.ports[secure]} of ${secure} server named ${serverItem.name}.`,
                             status: "error",
+                            time: Date.now(),
                             type: "server"
                         });
                     } else {
@@ -376,6 +378,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                             config: ser,
                             message: `Error activating ${(serverItem.secure === true) ? "secure" : "open"} server ${serverItem.name}.`,
                             status: "error",
+                            time: Date.now(),
                             type: "server"
                         });
                     }

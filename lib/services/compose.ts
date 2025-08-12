@@ -25,6 +25,7 @@ const compose = function services_compose(socket_data:socket_data):void {
                             : vars.compose.variables,
                         message: message,
                         status: "success",
+                        time: Date.now(),
                         type: `compose-${type}`
                     });
                 }
@@ -95,6 +96,7 @@ const compose = function services_compose(socket_data:socket_data):void {
                                         config: compose,
                                         message: `Docker container ${data.name} is online.`,
                                         status: "informational",
+                                        time: Date.now(),
                                         type: "compose-containers"
                                     });
                                 }
@@ -125,6 +127,7 @@ const compose = function services_compose(socket_data:socket_data):void {
                                             config: data.compose,
                                             message: `Destroyed container ${data.compose.name}`,
                                             status: "success",
+                                            time: Date.now(),
                                             type: "compose-containers"
                                         });
                                     },

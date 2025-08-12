@@ -140,6 +140,30 @@ const test_listLocalBrowser:test_list = [
         name: "Navigate to compose",
         type: "dom",
         unit: []
+    },
+    {
+        delay: {
+            node: [
+                ["getElementById", "sockets", null],
+                ["getElementsByTagName", "h2", 0]
+            ],
+            qualifier: "greater",
+            target: ["offsetTop"],
+            type: "property",
+            value: 10
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementsByTagName", "nav", 0],
+                    ["getElementsByTagName", "button", 2]
+                ]
+            }
+        ],
+        name: "Navigate to sockets",
+        type: "dom",
+        unit: []
     }
 ];
 test_listLocalBrowser.name = "Local browser tests";

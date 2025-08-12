@@ -59,6 +59,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     : config.socket.proxy.hash,
                 role: config.role,
                 server: config.server,
+                time: Date.now(),
                 type: config.type
             },
             log_config:config_log = {
@@ -66,6 +67,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 config: socket,
                 message: `Socket ${config.identifier} opened on ${encryption} server ${config.server}.`,
                 status: "success",
+                time: Date.now(),
                 type: "socket"
             };
         vars.server_meta[config.server].sockets[encryption].push(config.socket);

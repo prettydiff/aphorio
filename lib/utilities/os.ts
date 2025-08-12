@@ -654,6 +654,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                             config: e as node_error,
                             message: `Error reading operating system data of type ${type}.`,
                             status: "error",
+                            time: Date.now(),
                             type: "os"
                         });
                         if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
@@ -669,6 +670,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         config: err,
                         message: `Error reading operating system data of type ${type}.`,
                         status: "error",
+                        time: Date.now(),
                         type: "os"
                     });
                 };

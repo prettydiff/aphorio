@@ -24,6 +24,7 @@ const socket_end = function transmit_socketEnd(socket_input:websocket_client):vo
                 : socket.proxy.hash,
             role: socket.role,
             server: socket.server,
+            time: Date.now(),
             type: socket.type
         },
         payload:services_dashboard_status = {

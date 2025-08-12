@@ -40,6 +40,7 @@ const file:file = {
                         config: errorInstance,
                         message: `Error making directory ${config.location}`,
                         status: "error",
+                        time: Date.now(),
                         type: "log"
                     });
                     return;
@@ -58,6 +59,7 @@ const file:file = {
                     config: new Error(`Destination directory, '${vars.text.cyan + config.location + vars.text.none}', is a ${type}.`),
                     message: `Destination for mkdir, ${config.location}, already exists.`,
                     status: "error",
+                    time: Date.now(),
                     type: "log"
                 });
                 return;
@@ -80,6 +82,7 @@ const file:file = {
                                     config: errB,
                                     message: `Error making directory ${config.location}`,
                                     status: "error",
+                                    time: Date.now(),
                                     type: "log"
                                 });
                             }
@@ -119,6 +122,7 @@ const file:file = {
                     config: err,
                     message: `Error reading file: ${config.location}`,
                     status: "error",
+                    time: Date.now(),
                     type: "log"
                 });
                 if (config.callback !== null) {
@@ -156,6 +160,7 @@ const file:file = {
                                     config: er,
                                     message: `Error removing file system artifact ${item[0]}`,
                                     status: "error",
+                                    time: Date.now(),
                                     type: "log"
                                 });
                                 return;
@@ -244,6 +249,7 @@ const file:file = {
                     config: ers,
                     message: `Error reading file: ${config.location}`,
                     status: "error",
+                    time: Date.now(),
                     type: "log"
                 });
                 if (config.callback !== null) {
@@ -264,6 +270,7 @@ const file:file = {
                     config: erw,
                     message: `Error writing file: ${config.location}`,
                     status: "error",
+                    time: Date.now(),
                     type: "log"
                 });
                 if (config.callback !== null) {

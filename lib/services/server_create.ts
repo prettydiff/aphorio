@@ -49,6 +49,7 @@ const server_create = function services_serverCreate(data:services_action_server
                     config: config,
                     message: `Server named ${config.name} created.`,
                     status: "success",
+                    time: Date.now(),
                     type: "server"
                 });
                 // 4. create server's certificates
@@ -151,6 +152,7 @@ const server_create = function services_serverCreate(data:services_action_server
             config: config,
             message: `Server named ${config.name} already exists.  Called on library server_create.`,
             status: "error",
+            time: Date.now(),
             type: "log"
         });
         return;

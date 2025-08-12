@@ -13,6 +13,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                     ? `Docker container ${config.name} came online.`
                     : `Docker container ${config.name} went offline.`,
                 status: "informational",
+                time: Date.now(),
                 type: "compose-containers"
             });
         },
@@ -86,6 +87,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                         ? stderr.replace(/(\w|"|')(\.|:|,) /g, lines)
                         : "Executing command 'docker ps' returned an error.",
                     status: "error",
+                    time: Date.now(),
                     type: "compose-containers"
                 });
                 vars.compose = null;
@@ -114,6 +116,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                         },
                     message: "docker ps",
                     status: "error",
+                    time: Date.now(),
                     type: "compose-containers"
                 });
             }

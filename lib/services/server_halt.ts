@@ -28,6 +28,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
             config: data.server,
             message: `Server named ${old} does not exist.  Called on library server_halt.`,
             status: "error",
+            time: Date.now(),
             type: "log"
         });
     } else {
@@ -60,6 +61,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                         config: data.server,
                         message: `Server named ${data.server.name} ${actionText}.`,
                         status: "success",
+                        time: Date.now(),
                         type: "server"
                     });
                 }
@@ -85,6 +87,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                             config: data.server,
                             message: "Error copying files from old server location to new server location.",
                             status: "error",
+                            time: Date.now(),
                             type: "server"
                         });
                     }

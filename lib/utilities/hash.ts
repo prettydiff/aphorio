@@ -20,6 +20,7 @@ const hash = function utilities_hash(config:config_hash):void {
                 config: null,
                 message: output,
                 status: "error",
+                time: Date.now(),
                 type: "socket"
             });
         };

@@ -41,6 +41,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     ? "Socket is not a proxy."
                     : `Socket is a proxy to ${config.proxy.hash} on server ${config.proxy.server}.`}`,
                 status: "error",
+                time: Date.now(),
                 type: (config.type === "websocket-test")
                     ? "websocket-test"
                     : "socket"

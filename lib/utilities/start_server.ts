@@ -527,6 +527,7 @@ const start_server = function utilities_startServer():void {
                 }
             }
         },
+        process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}lib${vars.sep}`)),
         keys_tasks:string[] = Object.keys(tasks);
     let len_flags:number = keys_tasks.length,
         index_tasks:number = keys_tasks.length,
@@ -541,13 +542,11 @@ const start_server = function utilities_startServer():void {
         return this.charAt(0).toUpperCase() + this.slice(1);
     };
     vars.test.testing = testing;
-    vars.path.project = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}lib${vars.sep}`)) + vars.sep;
-    vars.path.compose = (testing === true)
-        ? `${vars.path.project}test${vars.sep}compose${vars.sep}`
-        : `${vars.path.project}compose${vars.sep}`;
-    vars.path.servers = (testing === true)
-        ? `${vars.path.project}test${vars.sep}servers${vars.sep}`
-        : `${vars.path.project}servers${vars.sep}`;
+    vars.path.project = (vars.test.testing === true)
+        ? `${process_path + vars.sep}test${vars.sep}`
+        : process_path + vars.sep;
+    vars.path.compose = `${vars.path.project}compose${vars.sep}`;
+    vars.path.servers = `${vars.path.project}servers${vars.sep}`;
 
     log.shell([`${vars.text.underline}Executing start up tasks${vars.text.none}`]);
     do {

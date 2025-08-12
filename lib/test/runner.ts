@@ -229,7 +229,6 @@ const test_runner:test_runner = {
                                         // eslint-disable-next-line no-restricted-syntax
                                         try {
                                             return JSON.parse(start.trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""));
-                                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                         } catch (e:unknown) {
                                             parse_fail = true;
                                             return e as object;
@@ -401,7 +400,7 @@ const test_runner:test_runner = {
             } while (index < len);
         }
         test_runner.count = test_runner.count + 1;
-        
+
         // test pass/fail line
         if (fail_test === true) {
             logs[0] = `${test_runner.tools.time()} ${test_runner.count} ${fail + vars.test.list[vars.test.index].name}`;

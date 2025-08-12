@@ -53,6 +53,7 @@ interface config_log {
     config: type_dashboard_config;
     message: string;
     status: type_dashboard_status;
+    time: number;
     type: type_dashboard_type;
 }
 

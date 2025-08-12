@@ -270,6 +270,7 @@ declare global {
         proxy: string;
         role: "client" | "server";
         server: string;
+        time: number;
         type: string;
     }
 

@@ -31,6 +31,7 @@ const certificate = function services_certificate(config:config_certificate):voi
                                 config: vars.servers[config.name],
                                 message: `Error executing command: ${commands[index]}`,
                                 status: "error",
+                                time: Date.now(),
                                 type: "server"
                             });
                         }
