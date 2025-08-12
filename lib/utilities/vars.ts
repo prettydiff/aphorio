@@ -41,7 +41,10 @@ const win32:boolean = (process.platform === "win32"),
             containers: {},
             variables: {}
         },
-        css: "",
+        css: {
+            basic: "",
+            complete: ""
+        },
         dashboard: "",
         environment: {
             date_commit: 0,

@@ -164,6 +164,152 @@ const test_listLocalBrowser:test_list = [
         name: "Navigate to sockets",
         type: "dom",
         unit: []
+    },
+    {
+        delay: {
+            node: [
+                ["getElementById", "sockets", null],
+                ["getElementsByTagName", "tbody", 0],
+                ["getElementsByTagName", "tr", null]
+            ],
+            qualifier: "greater",
+            target: ["length"],
+            type: "property",
+            value: 1
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementsByTagName", "nav", 0],
+                    ["getElementsByTagName", "button", 2]
+                ]
+            }
+        ],
+        name: "Check if application socket table is populated",
+        type: "dom",
+        unit: [
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["textContent"],
+                type: "property",
+                value: "dashboard"
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 1]
+                ],
+                qualifier: "contains",
+                target: ["textContent"],
+                type: "property",
+                value: "-"
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 2]
+                ],
+                qualifier: "contains",
+                target: ["textContent"],
+                type: "property",
+                value: "http"
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 3]
+                ],
+                qualifier: "is",
+                target: ["textContent"],
+                type: "property",
+                value: "server"
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 4]
+                ],
+                qualifier: "is",
+                target: ["textContent"],
+                type: "property",
+                value: ""
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 5]
+                ],
+                qualifier: "is",
+                target: ["textContent"],
+                type: "property",
+                value: "false"
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 6]
+                ],
+                qualifier: "not",
+                target: ["textContent"],
+                type: "property",
+                value: ""
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 7]
+                ],
+                qualifier: "not",
+                target: ["textContent"],
+                type: "property",
+                value: ""
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 8]
+                ],
+                qualifier: "not",
+                target: ["textContent"],
+                type: "property",
+                value: ""
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 9]
+                ],
+                qualifier: "not",
+                target: ["textContent"],
+                type: "property",
+                value: ""
+            }
+        ]
     }
 ];
 test_listLocalBrowser.name = "Local browser tests";

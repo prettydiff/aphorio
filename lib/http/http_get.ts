@@ -71,7 +71,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         "<meta content=\"application/javascript\" http-equiv=\"content-script-type\"/>",
                         "<meta content=\"#bbbbff\" name=\"msapplication-TileColor\"/>",
                         (config.template === true)
-                            ? `<style type="text/css">${vars.css}</style>`
+                            ? `<style type="text/css">${vars.css.basic}</style>`
                             : "",
                         "<link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,iVBORw0KGgo=\"/>",
                         "</head>",
@@ -305,10 +305,9 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
     if (server_name === "dashboard") {
-        if (decoded.includes("styles.css") === true) {
-            input = `${vars.path.project}lib${vars.sep}dashboard${vars.sep}styles.css`;
-        } else if (decoded.includes("xterm.css") === true) {
-            input = `${vars.path.project}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}css${vars.sep}xterm.css`;
+        const real_path:string = vars.path.project.replace(`test${vars.sep}`, "");
+        if (decoded.includes("xterm.css") === true) {
+            input = `${real_path}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}css${vars.sep}xterm.css`;
         } else if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {

@@ -257,7 +257,10 @@ interface terminal {
 interface vars {
     commands: store_string;
     compose: configuration_compose;
-    css: string;
+    css: {
+        basic: string;
+        complete: string;
+    };
     dashboard: string;
     environment: {
         date_commit: number;

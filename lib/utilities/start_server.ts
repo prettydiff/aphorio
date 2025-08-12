@@ -32,7 +32,6 @@ const start_server = function utilities_startServer():void {
         task_definitions:store_string = {
             browser_stat: "",
             compose: "Reads the compose.json file and restores the docker compose containers if docker is available.",
-            css: "Reads the dashboard's CSS file to cache the contents to a variable and automatically add these contents to the dashboard HTML file.",
             git: "Read's the project's git file to determine the current commit hash, which is helpful when performing maintenance across multiple machines simultaneously.",
             html: "Read's the dashboard's HTML file for dynamic modification.",
             options: "Modify's application settings according to the use of supported optional command line arguments.",
@@ -109,19 +108,6 @@ const start_server = function utilities_startServer():void {
                     no_file: null
                 });
             },
-            css: function utilities_startServer_taskCSS():void {
-                const readCSS = function utilities_startServer_taskCSS_readCSS(fileContents:Buffer):void {
-                    const css:string = fileContents.toString();
-                    vars.css = css.slice(css.indexOf(":root"), css.indexOf("/* end basic html */"));
-                    readComplete("css");
-                };
-                file.read({
-                    callback: readCSS,
-                    error_terminate: null,
-                    location: `${vars.path.project}lib${vars.sep}dashboard${vars.sep}styles.css`,
-                    no_file: null
-                });
-            },
             git: function utilities_startServer_tasksGit():void {
                 const gitStat = function utilities_startServer_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
                     if (error === null && stat !== null) {
@@ -144,32 +130,58 @@ const start_server = function utilities_startServer():void {
                         readComplete("git");
                     }
                 };
-                node.fs.stat(`${vars.path.project}.git`, gitStat);
+                node.fs.stat(`${process_path}.git`, gitStat);
             },
             html: function utilities_startServer_taskHTML():void {
-                const readXterm = function utilities_startServer_taskHTML_readXterm(xtermFile:Buffer):void {
-                    file.read({
-                        callback: function utilities_startServer_taskHTML_readXterm_readHTML(fileContents:Buffer):void {
-                            const xterm:string = xtermFile.toString().replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, "");
-                            let script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
-                            if (testing === true) {
-                                const testBrowser:string = test_browser.toString().replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
-                                script = script.replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`).replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
-                            }
-                            vars.dashboard = fileContents.toString()
-                                .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
-                                .replace("replace_javascript", `${xterm}const commas=${commas.toString()},dateTime=${dateTime.toString()},time=${time.toString()};(${script}(${core.toString()}));`);
-                            readComplete("html");
-                        },
-                        error_terminate: null,
-                        location: `${vars.path.project}lib${vars.sep}dashboard${vars.sep}dashboard.html`,
-                        no_file: null
-                    });
-                };
+                let xterm_file:string = null;
+                const flags:store_flag = {
+                        css: false,
+                        xterm: false
+                    },
+                    complete = function utilities_startServer_taskHTML_complete():void {
+                        if (flags.css === true && flags.xterm === true) {
+                            file.read({
+                                callback: function utilities_startServer_taskHTML_readXterm_readHTML(fileContents:Buffer):void {
+                                    const xterm:string = xterm_file.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, "");
+                                    let script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
+                                    if (testing === true) {
+                                        const testBrowser:string = test_browser.toString().replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
+                                        script = script.replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`).replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
+                                    }
+                                    vars.dashboard = fileContents.toString()
+                                        .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
+                                        .replace("replace_javascript", `${xterm}const commas=${commas.toString()},dateTime=${dateTime.toString()},time=${time.toString()};(${script}(${core.toString()}));`)
+                                        .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete}</style>`);
+                                    readComplete("html");
+                                },
+                                error_terminate: null,
+                                location: `${process_path}lib${vars.sep}dashboard${vars.sep}dashboard.html`,
+                                no_file: null
+                            });
+                        }
+                    },
+                    readXterm = function utilities_startServer_taskHTML_readXterm(file:Buffer):void {
+                        xterm_file = file.toString();
+                        flags.xterm = true;
+                        complete();
+                    },
+                    readCSS = function utilities_startServer_taskCSS_readCSS(fileContents:Buffer):void {
+                        const css:string = fileContents.toString();
+                        vars.css.complete = css.slice(css.indexOf(":root"));
+                        vars.css.basic = vars.css.complete.slice(0, css.indexOf("/* end basic html */"));
+                        flags.css = true;
+                        complete();
+                    };
+                file.read({
+                    callback: readCSS,
+                    error_terminate: null,
+                    location: `${process_path}lib${vars.sep}dashboard${vars.sep}styles.css`,
+                    no_file: null
+                });
                 file.read({
                     callback: readXterm,
                     error_terminate: null,
-                    location: `${vars.path.project}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}lib${vars.sep}xterm.js`,
+                    location: `${process_path}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}lib${vars.sep}xterm.js`,
                     no_file: null
                 });
             },
@@ -527,7 +539,7 @@ const start_server = function utilities_startServer():void {
                 }
             }
         },
-        process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}lib${vars.sep}`)),
+        process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}lib${vars.sep}`)) + vars.sep,
         keys_tasks:string[] = Object.keys(tasks);
     let len_flags:number = keys_tasks.length,
         index_tasks:number = keys_tasks.length,
@@ -543,8 +555,8 @@ const start_server = function utilities_startServer():void {
     };
     vars.test.testing = testing;
     vars.path.project = (vars.test.testing === true)
-        ? `${process_path + vars.sep}test${vars.sep}`
-        : process_path + vars.sep;
+        ? `${process_path}test${vars.sep}`
+        : process_path;
     vars.path.compose = `${vars.path.project}compose${vars.sep}`;
     vars.path.servers = `${vars.path.project}servers${vars.sep}`;
 
