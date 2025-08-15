@@ -13,32 +13,25 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         if (config.unit === null || config.unit.length < 1) {
                             remote.sendTest([testResult], remote.index);
                         } else {
-                            remote.report(config.unit, remote.index);
+                            remote.report(config.delay, config.unit, remote.index);
                         }
                         return;
                     }
                     a = a + 1;
                     if (a === maxTries) {
-                        const element:HTMLElement = remote.node(config.delay.node, config.delay.target[0]);
+                        const element:HTMLElement = remote.node(config.delay.node, config.delay.target[0]),
+                            assessment:test_assert = remote.evaluate(config.delay);
                         if (element !== undefined && element !== null && element.nodeType === 1) {
                             element.highlight();
                         }
-                        remote.sendTest([
-                            {
-                                assessment: " delay timeout",
-                                location: config.delay.node.nodeString,
-                                pass: false,
-                                store: config.delay.store,
-                                value: ""
-                            },
-                            remote.evaluate(config.delay)
-                        ], remote.index);
+                        assessment.assessment = ` delay timeout,${assessment.assessment}`;
+                        remote.sendTest([assessment], remote.index);
                         return;
                     }
                     setTimeout(testBrowser_delay_timeout, delay);
                 };
             if (config.delay === undefined || config.delay === null) {
-                remote.report(config.unit, remote.index);
+                remote.report(config.delay, config.unit, remote.index);
             } else {
                 setTimeout(delayFunction, delay);
             }
@@ -135,7 +128,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             }
             if (qualifier === "greater") {
                 const nullable:boolean = (unit.nullable === true && value === null),
-                    test:boolean = ((typeof value === "bigint" && value > BigInt(unit.value)) || (typeof value === "number" && value > Number(unit.value)));
+                    test:boolean = (((typeof value === "bigint" || (typeof value === "string" && (/^\d+n$/).test(String(value)) === true)) && BigInt(value as string) > BigInt(unit.value)) || Number(value) > Number(unit.value));
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
@@ -171,7 +164,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             }
             if (qualifier === "lesser") {
                 const nullable:boolean = (unit.nullable === true && value === null),
-                    test:boolean = ((typeof value === "bigint" && value < BigInt(unit.value)) || (typeof value === "number" && value < Number(unit.value)));
+                    test:boolean = (((typeof value === "bigint" || (typeof value === "string" && (/^\d+n$/).test(String(value)) === true)) && BigInt(value as string) < BigInt(unit.value)) || Number(value) < Number(unit.value));
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
@@ -416,41 +409,54 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         },
 
         /* Get the value of the specified property/attribute */
-        getProperty: function testBrowser_getProperty(test:test_assertion_dom):[HTMLElement, test_primitive] {
-            const element:HTMLElement = (test.node.length > 0)
-                    ? remote.node(test.node, test.target[0])
+        getProperty: function testBrowser_getProperty(unit:test_assertion_dom):[HTMLElement, test_primitive] {
+            let type:boolean = false;
+            const element:HTMLElement = (unit.node.length > 0)
+                    ? remote.node(unit.node, unit.target[0])
                     : null,
-                pLength:number = test.target.length - 1,
-                method = function testBrowser_getProperty_method(prop:test_primitive|object, name:string):test_primitive {
-                    if (name.slice(name.length - 2) === "()") {
-                        name = name.slice(0, name.length - 2);
-                        // @ts-expect-error - prop is some unknown DOM element or element property
-                        return prop[name]();
-                    }
-                    // @ts-expect-error - prop is some unknown DOM element or element property
-                    return prop[name];
-                },
+                pLength:number = unit.target.length,
                 property = function testBrowser_getProperty_property(origin:HTMLElement|Window):test_primitive {
-                    let b:number = 1,
-                        item:test_primitive = method(origin, test.target[0]);
-                    if (item === null) {
-                        return null;
-                    }
-                    if (pLength > 1) {
+                    let index_prop:number = 0,
+                        prop:number|string = null,
+                        method:string = null,
+                        format:boolean|object|string = origin;
+                    if (pLength > 0) {
                         do {
-                            item = method(item, test.target[b]);
-                            if (item === null) {
-                                return null;
+                            prop = unit.target[index_prop];
+                            method = (typeof prop === "string" && prop.includes("(") === true && prop.includes(")") === true)
+                                ? prop.slice(0, prop.indexOf("("))
+                                : "";
+                            if (prop === "typeOf" && type === false) {
+                                unit.node.nodeString = `typeOf ${unit.node.nodeString}`;
+                                type = true;
+                            } else if (prop === "isNaN") {
+                                format = isNaN(Number(prop));
+                            } else if (prop !== "" && prop !== null && prop !== undefined) {
+                                unit.node.nodeString = `${unit.node.nodeString}[${prop}]`;
+                                // @ts-expect-error - dynamically infers a property on a static object
+                                if (method !== "" && (format as object)[method] !== undefined) {
+                                    // @ts-expect-error - dynamically infers a property on a static object
+                                    format = format[method](prop.slice(prop.indexOf("(") + 1, prop.lastIndexOf(")")));
+                                } else if (format !== null) {
+                                    // @ts-expect-error - dynamically infers a property on a static object
+                                    format = (format as Array<string>)[prop as number];
+                                }
                             }
-                            b = b + 1;
-                        } while (b < pLength);
+                            if (format === null || format === undefined) {
+                                break;
+                            }
+                            index_prop = index_prop + 1;
+                        } while (index_prop < pLength);
                     }
-                    return method(item, test.target[b]);
+                    if (type === true) {
+                        return typeof format;
+                    }
+                    return format as string;
                 };
-            if (test.type === "element") {
+            if (unit.type === "element") {
                 return [element, false];
             }
-            if (test.target[0] === "window") {
+            if (unit.target[0] === "window") {
                 return [element, property(window)];
             }
             if (element === null) {
@@ -459,11 +465,9 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             if (element === undefined || pLength < 0) {
                 return [undefined, undefined];
             }
-            return (test.type === "attribute")
-                ? [element, element.getAttribute(test.target[0])]
-                : (pLength === 0)
-                    ? [element, method(element, test.target[0])]
-                    : [element, property(element)];
+            return (unit.type === "attribute")
+                ? [element, element.getAttribute(unit.target[0])]
+                : [element, property(element)];
         },
 
         /* The index of the current executing test */
@@ -573,10 +577,17 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         },
 
         /* Process all cases of a test scenario for a given test item */
-        report: function testBrowser_report(test:test_assertion_dom[], index:number):void {
+        report: function testBrowser_report(delay:test_assertion_dom, test:test_assertion_dom[], index:number):void {
             let a:number = 0;
             const result:test_assert[] = [],
                 length:number = test.length;
+            if (delay !== undefined && delay !== null) {
+                result.push(remote.evaluate(delay));
+                if (remote.domFailure === true) {
+                    remote.domFailure = false;
+                    return;
+                }
+            }
             if (length > 0) {
                 do {
                     result.push(remote.evaluate(test[a]));

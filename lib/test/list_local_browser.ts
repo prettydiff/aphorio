@@ -99,7 +99,7 @@ const test_listLocalBrowser:test_list = [
             {
                 event: "wait",
                 node: null,
-                value: "1000"
+                value: "1200"
             }
         ],
         name: "Clock Time 2",
@@ -113,7 +113,7 @@ const test_listLocalBrowser:test_list = [
                 qualifier: "not",
                 target: ["textContent"],
                 type: "property",
-                value: vars.test.store
+                value: vars.test.storeString
             }
         ]
     },
@@ -173,6 +173,7 @@ const test_listLocalBrowser:test_list = [
                 ["getElementsByTagName", "tr", null]
             ],
             qualifier: "greater",
+            store: true,
             target: ["length"],
             type: "property",
             value: 1
@@ -310,6 +311,199 @@ const test_listLocalBrowser:test_list = [
                 value: ""
             }
         ]
+    },
+    {
+        delay: null,
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByClassName", "table-filters", 0],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByClassName", "table-filters", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: "http-"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByClassName", "table-filters", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: "Enter"
+            },
+            {
+                event: "wait",
+                node: [],
+                value: "50"
+            }
+        ],
+        name: "Filter application sockets",
+        type: "dom",
+        unit: [
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByClassName", "table-stats", 0],
+                    ["getElementsByTagName", "em", 1]
+                ],
+                qualifier: "lesser",
+                target: ["textContent"],
+                type: "property",
+                value: vars.test.storeString
+            }
+        ]
+    },
+    {
+        delay: {
+            node: [
+                ["getElementById", "sockets", null],
+                ["getElementsByTagName", "tbody", 1],
+                ["getElementsByTagName", "tr", null]
+            ],
+            qualifier: "greater",
+            store: true,
+            target: ["length"],
+            type: "property",
+            value: 1
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementsByTagName", "nav", 0],
+                    ["getElementsByTagName", "button", 2]
+                ]
+            }
+        ],
+        name: "Check if os socket table is populated",
+        type: "dom",
+        unit: [
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "thead", 1],
+                    ["getElementsByTagName", "th", 0]
+                ],
+                qualifier: "is",
+                target: ["textContent"],
+                type: "property",
+                value: "Type"
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "thead", 1],
+                    ["getElementsByTagName", "th", 1]
+                ],
+                qualifier: "is",
+                target: ["textContent"],
+                type: "property",
+                value: "Local Address"
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "thead", 1],
+                    ["getElementsByTagName", "th", 2]
+                ],
+                qualifier: "is",
+                target: ["textContent"],
+                type: "property",
+                value: "Local Port"
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "thead", 1],
+                    ["getElementsByTagName", "th", 3]
+                ],
+                qualifier: "is",
+                target: ["textContent"],
+                type: "property",
+                value: "Remote Address"
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByTagName", "thead", 1],
+                    ["getElementsByTagName", "th", 4]
+                ],
+                qualifier: "is",
+                target: ["textContent"],
+                type: "property",
+                value: "Remote Port"
+            },
+            {
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByClassName", "table-stats", 1],
+                    ["getElementsByTagName", "em", 0]
+                ],
+                qualifier: "is",
+                target: ["textContent"],
+                type: "property",
+                value: vars.test.storeString
+            }
+        ]
+    },
+    {
+        delay: null,
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByClassName", "table-filters", 1],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByClassName", "table-filters", 1],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: "udp"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getElementById", "sockets", null],
+                    ["getElementsByClassName", "table-filters", 1],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: "Enter"
+            },
+            {
+                event: "wait",
+                node: [],
+                value: "50"
+            }
+        ],
+        name: "Filter os sockets",
+        type: "dom",
+        unit: [{
+            node: [
+                ["getElementById", "sockets", null],
+                ["getElementsByClassName", "table-stats", 1],
+                ["getElementsByTagName", "em", 1]
+            ],
+            qualifier: "lesser",
+            target: ["textContent"],
+            type: "property",
+            value: vars.test.storeString
+        }]
     }
 ];
 test_listLocalBrowser.name = "Local browser tests";

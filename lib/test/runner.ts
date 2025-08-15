@@ -61,7 +61,7 @@ const test_runner:test_runner = {
         },
         "greater": function test_runner_execCommand_assertGreater(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
             const nullable:boolean = (unit.nullable === true && value === null),
-                test:boolean = ((typeof value === "bigint" && value > BigInt(unit.value)) || (typeof value === "number" && value > Number(unit.value)));
+                test:boolean = (((typeof value === "bigint" || (typeof value === "string" && (/^\d+n$/).test(String(value)) === true)) && BigInt(value as string) > BigInt(unit.value)) || Number(value) > Number(unit.value));
             return {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
@@ -97,7 +97,7 @@ const test_runner:test_runner = {
         },
         "lesser": function test_runner_execCommand_assertLesser(value:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
             const nullable:boolean = (unit.nullable === true && value === null),
-                test:boolean = ((typeof value === "bigint" && value < BigInt(unit.value)) || (typeof value === "number" && value < Number(unit.value)));
+                test:boolean = (((typeof value === "bigint" || (typeof value === "string" && (/^\d+n$/).test(String(value)) === true)) && BigInt(value as string) < BigInt(unit.value)) || Number(value) < Number(unit.value));
             return {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
@@ -173,7 +173,9 @@ const test_runner:test_runner = {
                     stdout.push(buf.toString());
                 },
                 spawn_close = function test_runner_execCommand_close():void {
-                    const len_unit:number = item.unit.length,
+                    const len_unit:number = (item.unit === null || item.unit === undefined)
+                            ? 0
+                            : item.unit.length,
                         get_value = function test_runner_execCommand_getValue():test_assert {
                             const len_prop:number = unit.properties.length,
                                 start:string = (unit.type === "stderr")
@@ -245,9 +247,13 @@ const test_runner:test_runner = {
                                 prop:number|string = null,
                                 type_of:boolean = false,
                                 parse_fail:boolean = null,
-                                format:boolean|object|string = formats[unit.format]();
+                                format:boolean|object|string = formats[unit.format](),
+                                method:string = "";
                             do {
                                 prop = unit.properties[index_prop];
+                                method = (typeof prop === "string" && prop.includes("(") === true && prop.includes(")") === true)
+                                    ? prop.slice(0, prop.indexOf("("))
+                                    : "";
                                 if (prop === "typeof") {
                                     type_of = true;
                                 } else if (prop === "isNaN") {
@@ -255,9 +261,9 @@ const test_runner:test_runner = {
                                 } else if (prop !== "" && prop !== null && prop !== undefined) {
                                     props.push(`[${prop}]`);
                                     // @ts-expect-error - dynamically infers a property on a static object
-                                    if (typeof prop === "string" && prop.includes("(") === true && prop.includes(")") === true && (format as object)[prop.slice(0, prop.indexOf("("))] !== undefined) {
+                                    if (method !== "" && (format as object)[method] !== undefined) {
                                         // @ts-expect-error - dynamically infers a property on a static object
-                                        format = format[prop.slice(0, prop.indexOf("("))](prop.slice(prop.indexOf("(") + 1, prop.lastIndexOf(")")));
+                                        format = format[method](prop.slice(prop.indexOf("(") + 1, prop.lastIndexOf(")")));
                                     } else if (format !== null) {
                                         format = (format as Array<string>)[prop as number];
                                     }
@@ -267,6 +273,9 @@ const test_runner:test_runner = {
                                 }
                                 index_prop = index_prop + 1;
                             } while (index_prop < len_prop);
+                            if (unit.value === vars.test.storeString) {
+                                unit.value = vars.test.store;
+                            }
                             if (unit.format === "json" && parse_fail === true) {
                                 return {
                                     assessment: "failed to parse output into JSON",
@@ -322,7 +331,24 @@ const test_runner:test_runner = {
                 test_runner.tools.browser_open();
                 return;
             }
-            const item_test:test_item_dom = vars.test.list[vars.test.index] as test_item_dom,
+            const item_test:test_item_dom = (function test_runner_executeDOM_store():test_item_dom {
+                    const item:test_item_dom = vars.test.list[vars.test.index] as test_item_dom;
+                    let index:number = (item.unit === null || item.unit === undefined)
+                        ? 0
+                        : item.unit.length;
+                    if (item.delay !== null && item.delay !== undefined && item.delay.value === vars.test.storeString) {
+                        item.delay.value = vars.test.store;
+                    }
+                    if (index > 0) {
+                        do {
+                            index = index - 1;
+                            if (item.unit[index] !== null && item.unit[index].value === vars.test.storeString) {
+                                item.unit[index].value = vars.test.store;
+                            }
+                        } while (index > 0);
+                    }
+                    return item;
+                }()),
                 item_service:services_testBrowser = {
                     index: vars.test.index,
                     result: null,

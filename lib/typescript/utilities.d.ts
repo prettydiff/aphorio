@@ -296,6 +296,7 @@ interface vars {
         index: number;
         list: test_list;
         store: test_primitive;
+        storeString: string;
         testing: boolean;
         total_assertions: number;
         total_assertions_fail: number;

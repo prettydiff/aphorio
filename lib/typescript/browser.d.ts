@@ -240,7 +240,7 @@ declare global {
         keyControl: boolean;
         keyShift: boolean;
         node: (dom:test_browserDOM, property:string) => HTMLElement;
-        report: (test:test_assertion_dom[], index:number) => void;
+        report: (delay:test_assertion_dom, test:test_assertion_dom[], index:number) => void;
         sendTest: (payload:test_assert[], index:number) => services_testBrowser;
         stringify: (primitive:test_primitive) => string;
         test_item: services_testBrowser;
