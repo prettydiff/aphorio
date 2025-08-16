@@ -239,9 +239,11 @@ declare global {
         keyAlt: boolean;
         keyControl: boolean;
         keyShift: boolean;
+        magicString: string;
         node: (dom:test_browserDOM, property:string) => HTMLElement;
         report: (delay:test_assertion_dom, test:test_assertion_dom[], index:number) => void;
         sendTest: (payload:test_assert[], index:number) => services_testBrowser;
+        store: HTMLElement | test_primitive;
         stringify: (primitive:test_primitive) => string;
         test_item: services_testBrowser;
     }

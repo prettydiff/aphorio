@@ -113,7 +113,7 @@ const test_listLocalBrowser:test_list = [
                 qualifier: "not",
                 target: ["textContent"],
                 type: "property",
-                value: vars.test.storeString
+                value: vars.test.magicString
             }
         ]
     },
@@ -359,7 +359,7 @@ const test_listLocalBrowser:test_list = [
                 qualifier: "lesser",
                 target: ["textContent"],
                 type: "property",
-                value: vars.test.storeString
+                value: vars.test.magicString
             }
         ]
     },
@@ -372,9 +372,9 @@ const test_listLocalBrowser:test_list = [
             ],
             qualifier: "greater",
             store: true,
-            target: ["length"],
+            target: ["length", "toString(10)"],
             type: "property",
-            value: 1
+            value: 5
         },
         interaction: [
             {
@@ -452,7 +452,7 @@ const test_listLocalBrowser:test_list = [
                 qualifier: "is",
                 target: ["textContent"],
                 type: "property",
-                value: vars.test.storeString
+                value: vars.test.magicString
             }
         ]
     },
@@ -502,7 +502,7 @@ const test_listLocalBrowser:test_list = [
             qualifier: "lesser",
             target: ["textContent"],
             type: "property",
-            value: vars.test.storeString
+            value: vars.test.magicString
         }]
     }
 ];

@@ -295,14 +295,15 @@ interface vars {
         };
         index: number;
         list: test_list;
+        magicString: string;
         store: test_primitive;
-        storeString: string;
         testing: boolean;
         total_assertions: number;
         total_assertions_fail: number;
         total_lists: number;
         total_tests: number;
         total_tests_fail: number;
+        total_tests_skipped: number;
         total_time_end: bigint;
         total_time_start: bigint;
     };

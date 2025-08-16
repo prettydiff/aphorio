@@ -273,7 +273,7 @@ const test_runner:test_runner = {
                                 }
                                 index_prop = index_prop + 1;
                             } while (index_prop < len_prop);
-                            if (unit.value === vars.test.storeString) {
+                            if (unit.value === vars.test.magicString) {
                                 unit.value = vars.test.store;
                             }
                             if (unit.format === "json" && parse_fail === true) {
@@ -331,28 +331,12 @@ const test_runner:test_runner = {
                 test_runner.tools.browser_open();
                 return;
             }
-            const item_test:test_item_dom = (function test_runner_executeDOM_store():test_item_dom {
-                    const item:test_item_dom = vars.test.list[vars.test.index] as test_item_dom;
-                    let index:number = (item.unit === null || item.unit === undefined)
-                        ? 0
-                        : item.unit.length;
-                    if (item.delay !== null && item.delay !== undefined && item.delay.value === vars.test.storeString) {
-                        item.delay.value = vars.test.store;
-                    }
-                    if (index > 0) {
-                        do {
-                            index = index - 1;
-                            if (item.unit[index] !== null && item.unit[index].value === vars.test.storeString) {
-                                item.unit[index].value = vars.test.store;
-                            }
-                        } while (index > 0);
-                    }
-                    return item;
-                }()),
-                item_service:services_testBrowser = {
+            const item_service:services_testBrowser = {
                     index: vars.test.index,
+                    magicString: vars.test.magicString,
                     result: null,
-                    test: item_test
+                    store: vars.test.store,
+                    test: vars.test.list[vars.test.index] as test_item_dom
                 },
                 socket:websocket_client = vars.server_meta.dashboard.sockets.open[0],
                 payload:socket_data = {
@@ -478,6 +462,7 @@ const test_runner:test_runner = {
             if (vars.test.index < vars.test.list.length) {
                 if (vars.test.list[vars.test.index] === null) {
                     vars.test.counts[vars.test.list.name].tests_skipped = vars.test.counts[vars.test.list.name].tests_skipped + 1;
+                    vars.test.total_tests_skipped = vars.test.total_tests_skipped + 1;
                     test_runner_toolsNext();
                 } else if (vars.test.list[vars.test.index] === undefined) {
                     test_runner_toolsNext();

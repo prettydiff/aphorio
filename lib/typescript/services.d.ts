@@ -292,7 +292,9 @@ declare global {
 
     interface services_testBrowser {
         index: number;
+        magicString: string;
         result: test_assert[];
+        store: test_primitive;
         test: test_browserItem;
     }
 

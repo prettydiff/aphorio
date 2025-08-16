@@ -79,6 +79,11 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 s_unit:string = (typeof unit.value === "string")
                     ? `"${unit.value}"`
                     : String(unit.value);
+            if (unit.store === true) {
+                remote.store = value;
+            } else if (unit.value === remote.magicString) {
+                unit.value = remote.store as string;
+            }
             if (qualifier === "begins") {
                 const nullable:boolean = (test_nullable === true && value === null),
                     test:boolean = (String(value).indexOf(String(unit.value)) === 0);
@@ -482,6 +487,9 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         /* Whether the Shift key is pressed, which can modify many various events */
         keyShift: false,
 
+        /* Identifies that test comparison value should come from storage */
+        magicString: null,
+
         /* Gather a DOM node using instructions from a data structure */
         node: function testBrowser_node(dom:test_browserDOM, property:string):HTMLElement {
             let element:Document|HTMLElement = document,
@@ -605,7 +613,9 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         sendTest: function testBrowser_sendTest(payload:test_assert[], index:number):services_testBrowser {
             const test:services_testBrowser = {
                 index: index,
+                magicString: null,
                 result: payload,
+                store: null,
                 test: null
             };
             // eslint-disable-next-line
@@ -613,6 +623,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             // utility.message_send(test, "test-browser");
             return test;
         },
+
+        store: null,
 
         /* Converts a primitive of any type into a string for presentation */
         stringify: function testBrowser_raw(primitive:test_primitive):string {
@@ -627,6 +639,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         const data:services_testBrowser = socketData.data as services_testBrowser;
         // eslint-disable-next-line
         console.log(`On browser receiving test index ${data.index}`);
+        remote.magicString = data.magicString;
+        remote.store = data.store;
         if (data.index === -10) {
             window.close();
             return;
