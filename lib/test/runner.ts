@@ -377,7 +377,19 @@ const test_runner:test_runner = {
             len:number = assertions.length,
             star:string = `    ${vars.text.angry}*${vars.text.none} `,
             pass:string = `${vars.text.green}Pass${vars.text.none}: `,
-            fail:string = `${vars.text.angry}Fail${vars.text.none}: `;
+            fail:string = `${vars.text.angry}Fail${vars.text.none}: `,
+            count = function test_runner_toolsLogger_count():string {
+                const padLen:number = vars.test.list.length.toString().length;
+                let str:string = String(test_runner.count),
+                    strLen:number = str.length;
+                if (strLen < padLen) {
+                    do {
+                        str = ` ${str}`;
+                        strLen = strLen + 1;
+                    } while (strLen < padLen);
+                }
+                return str;
+            };
         let index:number = 0,
             fail_test:boolean = false;
 
@@ -413,12 +425,12 @@ const test_runner:test_runner = {
 
         // test pass/fail line
         if (fail_test === true) {
-            logs[0] = `${test_runner.tools.time()} ${test_runner.count} ${fail + vars.test.list[vars.test.index].name}`;
+            logs[0] = `${test_runner.tools.time()} ${count()} ${fail + vars.test.list[vars.test.index].name}`;
             log.shell(logs);
             vars.test.total_tests_fail = vars.test.total_tests_fail + 1;
             vars.test.counts[vars.test.list.name].tests_failed = vars.test.counts[vars.test.list.name].tests_failed + 1;
         } else {
-            log.shell([`${test_runner.tools.time()} ${test_runner.count} ${pass + vars.test.list[vars.test.index].name}`]);
+            log.shell([`${test_runner.tools.time()} ${count()} ${pass + vars.test.list[vars.test.index].name}`]);
         }
     },
     receive: function test_runner_receive(socket_data:socket_data):void {

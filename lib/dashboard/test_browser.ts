@@ -304,7 +304,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                                 }
                                 if (element === null || element === undefined) {
                                     remote.sendTest([{
-                                        assessment: " event error on refresh",
+                                        assessment: ` node is ${element}`,
                                         location: config.node.nodeString,
                                         pass: false,
                                         store: false,

@@ -34,7 +34,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         summary.push("");
         summary.push("___________________________________________________");
         summary.push("");
-        summary.push(`${vars.text.underline}Totals from all test lists`);
+        summary.push(`${vars.text.underline}Totals from all test lists${vars.text.none}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total time               : ${vars.text.cyan + vars.test.total_time_end.time(vars.test.total_time_start) + vars.text.none}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total lists              : ${pad_right(18, vars.test.total_lists.commas())}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total tests              : ${pad_right(18, vars.test.total_tests.commas())}`);
