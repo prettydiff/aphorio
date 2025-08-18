@@ -1,7 +1,6 @@
 import vars from "../utilities/vars.ts";
 
 var test_listLocalBrowserSockets:test_list = [
-    
     {
         delay: {
             node: [
@@ -408,5 +407,6 @@ var test_listLocalBrowserSockets:test_list = [
         unit: null
     }
 ];
+test_listLocalBrowserSockets.name = "Local browser tests - sockets";
 
 export default test_listLocalBrowserSockets;

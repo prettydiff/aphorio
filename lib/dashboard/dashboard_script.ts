@@ -2886,7 +2886,6 @@ const dashboard = function dashboard():void {
                                     // SOA object
                                     if (types[index_types] === "SOA" && Array.isArray(result[hosts[index_hosts]].SOA) === false) {
                                         object(result[hosts[index_hosts]].SOA as node_dns_soaRecord, true);
-                                        output.push("        },");
                                     // array of objects
                                     } else if ((types[index_types] === "CAA" || types[index_types] === "MX" || types[index_types] === "NAPTR" || types[index_types] === "SRV")) {
                                         record_object = result[hosts[index_hosts]][types[index_types]] as node_dns_soaRecord[];

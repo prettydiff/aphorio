@@ -26,5 +26,6 @@ var test_listLocalBrowserStorage:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserStorage.name = "Local browser tests - storage";
 
 export default test_listLocalBrowserStorage;

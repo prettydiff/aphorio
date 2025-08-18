@@ -26,5 +26,6 @@ var test_listLocalBrowserHelp:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserHelp.name = "Local browser tests - help";
 
 export default test_listLocalBrowserHelp;

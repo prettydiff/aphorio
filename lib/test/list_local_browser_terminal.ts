@@ -26,5 +26,6 @@ var test_listLocalBrowserTerminal:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserTerminal.name = "Local browser tests - terminal";
 
 export default test_listLocalBrowserTerminal;

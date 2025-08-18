@@ -26,5 +26,6 @@ var test_listLocalBrowserWebSocket:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserWebSocket.name = "Local browser tests - web socket";
 
 export default test_listLocalBrowserWebSocket;

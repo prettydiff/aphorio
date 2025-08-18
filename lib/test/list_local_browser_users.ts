@@ -26,5 +26,6 @@ var test_listLocalBrowserUsers:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserUsers.name = "Local browser tests - users";
 
 export default test_listLocalBrowserUsers;

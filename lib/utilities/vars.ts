@@ -143,6 +143,7 @@ const win32:boolean = (process.platform === "win32"),
         },
         path: {
             compose: "",
+            compose_empty: "",
             project: "",
             servers: ""
         },

@@ -26,5 +26,6 @@ var test_listLocalBrowserInterfaces:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserInterfaces.name = "Local browser tests - interfaces";
 
 export default test_listLocalBrowserInterfaces;

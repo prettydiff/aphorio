@@ -26,5 +26,6 @@ var test_listLocalBrowserHTTP:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserHTTP.name = "Local browser tests - http";
 
 export default test_listLocalBrowserHTTP;

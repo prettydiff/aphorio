@@ -273,6 +273,7 @@ interface vars {
     os: server_os;
     path: {
         compose: string;
+        compose_empty: string;
         project: string;
         servers: string;
     };

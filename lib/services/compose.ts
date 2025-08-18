@@ -76,7 +76,7 @@ const compose = function services_compose(socket_data:socket_data):void {
 
             // check to see if container already exists and is running
             spawn({
-                args: ["compose", "-f", `${vars.path.compose}empty.yml`, "ps", "--format=json"],
+                args: ["compose", "-f", vars.path.compose_empty, "ps", "--format=json"],
                 callback: function services_compose_complete_ps(stderr:string, stdout:string, error:node_childProcess_ExecException):void {
                     if (stderr === "" && error === null) {
                         const lns:string[] = stdout.replace(/\s+$/, "").split("\n"),

@@ -26,5 +26,6 @@ var test_listLocalBrowserFileSystem:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserFileSystem.name = "Local browser tests - file system";
 
 export default test_listLocalBrowserFileSystem;

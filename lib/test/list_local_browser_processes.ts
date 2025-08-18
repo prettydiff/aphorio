@@ -26,5 +26,6 @@ var test_listLocalBrowserProcesses:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserProcesses.name = "Local browser tests - processes";
 
 export default test_listLocalBrowserProcesses;

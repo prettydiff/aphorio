@@ -26,5 +26,6 @@ var test_listLocalBrowserServices:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserServices.name = "Local browser tests - services";
 
 export default test_listLocalBrowserServices;

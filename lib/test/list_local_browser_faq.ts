@@ -26,5 +26,6 @@ var test_listLocalBrowserFAQ:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserFAQ.name = "Local browser tests - faq";
 
 export default test_listLocalBrowserFAQ;

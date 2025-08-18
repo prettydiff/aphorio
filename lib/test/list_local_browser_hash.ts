@@ -26,5 +26,6 @@ var test_listLocalBrowserHash:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserHash.name = "Local browser tests - hash";
 
 export default test_listLocalBrowserHash;

@@ -557,6 +557,7 @@ const start_server = function utilities_startServer():void {
     vars.path.project = (vars.test.testing === true)
         ? `${process_path}test${vars.sep}`
         : process_path;
+    vars.path.compose_empty = `${process_path}compose${vars.sep}empty.yml`;
     vars.path.compose = `${vars.path.project}compose${vars.sep}`;
     vars.path.servers = `${vars.path.project}servers${vars.sep}`;
 

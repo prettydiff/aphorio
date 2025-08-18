@@ -31,6 +31,9 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
     summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage test pass     : ${vars.text[color] + pad_right(17, (((list.tests_total - list.tests_failed) / list.tests_total) * 100).toFixed(2)) + vars.text.none}%`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage assertion pass: ${vars.text[color] + pad_right(17, (((list.assertions - list.assertions_fail) / list.assertions) * 100).toFixed(2)) + vars.text.none}%`);
     if (complete === true && vars.test.total_lists > 1) {
+        const total_color:"angry"|"green" = (vars.test.total_assertions_fail === 0)
+            ? "green"
+            : "angry";
         summary.push("");
         summary.push("___________________________________________________");
         summary.push("");
@@ -39,11 +42,11 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total lists              : ${pad_right(18, vars.test.total_lists.commas())}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total tests              : ${pad_right(18, vars.test.total_tests.commas())}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total assertions         : ${pad_right(18, vars.test.total_assertions.commas())}`);
-        summary.push(`    ${vars.text.angry}*${vars.text.none} Total skipped tests      : ${vars.text[color] + pad_right(18, vars.test.total_tests_skipped.commas()) + vars.text.none}`);
-        summary.push(`    ${vars.text.angry}*${vars.text.none} Total failed tests       : ${vars.text[color] + pad_right(18, vars.test.total_tests_fail.commas()) + vars.text.none}`);
-        summary.push(`    ${vars.text.angry}*${vars.text.none} Total failed assertions  : ${vars.text[color] + pad_right(18, vars.test.total_assertions_fail.commas()) + vars.text.none}`);
-        summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage test pass     : ${vars.text[color] + pad_right(17, (((vars.test.total_tests - vars.test.total_tests_fail) / vars.test.total_tests) * 100).toFixed(2)) + vars.text.none}%`);
-        summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage assertion pass: ${vars.text[color] + pad_right(17, (((vars.test.total_assertions - vars.test.total_assertions_fail) / vars.test.total_assertions) * 100).toFixed(2)) + vars.text.none}%`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} Total skipped tests      : ${vars.text[total_color] + pad_right(18, vars.test.total_tests_skipped.commas()) + vars.text.none}`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} Total failed tests       : ${vars.text[total_color] + pad_right(18, vars.test.total_tests_fail.commas()) + vars.text.none}`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} Total failed assertions  : ${vars.text[total_color] + pad_right(18, vars.test.total_assertions_fail.commas()) + vars.text.none}`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage test pass     : ${vars.text[total_color] + pad_right(17, (((vars.test.total_tests - vars.test.total_tests_fail) / vars.test.total_tests) * 100).toFixed(2)) + vars.text.none}%`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage assertion pass: ${vars.text[total_color] + pad_right(17, (((vars.test.total_assertions - vars.test.total_assertions_fail) / vars.test.total_assertions) * 100).toFixed(2)) + vars.text.none}%`);
     }
     log.shell(summary, complete);
     if (complete === true && exit === true) {

@@ -26,5 +26,6 @@ var test_listLocalBrowserOS:test_list = [
         unit: []
     }
 ];
+test_listLocalBrowserOS.name = "Local browser tests - os";
 
 export default test_listLocalBrowserOS;

@@ -28,7 +28,7 @@ const test_index = function test_index():void {
     const list:test_list[] = [
             test_listLocalCommands(),
             test_listLocalBrowserStart,
-            test_listLocalBrowserCompose,
+            test_listLocalBrowserCompose(),
             test_listLocalBrowserSockets,
             test_listLocalBrowserInterfaces,
             test_listLocalBrowserOS,
@@ -42,7 +42,7 @@ const test_index = function test_index():void {
             test_listLocalBrowserWebSocket,
             test_listLocalBrowserDNS,
             test_listLocalBrowserHash,
-            test_listLocalBrowserApplicationLogs,
+            test_listLocalBrowserApplicationLogs(),
             test_listLocalBrowserHelp,
             test_listLocalBrowserFAQ
         ],
