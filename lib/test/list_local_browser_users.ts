@@ -1,6 +1,6 @@
 
 
-var test_listLocalBrowserUsers:test_list = [
+const test_listLocalBrowserUsers:test_list = [
     {
         delay: {
             node: [

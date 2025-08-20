@@ -19,7 +19,6 @@ import vars from "./vars.ts";
 const start_server = function utilities_startServer():void {
     const testing:boolean = process.argv.includes("test"),
         flags:store_flag = {
-            browser_stat: false,
             compose: false,
             css: false,
             git: false,
@@ -27,65 +26,22 @@ const start_server = function utilities_startServer():void {
             options: false,
             os: false,
             servers: testing,
-            shell: false
+            shell: false,
+            test_browser: false,
+            test_list: false
         },
         task_definitions:store_string = {
-            browser_stat: "",
             compose: "Reads the compose.json file and restores the docker compose containers if docker is available.",
             git: "Read's the project's git file to determine the current commit hash, which is helpful when performing maintenance across multiple machines simultaneously.",
             html: "Read's the dashboard's HTML file for dynamic modification.",
             options: "Modify's application settings according to the use of supported optional command line arguments.",
             os: "Reads a variety of data from the operating system for populating into the dashboard.",
             servers: "Reads the servers.json file to dynamically standup and populate configured web servers.",
-            shell: "Determines a list of available shells from the local machine."
+            shell: "Determines a list of available shells from the local machine.",
+            test_browser: "",
+            test_list: null
         },
         tasks:store_function = {
-            browser_stat: function utilities_startServer_taskBrowserStat():void {
-                if (testing === false) {
-                    task_definitions.browser_stat = "Ignored unless executing tests.";
-                    readComplete("browser_stat");
-                } else {
-                    const stat = function utilities_startServer_testBrowserStat_stat(err:node_error, details:node_fs_Stats):void {
-                            if (err === null && details !== null && details !== undefined) {
-                                if (vars.test.browser_args.length > 0) {
-                                    task_definitions.browser_stat = `File found for testing in browser: ${vars.text.green + address.replace(/\\\\/g, "\\")} ${vars.test.browser_args.join(" ")} ${vars.text.none}`;
-                                } else {
-                                    task_definitions.browser_stat = `File found for testing in browser: ${vars.text.green + address.replace(/\\\\/g, "\\") + vars.text.none}`;
-                                }
-                                vars.test.browser = address;
-                            } else {
-                                task_definitions.browser_stat = `File ${vars.text.angry}not${vars.text.none} found for testing in browser: ${vars.text.red + address.replace(/\\\\/g, "\\") + vars.text.none}`;
-                            }
-                            readComplete("browser_stat");
-                        },
-                        len_browser:number = process.argv.length;
-                    let index_browser:number = len_browser,
-                        address:string = "",
-                        address_length:number = 0;
-                    if (index_browser > 0) {
-                        do {
-                            index_browser = index_browser - 1;
-                            if (process.argv[index_browser].indexOf("browser:") === 0) {
-                                address = process.argv[index_browser].replace("browser:", "");
-                                address_length = address.length;
-                                if ((address.charAt(0) === "\"" && address.charAt(address_length - 1) === "\"") || (address.charAt(0) === "'" && address.charAt(address_length - 1) === "'")) {
-                                    address = `"${address.slice(1, address_length - 1)}"`;
-                                    if (process.platform === "win32") {
-                                        address = address.replace(/\\/g, "\"\\\"").replace("\"\\", "\\");
-                                    }
-                                }
-                                if (index_browser < len_browser - 1) {
-                                    vars.test.browser_args = process.argv.slice(index_browser + 1);
-                                }
-                                node.fs.stat(address, stat);
-                                return;
-                            }
-                        } while (index_browser > 0);
-                    }
-                    task_definitions.browser_stat = "No option supplied beginning with 'browser:'";
-                    readComplete("browser_stat");
-                }
-            },
             compose: function utilities_startServer_taskCompose():void {
                 const readCompose = function utilities_startServer_taskCompose_readCompose(fileContents:Buffer):void {
                     const callback = function utilities_startServer_taskCompose_readCompose_dockerCallback():void {
@@ -365,9 +321,80 @@ const start_server = function utilities_startServer():void {
                         no_file: null
                     });
                 }
+            },
+            test_browser: function utilities_startServer_taskTestBrowser():void {
+                test_stat("test_browser");
+            },
+            test_list: function utilities_startServer_taskTestList():void {
+                test_stat("test_list");
             }
         },
-        readComplete = function utilities_startServer_readComplete(flag:"browser_stat"|"compose"|"css"|"git"|"html"|"options"|"os"|"servers"|"shell"):void {
+        test_stat = function utilities_startServer_testStat(property:"test_browser"|"test_list"):void {
+            if (testing === false) {
+                task_definitions[property] = "Ignored unless executing tests.";
+                readComplete(property);
+            } else {
+                const get_value = function utilities_startServer_testStat_getValue(arg:"browser"|"list"):void {
+                        let address:string = process.argv[index_browser].replace(`${arg}:`, "");
+                        const address_length:number = address.length,
+                            stat_address:string = (property === "test_list")
+                                ? `${process_path}lib${vars.sep}test${vars.sep + address.replace(/^\.?(\/|\\)/, "")}`
+                                : address,
+                            stat_browser = function utilities_startServer_testStat_stat(err:node_error, details:node_fs_Stats):void {
+                                if (err === null && details !== null && details !== undefined) {
+                                    if (arg === "browser" && vars.test.browser_args.length > 0) {
+                                        task_definitions.test_browser = `Testing file found for ${arg}: ${vars.text.green + address.replace(/\\\\/g, "\\")} ${vars.test.browser_args.join(" ")} ${vars.text.none}`;
+                                    } else {
+                                        task_definitions[property] = `Testing file found for ${arg}: ${vars.text.green + address.replace(/\\\\/g, "\\") + vars.text.none}`;
+                                    }
+                                } else {
+                                    task_definitions[property] = `Testing file ${vars.text.angry}not${vars.text.none} found for: ${vars.text.red + address.replace(/\\\\/g, "\\") + vars.text.none}`;
+                                }
+                                if (property === "test_browser") {
+                                    vars.test.test_browser = address;
+                                    readComplete("test_browser");
+                                } else if (property === "test_list") {
+                                    import(address).then(function utilities_startServer_testStat_getValue_list(mod:object):void {
+                                        // @ts-expect-error - the Module type definition is not aware of the children exported upon a given module object.
+                                        vars.test.list = mod.default;
+                                        readComplete("test_list");
+                                    });
+                                }
+                            };
+                        if ((address.charAt(0) === "\"" && address.charAt(address_length - 1) === "\"") || (address.charAt(0) === "'" && address.charAt(address_length - 1) === "'")) {
+                            address = `"${address.slice(1, address_length - 1)}"`;
+                            if (process.platform === "win32") {
+                                address = address.replace(/\\/g, "\"\\\"").replace("\"\\", "\\");
+                            }
+                        }
+                        if (property === "test_list") {
+                            address = `../test/${address.replace(/\\/g, "/").replace(/^\.?\//, "")}`;
+                        }
+                        node.fs.stat(stat_address, stat_browser);
+                    },
+                    len_browser:number = process.argv.length,
+                    arg_item:"browser"|"list" = property.replace("test_", "") as "browser"|"list";
+                let index_browser:number = len_browser,
+                    getting:boolean = false;
+                if (index_browser > 0) {
+                    do {
+                        index_browser = index_browser - 1;
+                        if (process.argv[index_browser].indexOf(`${arg_item}:`) === 0) {
+                            getting = true;
+                            if (index_browser < len_browser - 1) {
+                                vars.test.browser_args = process.argv.slice(index_browser + 1);
+                            }
+                            get_value(arg_item);
+                        }
+                    } while (index_browser > 0);
+                }
+                task_definitions.browser_stat = "No option supplied beginning with 'browser:'";
+                if (getting === false) {
+                    readComplete(property);
+                }
+            }
+        },
+        readComplete = function utilities_startServer_readComplete(flag:"compose"|"css"|"git"|"html"|"options"|"os"|"servers"|"shell"|"test_browser"|"test_list"):void {
             flags[flag] = true;
             // sends a server time update every 950ms
             const clock = function utilities_startServer_readComplete_clock():void {

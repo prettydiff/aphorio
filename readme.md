@@ -45,6 +45,7 @@ All arguments are supported only on the server command, example: `npm run server
 
 * `no-color` - Eliminates use of ANSI color codes in terminal output.
 * `browser:<file_path>` - *This option is ignored unless in test mode.* Provides a custom file path for a web browser executable to test against. The file path value can be quoted, but if not quoted then spaces must be escaped according to the given shells syntax rules. Any arguments following this argument will be passed directly to that web browser.
+* `list:<file_path>` - *This option is ignored unless in test mode.* Allows specifying a single test list to execute starting from the project's test directory at */lib/test*.
 * `no-exit` - *This option is ignored unless in test mode.* Application remains actively available after completing test automation.
 
 <!--

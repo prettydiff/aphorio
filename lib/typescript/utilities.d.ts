@@ -243,6 +243,10 @@ interface store_string_list {
     [key:string]: string[];
 }
 
+interface store_test_list {
+    [key:string]: test_list;
+}
+
 interface string_detect {
     confidence: number;
     encoding: string;
@@ -287,7 +291,6 @@ interface vars {
     system_ports: external_ports;
     terminal: string[];
     test: {
-        browser: string;
         browser_args: string[];
         browser_child: node_childProcess_ChildProcess;
         browser_start: boolean;
@@ -298,6 +301,7 @@ interface vars {
         list: test_list;
         magicString: string;
         store: test_primitive;
+        test_browser: string;
         testing: boolean;
         total_assertions: number;
         total_assertions_fail: number;

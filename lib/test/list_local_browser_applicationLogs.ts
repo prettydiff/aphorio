@@ -1,7 +1,7 @@
 
 import vars from "../utilities/vars.ts";
 
-var test_listLocalBrowserApplicationLogs = function test_listLocalBrowserApplicationLogs():test_list {
+const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserApplicationLogs():test_list {
     const list:test_list = [
         {
             delay: {

@@ -1,6 +1,6 @@
 // cspell: words bxsw, docusign, onetrust, smime, tlds
 
-var test_listLocalBrowserDNS:test_list = [
+const test_listLocalBrowserDNS:test_list = [
     {
         delay: {
             node: [

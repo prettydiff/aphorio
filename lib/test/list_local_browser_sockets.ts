@@ -1,6 +1,6 @@
 import vars from "../utilities/vars.ts";
 
-var test_listLocalBrowserSockets:test_list = [
+const test_listLocalBrowserSockets:test_list = [
     {
         delay: {
             node: [

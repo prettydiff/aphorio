@@ -398,9 +398,17 @@
                 <h3>Conventions</h3>
                 <div class="section">
                     <h4>General</h4>
-                    <p>From the command line execute the application with <code>npm run server</code></p>
-                    <p>By default the application assigns random ports for the dashboard. I recommend changing these to a port of your preference, such as 3000.  Then the dashboard can be accessed by http://localhost:3000.</p>
-                    <p>If extending the application code checks can be performed using <code>npm run tsc</code> and <code>npm run lint</code></p>
+                    <p>From the command line execute the application with <code class="inline">npm run server</code></p>
+                    <p>By default the application assigns random ports for the dashboard. I recommend changing these to a port of your preference, such as 3000.  Then the dashboard can be repeated accessed at <em>http://localhost:3000</em></p>
+                    <p>If extending the application code evaluation can be performed using <code class="inline">npm run tsc</code> or <code class="inline">npm run lint</code></p>
+                    <p>Use the command line argument <em>no-color</em> to remove all ANSI formatting to the terminal output.  Example <code class="inline">npm run server no-color</code></p>
+                </div>
+                <div class="section">
+                    <h4>Test Automation</h4>
+                    <p>Run the test automation with <code class="inline">npm run test</code></p>
+                    <p>The <em>no-exit</em> option keeps the application running in its last state after the tests complete their evaluations.</p>
+                    <p>The <em>browser:&lt;file path here&gt;</em> option allows specifying a browser by file path for test automation that makes use of a web browser. Spaces in a terminal argument must be escaped, according to the conventions of the given terminal, or the entire option should be quoted.</p>
+                    <p>The <em>list&lt;test name&gt;</em> allows specifying a single test list to execute by test list file name from the project's test directory at <em>/lib/test</em>.</p>
                 </div>
                 <div class="section">
                     <h4>Register the application as a POSIX service</h4>

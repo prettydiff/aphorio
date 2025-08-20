@@ -25,27 +25,34 @@ import vars from "../utilities/vars.ts";
 
 const test_index = function test_index():void {
     let total_lists:number = 0;
-    const list:test_list[] = [
-            test_listLocalCommands(),
-            test_listLocalBrowserStart,
-            test_listLocalBrowserCompose(),
-            test_listLocalBrowserSockets,
-            test_listLocalBrowserInterfaces,
-            test_listLocalBrowserOS,
-            test_listLocalBrowserProcesses,
-            test_listLocalBrowserServices,
-            test_listLocalBrowserStorage,
-            test_listLocalBrowserUsers,
-            test_listLocalBrowserTerminal,
-            test_listLocalBrowserFileSystem,
-            test_listLocalBrowserHTTP,
-            test_listLocalBrowserWebSocket,
-            test_listLocalBrowserDNS,
-            test_listLocalBrowserHash,
-            test_listLocalBrowserApplicationLogs(),
-            test_listLocalBrowserHelp,
-            test_listLocalBrowserFAQ
-        ],
+    const list:test_list[] = (vars.test.list === null)
+            ? [
+                test_listLocalCommands(),
+                test_listLocalBrowserStart,
+                test_listLocalBrowserCompose(),
+                test_listLocalBrowserSockets,
+                test_listLocalBrowserInterfaces,
+                test_listLocalBrowserOS,
+                test_listLocalBrowserProcesses,
+                test_listLocalBrowserServices,
+                test_listLocalBrowserStorage,
+                test_listLocalBrowserUsers,
+                test_listLocalBrowserTerminal,
+                test_listLocalBrowserFileSystem,
+                test_listLocalBrowserHTTP,
+                test_listLocalBrowserWebSocket,
+                test_listLocalBrowserDNS,
+                test_listLocalBrowserHash,
+                test_listLocalBrowserApplicationLogs(),
+                test_listLocalBrowserHelp,
+                test_listLocalBrowserFAQ
+            ]
+            : [
+                (typeof vars.test.list === "function")
+                    // @ts-expect-error - a dynamically imported list could be a function that returns the list
+                    ? vars.test.list()
+                    : vars.test.list
+            ],
         len_list:number = list.length,
         callback = function test_index_callback(name:string):void {
             total_lists = total_lists + 1;

@@ -1,7 +1,7 @@
 
 import vars from "../utilities/vars.ts";
 
-var test_listLocalBrowserCompose = function test_listLocalBrowserCompose():test_list {
+const test_listLocalBrowserCompose = function test_listLocalBrowserCompose():test_list {
     const list:test_list = [
         {
             delay: {

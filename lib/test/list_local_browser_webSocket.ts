@@ -1,6 +1,6 @@
 
 
-var test_listLocalBrowserWebSocket:test_list = [
+const test_listLocalBrowserWebSocket:test_list = [
     {
         delay: {
             node: [

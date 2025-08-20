@@ -448,11 +448,11 @@ const test_runner:test_runner = {
                         : "xdg-open",
                 browserCommand = function test_runner_toolsBrowser_browserCommand():string {
                     const path:string = `http://localhost:${vars.servers.dashboard.status.open}/?test_browser`;
-                    if (vars.test.browser !== "" && vars.test.browser !== null) {
+                    if (vars.test.test_browser !== "" && vars.test.test_browser !== null) {
                         if (vars.test.browser_args.length > 0) {
-                            return `${keyword} ${vars.test.browser} ${path} ${vars.test.browser_args.join(" ")}`;
+                            return `${keyword} ${vars.test.test_browser} ${path} ${vars.test.browser_args.join(" ")}`;
                         }
-                        return `${keyword} ${vars.test.browser} ${path}`;
+                        return `${keyword} ${vars.test.test_browser} ${path}`;
                     }
                     return `${keyword} ${path}`;
                 },
