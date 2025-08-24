@@ -20,7 +20,11 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
                 }
                 index_names = index_names + 1;
                 if (index_names < len_names) {
-                    node.dns.reverse(data.names[index_names], services_dns_reverse);
+                    if (data.names[index_names] === null) {
+                        reverse(null, []);
+                    } else {
+                        node.dns.reverse(data.names[index_names], services_dns_reverse);
+                    }
                 } else {
                     send({
                         data: output,
@@ -28,7 +32,18 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
                     }, transmit.socket as websocket_client, 3);
                 }
             };
-            node.dns.reverse(data.names[index_names], reverse);
+            do {
+                if (node.net.isIPv4(data.names[index_names]) === false && node.net.isIPv6(data.names[index_names]) === false) {
+                    data.names[index_names] = null;
+                }
+                index_names = index_names + 1;
+            } while (index_names < len_names);
+            index_names = 0;
+            if (data.names[index_names] === null) {
+                reverse(null, []);
+            } else {
+                node.dns.reverse(data.names[index_names], reverse);
+            }
         }
     } else {
         const output:services_dns_output = {},

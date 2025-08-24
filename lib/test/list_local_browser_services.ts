@@ -1,4 +1,5 @@
 
+import vars from "../utilities/vars.ts";
 
 const test_listLocalBrowserServices:test_list = [
     {
@@ -24,6 +25,83 @@ const test_listLocalBrowserServices:test_list = [
         name: "Navigate to services",
         type: "dom",
         unit: []
+    },
+    {
+        delay: {
+            node: [
+                ["getElementById", "services", null],
+                ["getElementsByTagName", "tbody", 0],
+                ["getElementsByTagName", "tr", null]
+            ],
+            qualifier: "greater",
+            store: true,
+            target: ["length"],
+            type: "property",
+            value: 1
+        },
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementsByTagName", "nav", 0],
+                    ["getElementsByTagName", "button", 6]
+                ]
+            }
+        ],
+        name: "Check if services table is populated",
+        type: "dom",
+        unit: []
+    },
+    {
+        delay: null,
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "services", null],
+                    ["getElementsByClassName", "table-filters", 0],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getElementById", "services", null],
+                    ["getElementsByClassName", "table-filters", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: "running"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getElementById", "services", null],
+                    ["getElementsByClassName", "table-filters", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: "Enter"
+            },
+            {
+                event: "wait",
+                node: [],
+                value: "50"
+            }
+        ],
+        name: "Filter services",
+        type: "dom",
+        unit: [
+            {
+                node: [
+                    ["getElementById", "services", null],
+                    ["getElementsByClassName", "table-stats", 0],
+                    ["getElementsByTagName", "em", 1]
+                ],
+                qualifier: "lesser",
+                target: ["textContent"],
+                type: "property",
+                value: vars.test.magicString
+            }
+        ]
     }
 ];
 test_listLocalBrowserServices.name = "Local browser tests - services";

@@ -181,6 +181,7 @@ const test_runner:test_runner = {
                                 start:string = (unit.type === "stderr")
                                     ? str_stderr
                                     : str_stdout,
+                                json_start:string = start.trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""),
                                 props:string[] = [unit.type],
                                 formats:test_command_format = {
                                     "csv": function test_runner_execCommand_close_csv():string[][] {
@@ -230,7 +231,7 @@ const test_runner:test_runner = {
                                     "json": function test_runner_execCommand_close_json():object {
                                         // eslint-disable-next-line no-restricted-syntax
                                         try {
-                                            return JSON.parse(start.trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""));
+                                            return JSON.parse(json_start);
                                         } catch (e:unknown) {
                                             parse_fail = true;
                                             return e as object;

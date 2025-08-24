@@ -159,6 +159,7 @@ const win32:boolean = (process.platform === "win32"),
         terminal: (process.platform === "win32")
             ? [
                 "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+                "C:\\Program Files\\PowerShell\\7-preview\\pwsh.exe",
                 "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
                 "C:\\Windows\\System32\\cmd.exe",
                 "C:\\Program Files\\Git\\bin\\bash.exe",

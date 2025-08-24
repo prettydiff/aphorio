@@ -128,6 +128,19 @@ const dashboard = function dashboard():void {
                         }
                     } while (index > 0);
                     module.nodes.filter_count.textContent = String(count);
+                    index = 0;
+                    count = 0;
+                    do {
+                        if (list[index].style.display === "table-row") {
+                            if (count % 2 === 0) {
+                                list[index].setAttribute("class", "even");
+                            } else {
+                                list[index].setAttribute("class", "odd");
+                            }
+                            count = count + 1;
+                        }
+                        index = index + 1;
+                    } while (index < list.length);
                 }
             },
             // attaches event listeners to data tables and restores state
@@ -2956,8 +2969,11 @@ const dashboard = function dashboard():void {
                     tools.fileSystem.nodes.search.onblur = tools.fileSystem.send;
                     tools.fileSystem.nodes.path.onkeydown = tools.fileSystem.key;
                     tools.fileSystem.nodes.search.onkeydown = tools.fileSystem.key;
-                    tools.fileSystem.nodes.path.value = state.fileSystem.path;
+                    tools.fileSystem.nodes.path.value = (state.fileSystem.path === "")
+                        ? payload.path.project
+                        : state.fileSystem.path;
                     tools.fileSystem.nodes.search.value = state.fileSystem.search;
+                    tools.fileSystem.send(null);
                 },
                 key: function dashboard_fileSystemKey(event:KeyboardEvent):void {
                     if (event.key.toLowerCase() === "enter") {
@@ -3151,7 +3167,9 @@ const dashboard = function dashboard():void {
                     tools.fileSystem.nodes.failures = fails;
                 },
                 send: function dashboard_fileSystemSend(event:FocusEvent|KeyboardEvent):void {
-                    const target:HTMLElement = event.target,
+                    const target:HTMLElement = (event === null)
+                            ? tools.fileSystem.nodes.path
+                            : event.target,
                         name:string = target.lowName(),
                         address:string = (name === "input")
                             ? tools.fileSystem.nodes.path.value.replace(/^\s+/, "").replace(/\s+$/, "")
@@ -3525,40 +3543,8 @@ const dashboard = function dashboard():void {
                 keyup_frame: function dashboard_websocketKeuUpFrame(event:Event):void {
                     const encodeLength:TextEncoder = new TextEncoder(),
                         text:string = tools.websocket.nodes.message_send_body.value,
-                        textLength:number = encodeLength.encode(text).length;
-                    let frame:websocket_frame = null;
-                    // eslint-disable-next-line no-restricted-syntax
-                    try {
-                        const frameTry:websocket_frame = tools.websocket.parse_frame();
-                        frameTry.opcode = (isNaN(frameTry.opcode) === true)
-                            ? 1
-                            : Math.floor(frameTry.opcode);
-                        frame = {
-                            extended: 0,
-                            fin: (frameTry.fin === false)
-                                ? false
-                                : true,
-                            len: 0,
-                            mask: (frameTry.mask === true)
-                                ? true
-                                : false,
-                            maskKey: null,
-                            opcode: (frameTry.opcode > -1 && frameTry.opcode < 16)
-                                ? frameTry.opcode
-                                : 1,
-                            rsv1: (frameTry.rsv1 === true)
-                                ? true
-                                : false,
-                            rsv2: (frameTry.rsv2 === true)
-                                ? true
-                                : false,
-                            rsv3: (frameTry.rsv3 === true)
-                                ? true
-                                : false,
-                            startByte: 0
-                        };
-                    } catch {
-                        frame = {
+                        textLength:number = encodeLength.encode(text).length,
+                        frame:websocket_frame = {
                             extended: 0,
                             fin: true,
                             len: 0,
@@ -3570,6 +3556,34 @@ const dashboard = function dashboard():void {
                             rsv3: false,
                             startByte: 0
                         };
+                    let frame_try:websocket_frame = null;
+                    // eslint-disable-next-line no-restricted-syntax
+                    try {
+                        frame_try = tools.websocket.parse_frame();
+                    // eslint-disable-next-line no-empty
+                    } catch {}
+                    if (frame_try !== null) {
+                        const opcode:number = (isNaN(frame_try.opcode) === true)
+                            ? 1
+                            : Math.floor(frame_try.opcode);
+                        frame.fin = (frame_try.fin === false)
+                            ? false
+                            : true;
+                        frame.mask = (frame_try.mask === true)
+                            ? true
+                            : false;
+                        frame.opcode = (opcode > -1 && opcode < 16)
+                            ? opcode
+                            : 1;
+                        frame.rsv1 = (frame_try.rsv1 === true)
+                            ? true
+                            : false;
+                        frame.rsv2 = (frame_try.rsv2 === true)
+                            ? true
+                            : false;
+                        frame.rsv3 = (frame_try.rsv3 === true)
+                            ? true
+                            : false;
                     }
                     if (textLength < 126) {
                         frame.extended = 0;

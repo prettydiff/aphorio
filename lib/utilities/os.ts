@@ -606,6 +606,14 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 });
             }
         },
+        spawn_complete = function utilities_os_spawnComplete(type:type_os_key):void {
+            flags[type] = true;
+            if (win32 === true && (type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
+                completed("disk");
+            } else if (win32 === false || (win32 === true && type !== "disk" && type !== "part" && type !== "volu")) {
+                completed(type);
+            }
+        },
         spawning = function utilities_os_spawning(type:type_os_key):void {
             const data_callback = function utilities_os_spawning_dataCallback(buf:Buffer):void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
@@ -616,55 +624,57 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const child:os_child = this,
                         type:type_os_key = child.type,
-                        temp:string = chunks[type].join("").trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, "");
-                    flags[type] = true;
-                    spawn[type].kill();
-                    // eslint-disable-next-line no-restricted-syntax
-                    try {
-                        // parse string output into a data structure
-                        if (win32 === true) {
-                            raw[type] = JSON.parse(temp);
-                        } else {
-                            if (type === "disk") {
-                                raw.disk = JSON.parse(temp).blockdevices as os_disk_posix[];
-                            // these are a pseudo-csv output
-                            } else if (type === "proc" || type === "socT" || type === "user") {
+                        temp:string = chunks[type].join("").trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""),
+                        parseTry = function utilities_os_spawning_close_parseTry():boolean {
+                            if (win32 === false && (type === "proc" || type === "socT" || type === "user")) {
                                 raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
-                            } else {
-                                raw[type] = JSON.parse(temp);
+                                return true;
                             }
-                        }
+                            // eslint-disable-next-line no-restricted-syntax
+                            try {
+                                raw[type] = (win32 === false && type === "disk")
+                                    ? JSON.parse(temp).blockdevices
+                                    : JSON.parse(temp);
+                            } catch (e:unknown) {
+                                log.application({
+                                    action: "activate",
+                                    config: e as node_error,
+                                    message: `Error parsing operating system data of type ${type}.`,
+                                    status: "error",
+                                    time: Date.now(),
+                                    type: "os"
+                                });
+                                spawn_complete(type);
+                                return false;
+                            }
+                            return true;
+                        };
+                    spawn[type].kill();
 
-                        // building the uniform data output
-                        if ((type === "proc" || type === "user")) {
-                            if (win32 === true && type_os !== "proc" && flags.proc === true && flags.user === true) {
-                                builder.proc();
-                                builder.user();
-                            } else if (win32 === false || type_os === "proc") {
-                                builder[type]();
-                            }
-                        } else if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
+                    // parse the data
+                    if (parseTry() === false) {
+                        return;
+                    }
+                    flags[type] = true;
+
+                    // building the uniform data output
+                    if (win32 === true) {
+                        if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
                             builder.disk();
-                        } else if (type !== "disk" && type !== "part" && type !== "volu") {
+                        } else if (type_os === "user" && flags.proc === true && flags.user === true) {
+                            builder.proc();
+                            builder.user();
+                        } else if (type_os !== "user" && type !== "disk" && type !== "part" && type !== "volu") {
                             builder[type]();
                         }
-                    } catch (e:unknown) {
-                        log.application({
-                            action: "activate",
-                            config: e as node_error,
-                            message: `Error reading operating system data of type ${type}.`,
-                            status: "error",
-                            time: Date.now(),
-                            type: "os"
-                        });
-                        if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
-                            completed("disk");
-                        } else if (type !== "disk" && type !== "part" && type !== "volu") {
-                            completed(type);
-                        }
+                    } else {
+                        builder[type]();
                     }
                 },
                 spawn_error = function utilities_os_spawning_spawnError(err:node_error):void {
+                    spawn[type].off("close", close);
+                    spawn[type].kill();
+                    chunks[type] = null;
                     log.application({
                         action: "activate",
                         config: err,
@@ -673,6 +683,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         time: Date.now(),
                         type: "os"
                     });
+                    spawn_complete(type);
                 };
             spawn[type] = node.child_process.spawn(vars.commands[type], [], {
                 shell: shell,

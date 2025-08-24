@@ -284,7 +284,7 @@ const test_listLocalCommands = function test_listLocalCommands():test_list {
                             properties: [0, "CPU", "typeof"],
                             qualifier: "is",
                             type: "stdout",
-                            value: "string"
+                            value: "number"
                         },
                         {
                             format: "json",
@@ -492,7 +492,7 @@ const test_listLocalCommands = function test_listLocalCommands():test_list {
                             properties: [0, "LastLogon", "typeof"],
                             qualifier: "is",
                             type: "stdout",
-                            value: "number"
+                            value: "string"
                         },
                         {
                             format: "json",

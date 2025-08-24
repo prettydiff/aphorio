@@ -26,7 +26,6 @@ const start_server = function utilities_startServer():void {
             options: false,
             os: false,
             servers: testing,
-            shell: false,
             test_browser: false,
             test_list: false
         },
@@ -37,8 +36,7 @@ const start_server = function utilities_startServer():void {
             options: "Modify's application settings according to the use of supported optional command line arguments.",
             os: "Reads a variety of data from the operating system for populating into the dashboard.",
             servers: "Reads the servers.json file to dynamically standup and populate configured web servers.",
-            shell: "Determines a list of available shells from the local machine.",
-            test_browser: "",
+            test_browser: "Finds a designed web browser for test automation if supplied as a terminal argument.",
             test_list: null
         },
         tasks:store_function = {
@@ -271,57 +269,6 @@ const start_server = function utilities_startServer():void {
                     no_file: null
                 });
             },
-            shell: function utilities_startServer_tasksShell():void {
-                if (process.platform === "win32") {
-                    const stats = function utilities_startServer_tasksShell_shellWin(index:number):void {
-                        node.fs.stat(vars.terminal[index], function utilities_startServer_tasksShell_shellWin_callback(err:node_error) {
-                            if (err !== null) {
-                                vars.terminal.splice(index, 1);
-                            }
-                            if (index > 0) {
-                                utilities_startServer_tasksShell_shellWin(index - 1);
-                            } else {
-                                readComplete("shell");
-                            }
-                        });
-                    };
-                    stats(vars.terminal.length - 1);
-                } else {
-                    file.stat({
-                        callback: function utilities_startServer_tasksShell_shellStat(stat:node_fs_BigIntStats):void {
-                            if (stat === null) {
-                                vars.terminal.push("/bin/sh");
-                            } else {
-                                file.read({
-                                    callback: function utilities_startServer_tasksShell_shellStat_shellRead(contents:Buffer):void {
-                                        const lines:string[] = contents.toString().split("\n"),
-                                            len:number = lines.length;
-                                        let index:number = 1;
-                                        if (len > 1) {
-                                            do {
-                                                if (lines[index].indexOf("/bin/") === 0) {
-                                                    vars.terminal.push(lines[index]);
-                                                }
-                                                index = index + 1;
-                                            } while (index < len);
-                                        }
-                                        if (vars.terminal.length < 1) {
-                                            vars.terminal.push("/bin/sh");
-                                        }
-                                        readComplete("shell");
-                                    },
-                                    error_terminate: null,
-                                    location: "/etc/shells",
-                                    no_file: null
-                                });
-                            }
-                        },
-                        error_terminate: null,
-                        location: "/etc/shells",
-                        no_file: null
-                    });
-                }
-            },
             test_browser: function utilities_startServer_taskTestBrowser():void {
                 test_stat("test_browser");
             },
@@ -394,7 +341,7 @@ const start_server = function utilities_startServer():void {
                 }
             }
         },
-        readComplete = function utilities_startServer_readComplete(flag:"compose"|"css"|"git"|"html"|"options"|"os"|"servers"|"shell"|"test_browser"|"test_list"):void {
+        readComplete = function utilities_startServer_readComplete(flag:"compose"|"css"|"git"|"html"|"options"|"os"|"servers"|"test_browser"|"test_list"):void {
             flags[flag] = true;
             // sends a server time update every 950ms
             const clock = function utilities_startServer_readComplete_clock():void {
@@ -430,7 +377,7 @@ const start_server = function utilities_startServer():void {
                             }
                         },
                         single_socket: false,
-                        temporary: testing
+                        temporary: false
                     };
                 },
                 start = function utilities_startServer_readComplete_start():void {
@@ -566,6 +513,16 @@ const start_server = function utilities_startServer():void {
                 }
             }
         },
+        task_start = function utilities_startServer_taskStart():void {
+            do {
+                index_tasks = index_tasks - 1;
+                if (testing === false || (testing === true && keys_tasks[index_tasks] !== "servers")) {
+                    tasks[keys_tasks[index_tasks]]();
+                } else {
+                    len_flags = len_flags - 1;
+                }
+            } while (index_tasks > 0);
+        },
         process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}lib${vars.sep}`)) + vars.sep,
         keys_tasks:string[] = Object.keys(tasks);
     let len_flags:number = keys_tasks.length,
@@ -589,14 +546,57 @@ const start_server = function utilities_startServer():void {
     vars.path.servers = `${vars.path.project}servers${vars.sep}`;
 
     log.shell([`${vars.text.underline}Executing start up tasks${vars.text.none}`]);
-    do {
-        index_tasks = index_tasks - 1;
-        if (testing === false || (testing === true && keys_tasks[index_tasks] !== "servers")) {
-            tasks[keys_tasks[index_tasks]]();
-        } else {
-            len_flags = len_flags - 1;
-        }
-    } while (index_tasks > 0);
+
+    // update OS list of available shells
+    if (process.platform === "win32") {
+        const stats = function utilities_startServer_tasksShell_shellWin(index:number):void {
+            node.fs.stat(vars.terminal[index], function utilities_startServer_tasksShell_shellWin_callback(err:node_error) {
+                if (err !== null) {
+                    vars.terminal.splice(index, 1);
+                }
+                if (index > 0) {
+                    utilities_startServer_tasksShell_shellWin(index - 1);
+                } else {
+                    task_start();
+                }
+            });
+        };
+        stats(vars.terminal.length - 1);
+    } else {
+        file.stat({
+            callback: function utilities_startServer_tasksShell_shellStat(stat:node_fs_BigIntStats):void {
+                if (stat === null) {
+                    vars.terminal.push("/bin/sh");
+                } else {
+                    file.read({
+                        callback: function utilities_startServer_tasksShell_shellStat_shellRead(contents:Buffer):void {
+                            const lines:string[] = contents.toString().split("\n"),
+                                len:number = lines.length;
+                            let index:number = 1;
+                            if (len > 1) {
+                                do {
+                                    if (lines[index].indexOf("/bin/") === 0) {
+                                        vars.terminal.push(lines[index]);
+                                    }
+                                    index = index + 1;
+                                } while (index < len);
+                            }
+                            if (vars.terminal.length < 1) {
+                                vars.terminal.push("/bin/sh");
+                            }
+                            task_start();
+                        },
+                        error_terminate: null,
+                        location: "/etc/shells",
+                        no_file: null
+                    });
+                }
+            },
+            error_terminate: null,
+            location: "/etc/shells",
+            no_file: null
+        });
+    }
 };
 
 export default start_server;

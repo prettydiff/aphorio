@@ -390,6 +390,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                 : true;
             wsServer.name = data.server.name;
             wsServer.on("error", server_error);
+            wsServer.on("close", server_error);
 
             // insecure connection listener
             if (options === null) {
