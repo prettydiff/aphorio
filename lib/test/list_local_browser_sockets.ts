@@ -38,15 +38,7 @@ const test_listLocalBrowserSockets:test_list = [
             type: "property",
             value: 1
         },
-        interaction: [
-            {
-                event: "click",
-                node: [
-                    ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 2]
-                ]
-            }
-        ],
+        interaction: [],
         name: "Check if application socket table is populated",
         type: "dom",
         unit: [
@@ -236,15 +228,7 @@ const test_listLocalBrowserSockets:test_list = [
             type: "property",
             value: 5
         },
-        interaction: [
-            {
-                event: "click",
-                node: [
-                    ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 2]
-                ]
-            }
-        ],
+        interaction: [],
         name: "Check if os socket table is populated",
         type: "dom",
         unit: [

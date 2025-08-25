@@ -120,10 +120,12 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                         socket.destroy();
                                     }
                                 };
+                                let resource:string = headerList[0].slice(headerList[0].indexOf(" ") + 1).trim();
+                                resource = resource.slice(0, resource.indexOf(" "));
                                 socket_extension({
                                     callback: http_action,
                                     handler: message_handler.default,
-                                    identifier: `http-${process.hrtime.bigint().toString()}`,
+                                    identifier: `http-${resource}-${Math.random()}`,
                                     proxy: null,
                                     role: "server",
                                     server: server_name,

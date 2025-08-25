@@ -2970,7 +2970,7 @@ const dashboard = function dashboard():void {
                     tools.fileSystem.nodes.path.onkeydown = tools.fileSystem.key;
                     tools.fileSystem.nodes.search.onkeydown = tools.fileSystem.key;
                     tools.fileSystem.nodes.path.value = (state.fileSystem.path === "")
-                        ? payload.path.project
+                        ? payload.path.project.replace(/(\\|\/)webserver(\\|\/)test(\\|\/)?$/, `${payload.path.sep}webserver`)
                         : state.fileSystem.path;
                     tools.fileSystem.nodes.search.value = state.fileSystem.search;
                     tools.fileSystem.send(null);

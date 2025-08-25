@@ -39,15 +39,7 @@ const test_listLocalBrowserServices:test_list = [
             type: "property",
             value: 1
         },
-        interaction: [
-            {
-                event: "click",
-                node: [
-                    ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 6]
-                ]
-            }
-        ],
+        interaction: [],
         name: "Check if services table is populated",
         type: "dom",
         unit: []

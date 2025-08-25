@@ -116,6 +116,14 @@
             <div class="section">
                 <h3>Web Servers</h3>
                 <div class="section">
+                    <h4>The dashboard fails to connect to the terminal, cannot be refreshed, and eventually crashes.</h4>
+                    <p>
+                        These are the symptoms of a corrupted network buffer in the operating system kernel.
+                        Under these conditions some minor network calls, like an HTTP call to a web page or CSS file will succeed soon after web server launch but everything after fails to connect.
+                        The solution is to reboot the computer.
+                    </p>
+                </div>
+                <div class="section">
                     <h4>On Windows I can create servers using ports 80 and 443, but it keeps resulting in an error on Linux.</h4>
                     <p>
                         Linux, by policy, restricts normal users from running services on ports below 1025.

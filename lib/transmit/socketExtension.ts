@@ -39,11 +39,6 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     };
                 }
             },
-            socketError = function transmit_socketExtension_socketError():void {
-                // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                const socket:websocket_client = this;
-                socket_end(socket);
-            },
             encryption:"open"|"secure" = (config.socket.secure === true)
                 ? "secure"
                 : "open",
@@ -106,14 +101,14 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 config.socket.on("end", death);
                 config.socket.on("error", death);
             } else {
-                config.socket.on("close", socketError);
-                config.socket.on("end", socketError);
-                config.socket.on("error", socketError);
+                config.socket.on("close", socket_end);
+                config.socket.on("end", socket_end);
+                config.socket.on("error", socket_end);
             }
         } else {
-            config.socket.on("close", socketError);
-            config.socket.on("end", socketError);
-            config.socket.on("error", socketError);
+            config.socket.on("close", socket_end);
+            config.socket.on("end", socket_end);
+            config.socket.on("error", socket_end);
         }
         if (config.type !== "http") {
             config.socket.setKeepAlive(true, 0);   // standard method to retain socket against timeouts from inactivity until a close frame comes in

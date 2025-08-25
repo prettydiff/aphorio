@@ -315,7 +315,13 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     hashes: vars.hashes,
                     logs: vars.logs,
                     os: vars.os,
-                    path: vars.path,
+                    path: {
+                        compose: vars.path.compose,
+                        compose_empty: vars.path.compose_empty,
+                        project: vars.path.project,
+                        sep: vars.sep,
+                        servers: vars.path.servers
+                    },
                     platform: process.platform,
                     ports: vars.system_ports,
                     servers: vars.servers,

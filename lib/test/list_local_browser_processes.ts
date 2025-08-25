@@ -1,4 +1,5 @@
 
+import vars from "../utilities/vars.ts";
 
 const test_listLocalBrowserProcesses:test_list = [
     {
@@ -24,6 +25,75 @@ const test_listLocalBrowserProcesses:test_list = [
         name: "Navigate to processes",
         type: "dom",
         unit: []
+    },
+    {
+        delay: {
+            node: [
+                ["getElementById", "processes", null],
+                ["getElementsByTagName", "tbody", 0],
+                ["getElementsByTagName", "tr", null]
+            ],
+            qualifier: "greater",
+            store: true,
+            target: ["length"],
+            type: "property",
+            value: 1
+        },
+        interaction: [],
+        name: "Check if processes table is populated",
+        type: "dom",
+        unit: []
+    },
+    {
+        delay: null,
+        interaction: [
+            {
+                event: "click",
+                node: [
+                    ["getElementById", "processes", null],
+                    ["getElementsByClassName", "table-filters", 0],
+                    ["getElementsByTagName", "input", 0]
+                ]
+            },
+            {
+                event: "setValue",
+                node: [
+                    ["getElementById", "processes", null],
+                    ["getElementsByClassName", "table-filters", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: "running"
+            },
+            {
+                event: "keyup",
+                node: [
+                    ["getElementById", "processes", null],
+                    ["getElementsByClassName", "table-filters", 0],
+                    ["getElementsByTagName", "input", 0]
+                ],
+                value: "Enter"
+            },
+            {
+                event: "wait",
+                node: [],
+                value: "50"
+            }
+        ],
+        name: "Filter processes",
+        type: "dom",
+        unit: [
+            {
+                node: [
+                    ["getElementById", "processes", null],
+                    ["getElementsByClassName", "table-stats", 0],
+                    ["getElementsByTagName", "em", 1]
+                ],
+                qualifier: "lesser",
+                target: ["textContent"],
+                type: "property",
+                value: vars.test.magicString
+            }
+        ]
     }
 ];
 test_listLocalBrowserProcesses.name = "Local browser tests - processes";
