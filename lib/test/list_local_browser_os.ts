@@ -156,7 +156,7 @@ const test_listLocalBrowserOS:test_list = [
             ],
             qualifier: "not",
             target: ["textContent"],
-            type: 'property',
+            type: "property",
             value: vars.test.magicString
         },
         interaction: [

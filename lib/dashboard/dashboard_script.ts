@@ -6,7 +6,7 @@ import Terminal from "@xterm/xterm";
 // cspell: words bootable, containerd, PUID, PGID, serv, winget
 const dashboard = function dashboard():void {
     let loaded:boolean = false,
-        section:type_dashboard_sections = "web";
+        section:type_dashboard_sections = "servers";
     const payload:transmit_dashboard = null,
         local:string = localStorage.state,
         state:state_store = (local === undefined || local === null)
@@ -530,6 +530,8 @@ const dashboard = function dashboard():void {
                     system.users.nodes.list.textContent = "";
                     system.users.nodes.update_text.textContent = "";
                     tools.terminal.nodes.output = replace(terminal_output, true);
+                    tools.terminal.nodes.output.removeAttribute("data-info");
+                    tools.terminal.nodes.output.removeAttribute("data-size");
                     if (tools.terminal.socket !== null) {
                         tools.terminal.socket.close();
                         tools.terminal.socket = null;
@@ -565,7 +567,7 @@ const dashboard = function dashboard():void {
                 utility.clock_node.setAttribute("data-local", String(data.time_local));
                 utility.clock_node.textContent = `${str(data.time_local)}L (${str(data.time_zulu)}Z)`;
             },
-            clock_node: document.getElementById("clock").getElementsByTagName("em")[0],
+            clock_node: document.getElementById("clock").getElementsByTagName("time")[0],
             // populate the log utility
             log: function dashboard_utilityLog(item:services_dashboard_status):void {
                 const li:HTMLElement = document.createElement("li"),
@@ -597,6 +599,12 @@ const dashboard = function dashboard():void {
                         service: service
                     };
                 utility.socket.queue(JSON.stringify(message));
+            },
+            // a universal bucket to store all resize event handlers
+            resize: function dashboard_utilityResize():void {
+                if (tools.terminal.socket !== null) {
+                    tools.terminal.events.resize();
+                }
             },
             // gathers state artifacts and saves state data
             setState: function dashboard_utilitySetState():void {
@@ -1037,7 +1045,7 @@ const dashboard = function dashboard():void {
                     count: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
                     list: document.getElementById("interfaces").getElementsByClassName("item-list")[0] as HTMLElement,
                     update_button: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1]
+                    update_text: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
                 }
             },
             sockets_application: {
@@ -1049,7 +1057,7 @@ const dashboard = function dashboard():void {
                     filter_value: document.getElementById("sockets").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
                     list: document.getElementById("sockets").getElementsByClassName("section")[1].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[2]
+                    update_text: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
                 }
             },
             sockets_os: {
@@ -1061,7 +1069,7 @@ const dashboard = function dashboard():void {
                     filter_value: document.getElementById("sockets").getElementsByClassName("table-filters")[1].getElementsByTagName("input")[0],
                     list: document.getElementById("sockets").getElementsByClassName("section")[3].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("sockets").getElementsByClassName("table-stats")[1].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("sockets").getElementsByClassName("table-stats")[1].getElementsByTagName("em")[2]
+                    update_text: document.getElementById("sockets").getElementsByClassName("table-stats")[1].getElementsByTagName("time")[0]
                 }
             }
         },
@@ -1122,11 +1130,6 @@ const dashboard = function dashboard():void {
                         } while (index > 0);
                     }
                     servers.compose.nodes.containers_list.appendChild(servers.shared.title(config.name, "container"));
-                },
-                create: function dashboard_composeCreate(event:MouseEvent):void {
-                    const button:HTMLButtonElement = event.target as HTMLButtonElement;
-                    button.disabled = true;
-                    servers.shared.details(event);
                 },
                 destroyContainer: function dashboard_composeDestroyContainer(config:services_docker_compose):void {
                     delete payload.compose.containers[config.name];
@@ -1221,7 +1224,7 @@ const dashboard = function dashboard():void {
                     servers.compose.list("containers");
                     servers.compose.list("variables");
                     servers.compose.nodes.variables_new.onclick = servers.compose.editVariables;
-                    servers.compose.nodes.containers_new.onclick = servers.compose.create;
+                    servers.compose.nodes.containers_new.onclick = servers.shared.create;
                 },
                 list: function dashboard_composeList(type:"containers"|"variables"):void {
                     const list:string[] = Object.keys(payload.compose[type]).sort(),
@@ -1443,7 +1446,7 @@ const dashboard = function dashboard():void {
                 cancel: function dashboard_commonCancel(event:MouseEvent):void {
                     const target:HTMLElement = event.target,
                         edit:HTMLElement = target.getAncestor("edit", "class"),
-                        create:HTMLButtonElement = (section === "web")
+                        create:HTMLButtonElement = (section === "servers")
                             ? servers.web.nodes.server_new
                             : servers.compose.nodes.containers_new;
                     edit.parentNode.removeChild(edit);
@@ -1487,13 +1490,18 @@ const dashboard = function dashboard():void {
                         return ["green", "online"];
                     }
                 },
+                create: function dashboard_commonCreate(event:MouseEvent):void {
+                    const button:HTMLButtonElement = event.target as HTMLButtonElement;
+                    button.disabled = true;
+                    servers.shared.details(event);
+                },
                 // server and docker compose instance details
                 details: function dashboard_commonDetails(event:MouseEvent):void {
                     const target:HTMLElement = event.target,
                         classy:string = target.getAttribute("class"),
                         newFlag:boolean = (classy === "server-new" || classy === "compose-container-new"),
                         serverItem:HTMLElement = (newFlag === true)
-                            ? (section === "web")
+                            ? (section === "servers")
                                 ? servers.web.nodes.list
                                 : servers.compose.nodes.containers_list
                             : target.getAncestor("li", "tag"),
@@ -1511,7 +1519,7 @@ const dashboard = function dashboard():void {
                             label:HTMLElement = document.createElement("label"),
                             textArea:HTMLTextAreaElement = document.createElement("textarea"),
                             span:HTMLElement = document.createElement("span"),
-                            value:string = (section === "web")
+                            value:string = (section === "servers")
                                 ? (function dashboard_commonDetails_value():string {
                                     const array = function dashboard_commonDetails_value_array(indent:boolean, name:string, property:string[]):void {
                                             const ind:string = (indent === true)
@@ -1888,11 +1896,6 @@ const dashboard = function dashboard():void {
                     div.appendChild(portList);
                     return div;
                 },
-                create: function dashboard_serverCreate(event:MouseEvent):void {
-                    const button:HTMLButtonElement = event.target as HTMLButtonElement;
-                    button.disabled = true;
-                    servers.shared.details(event);
-                },
                 list: function dashboard_serverList():void {
                     const list:string[] = Object.keys(payload.servers),
                         list_old:HTMLElement = servers.web.nodes.list,
@@ -1901,7 +1904,7 @@ const dashboard = function dashboard():void {
                     let index:number = 0,
                         indexSocket:number = 0,
                         totalSocket:number = 0;
-                    servers.web.nodes.server_new.onclick = servers.web.create;
+                    servers.web.nodes.server_new.onclick = servers.shared.create;
                     list_new.setAttribute("class", list_old.getAttribute("class"));
                     list.sort(function dashboard_serverList_sort(a:string, b:string):-1|1 {
                         if (a < b) {
@@ -2490,7 +2493,7 @@ const dashboard = function dashboard():void {
                                 uptime: item("process", 11)
                             },
                             update_button: document.getElementById("os").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                            update_text: document.getElementById("os").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                            update_text: document.getElementById("os").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0],
                             user: {
                                 gid: item("user", 0),
                                 uid: item("user", 1),
@@ -2561,7 +2564,7 @@ const dashboard = function dashboard():void {
                     filter_value: document.getElementById("processes").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
                     list: document.getElementById("processes").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[2]
+                    update_text: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
                 }
             },
             services: {
@@ -2573,7 +2576,7 @@ const dashboard = function dashboard():void {
                     filter_value: document.getElementById("services").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
                     list: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[2]
+                    update_text: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
                 }
             },
             storage: {
@@ -2712,7 +2715,7 @@ const dashboard = function dashboard():void {
                     count: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
                     list: document.getElementById("storage").getElementsByClassName("item-list")[0] as HTMLElement,
                     update_button: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1]
+                    update_text: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
                 }
             },
             users: {
@@ -2724,7 +2727,7 @@ const dashboard = function dashboard():void {
                     filter_value: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
                     list: document.getElementById("users").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[2]
+                    update_text: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
                 }
             }
         },
@@ -3395,6 +3398,10 @@ const dashboard = function dashboard():void {
                             tools.terminal.cols = cols;
                             tools.terminal.rows = rows;
                             tools.terminal.nodes.output.style.height = `${output_height / 10}em`;
+                            tools.terminal.nodes.output.setAttribute("data-size", JSON.stringify({
+                                col: tools.terminal.cols,
+                                row: tools.terminal.rows
+                            }));
                             if (tools.terminal.item !== null) {
                                 tools.terminal.item.resize(tools.terminal.cols, tools.terminal.rows);
                             }
@@ -3439,7 +3446,6 @@ const dashboard = function dashboard():void {
                             utility.setState();
                         }
                     }
-                    window.onresize = tools.terminal.events.resize;
                     if (typeof Terminal === "undefined") {
                         setTimeout(dashboard_terminalItem, 200);
                     } else {
@@ -3836,6 +3842,9 @@ const dashboard = function dashboard():void {
 
         // invoke web socket connection to application
         utility.socket.invoke();
+
+        // handle page resize
+        window.onresize = utility.resize;
     }
 };
 

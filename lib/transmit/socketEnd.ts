@@ -4,7 +4,7 @@ import get_address from "../utilities/getAddress.ts";
 import vars from "../utilities/vars.ts";
 
 const socket_end = function transmit_socketEnd():void {
-    // eslint-disable-next-line no-restricted-syntax
+    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
     const socket:websocket_client = this,
         encryption:"open"|"secure" = (socket.secure === true)
             ? "secure"

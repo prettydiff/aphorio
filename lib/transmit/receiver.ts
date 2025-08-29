@@ -1,6 +1,5 @@
 
 import send from "./send.ts";
-import socket_end from "./socketEnd.ts";
 
 const receiver = function transmit_receiver(buf:Buffer):void {
     //    RFC 6455, 5.2.  Base Framing Protocol

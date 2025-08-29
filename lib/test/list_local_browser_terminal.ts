@@ -23,7 +23,58 @@ const test_listLocalBrowserTerminal:test_list = [
         ],
         name: "Navigate to terminal",
         type: "dom",
-        unit: []
+        unit: [
+            {
+                node: [
+                    ["getElementById", "terminal", null],
+                    ["getElementsByClassName", "terminal-output", 0]
+                ],
+                qualifier: "contains",
+                target: ["data-info"],
+                type: "attribute",
+                value: "pid"
+            },
+            {
+                node: [
+                    ["getElementById", "terminal", null],
+                    ["getElementsByClassName", "terminal-output", 0]
+                ],
+                qualifier: "contains",
+                target: ["data-info"],
+                type: "attribute",
+                value: "port_browser"
+            },
+            {
+                node: [
+                    ["getElementById", "terminal", null],
+                    ["getElementsByClassName", "terminal-output", 0]
+                ],
+                qualifier: "contains",
+                target: ["data-info"],
+                type: "attribute",
+                value: "port_terminal"
+            },
+            {
+                node: [
+                    ["getElementById", "terminal", null],
+                    ["getElementsByClassName", "terminal-output", 0]
+                ],
+                qualifier: "contains",
+                target: ["data-info"],
+                type: "attribute",
+                value: "server_name"
+            },
+            {
+                node: [
+                    ["getElementById", "terminal", null],
+                    ["getElementsByClassName", "terminal-output", 0]
+                ],
+                qualifier: "contains",
+                target: ["data-info"],
+                type: "attribute",
+                value: "socket_hash"
+            }
+        ]
     }
 ];
 test_listLocalBrowserTerminal.name = "Local browser tests - terminal";

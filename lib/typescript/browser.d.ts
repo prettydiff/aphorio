@@ -66,7 +66,6 @@ declare global {
         activePorts: (name_server:string) => HTMLElement;
         cancelVariables: (event:MouseEvent) => void;
         container: (config:services_docker_compose) => void;
-        create: (event:MouseEvent) => void;
         destroyContainer: (config:services_docker_compose) => void;
         editVariables: () => void;
         getTitle: (textArea:HTMLTextAreaElement) => string;
@@ -251,6 +250,7 @@ declare global {
     interface module_serverItems {
         cancel: (event:MouseEvent) => void;
         color: (name_server:string, type:type_dashboard_list) => type_activation_status;
+        create: (event:MouseEvent) => void;
         details: (event:MouseEvent) => void;
         edit: (event:MouseEvent) => void;
         title: (name_server:string, type:type_dashboard_list) => HTMLElement;
@@ -343,6 +343,7 @@ declare global {
         clock_node: HTMLElement;
         log: (item:services_dashboard_status) => void;
         message_send: (data:type_socket_data, service:type_service) => void;
+        resize: () => void;
         setState: () => void;
         socket: socket_object;
         status: (data_item:socket_data) => void;
@@ -350,7 +351,6 @@ declare global {
 
     interface module_web {
         activePorts: (name_server:string) => HTMLElement;
-        create: (event:MouseEvent) => void;
         list: () => void;
         message: (event:MouseEvent) => void;
         nodes: {
