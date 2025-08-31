@@ -25,6 +25,10 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 let index:number = keys.length,
                     compose:services_docker_compose = null,
                     item:store_string = null;
+                if (index < 1) {
+                    callback();
+                    return;
+                }
                 do {
                     index = index - 1;
                     vars.compose.containers[keys[index]].state = "dead";

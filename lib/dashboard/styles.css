@@ -336,11 +336,14 @@ label span.checked{background:var(--background_dark)}
     #websocket-status,
     .compose-container-list,
     .server-list{
-        .amber{background:var(--status_amber)}
-        .connection-offline,
-        .red{background:var(--status_red)}
-        .connection-online,
-        .green{background:var(--status_green)}
+        .amber,
+        &.amber{background:var(--status_amber)}
+        .red,
+        &.connection-offline,
+        &.red{background:var(--status_red)}
+        .green,
+        &.connection-online,
+        &.green{background:var(--status_green)}
     }
 
     #http textarea,

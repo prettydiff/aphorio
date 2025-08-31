@@ -17,7 +17,7 @@ import test_listLocalBrowserStart from "./list_local_browser_start.ts";
 import test_listLocalBrowserStorage from "./list_local_browser_storage.ts";
 import test_listLocalBrowserTerminal from "./list_local_browser_terminal.ts";
 import test_listLocalBrowserUsers from "./list_local_browser_users.ts";
-import test_listLocalBrowserWebSocket from "./list_local_browser_WebSocket.ts";
+import test_listLocalBrowserWebSocket from "./list_local_browser_webSocket.ts";
 import test_listLocalCommands from "./list_local_commands.ts";
 import test_runner from "./runner.ts";
 import test_summary from "./summary.ts";
