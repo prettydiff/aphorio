@@ -30,7 +30,7 @@ const test_listLocalBrowserInterfaces:test_list = [
                     ["getElementById", "interfaces", null],
                     ["getElementsByClassName", "table-stats", 0],
                     ["getElementsByTagName", "p", 2],
-                    ["getElementsByTagName", "em", 0]
+                    ["getElementsByTagName", "time", 0]
                 ],
                 qualifier: "not",
                 store: true,
@@ -154,7 +154,7 @@ const test_listLocalBrowserInterfaces:test_list = [
                 ["getElementById", "interfaces", null],
                 ["getElementsByClassName", "table-stats", 0],
                 ["getElementsByTagName", "p", 2],
-                ["getElementsByTagName", "em", 0]
+                ["getElementsByTagName", "time", 0]
             ],
             qualifier: "not",
             target: ["textContent"],

@@ -36,7 +36,7 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
                     type: "attribute",
                     value: (vars.compose === null)
                         ? "log-error"
-                        : "log-informational"
+                        : "log-success"
                 },
                 {
                     node: [
@@ -50,7 +50,7 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
                     type: "property",
                     value: (vars.compose === null)
                         ? "error during connect:"
-                        : "Open server dashboard came online."
+                        : "Server named dashboard created."
                 }
             ]
         }

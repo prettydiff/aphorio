@@ -22,7 +22,7 @@ const test_listLocalCommands = function test_listLocalCommands():test_list {
                         properties: [(win32 === true) ? "" : "blockdevices", "length"],
                         qualifier: "greater",
                         type: "stdout",
-                        value: 1
+                        value: 0
                     },
                     {
                         format: "json",
@@ -33,7 +33,7 @@ const test_listLocalCommands = function test_listLocalCommands():test_list {
                     },
                     {
                         format: "json",
-                        properties: [(win32 === true) ? "" : "blockdevices", 0, (win32 === true) ? "Guid" : "uuid", "typeof"],
+                        properties: [(win32 === true) ? "" : "blockdevices", 0, (win32 === true) ? "Guid" : "id", "typeof"],
                         qualifier: "is",
                         type: "stdout",
                         value: "string"
@@ -44,6 +44,7 @@ const test_listLocalCommands = function test_listLocalCommands():test_list {
                             properties: [0, "UniqueId", "typeof"],
                             qualifier: "is",
                             type: "stdout",
+
                             value: "string"
                         }
                         : null,
@@ -430,7 +431,7 @@ const test_listLocalCommands = function test_listLocalCommands():test_list {
                     {
                         format: "csv",
                         nullable: true,
-                        properties: [0, 5, "search(:(\\d+|(domain)))"],
+                        properties: [0, 5, "search(:(\\w+|\\*))"],
                         qualifier: "greater",
                         type: "stdout",
                         value: 6

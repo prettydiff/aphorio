@@ -464,10 +464,9 @@ const test_runner:test_runner = {
                         test_runner.execution.dom();
                     }
                 };
-            vars.test.browser_child = node.child_process.exec(browserCommand(), function test_runner_toolsBrowser_child():void {
-                vars.test.browser_start = true;
-                call_dom();
-            });
+            vars.test.browser_child = node.child_process.exec(browserCommand());
+            vars.test.browser_start = true;
+            call_dom();
         },
         callback: null,
         next: function test_runner_toolsNext():void {

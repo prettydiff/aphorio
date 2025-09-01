@@ -83,7 +83,7 @@ const test_listLocalBrowserStart:test_list = [
             {
                 node: [
                     ["getElementById", "clock", null],
-                    ["getElementsByTagName", "em", 0]
+                    ["getElementsByTagName", "time", 0]
                 ],
                 qualifier: "not contains",
                 store: true,
@@ -108,7 +108,7 @@ const test_listLocalBrowserStart:test_list = [
             {
                 node: [
                     ["getElementById", "clock", null],
-                    ["getElementsByTagName", "em", 0]
+                    ["getElementsByTagName", "time", 0]
                 ],
                 qualifier: "not",
                 target: ["textContent"],

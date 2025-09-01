@@ -29,7 +29,7 @@ const test_listLocalBrowserOS:test_list = [
                 node: [
                     ["getElementById", "os", null],
                     ["getElementsByClassName", "table-stats", 0],
-                    ["getElementsByTagName", "em", 0]
+                    ["getElementsByTagName", "time", 0]
                 ],
                 qualifier: "not",
                 store: true,
@@ -152,7 +152,7 @@ const test_listLocalBrowserOS:test_list = [
             node: [
                 ["getElementById", "os", null],
                 ["getElementsByClassName", "table-stats", 0],
-                ["getElementsByTagName", "em", 0]
+                ["getElementsByTagName", "time", 0]
             ],
             qualifier: "not",
             target: ["textContent"],
