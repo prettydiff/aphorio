@@ -76,7 +76,7 @@ const dashboard = function dashboard():void {
                 const section:HTMLElement = target.getAncestor("table-filters", "class"),
                     tab:HTMLElement = section.getAncestor("tab", "class"),
                     tab_name:string = tab.getAttribute("id"),
-                    module:module_processes|module_services|module_sockets|module_users = (tab_name === "processes")
+                    module:module_list|module_sockets_application|module_users = (tab_name === "processes")
                         ? system.processes
                         : (tab_name === "services")
                             ? system.services
@@ -144,7 +144,7 @@ const dashboard = function dashboard():void {
                 }
             },
             // attaches event listeners to data tables and restores state
-            init: function dashboard_tablesInit(module:module_processes|module_services|module_sockets|module_users, state_name:"processes"|"services"|"sockets_application"|"sockets_os"|"users"):void {
+            init: function dashboard_tablesInit(module:module_list|module_sockets_application|module_users, state_name:"processes"|"services"|"sockets_application"|"sockets_os"|"users"):void {
                 const select = function dashboard_tablesSelect(table:HTMLElement, select:HTMLSelectElement):void {
                     const th:HTMLCollectionOf<HTMLElement> = table.getElementsByTagName("th"),
                         len:number = th.length;
@@ -180,21 +180,21 @@ const dashboard = function dashboard():void {
                 select(module.nodes.list.parentNode, module.nodes.filter_column);
                 if (state_name === "sockets_application") {
                     module.nodes.update_button.style.display = "none";
+                } else if (state_name === "sockets_os") {
+                    tables.populate(module, payload.os.sockets);
                 } else {
-                    if (state_name === "sockets_os") {
-                        tables.populate(module, payload.os.sockets);
-                    } else {
-                        tables.populate(module, payload.os[state_name]);
-                    }
+                    tables.populate(module, payload.os[state_name]);
                 }
             },
             // populate large data tables
-            populate: function dashboard_tablesPopulate(module:module_processes|module_services|module_sockets|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user):void {
-                const len:number = item.data.length;
-                if (len > 0 && module.nodes.list !== null && module.nodes.list.parentNode !== null) {
-                    const list:HTMLElement = module.nodes.list,
-                        table:HTMLElement = list.parentNode,
-                        cell = function dashboard_tablesPopulate_cell(tr:HTMLElement, text:string, raw:string):void {
+            populate: function dashboard_tablesPopulate(module:module_list|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user):void {
+                const len:number = item.data.length,
+                    list:HTMLElement = module.nodes.list,
+                    table:HTMLElement = (list === null)
+                        ? null
+                        : list.parentNode;
+                if (len > 0 && table !== null) {
+                    const cell = function dashboard_tablesPopulate_cell(tr:HTMLElement, text:string, raw:string):void {
                             const td:HTMLElement = document.createElement("td");
                             td.textContent = text;
                             if (raw !== null) {
@@ -307,8 +307,8 @@ const dashboard = function dashboard():void {
                     tableElement:HTMLElement = (event === null)
                         ? table
                         : target.getAncestor("table", "tag"),
-                    tbody_old:HTMLElement = tableElement.getElementsByTagName("tbody")[0],
-                    tr_list:HTMLCollectionOf<HTMLElement> = tbody_old.getElementsByTagName("tr"),
+                    tbody:HTMLElement = tableElement.getElementsByTagName("tbody")[0],
+                    tr_list:HTMLCollectionOf<HTMLElement> = tbody.getElementsByTagName("tr"),
                     records:HTMLElement[] = [],
                     tr_length:number = tr_list.length;
                 if (tr_length > 0) {
@@ -394,10 +394,10 @@ const dashboard = function dashboard():void {
                     });
 
                     index_tr = 0;
-                    tbody_old.textContent = "";
+                    tbody.textContent = "";
                     do {
                         records[index_tr].setAttribute("class", (index_tr % 2 === 0) ? "even" : "odd");
-                        tbody_old.appendChild(records[index_tr]);
+                        tbody.appendChild(records[index_tr]);
                         index_tr = index_tr + 1;
                     } while (index_tr < tr_length);
                 }
@@ -424,7 +424,6 @@ const dashboard = function dashboard():void {
                 if (loaded === true) {
                     const serverList:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
                         logs_old:HTMLElement = document.getElementById("application-logs").getElementsByTagName("ul")[0],
-                        sockets_old:HTMLElement = document.getElementById("sockets").getElementsByTagName("tbody")[0],
                         status:HTMLElement = document.getElementById("connection-status"),
                         terminal_output:HTMLElement = document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
                         replace = function dashboard_utilityBaseline_replace(node:HTMLElement, className:boolean):HTMLElement {
@@ -442,9 +441,7 @@ const dashboard = function dashboard():void {
                         server_new:HTMLButtonElement = document.getElementById("servers").getElementsByClassName("server-new")[0] as HTMLButtonElement;
 
                     loaded = false;
-
                     replace(logs_old, false);
-                    replace(sockets_old, false);
                     network.interfaces.nodes.count.textContent = "";
                     network.interfaces.nodes.list.textContent = "";
                     network.interfaces.nodes.update_text.textContent = "";
@@ -956,7 +953,7 @@ const dashboard = function dashboard():void {
                         const config:services_socket = data.configuration as services_socket;
                         if (data.action === "add") {
                             socket_destroy(config.hash);
-                            servers.web.socket_add(config);
+                            network.sockets_application.socket_add(config);
                         } else if (data.action === "destroy") {
                             socket_destroy(config.hash);
                         }
@@ -1058,6 +1055,59 @@ const dashboard = function dashboard():void {
                     list: document.getElementById("sockets").getElementsByClassName("section")[1].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                     update_text: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
+                },
+                socket_add: function dashboard_networkSocketAdd(config:services_socket):void {
+                    const table:HTMLElement = network.sockets_application.nodes.list.parentNode,
+                        tr:HTMLElement = document.createElement("tr");
+                    let td:HTMLElement = null;
+                    if (config.address.local.port === undefined || config.address.remote.port === undefined) {
+                        return;
+                    }
+
+                    td = document.createElement("td");
+                    td.appendText(config.server);
+                    tr.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.appendText(config.hash);
+                    tr.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.appendText(config.type);
+                    tr.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.appendText(config.role);
+                    tr.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.appendText((config.proxy === null) ? "" : config.proxy);
+                    tr.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.appendText(String(config.encrypted));
+                    tr.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.appendText(config.address.local.address);
+                    tr.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.appendText(String(config.address.local.port));
+                    tr.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.appendText(config.address.remote.address);
+                    tr.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.appendText(String(config.address.remote.port));
+                    tr.appendChild(td);
+
+                    network.sockets_application.nodes.list.appendChild(tr);
+                    network.sockets_application.nodes.count.textContent = network.sockets_application.nodes.list.getElementsByTagName("tr").length.commas();
+                    network.sockets_application.nodes.update_text.textContent = config.time.dateTime(true, payload.timeZone_offset);
+                    tables.sort(null, table, Number(table.dataset.column));
                 }
             },
             sockets_os: {
@@ -1918,7 +1968,7 @@ const dashboard = function dashboard():void {
                         if (totalSocket > 0) {
                             indexSocket = 0;
                             do {
-                                servers.web.socket_add(payload.servers[list[index]].sockets[indexSocket]);
+                                network.sockets_application.socket_add(payload.servers[list[index]].sockets[indexSocket]);
                                 indexSocket = indexSocket + 1;
                             } while (indexSocket < totalSocket);
                         }
@@ -1957,60 +2007,6 @@ const dashboard = function dashboard():void {
                 nodes: {
                     list: document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
                     server_new: document.getElementById("servers").getElementsByClassName("server-new")[0] as HTMLButtonElement
-                },
-                socket_add: function dashboard_serverSocketAdd(config:services_socket):void {
-                    const table:HTMLElement = network.sockets_application.nodes.list.parentNode,
-                        tr:HTMLElement = document.createElement("tr");
-                    let td:HTMLElement = null;
-                    if (config.address.local.port === undefined || config.address.remote.port === undefined) {
-                        return;
-                    }
-    
-                    td = document.createElement("td");
-                    td.appendText(config.server);
-                    tr.appendChild(td);
-    
-                    td = document.createElement("td");
-                    td.appendText(config.hash);
-                    tr.appendChild(td);
-    
-                    td = document.createElement("td");
-                    td.appendText(config.type);
-                    tr.appendChild(td);
-    
-                    td = document.createElement("td");
-                    td.appendText(config.role);
-                    tr.appendChild(td);
-    
-                    td = document.createElement("td");
-                    td.appendText((config.proxy === null) ? "" : config.proxy);
-                    tr.appendChild(td);
-    
-                    td = document.createElement("td");
-                    td.appendText(String(config.encrypted));
-                    tr.appendChild(td);
-    
-                    td = document.createElement("td");
-                    td.appendText(config.address.local.address);
-                    tr.appendChild(td);
-    
-                    td = document.createElement("td");
-                    td.appendText(String(config.address.local.port));
-                    tr.appendChild(td);
-    
-                    td = document.createElement("td");
-                    td.appendText(config.address.remote.address);
-                    tr.appendChild(td);
-    
-                    td = document.createElement("td");
-                    td.appendText(String(config.address.remote.port));
-                    tr.appendChild(td);
-    
-                    network.sockets_application.nodes.list.appendChild(tr);
-                    network.sockets_application.nodes.count.textContent = network.sockets_application.nodes.list.getElementsByTagName("tr").length.commas();
-                    network.sockets_application.nodes.update_text.textContent = config.time.dateTime(true, payload.timeZone_offset);
-                    tables.filter(null, network.sockets_application.nodes.filter_value);
-                    tables.sort(null, table, Number(table.dataset.column));
                 },
                 validate: function dashboard_serverValidate(event:FocusEvent|KeyboardEvent):void {
                     const target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
