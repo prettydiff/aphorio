@@ -1,12 +1,12 @@
 
 // this file supports HTTP methods GET and HEAD
 
-import core from "../browser/core.js";
-import directory from "../utilities/directory.js";
-import file from "../utilities/file.js";
-import file_list from "../browser/file_list.js";
-import node from "../utilities/node.js";
-import vars from "../utilities/vars.js";
+import core from "../browser/core.ts";
+import directory from "../utilities/directory.ts";
+import file from "../utilities/file.ts";
+import file_list from "../browser/file_list.ts";
+import node from "../utilities/node.ts";
+import vars from "../utilities/vars.ts";
 
 /* cspell: words msvideo, nofollow, onnection, prettydiff */
 
@@ -71,7 +71,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         "<meta content=\"application/javascript\" http-equiv=\"content-script-type\"/>",
                         "<meta content=\"#bbbbff\" name=\"msapplication-TileColor\"/>",
                         (config.template === true)
-                            ? `<style type="text/css">${vars.css}</style>`
+                            ? `<style type="text/css">${vars.css.basic}</style>`
                             : "",
                         "<link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,iVBORw0KGgo=\"/>",
                         "</head>",
@@ -224,7 +224,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             if (extension === "jpg" || extension === "jpeg") {
                                 return "image/jpeg";
                             }
-                            if (extension === "js") {
+                            if (extension === "js" || extension === "ts") {
                                 return "application/javascript; utf8";
                             }
                             if (extension === "json") {
@@ -300,27 +300,35 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                 notFound();
             }
         },
-        decoded:string = decodeURI(fileFragment);
+        decode:string = decodeURI(fileFragment),
+        decoded:string = (decode.includes("?") === true)
+            ? decode.slice(0, decode.indexOf("?"))
+            : decode;
     if (server_name === "dashboard") {
-        if (decoded.includes("styles.css") === true) {
-            input = `${vars.path.project}lib${vars.sep}dashboard${vars.sep}styles.css`;
-        } else if (decoded.includes("xterm.css") === true) {
-            input = `${vars.path.project}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}css${vars.sep}xterm.css`;
-        } else if (decoded === "" || decoded.includes("/") === true) {
+        const real_path:string = vars.path.project.replace(`test${vars.sep}`, "");
+        if (decoded.includes("xterm.css") === true) {
+            input = `${real_path}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}css${vars.sep}xterm.css`;
+        } else if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {
                     compose: vars.compose,
                     hashes: vars.hashes,
                     logs: vars.logs,
                     os: vars.os,
-                    path: vars.path,
+                    path: {
+                        compose: vars.path.compose,
+                        compose_empty: vars.path.compose_empty,
+                        project: vars.path.project,
+                        sep: vars.sep,
+                        servers: vars.path.servers
+                    },
                     platform: process.platform,
                     ports: vars.system_ports,
                     servers: vars.servers,
                     terminal: vars.terminal,
                     timeZone_offset: vars.timeZone_offset
                 },
-                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s?=\s?null/, `const payload=${JSON.stringify(payload)}`),
+                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",
@@ -335,9 +343,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
     } else if (fileFragment === "") {
         // server root html file takes the name of the server, not index.html
         input = `${path}index.html`;
-    } else if (fileFragment.indexOf(".js") === fileFragment.length - 3 && fileFragment.includes("/js/lib/assets/") === false) {
-        // normalizes compiled JS path to web_root path
-        input = path.replace(/(\/|\\)lib(\/|\\)assets(\/|\\)/, `${vars.sep}js${vars.sep}lib${vars.sep}assets${vars.sep}`) + decoded;
     } else {
         // all other HTTP requests
         input = path + decoded;

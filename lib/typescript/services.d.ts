@@ -259,6 +259,7 @@ declare global {
         redirect_domain?: {
             [key:string]: [string, number];
         };
+        single_socket?: boolean;
         temporary?: boolean;
     }
 
@@ -269,6 +270,7 @@ declare global {
         proxy: string;
         role: "client" | "server";
         server: string;
+        time: number;
         type: string;
     }
 
@@ -286,6 +288,14 @@ declare global {
         hash: string;
         rows: number;
         secure: "open" | "secure";
+    }
+
+    interface services_testBrowser {
+        index: number;
+        magicString: string;
+        result: test_assert[];
+        store: test_primitive;
+        test: test_browserItem;
     }
 
     interface services_websocket_handshake {

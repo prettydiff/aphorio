@@ -1,9 +1,10 @@
 
-import node from "./node.js";
+import node from "./node.ts";
 
-/* cspell: words appdata, pwsh */
+/* cspell: words appdata, cputime, lslogins, pwsh, serv, volu */
 
-const gid:number = (typeof process.getgid === "undefined")
+const win32:boolean = (process.platform === "win32"),
+    gid:number = (typeof process.getgid === "undefined")
         ? 0
         : process.getgid(),
     uid:number = (typeof process.getuid === "undefined")
@@ -14,14 +15,41 @@ const gid:number = (typeof process.getgid === "undefined")
             compose: (process.platform === "win32")
                 ? "docker-compose"
                 : "docker",
-            docker: "docker"
+            docker: "docker",
+            disk: (win32 === true)
+                ? "Get-Disk | ConvertTo-JSON -compress -depth 2"
+                : "lsblk -Ob --json",
+            part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
+            proc: (win32 === true)
+                ? "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON -compress -depth 1"
+                : "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
+            serv: (win32 === true)
+                ? "Get-Service | ConvertTo-JSON -compress -depth 2"
+                : "systemctl list-units --type=service --all --output json",
+            socT: (win32 === true)
+                ? "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2"
+                : "ss -atu | tail -n +2 | tr -s \" \" \",\"",
+            socU: (win32 === true)
+                ? "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2"
+                : "",
+            user: (win32 === true)
+                ? "Get-LocalUser | ConvertTo-JSON -compress -depth 1"
+                : "lslogins -o user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
+            volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
         },
         compose: {
             containers: {},
             variables: {}
         },
-        css: "",
+        css: {
+            basic: "",
+            complete: ""
+        },
         dashboard: "",
+        environment: {
+            date_commit: 0,
+            hash: ""
+        },
         hashes: node.crypto.getHashes(),
         interfaces: [
             "localhost",
@@ -115,6 +143,7 @@ const gid:number = (typeof process.getgid === "undefined")
         },
         path: {
             compose: "",
+            compose_empty: "",
             project: "",
             servers: ""
         },
@@ -130,27 +159,64 @@ const gid:number = (typeof process.getgid === "undefined")
         terminal: (process.platform === "win32")
             ? [
                 "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+                "C:\\Program Files\\PowerShell\\7-preview\\pwsh.exe",
                 "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
                 "C:\\Windows\\System32\\cmd.exe",
                 "C:\\Program Files\\Git\\bin\\bash.exe",
                 "C:\\Program Files (x86)\\Git\\bin\\bash.exe"
             ]
             : [],
-        text: {
-            angry    : "\u001b[1m\u001b[31m",
-            blue     : "\u001b[34m",
-            bold     : "\u001b[1m",
-            boldLine : "\u001b[1m\u001b[4m",
-            clear    : "\u001b[24m\u001b[22m",
-            cyan     : "\u001b[36m",
-            green    : "\u001b[32m",
-            noColor  : "\u001b[39m",
-            none     : "\u001b[0m",
-            purple   : "\u001b[35m",
-            red      : "\u001b[31m",
-            underline: "\u001b[4m",
-            yellow   : "\u001b[33m"
+        test: {
+            browser_args: [],
+            browser_child: null,
+            browser_start: false,
+            counts: {},
+            index: 0,
+            list: null,
+            magicString: "AW#E$RF1SA9DFY^HDfg4hw5se45tDA234",
+            store: null,
+            test_browser: null,
+            testing: false,
+            total_assertions: 0,
+            total_assertions_fail: 0,
+            total_lists: 0,
+            total_tests: 0,
+            total_tests_fail: 0,
+            total_tests_skipped: 0,
+            total_time_end: 0n,
+            total_time_start: 0n
         },
+        text: (process.stdout.isTTY === false || process.argv.includes("no-color") === true)
+            ? {
+                angry    : "",
+                blue     : "",
+                bold     : "",
+                boldLine : "",
+                clear    : "",
+                cyan     : "",
+                green    : "",
+                noColor  : "",
+                none     : "",
+                purple   : "",
+                red      : "",
+                underline: "",
+                yellow   : ""
+            }
+            : {
+                angry    : "\u001b[1m\u001b[31m",
+                blue     : "\u001b[34m",
+                bold     : "\u001b[1m",
+                boldLine : "\u001b[1m\u001b[4m",
+                clear    : "\u001b[24m\u001b[22m",
+                cyan     : "\u001b[36m",
+                green    : "\u001b[32m",
+                noColor  : "\u001b[39m",
+                none     : "\u001b[0m",
+                purple   : "\u001b[35m",
+                red      : "\u001b[31m",
+                underline: "\u001b[4m",
+                yellow   : "\u001b[33m"
+            },
         timeZone_offset: 0
     };
 

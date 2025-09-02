@@ -1,7 +1,7 @@
 
-import log from "./log.js";
-import node from "./node.js";
-import vars from "./vars.js";
+import log from "./log.ts";
+import node from "./node.ts";
+import vars from "./vars.ts";
 
 const read_certs = function utilities_readCerts(name:string, callback:(name:string, options:transmit_tlsOptions) => void):void {
     const certLocation:string = `${vars.path.servers + name + vars.sep}certs${vars.sep}`,
@@ -22,11 +22,12 @@ const read_certs = function utilities_readCerts(name:string, callback:(name:stri
         certCheck = function utilities_readCerts_certCheck():void {
             if (https.fileFlag.ca === true && https.fileFlag.crt === true && https.fileFlag.key === true) {
                 if (https.options.ca === "" || https.options.cert === "" || https.options.key === "") {
-                    log({
+                    log.application({
                         action: "activate",
                         config: vars.servers[name],
                         message: `Required certificate files are missing for server ${name}.`,
                         status: "error",
+                        time: Date.now(),
                         type: "server"
                     });
                 }

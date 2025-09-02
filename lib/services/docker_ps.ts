@@ -1,18 +1,19 @@
 
-import log from "../utilities/log.js";
-import spawn from "../utilities/spawn.js";
-import vars from "../utilities/vars.js";
+import log from "../utilities/log.ts";
+import spawn from "../utilities/spawn.ts";
+import vars from "../utilities/vars.ts";
 
 const docker_ps = function services_dockerPS(callback:() => void):void {
-    const args:string[] = ["-f", `${vars.path.compose}empty.yml`, "ps", "--format=json"],
+    const args:string[] = ["-f", vars.path.compose_empty, "ps", "--format=json"],
         logger = function services_dockerPS_logger(action:"activate"|"deactivate", config:services_docker_compose):void {
-            log({
+            log.application({
                 action: action,
                 config: config,
                 message: (action === "activate")
                     ? `Docker container ${config.name} came online.`
                     : `Docker container ${config.name} went offline.`,
                 status: "informational",
+                time: Date.now(),
                 type: "compose-containers"
             });
         },
@@ -24,6 +25,10 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 let index:number = keys.length,
                     compose:services_docker_compose = null,
                     item:store_string = null;
+                if (index < 1) {
+                    callback();
+                    return;
+                }
                 do {
                     index = index - 1;
                     vars.compose.containers[keys[index]].state = "dead";
@@ -70,7 +75,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                     index = index + 1;
                 } while (index < len);
                 spawn({
-                    args: ["-f", `${vars.path.compose}empty.yml`, "events", "--json"],
+                    args: ["-f", vars.path.compose_empty, "events", "--json"],
                     callback: callbackRecurse,
                     command: vars.commands.compose,
                     recurse: vars.intervals.compose
@@ -79,13 +84,14 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 const lines = function services_dockerPS_callbackFirst_lines(input:string):string {
                     return input.replace(" ", "\n");
                 };
-                log({
+                log.application({
                     action: "activate",
                     config: error,
                     message: (error === null)
                         ? stderr.replace(/(\w|"|')(\.|:|,) /g, lines)
                         : "Executing command 'docker ps' returned an error.",
                     status: "error",
+                    time: Date.now(),
                     type: "compose-containers"
                 });
                 vars.compose = null;
@@ -105,7 +111,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                     }
                 }
             } else {
-                log({
+                log.application({
                     action: "modify",
                     config: (stderr === "")
                         ? error
@@ -114,6 +120,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                         },
                     message: "docker ps",
                     status: "error",
+                    time: Date.now(),
                     type: "compose-containers"
                 });
             }

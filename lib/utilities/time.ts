@@ -1,25 +1,32 @@
 
-const time = function core_time():string {
-    const numberString = function utilities_humanTime_numberString(numb:bigint):string {
+const time = function core_time(start?:bigint):string {
+    const elapsed:boolean = (typeof start === "bigint"),
+        number:bigint = (elapsed === true)
+            // eslint-disable-next-line no-restricted-syntax
+            ? this
+            // eslint-disable-next-line no-restricted-syntax
+            : BigInt(Math.floor(this as number * 1e9)),
+        numberString = function utilities_humanTime_numberString(numb:bigint):string {
             const str:string = numb.toString();
             return (str.length < 2)
                 ? `0${str}`
                 : str;
         },
-        // eslint-disable-next-line no-restricted-syntax
-        elapsed:bigint     = BigInt(Math.floor(this * 1e9)),
+        value:bigint       = (elapsed === true)
+            ? number - start
+            : number,
         factorSec:bigint   = BigInt(1e9),
         factorMin:bigint   = (60n * factorSec),
         factorHour:bigint  = (3600n * factorSec),
         factorDay:bigint   = (86400n * factorSec),
-        days:bigint        = (elapsed / factorDay),
+        days:bigint        = (value / factorDay),
         elapsedDay:bigint  = (days * factorDay),
-        hours:bigint       = ((elapsed - elapsedDay) / factorHour),
+        hours:bigint       = ((value - elapsedDay) / factorHour),
         elapsedHour:bigint = (hours * factorHour),
-        minutes:bigint     = ((elapsed - (elapsedDay + elapsedHour)) / factorMin),
+        minutes:bigint     = ((value - (elapsedDay + elapsedHour)) / factorMin),
         elapsedMin:bigint  = (minutes * factorMin),
-        seconds:bigint     = ((elapsed - (elapsedDay + elapsedHour + elapsedMin)) / factorSec),
-        nanosecond:bigint  = (elapsed - (elapsedDay + elapsedHour + elapsedMin + (seconds * factorSec))),
+        seconds:bigint     = ((value - (elapsedDay + elapsedHour + elapsedMin)) / factorSec),
+        nanosecond:bigint  = (value - (elapsedDay + elapsedHour + elapsedMin + (seconds * factorSec))),
         nanoString:string  = (function utilities_humanTime_nanoString():string {
             let nano:string = nanosecond.toString(),
                 a:number = nano.length;
@@ -39,6 +46,9 @@ const time = function core_time():string {
         dayString:string = (days === 1n)
             ? "1 day, "
             : `${days.toString()} days, `;
+    if (elapsed === true) {
+        return `${hourString}:${minuteString}:${secondString}`;
+    }
     return `${dayString}${hourString}:${minuteString}:${secondString}`;
 };
 

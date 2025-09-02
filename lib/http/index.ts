@@ -1,7 +1,7 @@
 
-import http_connect from "./http_connect.js";
-import http_get from "./http_get.js";
-import http_post from "./http_post.js";
+import http_connect from "./http_connect.ts";
+import http_get from "./http_get.ts";
+import http_post from "./http_post.ts";
 
 const http:services_http = {
     connect: http_connect,

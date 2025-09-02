@@ -31,7 +31,9 @@ interface transmit_dashboard {
     os: server_os;
     path: {
         compose: string;
+        compose_empty: string;
         project: string;
+        sep: string;
         servers: string;
     };
     platform: string;

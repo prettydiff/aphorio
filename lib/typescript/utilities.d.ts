@@ -88,6 +88,11 @@ interface hash_output {
     size: number;
 }
 
+interface log {
+    application: (config:config_log) => void;
+    shell: (input:string[], summary?:boolean) => void;
+}
+
 interface server {
     config: services_server;
     sockets: services_socket[];
@@ -238,6 +243,10 @@ interface store_string_list {
     [key:string]: string[];
 }
 
+interface store_test_list {
+    [key:string]: test_list;
+}
+
 interface string_detect {
     confidence: number;
     encoding: string;
@@ -252,8 +261,15 @@ interface terminal {
 interface vars {
     commands: store_string;
     compose: configuration_compose;
-    css: string;
+    css: {
+        basic: string;
+        complete: string;
+    };
     dashboard: string;
+    environment: {
+        date_commit: number;
+        hash: string;
+    };
     hashes: string[];
     interfaces: string[];
     intervals: store_number;
@@ -261,6 +277,7 @@ interface vars {
     os: server_os;
     path: {
         compose: string;
+        compose_empty: string;
         project: string;
         servers: string;
     };
@@ -273,6 +290,28 @@ interface vars {
     start_time: bigint;
     system_ports: external_ports;
     terminal: string[];
+    test: {
+        browser_args: string[];
+        browser_child: node_childProcess_ChildProcess;
+        browser_start: boolean;
+        counts: {
+            [key:string]: test_counts;
+        };
+        index: number;
+        list: test_list;
+        magicString: string;
+        store: test_primitive;
+        test_browser: string;
+        testing: boolean;
+        total_assertions: number;
+        total_assertions_fail: number;
+        total_lists: number;
+        total_tests: number;
+        total_tests_fail: number;
+        total_tests_skipped: number;
+        total_time_end: bigint;
+        total_time_start: bigint;
+    };
     text: store_string;
     timeZone_offset: number;
 }

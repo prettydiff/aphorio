@@ -1,11 +1,11 @@
 
-import certificate from "./certificate.js";
-import file from "../utilities/file.js";
-import log from "../utilities/log.js";
-import node from "../utilities/node.js";
-import server from "../transmit/server.js";
-import server_create from "./server_create.js";
-import vars from "../utilities/vars.js";
+import certificate from "./certificate.ts";
+import file from "../utilities/file.ts";
+import log from "../utilities/log.ts";
+import node from "../utilities/node.ts";
+import server from "../transmit/server.ts";
+import server_create from "./server_create.ts";
+import vars from "../utilities/vars.ts";
 
 // 1. turn off active servers and delete their corresponding objects
 // 2. kill all sockets on the server
@@ -20,13 +20,15 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
     const old:string = (data.server.modification_name === undefined || data.server.modification_name === null || data.server.modification_name === "")
             ? String(data.server.name)
             : String(data.server.modification_name),
+        single_socket:boolean = vars.servers[old].config.single_socket,
         temporary:boolean = vars.servers[old].config.temporary;
     if (vars.servers[old] === undefined) {
-        log({
+        log.application({
             action: data.action,
             config: data.server,
             message: `Server named ${old} does not exist.  Called on library server_halt.`,
             status: "error",
+            time: Date.now(),
             type: "log"
         });
     } else {
@@ -54,11 +56,12 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                     if (data.action === "modify") {
                         data.server.modification_name = old;
                     }
-                    log({
+                    log.application({
                         action: data.action,
                         config: data.server,
                         message: `Server named ${data.server.name} ${actionText}.`,
                         status: "success",
+                        time: Date.now(),
                         type: "server"
                     });
                 }
@@ -79,11 +82,12 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                         complete("restart");
                         file.remove(file_remove);
                     } else {
-                        log({
+                        log.application({
                             action: "modify",
                             config: data.server,
                             message: "Error copying files from old server location to new server location.",
                             status: "error",
+                            time: Date.now(),
                             type: "server"
                         });
                     }
@@ -95,7 +99,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 let index:number = (sockets_open === undefined)
                     ? 0
                     : sockets_open.length;
-                if (temporary === true) {
+                if (single_socket === true || temporary === true) {
                     data.action = "destroy";
                 }
                 // 2. turn off active servers

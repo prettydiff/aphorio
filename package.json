@@ -1,10 +1,11 @@
 {
     "author": "Austin Cheney",
-    "bin": "./bin/share-files.js",
+    "bin": "./bin/webserver.js",
     "bugs": {
         "url": "https://github.com/prettydiff/webserver/issues"
     },
     "command": "share",
+    "comment":"cspell: words lydell, jschardet,",
     "description": "WebSocket first web server, HTTP over WebSockets.",
     "dependencies": {
         "@lydell/node-pty": "1.0.2",
@@ -15,12 +16,9 @@
         "@eslint/eslintrc": "^3.1.0",
         "@eslint/js": "^9.9.1",
         "@stylistic/eslint-plugin-ts": "^2.7.2",
-        "@swc/cli": "^0.4.0",
-        "@swc/core": "^1.6.13",
         "@types/node": "^20.14.10",
-        "eslint": "^9.9.1",
+        "eslint": "^9.32.0",
         "eslint-plugin-eslint-comments": "^3.2.0",
-        "globals": "^15.9.0",
         "typescript": "^5.5.3",
         "typescript-eslint": "^8.4.0"
     },
@@ -30,17 +28,17 @@
     },
     "keywords": [],
     "license": "AGPL-3.0-only",
-    "main": "js/lib/index.js",
+    "main": "lib/index.ts",
     "name": "webserver",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/prettydiff/webserver.git"
     },
     "scripts": {
-        "build":  "npx swc ./lib -d ./js --ignore servers, compose",
-        "lint":   "node --disable-warning=ExperimentalWarning node_modules/eslint/bin/eslint.js ./",
-        "server": "node --disable-warning=ExperimentalWarning js/lib/index.js",
-        "tsc":    "node --disable-warning=ExperimentalWarning node_modules/typescript/bin/tsc --pretty"
+        "lint":   "node ./node_modules/eslint/bin/eslint.js ./",
+        "server": "node ./lib/index.ts",
+        "test":   "node ./lib/index.ts test",
+        "tsc":    "node ./node_modules/typescript/bin/tsc --pretty"
     },
     "types": "/lib/typescript",
     "type": "module",

@@ -1,55 +1,57 @@
+<!-- cspell: words webserver -->
+
 # Web Server
-Serves and proxies HTTP over WebSockets for both TCP and TLS.
+A simple web based dashboard for the following features.
 
-## About
-### General
-* All managed through a central browser-based dashboard
-* Easy network port management of all supported servers, docker containers, and everything else on the local machine
-* Easy management of multiple web servers
-* Easy management of multiple docker containers
-* Provides a command terminal in the browser
-* Provides a HTTP test tool for sending arbitrary requests and receiving responses.
-* Provides a DNS lookup tool that can check a custom variety of record types.
-
-### Local Servers
-* Built in proxy and redirection of both internally served assets and externally available locations
-* All redirection is fully opaque without use of additional HTTP traffic, such as 300 series status codes
-* Serves HTTP and WebSockets from a single port
-* Simple TLS service with certificate generator
-* Allows creation of multiple servers from a single simple config file
-* Stream any supported media through the browser no matter the size
-* More intelligent HTTP file system directory lists
-* Lists all connected sockets to all managed servers
-* Servers include a *temporary* option which creates a server with no state management, no changes to the file system, and is fully destroyed once the first connected socket ends
-
-### Docker Containers
-* Provides a dashboard list of all managed containers with status in near real time via Docker Compose events.
+* Web Servers
+  - Serves and proxies HTTP over WebSockets for both TCP and TLS
+  - Server standup via small JSON configuration, which includes optional proxies and traffic redirection
+  - Simple and yet more powerful file system navigation via web server
+  - Servers include an optional *temporary* option to spin up servers with no state information
+* Provides primitive docker container management for Docker Compose files
+* Provides server management data for:
+  - Accounts for system and users
+  - Network interfaces
+  - Network sockets and ports
+  - OS and hardware information
+  - OS services
+  - Processes
+  - Storage hardware and partition data
+* Provides remote shell access for a variety of shells executing on the server
+* Graphical file system navigation for the server
+* Provides various network testing tools:
+  - Forward and reverse DNS lookup for up to 11 record types
+  - HTTP request tester with complete raw payload inspection for both requests and responses
+  - WebSocket tester with raw frame header inspection/editing
+  - Hash and Base64 tool
 
 ## Installation
-1. Install [Node.js](https://nodejs.org/)
+1. Install [Node.js](https://nodejs.org/) version 24 or later.
 2. Install [git](https://git-scm.com/)
 3. Execute `git clone https://github.com/prettydiff/webserver.git`
 4. Execute `cd webserver`
-5. Execute `node install.js`
+5. Execute `npm install`
 7. Run the application: `npm run server`.
 6. Access the dashboard in a browser on the specified random port.
 
+## Shell commands
+* `npm run lint` - Executes ESLint for TypeScript to analyze the application against a bunch of draconian rules
+* `npm run server` or `node ./list/index.ts` - Executes the application
+* `npm run test` or  `node ./list/index.ts test` - Runs the test automation
+* `npm run tsc` - Executes the TypeScript compiler to perform explicit type checking
+
+### Supported shell command arguments
+All arguments are supported only on the server command, example: `npm run server test no-color`
+
+* `no-color` - Eliminates use of ANSI color codes in terminal output.
+* `browser:<file_path>` - *This option is ignored unless in test mode.* Provides a custom file path for a web browser executable to test against. The file path value can be quoted, but if not quoted then spaces must be escaped according to the given shells syntax rules. Any arguments following this argument will be passed directly to that web browser.
+* `list:<file_path>` - *This option is ignored unless in test mode.* Allows specifying a single test list to execute starting from the project's test directory at */lib/test*.
+* `no-exit` - *This option is ignored unless in test mode.* Application remains actively available after completing test automation.
+
+<!--
 ## Optional steps to reduce the dependency count to 3:
 1. Delete the `node_modules` directory.
 2. Delete the `devDependencies` object from the file `package.json`.
 3. Execute `npm install`.
 4. Restart the application with `npm run server` or your favorite OS service management tool.
-
-## Limitations
-### HTTP Methods
-Currently this application only supports the **CONNECT**, **DELETE**, **GET**, **HEAD**, **POST**, and **PUT** methods of HTTP on locally created web servers.
-Other method support will come in the future as this project matures.
-In the mean time save yourself great frustration and just use WebSockets instead.
-
-### HTTP Features
-Support for [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) and [keep-alive headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Keep-Alive) is not written yet.
-
-### HTTP Versions
-Currently only [HTTP 1.0](https://datatracker.ietf.org/doc/html/rfc1945) and [HTTP 1.1](https://datatracker.ietf.org/doc/html/rfc2616) versions of HTTP are supported.
-This application preferences [WebSockets](https://datatracker.ietf.org/doc/html/rfc6455) for asynchronous, real-time, streamed, and bi-directional communication.
-In most cases WebSockets provide greater flexibility and performance than HTTP for data messaging.
+-->

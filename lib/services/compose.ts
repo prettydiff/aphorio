@@ -1,8 +1,8 @@
 
-import file from "../utilities/file.js";
-import log from "../utilities/log.js";
-import spawn from "../utilities/spawn.js";
-import vars from "../utilities/vars.js";
+import file from "../utilities/file.ts";
+import log from "../utilities/log.ts";
+import spawn from "../utilities/spawn.ts";
+import vars from "../utilities/vars.ts";
 
 const compose = function services_compose(socket_data:socket_data):void {
     const data:services_action_compose = socket_data.data as services_action_compose;
@@ -18,13 +18,14 @@ const compose = function services_compose(socket_data:socket_data):void {
                         message:string = (service === "dashboard-compose-container")
                             ? `Compose container ${data.compose.name} updated.`
                             : "Compose environmental variables updated.";
-                    log({
+                    log.application({
                         action: "modify",
                         config: (type === "containers")
                             ? vars.compose.containers[name]
                             : vars.compose.variables,
                         message: message,
                         status: "success",
+                        time: Date.now(),
                         type: `compose-${type}`
                     });
                 }
@@ -75,7 +76,7 @@ const compose = function services_compose(socket_data:socket_data):void {
 
             // check to see if container already exists and is running
             spawn({
-                args: ["compose", "-f", `${vars.path.compose}empty.yml`, "ps", "--format=json"],
+                args: ["compose", "-f", vars.path.compose_empty, "ps", "--format=json"],
                 callback: function services_compose_complete_ps(stderr:string, stdout:string, error:node_childProcess_ExecException):void {
                     if (stderr === "" && error === null) {
                         const lns:string[] = stdout.replace(/\s+$/, "").split("\n"),
@@ -90,11 +91,12 @@ const compose = function services_compose(socket_data:socket_data):void {
                                     compose.compose = vars.compose.containers[data.name].compose;
                                     compose.description = vars.compose.containers[data.name].description;
                                     vars.compose.containers[data.name] = compose;
-                                    log({
+                                    log.application({
                                         action: "activate",
                                         config: compose,
                                         message: `Docker container ${data.name} is online.`,
                                         status: "informational",
+                                        time: Date.now(),
                                         type: "compose-containers"
                                     });
                                 }
@@ -119,12 +121,13 @@ const compose = function services_compose(socket_data:socket_data):void {
                             write = function services_compose_kill_container_write():void {
                                 delete vars.compose.containers[data.compose.name];
                                 file.write({
-                                    callback: function services_compose_stat_wwriteContents_compose():void {
-                                        log({
+                                    callback: function services_compose_stat_writeContents_compose():void {
+                                        log.application({
                                             action: "destroy",
                                             config: data.compose,
                                             message: `Destroyed container ${data.compose.name}`,
                                             status: "success",
+                                            time: Date.now(),
                                             type: "compose-containers"
                                         });
                                     },

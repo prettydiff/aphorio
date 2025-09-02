@@ -1,9 +1,9 @@
 
-import certificate from "./certificate.js";
-import file from "../utilities/file.js";
-import log from "../utilities/log.js";
-import server from "../transmit/server.js";
-import vars from "../utilities/vars.js";
+import certificate from "./certificate.ts";
+import file from "../utilities/file.ts";
+import log from "../utilities/log.ts";
+import server from "../transmit/server.ts";
+import vars from "../utilities/vars.ts";
 
 // 1. add server to the vars.servers object
 // 2. add server to servers.json file
@@ -44,11 +44,12 @@ const server_create = function services_serverCreate(data:services_action_server
                             callback();
                         }
                     };
-                log({
+                log.application({
                     action: "add",
                     config: config,
                     message: `Server named ${config.name} created.`,
                     status: "success",
+                    time: Date.now(),
                     type: "server"
                 });
                 // 4. create server's certificates
@@ -84,9 +85,7 @@ const server_create = function services_serverCreate(data:services_action_server
             let index:number = 0;
             do {
                 delete vars.servers[keys[index]].config.modification_name;
-                if (vars.servers[keys[index]].config.temporary !== true) {
-                    servers[keys[index]] = vars.servers[keys[index]].config;
-                }
+                servers[keys[index]] = vars.servers[keys[index]].config;
                 index = index + 1;
             } while (index < total);
             file.write({
@@ -142,13 +141,18 @@ const server_create = function services_serverCreate(data:services_action_server
             }
         };
         // 2. add server to servers.json file
-        write();
+        if (config.single_socket === true || config.temporary === true) {
+            complete("config");
+        } else {
+            write();
+        }
     } else {
-        log({
+        log.application({
             action: "add",
             config: config,
             message: `Server named ${config.name} already exists.  Called on library server_create.`,
             status: "error",
+            time: Date.now(),
             type: "log"
         });
         return;

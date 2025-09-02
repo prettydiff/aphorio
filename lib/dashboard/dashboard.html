@@ -16,18 +16,18 @@
 <meta content="text/css" http-equiv="content-style-type"/>
 <meta content="application/javascript" http-equiv="content-script-type"/>
 <meta content="#bbbbff" name="msapplication-TileColor"/>
-<link href="/styles.css" media="all" rel="stylesheet" type="text/css"/>
+<style type="text/css"></style>
 <link href="/xterm.css" rel="stylesheet" type="text/css"/>
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo="/>
 </head>
 <body id="dashboard">
     <h1>Server Management Dashboard</h1>
-    <p id="clock">Server Time: <em>00:00:00</em></p>
+    <p id="clock">Server Time: <time>00:00:00L (00:00:00Z)</time></p>
     <p id="connection-status" class="connection-offline">Dashboard Connection: <strong>Offline</strong></p>
     <nav>
         <h2>Navigation</h2>
         <div>
-            <h3>Servers</h3>
+            <h3>Services</h3>
             <ul><li><button class="nav-focus" data-section="servers">Web Servers</button></li><li><button data-section="compose">Docker Compose</button></li></ul>
         </div>
         <div>
@@ -115,6 +115,14 @@
             <p class="tab-description">Please review these items to help troubleshoot common problems.</p>
             <div class="section">
                 <h3>Web Servers</h3>
+                <div class="section">
+                    <h4>The dashboard fails to connect to the terminal, cannot be refreshed, and eventually crashes.</h4>
+                    <p>
+                        These are the symptoms of a corrupted network buffer in the operating system kernel.
+                        Under these conditions some minor network calls, like an HTTP call to a web page or CSS file will succeed soon after web server launch but everything after fails to connect.
+                        The solution is to reboot the computer.
+                    </p>
+                </div>
                 <div class="section">
                     <h4>On Windows I can create servers using ports 80 and 443, but it keeps resulting in an error on Linux.</h4>
                     <p>
@@ -218,8 +226,7 @@
                     <p>Linux provides a catalogue of all installed shells in the file <em>/etc/shells</em>. Not all shells may add an entry to file upon their installation.</p>
                     <p>Windows provides no such catalogue. Instead I must guess at the default locations for the most commonly used shells on Windows.</p>
                     <p>
-                        To add additional options for the select list scroll to the bottom of the <em>/lib/utilities/vars.js</em> file of this project looking for the vars.terminal property.
-                        Additional entries may be manually added here and then rebuild the application with <em>npm run build</em>.
+                        To add additional options for the select list scroll to the bottom of the <em>/lib/utilities/vars.ts</em> file of this project looking for the vars.terminal property.
                         Please ensure all entries are absolute file system paths to the local executable for any desired shell application.
                     </p>
                 </div>
@@ -399,9 +406,17 @@
                 <h3>Conventions</h3>
                 <div class="section">
                     <h4>General</h4>
-                    <p>From the command line build the application code with <code>npm run build</code> and execute the application with <code>npm run server</code></p>
-                    <p>By default the application assigns random ports for the dashboard. I recommend changing these to a port of your preference, such as 3000.  Then the dashboard can be accessed by http://localhost:3000.</p>
-                    <p>If extending the application code checks can be performed using <code>npm run tsc</code> and <code>npm run lint</code></p>
+                    <p>From the command line execute the application with <code class="inline">npm run server</code></p>
+                    <p>By default the application assigns random ports for the dashboard. I recommend changing these to a port of your preference, such as 3000.  Then the dashboard can be repeated accessed at <em>http://localhost:3000</em></p>
+                    <p>If extending the application code evaluation can be performed using <code class="inline">npm run tsc</code> or <code class="inline">npm run lint</code></p>
+                    <p>Use the command line argument <em>no-color</em> to remove all ANSI formatting to the terminal output.  Example <code class="inline">npm run server no-color</code></p>
+                </div>
+                <div class="section">
+                    <h4>Test Automation</h4>
+                    <p>Run the test automation with <code class="inline">npm run test</code></p>
+                    <p>The <em>no-exit</em> option keeps the application running in its last state after the tests complete their evaluations.</p>
+                    <p>The <em>browser:&lt;file path here&gt;</em> option allows specifying a browser by file path for test automation that makes use of a web browser. Spaces in a terminal argument must be escaped, according to the conventions of the given terminal, or the entire option should be quoted.</p>
+                    <p>The <em>list&lt;test name&gt;</em> allows specifying a single test list to execute by test list file name from the project's test directory at <em>/lib/test</em>.</p>
                 </div>
                 <div class="section">
                     <h4>Register the application as a POSIX service</h4>
@@ -414,7 +429,7 @@ After=network.target
 [Service]
 Type=simple
 User=root
-ExecStart=/home/cheney/.nvm/versions/node/v23.1.0/bin/node /home/cheney/webserver/js/lib/index.js
+ExecStart=/home/cheney/.nvm/versions/node/v24.4.1/bin/node /home/cheney/webserver/lib/index.ts
 Restart=always
 RestartSec=3
 WorkingDirectory=/home/cheney/webserver
@@ -436,7 +451,7 @@ sudo systemctl status &lt;service name here&gt;
                     <h5>HTTP Methods</h5>
                     <p>HTTP methods <em>DELETE</em>, <em>POST</em>, and <em>PUT</em> are supported by this application but are not handled by this application. If these HTTP methods are to be used a given server must specify a file system path to corresponding libraries executed as child processes. Simply populate the respective properties on a new server's configuration object.</p>
                     <h5>Custom WebSocket Message Handling</h5>
-                    <p>Custom WebSocket messaging handling is supported by supplying a custom function to library <em>/lib/transmit/messageHandler.ts</em>. Simply add a new property to the library object where the key name is the same as the name of the respective server and then rebuild the application.  For example:
+                    <p>Custom WebSocket messaging handling is supported by supplying a custom function to library <em>/lib/transmit/messageHandler.ts</em>. Simply add a new property to the library object where the key name is the same as the name of the respective server.  For example:
 <code>const message_handler:transmit_socket_messageHandler = {
     default: function transmit_messageHandler(bufferData:Buffer):void {
         // default message handling
@@ -454,7 +469,7 @@ sudo systemctl status &lt;service name here&gt;
                 </div>
                 <div class="section">
                     <h4>Terminal</h4>
-                    <p>The terminal makes use of NPM modules <em>@xterm/xterm</em> and <em>@lydell/node-pty</em>. These packages expose a shell to the browser front-end with full support for SSH, VIM, IRSSI, and more. The default supported shells are PowerShell in Windows and /bin/sh elsewhere. To customize that to a different shell, such as Bash, simply modify the appropriate one line of code at <em>/lib/services/terminal.ts</em> and then rebuild the application.</p>
+                    <p>The terminal makes use of NPM modules <em>@xterm/xterm</em> and <em>@lydell/node-pty</em>. These packages expose a shell to the browser front-end with full support for SSH, VIM, IRSSI, and more. The default supported shells are PowerShell in Windows and /bin/sh elsewhere. To customize that to a different shell, such as Bash, simply modify the appropriate one line of code at <em>/lib/services/terminal.ts</em>.</p>
                     <p>Please see this guide for <a href="https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797">ANSI Escape Codes</a> to extend and modify output to the terminal.</p>
                 </div>
             </div>
@@ -565,7 +580,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <div class="table-stats">
                     <p class="update-button"><button>Update List</button></p>
                     <p><span>Total Interfaces</span> <em></em></p>
-                    <p><span>Last Updated</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
                 </div>
                 <div class="item-list"></div>
             </div>
@@ -576,7 +591,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <div class="section">
                 <div class="table-stats">
                     <p class="update-button"><button>Update List</button></p>
-                    <p><span>Last Updated</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
                 </div>
                 <div class="section">
                     <h3>Machine</h3>
@@ -661,7 +676,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     <p class="update-button"><button>Update List</button></p>
                     <p><span>Total Processes</span> <em></em></p>
                     <p><span>Filtered Processes</span> <em></em></p>
-                    <p><span>Last Updated</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
                 </div>
                 <table data-column="0">
                     <thead><tr>
@@ -739,10 +754,16 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     </p><p>
                         If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003]</code>
                     </p></dd>
+                    <dt><em>single_socket</em> (boolean)</dt>
+                    <dd><p>
+                        Providing property <em>single_socket</em> with value <em>true</em> will create a server that only accepts a first successful HTTP or WebSocket connection.
+                        All other connections will be ignored and the server will automatically remove itself once that connection completes.
+                        This server will never writing configuration data and so it will be forever lost once this application closes.
+                    </p></dd>
                     <dt><em>temporary</em> (boolean)</dt>
                     <dd><p>
-                        Providing property <em>temporary</em> with value <em>true</em> will create a server that only accepts a first successful HTTP or WebSocket connection.
-                        All other connections will be ignored and the server will automatically remove itself once that connection completes.
+                        Providing property <em>temporary</em> with value <em>true</em> will create a server that never writes configuration data.
+                        This server will be forever lost once this application closes.
                     </p></dd>
                 </dl>
             </div>
@@ -767,7 +788,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     <p class="update-button"><button>Update List</button></p>
                     <p><span>Total Services</span> <em></em></p>
                     <p><span>Filtered Services</span> <em></em></p>
-                    <p><span>Last Updated</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
                 </div>
                 <table data-column="0">
                     <thead><tr>
@@ -783,26 +804,41 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <h2>Sockets / Ports</h2>
             <p class="tab-description">A list of connected sockets. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time.</p>
             <div class="section">
-                <h3>Application Sockets</h3>
-                <p>These sockets are created and/or managed by this application.</p>
-                <table data-column="0">
-                    <thead><tr>
-                        <th><button data-dir="1">Server</button></th>
-                        <th><button data-dir="1">ID</button></th>
-                        <th><button data-dir="1">Type Descriptor</button></th>
-                        <th><button data-dir="1">Role</button></th>
-                        <th><button data-dir="1">Proxy</button></th>
-                        <th><button data-dir="1">Encrypted</button></th>
-                        <th><button data-dir="1">Local Server IP</button></th>
-                        <th><button data-dir="1">Local Server Port</button></th>
-                        <th><button data-dir="1">Remote IP</button></th>
-                        <th><button data-dir="1">Remote Port</button></th>
-                    </tr></thead>
-                    <tbody></tbody>
-                </table>
+                <h3>Sockets Managed By This Application</h3>
+                <p>These sockets are created directly by this application.</p>
+                <div class="table-filters">
+                    <h4>List Controls</h4>
+                    <p><label>Column(s) To Filter <select></select></label></p>
+                    <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                    <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                </div>
+                <div class="section">
+                    <h4>Socket List</h4>
+                    <div class="table-stats">
+                        <p class="update-button"><button>Update List</button></p>
+                        <p><span>Total Sockets</span> <em></em></p>
+                        <p><span>Filtered Sockets</span> <em></em></p>
+                        <p><span>Last Updated</span> <time></time></p>
+                    </div>
+                    <table data-column="0">
+                        <thead><tr>
+                            <th><button data-dir="1">Server</button></th>
+                            <th><button data-dir="1">Socket ID</button></th>
+                            <th><button data-dir="1">Type Descriptor</button></th>
+                            <th><button data-dir="1">Role</button></th>
+                            <th><button data-dir="1">Proxy</button></th>
+                            <th><button data-dir="1">Encrypted</button></th>
+                            <th><button data-dir="1">Local Server IP</button></th>
+                            <th><button data-dir="1">Local Server Port</button></th>
+                            <th><button data-dir="1">Remote IP</button></th>
+                            <th><button data-dir="1">Remote Port</button></th>
+                        </tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
             <div class="section">
-                <h3>All Sockets</h3>
+                <h3>All Sockets In the Operating System</h3>
                 <p>This list presents all sockets and their ports reported by the local operating system including the <em>Application Sockets</em> listed above.</p>
                 <div class="table-filters">
                     <h4>List Controls</h4>
@@ -816,7 +852,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <p class="update-button"><button>Update List</button></p>
                         <p><span>Total Sockets</span> <em></em></p>
                         <p><span>Filtered Sockets</span> <em></em></p>
-                        <p><span>Last Updated</span> <em></em></p>
+                        <p><span>Last Updated</span> <time></time></p>
                     </div>
                     <table data-column="0">
                         <thead><tr>
@@ -838,7 +874,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <div class="table-stats">
                     <p class="update-button"><button>Update List</button></p>
                     <p><span>Total Drives</span> <em></em></p>
-                    <p><span>Last Updated</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
                 </div>
                 <div class="item-list"></div>
             </div>
@@ -910,7 +946,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     <p class="update-button"><button>Update List</button></p>
                     <p><span>Total Users</span> <em></em></p>
                     <p><span>Filtered Users</span> <em></em></p>
-                    <p><span>Last Updated</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
                 </div>
                 <table data-column="0">
                     <thead><tr>

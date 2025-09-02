@@ -1,6 +1,5 @@
 
 import eslint from "@eslint/js";
-import globals from "globals";
 import stylistic from "@stylistic/eslint-plugin-ts";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
@@ -15,7 +14,7 @@ const __dirname = path.dirname(__filename);
 
 export default [
     {
-        ignores: ["**/js/*", "**/node_modules", "**/files/*", "**/node.ts", "**/node.d.ts", "**/servers"]
+        ignores: ["**/node_modules", "**/files/*", "**/node.ts", "**/node.d.ts", "**/servers"]
     },
         ...ts_eslint.config(
             eslint.configs.recommended,
@@ -28,15 +27,9 @@ export default [
             "@stylistic": stylistic
         },
         languageOptions: {
-            globals: {
-                ...globals.browser,
-                ...globals.node,
-            },
-
             parser: tsParser,
             ecmaVersion: 11,
             sourceType: "module",
-
             parserOptions: {
                 project: true,
                 tsconfigRootDir: __dirname,

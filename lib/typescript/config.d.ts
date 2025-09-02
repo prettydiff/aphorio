@@ -53,6 +53,7 @@ interface config_log {
     config: type_dashboard_config;
     message: string;
     status: type_dashboard_status;
+    time: number;
     type: type_dashboard_type;
 }
 
@@ -94,6 +95,7 @@ interface config_websocket_extensions {
     proxy: websocket_client;
     role: "client"|"server";
     server: string;
+    single_socket: boolean;
     socket: websocket_client;
     temporary: boolean;
     timeout: bigint;

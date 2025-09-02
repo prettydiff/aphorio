@@ -1,9 +1,9 @@
 
-import log from "./log.js";
-import node from "./node.js";
-import vars from "./vars.js";
+import log from "./log.ts";
+import node from "./node.ts";
+import vars from "./vars.ts";
 
-// cspell: words blockdevices, bootable, cputime, fsavail, fssize, fstype, fsused, lslogins, mountpoint, partflags, parttypename, pwsh, serv, volu
+// cspell: words blockdevices, bootable, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, volu
 
 const os = function utilities_os(type_os:type_os, callback:(output:socket_data) => void):void {
     const win32:boolean = (process.platform === "win32"),
@@ -12,28 +12,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 ? "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
                 : "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
             : "/bin/sh",
-        commands:store_string = {
-            disk: (win32 === true)
-                ? "Get-Disk | ConvertTo-JSON -compress -depth 2"
-                : "lsblk -Ob --json",
-            part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
-            proc: (win32 === true)
-                ? "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON"
-                : "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
-            serv: (win32 === true)
-                ? "Get-Service | ConvertTo-JSON -compress -depth 2"
-                : "systemctl list-units --type=service --all --output json",
-            socT: (win32 === true)
-                ? "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2"
-                : "ss -atu | tail -n +2 | tr -s \" \" \",\"",
-            socU: (win32 === true)
-                ? "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2"
-                : "",
-            user: (win32 === true)
-                ? "Get-LocalUser | ConvertTo-JSON -compress -depth 1"
-                : "lslogins -o user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
-            volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
-        },
         disks:os_disk[] = [],
         processes:os_proc[] = [],
         services:os_service[] = [],
@@ -628,6 +606,14 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 });
             }
         },
+        spawn_complete = function utilities_os_spawnComplete(type:type_os_key):void {
+            flags[type] = true;
+            if (win32 === true && (type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
+                completed("disk");
+            } else if (win32 === false || (win32 === true && type !== "disk" && type !== "part" && type !== "volu")) {
+                completed(type);
+            }
+        },
         spawning = function utilities_os_spawning(type:type_os_key):void {
             const data_callback = function utilities_os_spawning_dataCallback(buf:Buffer):void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
@@ -638,65 +624,68 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const child:os_child = this,
                         type:type_os_key = child.type,
-                        temp:string = chunks[type].join("").replace(/\s+$/, "").replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\r\n/, "");
-                    flags[type] = true;
+                        temp:string = chunks[type].join("").trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""),
+                        parseTry = function utilities_os_spawning_close_parseTry():boolean {
+                            if (win32 === false && (type === "proc" || type === "socT" || type === "user")) {
+                                raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
+                                return true;
+                            }
+                            // eslint-disable-next-line no-restricted-syntax
+                            try {
+                                raw[type] = (win32 === false && type === "disk")
+                                    ? JSON.parse(temp).blockdevices
+                                    : JSON.parse(temp);
+                            } catch (e:unknown) {
+                                log.application({
+                                    action: "activate",
+                                    config: e as node_error,
+                                    message: `Error parsing operating system data of type ${type}.`,
+                                    status: "error",
+                                    time: Date.now(),
+                                    type: "os"
+                                });
+                                spawn_complete(type);
+                                return false;
+                            }
+                            return true;
+                        };
                     spawn[type].kill();
-                    // eslint-disable-next-line no-restricted-syntax
-                    try {
-                        // parse string output into a data structure
-                        if (type === "disk") {
-                            if (win32 === true) {
-                                raw.disk = JSON.parse(temp) as os_disk_windows[];
-                            } else {
-                                raw.disk = JSON.parse(temp).blockdevices as os_disk_posix[];
-                            }
-                        // these guys are just pseudo-csv so do not parse as JSON
-                        } else if (win32 === false && (type === "proc" || type === "socT" || type === "user")) {
-                            raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
-                        } else {
-                            raw[type] = JSON.parse(temp);
-                        }
 
-                        // building the uniform data output
-                        if ((type === "proc" || type === "user")) {
-                            if (win32 === true && flags.proc === true && flags.user === true) {
-                                builder.proc();
-                                builder.user();
-                            } else if (win32 === false) {
-                                builder[type]();
-                            }
-                        } else if (type === "disk" || type === "part" || type === "volu") {
-                            if (flags.disk === true && flags.part === true && flags.volu === true) {
-                                builder.disk();
-                            }
-                        } else {
+                    // parse the data
+                    if (parseTry() === false) {
+                        return;
+                    }
+                    flags[type] = true;
+
+                    // building the uniform data output
+                    if (win32 === true) {
+                        if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
+                            builder.disk();
+                        } else if (type_os === "user" && flags.proc === true && flags.user === true) {
+                            builder.proc();
+                            builder.user();
+                        } else if (type_os !== "user" && type !== "disk" && type !== "part" && type !== "volu") {
                             builder[type]();
                         }
-                    } catch (e:unknown) {
-                        log({
-                            action: "activate",
-                            config: e as node_error,
-                            message: `Error reading operating system data of type ${type}.`,
-                            status: "error",
-                            type: "os"
-                        });
-                        if (flags.disk === true && flags.part === true && flags.volu === true && (type === "disk" || type === "part" || type === "volu")) {
-                            completed("disk");
-                        } else if (type !== "disk" && type !== "part" && type !== "volu") {
-                            completed(type);
-                        }
+                    } else {
+                        builder[type]();
                     }
                 },
                 spawn_error = function utilities_os_spawning_spawnError(err:node_error):void {
-                    log({
+                    spawn[type].off("close", close);
+                    spawn[type].kill();
+                    chunks[type] = null;
+                    log.application({
                         action: "activate",
                         config: err,
                         message: `Error reading operating system data of type ${type}.`,
                         status: "error",
+                        time: Date.now(),
                         type: "os"
                     });
+                    spawn_complete(type);
                 };
-            spawn[type] = node.child_process.spawn(commands[type], [], {
+            spawn[type] = node.child_process.spawn(vars.commands[type], [], {
                 shell: shell,
                 windowsHide: true
             }) as os_child;
@@ -712,6 +701,10 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             spawning("part");
             spawning("socU");
             spawning("volu");
+        } else {
+            flags.part = true;
+            flags.socU = true;
+            flags.volu = true;
         }
         spawning("disk");
         spawning("proc");
@@ -722,20 +715,22 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
         if (win32 === true) {
             spawning("part");
             spawning("volu");
+        } else {
+            flags.part = true;
+            flags.volu = true;
         }
         spawning("disk");
     } else if (type_os === "intr") {
         completed("disk");
     } else if (type_os === "proc") {
-        if (win32 === true) {
-            spawning("user");
-        }
         spawning("proc");
     } else if (type_os === "serv") {
         spawning("serv");
     } else if (type_os === "sock") {
         if (win32 === true) {
             spawning("socU");
+        } else {
+            flags.socU = true;
         }
         spawning("socT");
     } else if (type_os === "user") {

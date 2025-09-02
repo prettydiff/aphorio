@@ -3,6 +3,10 @@
 import { Terminal } from "@xterm/xterm";
 
 declare global {
+    interface BigInt {
+        time:(start:bigint) => string;
+    }
+
     interface Document {
         activeElement: HTMLElement;
         getElementsByAttribute: (name:string, value:string) => HTMLElement[];
@@ -37,7 +41,7 @@ declare global {
         bytes: (input?:number) => string;
         bytesLong: () => string;
         commas: () => string;
-        dateTime: (date:boolean, zulu:number) => string;
+        dateTime: (date:boolean, timezone_offset:number) => string;
         time: () => string;
     }
 
@@ -62,7 +66,6 @@ declare global {
         activePorts: (name_server:string) => HTMLElement;
         cancelVariables: (event:MouseEvent) => void;
         container: (config:services_docker_compose) => void;
-        create: (event:MouseEvent) => void;
         destroyContainer: (config:services_docker_compose) => void;
         editVariables: () => void;
         getTitle: (textArea:HTMLTextAreaElement) => string;
@@ -211,28 +214,36 @@ declare global {
         versions: HTMLElement;
     }
 
-    interface module_processes {
-        nodes: {
-            caseSensitive: HTMLInputElement;
-            count: HTMLElement;
-            filter_column: HTMLSelectElement;
-            filter_count: HTMLElement;
-            filter_value: HTMLInputElement;
-            list: HTMLElement;
-            update_button: HTMLButtonElement;
-            update_text: HTMLElement;
-        };
+    interface module_remote {
+        delay: (config:test_browserItem) => void;
+        domFailure: boolean;
+        error: (message:string, source:string, line:number, col:number, error:Error) => void;
+        evaluate: (test:test_assertion_dom) => test_assert;
+        event: (item:services_testBrowser, pageLoad:boolean) => void;
+        getProperty: (test:test_assertion_dom) => [HTMLElement, test_primitive];
+        index: number;
+        keyAlt: boolean;
+        keyControl: boolean;
+        keyShift: boolean;
+        magicString: string;
+        node: (dom:test_browserDOM, property:string) => HTMLElement;
+        report: (delay:test_assertion_dom, test:test_assertion_dom[], index:number) => void;
+        sendTest: (payload:test_assert[], index:number) => services_testBrowser;
+        store: HTMLElement | test_primitive;
+        stringify: (primitive:test_primitive) => string;
+        test_item: services_testBrowser;
     }
 
     interface module_serverItems {
         cancel: (event:MouseEvent) => void;
         color: (name_server:string, type:type_dashboard_list) => type_activation_status;
+        create: (event:MouseEvent) => void;
         details: (event:MouseEvent) => void;
         edit: (event:MouseEvent) => void;
         title: (name_server:string, type:type_dashboard_list) => HTMLElement;
     }
 
-    interface module_services {
+    interface module_list {
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
@@ -245,17 +256,8 @@ declare global {
         };
     }
 
-    interface module_sockets {
-        nodes: {
-            caseSensitive: HTMLInputElement;
-            count: HTMLElement;
-            filter_column: HTMLSelectElement;
-            filter_count: HTMLElement;
-            filter_value: HTMLInputElement;
-            list: HTMLElement;
-            update_button: HTMLButtonElement;
-            update_text: HTMLElement;
-        };
+    interface module_sockets_application extends module_list {
+        socket_add: (config:services_socket) => void;
     }
 
     interface module_storage {
@@ -271,8 +273,8 @@ declare global {
 
     interface module_tables {
         filter: (event:Event, target?:HTMLInputElement) => void;
-        init: (module:module_processes|module_services|module_sockets|module_users, state_name:"processes"|"services"|"sockets"|"users") => void;
-        populate: (module:module_processes|module_services|module_sockets|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user) => void;
+        init: (module:module_list|module_sockets_application|module_users, state_name:"processes"|"services"|"sockets_application"|"sockets_os"|"users") => void;
+        populate: (module:module_list|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user) => void;
         sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         update: (event:MouseEvent) => void;
     }
@@ -319,6 +321,7 @@ declare global {
         clock_node: HTMLElement;
         log: (item:services_dashboard_status) => void;
         message_send: (data:type_socket_data, service:type_service) => void;
+        resize: () => void;
         setState: () => void;
         socket: socket_object;
         status: (data_item:socket_data) => void;
@@ -326,14 +329,12 @@ declare global {
 
     interface module_web {
         activePorts: (name_server:string) => HTMLElement;
-        create: (event:MouseEvent) => void;
         list: () => void;
         message: (event:MouseEvent) => void;
         nodes: {
             list: HTMLElement;
             server_new: HTMLButtonElement;
         };
-        socket_add: (config:services_socket) => void;
         validate: (event:FocusEvent|KeyboardEvent) => void;
     }
 
@@ -376,7 +377,8 @@ declare global {
 
     interface structure_network {
         interfaces: module_interfaces;
-        sockets: module_sockets;
+        sockets_application: module_sockets_application;
+        sockets_os: module_list;
     }
 
     interface structure_servers {
@@ -387,8 +389,8 @@ declare global {
 
     interface structure_system {
         os: module_os;
-        processes: module_processes;
-        services: module_services;
+        processes: module_list;
+        services: module_list;
         storage: module_storage;
         users: module_users;
     }
@@ -435,7 +437,12 @@ declare global {
                 filter_sensitive: boolean;
                 filter_value: string;
             };
-            sockets: {
+            sockets_application: {
+                filter_column: number;
+                filter_sensitive: boolean;
+                filter_value: string;
+            };
+            sockets_os: {
                 filter_column: number;
                 filter_sensitive: boolean;
                 filter_value: string;

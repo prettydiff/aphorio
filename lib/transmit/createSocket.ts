@@ -1,7 +1,7 @@
 
-import log from "../utilities/log.js";
-import node from "../utilities/node.js";
-import socket_extension from "./socketExtension.js";
+import log from "../utilities/log.ts";
+import node from "../utilities/node.ts";
+import socket_extension from "./socketExtension.ts";
 
 const create_socket = function transmit_createSocket(config:config_websocket_create):void {
     let startTime:bigint = null;
@@ -34,13 +34,14 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
             ]
             : config.headers,
         callbackError = function transmit_createSocket_hash_error(errorMessage:node_error):void {
-            log({
+            log.application({
                 action: "add",
                 config: errorMessage,
                 message: `Error attempting websocket connect from client side on server. ${(config.proxy === null)
                     ? "Socket is not a proxy."
                     : `Socket is a proxy to ${config.proxy.hash} on server ${config.proxy.server}.`}`,
                 status: "error",
+                time: Date.now(),
                 type: (config.type === "websocket-test")
                     ? "websocket-test"
                     : "socket"
@@ -70,6 +71,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     proxy: config.proxy,
                     role: "client",
                     server: config.server,
+                    single_socket: false,
                     socket: client,
                     temporary: false,
                     timeout: startTime,

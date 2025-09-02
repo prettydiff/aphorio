@@ -1,7 +1,7 @@
 
-import server from "../transmit/server.js";
-import server_create from "./server_create.js";
-import server_halt from "./server_halt.js";
+import server from "../transmit/server.ts";
+import server_create from "./server_create.ts";
+import server_halt from "./server_halt.ts";
 
 const servers = function services_server(socketData:socket_data):void {
     if (socketData.service === "dashboard-server") {

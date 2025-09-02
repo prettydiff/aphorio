@@ -45,8 +45,18 @@
 .highlight::before{animation:highlight 2s linear infinite;bottom:0;box-shadow:inset 0 0 0 0.2em var(--fail_dark);content:"";left:0;margin:-5%;position:absolute;right:0;top:0;z-index:1}
 .highlight::before{animation-delay:-1s}
 
+
 html{font-size:10px}
 body{background:var(--background);color:var(--text);font-family:sans-serif;margin:0}
+li {
+    p,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    li{font-size:1em}
+}
 #dashboard .file-list,
 #dashboard .file-system-content,
 #dashboard .summary-stats,
@@ -75,15 +85,7 @@ h1,h2,h3,h4,h5,h6{margin:0 0 1em}
 #dashboard #http p,
 #dashboard #websocket p{margin-top:0}
 p,li,dd,dt,td,th,textarea{font-size:var(--font-size)}
-li p{font-size:1em}
 p textarea{font-size:1em}
-li p,
-li h2
-li h3,
-li h4,
-li h5,
-li h6,
-li li{font-size:1em}
 label input,
 label select{display:block}
 label input[type="checkbox"]{display:inline-block;margin:0.4em 0.5em 0 0}
@@ -128,17 +130,7 @@ td button{padding:0}
 
 /* end basic html */
 
-#http textarea,
-#websocket textarea,
-code{display:block;font-family:monospace;font-size:0.9em;white-space:pre}
 fieldset{background:var(--background_fieldset);border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:0 0 0 -2.8em;max-width:48.25em;padding:0 1em 1em;overflow:scroll}
-#terminal .xterm,
-textarea{background:var(--background_textarea);border-style:solid;border-width:0.065em;color:var(--text)}
-#terminal .xterm{border-color:var(--border_input);overflow:hidden}
-#terminal .xterm-viewport{overflow:hidden}
-#terminal .terminal-output{width:100%}
-textarea{border-color:var(--textarea_border);box-shadow:0 0 0.1em var(--black)}
-#dashboard .xterm-rows{font-size:vars(--font-size)}
 .delay{height:50%;width:50%}
 .delay svg{stroke:var(--text)}
 .ytDownload input{display:block;width:100%}
@@ -164,173 +156,279 @@ label span.checked{background:var(--background_dark)}
 .linux-options select{display:block;width:20em}
 .linux-options legend{font-size:2em;font-weight:bold}
 
-#dashboard #clock{float:right;margin:-2.75em 1.7em 0 0}
-#dashboard #clock em{font-style:normal;font-weight:bold}
-#dashboard input:disabled,
-#dashboard select:disabled,
-#dashboard textarea:disabled{background:var(--background_button)}
-#dashboard li h3{font-size:1.5em}
-#dashboard li h6{font-size:1em}
-#dashboard select{display:block}
-#dashboard #servers li,
-#dashboard #compose li{border-color:var(--border_color);border-style:solid;border-width:0.1em}
-#connection-status{margin:0 1.7em 1.8em}
-#connection-status,
-#dashboard p#websocket-status{border-color:var(--border_color);border-style:solid;border-width:0.1em;padding:0.2em 0.4em}
-#dashboard p#websocket-status{margin:-1.75em -1.75em 1.5em}
-#dashboard button{background:var(--background_button);border-color:var(--border_color);border-style:solid;border-radius:0;border-width:0.065em;font-size:1em;font-weight:bold;text-shadow:0.05em 0.05em var(--background_dark);width:10em}
-#dashboard button:hover{background:var(--border_input)}
-#dashboard button:hover:disabled{background:var(--background_button);color:var(--border_input);cursor:auto}
-#dashboard .buttons button:disabled{color:var(--border_input)}
-#dashboard code {background:var(--background_textarea);border-color:var(--border_soft);border-style:solid;border-width:0.1em;margin:0.5em 2em;padding:0.5em}
-#dashboard nav{background:var(--background_nav);border-color:var(--background_button);border-style:solid;border-width:0.1em;float:left;margin:0 0 -1000em 2em}
-#dashboard nav div{border-color:var(--border_color);border-style:none none solid none;border-width:0.1em;margin:2em 0 0;padding:0 0 2em}
-#dashboard nav div:last-child{border-style:none}
-#dashboard nav h2{font-size:0.01em;position:absolute;left:-1000em}
-#dashboard nav h3{color:var(--border_color);padding:0 0 0 0.5em;margin:0}
-#dashboard nav ul{margin:0;padding:0}
-#dashboard nav li{display:block;padding:0 0.5em}
-#dashboard nav li:last-child{border-style:none}
-#dashboard nav button{background:transparent;border-color:transparent;border-style:solid;border-width:0.1em;box-shadow:none;color:var(--text);padding-left:2em;text-align:left;width:12em}
-#dashboard nav .nav-focus{background:var(--background_dark);border-color:var(--border_soft);color:var(--text_input)}
-#dashboard nav button:hover{color:var(--text)}
-#dashboard .tab-description{border-color:var(--border_soft);border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 0.5em}
-#servers .detail_item p{margin:0 0 0.5em}
-#dashboard h1{margin:0 0.67em 0.5em}
-#dashboard h2{margin:0 0 0.5em}
-#dashboard .compose-container-list,
-#dashboard .server-list{padding:0}
-#dashboard .compose-container-list h4,
-#dashboard .server-list h4{cursor:pointer;font-size:1.4em;margin:0}
-#dashboard .compose-container-list h4:hover,
-#dashboard .server-list h4:hover{background:rgba(0,0,0,0.25)}
-#dashboard .compose-container-list .amber,
-#dashboard .server-list .amber{background:var(--status_amber)}
-#connection-status.connection-online,
-#websocket-status.connection-online,
-#dashboard .compose-container-list .green,
-#dashboard .server-list .green{background:var(--status_green)}
-#connection-status.connection-offline,
-#websocket-status.connection-offline,
-#dashboard .compose-container-list .red,
-#dashboard .server-list .red{background:var(--status_red)}
-#dashboard .edit .summary h5{font-size:1em;margin:0}
-#dashboard div.edit{padding:0 0.694em}
-#dashboard div > .edit{border-color:var(--border_input);border-style:solid;border-width:0.1em;padding:1em}
-#dashboard .definition-body{display:none;margin:var(--h3-size) 0 0}
-#dashboard .form > .buttons,
-#dashboard .definitions > .buttons,
-#dashboard .section > .buttons{margin:0 0 2em}
-#dashboard #http .buttons,
-#dashboard #websocket .buttons{margin:0}
-#dashboard .compose-container-list h4 button,
-#dashboard .server-list h4 button{background:none;border-style:none;box-shadow:none;display:block;font-size:0.834em;padding:0.595em;text-align:left;width:100%}
-#dashboard h3 .expand,
-#dashboard h4 .expand{display:block;float:right}
-#dashboard h3 .expand{font-size:0.6em}
-#dashboard h4 .expand{font-size:0.675em}
-#dashboard .edit .summary ul{font-size:1em;margin:1em 0 0;padding:0}
-#dashboard main{clear:both;margin:0 0 0 17.75em;padding:0 2em 2em}
-#dashboard main li{list-style:none}
-#dashboard main #faq li{list-style:disc}
-#help ul{padding:0}
-#compose li,
-#servers li{list-style:none}
-#compose .compose-variable-list li{background:var(--background_textarea);padding:1em}
-#compose .compose-variable-list strong{border-color:var(--text);border-style:none solid none none;border-width:0 0.065em 0 0;display:inline-block;margin:0 1.5em 0 0;width:10em}
-#servers label{display:flex;width:100%}
-#servers label span.details-redundant,
-#dashboard label span.text{background:transparent;border-style:none;display:inline-block;font-size:1em;font-weight:bold;line-height:2.5;width:auto}
-#servers label span.details-redundant{text-indent:-2000em}
-#dashboard button.server-activate,
-#dashboard button.server-add,
-#dashboard button.server-deactivate,
-#dashboard button.server-cancel,
-#dashboard button.server-modify,
-#dashboard button.server-destroy{margin:1em 3em}
-#dashboard button.server-add,
-#dashboard button.server-modify,
-#dashboard button.server-activate{float:right}
-#dashboard button.server-deactivate,
-#dashboard button.server-destroy{float:left}
-#dashboard .pass-true,
-#application-logs li.log-success,
-#dashboard button.server-modify,
-#dashboard button.server-add{color:var(--text_green)}
-#dashboard button.server-edit{display:block;margin:1em auto}
-#dashboard button.server-edit,
-#dashboard .pass-warn,
-#dashboard button.server-activate,
-#dashboard button.server-deactivate,
-#dashboard button.server-cancel{color:var(--text_yellow)}
-#dashboard button.server-destroy{color:var(--fail_dark)}
-#dashboard input[type="text"],
-#dashboard select,
-#dashboard textarea{box-sizing:border-box;display:block;font-family:monospace;font-size:1em;margin:0 0 1em;width:100%}
-#dashboard .file-list{max-height:85em;overflow:scroll}
-#dashboard .file-list table{border-style:none}
-#dashboard textarea{height:35em;overflow:scroll}
-#dashboard .active-ports h5{font-size:1.2em}
-#dashboard .active-ports,
-#dashboard .edit .summary{background:var(--background);border-color:var(--border_input);border-style:solid;border-width:0.1em;margin:0 0 1em;padding:1em 0.5em}
-#dashboard .edit .summary{display:none}
-#dashboard .edit label,
-#dashboard .edit label span{display:block}
-#dashboard .edit label span{height:2em}
-#dashboard .edit h4{font-size:1.2em}
-#dashboard #file-system li,
-#dashboard #servers .edit li,
-#dashboard #compose .edit li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
-#dashboard .edit dt,
-#dashboard .edit dd{font-size:1em}
-#dashboard #servers .note{clear:both;font-size:1.2em}
-#dashboard .pass-false{color:var(--fail_bright)}
-#application-logs > ul{background:var(--background_textarea);border-color:var(--textarea_border);border-style:solid;border-width:0.1em;padding:0.5em}
-#dashboard .tab{display:none}
-#dashboard #servers{display:block}
-#application-logs ul{height:83.9em;overflow:scroll}
-#dashboard #application-logs li{border-style:none;font-size:var(--font-size);font-family:monospace;list-style:none;margin:0.5em 0 0;padding:0;white-space:pre}
-#application-logs li.log-error{color:var(--fail_bright)}
-#application-logs time{color:var(--text_cyan);display:inline-block;margin:0 1em 0 0}
-#application-logs code{color:var(--fail_bright)}
-#dashboard table{border-collapse:collapse;margin:0 0 4em}
-#dashboard #compose textarea.compose-variables-edit{height:10em}
-#dashboard textarea.short{height:6em}
-#dashboard label input[type="radio"]{box-sizing:unset;display:inline-block;width:1em}
-#dashboard .definition-body li{border-style:none;list-style:disc}
-#dashboard .http_response p{float:left;margin:0 2% 0 0;width:16%}
-#dashboard .http_response p.float-last{margin:0;width:64%}
-#dashboard .http_response .form{float:left;margin:2em 0.5%;padding:2em 0.5%;width:47.65%}
-#dashboard #websocket .http_response p.float-last{width:82%}
-#dashboard textarea.test-input{height:15em}
-#dashboard .table-stats span,
-#dashboard .summary-stats span{display:inline-block;width:12em}
-#dashboard #file-system ul{margin:0 0 0 4em;padding:0}
-#dashboard .summary-stats .file-system-summary-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}
-#dashboard #storage .os-interface.fail-list{background:var(--fail_background)}
-#dashboard #interfaces .os-interface,
-#dashboard #storage .os-interface,
-#dashboard #os .os-interface{border-color:var(--border_soft);border-style:solid;border-width:0.1em;margin:0 0 1em 2em;padding:0 1em 1em}
-#dashboard #interfaces li,
-#dashboard #storage li,
-#dashboard #os li{border-style:none;list-style:none}
-#dashboard #interfaces li > strong,
-#dashboard #storage li > strong,
-#dashboard #storage li > h6,
-#dashboard #os li > strong{display:inline-block;width:18em}
-#dashboard #interfaces ul,
-#dashboard #storage ul{margin:0 0 1em;padding:0}
-#dashboard #os ul{padding:0 0 1em 2em}
-#dashboard #interfaces ul:last-child,
-#dashboard #storage ul:last-child,
-#dashboard #os ul:last-child{margin-bottom:0}
-#dashboard #interfaces ul ul:last-child,
-#dashboard #storage ul ul:last-child,
-#dashboard #os ul ul:last-child{margin-bottom:0}
-#dashboard #hash .output{height:15em}
+#dashboard {
+    /* id selectors */
+    #application-logs{
+        & > ul{background:var(--background_textarea);border-color:var(--textarea_border);border-style:solid;border-width:0.1em;padding:0.5em}
+        code{color:var(--fail_bright)}
+        li{
+            border-style:none;font-size:var(--font-size);font-family:monospace;list-style:none;margin:0.5em 0 0;padding:0;white-space:pre;
+            &.log-error{color:var(--fail_bright)}
+        }
+        time{color:var(--text_cyan);display:inline-block;margin:0 1em 0 0}
+        ul{height:83.9em;overflow:scroll}
+    }
+    #clock{
+        float:right;margin:-2.75em 1.7em 0 0;
+        time{color:var(--text_yellow);font-style:normal;font-weight:bold}
+    }
+    #compose{
+        textarea.compose-variables-edit{height:10em}
+        .compose-variable-list{
+            li{background:var(--background_textarea);padding:1em}
+            strong{border-color:var(--text);border-style:none solid none none;border-width:0 0.065em 0 0;display:inline-block;margin:0 1.5em 0 0;width:10em}
+        }
+    }
+    #connection-status{margin:0 1.7em 1.8em}
+    #file-system ul{margin:0 0 0 4em;padding:0}
+    #hash .output{height:15em}
+    #help ul{padding:0}
+    #os ul{padding:0 0 1em 2em}
+    #servers{
+        display:block;
+        .detail_item p{margin:0 0 0.5em}
+        .note{clear:both;font-size:1.2em}
+        label{
+            width:100%;
+            span.details-redundant{text-indent:-2000em}
+        }
+    }
+    #storage .os-interface.fail-list{background:var(--fail_background)}
+    #terminal {
+        .terminal-output{width:100%}
+        .xterm{border-color:var(--border_input);overflow:hidden}
+        .xterm-rows{font-size:vars(--font-size)}
+        .xterm-viewport{overflow:hidden}
+    }
+    #websocket .http_response p.float-last{width:82%}
+    p#websocket-status{margin:-1.75em -1.75em 1.5em}
+    /* end id selectors */
 
-#dashboard *::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--background)}
-#dashboard textarea::-webkit-scrollbar{background-color:black}
-#dashboard *::-webkit-scrollbar-thumb{background-color:var(--background);border-color:black}
-#dashboard *::-webkit-scrollbar-thumb:hover{background-color:var(--background)}
-#dashboard *::-webkit-scrollbar-corner{background-color:var(--background-dark)}
+    /* class selectors */
+    .active-ports h5{font-size:1.2em}
+    .buttons button:disabled{color:var(--border_input)}
+    .definition-body{
+        display:none;margin:var(--h3-size) 0 0;
+        li{border-style:none;list-style:disc}
+    }
+    .edit{
+        .summary{
+            display:none;
+            h5{font-size:1em;margin:0}
+            ul{font-size:1em;margin:1em 0 0;padding:0}
+        }
+        dt,
+        dd{font-size:1em}
+        h4{font-size:1.2em}
+        label{
+            display:block;
+            span{display:block;height:2em}
+        }
+    }
+    .file-list{
+        max-height:85em;overflow:scroll;
+        table{border-style:none}
+    }
+    .http_response{
+        .form{float:left;margin:2em 0.5%;padding:2em 0.5%;width:47.65%}
+        p{
+            float:left;margin:0 2% 0 0;width:16%;
+            &.float-last{margin:0;width:64%}
+        }
+    }
+    .pass-false{color:var(--fail_bright)}
+    .pass-warn{color:var(--text_yellow)}
+    .summary-stats .file-system-summary-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}
+    .tab{display:none}
+    .tab-description{border-color:var(--border_soft);border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 0.5em}
+    /* end class selectors */
+
+    /* tag selectors */
+    button{
+        background:var(--background_button);border-color:var(--border_color);border-style:solid;border-radius:0;border-width:0.065em;font-size:1em;font-weight:bold;text-shadow:0.05em 0.05em var(--background_dark);width:10em;
+        &:hover{background-color:var(--border_input)}
+        &:hover:disabled{background:var(--background_button);color:var(--border_input);cursor:auto}
+        &.server-activate,
+        &.server-add,
+        &.server-cancel,
+        &.server-deactivate,
+        &.server-destroy,
+        &.server-modify{margin:1em 3em}
+        &.server-activate,
+        &.server-add,
+        &.server-modify{float:right}
+        &.server-activate,
+        &.server-cancel,
+        &.server-deactivate,
+        &.server-edit{color:var(--text_yellow)}
+        &.server-deactivate,
+        &.server-destroy{float:left}
+        &.server-destroy{color:var(--fail_dark)}
+        &.server-edit{display:block;margin:1em auto}
+    }
+    code{
+        background:var(--background_textarea);border-color:var(--border_soft);border-style:solid;border-width:0.1em;margin:0.5em 2em;padding:0.5em;
+        &.inline{margin:-0.55em 0.2em}
+    }
+    div.edit{padding:0 0.694em}
+    div > .edit{border-color:var(--border_input);border-style:solid;border-width:0.1em;padding:1em}
+    h1{margin:0 0.67em 0.5em}
+    h2{margin:0 0 0.5em}
+    h3 .expand{display:block;float:right;font-size:0.6em}
+    h4 .expand{display:block;float:right;font-size:0.675em}
+    label input[type="radio"]{box-sizing:unset;display:inline-block;width:1em}
+    li {
+        h3{font-size:1.5em}
+        h6{font-size:1em}
+    }
+    main{
+        clear:both;margin:0 0 0 17.75em;padding:0 2em 2em;
+        #faq li{list-style:disc}
+        li{list-style:none}
+    }
+    nav{
+        background:var(--background_nav);border-color:var(--background_button);border-style:solid;border-width:0.1em;float:left;margin:0 0 -1000em 2em;
+        div{
+            border-color:var(--border_color);border-style:none none solid none;border-width:0.1em;margin:2em 0 0;padding:0 0 2em;
+            &:last-child{border-style:none}
+        }
+        h2{font-size:0.01em;position:absolute;left:-1000em}
+        h3{color:var(--border_color);padding:0 0 0 0.5em;margin:0}
+        ul{margin:0;padding:0}
+        li{
+            display:block;padding:0 0.5em;
+            &:last-child{border-style:none}
+        }
+        button{
+            background:transparent;border-color:transparent;border-style:solid;border-width:0.1em;box-shadow:none;color:var(--text);padding-left:2em;text-align:left;width:12em;
+            &:hover{color:var(--text)}
+        }
+        .nav-focus{background:var(--background_dark);border-color:var(--border_soft);color:var(--text_input)}
+    }
+    select{display:block}
+    table{border-collapse:collapse;margin:0 0 4em}
+    textarea{
+        background:var(--background_textarea);border-color:var(--textarea_border);border-style:solid;border-width:0.065em;box-shadow:0 0 0.1em var(--black);color:var(--text);height:35em;overflow:scroll;
+        &.short{height:6em}
+        &.test-input{height:15em}
+    }
+    time{color:var(--text_yellow);font-style:italic;font-weight:normal}
+    /* end tag selectors */
+
+    /* scroll bars */
+    *::-webkit-scrollbar{background-color:var(--background-dark);border-color:var(--background)}
+    textarea::-webkit-scrollbar{background-color:black}
+    *::-webkit-scrollbar-thumb{background-color:var(--background);border-color:black}
+    *::-webkit-scrollbar-thumb:hover{background-color:var(--background)}
+    *::-webkit-scrollbar-corner{background-color:var(--background-dark)}
+    /* end scroll bars */
+
+    /* lists */
+    #application-logs li.log-success,
+    .pass-true,
+    button.server-modify,
+    button.server-add{color:var(--text_green)}
+
+    #connection-status,
+    p#websocket-status{border-color:var(--border_color);border-style:solid;border-width:0.1em;padding:0.2em 0.4em}
+
+    #connection-status,
+    #websocket-status,
+    .compose-container-list,
+    .server-list{
+        .amber,
+        &.amber{background:var(--status_amber)}
+        .red,
+        &.connection-offline,
+        &.red{background:var(--status_red)}
+        .green,
+        &.connection-online,
+        &.green{background:var(--status_green)}
+    }
+
+    #http textarea,
+    #websocket textarea,
+    code{
+        display:block;font-family:monospace;font-size:0.9em;white-space:pre;
+        &.inline{display:inline-block}
+    }
+
+    #interfaces,
+    #os,
+    #storage{
+        .os-interface{border-color:var(--border_soft);border-style:solid;border-width:0.1em;margin:0 0 1em 2em;padding:0 1em 1em}
+        li{
+            border-style:none;list-style:none;
+            & > h6,
+            & > strong{display:inline-block;width:22em}
+        }
+    }
+
+    #interfaces,
+    #storage{
+        ul{
+            margin:0 0 1em;padding:0;
+            &:last-child{margin-bottom:0}
+        }
+    }
+
+    #compose li,
+    #servers li{border-color:var(--border_color);border-style:solid;border-width:0.1em;list-style:none}
+
+    #file-system li,
+    #compose .edit li,
+    #servers .edit li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
+
+    #http,
+    #websocket {
+        .buttons{margin:0}
+    }
+
+    #servers label span.details-redundant,
+    label span.text{background:transparent;border-style:none;display:inline-block;font-size:1em;font-weight:bold;line-height:2.5;width:auto}
+
+    .active-ports,
+    .edit .summary{background:var(--background);border-color:var(--border_input);border-style:solid;border-width:0.1em;margin:0 0 1em;padding:1em 0.5em}
+
+    .compose-container-list,
+    .server-list{
+        padding:0;
+        h4{
+            cursor:pointer;font-size:1.4em;margin:0;
+            button{background:none;border-style:none;box-shadow:none;display:block;font-size:0.834em;padding:0.595em;text-align:left;width:100%}
+        }
+        h4:hover{background:rgba(0,0,0,0.25)}
+    }
+
+    .definitions > .buttons,
+    .form > .buttons,
+    .section > .buttons{margin:0 0 2em}
+
+    .summary-stats span,
+    .table-stats span{display:inline-block;width:12em}
+
+    input[type="text"],
+    select,
+    textarea{box-sizing:border-box;display:block;font-family:monospace;font-size:1em;margin:0 0 1em;width:100%}
+
+    input:disabled,
+    select:disabled,
+    textarea:disabled{background:var(--background_button)}
+
+    code::selection,
+    h1::selection,
+    h2::selection,
+    h3::selection,
+    h4::selection,
+    h5::selection,
+    h6::selection,
+    li::selection,
+    p::selection,
+    span::selection,
+    sup::selection,
+    td::selection{background-color:var(--text);color:var(--background)}
+
+    em::selection,
+    strong::selection,
+    time::selection{background-color:var(--text_yellow);color:var(--background)}
+}

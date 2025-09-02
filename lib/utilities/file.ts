@@ -1,8 +1,8 @@
 
-import directory from "./directory.js";
-import log from "./log.js";
-import node from "./node.js";
-import vars from "./vars.js";
+import directory from "./directory.ts";
+import log from "./log.ts";
+import node from "./node.ts";
+import vars from "./vars.ts";
 
 // A collection of abstractions for file system handling
 // * mkdir - create one or more directories
@@ -35,11 +35,12 @@ const file:file = {
                         errorCallback();
                         return;
                     }
-                    log({
+                    log.application({
                         action: null,
                         config: errorInstance,
                         message: `Error making directory ${config.location}`,
                         status: "error",
+                        time: Date.now(),
                         type: "log"
                     });
                     return;
@@ -53,11 +54,12 @@ const file:file = {
                     }
                     return;
                 }
-                log({
+                log.application({
                     action: null,
                     config: new Error(`Destination directory, '${vars.text.cyan + config.location + vars.text.none}', is a ${type}.`),
                     message: `Destination for mkdir, ${config.location}, already exists.`,
                     status: "error",
+                    time: Date.now(),
                     type: "log"
                 });
                 return;
@@ -75,11 +77,12 @@ const file:file = {
                                     config.callback();
                                 }
                             } else {
-                                log({
+                                log.application({
                                     action: null,
                                     config: errB,
                                     message: `Error making directory ${config.location}`,
                                     status: "error",
+                                    time: Date.now(),
                                     type: "log"
                                 });
                             }
@@ -114,11 +117,12 @@ const file:file = {
                     config.callback(file_raw);
                 }
             } else {
-                log({
+                log.application({
                     action: null,
                     config: err,
                     message: `Error reading file: ${config.location}`,
                     status: "error",
+                    time: Date.now(),
                     type: "log"
                 });
                 if (config.callback !== null) {
@@ -151,11 +155,12 @@ const file:file = {
                                     utilities_fileRemove_removeItems_destroy(item);
                                     return;
                                 }
-                                log({
+                                log.application({
                                     action: null,
                                     config: er,
                                     message: `Error removing file system artifact ${item[0]}`,
                                     status: "error",
+                                    time: Date.now(),
                                     type: "log"
                                 });
                                 return;
@@ -184,12 +189,12 @@ const file:file = {
                                         destruction(null);
                                         return;
                                     }
-                                } while (b < 0);
+                                } while (b > 0);
                                 node.fs.rmdir(item[0], destruction);
                             } else {
                                 node.fs.rmdir(item[0], destruction);
                             }
-                        } else if (config.exclusions !== null && config.exclusions.indexOf(item[0]) < 0) {
+                        } else if (config.exclusions === null || (config.exclusions !== null && config.exclusions.indexOf(item[0]) < 0)) {
                             if (item[1] === "symbolic_link") {
                                 node.fs.rm(item[0], destruction);
                             } else {
@@ -239,11 +244,12 @@ const file:file = {
                     config.callback(stat);
                 }
             } else {
-                log({
+                log.application({
                     action: null,
                     config: ers,
                     message: `Error reading file: ${config.location}`,
                     status: "error",
+                    time: Date.now(),
                     type: "log"
                 });
                 if (config.callback !== null) {
@@ -259,11 +265,12 @@ const file:file = {
                     config.callback();
                 }
             } else {
-                log({
+                log.application({
                     action: null,
                     config: erw,
                     message: `Error writing file: ${config.location}`,
                     status: "error",
+                    time: Date.now(),
                     type: "log"
                 });
                 if (config.callback !== null) {

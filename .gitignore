@@ -1,7 +1,8 @@
 **/node_modules
 /compose.json
 /servers.json
-/js
 /servers
 /compose/**
+/test
 !/compose/empty.yml
+install.js

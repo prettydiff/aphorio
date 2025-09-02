@@ -1,5 +1,5 @@
 
-import log from "../utilities/log.js";
+import log from "../utilities/log.ts";
 
 const send = function transmit_send(body:Buffer|socket_data|string, socketItem:websocket_client, opcode:number):void {
     const writeFrame = function transmit_send_writeFrame():void {
@@ -137,11 +137,12 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
             writeFrame();
         }
     } else {
-        log({
+        log.application({
             action: null,
             config: null,
             message: `Error queueing message for socket transmission on socket ${socketItem.hash} of server ${socketItem.server}. Opcode ${String(opcode)} is not supported.`,
             status: "error",
+            time: Date.now(),
             type: "log"
         });
     }

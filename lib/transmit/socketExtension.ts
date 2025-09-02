@@ -1,12 +1,12 @@
 
-import get_address from "../utilities/getAddress.js";
-import log from "../utilities/log.js";
-import message_handler from "./messageHandler.js";
-import receiver from "./receiver.js";
-import send from "./send.js";
-import server_halt from "../services/server_halt.js";
-import socket_end from "./socketEnd.js";
-import vars from "../utilities/vars.js";
+import get_address from "../utilities/getAddress.ts";
+import log from "../utilities/log.ts";
+import message_handler from "./messageHandler.ts";
+import receiver from "./receiver.ts";
+import send from "./send.ts";
+import server_halt from "../services/server_halt.ts";
+import socket_end from "./socketEnd.ts";
+import vars from "../utilities/vars.ts";
 
 const socket_extension = function transmit_socketExtension(config:config_websocket_extensions):void {
     const encryption:type_encryption = (config.socket.secure === true)
@@ -39,11 +39,6 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     };
                 }
             },
-            socketError = function transmit_socketExtension_socketError():void {
-                // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                const socket:websocket_client = this;
-                socket_end(socket);
-            },
             encryption:"open"|"secure" = (config.socket.secure === true)
                 ? "secure"
                 : "open",
@@ -59,6 +54,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     : config.socket.proxy.hash,
                 role: config.role,
                 server: config.server,
+                time: Date.now(),
                 type: config.type
             },
             log_config:config_log = {
@@ -66,6 +62,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 config: socket,
                 message: `Socket ${config.identifier} opened on ${encryption} server ${config.server}.`,
                 status: "success",
+                time: Date.now(),
                 type: "socket"
             };
         vars.server_meta[config.server].sockets[encryption].push(config.socket);
@@ -91,8 +88,8 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 config.socket.queue = [];                 // stores messages for transmit, because websocket protocol cannot intermix messages
             }
             config.socket.status = "open";            // sets the status flag for the socket
-            if (config.temporary === true) {
-                const temporary = function transmit_socketExtension_temporary():void {
+            if (config.single_socket === true) {
+                const death = function transmit_socketExtension_death():void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const socket:websocket_client = this;
                     server_halt({
@@ -100,18 +97,18 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                         server: vars.servers[socket.server].config
                     }, null);
                 };
-                config.socket.on("close", temporary);
-                config.socket.on("end", temporary);
-                config.socket.on("error", temporary);
+                config.socket.on("close", death);
+                config.socket.on("end", death);
+                config.socket.on("error", death);
             } else {
-                config.socket.on("close", socketError);
-                config.socket.on("end", socketError);
-                config.socket.on("error", socketError);
+                config.socket.on("close", socket_end);
+                config.socket.on("end", socket_end);
+                config.socket.on("error", socket_end);
             }
         } else {
-            config.socket.on("close", socketError);
-            config.socket.on("end", socketError);
-            config.socket.on("error", socketError);
+            config.socket.on("close", socket_end);
+            config.socket.on("end", socket_end);
+            config.socket.on("error", socket_end);
         }
         if (config.type !== "http") {
             config.socket.setKeepAlive(true, 0);   // standard method to retain socket against timeouts from inactivity until a close frame comes in
@@ -130,7 +127,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         if (config.callback !== null && config.callback !== undefined) {
             config.callback(config.socket, config.timeout);
         }
-        log(log_config);
+        log.application(log_config);
     }
 };
 

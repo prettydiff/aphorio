@@ -1,29 +1,28 @@
 
-import broadcast from "./broadcast.js";
-import get_address from "../utilities/getAddress.js";
-import vars from "../utilities/vars.js";
+import broadcast from "./broadcast.ts";
+import get_address from "../utilities/getAddress.ts";
+import vars from "../utilities/vars.ts";
 
-const socket_end = function transmit_socketEnd(socket_input:websocket_client):void {
-    const socket:websocket_client = (typeof socket_input === "object")
-            ? socket_input
-            // eslint-disable-next-line no-restricted-syntax
-            : this,
+const socket_end = function transmit_socketEnd():void {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
+    const socket:websocket_client = this,
         encryption:"open"|"secure" = (socket.secure === true)
             ? "secure"
             : "open",
         sockets:services_socket[] = vars.servers[socket.server].sockets,
         payload_configuration:services_socket = {
             address: get_address({
-                socket: socket_input,
+                socket: socket,
                 type: "ws"
             }),
-            encrypted: socket.encrypted,
+            encrypted: (socket.encrypted === true),
             hash: socket.hash,
             proxy: (socket.proxy === null || socket.proxy === undefined)
                 ? ""
                 : socket.proxy.hash,
             role: socket.role,
             server: socket.server,
+            time: Date.now(),
             type: socket.type
         },
         payload:services_dashboard_status = {
@@ -87,6 +86,9 @@ const socket_end = function transmit_socketEnd(socket_input:websocket_client):vo
     }
 
     socket.status = "end";
+    socket.off("close", transmit_socketEnd);
+    socket.off("end", transmit_socketEnd);
+    socket.off("error", transmit_socketEnd);
     socket.destroy();
     if (socket.proxy !== null && socket.proxy !== undefined) {
         if (socket.type === "websocket-test") {
@@ -95,7 +97,6 @@ const socket_end = function transmit_socketEnd(socket_input:websocket_client):vo
             socket.proxy.destroy();
         }
     }
-
     broadcast("dashboard", "dashboard", {
         data: payload,
         service: "dashboard-status"

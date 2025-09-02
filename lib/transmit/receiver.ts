@@ -1,6 +1,5 @@
 
-import send from "./send.js";
-import socket_end from "./socketEnd.js";
+import send from "./send.ts";
 
 const receiver = function transmit_receiver(buf:Buffer):void {
     //    RFC 6455, 5.2.  Base Framing Protocol
@@ -133,7 +132,7 @@ const receiver = function transmit_receiver(buf:Buffer):void {
             : data[1];
         const payload:Buffer = Buffer.concat([data.subarray(0, 2), unmask(data.subarray(2))]);
         socket.write(payload);
-        socket_end(socket);
+        socket.destroy();
     } else if (frame.opcode === 9) {
         // respond to "ping" as "pong"
         send(data.subarray(frame.startByte), socket, 10);

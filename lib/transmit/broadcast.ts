@@ -1,6 +1,6 @@
 
-import send from "./send.js";
-import vars from "../utilities/vars.js";
+import send from "./send.ts";
+import vars from "../utilities/vars.ts";
 
 const broadcast = function transmit_broadcast(server:string, type:string, message:socket_data):void {
     const encryptionType:type_encryption = (vars.servers[server] === undefined || vars.servers[server] === null)

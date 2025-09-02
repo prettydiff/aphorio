@@ -1,5 +1,5 @@
 
-import create_socket from "../transmit/createSocket.js";
+import create_socket from "../transmit/createSocket.ts";
 
 const http_connect:http_action = function http_connect(headerList:string[], socket:websocket_client):void {
     const destination:string = headerList[0].replace(/\s+/g, " ").split(" ")[1],

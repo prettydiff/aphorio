@@ -1,6 +1,6 @@
 
-import log from "./log.js";
-import node from "./node.js";
+import log from "./log.ts";
+import node from "./node.ts";
 
 const hash = function utilities_hash(config:config_hash):void {
     const hashOutput:hash_output = {
@@ -15,11 +15,12 @@ const hash = function utilities_hash(config:config_hash):void {
             const output:string = `Source is either not a file or resulted in an error.\n\n${JSON.stringify(err)}`;
             hashOutput.hash = output;
             config.callback(hashOutput);
-            log({
+            log.application({
                 action: "add",
                 config: null,
                 message: output,
                 status: "error",
+                time: Date.now(),
                 type: "socket"
             });
         };

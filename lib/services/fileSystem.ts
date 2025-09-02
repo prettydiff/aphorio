@@ -1,8 +1,8 @@
 
-import directory from "../utilities/directory.js";
-import node from "../utilities/node.js";
-import send from "../transmit/send.js";
-import vars from "../utilities/vars.js";
+import directory from "../utilities/directory.ts";
+import node from "../utilities/node.ts";
+import send from "../transmit/send.ts";
+import vars from "../utilities/vars.ts";
 
 import { detectAll } from "jschardet";
 
