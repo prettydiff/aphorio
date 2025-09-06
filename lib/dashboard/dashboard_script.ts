@@ -3089,7 +3089,7 @@ const dashboard = function dashboard():void {
                         };
                     let index_record:number = 0,
                         size:number = 0;
-                    tools.fileSystem.nodes.status.textContent = `Fetched in ${BigInt(performance.now() * 1e6).time(tools.fileSystem.time).replace(/000$/, "")} time.`;
+                    tools.fileSystem.nodes.status.textContent = `Fetched in ${BigInt(Math.round(performance.now() * 1e6)).time(tools.fileSystem.time).replace(/000$/, "")} time.`;
                     tools.fileSystem.nodes.path.value = fs.address;
                     tools.fileSystem.nodes.search.value = (fs.search === null)
                         ? ""
@@ -3192,7 +3192,7 @@ const dashboard = function dashboard():void {
                         };
                     if (tools.fileSystem.block === false) {
                         tools.fileSystem.block = true;
-                        tools.fileSystem.time = BigInt(performance.now() * 1e6);
+                        tools.fileSystem.time = BigInt(Math.round(performance.now() * 1e6));
                         tools.fileSystem.nodes.status.textContent = "Fetching\u2026";
                         utility.message_send(payload, "dashboard-fileSystem");
                     }
