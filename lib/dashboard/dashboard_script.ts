@@ -3536,11 +3536,39 @@ const dashboard = function dashboard():void {
                     utility.message_send(payload, "dashboard-websocket-handshake");
                 },
                 init: function dashboard_websocketInit():void {
+                    const form:HTMLElement = tools.websocket.nodes.handshake_scheme.getAncestor("form", "class"),
+                        h4:HTMLElement = form.getElementsByTagName("h4")[0],
+                        scheme:HTMLElement = form.getElementsByTagName("p")[1],
+                        span:HTMLElement = tools.websocket.nodes.handshake.parentNode.getElementsByTagName("span")[0],
+                        emOpen:HTMLElement = document.createElement("em"),
+                        emSecure:HTMLElement = document.createElement("em");
                     tools.websocket.handshake();
                     tools.websocket.nodes.button_handshake.onclick = tools.websocket.handshakeSend;
                     tools.websocket.nodes.button_send.onclick = tools.websocket.message_send;
                     tools.websocket.nodes.message_send_body.onkeyup = tools.websocket.keyup_message;
                     tools.websocket.nodes.message_send_frame.onblur = tools.websocket.keyup_frame;
+                    if (isNaN(payload.servers.dashboard.status.open) === true) {
+                        tools.websocket.nodes.handshake_scheme.checked = true;
+                        h4.style.display = "none";
+                        scheme.style.display = "none";
+                        emSecure.textContent = String(payload.servers.dashboard.status.secure);
+                        span.appendText("secure - ");
+                        span.appendChild(emSecure);
+                    } else if (isNaN(payload.servers.dashboard.status.secure) === true) {
+                        tools.websocket.nodes.handshake_scheme.checked = false;
+                        h4.style.display = "none";
+                        scheme.style.display = "none";
+                        emOpen.textContent = String(payload.servers.dashboard.status.open);
+                        span.appendText("open - ");
+                        span.appendChild(emOpen);
+                    } else {
+                        emOpen.textContent = String(payload.servers.dashboard.status.open);
+                        emSecure.textContent = String(payload.servers.dashboard.status.secure);
+                        span.appendText("open - ");
+                        span.appendChild(emOpen);
+                        span.appendText(", secure - ");
+                        span.appendChild(emSecure);
+                    }
                 },
                 keyup_frame: function dashboard_websocketKeuUpFrame(event:Event):void {
                     const encodeLength:TextEncoder = new TextEncoder(),

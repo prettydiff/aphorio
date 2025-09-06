@@ -1016,12 +1016,12 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p id="websocket-status" class="connection-offline">WebSocket Test socket: <strong>Offline</strong></p>
                 <h3>Socket Connection</h3>
                 <h4>Scheme</h4>
-                <p><label class="radio">Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label></p>
+                <p><label class="radio">Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label> <em class="block">Ensure ports in the handshake message correspond to the scheme choice.</em></p>
                 <h4>Handshake Timeout</h4>
                 <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
                 <h4>Raw Handshake Message</h4>
                 <div class="http_response">
-                    <p><label>Handshake request messaging <textarea class="test-input" spellcheck="false"></textarea></label></p>
+                    <p><label>Handshake message. Localhost ports: <span></span><textarea class="test-input" spellcheck="false"></textarea></label></p>
                     <p class="float-last"><label>Handshake error messaging <textarea class="test-input" readonly="true" spellcheck="false">Disconnected.</textarea></label></p>
                     <span class="clear"></span>
                 </div>
@@ -1032,7 +1032,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <div class="http_response">
                     <div class="form">
                         <h4>Send</h4>
-                        <p><label>Frame Header</label> <textarea spellcheck="false">{
+                        <p><label>Frame Header <textarea spellcheck="false">{
     "extended": 0,
     "fin": false,
     "len": 0,
@@ -1043,15 +1043,15 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
     "rsv2": false,
     "rsv3": false,
     "startByte": 0,
-}</textarea></p>
-                        <p class="float-last"><label>Message</label> <textarea spellcheck="false"></textarea></p>
+}</textarea></label></p>
+                        <p class="float-last"><label>Message <textarea spellcheck="false"></textarea></label></p>
                         <span class="clear"></span>
                         <p class="buttons"><button disabled="disabled">Send</button></p>
                     </div>
                     <div class="form">
                         <h4>Receive</h4>
-                        <p><label>Frame Header</label> <textarea spellcheck="false"></textarea></p>
-                        <p class="float-last"><label>Message</label> <textarea spellcheck="false"></textarea></p>
+                        <p><label>Frame Header <textarea spellcheck="false"></textarea></label></p>
+                        <p class="float-last"><label>Message <textarea spellcheck="false"></textarea></label></p>
                         <span class="clear"></span>
                         <p><label><input type="checkbox"/> Halt On Message</label></p>
                     </div>

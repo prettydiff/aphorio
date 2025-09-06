@@ -151,10 +151,6 @@ const win32:boolean = (process.platform === "win32"),
         sep: node.path.sep,
         servers: {},
         server_meta: {},
-        system_ports: {
-            list: [],
-            time: 0
-        },
         start_time: process.hrtime.bigint(),
         terminal: (process.platform === "win32")
             ? [

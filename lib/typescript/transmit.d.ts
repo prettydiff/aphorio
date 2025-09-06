@@ -37,10 +37,6 @@ interface transmit_dashboard {
         servers: string;
     };
     platform: string;
-    ports: {
-        list: type_external_port[];
-        time: number;
-    };
     servers: store_servers;
     terminal: string[];
     timeZone_offset: number;

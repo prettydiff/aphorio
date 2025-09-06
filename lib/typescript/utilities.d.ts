@@ -288,7 +288,6 @@ interface vars {
     server_meta: server_meta;
     servers: store_servers;
     start_time: bigint;
-    system_ports: external_ports;
     terminal: string[];
     test: {
         browser_args: string[];
