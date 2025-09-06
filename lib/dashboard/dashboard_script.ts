@@ -2963,6 +2963,7 @@ const dashboard = function dashboard():void {
                 }
             },
             fileSystem: {
+                block: false,
                 init: function dashboard_fileSystemInit():void {
                     tools.fileSystem.nodes.path.onblur = tools.fileSystem.send;
                     tools.fileSystem.nodes.search.onblur = tools.fileSystem.send;
@@ -2985,6 +2986,7 @@ const dashboard = function dashboard():void {
                     output: document.getElementById("file-system").getElementsByClassName("file-list")[0] as HTMLElement,
                     path: document.getElementById("file-system").getElementsByTagName("input")[0],
                     search: document.getElementById("file-system").getElementsByTagName("input")[1],
+                    status: document.getElementById("file-system").getElementsByClassName("file-list")[0].getElementsByTagName("em")[0],
                     summary: document.getElementById("file-system").getElementsByClassName("summary-stats")[0] as HTMLElement
                 },
                 receive: function dashboard_fileSystemReceive(data_item:socket_data):void {
@@ -3040,12 +3042,11 @@ const dashboard = function dashboard():void {
                             size = size + item[5].size;
                             dtg = item[5].mtimeMs.dateTime(true, payload.timeZone_offset).split(", ");
                             button = document.createElement("button");
+                            button.setAttribute("data-raw", name_raw);
                             tr = document.createElement("tr");
                             span = document.createElement("span");
                             tr.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
-    
                             td = document.createElement("td");
-                            td.setAttribute("data-raw", name_raw);
                             td.setAttribute("class", "file-name");
                             button.appendText(name);
                             button.onclick = tools.fileSystem.send;
@@ -3055,30 +3056,30 @@ const dashboard = function dashboard():void {
                             td.appendText(" ");
                             td.appendChild(button);
                             tr.appendChild(td);
-    
+
                             td = document.createElement("td");
                             td.appendText(item[1]);
                             tr.appendChild(td);
-    
+
                             td = document.createElement("td");
                             td.setAttribute("class", "right");
                             td.setAttribute("data-raw", String(item[5].size));
                             td.appendText(item[5].size.commas());
                             tr.appendChild(td);
-    
+
                             td = document.createElement("td");
                             td.setAttribute("data-raw", String(item[5].mtimeMs));
                             td.appendText(dtg[0]);
                             tr.appendChild(td);
-    
+
                             td = document.createElement("td");
                             td.appendText(dtg[1]);
                             tr.appendChild(td);
-    
+
                             td = document.createElement("td");
                             td.appendText(item[5].mode === null ? "" : (item[5].mode & parseInt("777", 8)).toString(8));
                             tr.appendChild(td);
-    
+
                             td = document.createElement("td");
                             td.setAttribute("class", "right");
                             td.setAttribute("data-raw", String(item[4]));
@@ -3088,6 +3089,7 @@ const dashboard = function dashboard():void {
                         };
                     let index_record:number = 0,
                         size:number = 0;
+                    tools.fileSystem.nodes.status.textContent = `Fetched in ${BigInt(performance.now() * 1e6).time(tools.fileSystem.time).replace(/000$/, "")} time.`;
                     tools.fileSystem.nodes.path.value = fs.address;
                     tools.fileSystem.nodes.search.value = (fs.search === null)
                         ? ""
@@ -3164,6 +3166,7 @@ const dashboard = function dashboard():void {
                     tools.fileSystem.nodes.failures.parentNode.appendChild(fails);
                     tools.fileSystem.nodes.failures.parentNode.removeChild(tools.fileSystem.nodes.failures);
                     tools.fileSystem.nodes.failures = fails;
+                    tools.fileSystem.block = false;
                 },
                 send: function dashboard_fileSystemSend(event:FocusEvent|KeyboardEvent):void {
                     const target:HTMLElement = (event === null)
@@ -3172,7 +3175,7 @@ const dashboard = function dashboard():void {
                         name:string = target.lowName(),
                         address:string = (name === "input")
                             ? tools.fileSystem.nodes.path.value.replace(/^\s+/, "").replace(/\s+$/, "")
-                            : target.parentNode.dataset.raw,
+                            : target.dataset.raw,
                         search:string = (name === "input")
                             ? tools.fileSystem.nodes.search.value.replace(/^\s+/, "").replace(/\s+$/, "")
                             : null,
@@ -3187,8 +3190,14 @@ const dashboard = function dashboard():void {
                                 : search,
                             sep: null
                         };
-                    utility.message_send(payload, "dashboard-fileSystem");
-                }
+                    if (tools.fileSystem.block === false) {
+                        tools.fileSystem.block = true;
+                        tools.fileSystem.time = BigInt(performance.now() * 1e6);
+                        tools.fileSystem.nodes.status.textContent = "Fetching\u2026";
+                        utility.message_send(payload, "dashboard-fileSystem");
+                    }
+                },
+                time: 0n
             },
             hash: {
                 init: function dashboard_hashInit():void {

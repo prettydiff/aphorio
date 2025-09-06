@@ -99,6 +99,7 @@ declare global {
     }
 
     interface module_fileSystem {
+        block: boolean;
         init: () => void;
         key: (event:KeyboardEvent) => void;
         nodes: {
@@ -107,10 +108,12 @@ declare global {
             output: HTMLElement;
             path: HTMLInputElement;
             search: HTMLInputElement;
+            status: HTMLElement;
             summary: HTMLElement;
         };
         receive: (data_item:socket_data) => void;
         send: (event:FocusEvent|KeyboardEvent) => void;
+        time: bigint;
     }
 
     interface module_hash {
