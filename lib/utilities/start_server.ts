@@ -87,16 +87,18 @@ const start_server = function utilities_startServer():void {
                 node.fs.stat(`${process_path}.git`, gitStat);
             },
             html: function utilities_startServer_taskHTML():void {
-                let xterm_file:string = null;
+                let xterm_js:string = null,
+                    xterm_css:string = null;
                 const flags:store_flag = {
                         css: false,
-                        xterm: false
+                        xterm_css: false,
+                        xterm_js: false
                     },
                     complete = function utilities_startServer_taskHTML_complete():void {
-                        if (flags.css === true && flags.xterm === true) {
+                        if (flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
                             file.read({
                                 callback: function utilities_startServer_taskHTML_readXterm_readHTML(fileContents:Buffer):void {
-                                    const xterm:string = xterm_file.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, "");
+                                    const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, "");
                                     let script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
                                     if (testing === true) {
                                         const testBrowser:string = test_browser.toString().replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
@@ -105,7 +107,7 @@ const start_server = function utilities_startServer():void {
                                     vars.dashboard = fileContents.toString()
                                         .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
                                         .replace("replace_javascript", `${xterm}const commas=${commas.toString()},dateTime=${dateTime.toString()},time=${time.toString()};(${script}(${core.toString()}));`)
-                                        .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete}</style>`);
+                                        .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
                                     readComplete("html");
                                 },
                                 error_terminate: null,
@@ -114,9 +116,14 @@ const start_server = function utilities_startServer():void {
                             });
                         }
                     },
-                    readXterm = function utilities_startServer_taskHTML_readXterm(file:Buffer):void {
-                        xterm_file = file.toString();
-                        flags.xterm = true;
+                    readXtermCSS = function utilities_startServer_taskHTML_readXtermCSS(file:Buffer):void {
+                        xterm_css = file.toString();
+                        flags.xterm_css = true;
+                        complete();
+                    },
+                    readXtermJS = function utilities_startServer_taskHTML_readXtermJS(file:Buffer):void {
+                        xterm_js = file.toString();
+                        flags.xterm_js = true;
                         complete();
                     },
                     readCSS = function utilities_startServer_taskCSS_readCSS(fileContents:Buffer):void {
@@ -133,7 +140,13 @@ const start_server = function utilities_startServer():void {
                     no_file: null
                 });
                 file.read({
-                    callback: readXterm,
+                    callback: readXtermCSS,
+                    error_terminate: null,
+                    location: `${process_path}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}css${vars.sep}xterm.css`,
+                    no_file: null
+                });
+                file.read({
+                    callback: readXtermJS,
                     error_terminate: null,
                     location: `${process_path}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}lib${vars.sep}xterm.js`,
                     no_file: null

@@ -42,7 +42,44 @@ const test_listLocalBrowserServices:test_list = [
         interaction: [],
         name: "Check if services table is populated",
         type: "dom",
-        unit: []
+        unit: [
+            {
+                node: [
+                    ["getElementById", "services", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 0]
+                ],
+                qualifier: "is",
+                target: ["textContent", "typeof"],
+                type: "property",
+                value: "string"
+            },
+            {
+                node: [
+                    ["getElementById", "services", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 1]
+                ],
+                qualifier: "is",
+                target: ["textContent", "typeof"],
+                type: "property",
+                value: "string"
+            },
+            {
+                node: [
+                    ["getElementById", "services", null],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 0],
+                    ["getElementsByTagName", "td", 2]
+                ],
+                qualifier: "is",
+                target: ["textContent", "typeof"],
+                type: "property",
+                value: "string"
+            }
+        ]
     },
     {
         delay: null,

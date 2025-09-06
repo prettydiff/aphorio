@@ -149,8 +149,6 @@ input,
 select{background:var(--background_textarea);border-color:var(--border_input);border-style:solid;border-width:0.065em;color:var(--text_input);font-family:monospace;margin:0.5em 0 0;padding:0.5em}
 .controls p{margin:2em 0}
 .controls button{font-size:2em}
-label span{border-radius:50%;background:var(--border_color);border-color:var(--border_color);border-style:solid;border-width:0.065em;display:inline-block;height:0.8em;margin:0 0.5em 0 0;width:0.8em}
-label span.checked{background:var(--background_dark)}
 .linux-link{display:none;font-size:4em;font-weight:bold}
 .linux-options{margin:0;overflow:hidden}
 .linux-options select{display:block;width:20em}
@@ -206,6 +204,7 @@ label span.checked{background:var(--background_dark)}
 
     /* class selectors */
     .active-ports h5{font-size:1.2em}
+    .block{display:block}
     .buttons button:disabled{color:var(--border_input)}
     .definition-body{
         display:none;margin:var(--h3-size) 0 0;

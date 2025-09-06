@@ -323,7 +323,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         servers: vars.path.servers
                     },
                     platform: process.platform,
-                    ports: vars.system_ports,
                     servers: vars.servers,
                     terminal: vars.terminal,
                     timeZone_offset: vars.timeZone_offset

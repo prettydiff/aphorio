@@ -147,13 +147,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "is") {
-                const s_value:string = (typeof value === "string")
-                        ? `"${value}"`
-                        : String(value),
-                    s_unit:string = (typeof unit.value === "string")
-                        ? `"${unit.value}"`
-                        : String(unit.value),
-                    nullable:boolean = (unit.nullable === true && value === null),
+                const nullable:boolean = (unit.nullable === true && value === null),
                     test:boolean = (value === unit.value);
                 return {
                     assessment: (nullable === true)
@@ -183,13 +177,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "not") {
-                const s_value:string = (typeof value === "string")
-                        ? `"${value}"`
-                        : String(value),
-                    s_unit:string = (typeof unit.value === "string")
-                        ? `"${unit.value}"`
-                        : String(unit.value),
-                    nullable:boolean = (unit.nullable === true && value === null),
+                const nullable:boolean = (unit.nullable === true && value === null),
                     test:boolean = (value !== unit.value);
                 return {
                     assessment: (nullable === true)
@@ -204,13 +192,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "not contains") {
-                const s_value:string = (typeof value === "string")
-                        ? `"${value}"`
-                        : String(value),
-                    s_unit:string = (typeof unit.value === "string")
-                        ? `"${unit.value}"`
-                        : String(unit.value),
-                    nullable:boolean = (unit.nullable === true && value === null),
+                const nullable:boolean = (unit.nullable === true && value === null),
                     test:boolean = (String(value).includes(String(unit.value)) === false);
                 return {
                     assessment: (nullable === true)
@@ -425,19 +407,26 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         prop:number|string = null,
                         method:string = null,
                         format:boolean|object|string = origin;
-                    if (pLength > 0) {
+                    if (unit.type === "attribute") {
+                        unit.node.nodeString = `${unit.node.nodeString}.getAttribute("${unit.target[0]}")`;
+                        format = element.getAttribute(unit.target[0]);
+                    } else if (pLength > 0) {
                         do {
                             prop = unit.target[index_prop];
                             method = (typeof prop === "string" && prop.includes("(") === true && prop.includes(")") === true)
                                 ? prop.slice(0, prop.indexOf("("))
                                 : "";
-                            if (prop === "typeOf" && type === false) {
-                                unit.node.nodeString = `typeOf ${unit.node.nodeString}`;
+                            if (prop === "typeof" && type === false) {
+                                unit.node.nodeString = `typeof ${unit.node.nodeString}`;
                                 type = true;
                             } else if (prop === "isNaN") {
                                 format = isNaN(Number(prop));
                             } else if (prop !== "" && prop !== null && prop !== undefined) {
-                                unit.node.nodeString = `${unit.node.nodeString}[${prop}]`;
+                                if (typeof prop === "string") {
+                                    unit.node.nodeString = `${unit.node.nodeString}["${prop}"]`;
+                                } else {
+                                    unit.node.nodeString = `${unit.node.nodeString}[${prop}]`;
+                                }
                                 // @ts-expect-error - dynamically infers a property on a static object
                                 if (method !== "" && (format as object)[method] !== undefined) {
                                     // @ts-expect-error - dynamically infers a property on a static object
@@ -470,9 +459,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             if (element === undefined || pLength < 0) {
                 return [undefined, undefined];
             }
-            return (unit.type === "attribute")
-                ? [element, element.getAttribute(unit.target[0])]
-                : [element, property(element)];
+            return [element, property(element)];
         },
 
         /* The index of the current executing test */
