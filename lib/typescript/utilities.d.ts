@@ -271,6 +271,7 @@ interface vars {
         hash: string;
     };
     hashes: string[];
+    http_request: string;
     interfaces: string[];
     intervals: store_number;
     logs: services_dashboard_status[];

@@ -98,6 +98,9 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                 const http_action = function transmit_server_connection_handshake_localService_httpAction():void {
                                     const method:type_http_method = headerList[0].slice(0, headerList[0].indexOf(" ")).toLowerCase() as type_http_method;
                                     if (http[method] !== undefined) {
+                                        if (method === "get" && server_name === "dashboard" && headerList[0].indexOf("GET / HTTP") === 0) {
+                                            vars.http_request = headerString;
+                                        }
                                         http[method](headerList, socket, headerIndex < 1
                                             ? null
                                             : data.subarray(Buffer.byteLength(headerString))

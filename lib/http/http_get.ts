@@ -313,6 +313,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                 payload:transmit_dashboard = {
                     compose: vars.compose,
                     hashes: vars.hashes,
+                    http_request: vars.http_request,
                     logs: vars.logs,
                     os: vars.os,
                     path: {

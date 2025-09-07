@@ -438,10 +438,20 @@ const dashboard = function dashboard():void {
                             }
                             return null;
                         },
+                        fileSummary:HTMLCollectionOf<HTMLElement> = tools.fileSystem.nodes.summary.getElementsByTagName("li"),
                         server_new:HTMLButtonElement = document.getElementById("servers").getElementsByClassName("server-new")[0] as HTMLButtonElement;
 
                     loaded = false;
                     replace(logs_old, false);
+                    fileSummary[0].getElementsByTagName("strong")[0].textContent = "";
+                    fileSummary[1].getElementsByTagName("strong")[0].textContent = "";
+                    fileSummary[2].getElementsByTagName("strong")[0].textContent = "";
+                    fileSummary[3].getElementsByTagName("strong")[0].textContent = "";
+                    fileSummary[4].getElementsByTagName("strong")[0].textContent = "";
+                    fileSummary[5].getElementsByTagName("strong")[0].textContent = "";
+                    fileSummary[6].getElementsByTagName("strong")[0].textContent = "";
+                    fileSummary[7].getElementsByTagName("strong")[0].textContent = "";
+                    fileSummary[8].getElementsByTagName("strong")[0].textContent = "";
                     network.interfaces.nodes.count.textContent = "";
                     network.interfaces.nodes.list.textContent = "";
                     network.interfaces.nodes.update_text.textContent = "";
@@ -526,6 +536,12 @@ const dashboard = function dashboard():void {
                     system.users.nodes.filter_value.value = "";
                     system.users.nodes.list.textContent = "";
                     system.users.nodes.update_text.textContent = "";
+                    tools.fileSystem.block = false;
+                    tools.fileSystem.nodes.failures.textContent = "";
+                    tools.fileSystem.nodes.output.getElementsByTagName("tbody")[0].textContent = "";
+                    tools.fileSystem.nodes.output.style.display = "none";
+                    tools.fileSystem.nodes.status.textContent = "";
+                    tools.fileSystem.time = 0n;
                     tools.terminal.nodes.output = replace(terminal_output, true);
                     tools.terminal.nodes.output.removeAttribute("data-info");
                     tools.terminal.nodes.output.removeAttribute("data-size");
@@ -3005,8 +3021,7 @@ const dashboard = function dashboard():void {
                             "socket": 0,
                             "symbolic_link": 0
                         },
-                        tbody_old:HTMLElement = tools.fileSystem.nodes.output.getElementsByTagName("tbody")[0],
-                        tbody_new:HTMLElement = document.createElement("tbody"),
+                        tbody:HTMLElement = tools.fileSystem.nodes.output.getElementsByTagName("tbody")[0],
                         icons:store_string = {
                             "block_device": "\u2580",
                             "character_device": "\u0258",
@@ -3085,7 +3100,7 @@ const dashboard = function dashboard():void {
                             td.setAttribute("data-raw", String(item[4]));
                             td.appendText(item[4].commas());
                             tr.appendChild(td);
-                            tbody_new.appendChild(tr);
+                            tbody.appendChild(tr);
                         };
                     let index_record:number = 0,
                         size:number = 0;
@@ -3102,6 +3117,7 @@ const dashboard = function dashboard():void {
                     // td[4] = modified time
                     // td[5] = permissions
                     // td[6] = children
+                    tbody.textContent = "";
                     if (fs.dirs[0] === null) {
                         tools.fileSystem.nodes.output.style.display = "none";
                     } else {
@@ -3114,8 +3130,6 @@ const dashboard = function dashboard():void {
                                 record(index_record);
                                 index_record = index_record + 1;
                             } while (index_record < len);
-                            tbody_old.parentNode.appendChild(tbody_new);
-                            tbody_old.parentNode.removeChild(tbody_old);
                         }
                     }
                     if (fs.dirs[0][1] === "directory" || fs.search !== null) {
@@ -3291,7 +3305,9 @@ const dashboard = function dashboard():void {
             http: {
                 init: function dashboard_httpInit():void {
                     // populate a default HTTP test value
-                    tools.http.nodes.request.value = state.http.request;
+                    tools.http.nodes.request.value = (state.http.request === null || state.http.request === undefined || state.http.request === "")
+                        ? payload.http_request
+                        : state.http.request;
                     tools.http.nodes.http_request.onclick = tools.http.request;
                     tools.http.nodes.responseBody.value = "";
                     tools.http.nodes.responseHeaders.value = "";
@@ -3301,7 +3317,6 @@ const dashboard = function dashboard():void {
                     } else {
                         document.getElementById("http").getElementsByTagName("input")[0].checked =  true;
                     }
-                    tools.http.nodes.request.value = state.http.request;
                 },
                 nodes: {
                     encryption: document.getElementById("http").getElementsByTagName("input")[1],

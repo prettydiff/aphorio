@@ -51,6 +51,7 @@ const win32:boolean = (process.platform === "win32"),
             hash: ""
         },
         hashes: node.crypto.getHashes(),
+        http_request: "",
         interfaces: [
             "localhost",
             "127.0.0.1",
