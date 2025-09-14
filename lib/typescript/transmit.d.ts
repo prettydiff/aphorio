@@ -30,13 +30,7 @@ interface transmit_dashboard {
     http_request: string;
     logs: services_dashboard_status[];
     os: server_os;
-    path: {
-        compose: string;
-        compose_empty: string;
-        project: string;
-        sep: string;
-        servers: string;
-    };
+    path: vars_path;
     platform: string;
     servers: store_servers;
     terminal: string[];

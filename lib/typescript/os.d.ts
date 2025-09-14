@@ -23,14 +23,17 @@ interface os_disk_partition {
     active: boolean;
     bootable: boolean;
     diskId: string;
+    diskName: string;
     file_system: string;
     hidden: boolean;
     id: string;
     path: string;
     read_only: boolean;
     size_free: number;
+    size_free_percent: number;
     size_total: number;
     size_used: number;
+    size_used_percent: number;
     type: string;
 }
 

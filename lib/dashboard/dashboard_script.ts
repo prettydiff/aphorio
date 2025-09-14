@@ -2621,22 +2621,18 @@ const dashboard = function dashboard():void {
                                 let list:HTMLElement = null,
                                     pIndex:number = 0,
                                     warn:HTMLElement = null,
-                                    p:HTMLElement = null,
-                                    percent:number = 0;
+                                    p:HTMLElement = null;
                                 span.textContent = String(len);
                                 li.appendChild(span);
                                 do {
                                     list = document.createElement("ul");
                                     list.setAttribute("class", "os-interface");
-                                    percent = (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0)
-                                        ? 100
-                                        : Math.round((item.data[index].partitions[pIndex].size_free / item.data[index].partitions[pIndex].size_total) * 100);
-                                    if (percent < 16) {
+                                    if (item.data[index].partitions[pIndex].size_free_percent < 16) {
                                         warn = document.createElement("strong");
                                         p = document.createElement("p");
                                         warn.textContent = "Warning!";
                                         p.appendChild(warn);
-                                        p.appendText(` Disk partition ${String(item.data[index].partitions[pIndex].id)} only has ${percent}% capacity free.`);
+                                        p.appendText(` Disk partition ${String(item.data[index].partitions[pIndex].id)} only has ${item.data[index].partitions[pIndex].size_free_percent}% capacity free.`);
                                         li.appendChild(p);
                                     }
                                     data_item(list, String(item.data[index].partitions[pIndex].active), "active");
@@ -2649,12 +2645,12 @@ const dashboard = function dashboard():void {
                                     if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
                                         data_item(list, item.data[index].partitions[pIndex].size_free.bytesLong(), "size_free");
                                     } else {
-                                        data_item(list, `${item.data[index].partitions[pIndex].size_free.bytesLong()}, ${percent}%`, "size_free");
+                                        data_item(list, `${item.data[index].partitions[pIndex].size_free.bytesLong()}, ${item.data[index].partitions[pIndex].size_free_percent}%`, "size_free");
                                     }
                                     if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
                                         data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}`, "size_used");
                                     } else {
-                                        data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}, ${Math.round((item.data[index].partitions[pIndex].size_used / item.data[index].partitions[pIndex].size_total) * 100)}%`, "size_used");
+                                        data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}, ${item.data[index].partitions[pIndex].size_used_percent}%`, "size_used");
                                     }
                                     if (item.data[index].partitions[pIndex].size_total === 0) {
                                         data_item(list, "0 bytes (0B)", "size_total");
@@ -3563,7 +3559,6 @@ const dashboard = function dashboard():void {
                     const form:HTMLElement = tools.websocket.nodes.handshake_scheme.getAncestor("form", "class"),
                         h4:HTMLElement = form.getElementsByTagName("h4")[0],
                         scheme:HTMLElement = form.getElementsByTagName("p")[1],
-                        span:HTMLElement = tools.websocket.nodes.handshake.parentNode.getElementsByTagName("span")[0],
                         emOpen:HTMLElement = document.createElement("em"),
                         emSecure:HTMLElement = document.createElement("em");
                     tools.websocket.handshake();
@@ -3571,27 +3566,28 @@ const dashboard = function dashboard():void {
                     tools.websocket.nodes.button_send.onclick = tools.websocket.message_send;
                     tools.websocket.nodes.message_send_body.onkeyup = tools.websocket.keyup_message;
                     tools.websocket.nodes.message_send_frame.onblur = tools.websocket.keyup_frame;
+                    tools.websocket.nodes.handshake_label.textContent = "";
                     if (isNaN(payload.servers.dashboard.status.open) === true) {
                         tools.websocket.nodes.handshake_scheme.checked = true;
                         h4.style.display = "none";
                         scheme.style.display = "none";
                         emSecure.textContent = String(payload.servers.dashboard.status.secure);
-                        span.appendText("secure - ");
-                        span.appendChild(emSecure);
+                        tools.websocket.nodes.handshake_label.appendText("secure - ");
+                        tools.websocket.nodes.handshake_label.appendChild(emSecure);
                     } else if (isNaN(payload.servers.dashboard.status.secure) === true) {
                         tools.websocket.nodes.handshake_scheme.checked = false;
                         h4.style.display = "none";
                         scheme.style.display = "none";
                         emOpen.textContent = String(payload.servers.dashboard.status.open);
-                        span.appendText("open - ");
-                        span.appendChild(emOpen);
+                        tools.websocket.nodes.handshake_label.appendText("open - ");
+                        tools.websocket.nodes.handshake_label.appendChild(emOpen);
                     } else {
                         emOpen.textContent = String(payload.servers.dashboard.status.open);
                         emSecure.textContent = String(payload.servers.dashboard.status.secure);
-                        span.appendText("open - ");
-                        span.appendChild(emOpen);
-                        span.appendText(", secure - ");
-                        span.appendChild(emSecure);
+                        tools.websocket.nodes.handshake_label.appendText("open - ");
+                        tools.websocket.nodes.handshake_label.appendChild(emOpen);
+                        tools.websocket.nodes.handshake_label.appendText(", secure - ");
+                        tools.websocket.nodes.handshake_label.appendChild(emSecure);
                     }
                 },
                 keyup_frame: function dashboard_websocketKeuUpFrame(event:Event):void {
@@ -3684,6 +3680,7 @@ const dashboard = function dashboard():void {
                     button_send: document.getElementById("websocket").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
                     halt_receive: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
                     handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                    handshake_label: document.getElementById("websocket").getElementsByClassName("http_response")[0].getElementsByTagName("label")[0].getElementsByTagName("span")[0],
                     handshake_scheme: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
                     handshake_status: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
                     handshake_timeout: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,

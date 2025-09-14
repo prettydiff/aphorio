@@ -111,7 +111,7 @@ const start_server = function utilities_startServer():void {
                                     readComplete("html");
                                 },
                                 error_terminate: null,
-                                location: `${process_path}lib${vars.sep}dashboard${vars.sep}dashboard.html`,
+                                location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}dashboard.html`,
                                 no_file: null
                             });
                         }
@@ -136,19 +136,19 @@ const start_server = function utilities_startServer():void {
                 file.read({
                     callback: readCSS,
                     error_terminate: null,
-                    location: `${process_path}lib${vars.sep}dashboard${vars.sep}styles.css`,
+                    location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
                     no_file: null
                 });
                 file.read({
                     callback: readXtermCSS,
                     error_terminate: null,
-                    location: `${process_path}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}css${vars.sep}xterm.css`,
+                    location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`,
                     no_file: null
                 });
                 file.read({
                     callback: readXtermJS,
                     error_terminate: null,
-                    location: `${process_path}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}lib${vars.sep}xterm.js`,
+                    location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}lib${vars.path.sep}xterm.js`,
                     no_file: null
                 });
             },
@@ -298,7 +298,7 @@ const start_server = function utilities_startServer():void {
                         let address:string = process.argv[index_browser].replace(`${arg}:`, "");
                         const address_length:number = address.length,
                             stat_address:string = (property === "test_list")
-                                ? `${process_path}lib${vars.sep}test${vars.sep + address.replace(/^\.?(\/|\\)/, "")}`
+                                ? `${process_path}lib${vars.path.sep}test${vars.path.sep + address.replace(/^\.?(\/|\\)/, "")}`
                                 : address,
                             stat_browser = function utilities_startServer_testStat_stat(err:node_error, details:node_fs_Stats):void {
                                 if (err === null && details !== null && details !== undefined) {
@@ -536,7 +536,7 @@ const start_server = function utilities_startServer():void {
                 }
             } while (index_tasks > 0);
         },
-        process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}lib${vars.sep}`)) + vars.sep,
+        process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.path.sep}lib${vars.path.sep}`)) + vars.path.sep,
         keys_tasks:string[] = Object.keys(tasks);
     let len_flags:number = keys_tasks.length,
         index_tasks:number = keys_tasks.length,
@@ -552,11 +552,11 @@ const start_server = function utilities_startServer():void {
     };
     vars.test.testing = testing;
     vars.path.project = (vars.test.testing === true)
-        ? `${process_path}test${vars.sep}`
+        ? `${process_path}test${vars.path.sep}`
         : process_path;
-    vars.path.compose_empty = `${process_path}compose${vars.sep}empty.yml`;
-    vars.path.compose = `${vars.path.project}compose${vars.sep}`;
-    vars.path.servers = `${vars.path.project}servers${vars.sep}`;
+    vars.path.compose_empty = `${process_path}compose${vars.path.sep}empty.yml`;
+    vars.path.compose = `${vars.path.project}compose${vars.path.sep}`;
+    vars.path.servers = `${vars.path.project}servers${vars.path.sep}`;
 
     log.shell([`${vars.text.underline}Executing start up tasks${vars.text.none}`]);
 

@@ -276,16 +276,7 @@ interface vars {
     intervals: store_number;
     logs: services_dashboard_status[];
     os: server_os;
-    path: {
-        compose: string;
-        compose_empty: string;
-        project: string;
-        servers: string;
-    };
-    processes: {
-        [key:string]: node_childProcess_ChildProcess;
-    };
-    sep: "/" | "\\";
+    path: vars_path;
     server_meta: server_meta;
     servers: store_servers;
     start_time: bigint;
@@ -314,6 +305,14 @@ interface vars {
     };
     text: store_string;
     timeZone_offset: number;
+}
+
+interface vars_path {
+    compose: string;
+    compose_empty: string;
+    project: string;
+    sep: "/" | "\\";
+    servers: string;
 }
 
 interface windows_drives {

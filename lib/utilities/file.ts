@@ -14,7 +14,7 @@ import vars from "./vars.ts";
 const file:file = {
     mkdir: function utilities_fileDir(config:file_mkdir):void {
         let ind:number = 0;
-        const dirs:string[] = config.location.split(vars.sep),
+        const dirs:string[] = config.location.split(vars.path.sep),
             len:number = dirs.length,
             errorHandler = function utilities_fileDir_errorHandler(errorInstance:node_error, statInstance:node_fs_Stats, errorCallback:() => void):void {
                 const type:string = (statInstance === undefined || statInstance === null)
@@ -66,7 +66,7 @@ const file:file = {
             },
             recursiveStat = function utilities_fileDir_recursiveStat():void {
                 ind = ind + 1;
-                const target:string = dirs.slice(0, ind).join(vars.sep);
+                const target:string = dirs.slice(0, ind).join(vars.path.sep);
                 node.fs.stat(target, function utilities_fileDir_recursiveStat_callback(errA:node_error, statA:node_fs_Stats):void {
                     errorHandler(errA, statA, function utilities_fileDir_recursiveStat_callback_errorHandler():void {
                         node.fs.mkdir(target, function utilities_fileDir_recursiveStat_callback_errorHandler_makeDir(errB:node_error):void {

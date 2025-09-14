@@ -121,14 +121,17 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                         active: parts[pIndex].IsActive,
                                         bootable: parts[pIndex].IsBoot,
                                         diskId: id,
+                                        diskName: data_win[index].FriendlyName,
                                         file_system: null,
                                         hidden: parts[pIndex].IsHidden,
                                         id: parts[pIndex].Guid,
                                         path: null,
                                         read_only: parts[pIndex].IsReadOnly,
                                         size_free: 0,
+                                        size_free_percent: 0,
                                         size_total: 0,
                                         size_used: 0,
+                                        size_used_percent: 0,
                                         type: parts[pIndex].Type
                                     };
                                     vIndex = 0;
@@ -144,6 +147,12 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                             part.size_free = volumes[vIndex].SizeRemaining;
                                             part.size_total = volumes[vIndex].Size;
                                             part.size_used = volumes[vIndex].Size - volumes[vIndex].SizeRemaining;
+                                            part.size_free_percent = (part.size_free === 0 || part.size_total === 0)
+                                                ? 0
+                                                : Math.round((part.size_free / part.size_total) * 100);
+                                            part.size_used_percent = (part.size_used === 0 || part.size_total === 0)
+                                                ? 0
+                                                : Math.round((part.size_used / part.size_total) * 100);
                                         }
                                         vIndex = vIndex + 1;
                                     } while (vIndex < vLen);
@@ -171,6 +180,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                         active: (child.mountpoint !== null),
                                         bootable: (child.partflags === "0x80"),
                                         diskId: disk.id,
+                                        diskName: data_posix[index].model,
                                         file_system: child.fstype,
                                         hidden: (child.mountpoint !== null && child.mountpoint.charAt(0) !== "/"),
                                         id: child.uuid,
@@ -179,12 +189,18 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                         size_free: (child.fsavail === null)
                                             ? 0
                                             : child.fsavail,
+                                        size_free_percent: (child.fsavail === null || child.fsavail === 0 || child.fssize === null || child.fssize === 0)
+                                            ? 0
+                                            : Math.round((child.fsavail / child.fssize) * 100),
                                         size_total: (child.fssize === null)
                                             ? 0
                                             : child.fssize,
                                         size_used: (child.fsused === null)
                                             ? 0
                                             : child.fsused,
+                                        size_used_percent: (child.fsused === null || child.fsused === 0 || child.fssize === null || child.fssize === 0)
+                                            ? 0
+                                            : Math.round((child.fsused / child.fssize) * 100),
                                         type: (child.type === "part")
                                             ? child.parttypename
                                             : child.type
@@ -429,6 +445,86 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 completed("user");
             }
         },
+        difference:store_function = {
+            interface: function utilities_os_differenceInterface():void {
+
+            },
+            storage: function utilities_os_differenceStorage():void {
+                const compare = function utilities_os_differenceStorage_compare(list_new:os_disk[]|os_disk_partition[], list_old:os_disk[]|os_disk_partition[], type:"disk"|"partition"):void {
+                    const disk_new:os_disk[] = list_new as os_disk[],
+                        disk_old:os_disk[] = list_old as os_disk[];
+                    let index_old:number = list_old.length,
+                        index_new:number = 0,
+                        match:boolean = false;
+                    if (index_old > 0 && index_new > 0) {
+                        do {
+                            index_old = index_old - 1;
+                            index_new = list_new.length;
+                            match = false;
+                            do {
+                                index_new = index_new - 1;
+                                if (list_new[index_new].id === list_old[index_old].id) {
+                                    if (type === "disk") {
+                                        if (disk_new[index_new].partitions.length > 0) {
+                                            utilities_os_differenceStorage_compare(disk_new[index_new].partitions, disk_old[index_old].partitions, "partition");
+                                        } else if (disk_old[index_old].partitions.length > 0) {
+                                            log.application({
+                                                action: "modify",
+                                                config: null,
+                                                message: `Disk ${disk_new[index_new].name} had ${disk_old[index_old].partitions.length} partitions but now has none.`,
+                                                status: "informational",
+                                                time: Date.now(),
+                                                type: "os"
+                                            });
+                                        }
+                                    }
+                                    match = true;
+                                    break;
+                                }
+                            } while (index_new > 0);
+                            if (match === false) {
+                                log.application({
+                                    action: "modify",
+                                    config: null,
+                                    message: (type === "disk")
+                                        ? `Storage device ${disk_old[index_old].name} with capacity ${disk_old[index_old].size_disk} is no longer available.`
+                                        : `Partition ${list_old[index_old].id} from disk ${(list_old[index_old] as os_disk_partition).diskName} of capacity ${(list_old[index_old] as os_disk_partition).size_total} is no longer available.`,
+                                    status: "informational",
+                                    time: Date.now(),
+                                    type: "os"
+                                });
+                            }
+                        } while (index_old > 0);
+                        index_new = list_new.length;
+                        do {
+                            index_new = index_new - 1;
+                            index_old = vars.os.storage.data.length;
+                            match = false;
+                            do {
+                                index_old = index_old - 1;
+                                if (disk_new[index_new].name === vars.os.storage.data[index_old].name) {
+                                    match = true;
+                                    break;
+                                }
+                            } while (index_old > 0);
+                            if (match === false) {
+                                log.application({
+                                    action: "modify",
+                                    config: null,
+                                    message: (type === "disk")
+                                        ? `New storage device ${disks[index_new].name} with capacity ${disks[index_new].size_disk} is now available.`
+                                        : `Partition ${list_new[index_new].id} from disk ${(list_new[index_new] as os_disk_partition).diskName} of capacity ${(list_new[index_new] as os_disk_partition).size_total} is now available.`,
+                                    status: "informational",
+                                    time: Date.now(),
+                                    type: "os"
+                                });
+                            }
+                        } while (index_new > 0);
+                    }
+                };
+                compare(disks, vars.os.storage.data, "disk");
+            }
+        },
         main = function utilities_os_main():services_os_all {
             const mem:server_os_memoryUsage = process.memoryUsage(),
                 output:services_os_all = {
@@ -551,6 +647,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     service: "dashboard-os-main"
                 });
             } else if (type_os === "disk") {
+                difference.storage();
                 vars.os.storage = {
                     data: disks,
                     time: now
@@ -560,6 +657,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     service: "dashboard-os-disk"
                 });
             } else if (type_os === "intr") {
+                difference.interface();
                 vars.os.interfaces = {
                     data: node.os.networkInterfaces(),
                     time: now

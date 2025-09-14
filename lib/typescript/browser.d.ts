@@ -356,6 +356,7 @@ declare global {
             button_send: HTMLButtonElement;
             halt_receive: HTMLInputElement;
             handshake: HTMLTextAreaElement;
+            handshake_label: HTMLElement;
             handshake_scheme: HTMLInputElement;
             handshake_status: HTMLTextAreaElement;
             handshake_timeout: HTMLInputElement;
