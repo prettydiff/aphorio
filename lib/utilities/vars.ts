@@ -146,7 +146,7 @@ const win32:boolean = (process.platform === "win32"),
             compose: "",
             compose_empty: "",
             project: "",
-            sep: "/",
+            sep: node.path.sep,
             servers: ""
         },
         servers: {},

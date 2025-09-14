@@ -50,27 +50,23 @@ interface file {
 
 interface file_mkdir {
     callback: () => void;
-    error_terminate: type_dashboard_config;
     location: string;
 }
 
 interface file_read {
     callback: (file:Buffer) => void;
-    error_terminate: type_dashboard_config;
     location: string;
     no_file: () => void;
 }
 
 interface file_remove {
     callback: () => void;
-    error_terminate: type_dashboard_config;
     exclusions: string[];
     location: string;
 }
 
 interface file_stat {
     callback: (stats:node_fs_BigIntStats) => void;
-    error_terminate: type_dashboard_config;
     location: string;
     no_file: () => void;
 }
@@ -78,7 +74,6 @@ interface file_stat {
 interface file_write {
     callback: () => void;
     contents: Buffer | string;
-    error_terminate: type_dashboard_config;
     location: string;
 }
 

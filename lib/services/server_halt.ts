@@ -70,7 +70,6 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 callback: function services_serverHalt_remove():void {
                     complete("remove");
                 },
-                error_terminate: data.server,
                 exclusions: [],
                 location: path_name
             },
@@ -196,7 +195,6 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
             file.write({
                 callback: write_json,
                 contents: JSON.stringify(servers),
-                error_terminate: data.server,
                 location: path_config
             });
         } else {

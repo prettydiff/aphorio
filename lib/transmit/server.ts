@@ -428,7 +428,6 @@ const server = function transmit_server(data:services_action_server, callback:(n
                 callback: function transmit_server_readCerts_starterOpen():void {
                     start(null);
                 },
-                error_terminate: null,
                 exclusions: null,
                 location: vars.path.servers + data.server.name
             });
@@ -446,7 +445,6 @@ const server = function transmit_server(data:services_action_server, callback:(n
             if (vars.servers[data.server.name].config.single_socket === true || vars.servers[server_name].config.temporary === true) {
                 file.remove({
                     callback: starter,
-                    error_terminate: null,
                     exclusions: null,
                     location: vars.path.servers + server_name
                 });

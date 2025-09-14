@@ -129,7 +129,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             input = indexFile;
                             fileItem();
                         },
-                        error_terminate: null,
                         location: indexFile,
                         no_file: function http_get_statTest_directoryItem_noFile():void {
                             const callback = function http_get_statTest_directoryItem_noFile_directory(dir:directory_list|string[]):void {
@@ -343,7 +342,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
     }
     file.stat({
         callback: statTest,
-        error_terminate: null,
         location: input,
         no_file: notFound
     });

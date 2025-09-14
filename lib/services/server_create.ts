@@ -74,7 +74,6 @@ const server_create = function services_serverCreate(data:services_action_server
         mkdir = function services_serverCreate_serverDir(location:string):void {
             file.mkdir({
                 callback: children,
-                error_terminate: config,
                 location: location
             });
         },
@@ -93,9 +92,6 @@ const server_create = function services_serverCreate(data:services_action_server
                     complete("config");
                 },
                 contents: JSON.stringify(servers),
-                error_terminate: (config.name === "dashboard")
-                    ? null
-                    : config,
                 location: path_config
             });
         };

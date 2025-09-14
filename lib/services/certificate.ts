@@ -212,18 +212,15 @@ const certificate = function services_certificate(config:config_certificate):voi
             file.write({
                 callback: create,
                 contents: cert_extensions,
-                error_terminate: vars.servers[config.name],
                 location: `${cert_path}extensions.cnf`
             });
         };
     file.stat({
         callback: cert,
-        error_terminate: vars.servers[config.name],
         location: cert_path,
         no_file: function services_certificate_mkdir():void {
             file.mkdir({
                 callback: cert,
-                error_terminate: vars.servers[config.name],
                 location: cert_path
             });
         }

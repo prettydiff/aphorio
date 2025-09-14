@@ -257,7 +257,15 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         index = index + 1;
                     } while (index < len);
                 }
-                completed("proc");
+                if (type_os === "user") {
+                    vars.os.processes = {
+                        data: processes,
+                        time: Date.now()
+                    };
+                    spawning("user");
+                } else {
+                    completed("proc");
+                }
             },
             serv: function utilities_os_builderServ():void {
                 const data_win:os_service_windows[] = raw.serv as os_service_windows[],
@@ -385,7 +393,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         index = index + 1;
                     } while (index < len);
                 }
-                completed("socU");
+                spawning("socT");
             },
             user: function utilities_os_builderUser():void {
                 const data_win:os_user_windows[] = raw.user as os_user_windows[],
@@ -759,10 +767,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     if (win32 === true) {
                         if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
                             builder.disk();
-                        } else if (type_os === "user" && flags.proc === true && flags.user === true) {
-                            builder.proc();
-                            builder.user();
-                        } else if (type_os !== "user" && type !== "disk" && type !== "part" && type !== "volu") {
+                        } else if (type !== "disk" && type !== "part" && type !== "volu") {
                             builder[type]();
                         }
                     } else {
@@ -828,16 +833,14 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
         if (win32 === true) {
             spawning("socU");
         } else {
-            flags.socU = true;
+            spawning("socT");
         }
-        spawning("socT");
     } else if (type_os === "user") {
         if (win32 === true) {
             spawning("proc");
         } else {
-            flags.proc = true;
+            spawning("user");
         }
-        spawning("user");
     } else if (type_os === "main") {
         completed("disk");
     }

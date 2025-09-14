@@ -3512,6 +3512,7 @@ const dashboard = function dashboard():void {
                     } else {
                         tools.terminal.item.onSelectionChange(tools.terminal.events.selection);
                     }
+                    tools.terminal.events.resize();
                 },
                 socket: null
             },
