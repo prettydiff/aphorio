@@ -186,6 +186,10 @@ interface server_ports {
     secure?: number;
 }
 
+interface store_arrays {
+    [key:string]: Array<any>;
+}
+
 interface store_children {
     [key:string]: node_childProcess_ChildProcess;
 }

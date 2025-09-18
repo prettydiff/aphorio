@@ -6,6 +6,29 @@ interface config_certificate {
     selfSign: boolean;
 }
 
+interface config_comparison {
+    dict: boolean;
+    lists: {
+        new: Array<any> | Object;
+        old: Array<any> | Object;
+    };
+    messages: {
+        child: {
+            new: (item:any, name?:string) => string;
+            old: (item:any, name?:string) => string;
+        };
+        no_child: (item:any, name?:string) => string;
+        parent: {
+            new: (item:any, name?:string) => string;
+            old: (item:any, name?:string) => string;
+        };
+    };
+    properties: {
+        child: string;
+        parent: string;
+    };
+}
+
 interface config_core {
     close?: (event:Event) => void;
     message: (event:websocket_event) => void;

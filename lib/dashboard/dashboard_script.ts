@@ -192,7 +192,8 @@ const dashboard = function dashboard():void {
                     list:HTMLElement = module.nodes.list,
                     table:HTMLElement = (list === null)
                         ? null
-                        : list.parentNode;
+                        : list.parentNode,
+                    type:"processes"|"services"|"sockets"|"users" = list.getAncestor("tab", "class").getAttribute("id") as "processes"|"services"|"sockets"|"users";
                 if (len > 0 && table !== null) {
                     const cell = function dashboard_tablesPopulate_cell(tr:HTMLElement, text:string, raw:string):void {
                             const td:HTMLElement = document.createElement("td");
@@ -205,50 +206,56 @@ const dashboard = function dashboard():void {
                             }
                             tr.appendChild(td);
                         },
-                        populate_process = function dashboard_tablesPopulate_populateProcess(tr:HTMLElement, record:os_proc):void {
-                            const time:string = (record.time === null)
-                                    ? (payload.platform === "win32")
-                                        ? (0).time().replace(/000$/, "")
-                                        : (0).time().replace(/\.0+$/, "")
-                                    : (payload.platform === "win32")
-                                        ? record.time.time().replace(/000$/, "")
-                                        : record.time.time().replace(/\.0+$/, ""),
-                                memory:string = (record.memory === null)
+                        build_record:store_function = {
+                            processes: function dashboard_tablesPopulate_populateProcess():void {
+                                const record:os_proc = item.data[index] as os_proc,
+                                    time:string = (record.time === null)
+                                        ? (payload.platform === "win32")
+                                            ? (0).time().replace(/000$/, "")
+                                            : (0).time().replace(/\.0+$/, "")
+                                        : (payload.platform === "win32")
+                                            ? record.time.time().replace(/000$/, "")
+                                            : record.time.time().replace(/\.0+$/, ""),
+                                    memory:string = (record.memory === null)
+                                        ? "0"
+                                        : record.memory.commas(),
+                                    id:string = String(record.id);
+                                cell(row, record.name, null);
+                                cell(row, id, id);
+                                cell(row, memory, (record.memory === null)
                                     ? "0"
-                                    : record.memory.commas(),
-                                id:string = String(record.id);
-                            cell(tr, record.name, null);
-                            cell(tr, id, id);
-                            cell(tr, memory, (record.memory === null)
-                                ? "0"
-                                : String(record.memory));
-                            cell(tr, time, (record.time === null)
-                                ? "0"
-                                : String(record.time));
-                            cell(tr, record.user, null);
-                        },
-                        populate_services = function dashboard_tablesPopulate_populateServices(tr:HTMLElement, record:os_service):void {
-                            cell(tr, record.name, null);
-                            cell(tr, record.status, null);
-                            cell(tr, record.description, null);
-                        },
-                        populate_sockets = function dashboard_tablesPopulate_populateSockets(tr:HTMLElement, record:os_sockets):void {
-                            cell(tr, record.type, null);
-                            cell(tr, record["local-address"], null);
-                            cell(tr, String(record["local-port"]), null);
-                            cell(tr, record["remote-address"], null);
-                            cell(tr, String(record["remote-port"]), null);
-                        },
-                        populate_users = function dashboard_tablesPopulate_populateUsers(tr:HTMLElement, record:os_user):void {
-                            const uid:string = String(record.uid),
-                                proc:string = String(record.proc);
-                            cell(tr, record.name, null);
-                            cell(tr, uid, uid);
-                            cell(tr, (record.lastLogin === 0)
-                                ? "never"
-                                : record.lastLogin.dateTime(true, null), String(record.lastLogin));
-                            cell(tr, proc, proc);
-                            cell(tr, record.type, null);
+                                    : String(record.memory));
+                                cell(row, time, (record.time === null)
+                                    ? "0"
+                                    : String(record.time));
+                                cell(row, record.user, null);
+                            },
+                            services: function dashboard_tablesPopulate_populateServices():void {
+                                const record:os_service = item.data[index] as os_service;
+                                cell(row, record.name, null);
+                                cell(row, record.status, null);
+                                cell(row, record.description, null);
+                            },
+                            sockets: function dashboard_tablesPopulate_populateSockets():void {
+                                const record:os_sockets = item.data[index] as os_sockets;
+                                cell(row, record.type, null);
+                                cell(row, record["local-address"], null);
+                                cell(row, String(record["local-port"]), null);
+                                cell(row, record["remote-address"], null);
+                                cell(row, String(record["remote-port"]), null);
+                            },
+                            users: function dashboard_tablesPopulate_populateUsers():void {
+                                const record:os_user = item.data[index] as os_user,
+                                    uid:string = String(record.uid),
+                                    proc:string = String(record.proc);
+                                cell(row, record.name, null);
+                                cell(row, uid, uid);
+                                cell(row, (record.lastLogin === 0)
+                                    ? "never"
+                                    : record.lastLogin.dateTime(true, null), String(record.lastLogin));
+                                cell(row, proc, proc);
+                                cell(row, record.type, null);
+                            }
                         },
                         sort_index:number = Number(table.dataset.column),
                         sort_name:string = (module === network.sockets_os)
@@ -271,15 +278,7 @@ const dashboard = function dashboard():void {
                     });
                     do {
                         row = document.createElement("tr");
-                        if (module === system.processes) {
-                            populate_process(row, item.data[index] as os_proc);
-                        } else if (module === system.services) {
-                            populate_services(row, item.data[index] as os_service);
-                        } else if (module === network.sockets_os) {
-                            populate_sockets(row, item.data[index] as os_sockets);
-                        } else if (module === system.users) {
-                            populate_users(row, item.data[index] as os_user);
-                        }
+                        build_record[type]();
                         row.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
                         list.appendChild(row);
                         index = index + 1;
@@ -2621,18 +2620,23 @@ const dashboard = function dashboard():void {
                                 let list:HTMLElement = null,
                                     pIndex:number = 0,
                                     warn:HTMLElement = null,
-                                    p:HTMLElement = null;
+                                    p:HTMLElement = null,
+                                    percent:HTMLElement = null;
                                 span.textContent = String(len);
                                 li.appendChild(span);
                                 do {
                                     list = document.createElement("ul");
                                     list.setAttribute("class", "os-interface");
-                                    if (item.data[index].partitions[pIndex].size_free_percent < 16) {
+                                    if (item.data[index].partitions[pIndex].size_free_percent < 16 && item.data[index].partitions[pIndex].file_system !== null) {
                                         warn = document.createElement("strong");
+                                        percent = document.createElement("strong");
                                         p = document.createElement("p");
                                         warn.textContent = "Warning!";
                                         p.appendChild(warn);
-                                        p.appendText(` Disk partition ${String(item.data[index].partitions[pIndex].id)} only has ${item.data[index].partitions[pIndex].size_free_percent}% capacity free.`);
+                                        percent.textContent = `${item.data[index].partitions[pIndex].size_free_percent}%`;
+                                        p.appendText(` Disk partition ${String(item.data[index].partitions[pIndex].id)} only has `);
+                                        p.appendChild(percent);
+                                        p.appendText(" capacity free.");
                                         li.appendChild(p);
                                     }
                                     data_item(list, String(item.data[index].partitions[pIndex].active), "active");

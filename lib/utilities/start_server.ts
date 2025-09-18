@@ -544,7 +544,7 @@ const start_server = function utilities_startServer():void {
                     }
                 };
             count_task = count_task + 1;
-            log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.start_time)}]${vars.text.none} ${flag} - ${task_definitions[flag]}`]);
+            log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${task_definitions[flag]}`]);
             if (count_task === len_flags) {
                 clock();
                 if (testing === true || vars.servers.dashboard === undefined) {

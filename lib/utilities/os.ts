@@ -17,6 +17,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
         services:os_service[] = [],
         sockets: os_sockets[] = [],
         users: os_user[] = [],
+        int:NodeJS.Dict<node_os_NetworkInterfaceInfo[]> = node.os.networkInterfaces(),
         chunks:store_string_list = {
             disk: [],
             part: [],
@@ -453,84 +454,287 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 completed("user");
             }
         },
-        difference:store_function = {
-            interface: function utilities_os_differenceInterface():void {
-
-            },
-            storage: function utilities_os_differenceStorage():void {
-                const compare = function utilities_os_differenceStorage_compare(list_new:os_disk[]|os_disk_partition[], list_old:os_disk[]|os_disk_partition[], type:"disk"|"partition"):void {
-                    const disk_new:os_disk[] = list_new as os_disk[],
-                        disk_old:os_disk[] = list_old as os_disk[];
-                    let index_old:number = list_old.length,
-                        index_new:number = 0,
-                        match:boolean = false;
-                    if (index_old > 0 && index_new > 0) {
-                        do {
-                            index_old = index_old - 1;
-                            index_new = list_new.length;
-                            match = false;
-                            do {
-                                index_new = index_new - 1;
-                                if (list_new[index_new].id === list_old[index_old].id) {
-                                    if (type === "disk") {
-                                        if (disk_new[index_new].partitions.length > 0) {
-                                            utilities_os_differenceStorage_compare(disk_new[index_new].partitions, disk_old[index_old].partitions, "partition");
-                                        } else if (disk_old[index_old].partitions.length > 0) {
-                                            log.application({
-                                                action: "modify",
-                                                config: null,
-                                                message: `Disk ${disk_new[index_new].name} had ${disk_old[index_old].partitions.length} partitions but now has none.`,
-                                                status: "informational",
-                                                time: Date.now(),
-                                                type: "os"
-                                            });
-                                        }
-                                    }
-                                    match = true;
-                                    break;
+        comparison = function utilities_os_comparison(config:config_comparison, time:number, type:"child"|"parent"):void {
+            const list_new:Array<any> = (config.dict === true)
+                    ? Object.keys(config.lists.new)
+                    : config.lists.new as Array<any>,
+                list_old:Array<any> = (config.dict === true)
+                    ? Object.keys(config.lists.old)
+                    : config.lists.old as Array<any>;
+            let index_old:number = list_old.length,
+                index_new:number = 0,
+                item_new:any = null,
+                item_old:any = null,
+                match:boolean = false;
+            if (time > 0 && index_old > 0 && index_new > 0) {
+                do {
+                    index_old = index_old - 1;
+                    index_new = list_new.length;
+                    match = false;
+                    do {
+                        if (config.dict === true) {
+                            // @ts-expect-error - some data property abstracted from any object by array notation
+                            item_new = config.lists.new[list_new[index_new]];
+                            // @ts-expect-error - some data property abstracted from any object by array notation
+                            item_old = config.lists.old[list_old[index_old]];
+                        } else {
+                            // @ts-expect-error - some data object from an array
+                            item_new = config.lists.new[index_new];
+                            // @ts-expect-error - some data object from an array
+                            item_old = config.lists.old[index_old];
+                        }
+                        index_new = index_new - 1;
+                        if (item_new[config.properties.parent] === item_old[config.properties.parent]) {
+                            if (type === "parent" && config.properties.child !== null) {
+                                if (item_new[config.properties.child].length > 0) {
+                                    const child_config:config_comparison = {
+                                        dict: false,
+                                        lists: {
+                                            new: item_new[config.properties.child],
+                                            old: item_old[config.properties.child]
+                                        },
+                                        messages: config.messages,
+                                        properties: config.properties
+                                    };
+                                    utilities_os_comparison(child_config, time, "child");
+                                } else if (item_old[config.properties.child].length > 0) {
+                                    log.application({
+                                        action: "modify",
+                                        config: null,
+                                        message: (config.dict === true)
+                                            ? config.messages.no_child(item_old, list_old[index_old])
+                                            : config.messages.no_child(item_old),
+                                        status: "informational",
+                                        time: Date.now(),
+                                        type: "os"
+                                    });
                                 }
-                            } while (index_new > 0);
-                            if (match === false) {
-                                log.application({
-                                    action: "modify",
-                                    config: null,
-                                    message: (type === "disk")
-                                        ? `Storage device ${disk_old[index_old].name} with capacity ${disk_old[index_old].size_disk} is no longer available.`
-                                        : `Partition ${list_old[index_old].id} from disk ${(list_old[index_old] as os_disk_partition).diskName} of capacity ${(list_old[index_old] as os_disk_partition).size_total} is no longer available.`,
-                                    status: "informational",
-                                    time: Date.now(),
-                                    type: "os"
-                                });
                             }
-                        } while (index_old > 0);
-                        index_new = list_new.length;
-                        do {
-                            index_new = index_new - 1;
-                            index_old = vars.os.storage.data.length;
-                            match = false;
-                            do {
-                                index_old = index_old - 1;
-                                if (disk_new[index_new].name === vars.os.storage.data[index_old].name) {
-                                    match = true;
-                                    break;
-                                }
-                            } while (index_old > 0);
-                            if (match === false) {
-                                log.application({
-                                    action: "modify",
-                                    config: null,
-                                    message: (type === "disk")
-                                        ? `New storage device ${disks[index_new].name} with capacity ${disks[index_new].size_disk} is now available.`
-                                        : `Partition ${list_new[index_new].id} from disk ${(list_new[index_new] as os_disk_partition).diskName} of capacity ${(list_new[index_new] as os_disk_partition).size_total} is now available.`,
-                                    status: "informational",
-                                    time: Date.now(),
-                                    type: "os"
-                                });
+                            if (config.properties.parent !== "local-address" || (config.properties.parent === "local-address" && item_new["local-port"] === item_old["local-port"])) {
+                                match = true;
                             }
-                        } while (index_new > 0);
+                            break;
+                        }
+                    } while (index_new > 0);
+                    if (match === false) {
+                        log.application({
+                            action: "modify",
+                            config: null,
+                            message: (config.dict === true)
+                                ? config.messages[type].old(item_old, list_old[index_old])
+                                : config.messages[type].old(item_old),
+                            status: "informational",
+                            time: Date.now(),
+                            type: "os"
+                        });
                     }
-                };
-                compare(disks, vars.os.storage.data, "disk");
+                } while (index_old > 0);
+                index_new = list_new.length;
+                do {
+                    index_new = index_new - 1;
+                    index_old = vars.os.storage.data.length;
+                    match = false;
+                    do {
+                        if (config.dict === true) {
+                            // @ts-expect-error - some data property abstracted from any object by array notation
+                            item_new = config.lists.new[list_new[index_new]];
+                            // @ts-expect-error - some data property abstracted from any object by array notation
+                            item_old = config.lists.old[list_old[index_old]];
+                        } else {
+                            // @ts-expect-error - some data object from an array
+                            item_new = config.lists.new[index_new];
+                            // @ts-expect-error - some data object from an array
+                            item_old = config.lists.old[index_old];
+                        }
+                        index_old = index_old - 1;
+                        if (item_new[config.properties[type]] === item_old[config.properties[type]]) {
+                            match = true;
+                            break;
+                        }
+                    } while (index_old > 0);
+                    if (match === false) {
+                        log.application({
+                            action: "modify",
+                            config: null,
+                            message: (config.dict === true)
+                                ? config.messages[type].new(item_new, list_new[index_new])
+                                : config.messages[type].new(item_new),
+                            status: "informational",
+                            time: Date.now(),
+                            type: "os"
+                        });
+                    }
+                } while (index_new > 0);
+            }
+        },
+        difference:store_function = {
+            disk: function utilities_os_differenceDisk():void {
+                comparison({
+                    dict: false,
+                    lists: {
+                        new: disks,
+                        old: vars.os.storage.data
+                    },
+                    messages: {
+                        child: {
+                            new: function utilities_os_differenceDisk_messagesChildNew(item:os_disk_partition):string {
+                                return `Partition ${item.id} from disk ${item.diskName} of capacity ${item.size_total} is now available.`;
+                            },
+                            old: function utilities_os_differenceDisk_messagesChildOld(item:os_disk_partition):string {
+                                return `Partition ${item.id} from disk ${item.diskName} of capacity ${item.size_total} is no longer available available.`;
+                            }
+                        },
+                        no_child: function utilities_os_differenceDisk_messagesNoChild(item:os_disk):string {
+                            return `Disk ${item.name} had ${item.partitions.length} partitions but now has none.`;
+                        },
+                        parent: {
+                            new: function utilities_os_differenceDisk_messagesParentNew(item:os_disk):string {
+                                return `New storage device ${item.name} with capacity ${item.size_disk} is now available.`;
+                            },
+                            old: function utilities_os_differenceDisk_messagesParentOld(item:os_disk):string {
+                                return `Storage device ${item.name} with capacity ${item.size_disk} is no longer available.`;
+                            }
+                        }
+                    },
+                    properties: {
+                        child: "partitions",
+                        parent: "id"
+                    }
+                }, vars.os.storage.time, "parent");
+            },
+            intr: function utilities_os_differenceIntr():void {
+                comparison({
+                    dict: true,
+                    lists: {
+                        new: int,
+                        old: vars.os.interfaces.data
+                    },
+                    messages: {
+                        child: {
+                            new: function utilities_os_differenceIntr_messagesChildNew(item:node_os_NetworkInterfaceInfo, name:string):string {
+                                return `Address ${item.address} from interface ${name} is now available.`;
+                            },
+                            old: function utilities_os_differenceIntr_messagesChildOld(item:node_os_NetworkInterfaceInfo, name:string):string {
+                                return `Partition ${item.address} from disk ${name} is no longer available available.`;
+                            }
+                        },
+                        no_child: function utilities_os_differenceIntr_messagesNoChild(item:node_os_NetworkInterfaceInfo[], name:string):string {
+                            return `Network interface ${name} had ${item.length} addresses assigned but now has none.`;
+                        },
+                        parent: {
+                            new: function utilities_os_differenceIntr_messagesParentNew(item:node_os_NetworkInterfaceInfo[], name:string):string {
+                                return `New network interface ${name} is now available.`;
+                            },
+                            old: function utilities_os_differenceIntr_messagesParentOld(item:node_os_NetworkInterfaceInfo[], name:string):string {
+                                return `Network interface ${name} is no longer available.`;
+                            }
+                        }
+                    },
+                    properties: {
+                        child: "address",
+                        parent: "id"
+                    }
+                }, vars.os.interfaces.time, "parent");
+            },
+            proc: function utilities_os_differenceProc():void {
+                comparison({
+                    dict: true,
+                    lists: {
+                        new: processes,
+                        old: vars.os.processes.data
+                    },
+                    messages: {
+                        child: null,
+                        no_child: null,
+                        parent: {
+                            new: function utilities_os_differenceProc_messagesParentNew(item:os_proc):string {
+                                return `New process ${item.name} with id ${item.id} came online.`;
+                            },
+                            old: function utilities_os_differenceProc_messagesParentOld(item:os_proc):string {
+                                return `Process ${item.name} with id ${item.id} is no longer available.`;
+                            }
+                        }
+                    },
+                    properties: {
+                        child: null,
+                        parent: "id"
+                    }
+                }, vars.os.processes.time, "parent");
+            },
+            serv: function utilities_os_differenceServ():void {
+                comparison({
+                    dict: true,
+                    lists: {
+                        new: services,
+                        old: vars.os.services.data
+                    },
+                    messages: {
+                        child: null,
+                        no_child: null,
+                        parent: {
+                            new: function utilities_os_differenceServ_messagesParentNew(item:os_service):string {
+                                return `New service ${item.name} now available.`;
+                            },
+                            old: function utilities_os_differenceServ_messagesParentOld(item:os_service):string {
+                                return `Service ${item.name} is removed.`;
+                            }
+                        }
+                    },
+                    properties: {
+                        child: null,
+                        parent: "name"
+                    }
+                }, vars.os.services.time, "parent");
+            },
+            sock: function utilities_os_differenceSock():void {
+                comparison({
+                    dict: true,
+                    lists: {
+                        new: sockets,
+                        old: vars.os.sockets.data
+                    },
+                    messages: {
+                        child: null,
+                        no_child: null,
+                        parent: {
+                            new: function utilities_os_differenceSock_messagesParentNew(item:os_sockets):string {
+                                return `New socket with local address ${item["local-address"]} and port ${item["local-port"]} came online.`;
+                            },
+                            old: function utilities_os_differenceSock_messagesParentOld(item:os_sockets):string {
+                                return `Socket with local address ${item["local-address"]} with port ${item["local-port"]} is no longer available.`;
+                            }
+                        }
+                    },
+                    properties: {
+                        child: null,
+                        parent: "local-address"
+                    }
+                }, vars.os.sockets.time, "parent");
+            },
+            user: function utilities_os_differenceUser():void {
+                comparison({
+                    dict: true,
+                    lists: {
+                        new: users,
+                        old: vars.os.users.data
+                    },
+                    messages: {
+                        child: null,
+                        no_child: null,
+                        parent: {
+                            new: function utilities_os_differenceSock_messagesParentNew(item:os_user):string {
+                                return `New user account with name ${item.name} came online.`;
+                            },
+                            old: function utilities_os_differenceSock_messagesParentOld(item:os_user):string {
+                                return `User account with name ${item.name} is no longer available.`;
+                            }
+                        }
+                    },
+                    properties: {
+                        child: null,
+                        parent: "name"
+                    }
+                }, vars.os.users.time, "parent");
             }
         },
         main = function utilities_os_main():services_os_all {
@@ -602,7 +806,9 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             const keys:string[] = Object.keys(complete),
                 now:number = Date.now();
             let index:number = keys.length;
-
+            if (type_os !== "all" && type_os !== "main") {
+                difference[type_os]();
+            }
             if (type_os === "all" && index > 0) {
                 const output:services_os_all = main();
                 complete[type] = true;
@@ -613,7 +819,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     }
                 } while (index > 0);
                 output.interfaces = {
-                    data: node.os.networkInterfaces(),
+                    data: int,
                     time: now
                 };
                 output.processes = {
@@ -655,7 +861,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     service: "dashboard-os-main"
                 });
             } else if (type_os === "disk") {
-                difference.storage();
                 vars.os.storage = {
                     data: disks,
                     time: now
@@ -665,9 +870,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     service: "dashboard-os-disk"
                 });
             } else if (type_os === "intr") {
-                difference.interface();
                 vars.os.interfaces = {
-                    data: node.os.networkInterfaces(),
+                    data: int,
                     time: now
                 };
                 callback({
@@ -804,10 +1008,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             spawning("part");
             spawning("socU");
             spawning("volu");
-        } else {
-            flags.part = true;
-            flags.socU = true;
-            flags.volu = true;
         }
         spawning("disk");
         spawning("proc");
@@ -818,9 +1018,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
         if (win32 === true) {
             spawning("part");
             spawning("volu");
-        } else {
-            flags.part = true;
-            flags.volu = true;
         }
         spawning("disk");
     } else if (type_os === "intr") {
