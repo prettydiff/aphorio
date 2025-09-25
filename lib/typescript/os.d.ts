@@ -9,6 +9,19 @@ interface os_child_out extends node_stream_Readable {
     type: type_os_key;
 }
 
+interface os_devs {
+    kernel_module: string;
+    name: string;
+    type: string;
+}
+
+interface os_devs_windows {
+    CreationClassName: string;
+    FriendlyName: string;
+    PNPClass: string;
+    PNPDeviceID: string;
+}
+
 interface os_disk {
     bus: string;
     guid: string;
@@ -105,36 +118,37 @@ interface os_proc_windows {
 }
 
 interface os_raw {
+    devs: os_devs_windows[] | string[];
     disk: os_disk_posix[] | os_disk_windows[];
     part: os_disk_windows_partition[];
     proc: os_proc_windows[] | string[];
-    serv: os_service_posix[] | os_service_windows[];
-    socT: os_sockets_tcp_windows[] | string[];
-    socU: os_sockets_udp_windows[];
+    serv: os_serv_posix[] | os_serv_windows[];
+    socT: os_sock_tcp_windows[] | string[];
+    socU: os_sock_udp_windows[];
     user: os_user_windows[] | string[];
     volu: os_disk_windows_volume[];
 }
 
-interface os_service {
+interface os_serv {
     description: string;
     name: string;
     status: string;
 }
 
-interface os_service_posix {
+interface os_serv_posix {
     active: "activating" | "active" | "deactivating" | "dead" | "exited" | "failed" | "inactive" | "running";
     description: string;
     unit: string;
 }
 
-interface os_service_windows {
+interface os_serv_windows {
     Description: string;
     DisplayName: string;
     Name: string;
     Status: number;
 }
 
-interface os_sockets {
+interface os_sock {
     "local-address": string;
     "local-port": number;
     "remote-address": string;
@@ -142,14 +156,14 @@ interface os_sockets {
     type: "tcp" | "udp";
 }
 
-interface os_sockets_tcp_windows {
+interface os_sock_tcp_windows {
     LocalAddress: string;
     LocalPort: number;
     RemoteAddress: string;
     RemotePort: number;
 }
 
-interface os_sockets_udp_windows {
+interface os_sock_udp_windows {
     LocalAddress: string;
     LocalPort: number;
 }

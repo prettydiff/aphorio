@@ -119,7 +119,9 @@ interface server_meta_item {
 }
 
 interface server_os {
-    interfaces: services_os_intr;
+    devs: services_os_devs;
+    disk: services_os_disk;
+    intr: services_os_intr;
     machine: {
         cpu: {
             arch: string;
@@ -160,17 +162,16 @@ interface server_os {
         uptime: number;
         versions: store_string;
     };
-    processes: services_os_proc;
-    services: services_os_serv;
-    sockets: services_os_sock;
-    storage: services_os_disk;
+    proc: services_os_proc;
+    serv: services_os_serv;
+    sock: services_os_sock;
     time: number;
-    user: {
+    user: services_os_user;
+    user_account: {
         gid: number;
         homedir: string;
         uid: number;
     };
-    users: services_os_user;
 }
 
 interface server_os_memoryUsage {
@@ -216,6 +217,10 @@ interface store_function {
 
 interface store_number {
     [key:string]: number;
+}
+
+interface store_os_difference {
+    [key:string]: config_os_comparison;
 }
 
 interface store_ports {

@@ -30,8 +30,8 @@ type type_halt_action = "deactivate" | "destroy" | "modify";
 type type_hash_input = "direct" | "file";
 type type_http_method = "connect" | "delete" | "get" | "head" | "post" | "put";
 type type_keys = "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "Backspace" | "c" | "Delete" | "Enter" | "v";
-type type_os = "all" | "disk" | "intr" | "main" | "proc" | "serv" | "sock" | "user";
-type type_os_key = "disk" | "part" | "proc" | "serv" | "socT" | "socU" | "user" | "volu";
+type type_os = "all" | "devs" | "disk" | "intr" | "main" | "proc" | "serv" | "sock" | "user";
+type type_os_key = "devs" | "disk" | "part" | "proc" | "serv" | "socT" | "socU" | "user" | "volu";
 type type_paths = "storage" | "web_root";
 type type_search = "fragment" | "negation" | "regex";
 type type_selector = "class" | "id" | "tag";
@@ -60,8 +60,8 @@ type type_server_property = "block_list" | "domain_local" | "encryption" | "http
 // * dashboard-websocket-handshake - services_websocket_handshake - Custom created message to create a test WebSocket connection
 // * dashboard-websocket-message   - services_websocket_message   - Parses the header of a WebSocket message frame header sufficient to respond to the message on a test socket
 // * dashboard-websocket-status    - services_websocket_status    - Sends connection establishment details for a test socket
-type type_service = "dashboard-clock" | "dashboard-compose-container" | "dashboard-compose-variables" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-os-all" | "dashboard-os-disk" | "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-sock" | "dashboard-os-user" | "dashboard-server" | "dashboard-status" | "dashboard-terminal-resize" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
-type type_socket_data = services_action_compose | services_action_server | services_clock | services_dashboard_status | services_dashboard_terminal | services_dns_input | services_dns_output | services_dns_reverse | services_docker_compose | services_fileSystem | services_hash | services_http_test | services_os_all | services_os_disk | services_os_intr | services_os_proc | services_os_serv | services_os_sock | services_os_user | services_processKill | services_terminal_resize | services_testBrowser | services_websocket_handshake | services_websocket_message | services_websocket_status | store_string | string[] | transmit_dashboard;
+type type_service = "dashboard-clock" | "dashboard-compose-container" | "dashboard-compose-variables" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-os-all" | "dashboard-os-devs" | "dashboard-os-disk" | "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-sock" | "dashboard-os-user" | "dashboard-server" | "dashboard-status" | "dashboard-terminal-resize" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
+type type_socket_data = services_action_compose | services_action_server | services_clock | services_dashboard_status | services_dashboard_terminal | services_dns_input | services_dns_output | services_dns_reverse | services_docker_compose | services_fileSystem | services_hash | services_http_test | services_os_all | services_os_devs | services_os_disk | services_os_intr | services_os_proc | services_os_serv | services_os_sock | services_os_user | services_processKill | services_terminal_resize | services_testBrowser | services_websocket_handshake | services_websocket_message | services_websocket_status | store_string | string[] | transmit_dashboard;
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";

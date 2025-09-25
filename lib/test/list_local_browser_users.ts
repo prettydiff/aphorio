@@ -18,7 +18,7 @@ const test_listLocalBrowserUsers:test_list = [
                 event: "click",
                 node: [
                     ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 8]
+                    ["getElementsByTagName", "button", 9]
                 ]
             }
         ],
@@ -111,7 +111,7 @@ const test_listLocalBrowserUsers:test_list = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "sockets", null],
+                    ["getElementById", "users", null],
                     ["getElementsByClassName", "table-filters", 0],
                     ["getElementsByTagName", "input", 0]
                 ]
@@ -119,16 +119,16 @@ const test_listLocalBrowserUsers:test_list = [
             {
                 event: "setValue",
                 node: [
-                    ["getElementById", "sockets", null],
+                    ["getElementById", "users", null],
                     ["getElementsByClassName", "table-filters", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
-                value: "http-"
+                value: "system"
             },
             {
                 event: "keyup",
                 node: [
-                    ["getElementById", "sockets", null],
+                    ["getElementById", "users", null],
                     ["getElementsByClassName", "table-filters", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -145,7 +145,7 @@ const test_listLocalBrowserUsers:test_list = [
         unit: [
             {
                 node: [
-                    ["getElementById", "sockets", null],
+                    ["getElementById", "users", null],
                     ["getElementsByClassName", "table-stats", 0],
                     ["getElementsByTagName", "em", 1]
                 ],

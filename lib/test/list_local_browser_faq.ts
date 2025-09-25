@@ -17,7 +17,7 @@ const test_listLocalBrowserFAQ:test_list = [
                 event: "click",
                 node: [
                     ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 17]
+                    ["getElementsByTagName", "button", 18]
                 ]
             }
         ],

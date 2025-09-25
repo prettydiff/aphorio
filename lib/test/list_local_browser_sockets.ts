@@ -76,7 +76,7 @@ const test_listLocalBrowserSockets:test_list = [
                 qualifier: "contains",
                 target: ["textContent"],
                 type: "property",
-                value: "http"
+                value: "dashboard"
             },
             {
                 node: [
@@ -182,7 +182,7 @@ const test_listLocalBrowserSockets:test_list = [
                     ["getElementsByClassName", "table-filters", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
-                value: "http-"
+                value: "dashboard-terminal-"
             },
             {
                 event: "keyup",

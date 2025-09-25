@@ -10,6 +10,44 @@ const test_listLocalCommands = function test_listLocalCommands():test_list {
                 : "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
             : "/bin/sh",
         list:test_list = [
+            {
+                command: vars.commands.devs,
+                name: "Command os.devs",
+                shell: shell,
+                type: "command",
+                unit: (win32 === true)
+                    ? [
+                        {
+                            format: "json",
+                            properties: ["length"],
+                            qualifier: "greater",
+                            type: "stdout",
+                            value: 1
+                        },
+                        {
+                            format: "json",
+                            properties: [0, "CreationClassName", "typeof"],
+                            qualifier: "is",
+                            type: "stdout",
+                            value: "string"
+                        },
+                        {
+                            format: "json",
+                            properties: [0, "FriendlyName", "typeof"],
+                            qualifier: "is",
+                            type: "stdout",
+                            value: "string"
+                        },
+                        {
+                            format: "json",
+                            properties: [0, "PNPClass", "typeof"],
+                            qualifier: "is",
+                            type: "stdout",
+                            value: "string"
+                        }
+                    ]
+                    : []
+            },
             // os.disk
             {
                 command: vars.commands.disk,

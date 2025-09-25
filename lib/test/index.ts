@@ -2,6 +2,7 @@
 import log from "../utilities/log.ts";
 import test_listLocalBrowserApplicationLogs from "./list_local_browser_applicationLogs.ts";
 import test_listLocalBrowserCompose from "./list_local_browser_compose.ts";
+import test_listLocalBrowserDevices from "./list_local_browser_devices.ts";
 import test_listLocalBrowserDNS from "./list_local_browser_dns.ts";
 import test_listLocalBrowserFAQ from "./list_local_browser_faq.ts";
 import test_listLocalBrowserFileSystem from "./list_local_browser_fileSystem.ts";
@@ -33,6 +34,7 @@ const test_index = function test_index():void {
                 test_listLocalBrowserSockets,
                 test_listLocalBrowserInterfaces,
                 test_listLocalBrowserOS,
+                test_listLocalBrowserDevices,
                 test_listLocalBrowserProcesses,
                 test_listLocalBrowserServices,
                 test_listLocalBrowserStorage,

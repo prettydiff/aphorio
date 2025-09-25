@@ -32,12 +32,17 @@ const dashboard = function dashboard():void {
                 },
                 nav: "servers",
                 table_os: {
-                    processes: {
+                    devs: {
                         filter_column: 0,
                         filter_sensitive: true,
                         filter_value: ""
                     },
-                    services: {
+                    proc: {
+                        filter_column: 0,
+                        filter_sensitive: true,
+                        filter_value: ""
+                    },
+                    serv: {
                         filter_column: 0,
                         filter_sensitive: true,
                         filter_value: ""
@@ -47,12 +52,12 @@ const dashboard = function dashboard():void {
                         filter_sensitive: true,
                         filter_value: ""
                     },
-                    sockets_os: {
+                    sock: {
                         filter_column: 0,
                         filter_sensitive: true,
                         filter_value: ""
                     },
-                    users: {
+                    user: {
                         filter_column: 0,
                         filter_sensitive: true,
                         filter_value: ""
@@ -76,15 +81,17 @@ const dashboard = function dashboard():void {
                 const section:HTMLElement = target.getAncestor("table-filters", "class"),
                     tab:HTMLElement = section.getAncestor("tab", "class"),
                     tab_name:string = tab.getAttribute("id"),
-                    module:module_list|module_sockets_application|module_users = (tab_name === "processes")
-                        ? system.processes
-                        : (tab_name === "services")
-                            ? system.services
-                            : (tab_name === "sockets")
-                                ? (section === tab.getElementsByClassName("table-filters")[0])
-                                    ? network.sockets_application
-                                    : network.sockets_os
-                                : system.users,
+                    module:module_list|module_sockets_application|module_users = (tab_name === "devices")
+                        ? system.devices
+                        : (tab_name === "processes")
+                            ? system.processes
+                            : (tab_name === "services")
+                                ? system.services
+                                : (tab_name === "sockets")
+                                    ? (section === tab.getElementsByClassName("table-filters")[0])
+                                        ? network.sockets_application
+                                        : network.sockets_os
+                                    : system.users,
                     select:HTMLSelectElement = module.nodes.filter_column,
                     columnIndex:number = select.selectedIndex - 1,
                     list:HTMLCollectionOf<HTMLElement> = module.nodes.list.getElementsByTagName("tr"),
@@ -144,7 +151,7 @@ const dashboard = function dashboard():void {
                 }
             },
             // attaches event listeners to data tables and restores state
-            init: function dashboard_tablesInit(module:module_list|module_sockets_application|module_users, state_name:"processes"|"services"|"sockets_application"|"sockets_os"|"users"):void {
+            init: function dashboard_tablesInit(module:module_list|module_sockets_application|module_users, state_name:"devs"|"proc"|"serv"|"sockets_application"|"sock"|"user"):void {
                 const select = function dashboard_tablesSelect(table:HTMLElement, select:HTMLSelectElement):void {
                     const th:HTMLCollectionOf<HTMLElement> = table.getElementsByTagName("th"),
                         len:number = th.length;
@@ -180,20 +187,18 @@ const dashboard = function dashboard():void {
                 select(module.nodes.list.parentNode, module.nodes.filter_column);
                 if (state_name === "sockets_application") {
                     module.nodes.update_button.style.display = "none";
-                } else if (state_name === "sockets_os") {
-                    tables.populate(module, payload.os.sockets);
                 } else {
                     tables.populate(module, payload.os[state_name]);
                 }
             },
             // populate large data tables
-            populate: function dashboard_tablesPopulate(module:module_list|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user):void {
+            populate: function dashboard_tablesPopulate(module:module_list|module_users, item:services_os_devs|services_os_proc|services_os_serv|services_os_sock|services_os_user):void {
                 const len:number = item.data.length,
                     list:HTMLElement = module.nodes.list,
                     table:HTMLElement = (list === null)
                         ? null
                         : list.parentNode,
-                    type:"processes"|"services"|"sockets"|"users" = list.getAncestor("tab", "class").getAttribute("id") as "processes"|"services"|"sockets"|"users";
+                    type:"devices"|"processes"|"services"|"sockets"|"users" = list.getAncestor("tab", "class").getAttribute("id") as "devices"|"processes"|"services"|"sockets"|"users";
                 if (len > 0 && table !== null) {
                     const cell = function dashboard_tablesPopulate_cell(tr:HTMLElement, text:string, raw:string):void {
                             const td:HTMLElement = document.createElement("td");
@@ -207,6 +212,12 @@ const dashboard = function dashboard():void {
                             tr.appendChild(td);
                         },
                         build_record:store_function = {
+                            devices: function dashboard_tablesPopulate_populateDevices():void {
+                                const record:os_devs = item.data[index] as os_devs;
+                                cell(row, record.name, null);
+                                cell(row, record.type, null);
+                                cell(row, record.kernel_module, null);
+                            },
                             processes: function dashboard_tablesPopulate_populateProcess():void {
                                 const record:os_proc = item.data[index] as os_proc,
                                     time:string = (record.time === null)
@@ -231,13 +242,13 @@ const dashboard = function dashboard():void {
                                 cell(row, record.user, null);
                             },
                             services: function dashboard_tablesPopulate_populateServices():void {
-                                const record:os_service = item.data[index] as os_service;
+                                const record:os_serv = item.data[index] as os_serv;
                                 cell(row, record.name, null);
                                 cell(row, record.status, null);
                                 cell(row, record.description, null);
                             },
                             sockets: function dashboard_tablesPopulate_populateSockets():void {
-                                const record:os_sockets = item.data[index] as os_sockets;
+                                const record:os_sock = item.data[index] as os_sock;
                                 cell(row, record.type, null);
                                 cell(row, record["local-address"], null);
                                 cell(row, String(record["local-port"]), null);
@@ -269,7 +280,7 @@ const dashboard = function dashboard():void {
                     let index:number = 0,
                         row:HTMLElement = null;
                     list.textContent = "";
-                    item.data.sort(function dashboard_tablesPopulate_sort(a:os_proc|os_service|os_sockets|os_user,b:os_proc|os_service|os_sockets|os_user):-1|1 {
+                    item.data.sort(function dashboard_tablesPopulate_sort(a:os_devs|os_proc|os_serv|os_sock|os_user,b:os_devs|os_proc|os_serv|os_sock|os_user):-1|1 {
                         // @ts-expect-error - inferring types based upon property names across unrelated objects of dissimilar property name is problematic
                         if (a[sort_name as "name"|"type"] as string < b[sort_name as "name"|"type"] as string) {
                             return sort_direction;
@@ -287,14 +298,16 @@ const dashboard = function dashboard():void {
                     module.nodes.count.textContent = String(item.data.length);
                     module.nodes.list = table.getElementsByTagName("tbody")[0];
                     tables.filter(null, module.nodes.filter_value);
-                    if (module === system.processes) {
-                        payload.os.processes = item as services_os_proc;
+                    if (module === system.devices) {
+                        payload.os.devs = item as services_os_devs;
+                    } else if (module === system.processes) {
+                        payload.os.proc = item as services_os_proc;
                     } else if (module === system.services) {
-                        payload.os.services = item as services_os_serv;
+                        payload.os.serv = item as services_os_serv;
                     } else if (module === network.sockets_os) {
-                        payload.os.sockets = item as services_os_sock;
+                        payload.os.sock = item as services_os_sock;
                     } else if (module === system.users) {
-                        payload.os.users = item as services_os_user;
+                        payload.os.user = item as services_os_user;
                     }
                 }
             },
@@ -406,12 +419,13 @@ const dashboard = function dashboard():void {
                 const target:HTMLElement = event.target,
                     id:string = target.getAncestor("tab", "class").getAttribute("id"),
                     map:store_string = {
+                        devices: "devs",
+                        disks: "disk",
                         interfaces: "intr",
                         os: "main",
                         processes: "proc",
                         services: "serv",
                         sockets: "sock",
-                        storage: "disk",
                         users: "user"
                     };
                 utility.message_send(null, `dashboard-os-${map[id]}` as type_service);
@@ -437,11 +451,26 @@ const dashboard = function dashboard():void {
                             }
                             return null;
                         },
+                        lists = function dashboard_utilityBaseline_lists(section:module_list):void {
+                            section.nodes.caseSensitive.checked = true;
+                            section.nodes.count.textContent = "";
+                            section.nodes.filter_column.textContent = "";
+                            section.nodes.filter_count.textContent = "";
+                            section.nodes.filter_value.value = "";
+                            section.nodes.list.textContent = "";
+                            section.nodes.update_text.textContent = "";
+                        },
                         fileSummary:HTMLCollectionOf<HTMLElement> = tools.fileSystem.nodes.summary.getElementsByTagName("li"),
                         server_new:HTMLButtonElement = document.getElementById("servers").getElementsByClassName("server-new")[0] as HTMLButtonElement;
 
                     loaded = false;
                     replace(logs_old, false);
+                    lists(network.sockets_application);
+                    lists(network.sockets_os);
+                    lists(system.devices);
+                    lists(system.processes);
+                    lists(system.services);
+                    lists(system.users);
                     fileSummary[0].getElementsByTagName("strong")[0].textContent = "";
                     fileSummary[1].getElementsByTagName("strong")[0].textContent = "";
                     fileSummary[2].getElementsByTagName("strong")[0].textContent = "";
@@ -454,20 +483,6 @@ const dashboard = function dashboard():void {
                     network.interfaces.nodes.count.textContent = "";
                     network.interfaces.nodes.list.textContent = "";
                     network.interfaces.nodes.update_text.textContent = "";
-                    network.sockets_application.nodes.caseSensitive.checked = true;
-                    network.sockets_application.nodes.count.textContent = "";
-                    network.sockets_application.nodes.filter_column.textContent = "";
-                    network.sockets_application.nodes.filter_count.textContent = "";
-                    network.sockets_application.nodes.filter_value.value = "";
-                    network.sockets_application.nodes.list.textContent = "";
-                    network.sockets_application.nodes.update_text.textContent = "";
-                    network.sockets_os.nodes.caseSensitive.checked = true;
-                    network.sockets_os.nodes.count.textContent = "";
-                    network.sockets_os.nodes.filter_column.textContent = "";
-                    network.sockets_os.nodes.filter_count.textContent = "";
-                    network.sockets_os.nodes.filter_value.value = "";
-                    network.sockets_os.nodes.list.textContent = "";
-                    network.sockets_os.nodes.update_text.textContent = "";
                     if (servers.compose.nodes !== null) {
                         servers.compose.nodes.containers_list = replace(servers.compose.nodes.containers_list, true);
                         servers.compose.nodes.variables_list = replace(servers.compose.nodes.variables_list, true);
@@ -484,6 +499,9 @@ const dashboard = function dashboard():void {
                     servers.web.nodes.list = replace(serverList, true);
                     status.setAttribute("class", "connection-offline");
                     status.getElementsByTagName("strong")[0].textContent = "Offline";
+                    system.disks.nodes.count.textContent = "";
+                    system.disks.nodes.list.textContent = "";
+                    system.disks.nodes.update_text.textContent = "";
                     system.os.nodes.update_text.textContent = "";
                     system.os.nodes.cpu.arch.textContent = "";
                     system.os.nodes.cpu.cores.textContent = "";
@@ -511,30 +529,6 @@ const dashboard = function dashboard():void {
                     system.os.nodes.process.memoryProcess.textContent = "";
                     system.os.nodes.process.memoryV8.textContent = "";
                     system.os.nodes.process.memoryExternal.textContent = "";
-                    system.processes.nodes.caseSensitive.checked = true;
-                    system.processes.nodes.count.textContent = "";
-                    system.processes.nodes.filter_column.textContent = "";
-                    system.processes.nodes.filter_count.textContent = "";
-                    system.processes.nodes.filter_value.value = "";
-                    system.processes.nodes.list.textContent = "";
-                    system.processes.nodes.update_text.textContent = "";
-                    system.services.nodes.caseSensitive.checked = true;
-                    system.services.nodes.count.textContent = "";
-                    system.services.nodes.filter_column.textContent = "";
-                    system.services.nodes.filter_count.textContent = "";
-                    system.services.nodes.filter_value.value = "";
-                    system.services.nodes.list.textContent = "";
-                    system.services.nodes.update_text.textContent = "";
-                    system.storage.nodes.count.textContent = "";
-                    system.storage.nodes.list.textContent = "";
-                    system.storage.nodes.update_text.textContent = "";
-                    system.users.nodes.caseSensitive.checked = true;
-                    system.users.nodes.count.textContent = "";
-                    system.users.nodes.filter_column.textContent = "";
-                    system.users.nodes.filter_count.textContent = "";
-                    system.users.nodes.filter_value.value = "";
-                    system.users.nodes.list.textContent = "";
-                    system.users.nodes.update_text.textContent = "";
                     tools.fileSystem.block = false;
                     tools.fileSystem.nodes.failures.textContent = "";
                     tools.fileSystem.nodes.output.getElementsByTagName("tbody")[0].textContent = "";
@@ -647,12 +641,17 @@ const dashboard = function dashboard():void {
                     }
                     if (state.table_os === undefined) {
                         state.table_os = {
-                            processes: {
+                            devs: {
                                 filter_column: 0,
                                 filter_sensitive: true,
                                 filter_value: ""
                             },
-                            services: {
+                            proc: {
+                                filter_column: 0,
+                                filter_sensitive: true,
+                                filter_value: ""
+                            },
+                            serv: {
                                 filter_column: 0,
                                 filter_sensitive: true,
                                 filter_value: ""
@@ -662,33 +661,33 @@ const dashboard = function dashboard():void {
                                 filter_sensitive: true,
                                 filter_value: ""
                             },
-                            sockets_os: {
+                            sock: {
                                 filter_column: 0,
                                 filter_sensitive: true,
                                 filter_value: ""
                             },
-                            users: {
+                            user: {
                                 filter_column: 0,
                                 filter_sensitive: true,
                                 filter_value: ""
                             }
                         };
                     }
-                    state.table_os.processes.filter_column = system.processes.nodes.filter_column.selectedIndex;
-                    state.table_os.processes.filter_sensitive = system.processes.nodes.caseSensitive.checked;
-                    state.table_os.processes.filter_value = system.processes.nodes.filter_value.value;
-                    state.table_os.services.filter_column = system.services.nodes.filter_column.selectedIndex;
-                    state.table_os.services.filter_sensitive = system.services.nodes.caseSensitive.checked;
-                    state.table_os.services.filter_value = system.services.nodes.filter_value.value;
+                    state.table_os.proc.filter_column = system.processes.nodes.filter_column.selectedIndex;
+                    state.table_os.proc.filter_sensitive = system.processes.nodes.caseSensitive.checked;
+                    state.table_os.proc.filter_value = system.processes.nodes.filter_value.value;
+                    state.table_os.serv.filter_column = system.services.nodes.filter_column.selectedIndex;
+                    state.table_os.serv.filter_sensitive = system.services.nodes.caseSensitive.checked;
+                    state.table_os.serv.filter_value = system.services.nodes.filter_value.value;
                     state.table_os.sockets_application.filter_column = network.sockets_application.nodes.filter_column.selectedIndex;
                     state.table_os.sockets_application.filter_sensitive = network.sockets_application.nodes.caseSensitive.checked;
                     state.table_os.sockets_application.filter_value = network.sockets_application.nodes.filter_value.value;
-                    state.table_os.sockets_os.filter_column = network.sockets_os.nodes.filter_column.selectedIndex;
-                    state.table_os.sockets_os.filter_sensitive = network.sockets_os.nodes.caseSensitive.checked;
-                    state.table_os.sockets_os.filter_value = network.sockets_os.nodes.filter_value.value;
-                    state.table_os.users.filter_column = system.users.nodes.filter_column.selectedIndex;
-                    state.table_os.users.filter_sensitive = system.users.nodes.caseSensitive.checked;
-                    state.table_os.users.filter_value = system.users.nodes.filter_value.value;
+                    state.table_os.sock.filter_column = network.sockets_os.nodes.filter_column.selectedIndex;
+                    state.table_os.sock.filter_sensitive = network.sockets_os.nodes.caseSensitive.checked;
+                    state.table_os.sock.filter_value = network.sockets_os.nodes.filter_value.value;
+                    state.table_os.user.filter_column = system.users.nodes.filter_column.selectedIndex;
+                    state.table_os.user.filter_sensitive = system.users.nodes.caseSensitive.checked;
+                    state.table_os.user.filter_value = system.users.nodes.filter_value.value;
                     localStorage.state = JSON.stringify(state);
                 }
             },
@@ -722,6 +721,7 @@ const dashboard = function dashboard():void {
                                 "dashboard-hash": tools.hash.receive,
                                 "dashboard-http": tools.http.receive,
                                 "dashboard-os-all": system.os.service,
+                                "dashboard-os-devs": system.os.service,
                                 "dashboard-os-disk": system.os.service,
                                 "dashboard-os-intr": system.os.service,
                                 "dashboard-os-main": system.os.service,
@@ -784,12 +784,13 @@ const dashboard = function dashboard():void {
                         servers.compose.init();
                         network.interfaces.init();
                         system.os.init();
-                        system.storage.init();
+                        system.disks.init();
                         tables.init(network.sockets_application, "sockets_application");
-                        tables.init(network.sockets_os, "sockets_os");
-                        tables.init(system.processes, "processes");
-                        tables.init(system.services, "services");
-                        tables.init(system.users, "users");
+                        tables.init(network.sockets_os, "sock");
+                        tables.init(system.devices, "devs");
+                        tables.init(system.processes, "proc");
+                        tables.init(system.services, "serv");
+                        tables.init(system.users, "user");
                         tools.terminal.init();
                         tools.fileSystem.init();
                         tools.http.init();
@@ -990,7 +991,7 @@ const dashboard = function dashboard():void {
             interfaces: {
                 init: function dashboard_interfaceInit():void {
                     network.interfaces.nodes.update_button.onclick = tables.update;
-                    network.interfaces.list(payload.os.interfaces);
+                    network.interfaces.list(payload.os.intr);
                 },
                 list: function dashboard_interfacesList(item:services_os_intr):void {
                     const output_old:HTMLElement = network.interfaces.nodes.list,
@@ -1050,7 +1051,7 @@ const dashboard = function dashboard():void {
                         network.interfaces.nodes.list = output_new;
                         network.interfaces.nodes.count.textContent = String(len);
                         network.interfaces.nodes.update_text.textContent = item.time.dateTime(true, payload.timeZone_offset);
-                        payload.os.interfaces = item;
+                        payload.os.intr = item;
                     }
                 },
                 nodes: {
@@ -1865,7 +1866,7 @@ const dashboard = function dashboard():void {
                         p.parentNode.appendChild(note);
                     } else if (dashboard === false) {
                         note.textContent = (section === "compose")
-                            ? `Changing the container name of an existing container will create a new container. Ensure the compose file mentions PUID and PGID with values ${payload.os.user.uid} and ${payload.os.user.gid} to prevent writing files as root.`
+                            ? `Changing the container name of an existing container will create a new container. Ensure the compose file mentions PUID and PGID with values ${payload.os.user_account.uid} and ${payload.os.user_account.gid} to prevent writing files as root.`
                             : "Destroying a server will delete all associated file system artifacts. Back up your data first.";
                         note.setAttribute("class", "note");
                         p.parentNode.appendChild(note);
@@ -2356,6 +2357,158 @@ const dashboard = function dashboard():void {
             }
         },
         system:structure_system = {
+            devices: {
+                nodes: {
+                    caseSensitive: document.getElementById("devices").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
+                    count: document.getElementById("devices").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("devices").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("devices").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("devices").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
+                    list: document.getElementById("devices").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("devices").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("devices").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
+                }
+            },
+            disks: {
+                init: function dashboard_disksInit():void {
+                    system.disks.nodes.update_button.onclick = tables.update;
+                    system.disks.list(payload.os.disk);
+                },
+                list: function dashboard_disksList(item:services_os_disk):void {
+                    if (item.data === null) {
+                        return;
+                    }
+                    const output_old:HTMLElement = system.disks.nodes.list,
+                        output_new:HTMLElement = document.createElement("div"),
+                        len:number = item.data.length,
+                        data_item = function dashboard_disksList_dataItem(ul:HTMLElement, disk:os_disk_partition[]|string, key:"active"|"bootable"|"bus"|"file_system"|"guid"|"hidden"|"id"|"name"|"partitions"|"path"|"read_only"|"serial"|"size_disk"|"size_free"|"size_total"|"size_used"|"type"):void {
+                            const li:HTMLElement = document.createElement("li"),
+                                len:number = (key === "partitions")
+                                    ? item.data[index].partitions.length
+                                    : 0,
+                                strong:HTMLElement = (key === "partitions" && len > 0)
+                                    ? document.createElement("h6")
+                                    : document.createElement("strong"),
+                                span:HTMLElement = document.createElement("span"),
+                                cap = function dashboard_osStorage_dataItem_cap(input:string):string {
+                                    return ` ${input.replace("_", "").capitalize()}`;
+                                };
+                            strong.textContent = key.capitalize().replace(/_\w/, cap);
+                            li.appendChild(strong);
+                            if (key === "partitions" && len > 0) {
+                                let list:HTMLElement = null,
+                                    pIndex:number = 0,
+                                    warn:HTMLElement = null,
+                                    p:HTMLElement = null,
+                                    percent:HTMLElement = null;
+                                span.textContent = String(len);
+                                li.appendChild(span);
+                                do {
+                                    list = document.createElement("ul");
+                                    list.setAttribute("class", "os-interface");
+                                    if (item.data[index].partitions[pIndex].size_free_percent < 16 && item.data[index].partitions[pIndex].file_system !== null) {
+                                        warn = document.createElement("strong");
+                                        percent = document.createElement("strong");
+                                        p = document.createElement("p");
+                                        warn.textContent = "Warning!";
+                                        p.appendChild(warn);
+                                        percent.textContent = `${item.data[index].partitions[pIndex].size_free_percent}%`;
+                                        p.appendText(` Disk partition ${String(item.data[index].partitions[pIndex].id)} only has `);
+                                        p.appendChild(percent);
+                                        p.appendText(" capacity free.");
+                                        li.appendChild(p);
+                                    }
+                                    data_item(list, String(item.data[index].partitions[pIndex].active), "active");
+                                    data_item(list, String(item.data[index].partitions[pIndex].bootable), "bootable");
+                                    data_item(list, String(item.data[index].partitions[pIndex].file_system), "file_system");
+                                    data_item(list, String(item.data[index].partitions[pIndex].hidden), "hidden");
+                                    data_item(list, String(item.data[index].partitions[pIndex].id), "id");
+                                    data_item(list, String(item.data[index].partitions[pIndex].path), "path");
+                                    data_item(list, String(item.data[index].partitions[pIndex].read_only), "read_only");
+                                    if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
+                                        data_item(list, item.data[index].partitions[pIndex].size_free.bytesLong(), "size_free");
+                                    } else {
+                                        data_item(list, `${item.data[index].partitions[pIndex].size_free.bytesLong()}, ${item.data[index].partitions[pIndex].size_free_percent}%`, "size_free");
+                                    }
+                                    if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
+                                        data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}`, "size_used");
+                                    } else {
+                                        data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}, ${item.data[index].partitions[pIndex].size_used_percent}%`, "size_used");
+                                    }
+                                    if (item.data[index].partitions[pIndex].size_total === 0) {
+                                        data_item(list, "0 bytes (0B)", "size_total");
+                                    } else {
+                                        data_item(list, `${item.data[index].partitions[pIndex].size_total.bytesLong()}, 100%`, "size_total");
+                                    }
+                                    data_item(list, item.data[index].partitions[pIndex].type, "type");
+                                    li.appendChild(list);
+                                    pIndex = pIndex + 1;
+                                } while (pIndex < len);
+                            } else {
+                                if (key === "size_free") {
+                                    const val:string = disk as string,
+                                        index:number = val.indexOf(", ") + 2,
+                                        percent:number = (val === "0")
+                                            ? 0
+                                            : Number(val.slice(index, val.indexOf("%")));
+                                    if (val !== "0" && percent < 16) {
+                                        const bad:HTMLElement = document.createElement("strong");
+                                        bad.textContent = `${percent}%`;
+                                        bad.setAttribute("class", "fail");
+                                        span.textContent = val.slice(0, index);
+                                        span.appendChild(bad);
+                                        ul.setAttribute("class", "os-interface fail-list");
+                                    } else {
+                                        span.textContent = disk as string;
+                                    }
+                                } else {
+                                    if (key === "partitions") {
+                                        span.textContent = "none";
+                                    } else {
+                                        span.textContent = disk as string;
+                                    }
+                                }
+                                li.appendChild(span);
+                            }
+                            ul.appendChild(li);
+                        };
+                    let div:HTMLElement = null,
+                        ul:HTMLElement = null,
+                        h3:HTMLElement = null,
+                        index:number = 0;
+                    if (len > 0) {
+                        do {
+                            div = document.createElement("div");
+                            ul = document.createElement("ul");
+                            h3 = document.createElement("h3");
+                            h3.textContent = item.data[index].name;
+                            div.appendChild(h3);
+                            data_item(ul, String(item.data[index].bus), "bus");
+                            data_item(ul, String(item.data[index].guid), "guid");
+                            data_item(ul, String(item.data[index].name), "name");
+                            data_item(ul, String(item.data[index].serial), "serial");
+                            data_item(ul, item.data[index].size_disk.bytesLong(), "size_disk");
+                            data_item(ul, item.data[index].partitions, "partitions");
+                            div.appendChild(ul);
+                            div.setAttribute("class", "section");
+                            output_new.appendChild(div);
+                            index = index + 1;
+                        } while (index < len);
+                    }
+                    output_new.setAttribute("class", "item-list");
+                    output_old.parentNode.insertBefore(output_new, output_old);
+                    output_old.parentNode.removeChild(output_old);
+                    system.disks.nodes.list = output_new;
+                    system.disks.nodes.count.textContent = String(len);
+                    system.disks.nodes.update_text.textContent = item.time.dateTime(true, payload.timeZone_offset);
+                },
+                nodes: {
+                    count: document.getElementById("disks").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    list: document.getElementById("disks").getElementsByClassName("item-list")[0] as HTMLElement,
+                    update_button: document.getElementById("disks").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("disks").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
+                }
+            },
             os: {
                 init: function dashboard_osInit():void {
                     const time:string = payload.os.time.dateTime(true, payload.timeZone_offset);
@@ -2396,10 +2549,10 @@ const dashboard = function dashboard():void {
                         system.os.nodes.user.gid.parentNode.style.display = "none";
                         system.os.nodes.user.uid.parentNode.style.display = "none";
                     } else {
-                        system.os.nodes.user.gid.textContent = String(payload.os.user.gid);
-                        system.os.nodes.user.uid.textContent = String(payload.os.user.uid);
+                        system.os.nodes.user.gid.textContent = String(payload.os.user_account.gid);
+                        system.os.nodes.user.uid.textContent = String(payload.os.user_account.uid);
                     }
-                    system.os.nodes.user.homedir.textContent = payload.os.user.homedir;
+                    system.os.nodes.user.homedir.textContent = payload.os.user_account.homedir;
                     system.os.nodes.update_button.onclick = tables.update;
     
                     // System Path
@@ -2536,15 +2689,19 @@ const dashboard = function dashboard():void {
                     if (data_item.service === "dashboard-os-all") {
                         const data:services_os_all = data_item.data as services_os_all;
                         main(data);
-                        network.interfaces.list(data.interfaces);
-                        system.storage.list(data.storage);
-                        tables.populate(system.processes, data.processes);
-                        tables.populate(system.services, data.services);
-                        tables.populate(network.sockets_os, data.sockets);
-                        tables.populate(system.users, data.users);
+                        network.interfaces.list(data.intr);
+                        system.disks.list(data.disk);
+                        tables.populate(system.devices, data.devs);
+                        tables.populate(system.processes, data.proc);
+                        tables.populate(system.services, data.serv);
+                        tables.populate(network.sockets_os, data.sock);
+                        tables.populate(system.users, data.user);
+                    } else if (data_item.service === "dashboard-os-devs") {
+                        const data:services_os_devs = data_item.data as services_os_devs;
+                        tables.populate(system.devices, data);
                     } else if (data_item.service === "dashboard-os-disk") {
                         const data:services_os_disk = data_item.data as services_os_disk;
-                        system.storage.list(data);
+                        system.disks.list(data);
                     } else if (data_item.service === "dashboard-os-intr") {
                         const data:services_os_intr = data_item.data as services_os_intr;
                         network.interfaces.list(data);
@@ -2561,7 +2718,7 @@ const dashboard = function dashboard():void {
                         const data:services_os_sock = data_item.data as services_os_sock;
                         tables.populate(network.sockets_os, data);
                     } else if (data_item.service === "dashboard-os-user") {
-                        const data:services_os_sock = data_item.data as services_os_sock;
+                        const data:services_os_user = data_item.data as services_os_user;
                         tables.populate(system.users, data);
                     }
                 }
@@ -2588,146 +2745,6 @@ const dashboard = function dashboard():void {
                     list: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                     update_text: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
-                }
-            },
-            storage: {
-                init: function dashboard_storageInit():void {
-                    system.storage.nodes.update_button.onclick = tables.update;
-                    system.storage.list(payload.os.storage);
-                },
-                list: function dashboard_storageList(item:services_os_disk):void {
-                    if (item.data === null) {
-                        return;
-                    }
-                    const output_old:HTMLElement = system.storage.nodes.list,
-                        output_new:HTMLElement = document.createElement("div"),
-                        len:number = item.data.length,
-                        data_item = function dashboard_storageList_dataItem(ul:HTMLElement, disk:os_disk_partition[]|string, key:"active"|"bootable"|"bus"|"file_system"|"guid"|"hidden"|"id"|"name"|"partitions"|"path"|"read_only"|"serial"|"size_disk"|"size_free"|"size_total"|"size_used"|"type"):void {
-                            const li:HTMLElement = document.createElement("li"),
-                                len:number = (key === "partitions")
-                                    ? item.data[index].partitions.length
-                                    : 0,
-                                strong:HTMLElement = (key === "partitions" && len > 0)
-                                    ? document.createElement("h6")
-                                    : document.createElement("strong"),
-                                span:HTMLElement = document.createElement("span"),
-                                cap = function dashboard_osStorage_dataItem_cap(input:string):string {
-                                    return ` ${input.replace("_", "").capitalize()}`;
-                                };
-                            strong.textContent = key.capitalize().replace(/_\w/, cap);
-                            li.appendChild(strong);
-                            if (key === "partitions" && len > 0) {
-                                let list:HTMLElement = null,
-                                    pIndex:number = 0,
-                                    warn:HTMLElement = null,
-                                    p:HTMLElement = null,
-                                    percent:HTMLElement = null;
-                                span.textContent = String(len);
-                                li.appendChild(span);
-                                do {
-                                    list = document.createElement("ul");
-                                    list.setAttribute("class", "os-interface");
-                                    if (item.data[index].partitions[pIndex].size_free_percent < 16 && item.data[index].partitions[pIndex].file_system !== null) {
-                                        warn = document.createElement("strong");
-                                        percent = document.createElement("strong");
-                                        p = document.createElement("p");
-                                        warn.textContent = "Warning!";
-                                        p.appendChild(warn);
-                                        percent.textContent = `${item.data[index].partitions[pIndex].size_free_percent}%`;
-                                        p.appendText(` Disk partition ${String(item.data[index].partitions[pIndex].id)} only has `);
-                                        p.appendChild(percent);
-                                        p.appendText(" capacity free.");
-                                        li.appendChild(p);
-                                    }
-                                    data_item(list, String(item.data[index].partitions[pIndex].active), "active");
-                                    data_item(list, String(item.data[index].partitions[pIndex].bootable), "bootable");
-                                    data_item(list, String(item.data[index].partitions[pIndex].file_system), "file_system");
-                                    data_item(list, String(item.data[index].partitions[pIndex].hidden), "hidden");
-                                    data_item(list, String(item.data[index].partitions[pIndex].id), "id");
-                                    data_item(list, String(item.data[index].partitions[pIndex].path), "path");
-                                    data_item(list, String(item.data[index].partitions[pIndex].read_only), "read_only");
-                                    if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
-                                        data_item(list, item.data[index].partitions[pIndex].size_free.bytesLong(), "size_free");
-                                    } else {
-                                        data_item(list, `${item.data[index].partitions[pIndex].size_free.bytesLong()}, ${item.data[index].partitions[pIndex].size_free_percent}%`, "size_free");
-                                    }
-                                    if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
-                                        data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}`, "size_used");
-                                    } else {
-                                        data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}, ${item.data[index].partitions[pIndex].size_used_percent}%`, "size_used");
-                                    }
-                                    if (item.data[index].partitions[pIndex].size_total === 0) {
-                                        data_item(list, "0 bytes (0B)", "size_total");
-                                    } else {
-                                        data_item(list, `${item.data[index].partitions[pIndex].size_total.bytesLong()}, 100%`, "size_total");
-                                    }
-                                    data_item(list, item.data[index].partitions[pIndex].type, "type");
-                                    li.appendChild(list);
-                                    pIndex = pIndex + 1;
-                                } while (pIndex < len);
-                            } else {
-                                if (key === "size_free") {
-                                    const val:string = disk as string,
-                                        index:number = val.indexOf(", ") + 2,
-                                        percent:number = (val === "0")
-                                            ? 0
-                                            : Number(val.slice(index, val.indexOf("%")));
-                                    if (val !== "0" && percent < 16) {
-                                        const bad:HTMLElement = document.createElement("strong");
-                                        bad.textContent = `${percent}%`;
-                                        bad.setAttribute("class", "fail");
-                                        span.textContent = val.slice(0, index);
-                                        span.appendChild(bad);
-                                        ul.setAttribute("class", "os-interface fail-list");
-                                    } else {
-                                        span.textContent = disk as string;
-                                    }
-                                } else {
-                                    if (key === "partitions") {
-                                        span.textContent = "none";
-                                    } else {
-                                        span.textContent = disk as string;
-                                    }
-                                }
-                                li.appendChild(span);
-                            }
-                            ul.appendChild(li);
-                        };
-                    let div:HTMLElement = null,
-                        ul:HTMLElement = null,
-                        h3:HTMLElement = null,
-                        index:number = 0;
-                    if (len > 0) {
-                        do {
-                            div = document.createElement("div");
-                            ul = document.createElement("ul");
-                            h3 = document.createElement("h3");
-                            h3.textContent = item.data[index].name;
-                            div.appendChild(h3);
-                            data_item(ul, String(item.data[index].bus), "bus");
-                            data_item(ul, String(item.data[index].guid), "guid");
-                            data_item(ul, String(item.data[index].name), "name");
-                            data_item(ul, String(item.data[index].serial), "serial");
-                            data_item(ul, item.data[index].size_disk.bytesLong(), "size_disk");
-                            data_item(ul, item.data[index].partitions, "partitions");
-                            div.appendChild(ul);
-                            div.setAttribute("class", "section");
-                            output_new.appendChild(div);
-                            index = index + 1;
-                        } while (index < len);
-                    }
-                    output_new.setAttribute("class", "item-list");
-                    output_old.parentNode.insertBefore(output_new, output_old);
-                    output_old.parentNode.removeChild(output_old);
-                    system.storage.nodes.list = output_new;
-                    system.storage.nodes.count.textContent = String(len);
-                    system.storage.nodes.update_text.textContent = item.time.dateTime(true, payload.timeZone_offset);
-                },
-                nodes: {
-                    count: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-                    list: document.getElementById("storage").getElementsByClassName("item-list")[0] as HTMLElement,
-                    update_button: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("storage").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
                 }
             },
             users: {
@@ -3812,12 +3829,17 @@ const dashboard = function dashboard():void {
         // restore state of table filter controls
         if (state.table_os === undefined) {
             state.table_os = {
-                processes: {
+                devs: {
                     filter_column: 0,
                     filter_sensitive: true,
                     filter_value: ""
                 },
-                services: {
+                proc: {
+                    filter_column: 0,
+                    filter_sensitive: true,
+                    filter_value: ""
+                },
+                serv: {
                     filter_column: 0,
                     filter_sensitive: true,
                     filter_value: ""
@@ -3827,12 +3849,12 @@ const dashboard = function dashboard():void {
                     filter_sensitive: true,
                     filter_value: ""
                 },
-                sockets_os: {
+                sock: {
                     filter_column: 0,
                     filter_sensitive: true,
                     filter_value: ""
                 },
-                users: {
+                user: {
                     filter_column: 0,
                     filter_sensitive: true,
                     filter_value: ""

@@ -82,6 +82,17 @@ declare global {
         validateVariables: (event:FocusEvent|KeyboardEvent) => void;
     }
 
+    interface module_disks {
+        init: () => void;
+        list: (item:services_os_disk) => void;
+        nodes: {
+            count: HTMLElement;
+            list: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
+        };
+    }
+
     interface module_dns {
         direction: (reverse:boolean) => void;
         directionEvent: (event:MouseEvent) => void;
@@ -263,21 +274,10 @@ declare global {
         socket_add: (config:services_socket) => void;
     }
 
-    interface module_storage {
-        init: () => void;
-        list: (item:services_os_disk) => void;
-        nodes: {
-            count: HTMLElement;
-            list: HTMLElement;
-            update_button: HTMLButtonElement;
-            update_text: HTMLElement;
-        };
-    }
-
     interface module_tables {
         filter: (event:Event, target?:HTMLInputElement) => void;
-        init: (module:module_list|module_sockets_application|module_users, state_name:"processes"|"services"|"sockets_application"|"sockets_os"|"users") => void;
-        populate: (module:module_list|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user) => void;
+        init: (module:module_list|module_sockets_application|module_users, state_name:"devs"|"proc"|"serv"|"sockets_application"|"sock"|"user") => void;
+        populate: (module:module_list|module_users, item:services_os_devs|services_os_proc|services_os_serv|services_os_sock|services_os_user) => void;
         sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         update: (event:MouseEvent) => void;
     }
@@ -392,10 +392,11 @@ declare global {
     }
 
     interface structure_system {
+        devices: module_list;
+        disks: module_disks;
         os: module_os;
         processes: module_list;
         services: module_list;
-        storage: module_storage;
         users: module_users;
     }
 
@@ -431,12 +432,17 @@ declare global {
         };
         nav: string;
         table_os: {
-            processes: {
+            devs: {
                 filter_column: number;
                 filter_sensitive: boolean;
                 filter_value: string;
             };
-            services: {
+            proc: {
+                filter_column: number;
+                filter_sensitive: boolean;
+                filter_value: string;
+            };
+            serv: {
                 filter_column: number;
                 filter_sensitive: boolean;
                 filter_value: string;
@@ -446,12 +452,12 @@ declare global {
                 filter_sensitive: boolean;
                 filter_value: string;
             };
-            sockets_os: {
+            sock: {
                 filter_column: number;
                 filter_sensitive: boolean;
                 filter_value: string;
             };
-            users: {
+            user: {
                 filter_column: number;
                 filter_sensitive: boolean;
                 filter_value: string;

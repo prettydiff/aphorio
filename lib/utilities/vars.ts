@@ -16,6 +16,9 @@ const win32:boolean = (process.platform === "win32"),
                 ? "docker-compose"
                 : "docker",
             docker: "docker",
+            devs: (win32 === true)
+                ? "Get-PNPDevice | ConvertTo-json"
+                : "lspci -v -k",
             disk: (win32 === true)
                 ? "Get-Disk | ConvertTo-JSON -compress -depth 2"
                 : "lsblk -Ob --json",
@@ -63,7 +66,15 @@ const win32:boolean = (process.platform === "win32"),
         },
         logs: [],
         os: {
-            interfaces: {
+            devs: {
+                data: [],
+                time: 0
+            },
+            disk: {
+                data: [],
+                time: 0
+            },
+            intr: {
                 data: node.os.networkInterfaces(),
                 time: 0
             },
@@ -111,24 +122,24 @@ const win32:boolean = (process.platform === "win32"),
                 uptime: process.uptime(),
                 versions: process.versions
             },
-            processes: {
+            proc: {
                 data: [],
                 time: 0
             },
-            services: {
+            serv: {
                 data: [],
                 time: 0
             },
-            sockets: {
-                data: [],
-                time: 0
-            },
-            storage: {
+            sock: {
                 data: [],
                 time: 0
             },
             time: 0,
             user: {
+                data: [],
+                time: 0
+            },
+            user_account: {
                 gid: (gid === 0)
                     ? 1000
                     : gid,
@@ -136,10 +147,6 @@ const win32:boolean = (process.platform === "win32"),
                 uid: (gid === 0)
                     ? 1000
                     : uid
-            },
-            users: {
-                data: [],
-                time: 0
             }
         },
         path: {

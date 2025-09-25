@@ -25,6 +25,7 @@ const start_server = function utilities_startServer():void {
             git: "Read's the project's git file to determine the current commit hash, which is helpful when performing maintenance across multiple machines simultaneously.",
             html: "Read's the dashboard's HTML file for dynamic modification.",
             options: "Modify's application settings according to the use of supported optional command line arguments.",
+            os_devs: "Gathers a list of devices registered with the OS kernel.",
             os_disk: "Gathers information about disk hardware and partitions.",
             os_intr: "Gathers information about the state of available network interfaces.",
             os_main: "Gathers basic operating system and machine data.",
@@ -168,6 +169,12 @@ const start_server = function utilities_startServer():void {
                     }
                 };
                 callback("no_color", "text");
+            },
+            os_devs: function utilities_startServer_taskOSDevs():void {
+                const callback = function utilities_startServer_taskOSDevs_callback():void {
+                        readComplete("os_devs");
+                    };
+                os("devs", callback);
             },
             os_disk: function utilities_startServer_taskOSDisk():void {
                 const callback = function utilities_startServer_taskOSDisk_callback():void {
@@ -386,7 +393,7 @@ const start_server = function utilities_startServer():void {
                 }
             }
         },
-        readComplete = function utilities_startServer_readComplete(flag:"compose"|"git"|"html"|"options"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list"):void {
+        readComplete = function utilities_startServer_readComplete(flag:"compose"|"git"|"html"|"options"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list"):void {
             // sends a server time update every 950ms
             const clock = function utilities_startServer_readComplete_clock():void {
                     const now:number = Date.now(),
@@ -545,6 +552,8 @@ const start_server = function utilities_startServer():void {
                 };
             count_task = count_task + 1;
             log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${task_definitions[flag]}`]);
+            // to troubleshoot which tasks do not run, in test mode servers task is not executed
+            // delete task_definitions[flag];console.log(Object.keys(task_definitions));
             if (count_task === len_flags) {
                 clock();
                 if (testing === true || vars.servers.dashboard === undefined) {
@@ -569,7 +578,9 @@ const start_server = function utilities_startServer():void {
         },
         process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.path.sep}lib${vars.path.sep}`)) + vars.path.sep,
         keys_tasks:string[] = Object.keys(tasks);
-    let len_flags:number = keys_tasks.length,
+    let len_flags:number = (testing === true)
+            ? keys_tasks.length - 1 // servers task is not run in test mode
+            : keys_tasks.length,
         index_tasks:number = keys_tasks.length,
         count_task:number = 0;
 
