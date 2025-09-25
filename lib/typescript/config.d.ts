@@ -60,18 +60,18 @@ interface config_log {
 interface config_os_comparison {
     dict: boolean;
     lists: {
-        new: Array<any> | Object;
-        old: Array<any> | Object;
+        new: Array<object> | object;
+        old: Array<object> | object;
     };
     messages: {
         child: {
-            new: (item:any, name?:string) => string;
-            old: (item:any, name?:string) => string;
+            new: (item:object, name?:string) => string;
+            old: (item:object, name?:string) => string;
         };
-        no_child: (item:any, name?:string) => string;
+        no_child: (item:object, name?:string) => string;
         parent: {
-            new: (item:any, name?:string) => string;
-            old: (item:any, name?:string) => string;
+            new: (item:object, name?:string) => string;
+            old: (item:object, name?:string) => string;
         };
     };
     properties: {

@@ -577,11 +577,11 @@ const start_server = function utilities_startServer():void {
             } while (index_tasks > 0);
         },
         process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.path.sep}lib${vars.path.sep}`)) + vars.path.sep,
-        keys_tasks:string[] = Object.keys(tasks);
-    let len_flags:number = (testing === true)
+        keys_tasks:string[] = Object.keys(tasks),
+        len_flags:number = (testing === true)
             ? keys_tasks.length - 1 // servers task is not run in test mode
-            : keys_tasks.length,
-        index_tasks:number = keys_tasks.length,
+            : keys_tasks.length;
+    let index_tasks:number = keys_tasks.length,
         count_task:number = 0;
 
     BigInt.prototype.time = time;

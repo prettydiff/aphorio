@@ -145,6 +145,7 @@ interface server_os {
         type: string;
         uptime: number;
     };
+    proc: services_os_proc;
     process: {
         arch: string;
         argv: string[];
@@ -162,7 +163,6 @@ interface server_os {
         uptime: number;
         versions: store_string;
     };
-    proc: services_os_proc;
     serv: services_os_serv;
     sock: services_os_sock;
     time: number;
@@ -188,7 +188,7 @@ interface server_ports {
 }
 
 interface store_arrays {
-    [key:string]: Array<any>;
+    [key:string]: Array<object>;
 }
 
 interface store_children {

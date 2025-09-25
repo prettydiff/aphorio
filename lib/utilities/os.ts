@@ -488,15 +488,17 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             }
         },
         comparison = function utilities_os_comparison(config:config_os_comparison, time:number, type:"child"|"parent"):void {
-            const list_new:Array<any> = (config.dict === true)
+            const list_new:Array<object>|string[] = (config.dict === true)
                     ? Object.keys(config.lists.new)
-                    : config.lists.new as Array<any>,
-                list_old:Array<any> = (config.dict === true)
+                    : config.lists.new as Array<object>,
+                list_old:Array<object>|string[] = (config.dict === true)
                     ? Object.keys(config.lists.old)
-                    : config.lists.old as Array<any>;
+                    : config.lists.old as Array<object>;
             let index_old:number = list_old.length,
                 index_new:number = 0,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 item_new:any = null,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 item_old:any = null,
                 match:boolean = false;
             if (time > 0 && index_old > 0 && index_new > 0) {
@@ -535,7 +537,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                         action: "modify",
                                         config: null,
                                         message: (config.dict === true)
-                                            ? config.messages.no_child(item_old, list_old[index_old])
+                                            ? config.messages.no_child(item_old, list_old[index_old] as string)
                                             : config.messages.no_child(item_old),
                                         status: "informational",
                                         time: Date.now(),
@@ -554,7 +556,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                             action: "modify",
                             config: null,
                             message: (config.dict === true)
-                                ? config.messages[type].old(item_old, list_old[index_old])
+                                ? config.messages[type].old(item_old, list_old[index_old] as string)
                                 : config.messages[type].old(item_old),
                             status: "informational",
                             time: Date.now(),
@@ -590,7 +592,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                             action: "modify",
                             config: null,
                             message: (config.dict === true)
-                                ? config.messages[type].new(item_new, list_new[index_new])
+                                ? config.messages[type].new(item_new, list_new[index_new] as string)
                                 : config.messages[type].new(item_new),
                             status: "informational",
                             time: Date.now(),
@@ -611,11 +613,13 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     child: null,
                     no_child: null,
                     parent: {
-                        new: function utilities_os_differenceDevs_messagesParentNew(item:os_devs):string {
-                            return `New device with name ${item.name} and kernel module ${item.kernel_module} came online.`;
+                        new: function utilities_os_differenceDevs_messagesParentNew(item:object):string {
+                            const dev:os_devs = item as os_devs;
+                            return `New device with name ${dev.name} and kernel module ${dev.kernel_module} came online.`;
                         },
-                        old: function utilities_os_differenceDevs_messagesParentOld(item:os_devs):string {
-                            return `Device with name ${item.name} and kernel module ${item.kernel_module} is no longer available.`;
+                        old: function utilities_os_differenceDevs_messagesParentOld(item:object):string {
+                            const dev:os_devs = item as os_devs;
+                            return `Device with name ${dev.name} and kernel module ${dev.kernel_module} is no longer available.`;
                         }
                     }
                 },
@@ -632,22 +636,27 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 },
                 messages: {
                     child: {
-                        new: function utilities_os_differenceDisk_messagesChildNew(item:os_disk_partition):string {
-                            return `Partition ${item.id} from disk ${item.diskName} of capacity ${item.size_total} is now available.`;
+                        new: function utilities_os_differenceDisk_messagesChildNew(item:object):string {
+                            const part:os_disk_partition = item as os_disk_partition;
+                            return `Partition ${part.id} from disk ${part.diskName} of capacity ${part.size_total} is now available.`;
                         },
-                        old: function utilities_os_differenceDisk_messagesChildOld(item:os_disk_partition):string {
-                            return `Partition ${item.id} from disk ${item.diskName} of capacity ${item.size_total} is no longer available available.`;
+                        old: function utilities_os_differenceDisk_messagesChildOld(item:object):string {
+                            const part:os_disk_partition = item as os_disk_partition;
+                            return `Partition ${part.id} from disk ${part.diskName} of capacity ${part.size_total} is no longer available available.`;
                         }
                     },
-                    no_child: function utilities_os_differenceDisk_messagesNoChild(item:os_disk):string {
-                        return `Disk ${item.name} had ${item.partitions.length} partitions but now has none.`;
+                    no_child: function utilities_os_differenceDisk_messagesNoChild(item:object):string {
+                        const disk:os_disk = item as os_disk;
+                        return `Disk ${disk.name} had ${disk.partitions.length} partitions but now has none.`;
                     },
                     parent: {
-                        new: function utilities_os_differenceDisk_messagesParentNew(item:os_disk):string {
-                            return `New storage device ${item.name} with capacity ${item.size_disk} is now available.`;
+                        new: function utilities_os_differenceDisk_messagesParentNew(item:object):string {
+                            const disk:os_disk = item as os_disk;
+                            return `New storage device ${disk.name} with capacity ${disk.size_disk} is now available.`;
                         },
-                        old: function utilities_os_differenceDisk_messagesParentOld(item:os_disk):string {
-                            return `Storage device ${item.name} with capacity ${item.size_disk} is no longer available.`;
+                        old: function utilities_os_differenceDisk_messagesParentOld(item:object):string {
+                            const disk:os_disk = item as os_disk;
+                            return `Storage device ${disk.name} with capacity ${disk.size_disk} is no longer available.`;
                         }
                     }
                 },
@@ -664,21 +673,24 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 },
                 messages: {
                     child: {
-                        new: function utilities_os_differenceIntr_messagesChildNew(item:node_os_NetworkInterfaceInfo, name:string):string {
-                            return `Address ${item.address} from interface ${name} is now available.`;
+                        new: function utilities_os_differenceIntr_messagesChildNew(item:object, name:string):string {
+                            const intr:node_os_NetworkInterfaceInfo = item as node_os_NetworkInterfaceInfo;
+                            return `Address ${intr.address} from interface ${name} is now available.`;
                         },
-                        old: function utilities_os_differenceIntr_messagesChildOld(item:node_os_NetworkInterfaceInfo, name:string):string {
-                            return `Partition ${item.address} from disk ${name} is no longer available available.`;
+                        old: function utilities_os_differenceIntr_messagesChildOld(item:object, name:string):string {
+                            const intr:node_os_NetworkInterfaceInfo = item as node_os_NetworkInterfaceInfo;
+                            return `Partition ${intr.address} from disk ${name} is no longer available available.`;
                         }
                     },
-                    no_child: function utilities_os_differenceIntr_messagesNoChild(item:node_os_NetworkInterfaceInfo[], name:string):string {
-                        return `Network interface ${name} had ${item.length} addresses assigned but now has none.`;
+                    no_child: function utilities_os_differenceIntr_messagesNoChild(item:object, name:string):string {
+                        const intr:Array<node_os_NetworkInterfaceInfo> = item as Array<node_os_NetworkInterfaceInfo>;
+                        return `Network interface ${name} had ${intr.length} addresses assigned but now has none.`;
                     },
                     parent: {
-                        new: function utilities_os_differenceIntr_messagesParentNew(item:node_os_NetworkInterfaceInfo[], name:string):string {
+                        new: function utilities_os_differenceIntr_messagesParentNew(item:object, name:string):string {
                             return `New network interface ${name} is now available.`;
                         },
-                        old: function utilities_os_differenceIntr_messagesParentOld(item:node_os_NetworkInterfaceInfo[], name:string):string {
+                        old: function utilities_os_differenceIntr_messagesParentOld(item:object, name:string):string {
                             return `Network interface ${name} is no longer available.`;
                         }
                     }
@@ -698,11 +710,13 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     child: null,
                     no_child: null,
                     parent: {
-                        new: function utilities_os_differenceProc_messagesParentNew(item:os_proc):string {
-                            return `New process ${item.name} with id ${item.id} came online.`;
+                        new: function utilities_os_differenceProc_messagesParentNew(item:object):string {
+                            const proc:os_proc = item as os_proc;
+                            return `New process ${proc.name} with id ${proc.id} came online.`;
                         },
-                        old: function utilities_os_differenceProc_messagesParentOld(item:os_proc):string {
-                            return `Process ${item.name} with id ${item.id} is no longer available.`;
+                        old: function utilities_os_differenceProc_messagesParentOld(item:object):string {
+                            const proc:os_proc = item as os_proc;
+                            return `Process ${proc.name} with id ${proc.id} is no longer available.`;
                         }
                     }
                 },
@@ -721,11 +735,13 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     child: null,
                     no_child: null,
                     parent: {
-                        new: function utilities_os_differenceServ_messagesParentNew(item:os_serv):string {
-                            return `New service ${item.name} now available.`;
+                        new: function utilities_os_differenceServ_messagesParentNew(item:object):string {
+                            const serv:os_serv = item as os_serv;
+                            return `New service ${serv.name} now available.`;
                         },
-                        old: function utilities_os_differenceServ_messagesParentOld(item:os_serv):string {
-                            return `Service ${item.name} is removed.`;
+                        old: function utilities_os_differenceServ_messagesParentOld(item:object):string {
+                            const serv:os_serv = item as os_serv;
+                            return `Service ${serv.name} is removed.`;
                         }
                     }
                 },
@@ -744,11 +760,13 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     child: null,
                     no_child: null,
                     parent: {
-                        new: function utilities_os_differenceSock_messagesParentNew(item:os_sock):string {
-                            return `New socket with local address ${item["local-address"]} and port ${item["local-port"]} came online.`;
+                        new: function utilities_os_differenceSock_messagesParentNew(item:object):string {
+                            const sock:os_sock = item as os_sock;
+                            return `New socket with local address ${sock["local-address"]} and port ${sock["local-port"]} came online.`;
                         },
-                        old: function utilities_os_differenceSock_messagesParentOld(item:os_sock):string {
-                            return `Socket with local address ${item["local-address"]} with port ${item["local-port"]} is no longer available.`;
+                        old: function utilities_os_differenceSock_messagesParentOld(item:object):string {
+                            const sock:os_sock = item as os_sock;
+                            return `Socket with local address ${sock["local-address"]} with port ${sock["local-port"]} is no longer available.`;
                         }
                     }
                 },
@@ -767,11 +785,13 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     child: null,
                     no_child: null,
                     parent: {
-                        new: function utilities_os_differenceUser_messagesParentNew(item:os_user):string {
-                            return `New user account with name ${item.name} came online.`;
+                        new: function utilities_os_differenceUser_messagesParentNew(item:object):string {
+                            const user:os_user = item as os_user;
+                            return `New user account with name ${user.name} came online.`;
                         },
-                        old: function utilities_os_differenceUser_messagesParentOld(item:os_user):string {
-                            return `User account with name ${item.name} is no longer available.`;
+                        old: function utilities_os_differenceUser_messagesParentOld(item:object):string {
+                            const user:os_user = item as os_user;
+                            return `User account with name ${user.name} is no longer available.`;
                         }
                     }
                 },

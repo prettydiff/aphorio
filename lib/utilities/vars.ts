@@ -105,6 +105,10 @@ const win32:boolean = (process.platform === "win32"),
                 type: node.os.type(),
                 uptime: node.os.uptime()
             },
+            proc: {
+                data: [],
+                time: 0
+            },
             process: {
                 arch: process.arch,
                 argv: process.argv,
@@ -121,10 +125,6 @@ const win32:boolean = (process.platform === "win32"),
                 ppid: process.ppid,
                 uptime: process.uptime(),
                 versions: process.versions
-            },
-            proc: {
-                data: [],
-                time: 0
             },
             serv: {
                 data: [],

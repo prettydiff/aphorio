@@ -151,7 +151,7 @@ const dashboard = function dashboard():void {
                 }
             },
             // attaches event listeners to data tables and restores state
-            init: function dashboard_tablesInit(module:module_list|module_sockets_application|module_users, state_name:"devs"|"proc"|"serv"|"sockets_application"|"sock"|"user"):void {
+            init: function dashboard_tablesInit(module:module_list|module_sockets_application|module_users, state_name:"devs"|"proc"|"serv"|"sock"|"sockets_application"|"user"):void {
                 const select = function dashboard_tablesSelect(table:HTMLElement, select:HTMLSelectElement):void {
                     const th:HTMLCollectionOf<HTMLElement> = table.getElementsByTagName("th"),
                         len:number = th.length;

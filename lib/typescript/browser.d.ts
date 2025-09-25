@@ -276,7 +276,7 @@ declare global {
 
     interface module_tables {
         filter: (event:Event, target?:HTMLInputElement) => void;
-        init: (module:module_list|module_sockets_application|module_users, state_name:"devs"|"proc"|"serv"|"sockets_application"|"sock"|"user") => void;
+        init: (module:module_list|module_sockets_application|module_users, state_name:"devs"|"proc"|"serv"|"sock"|"sockets_application"|"user") => void;
         populate: (module:module_list|module_users, item:services_os_devs|services_os_proc|services_os_serv|services_os_sock|services_os_user) => void;
         sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         update: (event:MouseEvent) => void;
@@ -447,12 +447,12 @@ declare global {
                 filter_sensitive: boolean;
                 filter_value: string;
             };
-            sockets_application: {
+            sock: {
                 filter_column: number;
                 filter_sensitive: boolean;
                 filter_value: string;
             };
-            sock: {
+            sockets_application: {
                 filter_column: number;
                 filter_sensitive: boolean;
                 filter_value: string;

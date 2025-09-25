@@ -186,6 +186,7 @@ declare global {
         os: {
             uptime: number;
         };
+        proc: services_os_proc;
         process: {
             cpuSystem: number;
             cpuUser: number;
@@ -196,7 +197,6 @@ declare global {
             };
             uptime: number;
         };
-        proc: services_os_proc;
         serv: services_os_serv;
         sock: services_os_sock;
         time: number;
