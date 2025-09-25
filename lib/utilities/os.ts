@@ -82,7 +82,9 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         ? data_win.length
                         : data_posix.length;
                 let index:number = 0,
-                    devs:os_devs = null;
+                    lines:string[] = null,
+                    devs:os_devs = null,
+                    kernel:string = "";
                 if (len > 0) {
                     do {
                         if (win32 === true) {
@@ -94,9 +96,29 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                         ? data_win[index].CreationClassName
                                         : data_win[index].PNPClass
                                 };
+                            } else {
+                                devs = null;
                             }
-                        } else {}
-                        devices.push(devs);
+                        } else {
+                            lines = data_posix[index].split("\n");
+                            kernel = (lines[lines.length - 1].indexOf("\tKernel modules: ") === 0)
+                                ? lines[lines.length - 1].split("\tKernel modules: ")[1]
+                                : (lines[lines.length - 1].indexOf("\tKernel driver in use: ") === 0)
+                                    ? lines[lines.length - 1].split("\tKernel driver in use: ")[1]
+                                    : "";
+                            if (kernel === "") {
+                                devs = null;
+                            } else {
+                                devs = {
+                                    kernel_module: kernel,
+                                    name: lines[0].split(": ")[1],
+                                    type: lines[0].split(": ")[0].slice(lines[0].indexOf(" ") + 1)
+                                };
+                            }
+                        }
+                        if (devs !== null) {
+                            devices.push(devs);
+                        }
                         index = index + 1;
                     } while (index < len);
                 }
@@ -1018,9 +1040,15 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         type:type_os_key = child.type,
                         temp:string = chunks[type].join("").trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""),
                         parseTry = function utilities_os_spawning_close_parseTry():boolean {
-                            if (win32 === false && (type === "proc" || type === "socT" || type === "user")) {
-                                raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
-                                return true;
+                            if (win32 === false) {
+                                if ((type === "proc" || type === "socT" || type === "user")) {
+                                    raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
+                                    return true;
+                                }
+                                if (type === "devs") {
+                                    raw.devs = temp.split("\n\n");
+                                    return true;
+                                }
                             }
                             // eslint-disable-next-line no-restricted-syntax
                             try {

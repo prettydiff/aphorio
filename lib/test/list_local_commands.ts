@@ -46,7 +46,15 @@ const test_listLocalCommands = function test_listLocalCommands():test_list {
                             value: "string"
                         }
                     ]
-                    : []
+                    : [
+                        {
+                            format: "string",
+                            properties: ["indexOf(\tKernel modules: )"],
+                            qualifier: "greater",
+                            type: "stdout",
+                            value: 5
+                        }
+                    ]
             },
             // os.disk
             {
@@ -71,7 +79,7 @@ const test_listLocalCommands = function test_listLocalCommands():test_list {
                     },
                     {
                         format: "json",
-                        properties: [(win32 === true) ? "" : "blockdevices", 0, (win32 === true) ? "Guid" : "id", "typeof"],
+                        properties: [(win32 === true) ? "" : "blockdevices", 0, (win32 === true) ? "Guid" : "uuid", "typeof"],
                         qualifier: "is",
                         type: "stdout",
                         value: "string"

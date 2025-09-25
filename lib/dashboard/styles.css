@@ -191,7 +191,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
             span.details-redundant{text-indent:-2000em}
         }
     }
-    #storage .os-interface.fail-list{background:var(--fail_background)}
+    #disks .os-interface.fail-list{background:var(--fail_background)}
     #terminal {
         .terminal-output{width:100%}
         .xterm{border-color:var(--border_input);overflow:hidden}
@@ -354,7 +354,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
 
     #interfaces,
     #os,
-    #storage{
+    #disks{
         .os-interface{border-color:var(--border_soft);border-style:solid;border-width:0.1em;margin:0 0 1em 2em;padding:0 1em 1em}
         li{
             border-style:none;list-style:none;
@@ -364,7 +364,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     }
 
     #interfaces,
-    #storage{
+    #disks{
         ul{
             margin:0 0 1em;padding:0;
             &:last-child{margin-bottom:0}
