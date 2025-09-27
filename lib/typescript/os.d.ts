@@ -123,6 +123,7 @@ interface os_raw {
     part: os_disk_windows_partition[];
     proc: os_proc_windows[] | string[];
     serv: os_serv_posix[] | os_serv_windows[];
+    sock: null;
     socT: os_sock_tcp_windows[] | string[];
     socU: os_sock_udp_windows[];
     user: os_user_windows[] | string[];

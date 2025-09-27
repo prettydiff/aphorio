@@ -58,6 +58,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             part: null,
             proc: null,
             serv: null,
+            sock: null,
             socT: null,
             socU: null,
             user: null,

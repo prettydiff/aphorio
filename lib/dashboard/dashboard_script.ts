@@ -32,42 +32,29 @@ const dashboard = function dashboard():void {
                 },
                 nav: "servers",
                 table_os: {
-                    devs: {
-                        filter_column: 0,
-                        filter_sensitive: true,
-                        filter_value: ""
-                    },
-                    proc: {
-                        filter_column: 0,
-                        filter_sensitive: true,
-                        filter_value: ""
-                    },
-                    serv: {
-                        filter_column: 0,
-                        filter_sensitive: true,
-                        filter_value: ""
-                    },
-                    sockets_application: {
-                        filter_column: 0,
-                        filter_sensitive: true,
-                        filter_value: ""
-                    },
-                    sock: {
-                        filter_column: 0,
-                        filter_sensitive: true,
-                        filter_value: ""
-                    },
-                    user: {
-                        filter_column: 0,
-                        filter_sensitive: true,
-                        filter_value: ""
-                    }
+                    devs: null,
+                    proc: null,
+                    serv: null,
+                    sockets_application: null,
+                    sock: null,
+                    user: null
                 },
                 tables: {},
                 terminal: ""
             }
             : JSON.parse(local),
         tables:module_tables = {
+            cell: function dashboard_tablesCell(tr:HTMLElement, text:string, raw:string):void {
+                const td:HTMLElement = document.createElement("td");
+                td.textContent = text;
+                if (raw !== null) {
+                    td.setAttribute("class", "right");
+                    if (raw !== text) {
+                        td.setAttribute("data-raw", raw);
+                    }
+                }
+                tr.appendChild(td);
+            },
             // filter large data tables
             filter: function dashboard_tablesFilter(event:Event, target?:HTMLInputElement):void {
                 if (event !== null) {
@@ -81,7 +68,7 @@ const dashboard = function dashboard():void {
                 const section:HTMLElement = target.getAncestor("table-filters", "class"),
                     tab:HTMLElement = section.getAncestor("tab", "class"),
                     tab_name:string = tab.getAttribute("id"),
-                    module:module_list|module_sockets_application|module_users = (tab_name === "devices")
+                    module:module_list|module_sockets_application = (tab_name === "devices")
                         ? system.devices
                         : (tab_name === "processes")
                             ? system.processes
@@ -151,7 +138,7 @@ const dashboard = function dashboard():void {
                 }
             },
             // attaches event listeners to data tables and restores state
-            init: function dashboard_tablesInit(module:module_list|module_sockets_application|module_users, state_name:"devs"|"proc"|"serv"|"sock"|"sockets_application"|"user"):void {
+            init: function dashboard_tablesInit(module:module_list|module_sockets_application, state_name:type_list_names|"sockets_application"):void {
                 const select = function dashboard_tablesSelect(table:HTMLElement, select:HTMLSelectElement):void {
                     const th:HTMLCollectionOf<HTMLElement> = table.getElementsByTagName("th"),
                         len:number = th.length;
@@ -188,99 +175,24 @@ const dashboard = function dashboard():void {
                 if (state_name === "sockets_application") {
                     module.nodes.update_button.style.display = "none";
                 } else {
-                    tables.populate(module, payload.os[state_name]);
+                    tables.populate(module, payload.os[state_name], state_name);
                 }
             },
             // populate large data tables
-            populate: function dashboard_tablesPopulate(module:module_list|module_users, item:services_os_devs|services_os_proc|services_os_serv|services_os_sock|services_os_user):void {
+            populate: function dashboard_tablesPopulate(module:module_list, item:type_list_services, state_name:type_list_names):void {
                 const len:number = item.data.length,
                     list:HTMLElement = module.nodes.list,
                     table:HTMLElement = (list === null)
                         ? null
-                        : list.parentNode,
-                    type:"devices"|"processes"|"services"|"sockets"|"users" = list.getAncestor("tab", "class").getAttribute("id") as "devices"|"processes"|"services"|"sockets"|"users";
+                        : list.parentNode;
                 if (len > 0 && table !== null) {
-                    const cell = function dashboard_tablesPopulate_cell(tr:HTMLElement, text:string, raw:string):void {
-                            const td:HTMLElement = document.createElement("td");
-                            td.textContent = text;
-                            if (raw !== null) {
-                                td.setAttribute("class", "right");
-                                if (raw !== text) {
-                                    td.setAttribute("data-raw", raw);
-                                }
-                            }
-                            tr.appendChild(td);
-                        },
-                        build_record:store_function = {
-                            devices: function dashboard_tablesPopulate_populateDevices():void {
-                                const record:os_devs = item.data[index] as os_devs;
-                                cell(row, record.name, null);
-                                cell(row, record.type, null);
-                                cell(row, record.kernel_module, null);
-                            },
-                            processes: function dashboard_tablesPopulate_populateProcess():void {
-                                const record:os_proc = item.data[index] as os_proc,
-                                    time:string = (record.time === null)
-                                        ? (payload.platform === "win32")
-                                            ? (0).time().replace(/000$/, "")
-                                            : (0).time().replace(/\.0+$/, "")
-                                        : (payload.platform === "win32")
-                                            ? record.time.time().replace(/000$/, "")
-                                            : record.time.time().replace(/\.0+$/, ""),
-                                    memory:string = (record.memory === null)
-                                        ? "0"
-                                        : record.memory.commas(),
-                                    id:string = String(record.id);
-                                cell(row, record.name, null);
-                                cell(row, id, id);
-                                cell(row, memory, (record.memory === null)
-                                    ? "0"
-                                    : String(record.memory));
-                                cell(row, time, (record.time === null)
-                                    ? "0"
-                                    : String(record.time));
-                                cell(row, record.user, null);
-                            },
-                            services: function dashboard_tablesPopulate_populateServices():void {
-                                const record:os_serv = item.data[index] as os_serv;
-                                cell(row, record.name, null);
-                                cell(row, record.status, null);
-                                cell(row, record.description, null);
-                            },
-                            sockets: function dashboard_tablesPopulate_populateSockets():void {
-                                const record:os_sock = item.data[index] as os_sock;
-                                cell(row, record.type, null);
-                                cell(row, record["local-address"], null);
-                                cell(row, String(record["local-port"]), null);
-                                cell(row, record["remote-address"], null);
-                                cell(row, String(record["remote-port"]), null);
-                            },
-                            users: function dashboard_tablesPopulate_populateUsers():void {
-                                const record:os_user = item.data[index] as os_user,
-                                    uid:string = String(record.uid),
-                                    proc:string = String(record.proc);
-                                cell(row, record.name, null);
-                                cell(row, uid, uid);
-                                cell(row, (record.lastLogin === 0)
-                                    ? "never"
-                                    : record.lastLogin.dateTime(true, null), String(record.lastLogin));
-                                cell(row, proc, proc);
-                                cell(row, record.type, null);
-                            }
-                        },
-                        sort_index:number = Number(table.dataset.column),
-                        sort_name:string = (module === network.sockets_os)
-                            ? ["type", "local-address", "local-port", "remote-address", "remote-port"][sort_index]
-                            : (module === system.processes)
-                                ? ["name", "id", "memory", "time", "user"][sort_index]
-                                : (module === system.services)
-                                    ? ["name", "status", "description"][sort_index]
-                                    : ["name", "uid", "lastLogin", "proc"][sort_index],
+                    const sort_index:number = Number(table.dataset.column),
+                        sort_name:string = module.sort_name[sort_index],
                         sort_direction:-1|1 = Number(table.getElementsByTagName("th")[sort_index].getElementsByTagName("button")[0].dataset.dir) as -1|1;
                     let index:number = 0,
                         row:HTMLElement = null;
                     list.textContent = "";
-                    item.data.sort(function dashboard_tablesPopulate_sort(a:os_devs|os_proc|os_serv|os_sock|os_user,b:os_devs|os_proc|os_serv|os_sock|os_user):-1|1 {
+                    item.data.sort(function dashboard_tablesPopulate_sort(a:type_lists,b:type_lists):-1|1 {
                         // @ts-expect-error - inferring types based upon property names across unrelated objects of dissimilar property name is problematic
                         if (a[sort_name as "name"|"type"] as string < b[sort_name as "name"|"type"] as string) {
                             return sort_direction;
@@ -289,7 +201,7 @@ const dashboard = function dashboard():void {
                     });
                     do {
                         row = document.createElement("tr");
-                        build_record[type]();
+                        module.row(item.data[index], row);
                         row.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
                         list.appendChild(row);
                         index = index + 1;
@@ -298,17 +210,8 @@ const dashboard = function dashboard():void {
                     module.nodes.count.textContent = String(item.data.length);
                     module.nodes.list = table.getElementsByTagName("tbody")[0];
                     tables.filter(null, module.nodes.filter_value);
-                    if (module === system.devices) {
-                        payload.os.devs = item as services_os_devs;
-                    } else if (module === system.processes) {
-                        payload.os.proc = item as services_os_proc;
-                    } else if (module === system.services) {
-                        payload.os.serv = item as services_os_serv;
-                    } else if (module === network.sockets_os) {
-                        payload.os.sock = item as services_os_sock;
-                    } else if (module === system.users) {
-                        payload.os.user = item as services_os_user;
-                    }
+                    // @ts-expect-error - cannot infer a module from a union of modules by a type name from a union of type names
+                    payload.os[state_name] = item;
                 }
             },
             // sort data from html tables
@@ -615,7 +518,20 @@ const dashboard = function dashboard():void {
             // gathers state artifacts and saves state data
             setState: function dashboard_utilitySetState():void {
                 if (utility.socket.connected === true) {
-                    const hashInput:HTMLCollectionOf<HTMLInputElement> = document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input");
+                    const hashInput:HTMLCollectionOf<HTMLInputElement> = document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input"),
+                        lists = function dashboard_utilitySetState_lists(module:module_list, type:type_list_names|"sockets_application"):void {
+                            if (state.table_os[type] === null || state.table_os[type] === undefined) {
+                                state.table_os[type] = {
+                                    filter_column: module.nodes.filter_column.selectedIndex,
+                                    filter_sensitive: module.nodes.caseSensitive.checked,
+                                    filter_value: module.nodes.filter_value.value
+                                }
+                            } else {
+                                state.table_os[type].filter_column = module.nodes.filter_column.selectedIndex;
+                                state.table_os[type].filter_sensitive = module.nodes.caseSensitive.checked;
+                                state.table_os[type].filter_value = module.nodes.filter_value.value;
+                            }
+                        };
                     state.dns.reverse = tools.dns.nodes.reverse.checked;
                     state.dns.hosts = tools.dns.nodes.hosts.value;
                     state.dns.types = tools.dns.nodes.types.value;
@@ -639,55 +555,12 @@ const dashboard = function dashboard():void {
                     if (tools.terminal.nodes.select[tools.terminal.nodes.select.selectedIndex] !== undefined) {
                         state.terminal = tools.terminal.nodes.select[tools.terminal.nodes.select.selectedIndex].textContent;
                     }
-                    if (state.table_os === undefined) {
-                        state.table_os = {
-                            devs: {
-                                filter_column: 0,
-                                filter_sensitive: true,
-                                filter_value: ""
-                            },
-                            proc: {
-                                filter_column: 0,
-                                filter_sensitive: true,
-                                filter_value: ""
-                            },
-                            serv: {
-                                filter_column: 0,
-                                filter_sensitive: true,
-                                filter_value: ""
-                            },
-                            sockets_application: {
-                                filter_column: 0,
-                                filter_sensitive: true,
-                                filter_value: ""
-                            },
-                            sock: {
-                                filter_column: 0,
-                                filter_sensitive: true,
-                                filter_value: ""
-                            },
-                            user: {
-                                filter_column: 0,
-                                filter_sensitive: true,
-                                filter_value: ""
-                            }
-                        };
-                    }
-                    state.table_os.proc.filter_column = system.processes.nodes.filter_column.selectedIndex;
-                    state.table_os.proc.filter_sensitive = system.processes.nodes.caseSensitive.checked;
-                    state.table_os.proc.filter_value = system.processes.nodes.filter_value.value;
-                    state.table_os.serv.filter_column = system.services.nodes.filter_column.selectedIndex;
-                    state.table_os.serv.filter_sensitive = system.services.nodes.caseSensitive.checked;
-                    state.table_os.serv.filter_value = system.services.nodes.filter_value.value;
-                    state.table_os.sockets_application.filter_column = network.sockets_application.nodes.filter_column.selectedIndex;
-                    state.table_os.sockets_application.filter_sensitive = network.sockets_application.nodes.caseSensitive.checked;
-                    state.table_os.sockets_application.filter_value = network.sockets_application.nodes.filter_value.value;
-                    state.table_os.sock.filter_column = network.sockets_os.nodes.filter_column.selectedIndex;
-                    state.table_os.sock.filter_sensitive = network.sockets_os.nodes.caseSensitive.checked;
-                    state.table_os.sock.filter_value = network.sockets_os.nodes.filter_value.value;
-                    state.table_os.user.filter_column = system.users.nodes.filter_column.selectedIndex;
-                    state.table_os.user.filter_sensitive = system.users.nodes.caseSensitive.checked;
-                    state.table_os.user.filter_value = system.users.nodes.filter_value.value;
+                    lists(system.devices, "devs");
+                    lists(system.processes, "proc");
+                    lists(system.services, "serv");
+                    lists(network.sockets_application, "sockets_application");
+                    lists(network.sockets_os, "sock");
+                    lists(system.users, "user");
                     localStorage.state = JSON.stringify(state);
                 }
             },
@@ -1072,6 +945,7 @@ const dashboard = function dashboard():void {
                     update_button: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                     update_text: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
                 },
+                row: null,
                 socket_add: function dashboard_networkSocketAdd(config:services_socket):void {
                     const table:HTMLElement = network.sockets_application.nodes.list.parentNode,
                         tr:HTMLElement = document.createElement("tr");
@@ -1124,7 +998,8 @@ const dashboard = function dashboard():void {
                     network.sockets_application.nodes.count.textContent = network.sockets_application.nodes.list.getElementsByTagName("tr").length.commas();
                     network.sockets_application.nodes.update_text.textContent = config.time.dateTime(true, payload.timeZone_offset);
                     tables.sort(null, table, Number(table.dataset.column));
-                }
+                },
+                sort_name: ["server", "type", "role", "name"]
             },
             sockets_os: {
                 nodes: {
@@ -1136,7 +1011,16 @@ const dashboard = function dashboard():void {
                     list: document.getElementById("sockets").getElementsByClassName("section")[3].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("sockets").getElementsByClassName("table-stats")[1].getElementsByTagName("button")[0],
                     update_text: document.getElementById("sockets").getElementsByClassName("table-stats")[1].getElementsByTagName("time")[0]
-                }
+                },
+                row: function dashboard_networkSocketOSRow(record_item:type_lists, tr:HTMLElement):void {
+                    const record:os_sock = record_item as os_sock;
+                    tables.cell(tr, record.type, null);
+                    tables.cell(tr, record["local-address"], null);
+                    tables.cell(tr, String(record["local-port"]), null);
+                    tables.cell(tr, record["remote-address"], null);
+                    tables.cell(tr, String(record["remote-port"]), null);
+                },
+                sort_name: ["type", "local-address", "local-port", "remote-address", "remote-port"]
             }
         },
         servers:structure_servers = {
@@ -2367,7 +2251,14 @@ const dashboard = function dashboard():void {
                     list: document.getElementById("devices").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("devices").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                     update_text: document.getElementById("devices").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
-                }
+                },
+                row: function dashboard_networkRow(record_item:type_lists, tr:HTMLElement):void {
+                    const record:os_devs = record_item as os_devs;
+                    tables.cell(tr, record.name, null);
+                    tables.cell(tr, record.type, null);
+                    tables.cell(tr, record.kernel_module, null);
+                },
+                sort_name: ["type", "name", "kernel_module"]
             },
             disks: {
                 init: function dashboard_disksInit():void {
@@ -2691,35 +2582,27 @@ const dashboard = function dashboard():void {
                         main(data);
                         network.interfaces.list(data.intr);
                         system.disks.list(data.disk);
-                        tables.populate(system.devices, data.devs);
-                        tables.populate(system.processes, data.proc);
-                        tables.populate(system.services, data.serv);
-                        tables.populate(network.sockets_os, data.sock);
-                        tables.populate(system.users, data.user);
+                        tables.populate(system.devices, data.devs, "devs");
+                        tables.populate(system.processes, data.proc, "proc");
+                        tables.populate(system.services, data.serv, "serv");
+                        tables.populate(network.sockets_os, data.sock, "sock");
+                        tables.populate(system.users, data.user, "user");
                     } else if (data_item.service === "dashboard-os-devs") {
-                        const data:services_os_devs = data_item.data as services_os_devs;
-                        tables.populate(system.devices, data);
+                        tables.populate(system.devices, data_item.data as services_os_devs, "devs");
                     } else if (data_item.service === "dashboard-os-disk") {
-                        const data:services_os_disk = data_item.data as services_os_disk;
-                        system.disks.list(data);
+                        system.disks.list(data_item.data as services_os_disk);
                     } else if (data_item.service === "dashboard-os-intr") {
-                        const data:services_os_intr = data_item.data as services_os_intr;
-                        network.interfaces.list(data);
+                        network.interfaces.list(data_item.data as services_os_intr);
                     } else if (data_item.service === "dashboard-os-main") {
-                        const data:services_os_all = data_item.data as services_os_all;
-                        main(data);
+                        main(data_item.data as services_os_all);
                     } else if (data_item.service === "dashboard-os-proc") {
-                        const data:services_os_proc = data_item.data as services_os_proc;
-                        tables.populate(system.processes, data);
+                        tables.populate(system.processes, data_item.data as services_os_proc, "proc");
                     } else if (data_item.service === "dashboard-os-serv") {
-                        const data:services_os_serv = data_item.data as services_os_serv;
-                        tables.populate(system.services, data);
+                        tables.populate(system.services, data_item.data as services_os_serv, "serv");
                     } else if (data_item.service === "dashboard-os-sock") {
-                        const data:services_os_sock = data_item.data as services_os_sock;
-                        tables.populate(network.sockets_os, data);
+                        tables.populate(network.sockets_os, data_item.data as services_os_sock, "sock");
                     } else if (data_item.service === "dashboard-os-user") {
-                        const data:services_os_user = data_item.data as services_os_user;
-                        tables.populate(system.users, data);
+                        tables.populate(system.users, data_item.data as services_os_user, "user");
                     }
                 }
             },
@@ -2733,7 +2616,31 @@ const dashboard = function dashboard():void {
                     list: document.getElementById("processes").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                     update_text: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
-                }
+                },
+                row: function dashboard_networkSocketOSRow(record_item:type_lists, tr:HTMLElement):void {
+                    const record:os_proc = record_item as os_proc,
+                        time:string = (record.time === null)
+                            ? (payload.platform === "win32")
+                                ? (0).time().replace(/000$/, "")
+                                : (0).time().replace(/\.0+$/, "")
+                            : (payload.platform === "win32")
+                                ? record.time.time().replace(/000$/, "")
+                                : record.time.time().replace(/\.0+$/, ""),
+                        memory:string = (record.memory === null)
+                            ? "0"
+                            : record.memory.commas(),
+                        id:string = String(record.id);
+                    tables.cell(tr, record.name, null);
+                    tables.cell(tr, id, id);
+                    tables.cell(tr, memory, (record.memory === null)
+                        ? "0"
+                        : String(record.memory));
+                    tables.cell(tr, time, (record.time === null)
+                        ? "0"
+                        : String(record.time));
+                    tables.cell(tr, record.user, null);
+                },
+                sort_name: ["name", "id", "memory", "time", "user"]
             },
             services: {
                 nodes: {
@@ -2745,7 +2652,14 @@ const dashboard = function dashboard():void {
                     list: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                     update_text: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
-                }
+                },
+                row: function dashboard_networkSocketOSRow(record_item:type_lists, tr:HTMLElement):void {
+                    const record:os_serv = record_item as os_serv;
+                    tables.cell(tr, record.name, null);
+                    tables.cell(tr, record.status, null);
+                    tables.cell(tr, record.description, null);
+                },
+                sort_name: ["name", "status", "description"]
             },
             users: {
                 nodes: {
@@ -2757,7 +2671,20 @@ const dashboard = function dashboard():void {
                     list: document.getElementById("users").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
                     update_button: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                     update_text: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
-                }
+                },
+                row: function dashboard_networkSocketOSRow(record_item:type_lists, tr:HTMLElement):void {
+                    const record:os_user = record_item as os_user,
+                        uid:string = String(record.uid),
+                        proc:string = String(record.proc);
+                    tables.cell(tr, record.name, null);
+                    tables.cell(tr, uid, uid);
+                    tables.cell(tr, (record.lastLogin === 0)
+                        ? "never"
+                        : record.lastLogin.dateTime(true, null), String(record.lastLogin));
+                    tables.cell(tr, proc, proc);
+                    tables.cell(tr, record.type, null);
+                },
+                sort_name: ["name", "uid", "lastLogin", "proc"]
             }
         },
         tools:structure_tools = {
@@ -3414,6 +3341,7 @@ const dashboard = function dashboard():void {
                         tools.terminal.socket.onmessage = tools.terminal.events.data;
                         tools.terminal.info = JSON.parse(event.data);
                         tools.terminal.nodes.output.setAttribute("data-info", event.data);
+                        tools.terminal.events.resize();
                     },
                     input: function dashboard_terminalInput(input:terminal_input):void {
                         if (tools.terminal.socket.readyState === 1) {
@@ -3786,9 +3714,6 @@ const dashboard = function dashboard():void {
                     navButtons[index].removeAttribute("class");
                 } while (index > 0);
                 document.getElementById(section).style.display = "block";
-                if (section === "terminal") {
-                    tools.terminal.events.resize();
-                }
                 state.nav = target.dataset.section;
                 utility.setState();
                 target.setAttribute("class", "nav-focus");
@@ -3829,36 +3754,12 @@ const dashboard = function dashboard():void {
         // restore state of table filter controls
         if (state.table_os === undefined) {
             state.table_os = {
-                devs: {
-                    filter_column: 0,
-                    filter_sensitive: true,
-                    filter_value: ""
-                },
-                proc: {
-                    filter_column: 0,
-                    filter_sensitive: true,
-                    filter_value: ""
-                },
-                serv: {
-                    filter_column: 0,
-                    filter_sensitive: true,
-                    filter_value: ""
-                },
-                sockets_application: {
-                    filter_column: 0,
-                    filter_sensitive: true,
-                    filter_value: ""
-                },
-                sock: {
-                    filter_column: 0,
-                    filter_sensitive: true,
-                    filter_value: ""
-                },
-                user: {
-                    filter_column: 0,
-                    filter_sensitive: true,
-                    filter_value: ""
-                }
+                devs: null,
+                proc: null,
+                serv: null,
+                sockets_application: null,
+                sock: null,
+                user: null
             };
         }
 
