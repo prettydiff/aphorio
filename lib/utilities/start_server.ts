@@ -16,25 +16,23 @@ import test_index from "../test/index.ts";
 import time from "./time.ts";
 import vars from "./vars.ts";
 
+// cspell: words serv
+
 const start_server = function utilities_startServer():void {
     const testing:boolean = process.argv.includes("test"),
-        flags:store_flag = {
-            compose: false,
-            css: false,
-            git: false,
-            html: false,
-            options: false,
-            os: false,
-            servers: testing,
-            test_browser: false,
-            test_list: false
-        },
         task_definitions:store_string = {
             compose: "Reads the compose.json file and restores the docker compose containers if docker is available.",
             git: "Read's the project's git file to determine the current commit hash, which is helpful when performing maintenance across multiple machines simultaneously.",
             html: "Read's the dashboard's HTML file for dynamic modification.",
             options: "Modify's application settings according to the use of supported optional command line arguments.",
-            os: "Reads a variety of data from the operating system for populating into the dashboard.",
+            os_devs: "Gathers a list of devices registered with the OS kernel.",
+            os_disk: "Gathers information about disk hardware and partitions.",
+            os_intr: "Gathers information about the state of available network interfaces.",
+            os_main: "Gathers basic operating system and machine data.",
+            os_proc: "Gathers a list of running processes.",
+            os_serv: "Gathers a list of known services.",
+            os_sock: "Gathers a list of known network sockets.",
+            os_user: "Gathers a list of user accounts.",
             servers: "Reads the servers.json file to dynamically standup and populate configured web servers.",
             test_browser: "Finds a designed web browser for test automation if supplied as a terminal argument.",
             test_list: null
@@ -57,7 +55,6 @@ const start_server = function utilities_startServer():void {
                 };
                 file.read({
                     callback: readCompose,
-                    error_terminate: null,
                     location: `${vars.path.project}compose.json`,
                     no_file: null
                 });
@@ -110,8 +107,7 @@ const start_server = function utilities_startServer():void {
                                         .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
                                     readComplete("html");
                                 },
-                                error_terminate: null,
-                                location: `${process_path}lib${vars.sep}dashboard${vars.sep}dashboard.html`,
+                                location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}dashboard.html`,
                                 no_file: null
                             });
                         }
@@ -135,20 +131,17 @@ const start_server = function utilities_startServer():void {
                     };
                 file.read({
                     callback: readCSS,
-                    error_terminate: null,
-                    location: `${process_path}lib${vars.sep}dashboard${vars.sep}styles.css`,
+                    location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
                     no_file: null
                 });
                 file.read({
                     callback: readXtermCSS,
-                    error_terminate: null,
-                    location: `${process_path}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}css${vars.sep}xterm.css`,
+                    location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`,
                     no_file: null
                 });
                 file.read({
                     callback: readXtermJS,
-                    error_terminate: null,
-                    location: `${process_path}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}lib${vars.sep}xterm.js`,
+                    location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}lib${vars.path.sep}xterm.js`,
                     no_file: null
                 });
             },
@@ -177,20 +170,39 @@ const start_server = function utilities_startServer():void {
                 };
                 callback("no_color", "text");
             },
-            os: function utilities_startServer_taskOS():void {
-                const osCallback = function utilities_startServer_taskOS_osCallback():void {
-                        readComplete("os");
+            os_devs: function utilities_startServer_taskOSDevs():void {
+                const callback = function utilities_startServer_taskOSDevs_callback():void {
+                        readComplete("os_devs");
+                    };
+                os("devs", callback);
+            },
+            os_disk: function utilities_startServer_taskOSDisk():void {
+                const callback = function utilities_startServer_taskOSDisk_callback():void {
+                        readComplete("os_disk");
+                    };
+                os("disk", callback);
+            },
+            os_intr: function utilities_startServer_taskOSIntr():void {
+                const callback = function utilities_startServer_taskOSIntr_callback():void {
+                    readComplete("os_intr");
+                };
+                os("intr", callback);
+            },
+            os_main: function utilities_startServer_taskOSMain():void {
+                const callback = function utilities_startServer_taskOSMain_callback():void {
+                        readComplete("os_main");
+                        task_start();
                     },
-                    osDelay = function utilities_startServer_osDelay():void {
-                        os("all", function utilities_startServer_osDelay(payload:socket_data):void {
+                    osDelay = function utilities_startServer_taskOSMain_osDelay():void {
+                        os("all", function utilities_startServer_taskOSMain_osDelay_callback(payload:socket_data):void {
                             broadcast("dashboard", "dashboard", payload);
                         });
                         osDaily();
                     },
-                    osDaily = function utilities_startServer_osDaily():void {
+                    osDaily = function utilities_startServer_taskOSMain_osDaily():void {
                         setTimeout(osDelay, 86399975);
                     },
-                    midnight:number = (function utilities_startServer_midnight():number {
+                    midnight:number = (function utilities_startServer_taskOSMain_midnight():number {
                         const date:Date = new Date(),
                             hours:number = date.getHours(),
                             minutes:number = date.getMinutes(),
@@ -200,8 +212,36 @@ const start_server = function utilities_startServer():void {
                         vars.timeZone_offset = date.getTimezoneOffset() * 60000;
                         return night - 25;
                     }());
-                os("all", osCallback);
+                os("main", callback);
                 setTimeout(osDelay, midnight);
+            },
+            os_proc: (process.platform === "win32")
+                ? function utilities_startServer_taskOSProcWindows():void {
+                    readComplete("os_proc");
+                }
+                : function utilities_startServer_taskOSProc():void {
+                    const callback = function utilities_startServer_taskOSProc_callback():void {
+                        readComplete("os_proc");
+                    };
+                    os("proc", callback);
+                },
+            os_serv: function utilities_startServer_taskOSServ():void {
+                const callback = function utilities_startServer_taskOSServ_callback():void {
+                    readComplete("os_serv");
+                };
+                os("serv", callback);
+            },
+            os_sock: function utilities_startServer_taskOSSock():void {
+                const callback = function utilities_startServer_taskOSSock_callback():void {
+                    readComplete("os_sock");
+                };
+                os("sock", callback);
+            },
+            os_user: function utilities_startServer_taskOSUser():void {
+                const callback = function utilities_startServer_taskOSUser_callback():void {
+                    readComplete("os_user");
+                };
+                os("user", callback);
             },
             servers: function utilities_startServer_taskServers():void {
                 const callback = function utilities_startServer_taskServers_callback(fileContents:Buffer):void {
@@ -277,7 +317,6 @@ const start_server = function utilities_startServer():void {
                 };
                 file.read({
                     callback: callback,
-                    error_terminate: null,
                     location: `${vars.path.project}servers.json`,
                     no_file: null
                 });
@@ -298,7 +337,7 @@ const start_server = function utilities_startServer():void {
                         let address:string = process.argv[index_browser].replace(`${arg}:`, "");
                         const address_length:number = address.length,
                             stat_address:string = (property === "test_list")
-                                ? `${process_path}lib${vars.sep}test${vars.sep + address.replace(/^\.?(\/|\\)/, "")}`
+                                ? `${process_path}lib${vars.path.sep}test${vars.path.sep + address.replace(/^\.?(\/|\\)/, "")}`
                                 : address,
                             stat_browser = function utilities_startServer_testStat_stat(err:node_error, details:node_fs_Stats):void {
                                 if (err === null && details !== null && details !== undefined) {
@@ -354,8 +393,7 @@ const start_server = function utilities_startServer():void {
                 }
             }
         },
-        readComplete = function utilities_startServer_readComplete(flag:"compose"|"css"|"git"|"html"|"options"|"os"|"servers"|"test_browser"|"test_list"):void {
-            flags[flag] = true;
+        readComplete = function utilities_startServer_readComplete(flag:"compose"|"git"|"html"|"options"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list"):void {
             // sends a server time update every 950ms
             const clock = function utilities_startServer_readComplete_clock():void {
                     const now:number = Date.now(),
@@ -513,7 +551,9 @@ const start_server = function utilities_startServer():void {
                     }
                 };
             count_task = count_task + 1;
-            log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.start_time)}]${vars.text.none} ${flag} - ${task_definitions[flag]}`]);
+            log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${task_definitions[flag]}`]);
+            // to troubleshoot which tasks do not run, in test mode servers task is not executed
+            // delete task_definitions[flag];console.log(Object.keys(task_definitions));
             if (count_task === len_flags) {
                 clock();
                 if (testing === true || vars.servers.dashboard === undefined) {
@@ -529,17 +569,19 @@ const start_server = function utilities_startServer():void {
         task_start = function utilities_startServer_taskStart():void {
             do {
                 index_tasks = index_tasks - 1;
-                if (testing === false || (testing === true && keys_tasks[index_tasks] !== "servers")) {
-                    tasks[keys_tasks[index_tasks]]();
-                } else {
-                    len_flags = len_flags - 1;
+                if (keys_tasks[index_tasks] !== "os_main") {
+                    if (testing === false || (keys_tasks[index_tasks] !== "servers" && testing === true)) {
+                        tasks[keys_tasks[index_tasks]]();
+                    }
                 }
             } while (index_tasks > 0);
         },
-        process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.sep}lib${vars.sep}`)) + vars.sep,
-        keys_tasks:string[] = Object.keys(tasks);
-    let len_flags:number = keys_tasks.length,
-        index_tasks:number = keys_tasks.length,
+        process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.path.sep}lib${vars.path.sep}`)) + vars.path.sep,
+        keys_tasks:string[] = Object.keys(tasks),
+        len_flags:number = (testing === true)
+            ? keys_tasks.length - 1 // servers task is not run in test mode
+            : keys_tasks.length;
+    let index_tasks:number = keys_tasks.length,
         count_task:number = 0;
 
     BigInt.prototype.time = time;
@@ -552,11 +594,11 @@ const start_server = function utilities_startServer():void {
     };
     vars.test.testing = testing;
     vars.path.project = (vars.test.testing === true)
-        ? `${process_path}test${vars.sep}`
+        ? `${process_path}test${vars.path.sep}`
         : process_path;
-    vars.path.compose_empty = `${process_path}compose${vars.sep}empty.yml`;
-    vars.path.compose = `${vars.path.project}compose${vars.sep}`;
-    vars.path.servers = `${vars.path.project}servers${vars.sep}`;
+    vars.path.compose_empty = `${process_path}compose${vars.path.sep}empty.yml`;
+    vars.path.compose = `${vars.path.project}compose${vars.path.sep}`;
+    vars.path.servers = `${vars.path.project}servers${vars.path.sep}`;
 
     log.shell([`${vars.text.underline}Executing start up tasks${vars.text.none}`]);
 
@@ -570,7 +612,7 @@ const start_server = function utilities_startServer():void {
                 if (index > 0) {
                     utilities_startServer_tasksShell_shellWin(index - 1);
                 } else {
-                    task_start();
+                    tasks.os_main();
                 }
             });
         };
@@ -597,15 +639,13 @@ const start_server = function utilities_startServer():void {
                             if (vars.terminal.length < 1) {
                                 vars.terminal.push("/bin/sh");
                             }
-                            task_start();
+                            tasks.os_main();
                         },
-                        error_terminate: null,
                         location: "/etc/shells",
                         no_file: null
                     });
                 }
             },
-            error_terminate: null,
             location: "/etc/shells",
             no_file: null
         });

@@ -23,7 +23,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                 file: file,
                 parent: parent,
                 search: data.search,
-                sep: vars.sep
+                sep: vars.path.sep
             };
             send({
                 data: service,
@@ -98,7 +98,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
         },
         parentCallback = function services_fileSystem_parentCallback(dir:directory_list|string[]):void {
             const list:directory_list = dir as directory_list,
-                paths:string[] = data.address.split(vars.sep),
+                paths:string[] = data.address.split(vars.path.sep),
                 config_dir:config_directory = {
                     callback: dirCallback,
                     depth: (data.search === null)
@@ -149,10 +149,10 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             }
         },
         parent_path:string = (function services_fileSystem_parentPath():string {
-            if (data.address === "/" || data.address === "\\" || (windows_root.test(data.address) === true && vars.sep === "\\")) {
+            if (data.address === "/" || data.address === "\\" || (windows_root.test(data.address) === true && vars.path.sep === "\\")) {
                 return data.address;
             }
-            const paths:string[] = data.address.split(vars.sep);
+            const paths:string[] = data.address.split(vars.path.sep);
             // smb
             // if ((/^\\\\\[?(\w+\.?)+\]?/).test(config.path) === true && paths.length < 4) {
             //     return config.path;
@@ -161,10 +161,10 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                 paths.pop();
             }
             paths.pop();
-            if (paths[0] === "" && paths[1] === "" && paths.length === 2 && vars.sep === "/") {
+            if (paths[0] === "" && paths[1] === "" && paths.length === 2 && vars.path.sep === "/") {
                 return "/";
             }
-            return paths.join(vars.sep) + vars.sep;
+            return paths.join(vars.path.sep) + vars.path.sep;
         }()),
         config_parent:config_directory = {
             callback: parentCallback,

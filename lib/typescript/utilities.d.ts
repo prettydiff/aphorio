@@ -50,27 +50,23 @@ interface file {
 
 interface file_mkdir {
     callback: () => void;
-    error_terminate: type_dashboard_config;
     location: string;
 }
 
 interface file_read {
     callback: (file:Buffer) => void;
-    error_terminate: type_dashboard_config;
     location: string;
     no_file: () => void;
 }
 
 interface file_remove {
     callback: () => void;
-    error_terminate: type_dashboard_config;
     exclusions: string[];
     location: string;
 }
 
 interface file_stat {
     callback: (stats:node_fs_BigIntStats) => void;
-    error_terminate: type_dashboard_config;
     location: string;
     no_file: () => void;
 }
@@ -78,7 +74,6 @@ interface file_stat {
 interface file_write {
     callback: () => void;
     contents: Buffer | string;
-    error_terminate: type_dashboard_config;
     location: string;
 }
 
@@ -124,7 +119,9 @@ interface server_meta_item {
 }
 
 interface server_os {
-    interfaces: services_os_intr;
+    devs: services_os_devs;
+    disk: services_os_disk;
+    intr: services_os_intr;
     machine: {
         cpu: {
             arch: string;
@@ -148,6 +145,7 @@ interface server_os {
         type: string;
         uptime: number;
     };
+    proc: services_os_proc;
     process: {
         arch: string;
         argv: string[];
@@ -165,17 +163,15 @@ interface server_os {
         uptime: number;
         versions: store_string;
     };
-    processes: services_os_proc;
-    services: services_os_serv;
-    sockets: services_os_sock;
-    storage: services_os_disk;
+    serv: services_os_serv;
+    sock: services_os_sock;
     time: number;
-    user: {
+    user: services_os_user;
+    user_account: {
         gid: number;
         homedir: string;
         uid: number;
     };
-    users: services_os_user;
 }
 
 interface server_os_memoryUsage {
@@ -189,6 +185,10 @@ interface server_os_memoryUsage {
 interface server_ports {
     open?: number;
     secure?: number;
+}
+
+interface store_arrays {
+    [key:string]: Array<object>;
 }
 
 interface store_children {
@@ -217,6 +217,10 @@ interface store_function {
 
 interface store_number {
     [key:string]: number;
+}
+
+interface store_os_difference {
+    [key:string]: config_os_comparison;
 }
 
 interface store_ports {
@@ -271,20 +275,12 @@ interface vars {
         hash: string;
     };
     hashes: string[];
+    http_request: string;
     interfaces: string[];
     intervals: store_number;
     logs: services_dashboard_status[];
     os: server_os;
-    path: {
-        compose: string;
-        compose_empty: string;
-        project: string;
-        servers: string;
-    };
-    processes: {
-        [key:string]: node_childProcess_ChildProcess;
-    };
-    sep: "/" | "\\";
+    path: vars_path;
     server_meta: server_meta;
     servers: store_servers;
     start_time: bigint;
@@ -313,6 +309,14 @@ interface vars {
     };
     text: store_string;
     timeZone_offset: number;
+}
+
+interface vars_path {
+    compose: string;
+    compose_empty: string;
+    project: string;
+    sep: "/" | "\\";
+    servers: string;
 }
 
 interface windows_drives {

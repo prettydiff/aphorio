@@ -4,7 +4,7 @@ const test_listLocalBrowserStorage:test_list = [
     {
         delay: {
             node: [
-                ["getElementById", "storage", null],
+                ["getElementById", "disks", null],
                 ["getElementsByTagName", "h2", 0]
             ],
             qualifier: "greater",
@@ -17,7 +17,7 @@ const test_listLocalBrowserStorage:test_list = [
                 event: "click",
                 node: [
                     ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 7]
+                    ["getElementsByTagName", "button", 6]
                 ]
             }
         ],

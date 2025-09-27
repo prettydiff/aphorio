@@ -82,6 +82,17 @@ declare global {
         validateVariables: (event:FocusEvent|KeyboardEvent) => void;
     }
 
+    interface module_disks {
+        init: () => void;
+        list: (item:services_os_disk) => void;
+        nodes: {
+            count: HTMLElement;
+            list: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
+        };
+    }
+
     interface module_dns {
         direction: (reverse:boolean) => void;
         directionEvent: (event:MouseEvent) => void;
@@ -247,6 +258,7 @@ declare global {
     }
 
     interface module_list {
+        dataName: string;
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
@@ -257,27 +269,19 @@ declare global {
             update_button: HTMLButtonElement;
             update_text: HTMLElement;
         };
+        row: (record:type_lists, tr:HTMLElement) => void;
+        sort_name: string[];
     }
 
     interface module_sockets_application extends module_list {
         socket_add: (config:services_socket) => void;
     }
 
-    interface module_storage {
-        init: () => void;
-        list: (item:services_os_disk) => void;
-        nodes: {
-            count: HTMLElement;
-            list: HTMLElement;
-            update_button: HTMLButtonElement;
-            update_text: HTMLElement;
-        };
-    }
-
     interface module_tables {
+        cell: (tr:HTMLElement, text:string, raw:string) => void;
         filter: (event:Event, target?:HTMLInputElement) => void;
-        init: (module:module_list|module_sockets_application|module_users, state_name:"processes"|"services"|"sockets_application"|"sockets_os"|"users") => void;
-        populate: (module:module_list|module_users, item:services_os_proc|services_os_serv|services_os_sock|services_os_user) => void;
+        init: (module:module_list|module_sockets_application) => void;
+        populate: (module:module_list, item:type_list_services) => void;
         sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         update: (event:MouseEvent) => void;
     }
@@ -303,19 +307,6 @@ declare global {
         rows: number;
         shell: () => void;
         socket: WebSocket;
-    }
-
-    interface module_users {
-        nodes: {
-            caseSensitive: HTMLInputElement;
-            count: HTMLElement;
-            filter_column: HTMLSelectElement;
-            filter_count: HTMLElement;
-            filter_value: HTMLInputElement;
-            list: HTMLElement;
-            update_button: HTMLButtonElement;
-            update_text: HTMLElement;
-        };
     }
 
     interface module_utility {
@@ -356,6 +347,7 @@ declare global {
             button_send: HTMLButtonElement;
             halt_receive: HTMLInputElement;
             handshake: HTMLTextAreaElement;
+            handshake_label: HTMLElement;
             handshake_scheme: HTMLInputElement;
             handshake_status: HTMLTextAreaElement;
             handshake_timeout: HTMLInputElement;
@@ -391,11 +383,12 @@ declare global {
     }
 
     interface structure_system {
+        devices: module_list;
+        disks: module_disks;
         os: module_os;
         processes: module_list;
         services: module_list;
-        storage: module_storage;
-        users: module_users;
+        users: module_list;
     }
 
     interface structure_tools {
@@ -430,31 +423,7 @@ declare global {
         };
         nav: string;
         table_os: {
-            processes: {
-                filter_column: number;
-                filter_sensitive: boolean;
-                filter_value: string;
-            };
-            services: {
-                filter_column: number;
-                filter_sensitive: boolean;
-                filter_value: string;
-            };
-            sockets_application: {
-                filter_column: number;
-                filter_sensitive: boolean;
-                filter_value: string;
-            };
-            sockets_os: {
-                filter_column: number;
-                filter_sensitive: boolean;
-                filter_value: string;
-            };
-            users: {
-                filter_column: number;
-                filter_sensitive: boolean;
-                filter_value: string;
-            };
+            [key:string]: table_os_item;
         };
         tables: {
             [key:string]: {
@@ -463,6 +432,12 @@ declare global {
             };
         };
         terminal: string;
+    }
+
+    interface table_os_item {
+        filter_column: number;
+        filter_sensitive: boolean;
+        filter_value: string;
     }
 
     interface terminal_identifiers {

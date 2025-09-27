@@ -1,11 +1,11 @@
 
 import vars from "../utilities/vars.ts";
 
-const test_listLocalBrowserUsers:test_list = [
+const test_listLocalBrowserDevices:test_list = [
     {
         delay: {
             node: [
-                ["getElementById", "users", null],
+                ["getElementById", "devices", null],
                 ["getElementsByTagName", "h2", 0]
             ],
             qualifier: "greater",
@@ -18,18 +18,18 @@ const test_listLocalBrowserUsers:test_list = [
                 event: "click",
                 node: [
                     ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 9]
+                    ["getElementsByTagName", "button", 5]
                 ]
             }
         ],
-        name: "Navigate to users",
+        name: "Navigate to devices",
         type: "dom",
         unit: []
     },
     {
         delay: {
             node: [
-                ["getElementById", "users", null],
+                ["getElementById", "devices", null],
                 ["getElementsByTagName", "tbody", 0],
                 ["getElementsByTagName", "tr", null]
             ],
@@ -40,12 +40,12 @@ const test_listLocalBrowserUsers:test_list = [
             value: 1
         },
         interaction: [],
-        name: "Check if users table is populated",
+        name: "Check if devices table is populated",
         type: "dom",
         unit: [
             {
                 node: [
-                    ["getElementById", "users", null],
+                    ["getElementById", "devices", null],
                     ["getElementsByTagName", "tbody", 0],
                     ["getElementsByTagName", "tr", 0],
                     ["getElementsByTagName", "td", 0]
@@ -57,46 +57,22 @@ const test_listLocalBrowserUsers:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "users", null],
+                    ["getElementById", "devices", null],
                     ["getElementsByTagName", "tbody", 0],
                     ["getElementsByTagName", "tr", 0],
                     ["getElementsByTagName", "td", 1]
                 ],
-                qualifier: "greater",
-                target: ["textContent"],
+                qualifier: "is",
+                target: ["textContent", "typeof"],
                 type: "property",
-                value: 1
+                value: "string"
             },
             {
                 node: [
-                    ["getElementById", "users", null],
+                    ["getElementById", "devices", null],
                     ["getElementsByTagName", "tbody", 0],
                     ["getElementsByTagName", "tr", 0],
                     ["getElementsByTagName", "td", 2]
-                ],
-                qualifier: "greater",
-                target: ["data-raw"],
-                type: "attribute",
-                value: -1
-            },
-            {
-                node: [
-                    ["getElementById", "users", null],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", 0],
-                    ["getElementsByTagName", "td", 3]
-                ],
-                qualifier: "greater",
-                target: ["data-raw"],
-                type: "attribute",
-                value: -1
-            },
-            {
-                node: [
-                    ["getElementById", "users", null],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", 0],
-                    ["getElementsByTagName", "td", 4]
                 ],
                 qualifier: "is",
                 target: ["textContent", "typeof"],
@@ -111,7 +87,7 @@ const test_listLocalBrowserUsers:test_list = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "users", null],
+                    ["getElementById", "devices", null],
                     ["getElementsByClassName", "table-filters", 0],
                     ["getElementsByTagName", "input", 0]
                 ]
@@ -119,16 +95,16 @@ const test_listLocalBrowserUsers:test_list = [
             {
                 event: "setValue",
                 node: [
-                    ["getElementById", "users", null],
+                    ["getElementById", "devices", null],
                     ["getElementsByClassName", "table-filters", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
-                value: "system"
+                value: "USB"
             },
             {
                 event: "keyup",
                 node: [
-                    ["getElementById", "users", null],
+                    ["getElementById", "devices", null],
                     ["getElementsByClassName", "table-filters", 0],
                     ["getElementsByTagName", "input", 0]
                 ],
@@ -145,7 +121,7 @@ const test_listLocalBrowserUsers:test_list = [
         unit: [
             {
                 node: [
-                    ["getElementById", "users", null],
+                    ["getElementById", "devices", null],
                     ["getElementsByClassName", "table-stats", 0],
                     ["getElementsByTagName", "em", 1]
                 ],
@@ -157,6 +133,6 @@ const test_listLocalBrowserUsers:test_list = [
         ]
     }
 ];
-test_listLocalBrowserUsers.name = "Local browser tests - users";
+test_listLocalBrowserDevices.name = "Local browser tests - devices";
 
-export default test_listLocalBrowserUsers;
+export default test_listLocalBrowserDevices;

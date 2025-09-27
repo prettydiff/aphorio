@@ -29,6 +29,7 @@ const directory = function utilities_directory(args:config_directory):void {
             startItem:string = null;
         const dirCount:number[] = [],
             dirNames:string[] = [],
+            sep:string = vars.path.sep,
             searchLast:number = (args.search === null)
                 ? 0
                 : args.search.length - 1,
@@ -38,7 +39,7 @@ const directory = function utilities_directory(args:config_directory):void {
             searchType:type_search = (function utilities_directory_searchType():type_search {
                 if (args.mode === "search") {
                     const regString:string = args.search.slice(1, searchLast);
-                    if (vars.sep === "\\") {
+                    if (sep === "\\") {
                         args.search = args.search.toLowerCase();
                     }
                     if (args.search !== "//" && args.search !== "/" && args.search.charAt(0) === "/" && args.search.charAt(searchLast) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(regString) === true) {
@@ -58,7 +59,7 @@ const directory = function utilities_directory(args:config_directory):void {
             output = function utilities_directory_output():void {
                 if (args.mode === "array" || args.mode === "list") {
                     const sortStrings = function utilities_directory_output_sortStrings():string[] {
-                        if (vars.sep === "\\") {
+                        if (sep === "\\") {
                             fileList.sort(function utilities_directory_output_sortStrings_sortFunction(a:string, b:string):-1|1 {
                                 if (a.toLowerCase() < b.toLowerCase()) {
                                     return -1;
@@ -68,10 +69,10 @@ const directory = function utilities_directory(args:config_directory):void {
                         } else {
                             fileList.sort();
                         }
-                        if (args.path === vars.sep) {
-                            const index:number = fileList.indexOf(vars.sep);
+                        if (args.path === sep) {
+                            const index:number = fileList.indexOf(sep);
                             fileList.splice(index, 1);
-                            fileList.splice(0, 0, vars.sep);
+                            fileList.splice(0, 0, sep);
                         }
                         return fileList;
                     };
@@ -122,15 +123,15 @@ const directory = function utilities_directory(args:config_directory):void {
                 ? node.fs.lstat
                 : node.fs.stat,
             dirCounter = function utilities_directory_dirCounter(item:string):void {
-                const dirList:string[] = item.split(vars.sep);
+                const dirList:string[] = item.split(sep);
                 let dirPath:string = "",
                     index:number = 0;
                 dirList.pop();
-                dirPath = dirList.join(vars.sep);
+                dirPath = dirList.join(sep);
                 if ((/^\w:$/).test(dirPath) === true) {
                     dirPath = `${dirPath}\\`;
                 } else if (dirPath === "") {
-                    dirPath = vars.sep;
+                    dirPath = sep;
                 }
                 index = dirNames.indexOf(dirPath);
                 if (index < 0 && args.path === "\\" && (/^\w:\\$/).test(dirPath) === true) {
@@ -171,13 +172,13 @@ const directory = function utilities_directory(args:config_directory):void {
                         },
                         path_start:string = (args.path === "/")
                             ? "/"
-                            : args.path.replace(/(\/|\\)$/, "") + vars.sep,
+                            : args.path.replace(/(\/|\\)$/, "") + sep,
                         relPath:string = (args.relative === true)
                             ? filePath.replace(path_start, "")
                             : filePath,
                         search = function utilities_directory_statWrapper_stat_search(searchItem:string):boolean {
-                            const names:string = searchItem.split(vars.sep).pop(),
-                                named:string = (vars.sep === "\\")
+                            const names:string = searchItem.split(sep).pop(),
+                                named:string = (sep === "\\")
                                     ? names.toLowerCase()
                                     : names;
                             if (searchType === "regex" && searchReg.test(named) === true) {
@@ -233,7 +234,7 @@ const directory = function utilities_directory(args:config_directory):void {
                                     } else if (item === "/") {
                                         utilities_directory_statWrapper(`/${value}`, index);
                                     } else {
-                                        utilities_directory_statWrapper(item + vars.sep + value, index);
+                                        utilities_directory_statWrapper(item + sep + value, index);
                                     }
                                 });
                             };
@@ -395,8 +396,8 @@ const directory = function utilities_directory(args:config_directory):void {
                         const dirs:number = (args.path === "\\" && (/^\w:(\\)?$/).test(filePath) === true)
                             ? 1
                             : (args.path === "\\")
-                                ? `\\${filePath.replace(startItem, "")}`.split(vars.sep).length
-                                : filePath.replace(startItem, "").split(vars.sep).length;
+                                ? `\\${filePath.replace(startItem, "")}`.split(sep).length
+                                : filePath.replace(startItem, "").split(sep).length;
                         if (args.depth < 1 || dirs < args.depth || dirTest === false) {
                             dirTest = true;
                             dir(filePath.replace(/^\w:$/, driveLetter));
@@ -453,7 +454,7 @@ const directory = function utilities_directory(args:config_directory):void {
             : args.path;
         startItem = (args.path === "/")
             ? "/"
-            : args.path + vars.sep;
+            : args.path + sep;
         list.failures = [];
         statWrapper(args.path, 0);
     };

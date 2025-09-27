@@ -22,6 +22,7 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-hash": hash,
             "dashboard-http": http_request,
             "dashboard-os-all": os,
+            "dashboard-os-devs": os,
             "dashboard-os-disk": os,
             "dashboard-os-intr": os,
             "dashboard-os-main": os,

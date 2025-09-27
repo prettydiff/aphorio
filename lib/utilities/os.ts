@@ -12,12 +12,15 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 ? "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
                 : "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
             : "/bin/sh",
+        devices:os_devs[] = [],
         disks:os_disk[] = [],
         processes:os_proc[] = [],
-        services:os_service[] = [],
-        sockets: os_sockets[] = [],
+        services:os_serv[] = [],
+        sockets: os_sock[] = [],
         users: os_user[] = [],
+        int:NodeJS.Dict<node_os_NetworkInterfaceInfo[]> = node.os.networkInterfaces(),
         chunks:store_string_list = {
+            devs: [],
             disk: [],
             part: [],
             proc: [],
@@ -28,6 +31,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             volu: []
         },
         flags:store_flag = {
+            devs: false,
             disk: false,
             part: (win32 === false),
             proc: false,
@@ -38,6 +42,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             volu: (win32 === false)
         },
         spawn:store_children_os = {
+            devs: null,
             disk: null,
             part: null,
             proc: null,
@@ -48,26 +53,78 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             volu: null
         },
         raw:os_raw = {
+            devs: null,
             disk: null,
             part: null,
             proc: null,
             serv: null,
+            sock: null,
             socT: null,
             socU: null,
             user: null,
             volu: null
         },
         complete:store_flag = {
+            devs: false,
             disk: false,
             part: true,
             proc: false,
             serv: false,
             socT: false,
-            socU: false,
+            socU: (win32 === false),
             user: false,
             volu: true
         },
         builder:store_function = {
+            devs: function utilities_os_builderDevs():void {
+                const data_posix:string[] = raw.devs as string[],
+                    data_win:os_devs_windows[] = raw.devs as os_devs_windows[],
+                    len:number = (win32 === true)
+                        ? data_win.length
+                        : data_posix.length;
+                let index:number = 0,
+                    lines:string[] = null,
+                    devs:os_devs = null,
+                    kernel:string = "";
+                if (len > 0) {
+                    do {
+                        if (win32 === true) {
+                            if (data_win[index].FriendlyName !== null && data_win[index].FriendlyName !== undefined && data_win[index].FriendlyName.replace(/\s+/, "") !== "") {
+                                devs = {
+                                    kernel_module: data_win[index].PNPDeviceID,
+                                    name: data_win[index].FriendlyName,
+                                    type: (data_win[index].PNPClass === null || data_win[index].PNPClass === undefined || data_win[index].PNPClass.replace(/\s+/, "") === "")
+                                        ? data_win[index].CreationClassName
+                                        : data_win[index].PNPClass
+                                };
+                            } else {
+                                devs = null;
+                            }
+                        } else {
+                            lines = data_posix[index].split("\n");
+                            kernel = (lines[lines.length - 1].indexOf("\tKernel modules: ") === 0)
+                                ? lines[lines.length - 1].split("\tKernel modules: ")[1]
+                                : (lines[lines.length - 1].indexOf("\tKernel driver in use: ") === 0)
+                                    ? lines[lines.length - 1].split("\tKernel driver in use: ")[1]
+                                    : "";
+                            if (kernel === "") {
+                                devs = null;
+                            } else {
+                                devs = {
+                                    kernel_module: kernel,
+                                    name: lines[0].split(": ")[1],
+                                    type: lines[0].split(": ")[0].slice(lines[0].indexOf(" ") + 1)
+                                };
+                            }
+                        }
+                        if (devs !== null) {
+                            devices.push(devs);
+                        }
+                        index = index + 1;
+                    } while (index < len);
+                }
+                completed("devs");
+            },
             disk: function utilities_os_builderDisk():void {
                 const data_posix:os_disk_posix[] = raw.disk as os_disk_posix[],
                     data_win:os_disk_windows[] = (function utilities_os_builderDisk_win32():os_disk_windows[] {
@@ -121,14 +178,17 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                         active: parts[pIndex].IsActive,
                                         bootable: parts[pIndex].IsBoot,
                                         diskId: id,
+                                        diskName: data_win[index].FriendlyName,
                                         file_system: null,
                                         hidden: parts[pIndex].IsHidden,
                                         id: parts[pIndex].Guid,
                                         path: null,
                                         read_only: parts[pIndex].IsReadOnly,
                                         size_free: 0,
+                                        size_free_percent: 0,
                                         size_total: 0,
                                         size_used: 0,
+                                        size_used_percent: 0,
                                         type: parts[pIndex].Type
                                     };
                                     vIndex = 0;
@@ -144,6 +204,12 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                             part.size_free = volumes[vIndex].SizeRemaining;
                                             part.size_total = volumes[vIndex].Size;
                                             part.size_used = volumes[vIndex].Size - volumes[vIndex].SizeRemaining;
+                                            part.size_free_percent = (part.size_free === 0 || part.size_total === 0)
+                                                ? 0
+                                                : Math.round((part.size_free / part.size_total) * 100);
+                                            part.size_used_percent = (part.size_used === 0 || part.size_total === 0)
+                                                ? 0
+                                                : Math.round((part.size_used / part.size_total) * 100);
                                         }
                                         vIndex = vIndex + 1;
                                     } while (vIndex < vLen);
@@ -171,6 +237,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                         active: (child.mountpoint !== null),
                                         bootable: (child.partflags === "0x80"),
                                         diskId: disk.id,
+                                        diskName: data_posix[index].model,
                                         file_system: child.fstype,
                                         hidden: (child.mountpoint !== null && child.mountpoint.charAt(0) !== "/"),
                                         id: child.uuid,
@@ -179,12 +246,18 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                         size_free: (child.fsavail === null)
                                             ? 0
                                             : child.fsavail,
+                                        size_free_percent: (child.fsavail === null || child.fsavail === 0 || child.fssize === null || child.fssize === 0)
+                                            ? 0
+                                            : Math.round((child.fsavail / child.fssize) * 100),
                                         size_total: (child.fssize === null)
                                             ? 0
                                             : child.fssize,
                                         size_used: (child.fsused === null)
                                             ? 0
                                             : child.fsused,
+                                        size_used_percent: (child.fsused === null || child.fsused === 0 || child.fssize === null || child.fssize === 0)
+                                            ? 0
+                                            : Math.round((child.fsused / child.fssize) * 100),
                                         type: (child.type === "part")
                                             ? child.parttypename
                                             : child.type
@@ -241,11 +314,19 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         index = index + 1;
                     } while (index < len);
                 }
-                completed("proc");
+                if (win32 === true) {
+                    if (type_os === "all" || type_os === "proc") {
+                        completed("proc");
+                    } else {
+                        spawning("user");
+                    }
+                } else {
+                    completed("proc");
+                }
             },
             serv: function utilities_os_builderServ():void {
-                const data_win:os_service_windows[] = raw.serv as os_service_windows[],
-                    data_posix:os_service_posix[] = raw.serv as os_service_posix[],
+                const data_win:os_serv_windows[] = raw.serv as os_serv_windows[],
+                    data_posix:os_serv_posix[] = raw.serv as os_serv_posix[],
                     len:number = (win32 === true)
                         ? data_win.length
                         : data_posix.length,
@@ -257,7 +338,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         return values[key][value];
                     };
                 let index:number = 0,
-                    service:os_service = null;
+                    service:os_serv = null;
                 if (len > 0) {
                     do {
                         if (win32 === true) {
@@ -282,13 +363,13 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 completed("serv");
             },
             socT: function utilities_os_builderSocT():void {
-                const data_win:os_sockets_tcp_windows[] = raw.socT as os_sockets_tcp_windows[],
+                const data_win:os_sock_tcp_windows[] = raw.socT as os_sock_tcp_windows[],
                     data_posix:string[] = raw.socT as string[],
                     len:number = (win32 === true)
                         ? data_win.length
                         : data_posix.length;
                 let index:number = 0,
-                    sock:os_sockets = null,
+                    sock:os_sock = null,
                     line:string[] = null,
                     local:string[] = null,
                     remote:string[] = null,
@@ -340,31 +421,26 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         index = index + 1;
                     } while (index < len);
                 }
-                if (win32 === false) {
-                    complete.socU = true;
-                }
                 completed("socT");
             },
             socU: function utilities_os_builderSocU():void {
-                const data_win:os_sockets_udp_windows[] = raw.socU as os_sockets_udp_windows[],
+                const data_win:os_sock_udp_windows[] = raw.socU as os_sock_udp_windows[],
                     len:number = data_win.length;
                 let index:number = 0,
-                    sock:os_sockets = null;
+                    sock:os_sock = null;
                 if (len > 0) {
                     do {
-                        if (win32 === true) {
-                            sock = {
-                                "local-address": (data_win[index].LocalAddress === null)
-                                    ? ""
-                                    : data_win[index].LocalAddress,
-                                "local-port": (Number.isNaN(data_win[index].LocalPort) === true)
-                                    ? 0
-                                    : data_win[index].LocalPort,
-                                "remote-address": "",
-                                "remote-port": 0,
-                                "type": "udp"
-                            };
-                        }
+                        sock = {
+                            "local-address": (data_win[index].LocalAddress === null)
+                                ? ""
+                                : data_win[index].LocalAddress,
+                            "local-port": (Number.isNaN(data_win[index].LocalPort) === true)
+                                ? 0
+                                : data_win[index].LocalPort,
+                            "remote-address": "",
+                            "remote-port": 0,
+                            "type": "udp"
+                        };
                         sockets.push(sock);
                         index = index + 1;
                     } while (index < len);
@@ -429,10 +505,332 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 completed("user");
             }
         },
+        comparison = function utilities_os_comparison(config:config_os_comparison, time:number, type:"child"|"parent"):void {
+            const list_new:Array<object>|string[] = (config.dict === true)
+                    ? Object.keys(config.lists.new)
+                    : config.lists.new as Array<object>,
+                list_old:Array<object>|string[] = (config.dict === true)
+                    ? Object.keys(config.lists.old)
+                    : config.lists.old as Array<object>;
+            let index_old:number = list_old.length,
+                index_new:number = 0,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                item_new:any = null,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                item_old:any = null,
+                match:boolean = false;
+            if (time > 0 && index_old > 0 && index_new > 0) {
+                do {
+                    index_old = index_old - 1;
+                    index_new = list_new.length;
+                    match = false;
+                    do {
+                        if (config.dict === true) {
+                            // @ts-expect-error - some data property abstracted from any object by array notation
+                            item_new = config.lists.new[list_new[index_new]];
+                            // @ts-expect-error - some data property abstracted from any object by array notation
+                            item_old = config.lists.old[list_old[index_old]];
+                        } else {
+                            // @ts-expect-error - some data object from an array
+                            item_new = config.lists.new[index_new];
+                            // @ts-expect-error - some data object from an array
+                            item_old = config.lists.old[index_old];
+                        }
+                        index_new = index_new - 1;
+                        if (item_new[config.properties.parent] === item_old[config.properties.parent]) {
+                            if (type === "parent" && config.properties.child !== null) {
+                                if (item_new[config.properties.child].length > 0) {
+                                    const child_config:config_os_comparison = {
+                                        dict: false,
+                                        lists: {
+                                            new: item_new[config.properties.child],
+                                            old: item_old[config.properties.child]
+                                        },
+                                        messages: config.messages,
+                                        properties: config.properties
+                                    };
+                                    utilities_os_comparison(child_config, time, "child");
+                                } else if (item_old[config.properties.child].length > 0) {
+                                    log.application({
+                                        action: "modify",
+                                        config: null,
+                                        message: (config.dict === true)
+                                            ? config.messages.no_child(item_old, list_old[index_old] as string)
+                                            : config.messages.no_child(item_old),
+                                        status: "informational",
+                                        time: Date.now(),
+                                        type: "os"
+                                    });
+                                }
+                            }
+                            if (config.properties.parent !== "local-address" || (config.properties.parent === "local-address" && item_new["local-port"] === item_old["local-port"])) {
+                                match = true;
+                            }
+                            break;
+                        }
+                    } while (index_new > 0);
+                    if (match === false) {
+                        log.application({
+                            action: "modify",
+                            config: null,
+                            message: (config.dict === true)
+                                ? config.messages[type].old(item_old, list_old[index_old] as string)
+                                : config.messages[type].old(item_old),
+                            status: "informational",
+                            time: Date.now(),
+                            type: "os"
+                        });
+                    }
+                } while (index_old > 0);
+                index_new = list_new.length;
+                do {
+                    index_new = index_new - 1;
+                    index_old = list_old.length;
+                    match = false;
+                    do {
+                        if (config.dict === true) {
+                            // @ts-expect-error - some data property abstracted from any object by array notation
+                            item_new = config.lists.new[list_new[index_new]];
+                            // @ts-expect-error - some data property abstracted from any object by array notation
+                            item_old = config.lists.old[list_old[index_old]];
+                        } else {
+                            // @ts-expect-error - some data object from an array
+                            item_new = config.lists.new[index_new];
+                            // @ts-expect-error - some data object from an array
+                            item_old = config.lists.old[index_old];
+                        }
+                        index_old = index_old - 1;
+                        if (item_new[config.properties[type]] === item_old[config.properties[type]]) {
+                            match = true;
+                            break;
+                        }
+                    } while (index_old > 0);
+                    if (match === false) {
+                        log.application({
+                            action: "modify",
+                            config: null,
+                            message: (config.dict === true)
+                                ? config.messages[type].new(item_new, list_new[index_new] as string)
+                                : config.messages[type].new(item_new),
+                            status: "informational",
+                            time: Date.now(),
+                            type: "os"
+                        });
+                    }
+                } while (index_new > 0);
+            }
+        },
+        difference:store_os_difference = {
+            devs: {
+                dict: false,
+                lists: {
+                    new: devices,
+                    old: vars.os.devs.data
+                },
+                messages: {
+                    child: null,
+                    no_child: null,
+                    parent: {
+                        new: function utilities_os_differenceDevs_messagesParentNew(item:object):string {
+                            const dev:os_devs = item as os_devs;
+                            return `New device with name ${dev.name} and kernel module ${dev.kernel_module} came online.`;
+                        },
+                        old: function utilities_os_differenceDevs_messagesParentOld(item:object):string {
+                            const dev:os_devs = item as os_devs;
+                            return `Device with name ${dev.name} and kernel module ${dev.kernel_module} is no longer available.`;
+                        }
+                    }
+                },
+                properties: {
+                    child: null,
+                    parent: "kernel_module"
+                }
+            },
+            disk: {
+                dict: false,
+                lists: {
+                    new: disks,
+                    old: vars.os.disk.data
+                },
+                messages: {
+                    child: {
+                        new: function utilities_os_differenceDisk_messagesChildNew(item:object):string {
+                            const part:os_disk_partition = item as os_disk_partition;
+                            return `Partition ${part.id} from disk ${part.diskName} of capacity ${part.size_total} is now available.`;
+                        },
+                        old: function utilities_os_differenceDisk_messagesChildOld(item:object):string {
+                            const part:os_disk_partition = item as os_disk_partition;
+                            return `Partition ${part.id} from disk ${part.diskName} of capacity ${part.size_total} is no longer available available.`;
+                        }
+                    },
+                    no_child: function utilities_os_differenceDisk_messagesNoChild(item:object):string {
+                        const disk:os_disk = item as os_disk;
+                        return `Disk ${disk.name} had ${disk.partitions.length} partitions but now has none.`;
+                    },
+                    parent: {
+                        new: function utilities_os_differenceDisk_messagesParentNew(item:object):string {
+                            const disk:os_disk = item as os_disk;
+                            return `New storage device ${disk.name} with capacity ${disk.size_disk} is now available.`;
+                        },
+                        old: function utilities_os_differenceDisk_messagesParentOld(item:object):string {
+                            const disk:os_disk = item as os_disk;
+                            return `Storage device ${disk.name} with capacity ${disk.size_disk} is no longer available.`;
+                        }
+                    }
+                },
+                properties: {
+                    child: "partitions",
+                    parent: "id"
+                }
+            },
+            intr: {
+                dict: true,
+                lists: {
+                    new: int,
+                    old: vars.os.intr.data
+                },
+                messages: {
+                    child: {
+                        new: function utilities_os_differenceIntr_messagesChildNew(item:object, name:string):string {
+                            const intr:node_os_NetworkInterfaceInfo = item as node_os_NetworkInterfaceInfo;
+                            return `Address ${intr.address} from interface ${name} is now available.`;
+                        },
+                        old: function utilities_os_differenceIntr_messagesChildOld(item:object, name:string):string {
+                            const intr:node_os_NetworkInterfaceInfo = item as node_os_NetworkInterfaceInfo;
+                            return `Partition ${intr.address} from disk ${name} is no longer available available.`;
+                        }
+                    },
+                    no_child: function utilities_os_differenceIntr_messagesNoChild(item:object, name:string):string {
+                        const intr:Array<node_os_NetworkInterfaceInfo> = item as Array<node_os_NetworkInterfaceInfo>;
+                        return `Network interface ${name} had ${intr.length} addresses assigned but now has none.`;
+                    },
+                    parent: {
+                        new: function utilities_os_differenceIntr_messagesParentNew(item:object, name:string):string {
+                            return `New network interface ${name} is now available.`;
+                        },
+                        old: function utilities_os_differenceIntr_messagesParentOld(item:object, name:string):string {
+                            return `Network interface ${name} is no longer available.`;
+                        }
+                    }
+                },
+                properties: {
+                    child: "address",
+                    parent: "id"
+                }
+            },
+            proc: {
+                dict: false,
+                lists: {
+                    new: processes,
+                    old: vars.os.proc.data
+                },
+                messages: {
+                    child: null,
+                    no_child: null,
+                    parent: {
+                        new: function utilities_os_differenceProc_messagesParentNew(item:object):string {
+                            const proc:os_proc = item as os_proc;
+                            return `New process ${proc.name} with id ${proc.id} came online.`;
+                        },
+                        old: function utilities_os_differenceProc_messagesParentOld(item:object):string {
+                            const proc:os_proc = item as os_proc;
+                            return `Process ${proc.name} with id ${proc.id} is no longer available.`;
+                        }
+                    }
+                },
+                properties: {
+                    child: null,
+                    parent: "id"
+                }
+            },
+            serv: {
+                dict: false,
+                lists: {
+                    new: services,
+                    old: vars.os.serv.data
+                },
+                messages: {
+                    child: null,
+                    no_child: null,
+                    parent: {
+                        new: function utilities_os_differenceServ_messagesParentNew(item:object):string {
+                            const serv:os_serv = item as os_serv;
+                            return `New service ${serv.name} now available.`;
+                        },
+                        old: function utilities_os_differenceServ_messagesParentOld(item:object):string {
+                            const serv:os_serv = item as os_serv;
+                            return `Service ${serv.name} is removed.`;
+                        }
+                    }
+                },
+                properties: {
+                    child: null,
+                    parent: "name"
+                }
+            },
+            sock: {
+                dict: false,
+                lists: {
+                    new: sockets,
+                    old: vars.os.sock.data
+                },
+                messages: {
+                    child: null,
+                    no_child: null,
+                    parent: {
+                        new: function utilities_os_differenceSock_messagesParentNew(item:object):string {
+                            const sock:os_sock = item as os_sock;
+                            return `New socket with local address ${sock["local-address"]} and port ${sock["local-port"]} came online.`;
+                        },
+                        old: function utilities_os_differenceSock_messagesParentOld(item:object):string {
+                            const sock:os_sock = item as os_sock;
+                            return `Socket with local address ${sock["local-address"]} with port ${sock["local-port"]} is no longer available.`;
+                        }
+                    }
+                },
+                properties: {
+                    child: null,
+                    parent: "local-address"
+                }
+            },
+            user: {
+                dict: false,
+                lists: {
+                    new: users,
+                    old: vars.os.user.data
+                },
+                messages: {
+                    child: null,
+                    no_child: null,
+                    parent: {
+                        new: function utilities_os_differenceUser_messagesParentNew(item:object):string {
+                            const user:os_user = item as os_user;
+                            return `New user account with name ${user.name} came online.`;
+                        },
+                        old: function utilities_os_differenceUser_messagesParentOld(item:object):string {
+                            const user:os_user = item as os_user;
+                            return `User account with name ${user.name} is no longer available.`;
+                        }
+                    }
+                },
+                properties: {
+                    child: null,
+                    parent: "name"
+                }
+            }
+        },
         main = function utilities_os_main():services_os_all {
             const mem:server_os_memoryUsage = process.memoryUsage(),
                 output:services_os_all = {
-                    interfaces: {
+                    devs: {
+                        data: [],
+                        time: 0
+                    },
+                    disk: {
+                        data: [],
+                        time: 0
+                    },
+                    intr: {
                         data: {},
                         time: 0
                     },
@@ -457,31 +855,26 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         },
                         uptime: process.uptime()
                     },
-                    processes: {
+                    proc: {
                         data: [],
                         time: 0
                     },
-                    services: {
+                    serv: {
                         data: [],
                         time: 0
                     },
-                    sockets: {
-                        data: [],
-                        time: 0
-                    },
-                    storage: {
+                    sock: {
                         data: [],
                         time: 0
                     },
                     time: Date.now(),
-                    users: {
+                    user: {
                         data: [],
                         time: 0
                     }
                 };
 
             vars.os.machine.cpu.cores = output.machine.cores;
-            vars.os.interfaces = output.interfaces;
             vars.os.machine.memory.free = output.machine.memory.free;
             vars.os.machine.memory.total = output.machine.memory.total;
             vars.os.os.uptime = output.os.uptime;
@@ -491,53 +884,59 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             vars.os.process.memory.external = output.process.memory.external;
             vars.os.process.memory.rss = output.process.memory.rss;
             vars.os.process.memory.V8 = output.process.memory.V8;
-            vars.os.time = Date.now();
             return output;
         },
         completed = function utilities_os_complete(type:type_os_key):void {
             const keys:string[] = Object.keys(complete),
                 now:number = Date.now();
             let index:number = keys.length;
-
+            if (type_os !== "all" && type_os !== "main") {
+                comparison(difference[type_os], vars.os[type_os].time, "parent");
+            }
+            complete[type] = true;
             if (type_os === "all" && index > 0) {
                 const output:services_os_all = main();
-                complete[type] = true;
                 do {
                     index = index - 1;
                     if (complete[keys[index]] === false) {
                         return;
                     }
                 } while (index > 0);
-                output.interfaces = {
-                    data: node.os.networkInterfaces(),
+                output.devs = {
+                    data: devices,
                     time: now
                 };
-                output.processes = {
-                    data: processes,
-                    time: now
-                };
-                output.services = {
-                    data: services,
-                    time: now
-                };
-                output.sockets = {
-                    data: sockets,
-                    time: now
-                };
-                output.storage = {
+                output.disk = {
                     data: disks,
                     time: now
                 };
-                output.users = {
+                output.intr = {
+                    data: int,
+                    time: now
+                };
+                output.proc = {
+                    data: processes,
+                    time: now
+                };
+                output.serv = {
+                    data: services,
+                    time: now
+                };
+                output.sock = {
+                    data: sockets,
+                    time: now
+                };
+                output.user = {
                     data: users,
                     time: now
                 };
-                vars.os.interfaces = output.interfaces;
-                vars.os.processes = output.processes;
-                vars.os.services = output.services;
-                vars.os.sockets = output.sockets;
-                vars.os.storage = output.storage;
-                vars.os.users = output.users;
+                vars.os.devs = output.devs;
+                vars.os.disk = output.disk;
+                vars.os.intr = output.intr;
+                vars.os.proc = output.proc;
+                vars.os.serv = output.serv;
+                vars.os.sock = output.sock;
+                vars.os.user = output.user;
                 vars.os.time = now;
                 callback({
                     data: output,
@@ -545,73 +944,79 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 });
             } else if (type_os === "main") {
                 const output:services_os_all = main();
-                output.time = now;
                 callback({
                     data: output,
                     service: "dashboard-os-main"
                 });
+            } else if (type_os === "devs") {
+                vars.os.devs = {
+                    data: devices,
+                    time: now
+                };
+                callback({
+                    data: vars.os.devs,
+                    service: "dashboard-os-devs"
+                });
             } else if (type_os === "disk") {
-                vars.os.storage = {
+                vars.os.disk = {
                     data: disks,
                     time: now
                 };
                 callback({
-                    data: vars.os.storage,
+                    data: vars.os.disk,
                     service: "dashboard-os-disk"
                 });
             } else if (type_os === "intr") {
-                vars.os.interfaces = {
-                    data: node.os.networkInterfaces(),
+                vars.os.intr = {
+                    data: int,
                     time: now
                 };
                 callback({
-                    data: vars.os.interfaces,
+                    data: vars.os.intr,
                     service: "dashboard-os-intr"
                 });
             } else if (type_os === "proc") {
-                vars.os.processes = {
+                vars.os.proc = {
                     data: processes,
                     time: now
                 };
                 callback({
-                    data: vars.os.processes,
+                    data: vars.os.proc,
                     service: "dashboard-os-proc"
                 });
             } else if (type_os === "serv") {
-                vars.os.services =  {
+                vars.os.serv = {
                     data: services,
                     time: now
                 };
                 callback({
-                    data: vars.os.services,
+                    data: vars.os.serv,
                     service: "dashboard-os-serv"
                 });
-            } else if (type_os === "sock") {
-                vars.os.sockets = {
+            } else if (type_os === "sock" && complete.socT === true && complete.socU === true) {
+                vars.os.sock = {
                     data: sockets,
                     time: now
                 };
                 callback({
-                    data: vars.os.sockets,
+                    data: vars.os.sock,
                     service: "dashboard-os-sock"
                 });
             } else if (type_os === "user") {
-                vars.os.users = {
+                if (win32 === true) {
+                    vars.os.proc = {
+                        data: processes,
+                        time: now
+                    };
+                }
+                vars.os.user = {
                     data: users,
                     time: now
                 };
                 callback({
-                    data: vars.os.users,
+                    data: vars.os.user,
                     service: "dashboard-os-user"
                 });
-            }
-        },
-        spawn_complete = function utilities_os_spawnComplete(type:type_os_key):void {
-            flags[type] = true;
-            if (win32 === true && (type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
-                completed("disk");
-            } else if (win32 === false || (win32 === true && type !== "disk" && type !== "part" && type !== "volu")) {
-                completed(type);
             }
         },
         spawning = function utilities_os_spawning(type:type_os_key):void {
@@ -620,15 +1025,33 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     const child:os_child = this;
                     chunks[child.type].push(buf.toString());
                 },
+                spawn_complete = function utilities_os_spawnComplete(type:type_os_key, action:(type?:type_os_key) => void):void {
+                    flags[type] = true;
+                    if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
+                        if (action === completed) {
+                            completed("disk");
+                        } else {
+                            builder.disk();
+                        }
+                    } else if (type !== "disk" && type !== "part" && type !== "volu") {
+                        action(type);
+                    }
+                },
                 close = function utilities_os_spawning_close():void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const child:os_child = this,
                         type:type_os_key = child.type,
                         temp:string = chunks[type].join("").trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""),
                         parseTry = function utilities_os_spawning_close_parseTry():boolean {
-                            if (win32 === false && (type === "proc" || type === "socT" || type === "user")) {
-                                raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
-                                return true;
+                            if (win32 === false) {
+                                if ((type === "proc" || type === "socT" || type === "user")) {
+                                    raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
+                                    return true;
+                                }
+                                if (type === "devs") {
+                                    raw.devs = temp.split("\n\n");
+                                    return true;
+                                }
                             }
                             // eslint-disable-next-line no-restricted-syntax
                             try {
@@ -644,7 +1067,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                     time: Date.now(),
                                     type: "os"
                                 });
-                                spawn_complete(type);
+                                spawn_complete(type, completed);
                                 return false;
                             }
                             return true;
@@ -656,20 +1079,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         return;
                     }
                     flags[type] = true;
-
-                    // building the uniform data output
-                    if (win32 === true) {
-                        if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
-                            builder.disk();
-                        } else if (type_os === "user" && flags.proc === true && flags.user === true) {
-                            builder.proc();
-                            builder.user();
-                        } else if (type_os !== "user" && type !== "disk" && type !== "part" && type !== "volu") {
-                            builder[type]();
-                        }
-                    } else {
-                        builder[type]();
-                    }
+                    spawn_complete(type, builder[type]);
                 },
                 spawn_error = function utilities_os_spawning_spawnError(err:node_error):void {
                     spawn[type].off("close", close);
@@ -683,7 +1093,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         time: Date.now(),
                         type: "os"
                     });
-                    spawn_complete(type);
+                    spawn_complete(type, completed);
                 };
             spawn[type] = node.child_process.spawn(vars.commands[type], [], {
                 shell: shell,
@@ -701,23 +1111,21 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             spawning("part");
             spawning("socU");
             spawning("volu");
-        } else {
-            flags.part = true;
-            flags.socU = true;
-            flags.volu = true;
         }
         spawning("disk");
         spawning("proc");
         spawning("serv");
         spawning("socT");
-        spawning("user");
+        if (win32 === false) {
+            // for windows spawning("user") is called from builder.proc
+            spawning("user");
+        }
+    } else if (type_os === "devs") {
+        spawning("devs");
     } else if (type_os === "disk") {
         if (win32 === true) {
             spawning("part");
             spawning("volu");
-        } else {
-            flags.part = true;
-            flags.volu = true;
         }
         spawning("disk");
     } else if (type_os === "intr") {
@@ -729,17 +1137,15 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
     } else if (type_os === "sock") {
         if (win32 === true) {
             spawning("socU");
-        } else {
-            flags.socU = true;
         }
         spawning("socT");
     } else if (type_os === "user") {
         if (win32 === true) {
+            // for windows spawning("user") is called from builder.proc
             spawning("proc");
         } else {
-            flags.proc = true;
+            spawning("user");
         }
-        spawning("user");
     } else if (type_os === "main") {
         completed("disk");
     }

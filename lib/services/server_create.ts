@@ -16,9 +16,9 @@ const server_create = function services_serverCreate(data:services_action_server
     let count:number = 0;
     const config:services_server = data.server,
         path_config:string = `${vars.path.project}servers.json`,
-        path_name:string = vars.path.servers + config.name + vars.sep,
-        path_assets:string = `${path_name}assets${vars.sep}`,
-        path_certs:string = `${path_name}certs${vars.sep}`,
+        path_name:string = vars.path.servers + config.name + vars.path.sep,
+        path_assets:string = `${path_name}assets${vars.path.sep}`,
+        path_certs:string = `${path_name}certs${vars.path.sep}`,
         flags:store_flag = {
             config: false,
             dir: false
@@ -74,7 +74,6 @@ const server_create = function services_serverCreate(data:services_action_server
         mkdir = function services_serverCreate_serverDir(location:string):void {
             file.mkdir({
                 callback: children,
-                error_terminate: config,
                 location: location
             });
         },
@@ -93,9 +92,6 @@ const server_create = function services_serverCreate(data:services_action_server
                     complete("config");
                 },
                 contents: JSON.stringify(servers),
-                error_terminate: (config.name === "dashboard")
-                    ? null
-                    : config,
                 location: path_config
             });
         };

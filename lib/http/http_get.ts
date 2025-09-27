@@ -17,10 +17,10 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             ? "HEAD"
             : "GET",
         server_name:string = socket.server,
-        path:string = `${vars.path.servers + server_name + vars.sep}assets${vars.sep}`,
+        path:string = `${vars.path.servers + server_name + vars.path.sep}assets${vars.path.sep}`,
         resource:string = index0[1],
         asset:string[] = resource.split("/"),
-        fileFragment:string = asset.join(vars.sep).replace(/^(\\|\/)/, ""),
+        fileFragment:string = asset.join(vars.path.sep).replace(/^(\\|\/)/, ""),
         payload = function http_get_payload(heading:string[], body:string):string {
             if (method === "HEAD") {
                 return heading.join("\r\n");
@@ -123,13 +123,12 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         },
         statTest = function http_get_statTest(stat:node_fs_BigIntStats):void {
             const directory_item = function http_get_statTest_directoryItem():void {
-                    const indexFile:string = `${input.replace(/\\|\/$/, "") + vars.sep}index.html`;
+                    const indexFile:string = `${input.replace(/\\|\/$/, "") + vars.path.sep}index.html`;
                     file.stat({
                         callback: function http_get_statItem_directoryItem_callback():void {
                             input = indexFile;
                             fileItem();
                         },
-                        error_terminate: null,
                         location: indexFile,
                         no_file: function http_get_statTest_directoryItem_noFile():void {
                             const callback = function http_get_statTest_directoryItem_noFile_directory(dir:directory_list|string[]):void {
@@ -170,7 +169,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                     }());
                                 do {
                                     if (list[index_item][3] === 0 && list[index_item][0].indexOf(input) !== list[index_item][0].length - input.length) {
-                                        address = `${scheme}://${host + index0[1].replace(/\/$/, "") + vars.sep + list[index_item][0]}`;
+                                        address = `${scheme}://${host + index0[1].replace(/\/$/, "") + vars.path.sep + list[index_item][0]}`;
                                         dtg = list[index_item][5].mtimeMs.dateTime(true, null).split(", ");
                                         content.push(`<tr class="${(index_item % 2 === 0) ? "even" : "odd"}"><td class="file-name"><span class="icon">${icon[list[index_item][1]]}</span> <a href="${address}">${list[index_item][0]}</a></td><td>${list[index_item][1]}</td><td data-raw="${list[index_item][5].size}">${list[index_item][5].size.commas()}</td><td data-raw="${list[index_item][5].mtimeMs}">${dtg[0]}</td><td>${dtg[1]}</td><td>${list[index_item][5].mode === null ? "" : (list[index_item][5].mode & parseInt("777", 8)).toString(8)}</td><td data-raw="${list[index_item][4]}">${list[index_item][4].commas()}</td></tr>`);
                                     }
@@ -305,23 +304,18 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
     if (server_name === "dashboard") {
-        const real_path:string = vars.path.project.replace(`test${vars.sep}`, "");
+        const real_path:string = vars.path.project.replace(`test${vars.path.sep}`, "");
         if (decoded.includes("xterm.css") === true) {
-            input = `${real_path}node_modules${vars.sep}@xterm${vars.sep}xterm${vars.sep}css${vars.sep}xterm.css`;
+            input = `${real_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`;
         } else if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {
                     compose: vars.compose,
                     hashes: vars.hashes,
+                    http_request: vars.http_request,
                     logs: vars.logs,
                     os: vars.os,
-                    path: {
-                        compose: vars.path.compose,
-                        compose_empty: vars.path.compose_empty,
-                        project: vars.path.project,
-                        sep: vars.sep,
-                        servers: vars.path.servers
-                    },
+                    path: vars.path,
                     platform: process.platform,
                     servers: vars.servers,
                     terminal: vars.terminal,
@@ -348,7 +342,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
     }
     file.stat({
         callback: statTest,
-        error_terminate: null,
         location: input,
         no_file: notFound
     });

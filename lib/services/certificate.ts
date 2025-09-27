@@ -7,7 +7,7 @@ import vars from "../utilities/vars.ts";
 // cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey, keyid, pathlen
 
 const certificate = function services_certificate(config:config_certificate):void {
-    const cert_path:string = `${vars.path.servers + config.name + vars.sep}certs${vars.sep}`,
+    const cert_path:string = `${vars.path.servers + config.name + vars.path.sep}certs${vars.path.sep}`,
         cert = function services_certificate_cert():void {
             let index:number = 0;
             const commands:string[] = [],
@@ -212,18 +212,15 @@ const certificate = function services_certificate(config:config_certificate):voi
             file.write({
                 callback: create,
                 contents: cert_extensions,
-                error_terminate: vars.servers[config.name],
                 location: `${cert_path}extensions.cnf`
             });
         };
     file.stat({
         callback: cert,
-        error_terminate: vars.servers[config.name],
         location: cert_path,
         no_file: function services_certificate_mkdir():void {
             file.mkdir({
                 callback: cert,
-                error_terminate: vars.servers[config.name],
                 location: cert_path
             });
         }

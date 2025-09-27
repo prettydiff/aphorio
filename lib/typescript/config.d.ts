@@ -57,6 +57,29 @@ interface config_log {
     type: type_dashboard_type;
 }
 
+interface config_os_comparison {
+    dict: boolean;
+    lists: {
+        new: Array<object> | object;
+        old: Array<object> | object;
+    };
+    messages: {
+        child: {
+            new: (item:object, name?:string) => string;
+            old: (item:object, name?:string) => string;
+        };
+        no_child: (item:object, name?:string) => string;
+        parent: {
+            new: (item:object, name?:string) => string;
+            old: (item:object, name?:string) => string;
+        };
+    };
+    properties: {
+        child: string;
+        parent: string;
+    };
+}
+
 interface config_spawn {
     args: string[];
     callback: (stderr:string, stdout:string, error:node_childProcess_ExecException) => void;

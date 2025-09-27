@@ -27,15 +27,10 @@ interface transmit_addresses_socket {
 interface transmit_dashboard {
     compose: configuration_compose;
     hashes: string[];
+    http_request: string;
     logs: services_dashboard_status[];
     os: server_os;
-    path: {
-        compose: string;
-        compose_empty: string;
-        project: string;
-        sep: string;
-        servers: string;
-    };
+    path: vars_path;
     platform: string;
     servers: store_servers;
     terminal: string[];

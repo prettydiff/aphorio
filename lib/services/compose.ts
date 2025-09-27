@@ -37,9 +37,6 @@ const compose = function services_compose(socket_data:socket_data):void {
                         complete("compose", type, data.compose.name);
                     },
                     contents: JSON.stringify(vars.compose),
-                    error_terminate: (type === "containers")
-                        ? vars.compose.containers[data.compose.name]
-                        : vars.compose.variables,
                     location: `${vars.path.project}compose.json`
                 });
                 // container file
@@ -48,9 +45,6 @@ const compose = function services_compose(socket_data:socket_data):void {
                         complete("file", type, data.compose.name);
                     },
                     contents: contents,
-                    error_terminate: (type === "containers")
-                        ? vars.compose.containers[data.compose.name]
-                        : vars.compose.variables,
                     location: location
                 });
             };
@@ -132,7 +126,6 @@ const compose = function services_compose(socket_data:socket_data):void {
                                         });
                                     },
                                     contents: JSON.stringify(vars.compose),
-                                    error_terminate: vars.compose.containers[data.compose.name],
                                     location: `${vars.path.project}compose.json`
                                 });
                             };

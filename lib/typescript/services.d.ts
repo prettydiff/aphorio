@@ -173,7 +173,9 @@ declare global {
     }
 
     interface services_os_all {
-        interfaces: services_os_intr;
+        devs: services_os_devs;
+        disk: services_os_disk;
+        intr: services_os_intr;
         machine: {
             cores: number;
             memory: {
@@ -184,6 +186,7 @@ declare global {
         os: {
             uptime: number;
         };
+        proc: services_os_proc;
         process: {
             cpuSystem: number;
             cpuUser: number;
@@ -194,12 +197,15 @@ declare global {
             };
             uptime: number;
         };
-        processes: services_os_proc;
-        services: services_os_serv;
-        sockets: services_os_sock;
-        storage: services_os_disk;
+        serv: services_os_serv;
+        sock: services_os_sock;
         time: number;
-        users: services_os_user;
+        user: services_os_user;
+    }
+
+    interface services_os_devs {
+        data: os_devs[];
+        time: number;
     }
 
     interface services_os_disk {
@@ -218,12 +224,12 @@ declare global {
     }
 
     interface services_os_serv {
-        data: os_service[];
+        data: os_serv[];
         time: number;
     }
 
     interface services_os_sock {
-        data: os_sockets[];
+        data: os_sock[];
         time: number;
     }
 
