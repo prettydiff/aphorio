@@ -258,6 +258,7 @@ declare global {
     }
 
     interface module_list {
+        dataName: string;
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
@@ -279,8 +280,8 @@ declare global {
     interface module_tables {
         cell: (tr:HTMLElement, text:string, raw:string) => void;
         filter: (event:Event, target?:HTMLInputElement) => void;
-        init: (module:module_list|module_sockets_application, state_name:type_list_names|"sockets_application") => void;
-        populate: (module:module_list, item:type_list_services, state_name:type_list_names) => void;
+        init: (module:module_list|module_sockets_application) => void;
+        populate: (module:module_list, item:type_list_services) => void;
         sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         update: (event:MouseEvent) => void;
     }
@@ -422,12 +423,7 @@ declare global {
         };
         nav: string;
         table_os: {
-            devs: table_os_item;
-            proc: table_os_item;
-            serv: table_os_item;
-            sock: table_os_item;
-            sockets_application: table_os_item;
-            user: table_os_item;
+            [key:string]: table_os_item;
         };
         tables: {
             [key:string]: {

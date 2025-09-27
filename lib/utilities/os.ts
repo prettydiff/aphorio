@@ -71,7 +71,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             proc: false,
             serv: false,
             socT: false,
-            socU: false,
+            socU: (win32 === false),
             user: false,
             volu: true
         },
@@ -314,14 +314,12 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         index = index + 1;
                     } while (index < len);
                 }
-                if (type_os === "user") {
-                    vars.os.proc = {
-                        data: processes,
-                        time: Date.now()
-                    };
-                    spawning("user");
-                } else {
-                    completed("proc");
+                if (win32 === true) {
+                    if (type_os === "all" || type_os === "proc") {
+                        completed("proc");
+                    } else {
+                        spawning("user");
+                    }
                 }
             },
             serv: function utilities_os_builderServ():void {
@@ -421,9 +419,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         index = index + 1;
                     } while (index < len);
                 }
-                if (win32 === false) {
-                    complete.socU = true;
-                }
                 completed("socT");
             },
             socU: function utilities_os_builderSocU():void {
@@ -433,24 +428,22 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     sock:os_sock = null;
                 if (len > 0) {
                     do {
-                        if (win32 === true) {
-                            sock = {
-                                "local-address": (data_win[index].LocalAddress === null)
-                                    ? ""
-                                    : data_win[index].LocalAddress,
-                                "local-port": (Number.isNaN(data_win[index].LocalPort) === true)
-                                    ? 0
-                                    : data_win[index].LocalPort,
-                                "remote-address": "",
-                                "remote-port": 0,
-                                "type": "udp"
-                            };
-                        }
+                        sock = {
+                            "local-address": (data_win[index].LocalAddress === null)
+                                ? ""
+                                : data_win[index].LocalAddress,
+                            "local-port": (Number.isNaN(data_win[index].LocalPort) === true)
+                                ? 0
+                                : data_win[index].LocalPort,
+                            "remote-address": "",
+                            "remote-port": 0,
+                            "type": "udp"
+                        };
                         sockets.push(sock);
                         index = index + 1;
                     } while (index < len);
                 }
-                spawning("socT");
+                completed("socU");
             },
             user: function utilities_os_builderUser():void {
                 const data_win:os_user_windows[] = raw.user as os_user_windows[],
@@ -880,7 +873,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 };
 
             vars.os.machine.cpu.cores = output.machine.cores;
-            vars.os.intr = output.intr;
             vars.os.machine.memory.free = output.machine.memory.free;
             vars.os.machine.memory.total = output.machine.memory.total;
             vars.os.os.uptime = output.os.uptime;
@@ -890,7 +882,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             vars.os.process.memory.external = output.process.memory.external;
             vars.os.process.memory.rss = output.process.memory.rss;
             vars.os.process.memory.V8 = output.process.memory.V8;
-            vars.os.time = Date.now();
             return output;
         },
         completed = function utilities_os_complete(type:type_os_key):void {
@@ -900,9 +891,9 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             if (type_os !== "all" && type_os !== "main") {
                 comparison(difference[type_os], vars.os[type_os].time, "parent");
             }
+            complete[type] = true;
             if (type_os === "all" && index > 0) {
                 const output:services_os_all = main();
-                complete[type] = true;
                 do {
                     index = index - 1;
                     if (complete[keys[index]] === false) {
@@ -951,7 +942,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 });
             } else if (type_os === "main") {
                 const output:services_os_all = main();
-                output.time = now;
                 callback({
                     data: output,
                     service: "dashboard-os-main"
@@ -1001,7 +991,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     data: vars.os.serv,
                     service: "dashboard-os-serv"
                 });
-            } else if (type_os === "sock") {
+            } else if (type_os === "sock" && complete.socT === true && complete.socU === true) {
                 vars.os.sock = {
                     data: sockets,
                     time: now
@@ -1011,6 +1001,12 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     service: "dashboard-os-sock"
                 });
             } else if (type_os === "user") {
+                if (win32 === true) {
+                    vars.os.proc = {
+                        data: processes,
+                        time: now
+                    };
+                }
                 vars.os.user = {
                     data: users,
                     time: now
@@ -1021,19 +1017,23 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 });
             }
         },
-        spawn_complete = function utilities_os_spawnComplete(type:type_os_key):void {
-            flags[type] = true;
-            if (win32 === true && (type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
-                completed("disk");
-            } else if (win32 === false || (win32 === true && type !== "disk" && type !== "part" && type !== "volu")) {
-                completed(type);
-            }
-        },
         spawning = function utilities_os_spawning(type:type_os_key):void {
             const data_callback = function utilities_os_spawning_dataCallback(buf:Buffer):void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const child:os_child = this;
                     chunks[child.type].push(buf.toString());
+                },
+                spawn_complete = function utilities_os_spawnComplete(type:type_os_key, action:(type?:type_os_key) => void):void {
+                    flags[type] = true;
+                    if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
+                        if (action === completed) {
+                            completed("disk");
+                        } else {
+                            builder.disk();
+                        }
+                    } else if (type !== "disk" && type !== "part" && type !== "volu") {
+                        action(type);
+                    }
                 },
                 close = function utilities_os_spawning_close():void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
@@ -1065,7 +1065,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                     time: Date.now(),
                                     type: "os"
                                 });
-                                spawn_complete(type);
+                                spawn_complete(type, completed);
                                 return false;
                             }
                             return true;
@@ -1077,17 +1077,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         return;
                     }
                     flags[type] = true;
-
-                    // building the uniform data output
-                    if (win32 === true) {
-                        if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
-                            builder.disk();
-                        } else if (type !== "disk" && type !== "part" && type !== "volu") {
-                            builder[type]();
-                        }
-                    } else {
-                        builder[type]();
-                    }
+                    spawn_complete(type, builder[type]);
                 },
                 spawn_error = function utilities_os_spawning_spawnError(err:node_error):void {
                     spawn[type].off("close", close);
@@ -1101,7 +1091,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         time: Date.now(),
                         type: "os"
                     });
-                    spawn_complete(type);
+                    spawn_complete(type, completed);
                 };
             spawn[type] = node.child_process.spawn(vars.commands[type], [], {
                 shell: shell,
@@ -1124,7 +1114,10 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
         spawning("proc");
         spawning("serv");
         spawning("socT");
-        spawning("user");
+        if (win32 === false) {
+            // for windows spawning("user") is called from builder.proc
+            spawning("user");
+        }
     } else if (type_os === "devs") {
         spawning("devs");
     } else if (type_os === "disk") {
@@ -1142,11 +1135,11 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
     } else if (type_os === "sock") {
         if (win32 === true) {
             spawning("socU");
-        } else {
-            spawning("socT");
         }
+        spawning("socT");
     } else if (type_os === "user") {
         if (win32 === true) {
+            // for windows spawning("user") is called from builder.proc
             spawning("proc");
         } else {
             spawning("user");
