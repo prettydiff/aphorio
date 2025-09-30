@@ -867,7 +867,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         data: [],
                         time: 0
                     },
-                    time: 0,
+                    time: time,
                     user: {
                         data: [],
                         time: 0
@@ -930,7 +930,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     data: users,
                     time: now
                 };
-                output.time = now;
                 vars.os.devs = output.devs;
                 vars.os.disk = output.disk;
                 vars.os.intr = output.intr;
@@ -938,7 +937,6 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 vars.os.serv = output.serv;
                 vars.os.sock = output.sock;
                 vars.os.user = output.user;
-                vars.os.time = now;
                 callback({
                     data: output,
                     service: "dashboard-os-all"
