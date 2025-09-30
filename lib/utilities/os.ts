@@ -817,7 +817,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                 }
             }
         },
-        main = function utilities_os_main():services_os_all {
+        main = function utilities_os_main(time:number):services_os_all {
             const mem:server_os_memoryUsage = process.memoryUsage(),
                 output:services_os_all = {
                     devs: {
@@ -865,13 +865,13 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         data: [],
                         time: 0
                     },
-                    time: Date.now(),
+                    time: 0,
                     user: {
                         data: [],
                         time: 0
                     }
                 };
-
+            vars.os.time = time;
             vars.os.machine.cpu.cores = output.machine.cores;
             vars.os.machine.memory.free = output.machine.memory.free;
             vars.os.machine.memory.total = output.machine.memory.total;
@@ -893,7 +893,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
             }
             complete[type] = true;
             if (type_os === "all" && index > 0) {
-                const output:services_os_all = main();
+                const output:services_os_all = main(now);
                 do {
                     index = index - 1;
                     if (complete[keys[index]] === false) {
@@ -928,6 +928,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     data: users,
                     time: now
                 };
+                output.time = now;
                 vars.os.devs = output.devs;
                 vars.os.disk = output.disk;
                 vars.os.intr = output.intr;
@@ -941,7 +942,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     service: "dashboard-os-all"
                 });
             } else if (type_os === "main") {
-                const output:services_os_all = main();
+                const output:services_os_all = main(now);
                 callback({
                     data: output,
                     service: "dashboard-os-main"

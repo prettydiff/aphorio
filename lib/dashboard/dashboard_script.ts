@@ -3310,7 +3310,7 @@ const dashboard = function dashboard():void {
             },
             terminal: {
                 // https://xtermjs.org/docs/
-                cols: 60,
+                cols: 0,
                 events: {
                     change: function dashboard_terminalChange():void {
                         utility.setState();
@@ -3327,7 +3327,6 @@ const dashboard = function dashboard():void {
                         tools.terminal.socket.onmessage = tools.terminal.events.data;
                         tools.terminal.info = JSON.parse(event.data);
                         tools.terminal.nodes.output.setAttribute("data-info", event.data);
-                        tools.terminal.events.resize();
                     },
                     input: function dashboard_terminalInput(input:terminal_input):void {
                         if (tools.terminal.socket.readyState === 1) {
@@ -3380,6 +3379,7 @@ const dashboard = function dashboard():void {
                     const len:number = payload.terminal.length;
                     let option:HTMLElement = null,
                         index:number = 0;
+                    tools.terminal.events.resize();
                     tools.terminal.nodes.select.textContent = "";
                     if (len > 0) {
                         do {
@@ -3408,7 +3408,7 @@ const dashboard = function dashboard():void {
                     output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
                     select: document.getElementById("terminal").getElementsByTagName("select")[0] as HTMLSelectElement
                 },
-                rows: 60,
+                rows: 0,
                 shell: function dashboard_terminalShell():void {
                     const encryption:type_encryption = (location.protocol === "http:")
                             ? "open"
@@ -3430,9 +3430,6 @@ const dashboard = function dashboard():void {
                     tools.terminal.item.open(tools.terminal.nodes.output);
                     tools.terminal.item.onKey(tools.terminal.events.input);
                     tools.terminal.item.write("Terminal emulator pending connection...\r\n");
-                    if (section === "terminal") {
-                        tools.terminal.events.resize();
-                    }
                     // client-side terminal is ready, so alert the backend to initiate a pseudo-terminal
                     tools.terminal.socket = new WebSocket(`${scheme}://${location.host}/?shell=${encodeURIComponent(state.terminal)}&cols=${tools.terminal.cols}&rows=${tools.terminal.rows}`, ["dashboard-terminal"]);
                     tools.terminal.socket.onmessage = tools.terminal.events.firstData;
@@ -3447,7 +3444,6 @@ const dashboard = function dashboard():void {
                     } else {
                         tools.terminal.item.onSelectionChange(tools.terminal.events.selection);
                     }
-                    tools.terminal.events.resize();
                 },
                 socket: null
             },
@@ -3700,6 +3696,9 @@ const dashboard = function dashboard():void {
                     navButtons[index].removeAttribute("class");
                 } while (index > 0);
                 document.getElementById(section).style.display = "block";
+                if (section === "terminal" && tools.terminal.cols === 0) {
+                    tools.terminal.events.resize();
+                }
                 state.nav = target.dataset.section;
                 utility.setState();
                 target.setAttribute("class", "nav-focus");
@@ -3732,7 +3731,7 @@ const dashboard = function dashboard():void {
             table_keys:string[] = (state.tables === undefined)
                 ? []
                 : Object.keys(state.tables);
-        let index:number = 0,
+        let index:number = table_keys.length,
             button:HTMLElement = null,
             table_key:string[] = null,
             table:HTMLElement = null;
@@ -3743,7 +3742,6 @@ const dashboard = function dashboard():void {
         }
 
         // restore table sorting direction and column
-        index = table_keys.length;
         if (index > 0) {
             do {
                 index = index - 1;
