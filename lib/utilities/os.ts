@@ -320,6 +320,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     } else {
                         spawning("user");
                     }
+                } else {
+                    completed("proc");
                 }
             },
             serv: function utilities_os_builderServ():void {
