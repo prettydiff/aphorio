@@ -193,6 +193,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     }
     #disks .os-interface.fail-list{background:var(--fail_background)}
     #terminal {
+        .dimensions{float:right;margin:-2em 0 0 0}
         .terminal-output{width:100%}
         .xterm{border-color:var(--border_input);overflow:hidden}
         .xterm-rows{font-size:vars(--font-size)}

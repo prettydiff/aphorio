@@ -3352,6 +3352,8 @@ const dashboard = function dashboard():void {
                                 col: tools.terminal.cols,
                                 row: tools.terminal.rows
                             }));
+                            tools.terminal.nodes.cols.textContent = cols.toString();
+                            tools.terminal.nodes.rows.textContent = rows.toString();
                             if (tools.terminal.item !== null) {
                                 tools.terminal.item.resize(tools.terminal.cols, tools.terminal.rows);
                             }
@@ -3405,7 +3407,9 @@ const dashboard = function dashboard():void {
                 },
                 item: null,
                 nodes: {
+                    cols: document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[0],
                     output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
+                    rows: document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[1],
                     select: document.getElementById("terminal").getElementsByTagName("select")[0] as HTMLSelectElement
                 },
                 rows: 0,
