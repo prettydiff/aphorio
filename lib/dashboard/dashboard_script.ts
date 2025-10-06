@@ -3381,7 +3381,6 @@ const dashboard = function dashboard():void {
                     const len:number = payload.terminal.length;
                     let option:HTMLElement = null,
                         index:number = 0;
-                    tools.terminal.events.resize();
                     tools.terminal.nodes.select.textContent = "";
                     if (len > 0) {
                         do {
@@ -3404,6 +3403,7 @@ const dashboard = function dashboard():void {
                     } else {
                         tools.terminal.shell();
                     }
+                    tools.terminal.events.resize();
                 },
                 item: null,
                 nodes: {
