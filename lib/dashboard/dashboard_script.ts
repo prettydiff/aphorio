@@ -2263,24 +2263,26 @@ const dashboard = function dashboard():void {
                                 strong:HTMLElement = (key === "partitions" && len > 0)
                                     ? document.createElement("h6")
                                     : document.createElement("strong"),
-                                span:HTMLElement = document.createElement("span"),
-                                cap = function dashboard_osStorage_dataItem_cap(input:string):string {
-                                    return ` ${input.replace("_", "").capitalize()}`;
-                                };
-                            strong.textContent = key.capitalize().replace(/_\w/, cap);
+                                span:HTMLElement = document.createElement("span");
+                            strong.textContent = key.capitalize().replace(/_\w/, function dashboard_osStorage_dataItem_cap(input:string):string {
+                                return ` ${input.replace("_", "").capitalize()}`;
+                            });
                             li.appendChild(strong);
                             if (key === "partitions" && len > 0) {
                                 let list:HTMLElement = null,
                                     pIndex:number = 0,
                                     warn:HTMLElement = null,
                                     p:HTMLElement = null,
-                                    percent:HTMLElement = null;
+                                    percent:HTMLElement = null,
+                                    sfLi:HTMLElement = null,
+                                    sfSpan:HTMLElement = null,
+                                    sfBad:HTMLElement = null,
+                                    sfStrong:HTMLElement = null;
                                 span.textContent = String(len);
                                 li.appendChild(span);
                                 do {
                                     list = document.createElement("ul");
-                                    list.setAttribute("class", "os-interface");
-                                    if (item.data[index].partitions[pIndex].size_free_percent < 16 && item.data[index].partitions[pIndex].file_system !== null) {
+                                    if (item.data[index].partitions[pIndex].size_free_percent < 16 && item.data[index].partitions[pIndex].file_system !== null && item.data[index].partitions[pIndex].size_total > 0) {
                                         warn = document.createElement("strong");
                                         percent = document.createElement("strong");
                                         p = document.createElement("p");
@@ -2291,6 +2293,9 @@ const dashboard = function dashboard():void {
                                         p.appendChild(percent);
                                         p.appendText(" capacity free.");
                                         li.appendChild(p);
+                                        list.setAttribute("class", "os-interface fail-list");
+                                    } else {
+                                        list.setAttribute("class", "os-interface");
                                     }
                                     data_item(list, String(item.data[index].partitions[pIndex].active), "active");
                                     data_item(list, String(item.data[index].partitions[pIndex].bootable), "bootable");
@@ -2299,10 +2304,21 @@ const dashboard = function dashboard():void {
                                     data_item(list, String(item.data[index].partitions[pIndex].id), "id");
                                     data_item(list, String(item.data[index].partitions[pIndex].path), "path");
                                     data_item(list, String(item.data[index].partitions[pIndex].read_only), "read_only");
-                                    if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
-                                        data_item(list, item.data[index].partitions[pIndex].size_free.bytesLong(), "size_free");
-                                    } else {
+                                    if (item.data[index].partitions[pIndex].size_total === 0) {
+                                        data_item(list, "0 bytes (0B)", "size_free");
+                                    } else if (warn === null) {
                                         data_item(list, `${item.data[index].partitions[pIndex].size_free.bytesLong()}, ${item.data[index].partitions[pIndex].size_free_percent}%`, "size_free");
+                                    } else {
+                                        sfLi = document.createElement("li");
+                                        sfBad = document.createElement("strong");
+                                        sfStrong = document.createElement("strong");
+                                        sfBad.setAttribute("class", "fail");
+                                        sfBad.textContent = `${item.data[index].partitions[pIndex].size_free_percent}%`;
+                                        sfStrong.textContent = "Size Free";
+                                        sfLi.appendChild(sfStrong);
+                                        sfLi.appendText(`${item.data[index].partitions[pIndex].size_free.bytesLong()}, `);
+                                        sfLi.appendChild(sfBad);
+                                        list.appendChild(sfLi);
                                     }
                                     if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
                                         data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}`, "size_used");
@@ -2319,28 +2335,10 @@ const dashboard = function dashboard():void {
                                     pIndex = pIndex + 1;
                                 } while (pIndex < len);
                             } else {
-                                if (key === "size_free") {
-                                    const val:string = disk as string,
-                                        index:number = val.indexOf(", ") + 2,
-                                        percent:number = (val === "0")
-                                            ? 0
-                                            : Number(val.slice(index, val.indexOf("%")));
-                                    if (val !== "0" && percent < 16) {
-                                        const bad:HTMLElement = document.createElement("strong");
-                                        bad.textContent = `${percent}%`;
-                                        bad.setAttribute("class", "fail");
-                                        span.textContent = val.slice(0, index);
-                                        span.appendChild(bad);
-                                        ul.setAttribute("class", "os-interface fail-list");
-                                    } else {
-                                        span.textContent = disk as string;
-                                    }
+                                if (key === "partitions") {
+                                    span.textContent = "none";
                                 } else {
-                                    if (key === "partitions") {
-                                        span.textContent = "none";
-                                    } else {
-                                        span.textContent = disk as string;
-                                    }
+                                    span.textContent = disk as string;
                                 }
                                 li.appendChild(span);
                             }
