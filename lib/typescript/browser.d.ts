@@ -175,6 +175,22 @@ declare global {
         };
     }
 
+    interface module_list {
+        dataName: string;
+        nodes: {
+            caseSensitive: HTMLInputElement;
+            count: HTMLElement;
+            filter_column: HTMLSelectElement;
+            filter_count: HTMLElement;
+            filter_value: HTMLInputElement;
+            list: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
+        };
+        row: (record:type_lists, tr:HTMLElement) => void;
+        sort_name: string[];
+    }
+
     interface module_os {
         init: () => void;
         nodes: module_os_nodes;
@@ -257,22 +273,6 @@ declare global {
         title: (name_server:string, type:type_dashboard_list) => HTMLElement;
     }
 
-    interface module_list {
-        dataName: string;
-        nodes: {
-            caseSensitive: HTMLInputElement;
-            count: HTMLElement;
-            filter_column: HTMLSelectElement;
-            filter_count: HTMLElement;
-            filter_value: HTMLInputElement;
-            list: HTMLElement;
-            update_button: HTMLButtonElement;
-            update_text: HTMLElement;
-        };
-        row: (record:type_lists, tr:HTMLElement) => void;
-        sort_name: string[];
-    }
-
     interface module_sockets_application extends module_list {
         socket_add: (config:services_socket) => void;
     }
@@ -301,7 +301,9 @@ declare global {
         init: () => void;
         item: Terminal;
         nodes: {
+            cols: HTMLElement;
             output: HTMLElement;
+            rows: HTMLElement;
             select: HTMLSelectElement;
         };
         rows: number;

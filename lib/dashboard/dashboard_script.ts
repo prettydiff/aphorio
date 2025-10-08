@@ -2263,24 +2263,26 @@ const dashboard = function dashboard():void {
                                 strong:HTMLElement = (key === "partitions" && len > 0)
                                     ? document.createElement("h6")
                                     : document.createElement("strong"),
-                                span:HTMLElement = document.createElement("span"),
-                                cap = function dashboard_osStorage_dataItem_cap(input:string):string {
-                                    return ` ${input.replace("_", "").capitalize()}`;
-                                };
-                            strong.textContent = key.capitalize().replace(/_\w/, cap);
+                                span:HTMLElement = document.createElement("span");
+                            strong.textContent = key.capitalize().replace(/_\w/, function dashboard_osStorage_dataItem_cap(input:string):string {
+                                return ` ${input.replace("_", "").capitalize()}`;
+                            });
                             li.appendChild(strong);
                             if (key === "partitions" && len > 0) {
                                 let list:HTMLElement = null,
                                     pIndex:number = 0,
                                     warn:HTMLElement = null,
                                     p:HTMLElement = null,
-                                    percent:HTMLElement = null;
+                                    percent:HTMLElement = null,
+                                    sfLi:HTMLElement = null,
+                                    sfSpan:HTMLElement = null,
+                                    sfBad:HTMLElement = null,
+                                    sfStrong:HTMLElement = null;
                                 span.textContent = String(len);
                                 li.appendChild(span);
                                 do {
                                     list = document.createElement("ul");
-                                    list.setAttribute("class", "os-interface");
-                                    if (item.data[index].partitions[pIndex].size_free_percent < 16 && item.data[index].partitions[pIndex].file_system !== null) {
+                                    if (item.data[index].partitions[pIndex].size_free_percent < 16 && item.data[index].partitions[pIndex].file_system !== null && item.data[index].partitions[pIndex].size_total > 0) {
                                         warn = document.createElement("strong");
                                         percent = document.createElement("strong");
                                         p = document.createElement("p");
@@ -2291,6 +2293,9 @@ const dashboard = function dashboard():void {
                                         p.appendChild(percent);
                                         p.appendText(" capacity free.");
                                         li.appendChild(p);
+                                        list.setAttribute("class", "os-interface fail-list");
+                                    } else {
+                                        list.setAttribute("class", "os-interface");
                                     }
                                     data_item(list, String(item.data[index].partitions[pIndex].active), "active");
                                     data_item(list, String(item.data[index].partitions[pIndex].bootable), "bootable");
@@ -2299,10 +2304,21 @@ const dashboard = function dashboard():void {
                                     data_item(list, String(item.data[index].partitions[pIndex].id), "id");
                                     data_item(list, String(item.data[index].partitions[pIndex].path), "path");
                                     data_item(list, String(item.data[index].partitions[pIndex].read_only), "read_only");
-                                    if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
-                                        data_item(list, item.data[index].partitions[pIndex].size_free.bytesLong(), "size_free");
-                                    } else {
+                                    if (item.data[index].partitions[pIndex].size_total === 0) {
+                                        data_item(list, "0 bytes (0B)", "size_free");
+                                    } else if (warn === null) {
                                         data_item(list, `${item.data[index].partitions[pIndex].size_free.bytesLong()}, ${item.data[index].partitions[pIndex].size_free_percent}%`, "size_free");
+                                    } else {
+                                        sfLi = document.createElement("li");
+                                        sfBad = document.createElement("strong");
+                                        sfStrong = document.createElement("strong");
+                                        sfBad.setAttribute("class", "fail");
+                                        sfBad.textContent = `${item.data[index].partitions[pIndex].size_free_percent}%`;
+                                        sfStrong.textContent = "Size Free";
+                                        sfLi.appendChild(sfStrong);
+                                        sfLi.appendText(`${item.data[index].partitions[pIndex].size_free.bytesLong()}, `);
+                                        sfLi.appendChild(sfBad);
+                                        list.appendChild(sfLi);
                                     }
                                     if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
                                         data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}`, "size_used");
@@ -2319,28 +2335,10 @@ const dashboard = function dashboard():void {
                                     pIndex = pIndex + 1;
                                 } while (pIndex < len);
                             } else {
-                                if (key === "size_free") {
-                                    const val:string = disk as string,
-                                        index:number = val.indexOf(", ") + 2,
-                                        percent:number = (val === "0")
-                                            ? 0
-                                            : Number(val.slice(index, val.indexOf("%")));
-                                    if (val !== "0" && percent < 16) {
-                                        const bad:HTMLElement = document.createElement("strong");
-                                        bad.textContent = `${percent}%`;
-                                        bad.setAttribute("class", "fail");
-                                        span.textContent = val.slice(0, index);
-                                        span.appendChild(bad);
-                                        ul.setAttribute("class", "os-interface fail-list");
-                                    } else {
-                                        span.textContent = disk as string;
-                                    }
+                                if (key === "partitions") {
+                                    span.textContent = "none";
                                 } else {
-                                    if (key === "partitions") {
-                                        span.textContent = "none";
-                                    } else {
-                                        span.textContent = disk as string;
-                                    }
+                                    span.textContent = disk as string;
                                 }
                                 li.appendChild(span);
                             }
@@ -3310,7 +3308,7 @@ const dashboard = function dashboard():void {
             },
             terminal: {
                 // https://xtermjs.org/docs/
-                cols: 60,
+                cols: 0,
                 events: {
                     change: function dashboard_terminalChange():void {
                         utility.setState();
@@ -3327,7 +3325,6 @@ const dashboard = function dashboard():void {
                         tools.terminal.socket.onmessage = tools.terminal.events.data;
                         tools.terminal.info = JSON.parse(event.data);
                         tools.terminal.nodes.output.setAttribute("data-info", event.data);
-                        tools.terminal.events.resize();
                     },
                     input: function dashboard_terminalInput(input:terminal_input):void {
                         if (tools.terminal.socket.readyState === 1) {
@@ -3353,6 +3350,8 @@ const dashboard = function dashboard():void {
                                 col: tools.terminal.cols,
                                 row: tools.terminal.rows
                             }));
+                            tools.terminal.nodes.cols.textContent = cols.toString();
+                            tools.terminal.nodes.rows.textContent = rows.toString();
                             if (tools.terminal.item !== null) {
                                 tools.terminal.item.resize(tools.terminal.cols, tools.terminal.rows);
                             }
@@ -3402,13 +3401,16 @@ const dashboard = function dashboard():void {
                     } else {
                         tools.terminal.shell();
                     }
+                    tools.terminal.events.resize();
                 },
                 item: null,
                 nodes: {
+                    cols: document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[0],
                     output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
+                    rows: document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[1],
                     select: document.getElementById("terminal").getElementsByTagName("select")[0] as HTMLSelectElement
                 },
-                rows: 60,
+                rows: 0,
                 shell: function dashboard_terminalShell():void {
                     const encryption:type_encryption = (location.protocol === "http:")
                             ? "open"
@@ -3430,9 +3432,6 @@ const dashboard = function dashboard():void {
                     tools.terminal.item.open(tools.terminal.nodes.output);
                     tools.terminal.item.onKey(tools.terminal.events.input);
                     tools.terminal.item.write("Terminal emulator pending connection...\r\n");
-                    if (section === "terminal") {
-                        tools.terminal.events.resize();
-                    }
                     // client-side terminal is ready, so alert the backend to initiate a pseudo-terminal
                     tools.terminal.socket = new WebSocket(`${scheme}://${location.host}/?shell=${encodeURIComponent(state.terminal)}&cols=${tools.terminal.cols}&rows=${tools.terminal.rows}`, ["dashboard-terminal"]);
                     tools.terminal.socket.onmessage = tools.terminal.events.firstData;
@@ -3447,7 +3446,6 @@ const dashboard = function dashboard():void {
                     } else {
                         tools.terminal.item.onSelectionChange(tools.terminal.events.selection);
                     }
-                    tools.terminal.events.resize();
                 },
                 socket: null
             },
@@ -3700,6 +3698,9 @@ const dashboard = function dashboard():void {
                     navButtons[index].removeAttribute("class");
                 } while (index > 0);
                 document.getElementById(section).style.display = "block";
+                if (section === "terminal" && tools.terminal.cols === 0) {
+                    tools.terminal.events.resize();
+                }
                 state.nav = target.dataset.section;
                 utility.setState();
                 target.setAttribute("class", "nav-focus");
@@ -3732,7 +3733,7 @@ const dashboard = function dashboard():void {
             table_keys:string[] = (state.tables === undefined)
                 ? []
                 : Object.keys(state.tables);
-        let index:number = 0,
+        let index:number = table_keys.length,
             button:HTMLElement = null,
             table_key:string[] = null,
             table:HTMLElement = null;
@@ -3743,7 +3744,6 @@ const dashboard = function dashboard():void {
         }
 
         // restore table sorting direction and column
-        index = table_keys.length;
         if (index > 0) {
             do {
                 index = index - 1;
