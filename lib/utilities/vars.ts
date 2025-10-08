@@ -1,7 +1,7 @@
 
 import node from "./node.ts";
 
-/* cspell: words appdata, cputime, lslogins, pwsh, serv, volu */
+/* cspell: words appdata, atupn, cputime, lslogins, pwsh, serv, volu */
 
 const win32:boolean = (process.platform === "win32"),
     gid:number = (typeof process.getgid === "undefined")
@@ -31,7 +31,7 @@ const win32:boolean = (process.platform === "win32"),
                 : "systemctl list-units --type=service --all --output json",
             socT: (win32 === true)
                 ? "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2"
-                : "ss -atu | tail -n +2 | tr -s \" \" \",\"",
+                : "ss -atupn | tail -n +2 | tr -s \" \" \",\"",
             socU: (win32 === true)
                 ? "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2"
                 : "",

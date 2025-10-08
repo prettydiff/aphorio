@@ -152,6 +152,7 @@ interface os_serv_windows {
 interface os_sock {
     "local-address": string;
     "local-port": number;
+    process: number;
     "remote-address": string;
     "remote-port": number;
     type: "tcp" | "udp";
@@ -160,6 +161,7 @@ interface os_sock {
 interface os_sock_tcp_windows {
     LocalAddress: string;
     LocalPort: number;
+    OwningProcess: number;
     RemoteAddress: string;
     RemotePort: number;
 }
@@ -167,6 +169,7 @@ interface os_sock_tcp_windows {
 interface os_sock_udp_windows {
     LocalAddress: string;
     LocalPort: number;
+    OwningProcess: number;
 }
 
 interface os_user {

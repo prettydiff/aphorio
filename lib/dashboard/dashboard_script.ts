@@ -508,7 +508,7 @@ const dashboard = function dashboard():void {
                                     filter_column: module.nodes.filter_column.selectedIndex,
                                     filter_sensitive: module.nodes.caseSensitive.checked,
                                     filter_value: module.nodes.filter_value.value
-                                }
+                                };
                             } else {
                                 state.table_os[type].filter_column = module.nodes.filter_column.selectedIndex;
                                 state.table_os[type].filter_sensitive = module.nodes.caseSensitive.checked;
@@ -995,11 +995,20 @@ const dashboard = function dashboard():void {
                 },
                 row: function dashboard_networkSocketOSRow(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_sock = record_item as os_sock;
+                    let index:number = payload.os.proc.data.length;
                     tables.cell(tr, record.type, null);
                     tables.cell(tr, record["local-address"], null);
                     tables.cell(tr, String(record["local-port"]), null);
                     tables.cell(tr, record["remote-address"], null);
                     tables.cell(tr, String(record["remote-port"]), null);
+                    tables.cell(tr, String(record.process), null);
+                    do {
+                        index = index - 1;
+                        if (payload.os.proc.data[index].id === record.process) {
+                            tables.cell(tr, payload.os.proc.data[index].name, null);
+                            break;
+                        }
+                    } while (index > 0);
                 },
                 sort_name: ["type", "local-address", "local-port", "remote-address", "remote-port"]
             }
@@ -2275,7 +2284,6 @@ const dashboard = function dashboard():void {
                                     p:HTMLElement = null,
                                     percent:HTMLElement = null,
                                     sfLi:HTMLElement = null,
-                                    sfSpan:HTMLElement = null,
                                     sfBad:HTMLElement = null,
                                     sfStrong:HTMLElement = null;
                                 span.textContent = String(len);
