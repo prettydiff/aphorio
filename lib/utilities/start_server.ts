@@ -63,7 +63,8 @@ const start_server = function utilities_startServer():void {
                 const gitStat = function utilities_startServer_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
                     if (error === null && stat !== null) {
                         const stdout:Buffer[] = [],
-                            spawn:node_childProcess_ChildProcess = node.child_process.spawn("git show -s --format=%H,%ct HEAD", {
+                            spawn:node_childProcess_ChildProcess = node.child_process.spawn("git show -s --format=%H,%ct HEAD", [], {
+                                cwd: process_path.slice(0, process_path.length - 1),
                                 shell: true,
                                 windowsHide: true
                             });

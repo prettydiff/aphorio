@@ -28,37 +28,48 @@ const log:log = {
         input.forEach(function utilities_logShell_each(value:string):void {
             logger(value);
         });
-        if (summary === true) {
+        if (summary === true && vars.environment.hash !== "") {
             const difference:string = (function terminal_utilities_log_difference():string {
-                const duration:number = Date.now() - vars.environment.date_commit,
-                    day:number = (1000 * 60 * 60 * 24),
-                    month:number = (day * 30),
-                    months:number = Math.floor(duration / month),
-                    year:number = (day * 365),
-                    years:number = Math.floor(duration / year),
-                    days:number = Math.floor(duration / day),
-                    plural = function terminal_utilities_log_difference_plural(input:number):""|"s" {
-                        if (input === 1) {
-                            return "";
-                        }
-                        return "s";
-                    };
-                if (days < 1) {
-                    return "within last day";
-                }
-                if (months < 1) {
-                    return `${days} day${plural(days)} ago`;
-                }
-                if (years < 1) {
-                    return `${months} month${plural(months)} ago`;
-                }
-                return `${years} year${plural(years)} ago`;
-            }());
+                    const duration:number = Date.now() - vars.environment.date_commit,
+                        day:number = (1000 * 60 * 60 * 24),
+                        month:number = (day * 30),
+                        months:number = Math.floor(duration / month),
+                        year:number = (day * 365),
+                        years:number = Math.floor(duration / year),
+                        days:number = Math.floor(duration / day),
+                        plural = function terminal_utilities_log_difference_plural(input:number):""|"s" {
+                            if (input === 1) {
+                                return "";
+                            }
+                            return "s";
+                        };
+                    if (days < 1) {
+                        return "within last day";
+                    }
+                    if (months < 1) {
+                        return `${days} day${plural(days)} ago`;
+                    }
+                    if (years < 1) {
+                        return `${months} month${plural(months)} ago`;
+                    }
+                    return `${years} year${plural(years)} ago`;
+                }()),
+                dateString:string = `Updated ${vars.environment.date_commit.dateTime(true, null)} (${difference})`,
+                hash:string = `git log ${vars.text.cyan + vars.text.bold + vars.environment.hash + vars.text.none}`,
+                border = function utilities_logShell_border(character:string):string {
+                    let index:number = Math.max(dateString.length, vars.environment.hash.length);
+                    const output:string[] = [];
+                    do {
+                        index = index - 1;
+                        output.push(character);
+                    } while (index > 0);
+                    return output.join("");
+                };
             logger("");
-            logger("________________________________________________");
-            logger(`Updated ${vars.environment.date_commit.dateTime(true, null)} (${difference})`);
-            logger(`git Log ${vars.text.cyan + vars.text.bold + vars.environment.hash + vars.text.none}`);
-            logger("\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e\u203e");
+            logger(border("_"));
+            logger(hash);
+            logger(dateString);
+            logger(border("\u203e"));
         }
     }
 };

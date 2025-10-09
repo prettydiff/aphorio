@@ -314,12 +314,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         index = index + 1;
                     } while (index < len);
                 }
-                if (win32 === true) {
-                    if (type_os === "all" || type_os === "proc") {
-                        completed("proc");
-                    } else {
-                        spawning("user");
-                    }
+                if (type_os === "user") {
+                    spawning("user");
                 } else {
                     completed("proc");
                 }
@@ -367,14 +363,15 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                     data_posix:string[] = raw.socT as string[],
                     len:number = (win32 === true)
                         ? data_win.length
-                        : data_posix.length;
+                        : data_posix.length,
+                    getAddress = function utilities_os_builderSocT_getAddress(num:number):string {
+                        return (line[num].charAt(0) === "[")
+                            ? line[num].slice(1, line[num].indexOf("]"))
+                            : line[num].split(":")[0];
+                    };
                 let index:number = 0,
                     sock:os_sock = null,
-                    line:string[] = null,
-                    local:string[] = null,
-                    remote:string[] = null,
-                    port_local:number = 0,
-                    port_remote:number = 0;
+                    line:string[] = null;
                 if (len > 0) {
                     do {
                         if (win32 === true) {
@@ -382,37 +379,25 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                 "local-address": (data_win[index].LocalAddress === null)
                                     ? ""
                                     : data_win[index].LocalAddress,
-                                "local-port": (Number.isNaN(data_win[index].LocalPort) === true)
-                                    ? 0
-                                    : data_win[index].LocalPort,
+                                "local-port": data_win[index].LocalPort,
+                                "process": data_win[index].OwningProcess,
                                 "remote-address": (data_win[index].RemoteAddress === null)
                                     ? ""
                                     : data_win[index].RemoteAddress,
-                                "remote-port": (Number.isNaN(data_win[index].RemotePort) === true)
-                                    ? 0
-                                    : data_win[index].RemotePort,
+                                "remote-port": data_win[index].RemotePort,
                                 "type": "tcp"
                             };
                         } else {
                             line = data_posix[index].split(",");
                             if (line.length > 5) {
-                                local = line[4].split(":");
-                                remote = line[5].split(":");
-                                port_local = Number(local[1]);
-                                port_remote = Number(remote[1]);
                                 sock = {
-                                    "local-address": (local[0] === null)
-                                        ? ""
-                                        : local[0],
-                                    "local-port": (Number.isNaN(port_local) === true)
+                                    "local-address": getAddress(4),
+                                    "local-port": Number(line[4].slice(line[4].lastIndexOf(":") + 1)),
+                                    "process": (line[7] === undefined)
                                         ? 0
-                                        : port_local,
-                                    "remote-address": (remote[0] === null)
-                                        ? ""
-                                        : remote[0],
-                                    "remote-port": (Number.isNaN(port_remote) === true)
-                                        ? 0
-                                        : port_remote,
+                                        : Number(line[7].replace("pid=", "")),
+                                    "remote-address": getAddress(5),
+                                    "remote-port": Number(line[5].slice(line[5].lastIndexOf(":") + 1)),
                                     "type": line[0] as "tcp"
                                 };
                             }
@@ -434,9 +419,8 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                             "local-address": (data_win[index].LocalAddress === null)
                                 ? ""
                                 : data_win[index].LocalAddress,
-                            "local-port": (Number.isNaN(data_win[index].LocalPort) === true)
-                                ? 0
-                                : data_win[index].LocalPort,
+                            "local-port": data_win[index].LocalPort,
+                            "process": data_win[index].OwningProcess,
                             "remote-address": "",
                             "remote-port": 0,
                             "type": "udp"
