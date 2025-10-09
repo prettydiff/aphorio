@@ -75,7 +75,7 @@ const dashboard = function dashboard():void {
                     select:HTMLSelectElement = module.nodes.filter_column,
                     columnIndex:number = select.selectedIndex - 1,
                     list:HTMLCollectionOf<HTMLElement> = module.nodes.list.getElementsByTagName("tr"),
-                    cell_length:number = module.nodes.list.parentNode.getElementsByTagName("th").length,
+                    cell_length:number = module.nodes.list.parentNode.getElementsByTagName("thead")[0].getElementsByTagName("th").length,
                     sensitive:boolean = module.nodes.caseSensitive.checked,
                     value:string = (sensitive === true)
                         ? module.nodes.filter_value.value
@@ -1001,14 +1001,20 @@ const dashboard = function dashboard():void {
                     tables.cell(tr, String(record["local-port"]), null);
                     tables.cell(tr, record["remote-address"], null);
                     tables.cell(tr, String(record["remote-port"]), null);
-                    tables.cell(tr, String(record.process), null);
-                    do {
-                        index = index - 1;
-                        if (payload.os.proc.data[index].id === record.process) {
-                            tables.cell(tr, payload.os.proc.data[index].name, null);
-                            break;
-                        }
-                    } while (index > 0);
+                    if (record.process === 0) {
+                        tables.cell(tr, "null", null);
+                        tables.cell(tr, "null", null);
+                    } else {
+                        tables.cell(tr, String(record.process), null);
+                        do {
+                            index = index - 1;
+                            if (payload.os.proc.data[index].id === record.process) {
+                                tables.cell(tr, payload.os.proc.data[index].name, null);
+                                return;
+                            }
+                        } while (index > 0);
+                        tables.cell(tr, "null", null);
+                    }
                 },
                 sort_name: ["type", "local-address", "local-port", "remote-address", "remote-port"]
             }

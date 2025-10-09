@@ -368,6 +368,12 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                         return (line[num].charAt(0) === "[")
                             ? line[num].slice(1, line[num].indexOf("]"))
                             : line[num].split(":")[0];
+                    },
+                    getPort = function utilities_os_builderSocT_getPort(num:number):number {
+                        const value:number = Number(line[num].slice(line[num].lastIndexOf(":") + 1));
+                        return (isNaN(value) === true)
+                            ? 0
+                            : value;
                     };
                 let index:number = 0,
                     sock:os_sock = null,
@@ -392,12 +398,12 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                             if (line.length > 5) {
                                 sock = {
                                     "local-address": getAddress(4),
-                                    "local-port": Number(line[4].slice(line[4].lastIndexOf(":") + 1)),
+                                    "local-port": getPort(4),
                                     "process": (line[7] === undefined)
                                         ? 0
                                         : Number(line[7].replace("pid=", "")),
                                     "remote-address": getAddress(5),
-                                    "remote-port": Number(line[5].slice(line[5].lastIndexOf(":") + 1)),
+                                    "remote-port": getPort(5),
                                     "type": line[0] as "tcp"
                                 };
                             }
