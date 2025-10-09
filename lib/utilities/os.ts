@@ -393,9 +393,9 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                 sock = {
                                     "local-address": getAddress(4),
                                     "local-port": Number(line[4].slice(line[4].lastIndexOf(":") + 1)),
-                                    "process": (line[6] === undefined)
+                                    "process": (line[7] === undefined)
                                         ? 0
-                                        : Number(line[6].slice(line[6].indexOf("pid=") + 4).split(",")[0]),
+                                        : Number(line[7].replace("pid=", "")),
                                     "remote-address": getAddress(5),
                                     "remote-port": Number(line[5].slice(line[5].lastIndexOf(":") + 1)),
                                     "type": line[0] as "tcp"

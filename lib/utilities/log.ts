@@ -28,7 +28,7 @@ const log:log = {
         input.forEach(function utilities_logShell_each(value:string):void {
             logger(value);
         });
-        if (summary === true) {
+        if (summary === true && vars.environment.hash !== "") {
             const difference:string = (function terminal_utilities_log_difference():string {
                     const duration:number = Date.now() - vars.environment.date_commit,
                         day:number = (1000 * 60 * 60 * 24),
