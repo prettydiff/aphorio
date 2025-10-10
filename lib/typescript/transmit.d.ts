@@ -29,9 +29,9 @@ interface transmit_dashboard {
     hashes: string[];
     http_request: string;
     logs: services_dashboard_status[];
+    name: string;
     os: server_os;
     path: vars_path;
-    platform: string;
     servers: store_servers;
     terminal: string[];
     timeZone_offset: number;

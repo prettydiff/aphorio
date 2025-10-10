@@ -185,3 +185,21 @@ interface os_user_windows {
     Name: string;
     SID: string;
 }
+
+interface os_vars {
+    compose: string;
+    devs: string;
+    disk: string;
+    open: string;
+    part: string;
+    proc: string;
+    serv: string;
+    socT: string;
+    socU: string;
+    user: string;
+    volu: string;
+}
+
+interface os_var_list {
+    [key:string]: os_vars;
+}

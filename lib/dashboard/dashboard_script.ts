@@ -169,7 +169,8 @@ const dashboard = function dashboard():void {
                 if (module.dataName === "sockets_application") {
                     module.nodes.update_button.style.display = "none";
                 } else {
-                    tables.populate(module, payload.os[module.dataName as type_list_names]);
+                    // @ts-expect-error - inferring types from an object fails
+                    tables.populate(module, payload.os[module.dataName as type_list_services]);
                 }
             },
             // populate large data tables
@@ -2615,13 +2616,12 @@ const dashboard = function dashboard():void {
                 },
                 row: function dashboard_networkSocketOSRow(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_proc = record_item as os_proc,
-                        time:string = (record.time === null)
-                            ? (payload.platform === "win32")
-                                ? (0).time().replace(/000$/, "")
-                                : (0).time().replace(/\.0+$/, "")
-                            : (payload.platform === "win32")
-                                ? record.time.time().replace(/000$/, "")
-                                : record.time.time().replace(/\.0+$/, ""),
+                        timeValue:string = (record.time === null)
+                            ? (0).time()
+                            : record.time.time(),
+                        time:string = (payload.os.process.platform === "win32")
+                            ? timeValue.replace(/000$/, "")
+                            : timeValue.replace(/\.0+$/, ""),
                         memory:string = (record.memory === null)
                             ? "0"
                             : record.memory.commas(),
@@ -3742,6 +3742,7 @@ const dashboard = function dashboard():void {
                     target.textContent = "Expand";
                 }
             },
+            title:HTMLElement = document.getElementsByTagName("h1")[0],
             th:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("th"),
             expand:HTMLCollectionOf<HTMLButtonElement> = document.getElementsByClassName("expand") as HTMLCollectionOf<HTMLButtonElement>,
             table_keys:string[] = (state.tables === undefined)
@@ -3751,6 +3752,8 @@ const dashboard = function dashboard():void {
             button:HTMLElement = null,
             table_key:string[] = null,
             table:HTMLElement = null;
+
+        title.textContent = `${payload.name.capitalize()} Dashboard`;
 
         // restore state of table filter controls
         if (state.table_os === undefined) {

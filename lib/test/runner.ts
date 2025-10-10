@@ -442,20 +442,15 @@ const test_runner:test_runner = {
     },
     tools: {
         browser_open: function test_runner_toolsBrowser():void {
-            const keyword:string = (process.platform === "darwin")
-                    ? "open"
-                    : (process.platform === "win32")
-                        ? "start"
-                        : "xdg-open",
-                browserCommand = function test_runner_toolsBrowser_browserCommand():string {
+            const browserCommand = function test_runner_toolsBrowser_browserCommand():string {
                     const path:string = `http://localhost:${vars.servers.dashboard.status.open}/?test_browser`;
                     if (vars.test.test_browser !== "" && vars.test.test_browser !== null) {
                         if (vars.test.browser_args.length > 0) {
-                            return `${keyword} ${vars.test.test_browser} ${path} ${vars.test.browser_args.join(" ")}`;
+                            return `${vars.commands.open} ${vars.test.test_browser} ${path} ${vars.test.browser_args.join(" ")}`;
                         }
-                        return `${keyword} ${vars.test.test_browser} ${path}`;
+                        return `${vars.commands.open} ${vars.test.test_browser} ${path}`;
                     }
-                    return `${keyword} ${path}`;
+                    return `${vars.commands.open} ${path}`;
                 },
                 call_dom = function test_runner_toolsBrowser_callDom():void {
                     if (vars.server_meta.dashboard.sockets.open[0] === undefined || vars.server_meta.dashboard.sockets.open[0].queue === undefined) {

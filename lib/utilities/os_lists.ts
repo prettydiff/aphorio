@@ -5,7 +5,7 @@ import vars from "./vars.ts";
 
 // cspell: words blockdevices, bootable, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, volu
 
-const os = function utilities_os(type_os:type_os, callback:(output:socket_data) => void):void {
+const os = function utilities_os(type_os:type_os_services, callback:(output:socket_data) => void):void {
     const win32:boolean = (process.platform === "win32"),
         shell:string = (win32 === true)
             ? (vars.terminal.includes("C:\\Program Files\\PowerShell\\7\\pwsh.exe") === true)
@@ -393,6 +393,7 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                 "remote-port": data_win[index].RemotePort,
                                 "type": "tcp"
                             };
+                            sockets.push(sock);
                         } else {
                             line = data_posix[index].split(",");
                             if (line.length > 5) {
@@ -406,9 +407,9 @@ const os = function utilities_os(type_os:type_os, callback:(output:socket_data) 
                                     "remote-port": getPort(5),
                                     "type": line[0] as "tcp"
                                 };
+                                sockets.push(sock);
                             }
                         }
-                        sockets.push(sock);
                         index = index + 1;
                     } while (index < len);
                 }

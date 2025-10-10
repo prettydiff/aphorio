@@ -8,7 +8,7 @@ import docker_ps from "../services/docker_ps.ts";
 import file from "./file.ts";
 import log from "./log.ts";
 import node from "./node.ts";
-import os from "./os.ts";
+import os_lists from "./os_lists.ts";
 import server from "../transmit/server.ts";
 import server_create from "../services/server_create.ts";
 import test_browser from "../dashboard/test_browser.ts";
@@ -18,11 +18,10 @@ import vars from "./vars.ts";
 
 // cspell: words serv
 
-const start_server = function utilities_startServer():void {
-    const testing:boolean = process.argv.includes("test"),
-        task_definitions:store_string = {
+const start_server = function utilities_startServer(process_path:string, testing:boolean):void {
+    const task_definitions:store_string = {
             compose: "Reads the compose.json file and restores the docker compose containers if docker is available.",
-            git: "Read's the project's git file to determine the current commit hash, which is helpful when performing maintenance across multiple machines simultaneously.",
+            git: "Get the latest update time and hash.",
             html: "Read's the dashboard's HTML file for dynamic modification.",
             options: "Modify's application settings according to the use of supported optional command line arguments.",
             os_devs: "Gathers a list of devices registered with the OS kernel.",
@@ -175,19 +174,19 @@ const start_server = function utilities_startServer():void {
                 const callback = function utilities_startServer_taskOSDevs_callback():void {
                         readComplete("os_devs");
                     };
-                os("devs", callback);
+                os_lists("devs", callback);
             },
             os_disk: function utilities_startServer_taskOSDisk():void {
                 const callback = function utilities_startServer_taskOSDisk_callback():void {
                         readComplete("os_disk");
                     };
-                os("disk", callback);
+                os_lists("disk", callback);
             },
             os_intr: function utilities_startServer_taskOSIntr():void {
                 const callback = function utilities_startServer_taskOSIntr_callback():void {
                     readComplete("os_intr");
                 };
-                os("intr", callback);
+                os_lists("intr", callback);
             },
             os_main: function utilities_startServer_taskOSMain():void {
                 const callback = function utilities_startServer_taskOSMain_callback():void {
@@ -195,7 +194,7 @@ const start_server = function utilities_startServer():void {
                         task_start();
                     },
                     osDelay = function utilities_startServer_taskOSMain_osDelay():void {
-                        os("all", function utilities_startServer_taskOSMain_osDelay_callback(payload:socket_data):void {
+                        os_lists("all", function utilities_startServer_taskOSMain_osDelay_callback(payload:socket_data):void {
                             broadcast("dashboard", "dashboard", payload);
                         });
                         osDaily();
@@ -213,7 +212,7 @@ const start_server = function utilities_startServer():void {
                         vars.timeZone_offset = date.getTimezoneOffset() * 60000;
                         return night - 25;
                     }());
-                os("main", callback);
+                os_lists("main", callback);
                 setTimeout(osDelay, midnight);
             },
             os_proc: (process.platform === "win32")
@@ -224,25 +223,25 @@ const start_server = function utilities_startServer():void {
                     const callback = function utilities_startServer_taskOSProc_callback():void {
                         readComplete("os_proc");
                     };
-                    os("proc", callback);
+                    os_lists("proc", callback);
                 },
             os_serv: function utilities_startServer_taskOSServ():void {
                 const callback = function utilities_startServer_taskOSServ_callback():void {
                     readComplete("os_serv");
                 };
-                os("serv", callback);
+                os_lists("serv", callback);
             },
             os_sock: function utilities_startServer_taskOSSock():void {
                 const callback = function utilities_startServer_taskOSSock_callback():void {
                     readComplete("os_sock");
                 };
-                os("sock", callback);
+                os_lists("sock", callback);
             },
             os_user: function utilities_startServer_taskOSUser():void {
                 const callback = function utilities_startServer_taskOSUser_callback():void {
                     readComplete("os_user");
                 };
-                os("user", callback);
+                os_lists("user", callback);
             },
             servers: function utilities_startServer_taskServers():void {
                 const callback = function utilities_startServer_taskServers_callback(fileContents:Buffer):void {
@@ -577,7 +576,6 @@ const start_server = function utilities_startServer():void {
                 }
             } while (index_tasks > 0);
         },
-        process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.path.sep}lib${vars.path.sep}`)) + vars.path.sep,
         keys_tasks:string[] = Object.keys(tasks),
         len_flags:number = (testing === true)
             ? keys_tasks.length - 1 // servers task is not run in test mode
@@ -593,15 +591,8 @@ const start_server = function utilities_startServer():void {
         // eslint-disable-next-line no-restricted-syntax
         return this.charAt(0).toUpperCase() + this.slice(1);
     };
-    vars.test.testing = testing;
-    vars.path.project = (vars.test.testing === true)
-        ? `${process_path}test${vars.path.sep}`
-        : process_path;
-    vars.path.compose_empty = `${process_path}compose${vars.path.sep}empty.yml`;
-    vars.path.compose = `${vars.path.project}compose${vars.path.sep}`;
-    vars.path.servers = `${vars.path.project}servers${vars.path.sep}`;
 
-    log.shell([`${vars.text.underline}Executing start up tasks${vars.text.none}`]);
+    log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);
 
     // update OS list of available shells
     if (process.platform === "win32") {

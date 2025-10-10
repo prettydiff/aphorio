@@ -314,14 +314,14 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     hashes: vars.hashes,
                     http_request: vars.http_request,
                     logs: vars.logs,
+                    name: vars.name,
                     os: vars.os,
                     path: vars.path,
-                    platform: process.platform,
                     servers: vars.servers,
                     terminal: vars.terminal,
                     timeZone_offset: vars.timeZone_offset
                 },
-                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`),
+                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`).replace(/\s+g/, " "),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",

@@ -30,11 +30,14 @@ type type_halt_action = "deactivate" | "destroy" | "modify";
 type type_hash_input = "direct" | "file";
 type type_http_method = "connect" | "delete" | "get" | "head" | "post" | "put";
 type type_keys = "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "Backspace" | "c" | "Delete" | "Enter" | "v";
-type type_list_names = "devs" | "proc" | "serv" | "sock" | "user";
 type type_list_services = services_os_devs|services_os_proc|services_os_serv|services_os_sock|services_os_user;
 type type_lists = os_devs | os_proc | os_serv | os_sock | os_user;
-type type_os = type_list_names | "all" | "disk" | "intr" | "main";
-type type_os_key = type_list_names | "disk" | "part" | "socT" | "socU" | "volu";
+
+type type_os_key = type_os_list_names_base | "disk" | "part" | "socT" | "socU" | "volu";
+type type_os_list_names = type_os_list_names_base | "sock";
+type type_os_list_names_base = "devs" | "proc" | "serv" | "user";
+type type_os_services = type_os_list_names | "all" | "disk" | "intr" | "main";
+
 type type_paths = "storage" | "web_root";
 type type_search = "fragment" | "negation" | "regex";
 type type_selector = "class" | "id" | "tag";

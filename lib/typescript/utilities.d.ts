@@ -88,6 +88,12 @@ interface log {
     shell: (input:string[], summary?:boolean) => void;
 }
 
+interface os_service {
+    create: (command:string, name:string) => void;
+    delete: (name:string) => void;
+    restart: (name:string) => void;
+}
+
 interface server {
     config: services_server;
     sockets: services_socket[];
@@ -263,7 +269,7 @@ interface terminal {
 }
 
 interface vars {
-    commands: store_string;
+    commands: os_vars;
     compose: configuration_compose;
     css: {
         basic: string;
@@ -279,6 +285,7 @@ interface vars {
     interfaces: string[];
     intervals: store_number;
     logs: services_dashboard_status[];
+    name: string;
     os: server_os;
     path: vars_path;
     server_meta: server_meta;

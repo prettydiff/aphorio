@@ -1,45 +1,47 @@
 
 import node from "./node.ts";
 
-/* cspell: words appdata, atupn, cputime, lslogins, pwsh, serv, volu */
+/* cspell: words appdata, aphorio, atupn, cputime, lslogins, pwsh, serv, volu */
 
-const win32:boolean = (process.platform === "win32"),
-    gid:number = (typeof process.getgid === "undefined")
+const gid:number = (typeof process.getgid === "undefined")
         ? 0
         : process.getgid(),
     uid:number = (typeof process.getuid === "undefined")
         ? 0
         : process.getuid(),
     vars:vars = {
-        commands: {
-            compose: (process.platform === "win32")
-                ? "docker-compose"
-                : "docker",
-            docker: "docker",
-            devs: (win32 === true)
-                ? "Get-PNPDevice | ConvertTo-json"
-                : "lspci -v -k",
-            disk: (win32 === true)
-                ? "Get-Disk | ConvertTo-JSON -compress -depth 2"
-                : "lsblk -Ob --json",
-            part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
-            proc: (win32 === true)
-                ? "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON -compress -depth 1"
-                : "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
-            serv: (win32 === true)
-                ? "Get-Service | ConvertTo-JSON -compress -depth 2"
-                : "systemctl list-units --type=service --all --output json",
-            socT: (win32 === true)
-                ? "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2"
-                : "ss -atupn | tail -n +2 | tr -s \" \" \",\"",
-            socU: (win32 === true)
-                ? "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2"
-                : "",
-            user: (win32 === true)
-                ? "Get-LocalUser | ConvertTo-JSON -compress -depth 1"
-                : "lslogins -o user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
-            volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
-        },
+        commands: (function utilities_vars_commands():os_vars {
+            const os_vars:os_var_list = {
+                "linux": {
+                    compose: "docker",
+                    devs: "lspci -v -k",
+                    disk: "lsblk -Ob --json",
+                    open: "xdg-open",
+                    part: "",
+                    proc: "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
+                    serv: "systemctl list-units --type=service --all --output json",
+                    socT: "ss -atupn | tail -n +2 | tr -s \" \" \",\"",
+                    socU: "",
+                    user: "lslogins -o user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
+                    volu: ""
+
+                },
+                "win32": {
+                    compose: "docket-compose",
+                    devs: "Get-PNPDevice | ConvertTo-json",
+                    disk: "Get-Disk | ConvertTo-JSON -compress -depth 2",
+                    open: "start",
+                    part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
+                    proc: "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON -compress -depth 1",
+                    serv: "Get-Service | ConvertTo-JSON -compress -depth 2",
+                    socT: "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2",
+                    socU: "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2",
+                    user: "Get-LocalUser | ConvertTo-JSON -compress -depth 1",
+                    volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
+                }
+            };
+            return os_vars[process.platform];
+        }()),
         compose: {
             containers: {},
             variables: {}
@@ -65,6 +67,7 @@ const win32:boolean = (process.platform === "win32"),
             compose: 0
         },
         logs: [],
+        name: "aphorio",
         os: {
             devs: {
                 data: [],
