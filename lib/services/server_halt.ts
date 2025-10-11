@@ -1,11 +1,11 @@
 
 import certificate from "./certificate.ts";
 import file from "../utilities/file.ts";
-import log from "../utilities/log.ts";
-import node from "../utilities/node.ts";
+import log from "../core/log.ts";
+import node from "../core/node.ts";
 import server from "../transmit/server.ts";
 import server_create from "./server_create.ts";
-import vars from "../utilities/vars.ts";
+import vars from "../core/vars.ts";
 
 // 1. turn off active servers and delete their corresponding objects
 // 2. kill all sockets on the server

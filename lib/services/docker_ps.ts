@@ -1,7 +1,7 @@
 
-import log from "../utilities/log.ts";
-import spawn from "../utilities/spawn.ts";
-import vars from "../utilities/vars.ts";
+import log from "../core/log.ts";
+import spawn from "../core/spawn.ts";
+import vars from "../core/vars.ts";
 
 const docker_ps = function services_dockerPS(callback:() => void):void {
     const args:string[] = ["-f", vars.path.compose_empty, "ps", "--format=json"],
@@ -17,123 +17,87 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 type: "compose-containers"
             });
         },
-        callbackFirst = function services_dockerPS_callbackFirst(stderr:string, stdout:string, error:node_childProcess_ExecException):void {
-            if (stderr === "" && error === null) {
-                const lns:string[] = stdout.replace(/\s+$/, "").split("\n"),
-                    len:number = lns.length,
-                    keys:string[] = Object.keys(vars.compose.containers);
-                let index:number = keys.length,
-                    compose:services_docker_compose = null,
-                    item:store_string = null;
-                if (index < 1) {
-                    callback();
-                    return;
-                }
-                do {
-                    index = index - 1;
-                    vars.compose.containers[keys[index]].state = "dead";
-                } while (index > 0);
-                do {
-                    item = JSON.parse(lns[index]);
-                    compose = {
-                        command: item.Command,
-                        compose: "",
-                        createdAt: item.CreatedAt,
-                        description: "",
-                        exitCode: Number(item.ExitCode),
-                        health: item.Health,
-                        id: item.ID,
-                        image: item.Image,
-                        labels: item.Labels.split(","),
-                        localVolumes: Number(item.LocalVolumes),
-                        mounts: item.Mounts.split(","),
-                        name: item.Name,
-                        names: item.Names.split(","),
-                        networks: item.Networks.split(","),
-                        ports: item.Ports.replace(/,\s+/g, ",").split(","),
-                        project: item.Project,
-                        publishers: JSON.parse(lns[index]).Publishers as services_docker_compose_publishers[],
-                        runningFor: item.RunningFor,
-                        service: item.Service,
-                        size: Number(item.Size),
-                        state: item.State as type_docker_state,
-                        status: item.Status
-                    };
-                    if (vars.compose.containers[compose.name] === undefined) {
-                        compose.compose = "";
-                        compose.description = "";
-                    } else {
-                        compose.compose = vars.compose.containers[compose.name].compose;
-                        compose.description = vars.compose.containers[compose.name].description;
-                        if (compose.state !== "running" && vars.compose.containers[compose.name].state === "running") {
-                            logger("deactivate", compose);
-                        } else if (compose.state === "running" && vars.compose.containers[compose.name].state === "running") {
-                            logger("activate", compose);
-                        }
-                        vars.compose.containers[compose.name] = compose;
-                    }
-                    index = index + 1;
-                } while (index < len);
-                spawn({
-                    args: ["-f", vars.path.compose_empty, "events", "--json"],
-                    callback: callbackRecurse,
-                    command: vars.commands.compose,
-                    recurse: vars.intervals.compose
-                });
-            } else {
-                const lines = function services_dockerPS_callbackFirst_lines(input:string):string {
-                    return input.replace(" ", "\n");
-                };
-                log.application({
-                    action: "activate",
-                    config: error,
-                    message: (error === null)
-                        ? stderr.replace(/(\w|"|')(\.|:|,) /g, lines)
-                        : "Executing command 'docker ps' returned an error.",
-                    status: "error",
-                    time: Date.now(),
-                    type: "compose-containers"
-                });
-                vars.compose = null;
+        spawn_primary_close = function services_dockerPS_spawnPrimaryClose():void {
+            const stdout:string = primary.chunks.join(""),
+                lns:string[] = stdout.replace(/\s+$/, "").split("\n"),
+                len:number = lns.length,
+                keys:string[] = Object.keys(vars.compose.containers);
+            let index:number = keys.length,
+                compose:services_docker_compose = null,
+                item:store_string = null;
+            if (index < 1) {
+                callback();
+                return;
             }
+            do {
+                index = index - 1;
+                vars.compose.containers[keys[index]].state = "dead";
+            } while (index > 0);
+            do {
+                item = JSON.parse(lns[index]);
+                compose = {
+                    command: item.Command,
+                    compose: "",
+                    createdAt: item.CreatedAt,
+                    description: "",
+                    exitCode: Number(item.ExitCode),
+                    health: item.Health,
+                    id: item.ID,
+                    image: item.Image,
+                    labels: item.Labels.split(","),
+                    localVolumes: Number(item.LocalVolumes),
+                    mounts: item.Mounts.split(","),
+                    name: item.Name,
+                    names: item.Names.split(","),
+                    networks: item.Networks.split(","),
+                    ports: item.Ports.replace(/,\s+/g, ",").split(","),
+                    project: item.Project,
+                    publishers: JSON.parse(lns[index]).Publishers as services_docker_compose_publishers[],
+                    runningFor: item.RunningFor,
+                    service: item.Service,
+                    size: Number(item.Size),
+                    state: item.State as type_docker_state,
+                    status: item.Status
+                };
+                if (vars.compose.containers[compose.name] === undefined) {
+                    compose.compose = "";
+                    compose.description = "";
+                } else {
+                    compose.compose = vars.compose.containers[compose.name].compose;
+                    compose.description = vars.compose.containers[compose.name].description;
+                    if (compose.state !== "running" && vars.compose.containers[compose.name].state === "running") {
+                        logger("deactivate", compose);
+                    } else if (compose.state === "running" && vars.compose.containers[compose.name].state === "running") {
+                        logger("activate", compose);
+                    }
+                    vars.compose.containers[compose.name] = compose;
+                }
+                index = index + 1;
+            } while (index < len);
+            secondary.child();
             callback();
         },
-        callbackRecurse = function services_dockerPS_callbackRecurse(stderr:string, stdout:string, error:node_childProcess_ExecException):void {
-            if (stderr === "" && error === null) {
-                const event:services_docker_event = JSON.parse(stdout);
-                if (vars.compose.containers[event.service] !== undefined) {
-                    if (vars.compose.containers[event.service].state === "running" && (event.action === "destroy" || event.action === "die" || event.action === "kill" || event.action === "stop")) {
-                        vars.compose.containers[event.service].state = "dead";
-                        logger("deactivate", vars.compose.containers[event.service]);
-                    } else if (vars.compose.containers[event.service].state !== "running" && event.action === "start") {
-                        vars.compose.containers[event.service].state = "running";
-                        logger("activate", vars.compose.containers[event.service]);
-                    }
+        spawn_close_secondary = function services_dockerPS_spawnCloseSecondary():void {
+            const event:services_docker_event = JSON.parse(secondary.chunks.join(""));
+            if (vars.compose.containers[event.service] !== undefined) {
+                if (vars.compose.containers[event.service].state === "running" && (event.action === "destroy" || event.action === "die" || event.action === "kill" || event.action === "stop")) {
+                    vars.compose.containers[event.service].state = "dead";
+                    logger("deactivate", vars.compose.containers[event.service]);
+                } else if (vars.compose.containers[event.service].state !== "running" && event.action === "start") {
+                    vars.compose.containers[event.service].state = "running";
+                    logger("activate", vars.compose.containers[event.service]);
                 }
-            } else {
-                log.application({
-                    action: "modify",
-                    config: (stderr === "")
-                        ? error
-                        : {
-                            message: stderr
-                        },
-                    message: "docker ps",
-                    status: "error",
-                    time: Date.now(),
-                    type: "compose-containers"
-                });
             }
-        };
+            setTimeout(function utilities_spawn_finish_recurse():void {
+                secondary.child();
+            }, vars.intervals.compose);
+        },
+        primary:core_spawn = spawn(spawn_primary_close, `${vars.commands.compose} -f ${vars.path.compose_empty} ps --format=json`),
+        secondary:core_spawn = spawn(spawn_close_secondary, `${vars.commands.compose} -f ${vars.path.compose_empty} events --json`);
     if (process.platform !== "win32") {
         args.splice(0, 0, "compose");
     }
-    spawn({
-        args: args,
-        callback: callbackFirst,
-        command: vars.commands.compose,
-        recurse: -1
-    });
+    primary.child();
 };
 
 export default docker_ps;

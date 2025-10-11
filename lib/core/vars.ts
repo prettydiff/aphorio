@@ -1,15 +1,8 @@
 
-import node from "./node.ts";
 
 /* cspell: words appdata, aphorio, atupn, cputime, lslogins, pwsh, serv, volu */
 
-const gid:number = (typeof process.getgid === "undefined")
-        ? 0
-        : process.getgid(),
-    uid:number = (typeof process.getuid === "undefined")
-        ? 0
-        : process.getuid(),
-    vars:vars = {
+const vars:core_vars = {
         commands: (function utilities_vars_commands():os_vars {
             const os_vars:os_var_list = {
                 "linux": {
@@ -55,7 +48,7 @@ const gid:number = (typeof process.getgid === "undefined")
             date_commit: 0,
             hash: ""
         },
-        hashes: node.crypto.getHashes(),
+        hashes: [],
         http_request: "",
         interfaces: [
             "localhost",
@@ -78,56 +71,52 @@ const gid:number = (typeof process.getgid === "undefined")
                 time: 0
             },
             intr: {
-                data: node.os.networkInterfaces(),
+                data: null,
                 time: 0
             },
             machine: {
                 cpu: {
-                    arch: node.os.arch(),
-                    cores: node.os.cpus().length,
-                    endianness: node.os.endianness(),
-                    frequency: node.os.cpus()[0].speed,
-                    name: node.os.cpus()[0].model,
+                    arch: "",
+                    cores: 0,
+                    endianness: "",
+                    frequency: 0,
+                    name: ""
                 },
                 memory: {
-                    free: node.os.freemem(),
-                    total: node.os.totalmem()
+                    free: 0,
+                    total: 0
                 }
             },
             os: {
-                env: process.env,
-                hostname: node.os.hostname(),
-                name: node.os.version(),
-                path: (process.platform === "win32")
-                    ? process.env.Path.split(";")
-                    : (process.env.PATH === undefined)
-                        ? []
-                        : process.env.PATH.split(":"),
-                platform: node.os.platform(),
-                release: node.os.release(),
-                type: node.os.type(),
-                uptime: node.os.uptime()
+                env: {},
+                hostname: "",
+                name: "",
+                path: [],
+                platform: "",
+                release: "",
+                type: "",
+                uptime: 0
             },
             proc: {
                 data: [],
                 time: 0
             },
             process: {
-                arch: process.arch,
-                argv: process.argv,
-                cpuSystem: process.cpuUsage().system,
-                cpuUser: process.cpuUsage().user,
-                cwd: process.cwd(),
+                arch: "",
+                argv: [],
+                cpuSystem: 0,
+                cpuUser: 0,
+                cwd: "",
                 memory: {
                     external: 0,
                     rss: 0,
                     V8: 0
                 },
-                pid: process.pid,
-                platform: process.platform,
-                ppid: process.ppid,
-                uptime: process.uptime(),
-                versions: process.versions
+                pid: 0,
+                platform: "",
+                ppid: 0,
+                uptime: 0,
+                versions: {}
             },
             serv: {
                 data: [],
@@ -143,20 +132,16 @@ const gid:number = (typeof process.getgid === "undefined")
                 time: 0
             },
             user_account: {
-                gid: (gid === 0)
-                    ? 1000
-                    : gid,
-                homedir: node.os.homedir(),
-                uid: (gid === 0)
-                    ? 1000
-                    : uid
+                gid: 0,
+                homedir: "",
+                uid: 0
             }
         },
         path: {
             compose: "",
             compose_empty: "",
             project: "",
-            sep: node.path.sep,
+            sep: "/",
             servers: ""
         },
         servers: {},

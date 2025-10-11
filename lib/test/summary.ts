@@ -1,7 +1,7 @@
 
-import log from "../utilities/log.ts";
+import log from "../core/log.ts";
 import send from "../transmit/send.ts";
-import vars from "../utilities/vars.ts";
+import vars from "../core/vars.ts";
 
 
 const test_summary = function test_summary(name:string, complete:boolean):void {

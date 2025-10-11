@@ -1,8 +1,8 @@
 
 import directory from "./directory.ts";
-import log from "./log.ts";
-import node from "./node.ts";
-import vars from "./vars.ts";
+import log from "../core/log.ts";
+import node from "../core/node.ts";
+import vars from "../core/vars.ts";
 
 // A collection of abstractions for file system handling
 // * mkdir - create one or more directories

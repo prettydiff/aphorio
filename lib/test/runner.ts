@@ -1,8 +1,8 @@
 
-import log from "../utilities/log.ts";
-import node from "../utilities/node.ts";
+import log from "../core/log.ts";
+import node from "../core/node.ts";
 import send from "../transmit/send.ts";
-import vars from "../utilities/vars.ts";
+import vars from "../core/vars.ts";
 
 const test_runner:test_runner = {
     assert: {

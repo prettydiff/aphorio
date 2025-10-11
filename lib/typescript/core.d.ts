@@ -6,6 +6,72 @@ interface configuration_compose {
     variables: store_string;
 }
 
+interface core_spawn {
+    child: () => void;
+    chunks: string[];
+    close: () => void;
+    command: string;
+    data: (buf:Buffer) => void;
+    error: (err:node_error) => void;
+    spawn: node_childProcess_ChildProcess;
+}
+
+interface core_universal {
+    commas: () => string;
+    dateTime: (date:boolean, timeZone_offset:number) => string;
+    time: () => string;
+}
+
+interface core_vars {
+    commands: os_vars;
+    compose: configuration_compose;
+    css: {
+        basic: string;
+        complete: string;
+    };
+    dashboard: string;
+    environment: {
+        date_commit: number;
+        hash: string;
+    };
+    hashes: string[];
+    http_request: string;
+    interfaces: string[];
+    intervals: store_number;
+    logs: services_dashboard_status[];
+    name: string;
+    os: server_os;
+    path: vars_path;
+    server_meta: server_meta;
+    servers: store_servers;
+    start_time: bigint;
+    terminal: string[];
+    test: {
+        browser_args: string[];
+        browser_child: node_childProcess_ChildProcess;
+        browser_start: boolean;
+        counts: {
+            [key:string]: test_counts;
+        };
+        index: number;
+        list: test_list;
+        magicString: string;
+        store: test_primitive;
+        test_browser: string;
+        testing: boolean;
+        total_assertions: number;
+        total_assertions_fail: number;
+        total_lists: number;
+        total_tests: number;
+        total_tests_fail: number;
+        total_tests_skipped: number;
+        total_time_end: bigint;
+        total_time_start: bigint;
+    };
+    text: store_string;
+    timeZone_offset: number;
+}
+
 interface directory_data {
     atimeMs: number;
     ctimeMs: number;
@@ -266,56 +332,6 @@ interface terminal {
     cols: number;
     rows: number;
     shell: string;
-}
-
-interface vars {
-    commands: os_vars;
-    compose: configuration_compose;
-    css: {
-        basic: string;
-        complete: string;
-    };
-    dashboard: string;
-    environment: {
-        date_commit: number;
-        hash: string;
-    };
-    hashes: string[];
-    http_request: string;
-    interfaces: string[];
-    intervals: store_number;
-    logs: services_dashboard_status[];
-    name: string;
-    os: server_os;
-    path: vars_path;
-    server_meta: server_meta;
-    servers: store_servers;
-    start_time: bigint;
-    terminal: string[];
-    test: {
-        browser_args: string[];
-        browser_child: node_childProcess_ChildProcess;
-        browser_start: boolean;
-        counts: {
-            [key:string]: test_counts;
-        };
-        index: number;
-        list: test_list;
-        magicString: string;
-        store: test_primitive;
-        test_browser: string;
-        testing: boolean;
-        total_assertions: number;
-        total_assertions_fail: number;
-        total_lists: number;
-        total_tests: number;
-        total_tests_fail: number;
-        total_tests_skipped: number;
-        total_time_end: bigint;
-        total_time_start: bigint;
-    };
-    text: store_string;
-    timeZone_offset: number;
 }
 
 interface vars_path {

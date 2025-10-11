@@ -1,6 +1,6 @@
 
-import log from "../utilities/log.ts";
-import node from "../utilities/node.ts";
+import log from "../core/log.ts";
+import node from "../core/node.ts";
 import socket_extension from "./socketExtension.ts";
 
 const create_socket = function transmit_createSocket(config:config_websocket_create):void {

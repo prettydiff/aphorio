@@ -1,20 +1,18 @@
 
 import broadcast from "../transmit/broadcast.ts";
-import commas from "./commas.ts";
 import core from "../browser/core.ts";
 import dashboard_script from "../dashboard/dashboard_script.ts";
-import dateTime from "./dateTime.ts";
 import docker_ps from "../services/docker_ps.ts";
 import file from "./file.ts";
-import log from "./log.ts";
-import node from "./node.ts";
+import log from "../core/log.ts";
+import node from "../core/node.ts";
 import os_lists from "./os_lists.ts";
 import server from "../transmit/server.ts";
 import server_create from "../services/server_create.ts";
 import test_browser from "../dashboard/test_browser.ts";
 import test_index from "../test/index.ts";
-import time from "./time.ts";
-import vars from "./vars.ts";
+import universal from "../core/universal.ts";
+import vars from "../core/vars.ts";
 
 // cspell: words serv
 
@@ -103,7 +101,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                     }
                                     vars.dashboard = fileContents.toString()
                                         .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
-                                        .replace("replace_javascript", `${xterm}const commas=${commas.toString()},dateTime=${dateTime.toString()},time=${time.toString()};(${script}(${core.toString()}));`)
+                                        .replace("replace_javascript", `${xterm}const universal={commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
                                         .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
                                     readComplete("html");
                                 },
@@ -583,14 +581,17 @@ const start_server = function utilities_startServer(process_path:string, testing
     let index_tasks:number = keys_tasks.length,
         count_task:number = 0;
 
-    BigInt.prototype.time = time;
-    Number.prototype.commas = commas;
-    Number.prototype.dateTime = dateTime;
-    Number.prototype.time = time;
+    BigInt.prototype.time = universal.time;
+    Number.prototype.commas = universal.commas;
+    Number.prototype.dateTime = universal.dateTime;
+    Number.prototype.time = universal.time;
     String.prototype.capitalize = function utilities_startServer_capitalize():string {
         // eslint-disable-next-line no-restricted-syntax
         return this.charAt(0).toUpperCase() + this.slice(1);
     };
+
+    vars.hashes = node.crypto.getHashes();
+    
 
     log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);
 

@@ -1,7 +1,7 @@
 
 import broadcast from "./broadcast.ts";
-import get_address from "../utilities/getAddress.ts";
-import vars from "../utilities/vars.ts";
+import get_address from "../core/getAddress.ts";
+import vars from "../core/vars.ts";
 
 const socket_end = function transmit_socketEnd():void {
     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax

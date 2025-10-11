@@ -172,37 +172,6 @@ declare global {
         uri: string;
     }
 
-    interface services_os_all {
-        devs: services_os_devs;
-        disk: services_os_disk;
-        intr: services_os_intr;
-        machine: {
-            cores: number;
-            memory: {
-                free: number;
-                total: number;
-            };
-        };
-        os: {
-            uptime: number;
-        };
-        proc: services_os_proc;
-        process: {
-            cpuSystem: number;
-            cpuUser: number;
-            memory: {
-                external: number;
-                rss: number;
-                V8: number;
-            };
-            uptime: number;
-        };
-        serv: services_os_serv;
-        sock: services_os_sock;
-        time: number;
-        user: services_os_user;
-    }
-
     interface services_os_devs {
         data: os_devs[];
         time: number;

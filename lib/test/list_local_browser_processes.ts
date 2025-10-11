@@ -1,5 +1,5 @@
 
-import vars from "../utilities/vars.ts";
+import vars from "../core/vars.ts";
 
 const test_listLocalBrowserProcesses:test_list = [
     {

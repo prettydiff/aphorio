@@ -1,7 +1,7 @@
 import create_socket from "../transmit/createSocket.ts";
-import node from "../utilities/node.ts";
+import node from "../core/node.ts";
 import send from "../transmit/send.ts";
-import vars from "../utilities/vars.ts";
+import vars from "../core/vars.ts";
 
 const websocket_test:websocket_test = {
     find_socket: function services_websocket_findSocket(direction:"in"|"out", hashString:string):websocket_client {

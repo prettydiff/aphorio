@@ -1,5 +1,5 @@
 
-import vars from "../utilities/vars.ts";
+import vars from "../core/vars.ts";
 
 const redirection = function transmit_redirection(domain:string, message:Buffer|string, server_name:string):Buffer|string {
     const str:string = (Buffer.isBuffer(message) === true)

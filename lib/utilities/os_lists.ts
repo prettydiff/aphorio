@@ -1,7 +1,7 @@
 
-import log from "./log.ts";
-import node from "./node.ts";
-import vars from "./vars.ts";
+import log from "../core/log.ts";
+import node from "../core/node.ts";
+import vars from "../core/vars.ts";
 
 // cspell: words blockdevices, bootable, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, volu
 
@@ -810,9 +810,15 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 }
             }
         },
-        main = function utilities_os_main(time:number):services_os_all {
+        main = function utilities_os_main(time:number):server_os {
             const mem:server_os_memoryUsage = process.memoryUsage(),
-                output:services_os_all = {
+                gid:number = (typeof process.getgid === "undefined")
+                    ? 0
+                    : process.getgid(),
+                uid:number = (typeof process.getuid === "undefined")
+                    ? 0
+                    : process.getuid(),
+                output:server_os = {
                     devs: {
                         data: [],
                         time: 0
@@ -826,25 +832,48 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         time: 0
                     },
                     machine: {
-                        cores: node.os.cpus().length,
+                        cpu: {
+                            arch: node.os.arch(),
+                            cores: node.os.cpus().length,
+                            endianness: node.os.endianness(),
+                            frequency: node.os.cpus()[0].speed,
+                            name: node.os.cpus()[0].model
+                        },
                         memory: {
                             free: node.os.freemem(),
                             total: node.os.totalmem()
                         }
                     },
                     os: {
+                        env: process.env,
+                        hostname: node.os.hostname(),
+                        name: node.os.version(),
+                        path: (process.platform === "win32")
+                            ? process.env.Path.split(";")
+                            : (process.env.PATH === undefined)
+                                ? []
+                                : process.env.PATH.split(":"),
+                        platform: node.os.platform(),
+                        release: node.os.release(),
+                        type: node.os.type(),
                         uptime: node.os.uptime()
                     },
                     process: {
-                        // microseconds
+                        arch: process.arch,
+                        argv: process.argv,
                         cpuSystem: process.cpuUsage().system / 1e6,
                         cpuUser: process.cpuUsage().user / 1e6,
+                        cwd: process.cwd(),
                         memory: {
                             external: mem.external,
                             rss: process.memoryUsage.rss(),
                             V8: mem.heapUsed
                         },
-                        uptime: process.uptime()
+                        pid: process.pid,
+                        platform: process.platform,
+                        ppid: process.ppid,
+                        uptime: process.uptime(),
+                        versions: process.versions
                     },
                     proc: {
                         data: [],
@@ -862,31 +891,34 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     user: {
                         data: [],
                         time: 0
+                    },
+                    user_account: {
+                        gid: (gid === 0)
+                            ? 1000
+                            : gid,
+                        homedir: node.os.homedir(),
+                        uid: (gid === 0)
+                            ? 1000
+                            : uid
                     }
                 };
             vars.os.time = time;
-            vars.os.machine.cpu.cores = output.machine.cores;
-            vars.os.machine.memory.free = output.machine.memory.free;
-            vars.os.machine.memory.total = output.machine.memory.total;
-            vars.os.os.uptime = output.os.uptime;
-            vars.os.process.cpuSystem = output.process.cpuSystem;
-            vars.os.process.cpuUser = output.process.cpuUser;
-            vars.os.process.uptime = output.process.uptime;
-            vars.os.process.memory.external = output.process.memory.external;
-            vars.os.process.memory.rss = output.process.memory.rss;
-            vars.os.process.memory.V8 = output.process.memory.V8;
+            vars.os.machine = output.machine;
+            vars.os.os = output.os;
+            vars.os.process = output.process;
+            vars.os.user_account = output.user_account;
             return output;
         },
         completed = function utilities_os_complete(type:type_os_key):void {
             const keys:string[] = Object.keys(complete),
                 now:number = Date.now();
             let index:number = keys.length;
-            if (type_os !== "all" && type_os !== "main") {
+            if (type_os !== "all" && type_os !== "main" && vars.os[type_os].time > 0) {
                 comparison(difference[type_os], vars.os[type_os].time, "parent");
             }
             complete[type] = true;
             if (type_os === "all" && index > 0) {
-                const output:services_os_all = main(now);
+                const output:server_os = main(now);
                 do {
                     index = index - 1;
                     if (complete[keys[index]] === false) {
@@ -933,7 +965,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     service: "dashboard-os-all"
                 });
             } else if (type_os === "main") {
-                const output:services_os_all = main(now);
+                const output:server_os = main(now);
                 callback({
                     data: output,
                     service: "dashboard-os-main"

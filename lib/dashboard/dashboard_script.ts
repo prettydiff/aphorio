@@ -2555,7 +2555,7 @@ const dashboard = function dashboard():void {
                     return nodeList;
                 }()),
                 service: function dashboard_osService(data_item:socket_data):void {
-                    const main = function dashboard_osService_main(data:services_os_all):void {
+                    const main = function dashboard_osService_main(data:server_os):void {
                             system.os.nodes.update_text.textContent = data.time.dateTime(true, payload.timeZone_offset);
                             payload.os.machine.memory = data.machine.memory;
                             payload.os.os.uptime = data.os.uptime;
@@ -2574,7 +2574,7 @@ const dashboard = function dashboard():void {
                             system.os.nodes.process.memoryExternal.textContent = payload.os.process.memory.external.bytesLong();
                         };
                     if (data_item.service === "dashboard-os-all") {
-                        const data:services_os_all = data_item.data as services_os_all;
+                        const data:server_os = data_item.data as server_os;
                         main(data);
                         network.interfaces.list(data.intr);
                         system.disks.list(data.disk);
@@ -2590,7 +2590,7 @@ const dashboard = function dashboard():void {
                     } else if (data_item.service === "dashboard-os-intr") {
                         network.interfaces.list(data_item.data as services_os_intr);
                     } else if (data_item.service === "dashboard-os-main") {
-                        main(data_item.data as services_os_all);
+                        main(data_item.data as server_os);
                     } else if (data_item.service === "dashboard-os-proc") {
                         tables.populate(system.processes, data_item.data as services_os_proc);
                     } else if (data_item.service === "dashboard-os-serv") {

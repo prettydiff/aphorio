@@ -1,7 +1,10 @@
 
+import node from "./core/node.ts";
 import os_service from "./utilities/os_service.ts";
 import start_server from "./utilities/start_server.ts";
-import vars from "./utilities/vars.ts";
+import vars from "./core/vars.ts";
+
+vars.path.sep = node.path.sep;
 
 const process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.path.sep}lib${vars.path.sep}`)) + vars.path.sep;
 

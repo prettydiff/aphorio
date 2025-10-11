@@ -1,4 +1,4 @@
-import vars from "../utilities/vars.ts";
+import vars from "../core/vars.ts";
 
 const test_listLocalBrowserSockets:test_list = [
     {

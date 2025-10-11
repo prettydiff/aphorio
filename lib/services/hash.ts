@@ -1,5 +1,5 @@
 
-import hash from "../utilities/hash.ts";
+import hash from "../core/hash.ts";
 import send from "../transmit/send.ts";
 
 const hashService = function services_hash(socket_data:socket_data, transmit:transmit_socket):void {

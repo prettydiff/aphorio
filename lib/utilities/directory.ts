@@ -1,7 +1,7 @@
 
-import hash from "./hash.ts";
-import node from "./node.ts";
-import vars from "./vars.ts";
+import hash from "../core/hash.ts";
+import node from "../core/node.ts";
+import vars from "../core/vars.ts";
 
 // similar to node's fs.readdir, but recursive
 const directory = function utilities_directory(args:config_directory):void {

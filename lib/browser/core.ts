@@ -1,7 +1,5 @@
 
-import commas from "../utilities/commas.ts";
-import dateTime from "../utilities/dateTime.ts";
-import time from "../utilities/time.ts";
+import universal from "../core/universal.ts";
 
 const core = function core(config:config_core):socket_object {
     const socketCall = function core_socketCall():WebSocket {
@@ -432,12 +430,12 @@ const core = function core(config:config_core):socket_object {
             Element.prototype.removeClass            = removeClass;
             Element.prototype.removeHighlight        = removeHighlight;
 
-            BigInt.prototype.time                    = time;
+            BigInt.prototype.time                    = universal.time;
             Number.prototype.bytes                   = bytes;
             Number.prototype.bytesLong               = bytesLong;
-            Number.prototype.commas                  = commas;
-            Number.prototype.dateTime                = dateTime;
-            Number.prototype.time                    = time;
+            Number.prototype.commas                  = universal.commas;
+            Number.prototype.dateTime                = universal.dateTime;
+            Number.prototype.time                    = universal.time;
             String.prototype.capitalize              = capitalize;
         };
     dom();

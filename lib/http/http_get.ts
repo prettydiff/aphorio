@@ -5,8 +5,8 @@ import core from "../browser/core.ts";
 import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import file_list from "../browser/file_list.ts";
-import node from "../utilities/node.ts";
-import vars from "../utilities/vars.ts";
+import node from "../core/node.ts";
+import vars from "../core/vars.ts";
 
 /* cspell: words msvideo, nofollow, onnection, prettydiff */
 

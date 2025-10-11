@@ -1,5 +1,5 @@
 
-import log from "../utilities/log.ts";
+import log from "../core/log.ts";
 import test_listLocalBrowserApplicationLogs from "./list_local_browser_applicationLogs.ts";
 import test_listLocalBrowserCompose from "./list_local_browser_compose.ts";
 import test_listLocalBrowserDevices from "./list_local_browser_devices.ts";
@@ -22,7 +22,7 @@ import test_listLocalBrowserWebSocket from "./list_local_browser_webSocket.ts";
 import test_listLocalCommands from "./list_local_commands.ts";
 import test_runner from "./runner.ts";
 import test_summary from "./summary.ts";
-import vars from "../utilities/vars.ts";
+import vars from "../core/vars.ts";
 
 const test_index = function test_index():void {
     let total_lists:number = 0;

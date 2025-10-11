@@ -1,8 +1,8 @@
 
 import file from "../utilities/file.ts";
-import log from "../utilities/log.ts";
-import spawn from "../utilities/spawn.ts";
-import vars from "../utilities/vars.ts";
+import log from "../core/log.ts";
+import spawn from "../core/spawn.ts";
+import vars from "../core/vars.ts";
 
 const compose = function services_compose(socket_data:socket_data):void {
     const data:services_action_compose = socket_data.data as services_action_compose;
@@ -52,107 +52,86 @@ const compose = function services_compose(socket_data:socket_data):void {
             vars.compose.containers[data.compose.name] = data.compose;
             write(data.compose.compose, `${vars.path.compose + data.compose.name}.yml`, "containers");
         } else if (socket_data.service === "dashboard-compose-variables") {
-            const data:store_string = socket_data.data as store_string,
-                output:string = (function services_compose_variables():string {
-                    const keys:string[] = Object.keys(data),
-                        outputString:string[] = [],
-                        len:number = keys.length;
-                    let index:number = 0;
-                    if (len > 0) {
-                        do {
-                            outputString.push(`${keys[index]}='${vars.compose.variables[keys[index]]}'`);
-                            index = index + 1;
-                        } while (index < len);
-                    }
-                    return outputString.join("\n");
-                }());
-            vars.compose.variables = data;
-
-            // check to see if container already exists and is running
-            spawn({
-                args: ["compose", "-f", vars.path.compose_empty, "ps", "--format=json"],
-                callback: function services_compose_complete_ps(stderr:string, stdout:string, error:node_childProcess_ExecException):void {
-                    if (stderr === "" && error === null) {
-                        const lns:string[] = stdout.replace(/\s+$/, "").split("\n"),
-                            keys:string[] = Object.keys(vars.compose.containers);
-                        let index:number = keys.length,
-                            compose:services_docker_compose = null;
-                        do {
-                            index = index - 1;
-                            compose = JSON.parse(lns[index]);
-                            if (compose.name === data.name) {
-                                if (compose.state === "running") {
-                                    compose.compose = vars.compose.containers[data.name].compose;
-                                    compose.description = vars.compose.containers[data.name].description;
-                                    vars.compose.containers[data.name] = compose;
-                                    log.application({
-                                        action: "activate",
-                                        config: compose,
-                                        message: `Docker container ${data.name} is online.`,
-                                        status: "informational",
-                                        time: Date.now(),
-                                        type: "compose-containers"
-                                    });
-                                }
-                                break;
+            const close = function services_compose_complete_ps():void {
+                    const lns:string[] = spawn_item.chunks.join("").replace(/\s+$/, "").split("\n"),
+                        keys:string[] = Object.keys(vars.compose.containers);
+                    let index:number = keys.length,
+                        compose:services_docker_compose = null;
+                    do {
+                        index = index - 1;
+                        compose = JSON.parse(lns[index]);
+                        if (compose.name === data.name) {
+                            if (compose.state === "running") {
+                                compose.compose = vars.compose.containers[data.name].compose;
+                                compose.description = vars.compose.containers[data.name].description;
+                                vars.compose.containers[data.name] = compose;
+                                log.application({
+                                    action: "activate",
+                                    config: compose,
+                                    message: `Docker container ${data.name} is online.`,
+                                    status: "informational",
+                                    time: Date.now(),
+                                    type: "compose-containers"
+                                });
                             }
-                        } while (index > 0);
-                    }
-                    write(output, `${vars.path.compose}.env`, "variables");
+                            break;
+                        }
+                    } while (index > 0);
+                    write((function services_compose_variables():string {
+                        const keys:string[] = Object.keys(data),
+                            outputString:string[] = [],
+                            len:number = keys.length;
+                        let index:number = 0;
+                        if (len > 0) {
+                            do {
+                                outputString.push(`${keys[index]}='${vars.compose.variables[keys[index]]}'`);
+                                index = index + 1;
+                            } while (index < len);
+                        }
+                        return outputString.join("\n");
+                    }()), `${vars.path.compose}.env`, "variables");
                 },
-                command: "docker",
-                recurse: 0
-            });
+                data:store_string = socket_data.data as store_string,
+                spawn_item:core_spawn = spawn(close, `docker compose -f ${vars.path.compose_empty} ps --format=json`);
+            vars.compose.variables = data;
+            spawn_item.child();
         }
     } else if (data.action === "destroy") {
-        spawn({
-            args: ["kill", data.compose.name],
-            callback: function services_compose_kill():void {
-                spawn({
-                    args: ["rm", data.compose.name],
-                    callback: function services_compose_kill_container():void {
-                        const lines:string[] = vars.compose.containers[data.compose.name].compose.split("\n"),
-                            write = function services_compose_kill_container_write():void {
-                                delete vars.compose.containers[data.compose.name];
-                                file.write({
-                                    callback: function services_compose_stat_writeContents_compose():void {
-                                        log.application({
-                                            action: "destroy",
-                                            config: data.compose,
-                                            message: `Destroyed container ${data.compose.name}`,
-                                            status: "success",
-                                            time: Date.now(),
-                                            type: "compose-containers"
-                                        });
-                                    },
-                                    contents: JSON.stringify(vars.compose),
-                                    location: `${vars.path.project}compose.json`
+        const close = function services_compose_kill():void {
+            const close_child = function services_compose_kill_container():void {
+                const lines:string[] = vars.compose.containers[data.compose.name].compose.split("\n"),
+                    write = function services_compose_kill_container_write():void {
+                        delete vars.compose.containers[data.compose.name];
+                        file.write({
+                            callback: function services_compose_stat_writeContents_compose():void {
+                                log.application({
+                                    action: "destroy",
+                                    config: data.compose,
+                                    message: `Destroyed container ${data.compose.name}`,
+                                    status: "success",
+                                    time: Date.now(),
+                                    type: "compose-containers"
                                 });
-                            };
-                        let index:number = lines.length;
-                        if (index > 0) {
-                            do {
-                                index = index - 1;
-                                if ((/\s+image:/).test(lines[index]) === true) {
-                                    spawn({
-                                        args: ["image", "rm", lines[index].replace(/\s*image:\s*/, "")],
-                                        callback: write,
-                                        command: "docker",
-                                        recurse: 0
-                                    });
-                                    return;
-                                }
-                            } while (index > 0);
+                            },
+                            contents: JSON.stringify(vars.compose),
+                            location: `${vars.path.project}compose.json`
+                        });
+                    };
+                let index:number = lines.length;
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        if ((/\s+image:/).test(lines[index]) === true) {
+                            spawn(write, `docker image rm ${lines[index].replace(/\s*image:\s*/, "")}`);
+                            return;
                         }
-                        write();
-                    },
-                    command: "docker",
-                    recurse: 0
-                });
-            },
-            command: "docker",
-            recurse: 0
-        });
+                    } while (index > 0);
+                }
+                write();
+            };
+            spawn(close_child, `docker rm ${data.compose.name}`).child();
+        };
+        spawn(close, `docker kill ${data.compose.name}`).child();
     }
 };
 

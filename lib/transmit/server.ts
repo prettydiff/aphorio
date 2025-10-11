@@ -1,17 +1,17 @@
 
 import file from "../utilities/file.ts";
-import get_address from "../utilities/getAddress.ts";
-import hash from "../utilities/hash.ts";
+import get_address from "../core/getAddress.ts";
+import hash from "../core/hash.ts";
 import http from "../http/index.ts";
-import log from "../utilities/log.ts";
+import log from "../core/log.ts";
 import message_handler from "./messageHandler.ts";
-import node from "../utilities/node.ts";
-import read_certs from "../utilities/read_certs.ts";
+import node from "../core/node.ts";
+import read_certs from "../core/read_certs.ts";
 import redirection from "./redirection.ts";
 import server_halt from "../services/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
 import terminal from "../services/terminal.ts";
-import vars from "../utilities/vars.ts";
+import vars from "../core/vars.ts";
 import websocket_test from "../services/websocket.ts";
 
 // cspell: words untrapped
