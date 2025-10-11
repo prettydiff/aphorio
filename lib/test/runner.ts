@@ -2,6 +2,7 @@
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import send from "../transmit/send.ts";
+import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
 const test_runner:test_runner = {
@@ -157,30 +158,15 @@ const test_runner:test_runner = {
     execution: {
         command: function test_runner_executeCommand():void {
             const item:test_item_command = vars.test.list[vars.test.index] as test_item_command,
-                opts:node_childProcess_SpawnOptions = (typeof item.shell === "string" && item.shell !== "")
-                    ? {
-                        shell: item.shell,
-                        windowsHide: true
-                    }
-                    : {windowsHide: true},
-                spawn:node_childProcess_ChildProcess = node.child_process.spawn(item.command, [], opts),
-                stderr:string[] = [],
-                stdout:string[] = [],
-                stderr_callback = function test_runner_execCommand_stderr(buf:Buffer):void {
-                    stderr.push(buf.toString());
-                },
-                stdout_callback = function test_runner_execCommand_stdout(buf:Buffer):void {
-                    stdout.push(buf.toString());
-                },
-                spawn_close = function test_runner_execCommand_close():void {
+                spawn_close = function test_runner_execCommand_close(output:core_spawn_output):void {
                     const len_unit:number = (item.unit === null || item.unit === undefined)
                             ? 0
                             : item.unit.length,
                         get_value = function test_runner_execCommand_getValue():test_assert {
                             const len_prop:number = unit.properties.length,
                                 start:string = (unit.type === "stderr")
-                                    ? str_stderr
-                                    : str_stdout,
+                                    ? output.stderr
+                                    : output.stdout,
                                 json_start:string = start.trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""),
                                 props:string[] = [unit.type],
                                 formats:test_command_format = {
@@ -294,8 +280,6 @@ const test_runner:test_runner = {
                             }
                             return test_runner.assert[unit.qualifier](format as string, unit, props.join(""));
                         },
-                        str_stderr:string = stderr.join(""),
-                        str_stdout:string = stdout.join(""),
                         assertion_list:test_assert[] = [];
                     let index_units:number = 0,
                         unit:test_assertion_command = null;
@@ -309,23 +293,21 @@ const test_runner:test_runner = {
                         } while (index_units < len_unit);
                         test_runner.logger(assertion_list);
                     }
-                    spawn.kill();
                     test_runner.tools.next();
                 },
-                spawn_error = function test_runner_execCommand_error(err:node_error):void {
+                spawn_error = function test_runner_execCommand_error(err:node_childProcess_ExecException):void {
                     log.shell([
                         `[${test_runner.tools.time()}] ${test_runner.count} ${vars.text.angry}Fail${vars.text.none} ${item.name}`,
                         `    ${vars.text.angry}*${vars.text.none} Test failed with error: ${err.code}, ${err.message}`
                     ]);
                     vars.test.total_tests_fail = vars.test.total_tests_fail + 1;
                     vars.test.counts[vars.test.list.name].tests_failed = vars.test.counts[vars.test.list.name].tests_failed + 1;
-                    spawn.kill();
                     test_runner.tools.next();
-                };
-            spawn.stderr.on("data", stderr_callback);
-            spawn.stdout.on("data", stdout_callback);
-            spawn.on("close", spawn_close);
-            spawn.on("error", spawn_error);
+                },
+                spawn_item:core_spawn = spawn(item.command, spawn_close, {
+                    error: spawn_error
+                });
+            spawn_item.child();
         },
         dom: function test_runner_executeDOM():void {
             if (vars.test.browser_start === false) {
@@ -459,9 +441,8 @@ const test_runner:test_runner = {
                         test_runner.execution.dom();
                     }
                 };
-            vars.test.browser_child = node.child_process.exec(browserCommand());
             vars.test.browser_start = true;
-            call_dom();
+            vars.test.browser_child = spawn(browserCommand(), call_dom);
         },
         callback: null,
         next: function test_runner_toolsNext():void {

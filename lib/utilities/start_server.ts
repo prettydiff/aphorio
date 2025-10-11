@@ -9,6 +9,7 @@ import node from "../core/node.ts";
 import os_lists from "./os_lists.ts";
 import server from "../transmit/server.ts";
 import server_create from "../services/server_create.ts";
+import spawn from "../core/spawn.ts";
 import test_browser from "../dashboard/test_browser.ts";
 import test_index from "../test/index.ts";
 import universal from "../core/universal.ts";
@@ -59,22 +60,16 @@ const start_server = function utilities_startServer(process_path:string, testing
             git: function utilities_startServer_tasksGit():void {
                 const gitStat = function utilities_startServer_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
                     if (error === null && stat !== null) {
-                        const stdout:Buffer[] = [],
-                            spawn:node_childProcess_ChildProcess = node.child_process.spawn("git show -s --format=%H,%ct HEAD", [], {
-                                cwd: process_path.slice(0, process_path.length - 1),
-                                shell: true,
-                                windowsHide: true
-                            });
-                        spawn.stdout.on("data", function utilities_startServer_tasksGit_gitStat_stdout(buf:Buffer):void {
-                            stdout.push(buf);
-                        });
-                        spawn.on("close", function utilities_startServer_tasksGit_gitStat_close():void {
-                            const str:string[] = stdout.join("").toString().split(",");
+                        const spawn_item:core_spawn = spawn("git show -s --format=%H,%ct HEAD", function utilities_startServer_tasksGit_gitStat_close(output:core_spawn_output):void {
+                            const str:string[] = output.stdout.split(",");
                             vars.environment.date_commit = Number(str[1]) * 1000;
                             vars.environment.hash = str[0];
-                            spawn.kill();
+                            spawn_item.spawn.kill();
                             readComplete("git");
+                        }, {
+                            cwd: process_path.slice(0, process_path.length - 1)
                         });
+                        spawn_item.child();
                     } else {
                         readComplete("git");
                     }

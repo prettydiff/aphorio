@@ -12,15 +12,25 @@ interface core_spawn {
     command: string;
     data_stderr: (buf:Buffer) => void;
     data_stdout: (buf:Buffer) => void;
-    error: (err:node_error) => void;
+    error: (err:node_childProcess_ExecException) => void;
     spawn: node_childProcess_ChildProcess;
     stderr: string[];
     stdout: string[];
+    type: string;
+}
+
+interface core_spawn_options {
+    cwd?: string;
+    env?: store_string;
+    error?: (err:node_childProcess_ExecException) => void;
+    shell?: string;
+    type?: string;
 }
 
 interface core_spawn_output {
     stderr: string;
     stdout: string;
+    type: string;
 }
 
 interface core_universal {
@@ -55,7 +65,7 @@ interface core_vars {
     terminal: string[];
     test: {
         browser_args: string[];
-        browser_child: node_childProcess_ChildProcess;
+        browser_child: core_spawn;
         browser_start: boolean;
         counts: {
             [key:string]: test_counts;
@@ -275,7 +285,7 @@ interface store_children {
 }
 
 interface store_children_os {
-    [key:string]: os_child;
+    [key:string]: core_spawn;
 }
 
 interface store_compose {

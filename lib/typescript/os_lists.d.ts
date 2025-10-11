@@ -1,10 +1,5 @@
 // cspell: words bootable, fsavail, fsroots, fssize, fstype, fsused, mountpoint, partflags, parttypename, serv, volu
 
-interface os_child extends node_childProcess_ChildProcess {
-    stdout: os_child_out;
-    type: type_os_key;
-}
-
 interface os_child_out extends node_stream_Readable {
     type: type_os_key;
 }

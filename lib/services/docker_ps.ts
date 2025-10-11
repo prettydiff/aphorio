@@ -91,8 +91,8 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 secondary.child();
             }, vars.intervals.compose);
         },
-        primary:core_spawn = spawn(spawn_close_primary, `${vars.commands.compose} -f ${vars.path.compose_empty} ps --format=json`),
-        secondary:core_spawn = spawn(spawn_close_secondary, `${vars.commands.compose} -f ${vars.path.compose_empty} events --json`);
+        primary:core_spawn = spawn(`${vars.commands.compose} -f ${vars.path.compose_empty} ps --format=json`, spawn_close_primary),
+        secondary:core_spawn = spawn(`${vars.commands.compose} -f ${vars.path.compose_empty} events --json`, spawn_close_secondary);
     if (process.platform !== "win32") {
         args.splice(0, 0, "compose");
     }

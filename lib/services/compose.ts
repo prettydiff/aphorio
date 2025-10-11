@@ -92,7 +92,7 @@ const compose = function services_compose(socket_data:socket_data):void {
                     }()), `${vars.path.compose}.env`, "variables");
                 },
                 data:store_string = socket_data.data as store_string;
-            spawn(close, `docker compose -f ${vars.path.compose_empty} ps --format=json`).child();
+            spawn(`docker compose -f ${vars.path.compose_empty} ps --format=json`, close).child();
             vars.compose.variables = data;
         }
     } else if (data.action === "destroy") {
@@ -121,16 +121,16 @@ const compose = function services_compose(socket_data:socket_data):void {
                     do {
                         index = index - 1;
                         if ((/\s+image:/).test(lines[index]) === true) {
-                            spawn(write, `docker image rm ${lines[index].replace(/\s*image:\s*/, "")}`);
+                            spawn(`docker image rm ${lines[index].replace(/\s*image:\s*/, "")}`, write);
                             return;
                         }
                     } while (index > 0);
                 }
                 write();
             };
-            spawn(close_child, `docker rm ${data.compose.name}`).child();
+            spawn(`docker rm ${data.compose.name}`, close_child).child();
         };
-        spawn(close, `docker kill ${data.compose.name}`).child();
+        spawn(`docker kill ${data.compose.name}`, close).child();
     }
 };
 

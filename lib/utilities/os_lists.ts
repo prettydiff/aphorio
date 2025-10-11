@@ -1,6 +1,7 @@
 
 import log from "../core/log.ts";
 import node from "../core/node.ts";
+import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
 // cspell: words blockdevices, bootable, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, volu
@@ -19,17 +20,6 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
         sockets: os_sock[] = [],
         users: os_user[] = [],
         int:NodeJS.Dict<node_os_NetworkInterfaceInfo[]> = node.os.networkInterfaces(),
-        chunks:store_string_list = {
-            devs: [],
-            disk: [],
-            part: [],
-            proc: [],
-            serv: [],
-            socT: [],
-            socU: [],
-            user: [],
-            volu: []
-        },
         flags:store_flag = {
             devs: false,
             disk: false,
@@ -41,7 +31,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             user: false,
             volu: (win32 === false)
         },
-        spawn:store_children_os = {
+        spawn_item:store_children_os = {
             devs: null,
             disk: null,
             part: null,
@@ -1042,12 +1032,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             }
         },
         spawning = function utilities_os_spawning(type:type_os_key):void {
-            const data_callback = function utilities_os_spawning_dataCallback(buf:Buffer):void {
-                    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                    const child:os_child = this;
-                    chunks[child.type].push(buf.toString());
-                },
-                spawn_complete = function utilities_os_spawnComplete(type:type_os_key, action:(type?:type_os_key) => void):void {
+            const spawn_complete = function utilities_os_spawnComplete(type:type_os_key, action:(type?:type_os_key) => void):void {
                     flags[type] = true;
                     if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
                         if (action === completed) {
@@ -1058,74 +1043,56 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     } else if (type !== "disk" && type !== "part" && type !== "volu") {
                         action(type);
                     }
-                },
-                close = function utilities_os_spawning_close():void {
-                    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                    const child:os_child = this,
-                        type:type_os_key = child.type,
-                        temp:string = chunks[type].join("").trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""),
-                        parseTry = function utilities_os_spawning_close_parseTry():boolean {
-                            if (win32 === false) {
-                                if ((type === "proc" || type === "socT" || type === "user")) {
-                                    raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
-                                    return true;
-                                }
-                                if (type === "devs") {
-                                    raw.devs = temp.split("\n\n");
-                                    return true;
-                                }
-                            }
-                            // eslint-disable-next-line no-restricted-syntax
-                            try {
-                                raw[type] = (win32 === false && type === "disk")
-                                    ? JSON.parse(temp).blockdevices
-                                    : JSON.parse(temp);
-                            } catch (e:unknown) {
-                                log.application({
-                                    action: "activate",
-                                    config: e as node_error,
-                                    message: `Error parsing operating system data of type ${type}.`,
-                                    status: "error",
-                                    time: Date.now(),
-                                    type: "os"
-                                });
-                                spawn_complete(type, completed);
-                                return false;
-                            }
-                            return true;
-                        };
-                    spawn[type].kill();
-
-                    // parse the data
-                    if (parseTry() === false) {
-                        return;
-                    }
-                    flags[type] = true;
-                    spawn_complete(type, builder[type]);
-                },
-                spawn_error = function utilities_os_spawning_spawnError(err:node_error):void {
-                    spawn[type].off("close", close);
-                    spawn[type].kill();
-                    chunks[type] = null;
-                    log.application({
-                        action: "activate",
-                        config: err,
-                        message: `Error reading operating system data of type ${type}.`,
-                        status: "error",
-                        time: Date.now(),
-                        type: "os"
-                    });
-                    spawn_complete(type, completed);
                 };
-            spawn[type] = node.child_process.spawn(vars.commands[type], [], {
+            spawn_item[type] = spawn(vars.commands[type], function utilities_os_spawning_close(output:core_spawn_output):void {
+                // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
+                const type:type_os_key = output.type as type_os_key,
+                    temp:string = output.stdout.trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""),
+                    parseTry = function utilities_os_spawning_close_parseTry():boolean {
+                        if (win32 === false) {
+                            if ((type === "proc" || type === "socT" || type === "user")) {
+                                raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
+                                return true;
+                            }
+                            if (type === "devs") {
+                                raw.devs = temp.split("\n\n");
+                                return true;
+                            }
+                        }
+                        // eslint-disable-next-line no-restricted-syntax
+                        try {
+                            raw[type] = (win32 === false && type === "disk")
+                                ? JSON.parse(temp).blockdevices
+                                : JSON.parse(temp);
+                        } catch (e:unknown) {
+                            log.application({
+                                action: "activate",
+                                config: e as node_error,
+                                message: `Error parsing operating system data of type ${type}.`,
+                                status: "error",
+                                time: Date.now(),
+                                type: "os"
+                            });
+                            spawn_complete(type, completed);
+                            return false;
+                        }
+                        return true;
+                    };
+
+                // parse the data
+                if (parseTry() === false) {
+                    return;
+                }
+                flags[type] = true;
+                spawn_complete(type, builder[type]);
+            }, {
+                error: function utilities_os_spawning_spawnError(err:node_childProcess_ExecException):void {
+                    spawn_complete(type, completed);
+                },
                 shell: shell,
-                windowsHide: true
-            }) as os_child;
-            spawn[type].type = type;
-            spawn[type].stdout.type = type;
-            spawn[type].stdout.on("data", data_callback);
-            spawn[type].on("close", close);
-            spawn[type].on("error", spawn_error);
+                type: type
+            });
+            spawn_item[type].child();
         };
     if (type_os === "all" || type_os === undefined || type_os === null) {
         type_os = "all";

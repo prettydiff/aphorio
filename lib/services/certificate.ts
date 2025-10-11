@@ -1,7 +1,7 @@
 
 import file from "../utilities/file.ts";
-import log from "../core/log.ts";
 import node from "../core/node.ts";
+import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
 // cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey, keyid, pathlen
@@ -15,27 +15,16 @@ const certificate = function services_certificate(config:config_certificate):voi
                     ? "localhost"
                     : vars.servers[config.name].config.domain_local[0],
                 crypto = function services_certificate_cert_crypto():void {
-                    node.child_process.exec(commands[index], {
-                        cwd: cert_path
-                    }, function services_certificate_cert_crypto_child(erChild:node_childProcess_ExecException):void {
-                        if (erChild === null) {
-                            index = index + 1;
-                            if (index < commands.length) {
-                                services_certificate_cert_crypto();
-                            } else {
-                                config.callback();
-                            }
+                    spawn(commands[index], function services_certificate_cert_crypto_child():void {
+                        index = index + 1;
+                        if (index < commands.length) {
+                            services_certificate_cert_crypto();
                         } else {
-                            log.application({
-                                action: "add",
-                                config: vars.servers[config.name],
-                                message: `Error executing command: ${commands[index]}`,
-                                status: "error",
-                                time: Date.now(),
-                                type: "server"
-                            });
+                            config.callback();
                         }
-                    });
+                    }, {
+                        cwd: cert_path
+                    }).child();
                 },
                 cert_extensions:string = (function services_certificate_cert_extensions():string {
                     const server:services_server = (vars.servers[config.name] === undefined)
