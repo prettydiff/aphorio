@@ -8,12 +8,19 @@ interface configuration_compose {
 
 interface core_spawn {
     child: () => void;
-    chunks: string[];
     close: () => void;
     command: string;
-    data: (buf:Buffer) => void;
+    data_stderr: (buf:Buffer) => void;
+    data_stdout: (buf:Buffer) => void;
     error: (err:node_error) => void;
     spawn: node_childProcess_ChildProcess;
+    stderr: string[];
+    stdout: string[];
+}
+
+interface core_spawn_output {
+    stderr: string;
+    stdout: string;
 }
 
 interface core_universal {

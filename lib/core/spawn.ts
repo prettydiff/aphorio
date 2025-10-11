@@ -2,7 +2,7 @@
 import log from "./log.ts";
 import node from "./node.ts";
 
-const spawn = function core_spawn(callback:() => void, command:string):core_spawn {
+const spawn = function core_spawn(callback:(output:core_spawn_output) => void, command:string):core_spawn {
     const item:core_spawn = {
         child: function core_spawn_child():void {
             const spawn:node_childProcess_ChildProcess = node.child_process.spawn(command, [], {
@@ -10,15 +10,23 @@ const spawn = function core_spawn(callback:() => void, command:string):core_spaw
                 windowsHide: true
             });
             spawn.on("close", item.close);
-            spawn.on("data", item.data);
+            spawn.stderr.on("data", item.data_stderr);
+            spawn.stdout.on("data", item.data_stdout);
             spawn.on("error", item.error);
             item.spawn = spawn;
         },
-        chunks: [],
-        close: callback,
+        close: function core_spawn_close():void {
+            callback({
+                stderr: item.stderr.join(""),
+                stdout: item.stdout.join("")
+            });
+        },
         command: command,
-        data: function core_spawn_data(buf:Buffer):void {
-            item.chunks.push(buf.toString());
+        data_stderr: function core_spawn_stderr(buf:Buffer):void {
+            item.stderr.push(buf.toString());
+        },
+        data_stdout: function core_spawn_stdout(buf:Buffer):void {
+            item.stdout.push(buf.toString());
         },
         error: function core_spawn_error(err:node_error):void {
             item.spawn.off("close", close);
@@ -32,7 +40,9 @@ const spawn = function core_spawn(callback:() => void, command:string):core_spaw
                 type: "os"
             });
         },
-        spawn: null
+        spawn: null,
+        stderr: [],
+        stdout: []
     };
     return item;
 };

@@ -6,7 +6,7 @@ const vars:core_vars = {
         commands: (function utilities_vars_commands():os_vars {
             const os_vars:os_var_list = {
                 "linux": {
-                    compose: "docker",
+                    compose: "docker compose",
                     devs: "lspci -v -k",
                     disk: "lsblk -Ob --json",
                     open: "xdg-open",

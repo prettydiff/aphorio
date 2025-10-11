@@ -17,9 +17,8 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 type: "compose-containers"
             });
         },
-        spawn_primary_close = function services_dockerPS_spawnPrimaryClose():void {
-            const stdout:string = primary.chunks.join(""),
-                lns:string[] = stdout.replace(/\s+$/, "").split("\n"),
+        spawn_close_primary = function services_dockerPS_spawnClosePrimary(output:core_spawn_output):void {
+            const lns:string[] = output.stdout.replace(/\s+$/, "").split("\n"),
                 len:number = lns.length,
                 keys:string[] = Object.keys(vars.compose.containers);
             let index:number = keys.length,
@@ -77,8 +76,8 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
             secondary.child();
             callback();
         },
-        spawn_close_secondary = function services_dockerPS_spawnCloseSecondary():void {
-            const event:services_docker_event = JSON.parse(secondary.chunks.join(""));
+        spawn_close_secondary = function services_dockerPS_spawnCloseSecondary(output:core_spawn_output):void {
+            const event:services_docker_event = JSON.parse(output.stdout);
             if (vars.compose.containers[event.service] !== undefined) {
                 if (vars.compose.containers[event.service].state === "running" && (event.action === "destroy" || event.action === "die" || event.action === "kill" || event.action === "stop")) {
                     vars.compose.containers[event.service].state = "dead";
@@ -92,7 +91,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 secondary.child();
             }, vars.intervals.compose);
         },
-        primary:core_spawn = spawn(spawn_primary_close, `${vars.commands.compose} -f ${vars.path.compose_empty} ps --format=json`),
+        primary:core_spawn = spawn(spawn_close_primary, `${vars.commands.compose} -f ${vars.path.compose_empty} ps --format=json`),
         secondary:core_spawn = spawn(spawn_close_secondary, `${vars.commands.compose} -f ${vars.path.compose_empty} events --json`);
     if (process.platform !== "win32") {
         args.splice(0, 0, "compose");

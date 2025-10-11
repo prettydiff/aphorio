@@ -52,8 +52,8 @@ const compose = function services_compose(socket_data:socket_data):void {
             vars.compose.containers[data.compose.name] = data.compose;
             write(data.compose.compose, `${vars.path.compose + data.compose.name}.yml`, "containers");
         } else if (socket_data.service === "dashboard-compose-variables") {
-            const close = function services_compose_complete_ps():void {
-                    const lns:string[] = spawn_item.chunks.join("").replace(/\s+$/, "").split("\n"),
+            const close = function services_compose_complete_ps(output:core_spawn_output):void {
+                    const lns:string[] = output.stdout.replace(/\s+$/, "").split("\n"),
                         keys:string[] = Object.keys(vars.compose.containers);
                     let index:number = keys.length,
                         compose:services_docker_compose = null;
@@ -91,10 +91,9 @@ const compose = function services_compose(socket_data:socket_data):void {
                         return outputString.join("\n");
                     }()), `${vars.path.compose}.env`, "variables");
                 },
-                data:store_string = socket_data.data as store_string,
-                spawn_item:core_spawn = spawn(close, `docker compose -f ${vars.path.compose_empty} ps --format=json`);
+                data:store_string = socket_data.data as store_string;
+            spawn(close, `docker compose -f ${vars.path.compose_empty} ps --format=json`).child();
             vars.compose.variables = data;
-            spawn_item.child();
         }
     } else if (data.action === "destroy") {
         const close = function services_compose_kill():void {
