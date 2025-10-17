@@ -652,6 +652,7 @@ const dashboard = function dashboard():void {
                         tools.websocket.init();
                         tools.dns.init();
                         tools.hash.init();
+                        document.getElementsByTagName("main")[0].style.display = "block";
                     }
                 },
                 type: "dashboard"

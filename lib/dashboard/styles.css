@@ -282,7 +282,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         h6{font-size:1em}
     }
     main{
-        clear:both;margin:0 0 0 17.75em;padding:0 2em 2em;
+        clear:both;display:none;margin:0 0 0 17.75em;padding:0 2em 2em;
         #faq li{list-style:disc}
         li{list-style:none}
     }
