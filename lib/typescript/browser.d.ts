@@ -314,9 +314,13 @@ declare global {
     interface module_utility {
         baseline: () => void;
         clock: (data_item:socket_data) => void;
-        clock_node: HTMLElement;
         log: (item:services_dashboard_status) => void;
         message_send: (data:type_socket_data, service:type_service) => void;
+        nodes: {
+            clock: HTMLElement;
+            load: HTMLElement;
+            main: HTMLElement;
+        };
         resize: () => void;
         setState: () => void;
         socket: socket_object;

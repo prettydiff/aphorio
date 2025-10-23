@@ -40,6 +40,17 @@
     75% {clip-path: inset(0 0 0 calc(100% - 1px)); }
 }
 
+@media screen and (width < 715px) {
+    #dashboard .title p{display:block;margin:0 0 0 1.7em}
+    #dashboard #clock{float:none;margin:0 0 1.7em 1.7em}
+    #dashboard #clock span,
+    #dashboard .title span{display:inline-block;width:8.5em}
+}
+@media screen and (width > 714px) {
+    #dashboard .title p{display:inline-block}
+    #dashboard #clock{float:right;margin:-2.75em 1.7em 0 0;}
+}
+
 .highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}
 .highlight::after,
 .highlight::before{animation:highlight 2s linear infinite;bottom:0;box-shadow:inset 0 0 0 0.2em var(--fail_dark);content:"";left:0;margin:-5%;position:absolute;right:0;top:0;z-index:1}
@@ -166,9 +177,9 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         time{color:var(--text_cyan);display:inline-block;margin:0 1em 0 0}
         ul{height:83.9em;overflow:scroll}
     }
-    #clock{
-        float:right;margin:-2.75em 1.7em 0 0;
-        time{color:var(--text_yellow);font-style:normal;font-weight:bold}
+    #clock,
+    .title{
+        time{color:var(--text_yellow);display:inline-block;font-style:normal;font-weight:bold;margin:0 0 0 0.5em}
     }
     #compose{
         textarea.compose-variables-edit{height:10em}
@@ -241,6 +252,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .summary-stats .file-system-summary-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}
     .tab{display:none}
     .tab-description{border-color:var(--border_soft);border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 0.5em}
+    .title{display:block}
     /* end class selectors */
 
     /* tag selectors */
@@ -272,7 +284,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     }
     div.edit{padding:0 0.694em}
     div > .edit{border-color:var(--border_input);border-style:solid;border-width:0.1em;padding:1em}
-    h1{margin:0 0.67em 0.5em}
+    h1{display:inline-block;margin:0 0.67em 0.5em}
     h2{margin:0 0 0.5em}
     h3 .expand{display:block;float:right;font-size:0.6em}
     h4 .expand{display:block;float:right;font-size:0.675em}

@@ -436,7 +436,9 @@ const dashboard = function dashboard():void {
                     tools.websocket.nodes.status.setAttribute("class", "connection-offline");
                     tools.websocket.nodes.message_receive_body.value = "";
                     tools.websocket.nodes.message_receive_frame.value = "";
-                    utility.clock_node.textContent = "00:00:00L (00:00:00Z)";
+                    utility.nodes.clock.textContent = "00:00:00L (00:00:00Z)";
+                    utility.nodes.load.textContent = "0.00000 seconds";
+                    utility.nodes.main.style.display = "none";
                     utility.socket.socket = null;
                 }
             },
@@ -459,10 +461,9 @@ const dashboard = function dashboard():void {
                                 : second;
                         return `${hours}:${minutes}:${seconds}`;
                     };
-                utility.clock_node.setAttribute("data-local", String(data.time_local));
-                utility.clock_node.textContent = `${str(data.time_local)}L (${str(data.time_zulu)}Z)`;
+                utility.nodes.clock.setAttribute("data-local", String(data.time_local));
+                utility.nodes.clock.textContent = `${str(data.time_local)}L (${str(data.time_zulu)}Z)`;
             },
-            clock_node: document.getElementById("clock").getElementsByTagName("time")[0],
             // populate the log utility
             log: function dashboard_utilityLog(item:services_dashboard_status):void {
                 const li:HTMLElement = document.createElement("li"),
@@ -494,6 +495,11 @@ const dashboard = function dashboard():void {
                         service: service
                     };
                 utility.socket.queue(JSON.stringify(message));
+            },
+            nodes: {
+                clock: document.getElementById("clock").getElementsByTagName("time")[0],
+                load: document.getElementsByClassName("title")[0].getElementsByTagName("time")[0],
+                main: document.getElementsByTagName("main")[0]
             },
             // a universal bucket to store all resize event handlers
             resize: function dashboard_utilityResize():void {
@@ -652,7 +658,8 @@ const dashboard = function dashboard():void {
                         tools.websocket.init();
                         tools.dns.init();
                         tools.hash.init();
-                        document.getElementsByTagName("main")[0].style.display = "block";
+                        utility.nodes.main.style.display = "block";
+                        utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
                     }
                 },
                 type: "dashboard"
