@@ -34,7 +34,7 @@
         </div>
         <div>
             <h3>Network</h3>
-            <ul><li><button data-section="sockets">Sockets / Ports</button></li><li><button data-section="interfaces">Interfaces</button></li></ul>
+            <ul><li><button data-section="interfaces">Interfaces</button></li><li><button data-section="sockets-application">App Sockets</button></li><li><button data-section="sockets-os">OS Sockets</button></li></ul>
         </div>
         <div>
             <h3>System</h3>
@@ -842,73 +842,69 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
-        <div class="tab" id="sockets">
-            <h2>Sockets / Ports</h2>
-            <p class="tab-description">A list of connected sockets. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time.</p>
-            <div class="section">
-                <h3>Sockets Managed By This Application</h3>
-                <p>These sockets are created directly by this application.</p>
-                <div class="table-filters">
-                    <h4>List Controls</h4>
-                    <p><label>Column(s) To Filter <select></select></label></p>
-                    <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
-                    <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
-                </div>
-                <div class="section">
-                    <h4>Socket List</h4>
-                    <div class="table-stats">
-                        <p class="update-button"><button>Update List</button></p>
-                        <p><span>Total Sockets</span> <em></em></p>
-                        <p><span>Filtered Sockets</span> <em></em></p>
-                        <p><span>Last Updated</span> <time></time></p>
-                    </div>
-                    <table data-column="0">
-                        <thead><tr>
-                            <th><button data-dir="1">Server</button></th>
-                            <th><button data-dir="1">Socket ID</button></th>
-                            <th><button data-dir="1">Type Descriptor</button></th>
-                            <th><button data-dir="1">Role</button></th>
-                            <th><button data-dir="1">Proxy</button></th>
-                            <th><button data-dir="1">Encrypted</button></th>
-                            <th><button data-dir="1">Local Server IP</button></th>
-                            <th><button data-dir="1">Local Server Port</button></th>
-                            <th><button data-dir="1">Remote IP</button></th>
-                            <th><button data-dir="1">Remote Port</button></th>
-                        </tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+        <div class="tab" id="sockets-application">
+            <h2>App Sockets</h2>
+            <p class="tab-description">A list created by this application. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time.</p>
+            <div class="table-filters">
+                <h4>List Controls</h4>
+                <p><label>Column(s) To Filter <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
             </div>
             <div class="section">
-                <h3>All Sockets In the Operating System</h3>
-                <p>This list presents all sockets and their ports reported by the local operating system including the <em>Application Sockets</em> listed above.</p>
-                <div class="table-filters">
-                    <h4>List Controls</h4>
-                    <p><label>Column(s) To Filter <select></select></label></p>
-                    <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
-                    <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <h4>Socket List</h4>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Sockets</span> <em></em></p>
+                    <p><span>Filtered Sockets</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
                 </div>
-                <div class="section">
-                    <h4>Socket List</h4>
-                    <div class="table-stats">
-                        <p class="update-button"><button>Update List</button></p>
-                        <p><span>Total Sockets</span> <em></em></p>
-                        <p><span>Filtered Sockets</span> <em></em></p>
-                        <p><span>Last Updated</span> <time></time></p>
-                    </div>
-                    <table data-column="0">
-                        <thead><tr>
-                            <th><button data-dir="1">Type</button></th>
-                            <th><button data-dir="1">Local Address</button></th>
-                            <th><button data-dir="1">Local Port</button></th>
-                            <th><button data-dir="1">Remote Address</button></th>
-                            <th><button data-dir="1">Remote Port</button></th>
-                            <th><button data-dir="1">Process ID</button></th>
-                            <th><button data-dir="1">Process Name</button></th>
-                        </tr></thead>
-                        <tbody></tbody>
-                    </table>
+                <table data-column="0">
+                    <thead><tr>
+                        <th><button data-dir="1">Server</button></th>
+                        <th><button data-dir="1">Socket ID</button></th>
+                        <th><button data-dir="1">Type Descriptor</button></th>
+                        <th><button data-dir="1">Role</button></th>
+                        <th><button data-dir="1">Proxy</button></th>
+                        <th><button data-dir="1">Encrypted</button></th>
+                        <th><button data-dir="1">Local Server IP</button></th>
+                        <th><button data-dir="1">Local Server Port</button></th>
+                        <th><button data-dir="1">Remote IP</button></th>
+                        <th><button data-dir="1">Remote Port</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab" id="sockets-os">
+            <h2>OS Sockets</h2>
+            <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
+            <div class="table-filters">
+                <h4>List Controls</h4>
+                <p><label>Column(s) To Filter <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+            </div>
+            <div class="section">
+                <h4>Socket List</h4>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Sockets</span> <em></em></p>
+                    <p><span>Filtered Sockets</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
                 </div>
+                <table data-column="0">
+                    <thead><tr>
+                        <th><button data-dir="1">Type</button></th>
+                        <th><button data-dir="1">Local Address</button></th>
+                        <th><button data-dir="1">Local Port</button></th>
+                        <th><button data-dir="1">Remote Address</button></th>
+                        <th><button data-dir="1">Remote Port</button></th>
+                        <th><button data-dir="1">Process ID</button></th>
+                        <th><button data-dir="1">Process Name</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
         <div class="tab" id="terminal">

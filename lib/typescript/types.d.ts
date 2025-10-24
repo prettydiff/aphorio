@@ -7,7 +7,7 @@ type type_certKey = "ca" | "crt" | "key";
 type type_dashboard_action = type_halt_action | "activate" | "add";
 type type_dashboard_config = config_websocket_create | config_websocket_server | external_ports | node_childProcess_ExecException | node_error | server | services_dashboard_activate | services_docker_compose | services_socket | store_string;
 type type_dashboard_list = "container" | "server";
-type type_dashboard_sections = "compose" | "dns" | "faq" | "file-system" | "hash" | "help" | "http" | "interfaces" | "log" | "os" | "processes" | "servers" | "services" | "sockets" | "storage" | "terminal" | "websocket";
+type type_dashboard_sections = "compose" | "dns" | "faq" | "file-system" | "hash" | "help" | "http" | "interfaces" | "log" | "os" | "processes" | "servers" | "services" | "sockets-application" | "sockets-os" | "storage" | "terminal" | "websocket";
 type type_dashboard_status = "error" | "informational" | "success";
 type type_dashboard_type = "compose-containers" | "compose-variables" | "log" | "os" | "server" | "socket" | "terminal" | "websocket-test";
 // type_directory_type

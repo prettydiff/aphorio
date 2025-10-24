@@ -67,11 +67,11 @@ const dashboard = function dashboard():void {
                             ? system.processes
                             : (tab_name === "services")
                                 ? system.services
-                                : (tab_name === "sockets")
-                                    ? (section === tab.getElementsByClassName("table-filters")[0])
-                                        ? network.sockets_application
-                                        : network.sockets_os
-                                    : system.users,
+                                : (tab_name === "sockets-application")
+                                    ? network.sockets_application
+                                    : (tab_name === "sockets-os")
+                                        ? network.sockets_os
+                                        : system.users,
                     select:HTMLSelectElement = module.nodes.filter_column,
                     columnIndex:number = select.selectedIndex - 1,
                     list:HTMLCollectionOf<HTMLElement> = module.nodes.list.getElementsByTagName("tr"),
@@ -155,9 +155,9 @@ const dashboard = function dashboard():void {
                         filter_value: module.nodes.filter_value.value
                     };
                 } else {
-                    state.table_os[module.dataName].filter_column = module.nodes.filter_column.selectedIndex;
-                    state.table_os[module.dataName].filter_sensitive = module.nodes.caseSensitive.checked;
-                    state.table_os[module.dataName].filter_value = module.nodes.filter_value.value;
+                    module.nodes.filter_column.selectedIndex = state.table_os[module.dataName].filter_column;
+                    module.nodes.caseSensitive.checked = state.table_os[module.dataName].filter_sensitive;
+                    module.nodes.filter_value.value = state.table_os[module.dataName].filter_value;
                 }
                 module.nodes.filter_column.onchange = tables.filter;
                 module.nodes.caseSensitive.onclick = utility.setState;
@@ -668,7 +668,7 @@ const dashboard = function dashboard():void {
             status: function dashboard_utilityStatus(data_item:socket_data):void {
                 const data:services_dashboard_status = data_item.data as services_dashboard_status,
                     socket_destroy = function dashboard_utilityStatus_socketDestroy(hash:string):void {
-                        const tbody:HTMLElement = document.getElementById("sockets").getElementsByTagName("tbody")[0],
+                        const tbody:HTMLElement = document.getElementById("sockets-application").getElementsByTagName("tbody")[0],
                             tr:HTMLCollectionOf<HTMLElement> = tbody.getElementsByTagName("tr");
                         let index:number = tr.length;
                         if (index > 0) {
@@ -928,14 +928,14 @@ const dashboard = function dashboard():void {
             sockets_application: {
                 dataName: "sockets_application",
                 nodes: {
-                    caseSensitive: document.getElementById("sockets").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
-                    count: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-                    filter_column: document.getElementById("sockets").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
-                    filter_value: document.getElementById("sockets").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
-                    list: document.getElementById("sockets").getElementsByClassName("section")[1].getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("sockets").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
+                    caseSensitive: document.getElementById("sockets-application").getElementsByTagName("input")[1],
+                    count: document.getElementById("sockets-application").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("sockets-application").getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("sockets-application").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("sockets-application").getElementsByTagName("input")[0],
+                    list: document.getElementById("sockets-application").getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("sockets-application").getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets-application").getElementsByTagName("time")[0]
                 },
                 row: null,
                 socket_add: function dashboard_networkSocketAdd(config:services_socket):void {
@@ -989,6 +989,7 @@ const dashboard = function dashboard():void {
                     network.sockets_application.nodes.list.appendChild(tr);
                     network.sockets_application.nodes.count.textContent = network.sockets_application.nodes.list.getElementsByTagName("tr").length.commas();
                     network.sockets_application.nodes.update_text.textContent = config.time.dateTime(true, payload.timeZone_offset);
+                    tables.filter(null, network.sockets_application.nodes.filter_value);
                     tables.sort(null, table, Number(table.dataset.column));
                 },
                 sort_name: ["server", "type", "role", "name"]
@@ -996,14 +997,14 @@ const dashboard = function dashboard():void {
             sockets_os: {
                 dataName: "sock",
                 nodes: {
-                    caseSensitive: document.getElementById("sockets").getElementsByClassName("table-filters")[1].getElementsByTagName("input")[1],
-                    count: document.getElementById("sockets").getElementsByClassName("table-stats")[1].getElementsByTagName("em")[0],
-                    filter_column: document.getElementById("sockets").getElementsByClassName("table-filters")[1].getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("sockets").getElementsByClassName("table-stats")[1].getElementsByTagName("em")[1],
-                    filter_value: document.getElementById("sockets").getElementsByClassName("table-filters")[1].getElementsByTagName("input")[0],
-                    list: document.getElementById("sockets").getElementsByClassName("section")[3].getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("sockets").getElementsByClassName("table-stats")[1].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("sockets").getElementsByClassName("table-stats")[1].getElementsByTagName("time")[0]
+                    caseSensitive: document.getElementById("sockets-os").getElementsByTagName("input")[1],
+                    count: document.getElementById("sockets-os").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("sockets-os").getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("sockets-os").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("sockets-os").getElementsByTagName("input")[0],
+                    list: document.getElementById("sockets-os").getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("sockets-os").getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets-os").getElementsByTagName("time")[0]
                 },
                 row: function dashboard_networkSocketOSRow(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_sock = record_item as os_sock;
