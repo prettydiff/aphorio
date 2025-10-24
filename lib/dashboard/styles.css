@@ -41,14 +41,50 @@
 }
 
 @media screen and (width < 750px) {
-    #dashboard .title p{display:block;margin:0}
-    #dashboard #clock{float:none;margin:0 0 1.7em 0}
-    #dashboard #clock span,
-    #dashboard .title span{display:inline-block;width:8.5em}
+    #dashboard{
+        margin:0 1em;
+        #clock{float:none;margin:0 0 1.7em 0}
+        #clock span,
+        .title span{display:inline-block;width:8.5em}
+        #interfaces,
+        #os,
+        #disks{
+            li > strong{width:10em}
+        }
+        #websocket p#websocket-status{margin:-1.75em -0.9em 1.5em}
+        .title p{display:block;margin:0}
+        main{margin:0}
+        nav{
+            float:none;margin:0 0 2em;
+            div{float:left;width:50%}
+        }
+    }
+    div.form,
+    div.definitions,
+    div.table-filters,
+    div.section{padding:1em}
 }
 @media screen and (width > 749px) {
-    #dashboard .title p{display:inline-block}
-    #dashboard #clock{float:right;margin:-2.75em 0 0 0}
+    #dashboard{
+        margin:0 2em;
+        #clock{float:right;margin:-2.75em 0 0 0}
+        #interfaces,
+        #os,
+        #disks{
+            li > strong{width:22em}
+        }
+        #websocket p#websocket-status{margin:-1.75em -1.75em 1.5em}
+        .title p{display:inline-block}
+        main{margin:0 0 0 17.75em}
+        nav{
+            float:left;margin:0 0 -1000em 0;
+            div{float:none}
+        }
+    }
+    div.form,
+    div.definitions,
+    div.table-filters,
+    div.section{padding:2em}
 }
 
 .highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}
@@ -74,7 +110,7 @@ li {
 div.form,
 div.definitions,
 div.table-filters,
-div.section{border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:0 0 2em;padding:2em}
+div.section{border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:0 0 2em}
 div.section:last-child{margin:0}
 div.table-filters p:last-child{margin:0}
 div.form h3{margin:1.5em 0 0.5em}
@@ -166,8 +202,6 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
 .linux-options legend{font-size:2em;font-weight:bold}
 
 #dashboard {
-    margin: 0 2em;
-
     /* id selectors */
     #application-logs{
         & > ul{background:var(--background_textarea);border-color:var(--textarea_border);border-style:solid;border-width:0.1em;padding:0.5em}
@@ -213,7 +247,6 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         .xterm-viewport{overflow:hidden}
     }
     #websocket .http_response p.float-last{width:82%}
-    p#websocket-status{margin:-1.75em -1.75em 1.5em}
     /* end id selectors */
 
     /* class selectors */
@@ -296,16 +329,13 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         h6{font-size:1em}
     }
     main{
-        clear:both;display:none;margin:0 0 0 17.75em;padding:0 0 2em 0;
+        clear:both;display:none;padding:0 0 2em 0;
         #faq li{list-style:disc}
         li{list-style:none}
     }
     nav{
-        background:var(--background_nav);border-color:var(--background_button);border-style:solid;border-width:0.1em;float:left;margin:0 0 -1000em 0;
-        div{
-            border-color:var(--border_color);border-style:none none solid none;border-width:0.1em;margin:2em 0 0;padding:0 0 2em;
-            &:last-child{border-style:none}
-        }
+        background:var(--background_nav);border-color:var(--background_button);border-style:solid;border-width:0.1em;
+        div{border-color:var(--border_color);border-style:solid none none;border-width:0.1em;margin:0 0 2em;padding:2em 0 0}
         h2{font-size:0.01em;position:absolute;left:-1000em}
         h3{color:var(--border_color);padding:0 0 0 0.5em;margin:0}
         ul{margin:0;padding:0}
@@ -374,7 +404,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         li{
             border-style:none;list-style:none;
             & > h6,
-            & > strong{display:inline-block;width:22em}
+            & > strong{display:inline-block}
         }
     }
 
