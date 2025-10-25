@@ -3819,6 +3819,7 @@ const dashboard = function dashboard():void {
             } while (index > 0);
             document.getElementById("servers").style.display = "none";
             document.getElementById(state.nav).style.display = "block";
+            section = state.nav as type_dashboard_sections;
         }
 
         // invoke web socket connection to application
