@@ -2,7 +2,6 @@
 // supports HTTP methods DELETE, POST, PUT
 // cspell: words prettydiff
 
-import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 

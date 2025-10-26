@@ -4,20 +4,10 @@ import vars from "./vars.ts";
 
 const log:log = {
     application: function utilities_logApplication(config:config_log):void {
-        const data:services_dashboard_status = {
-                action: config.action,
-                configuration: config.config,
-                message: config.message,
-                status: config.status,
-                time: Date.now(),
-                type: config.type
-            };
-        if (config.type !== "socket") {
-            vars.logs.push(data);
-        }
+        vars.logs.push(config);
         broadcast("dashboard", "dashboard", {
-            data: data,
-            service: "dashboard-status"
+            data: config,
+            service: "dashboard-log"
         });
     },
     shell: function utilities_logShell(input:string[], summary?:boolean):void {

@@ -30,11 +30,46 @@ interface config_directory {
     symbolic: boolean;
 }
 
+interface config_file_mkdir {
+    callback: () => void;
+    location: string;
+    section: type_dashboard_sections | "startup";
+}
+
+interface config_file_read {
+    callback: (file:Buffer) => void;
+    location: string;
+    no_file: () => void;
+    section: type_dashboard_sections | "startup";
+}
+
+interface config_file_remove {
+    callback: () => void;
+    exclusions: string[];
+    location: string;
+    section: type_dashboard_sections | "startup";
+}
+
+interface config_file_stat {
+    callback: (stats:node_fs_BigIntStats) => void;
+    location: string;
+    no_file: () => void;
+    section: type_dashboard_sections | "startup";
+}
+
+interface config_file_write {
+    callback: () => void;
+    contents: Buffer | string;
+    location: string;
+    section: type_dashboard_sections | "startup";
+}
+
 interface config_hash {
     algorithm: string;
     callback: (hashOutput:hash_output) => void;
     digest: "base64-output" | "base64" | "hex";
     hash_input_type: type_hash_input;
+    section: type_dashboard_sections;
     source: Buffer | string;
 }
 
@@ -49,12 +84,11 @@ interface config_html {
 }
 
 interface config_log {
-    action: type_dashboard_action;
-    config: type_dashboard_config;
+    error: node_childProcess_ExecException | node_error | TypeError;
     message: string;
+    section: type_dashboard_sections | "dashboard" | "startup";
     status: type_dashboard_status;
     time: number;
-    type: type_dashboard_type;
 }
 
 interface config_os_comparison {

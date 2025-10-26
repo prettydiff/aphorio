@@ -54,7 +54,8 @@ const start_server = function utilities_startServer(process_path:string, testing
                 file.read({
                     callback: readCompose,
                     location: `${vars.path.project}compose.json`,
-                    no_file: null
+                    no_file: null,
+                    section: "startup"
                 });
             },
             git: function utilities_startServer_tasksGit():void {
@@ -101,7 +102,8 @@ const start_server = function utilities_startServer(process_path:string, testing
                                     readComplete("html");
                                 },
                                 location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}dashboard.html`,
-                                no_file: null
+                                no_file: null,
+                                section: "startup"
                             });
                         }
                     },
@@ -125,17 +127,20 @@ const start_server = function utilities_startServer(process_path:string, testing
                 file.read({
                     callback: readCSS,
                     location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
-                    no_file: null
+                    no_file: null,
+                    section: "startup"
                 });
                 file.read({
                     callback: readXtermCSS,
                     location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`,
-                    no_file: null
+                    no_file: null,
+                    section: "startup"
                 });
                 file.read({
                     callback: readXtermJS,
                     location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}lib${vars.path.sep}xterm.js`,
-                    no_file: null
+                    no_file: null,
+                    section: "startup"
                 });
             },
             options: function utilities_startServer_taskOptions():void {
@@ -311,7 +316,8 @@ const start_server = function utilities_startServer(process_path:string, testing
                 file.read({
                     callback: callback,
                     location: `${vars.path.project}servers.json`,
-                    no_file: null
+                    no_file: null,
+                    section: "startup"
                 });
             },
             test_browser: function utilities_startServer_taskTestBrowser():void {
@@ -630,12 +636,14 @@ const start_server = function utilities_startServer(process_path:string, testing
                             tasks.os_main();
                         },
                         location: "/etc/shells",
-                        no_file: null
+                        no_file: null,
+                        section: "startup"
                     });
                 }
             },
             location: "/etc/shells",
-            no_file: null
+            no_file: null,
+            section: "startup"
         });
     }
 };

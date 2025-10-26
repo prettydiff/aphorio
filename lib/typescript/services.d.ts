@@ -32,15 +32,6 @@ declare global {
         ports: server_ports;
     }
 
-    interface services_dashboard_status {
-        action: type_dashboard_action;
-        configuration: type_dashboard_config;
-        message: string;
-        status: type_dashboard_status;
-        time: number;
-        type: type_dashboard_type;
-    }
-
     interface services_dashboard_terminal {
         modes: IModes;
         text: string;
@@ -207,10 +198,6 @@ declare global {
         time: number;
     }
 
-    interface services_processKill {
-        process: number;
-    }
-
     interface services_server {
         activate: boolean;
         block_list?: {
@@ -238,14 +225,18 @@ declare global {
         temporary?: boolean;
     }
 
-    interface services_socket {
+    interface services_socket_application {
+        list: Array<services_socket_application_item>;
+        time: number;
+    }
+
+    interface services_socket_application_item {
         address: transmit_addresses_socket;
         encrypted: boolean;
         hash: string;
         proxy: string;
         role: "client" | "server";
         server: string;
-        time: number;
         type: string;
     }
 

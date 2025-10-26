@@ -1,11 +1,12 @@
 
-import get_address from "../core/getAddress.ts";
+import broadcast from "../transmit/broadcast.ts";
 import log from "../core/log.ts";
 import message_handler from "./messageHandler.ts";
 import receiver from "./receiver.ts";
 import send from "./send.ts";
 import server_halt from "../services/server_halt.ts";
 import socket_end from "./socketEnd.ts";
+import socket_list from "../services/socket_list.ts";
 import vars from "../core/vars.ts";
 
 const socket_extension = function transmit_socketExtension(config:config_websocket_extensions):void {
@@ -42,11 +43,8 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             encryption:"open"|"secure" = (config.socket.secure === true)
                 ? "secure"
                 : "open",
-            socket:services_socket = {
-                address: get_address({
-                    socket: config.socket,
-                    type: "ws"
-                }),
+            socket:services_socket_application_item = {
+                address: config.socket.addresses,
                 encrypted: (config.socket.encrypted === true),
                 hash: config.identifier,
                 proxy: (config.socket.proxy === undefined || config.socket.proxy === null)
@@ -54,20 +52,19 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     : config.socket.proxy.hash,
                 role: config.role,
                 server: config.server,
-                time: Date.now(),
                 type: config.type
             },
+            sockets:services_socket_application = socket_list(function transmit_socketExtension_socketList():void {
+                vars.server_meta[config.server].sockets[encryption].push(config.socket);
+                vars.servers[config.server].sockets.push(socket);
+            }),
             log_config:config_log = {
-                action: "add",
-                config: socket,
+                error: null,
                 message: `Socket ${config.identifier} opened on ${encryption} server ${config.server}.`,
-                status: "success",
-                time: Date.now(),
-                type: "socket"
+                section: "sockets-application",
+                status: "informational",
+                time: Date.now()
             };
-        vars.server_meta[config.server].sockets[encryption].push(config.socket);
-        vars.servers[config.server].sockets.push(socket);
-
         config.socket.server = config.server;     // identifies which local server the given socket is connected to
         config.socket.hash = config.identifier;   // assigns a unique identifier to the socket based upon the socket's credentials
         config.socket.role = config.role;         // assigns socket creation location
@@ -128,6 +125,12 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             config.callback(config.socket, config.timeout);
         }
         log.application(log_config);
+        if (socket.address.local.port !== undefined && socket.address.remote.port !== undefined) {
+            broadcast("dashboard", "dashboard", {
+                data: sockets,
+                service: "dashboard-socket-application"
+            });
+        }
     }
 };
 

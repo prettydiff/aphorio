@@ -44,12 +44,11 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
             item.spawn.off("close", close);
             item.spawn.kill();
             log.application({
-                action: "activate",
-                config: err,
+                error: err,
                 message: `Error executing docker command: ${command}`,
+                section: "servers",
                 status: "error",
-                time: Date.now(),
-                type: "os"
+                time: Date.now()
             });
             if (options !== undefined && options !== null && options.error !== undefined && options.error !== null) {
                 options.error(err);

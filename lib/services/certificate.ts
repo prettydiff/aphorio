@@ -201,7 +201,8 @@ const certificate = function services_certificate(config:config_certificate):voi
             file.write({
                 callback: create,
                 contents: cert_extensions,
-                location: `${cert_path}extensions.cnf`
+                location: `${cert_path}extensions.cnf`,
+                section: "servers"
             });
         };
     file.stat({
@@ -210,9 +211,11 @@ const certificate = function services_certificate(config:config_certificate):voi
         no_file: function services_certificate_mkdir():void {
             file.mkdir({
                 callback: cert,
-                location: cert_path
+                location: cert_path,
+                section: "servers"
             });
-        }
+        },
+        section: "servers"
     });
 };
 

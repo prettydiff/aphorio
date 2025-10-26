@@ -19,14 +19,11 @@ const compose = function services_compose(socket_data:socket_data):void {
                             ? `Compose container ${data.compose.name} updated.`
                             : "Compose environmental variables updated.";
                     log.application({
-                        action: "modify",
-                        config: (type === "containers")
-                            ? vars.compose.containers[name]
-                            : vars.compose.variables,
+                        error: null,
                         message: message,
-                        status: "success",
-                        time: Date.now(),
-                        type: `compose-${type}`
+                        section: "compose",
+                        status: "informational",
+                        time: Date.now()
                     });
                 }
             },
@@ -37,7 +34,8 @@ const compose = function services_compose(socket_data:socket_data):void {
                         complete("compose", type, data.compose.name);
                     },
                     contents: JSON.stringify(vars.compose),
-                    location: `${vars.path.project}compose.json`
+                    location: `${vars.path.project}compose.json`,
+                    section: "compose"
                 });
                 // container file
                 file.write({
@@ -45,7 +43,8 @@ const compose = function services_compose(socket_data:socket_data):void {
                         complete("file", type, data.compose.name);
                     },
                     contents: contents,
-                    location: location
+                    location: location,
+                    section: "compose"
                 });
             };
         if (socket_data.service === "dashboard-compose-container") {
@@ -66,12 +65,11 @@ const compose = function services_compose(socket_data:socket_data):void {
                                 compose.description = vars.compose.containers[data.name].description;
                                 vars.compose.containers[data.name] = compose;
                                 log.application({
-                                    action: "activate",
-                                    config: compose,
+                                    error: null,
                                     message: `Docker container ${data.name} is online.`,
+                                    section: "compose",
                                     status: "informational",
-                                    time: Date.now(),
-                                    type: "compose-containers"
+                                    time: Date.now()
                                 });
                             }
                             break;
@@ -104,16 +102,16 @@ const compose = function services_compose(socket_data:socket_data):void {
                         file.write({
                             callback: function services_compose_stat_writeContents_compose():void {
                                 log.application({
-                                    action: "destroy",
-                                    config: data.compose,
+                                    error: null,
                                     message: `Destroyed container ${data.compose.name}`,
-                                    status: "success",
-                                    time: Date.now(),
-                                    type: "compose-containers"
+                                    section: "compose",
+                                    status: "informational",
+                                    time: Date.now()
                                 });
                             },
                             contents: JSON.stringify(vars.compose),
-                            location: `${vars.path.project}compose.json`
+                            location: `${vars.path.project}compose.json`,
+                            section: "compose"
                         });
                     };
                 let index:number = lines.length;

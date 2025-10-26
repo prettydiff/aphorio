@@ -24,12 +24,11 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
         temporary:boolean = vars.servers[old].config.temporary;
     if (vars.servers[old] === undefined) {
         log.application({
-            action: data.action,
-            config: data.server,
+            error: new Error(),
             message: `Server named ${old} does not exist.  Called on library server_halt.`,
+            section: "servers",
             status: "error",
-            time: Date.now(),
-            type: "log"
+            time: Date.now()
         });
     } else {
         const path_config:string = `${vars.path.project}servers.json`,
@@ -57,21 +56,21 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                         data.server.modification_name = old;
                     }
                     log.application({
-                        action: data.action,
-                        config: data.server,
+                        error: null,
                         message: `Server named ${data.server.name} ${actionText}.`,
-                        status: "success",
-                        time: Date.now(),
-                        type: "server"
+                        section: "servers",
+                        status: "informational",
+                        time: Date.now()
                     });
                 }
             },
-            file_remove:file_remove = {
+            file_remove:config_file_remove = {
                 callback: function services_serverHalt_remove():void {
                     complete("remove");
                 },
                 exclusions: [],
-                location: path_name
+                location: path_name,
+                section: "servers"
             },
             server_restart = function services_serverHalt_serverRestart():void {
                 node.fs.cp(path_name, vars.path.servers + data.server.name + vars.path.sep, {
@@ -82,12 +81,11 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                         file.remove(file_remove);
                     } else {
                         log.application({
-                            action: "modify",
-                            config: data.server,
-                            message: "Error copying files from old server location to new server location.",
+                            error: erc,
+                            message: `Error on server modification for server ${old}.  Error copying files from old server location to new server location.`,
+                            section: "servers",
                             status: "error",
-                            time: Date.now(),
-                            type: "server"
+                            time: Date.now()
                         });
                     }
                 });
@@ -195,7 +193,8 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
             file.write({
                 callback: write_json,
                 contents: JSON.stringify(servers),
-                location: path_config
+                location: path_config,
+                section: "servers"
             });
         } else {
             write_json();

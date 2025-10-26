@@ -19,6 +19,7 @@ const hashService = function services_hash(socket_data:socket_data, transmit:tra
             ? "base64-output"
             : data.digest,
         hash_input_type: data.type,
+        section: "hash",
         source: data.value
     });
 };

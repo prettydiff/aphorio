@@ -1,39 +1,30 @@
 
 import broadcast from "./broadcast.ts";
-import get_address from "../core/getAddress.ts";
+import socket_list from "../services/socket_list.ts";
 import vars from "../core/vars.ts";
 
-const socket_end = function transmit_socketEnd():void {
+const socket_end = function transmit_socketEnd(error:node_error):void {
     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
     const socket:websocket_client = this,
         encryption:"open"|"secure" = (socket.secure === true)
             ? "secure"
             : "open",
-        sockets:services_socket[] = vars.servers[socket.server].sockets,
-        payload_configuration:services_socket = {
-            address: get_address({
-                socket: socket,
-                type: "ws"
-            }),
-            encrypted: (socket.encrypted === true),
-            hash: socket.hash,
-            proxy: (socket.proxy === null || socket.proxy === undefined)
-                ? ""
-                : socket.proxy.hash,
-            role: socket.role,
-            server: socket.server,
-            time: Date.now(),
-            type: socket.type
-        },
-        payload:services_dashboard_status = {
-            action: "destroy",
-            configuration: payload_configuration,
-            message: "Socket ended.",
-            status: "success",
-            time: Date.now(),
-            type: "socket"
+        sockets:services_socket_application_item[] = vars.servers[socket.server].sockets,
+        address_local:string = (socket.addresses.local.address.includes(":") === true)
+            ? `[${socket.addresses.local.address}]:${socket.addresses.local.port}`
+            : `${socket.addresses.local.address}:${socket.addresses.local.port}`,
+        address_remote:string = (socket.addresses.remote.address.includes(":") === true)
+            ? `[${socket.addresses.remote.address}]:${socket.addresses.remote.port}`
+            : `${socket.addresses.remote.address}:${socket.addresses.remote.port}`,
+        payload_log:config_log = {
+            error: (typeof error === "boolean")
+                ? new Error()
+                : error,
+            message: `Socket type ${socket.type} with id ${socket.hash} from ${address_local} to ${address_remote} ended.`,
+            section: "sockets-application",
+            status: "error",
+            time: Date.now()
         };
-
     // remove the socket from the respective server's list of sockets
     let index:number = sockets.length,
         flag:boolean = false;
@@ -98,8 +89,12 @@ const socket_end = function transmit_socketEnd():void {
         }
     }
     broadcast("dashboard", "dashboard", {
-        data: payload,
-        service: "dashboard-status"
+        data: payload_log,
+        service: "dashboard-log"
+    });
+    broadcast("dashboard", "dashboard", {
+        data: socket_list(),
+        service: "dashboard-socket-application"
     });
 };
 

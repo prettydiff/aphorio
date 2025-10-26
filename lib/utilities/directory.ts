@@ -106,6 +106,7 @@ const directory = function utilities_directory(args:config_directory):void {
                             },
                             digest: "hex",
                             hash_input_type: "file",
+                            section: "file-system",
                             source: null
                         };
                     if (list[0][1] === "file") {

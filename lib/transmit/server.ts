@@ -210,17 +210,14 @@ const server = function transmit_server(data:services_action_server, callback:(n
                                     callback: callback,
                                     digest: "base64",
                                     hash_input_type: "direct",
+                                    section: "servers",
                                     source: key
                                 });
                             }
                         },
                         create_proxy = function transmit_server_connection_handshake_createProxy():void {
                             let count:number = 0;
-                            const  address:transmit_addresses_socket = get_address({
-                                    socket: socket,
-                                    type: "ws"
-                                }),
-                                encrypted:boolean = (
+                            const encrypted:boolean = (
                                     socket.encrypted === true &&
                                     server.redirect_domain !== undefined &&
                                     server.redirect_domain !== null &&
@@ -306,6 +303,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                     ) {
                         socket.destroy();
                     } else {
+                        socket.addresses = address;
                         // do not proxy primary domain -> endless loop
                         if (server.domain_local.includes(domain) === true || vars.interfaces.includes(domain) === true) {
                             local_service();
@@ -350,41 +348,35 @@ const server = function transmit_server(data:services_action_server, callback:(n
                     vars.server_meta[serverItem.name].server[secure] = serverItem;
                     vars.servers[serverItem.name].status[secure] = address.port;
                     log.application({
-                        action: "activate",
-                        config: {
-                            name: serverItem.name,
-                            ports: vars.servers[serverItem.name].status
-                        },
-                        message: `${secure.capitalize()} server ${serverItem.name} came online.`,
+                        error: null,
+                        message: `Server ${serverItem.name} - ${secure} came online at port ${vars.servers[serverItem.name].config.ports[secure]}.`,
+                        section: "servers",
                         status: "informational",
-                        time: Date.now(),
-                        type: "server"
+                        time: Date.now()
                     });
                     complete(serverItem.name);
                 },
                 server_error = function transmit_server_start_serverError(ser:node_error):void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                    const serverItem:server_instance = this;
-                    if (ser.code === "EADDRINUSE") {
-                        const secure:"open"|"secure" = (serverItem.secure === true)
+                    const serverItem:server_instance = this,
+                        secure:"open"|"secure" = (serverItem.secure === true)
                             ? "secure"
                             : "open";
+                    if (ser.code === "EADDRINUSE") {
                         log.application({
-                            action: "activate",
-                            config: vars.servers[serverItem.name],
+                            error: ser,
                             message: `Port conflict on port ${vars.servers[serverItem.name].config.ports[secure]} of ${secure} server named ${serverItem.name}.`,
+                            section: "servers",
                             status: "error",
-                            time: Date.now(),
-                            type: "server"
+                            time: Date.now()
                         });
                     } else {
                         log.application({
-                            action: "activate",
-                            config: ser,
-                            message: `Error activating ${(serverItem.secure === true) ? "secure" : "open"} server ${serverItem.name}.`,
+                            error: ser,
+                            message: `Server ${serverItem.name} - ${secure} went offline.  Was listening on port ${vars.servers[serverItem.name].config.ports[secure]}.`,
+                            section: "servers",
                             status: "error",
-                            time: Date.now(),
-                            type: "server"
+                            time: Date.now()
                         });
                     }
                     complete(serverItem.name);
@@ -429,7 +421,8 @@ const server = function transmit_server(data:services_action_server, callback:(n
                     start(null);
                 },
                 exclusions: null,
-                location: vars.path.servers + data.server.name
+                location: vars.path.servers + data.server.name,
+                section: "servers"
             });
         } else {
             start(null);
@@ -446,7 +439,8 @@ const server = function transmit_server(data:services_action_server, callback:(n
                 file.remove({
                     callback: starter,
                     exclusions: null,
-                    location: vars.path.servers + server_name
+                    location: vars.path.servers + server_name,
+                    section: "servers"
                 });
             } else {
                 starter();

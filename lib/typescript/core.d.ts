@@ -55,7 +55,7 @@ interface core_vars {
     http_request: string;
     interfaces: string[];
     intervals: store_number;
-    logs: services_dashboard_status[];
+    logs: config_log[];
     name: string;
     os: server_os;
     path: vars_path;
@@ -124,40 +124,11 @@ interface external_ports {
 }
 
 interface file {
-    mkdir: (config:file_mkdir) => void;
-    read: (config:file_read) => void;
-    remove: (config:file_remove) => void;
-    stat: (config:file_stat) => void;
-    write: (config:file_write) => void;
-}
-
-interface file_mkdir {
-    callback: () => void;
-    location: string;
-}
-
-interface file_read {
-    callback: (file:Buffer) => void;
-    location: string;
-    no_file: () => void;
-}
-
-interface file_remove {
-    callback: () => void;
-    exclusions: string[];
-    location: string;
-}
-
-interface file_stat {
-    callback: (stats:node_fs_BigIntStats) => void;
-    location: string;
-    no_file: () => void;
-}
-
-interface file_write {
-    callback: () => void;
-    contents: Buffer | string;
-    location: string;
+    mkdir: (config:config_file_mkdir) => void;
+    read: (config:config_file_read) => void;
+    remove: (config:config_file_remove) => void;
+    stat: (config:config_file_stat) => void;
+    write: (config:config_file_write) => void;
 }
 
 interface hash_output {
@@ -179,7 +150,7 @@ interface os_service {
 
 interface server {
     config: services_server;
-    sockets: services_socket[];
+    sockets: Array<services_socket_application_item>;
     status: server_ports;
 }
 

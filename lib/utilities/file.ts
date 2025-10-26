@@ -12,7 +12,7 @@ import vars from "../core/vars.ts";
 // * write - write a file
 
 const file:file = {
-    mkdir: function utilities_fileDir(config:file_mkdir):void {
+    mkdir: function utilities_fileDir(config:config_file_mkdir):void {
         let ind:number = 0;
         const dirs:string[] = config.location.split(vars.path.sep),
             len:number = dirs.length,
@@ -36,12 +36,11 @@ const file:file = {
                         return;
                     }
                     log.application({
-                        action: null,
-                        config: errorInstance,
+                        error: errorInstance,
                         message: `Error making directory ${config.location}`,
+                        section: config.section,
                         status: "error",
-                        time: Date.now(),
-                        type: "log"
+                        time: Date.now()
                     });
                     return;
                 }
@@ -55,12 +54,11 @@ const file:file = {
                     return;
                 }
                 log.application({
-                    action: null,
-                    config: new Error(`Destination directory, '${vars.text.cyan + config.location + vars.text.none}', is a ${type}.`),
+                    error: new Error(`Destination directory, '${vars.text.cyan + config.location + vars.text.none}', is a ${type}.`),
                     message: `Destination for mkdir, ${config.location}, already exists.`,
+                    section: config.section,
                     status: "error",
-                    time: Date.now(),
-                    type: "log"
+                    time: Date.now()
                 });
                 return;
             },
@@ -78,12 +76,11 @@ const file:file = {
                                 }
                             } else {
                                 log.application({
-                                    action: null,
-                                    config: errB,
+                                    error: errB,
                                     message: `Error making directory ${config.location}`,
+                                    section: config.section,
                                     status: "error",
-                                    time: Date.now(),
-                                    type: "log"
+                                    time: Date.now()
                                 });
                             }
                         });
@@ -104,7 +101,7 @@ const file:file = {
             }
         });
     },
-    read: function utilities_fileRead(config:file_read):void {
+    read: function utilities_fileRead(config:config_file_read):void {
         node.fs.readFile(config.location, function utilities_fileRead_read(err:node_error, file_raw:Buffer):void {
             if (err !== null && err.code === "ENOENT") {
                 if (config.no_file !== null) {
@@ -118,12 +115,11 @@ const file:file = {
                 }
             } else {
                 log.application({
-                    action: null,
-                    config: err,
+                    error: err,
                     message: `Error reading file: ${config.location}`,
+                    section: config.section,
                     status: "error",
-                    time: Date.now(),
-                    type: "log"
+                    time: Date.now()
                 });
                 if (config.callback !== null) {
                     config.callback(null);
@@ -131,7 +127,7 @@ const file:file = {
             }
         });
     },
-    remove: function utilities_fileRemove(config:file_remove):void {
+    remove: function utilities_fileRemove(config:config_file_remove):void {
         const removeItems = function utilities_fileRemove_removeItems(list:directory_list|string[]):void {
                 // directory_list: [].failures
                 // 0. absolute path (string)
@@ -156,12 +152,11 @@ const file:file = {
                                     return;
                                 }
                                 log.application({
-                                    action: null,
-                                    config: er,
+                                    error: er,
                                     message: `Error removing file system artifact ${item[0]}`,
+                                    section: config.section,
                                     status: "error",
-                                    time: Date.now(),
-                                    type: "log"
+                                    time: Date.now()
                                 });
                                 return;
                             }
@@ -229,7 +224,7 @@ const file:file = {
             };
         directory(dirConfig);
     },
-    stat: function utilities_fileStat(config:file_stat):void {
+    stat: function utilities_fileStat(config:config_file_stat):void {
         node.fs.stat(config.location, {
             bigint: true
         }, function utilities_fileStat_stat(ers:node_error, stat:node_fs_BigIntStats):void {
@@ -245,12 +240,11 @@ const file:file = {
                 }
             } else {
                 log.application({
-                    action: null,
-                    config: ers,
+                    error: ers,
                     message: `Error reading file: ${config.location}`,
+                    section: config.section,
                     status: "error",
-                    time: Date.now(),
-                    type: "log"
+                    time: Date.now()
                 });
                 if (config.callback !== null) {
                     config.callback(null);
@@ -258,7 +252,7 @@ const file:file = {
             }
         });
     },
-    write: function utilities_fileWrite(config:file_write):void {
+    write: function utilities_fileWrite(config:config_file_write):void {
         node.fs.writeFile(config.location, config.contents, function utilities_fileWrite_write(erw:node_error):void {
             if (erw === null) {
                 if (config.callback !== null) {
@@ -266,12 +260,11 @@ const file:file = {
                 }
             } else {
                 log.application({
-                    action: null,
-                    config: erw,
+                    error: erw,
                     message: `Error writing file: ${config.location}`,
+                    section: config.section,
                     status: "error",
-                    time: Date.now(),
-                    type: "log"
+                    time: Date.now()
                 });
                 if (config.callback !== null) {
                     config.callback();

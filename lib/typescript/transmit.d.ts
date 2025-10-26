@@ -28,11 +28,12 @@ interface transmit_dashboard {
     compose: configuration_compose;
     hashes: string[];
     http_request: string;
-    logs: services_dashboard_status[];
+    logs: config_log[];
     name: string;
     os: server_os;
     path: vars_path;
     servers: store_servers;
+    sockets: services_socket_application;
     terminal: string[];
     timeZone_offset: number;
 }
@@ -64,6 +65,7 @@ interface transmit_socket {
 }
 
 interface websocket_client extends node_tls_TLSSocket {
+    addresses: transmit_addresses_socket;
     fragment: Buffer;
     frame: Buffer;
     frameExtended: number;

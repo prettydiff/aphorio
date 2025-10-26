@@ -274,7 +274,7 @@ declare global {
     }
 
     interface module_sockets_application extends module_list {
-        socket_add: (config:services_socket) => void;
+        list: (socket_data:socket_data) => void;
     }
 
     interface module_tables {
@@ -314,7 +314,7 @@ declare global {
     interface module_utility {
         baseline: () => void;
         clock: (data_item:socket_data) => void;
-        log: (item:services_dashboard_status) => void;
+        log: (socket_data:socket_data) => void;
         message_send: (data:type_socket_data, service:type_service) => void;
         nodes: {
             clock: HTMLElement;

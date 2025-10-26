@@ -7,14 +7,13 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
     const args:string[] = ["-f", vars.path.compose_empty, "ps", "--format=json"],
         logger = function services_dockerPS_logger(action:"activate"|"deactivate", config:services_docker_compose):void {
             log.application({
-                action: action,
-                config: config,
+                error: null,
                 message: (action === "activate")
                     ? `Docker container ${config.name} came online.`
                     : `Docker container ${config.name} went offline.`,
+                section: "compose",
                 status: "informational",
-                time: Date.now(),
-                type: "compose-containers"
+                time: Date.now()
             });
         },
         spawn_close_primary = function services_dockerPS_spawnClosePrimary(output:core_spawn_output):void {

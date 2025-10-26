@@ -1,6 +1,4 @@
 
-import log from "../core/log.ts";
-import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
 
 const os_service:os_service = {

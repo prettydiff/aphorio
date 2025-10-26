@@ -45,12 +45,11 @@ const server_create = function services_serverCreate(data:services_action_server
                         }
                     };
                 log.application({
-                    action: "add",
-                    config: config,
+                    error: null,
                     message: `Server named ${config.name} created.`,
-                    status: "success",
-                    time: Date.now(),
-                    type: "server"
+                    section: "servers",
+                    status: "informational",
+                    time: Date.now()
                 });
                 // 4. create server's certificates
                 if (config.encryption === "open") {
@@ -74,7 +73,8 @@ const server_create = function services_serverCreate(data:services_action_server
         mkdir = function services_serverCreate_serverDir(location:string):void {
             file.mkdir({
                 callback: children,
-                location: location
+                location: location,
+                section: "servers"
             });
         },
         write = function services_serverCreate_write():void {
@@ -92,7 +92,8 @@ const server_create = function services_serverCreate(data:services_action_server
                     complete("config");
                 },
                 contents: JSON.stringify(servers),
-                location: path_config
+                location: path_config,
+                section: "servers"
             });
         };
     // 1. add server to the vars.servers object
@@ -144,12 +145,11 @@ const server_create = function services_serverCreate(data:services_action_server
         }
     } else {
         log.application({
-            action: "add",
-            config: config,
+            error: new Error(),
             message: `Server named ${config.name} already exists.  Called on library server_create.`,
+            section: "servers",
             status: "error",
-            time: Date.now(),
-            type: "log"
+            time: Date.now()
         });
         return;
     }

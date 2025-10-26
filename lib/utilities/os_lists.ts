@@ -533,14 +533,13 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                     utilities_os_comparison(child_config, time, "child");
                                 } else if (item_old[config.properties.child].length > 0) {
                                     log.application({
-                                        action: "modify",
-                                        config: null,
+                                        error: null,
                                         message: (config.dict === true)
                                             ? config.messages.no_child(item_old, list_old[index_old] as string)
                                             : config.messages.no_child(item_old),
+                                        section: "os",
                                         status: "informational",
-                                        time: Date.now(),
-                                        type: "os"
+                                        time: Date.now()
                                     });
                                 }
                             }
@@ -552,14 +551,13 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     } while (index_new > 0);
                     if (match === false) {
                         log.application({
-                            action: "modify",
-                            config: null,
+                            error: null,
                             message: (config.dict === true)
                                 ? config.messages[type].old(item_old, list_old[index_old] as string)
                                 : config.messages[type].old(item_old),
+                            section: "os",
                             status: "informational",
-                            time: Date.now(),
-                            type: "os"
+                            time: Date.now()
                         });
                     }
                 } while (index_old > 0);
@@ -587,15 +585,26 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         }
                     } while (index_old > 0);
                     if (match === false) {
+                        // maps os data type to UI section name
+                        const mapping:store_string = {
+                            all: "os",
+                            devs: "devices",
+                            disk: "storage",
+                            intr: "interfaces",
+                            main: "os",
+                            proc: "processes",
+                            serv: "services",
+                            sock: "sockets-os",
+                            user: "users"
+                        };
                         log.application({
-                            action: "modify",
-                            config: null,
+                            error: null,
                             message: (config.dict === true)
                                 ? config.messages[type].new(item_new, list_new[index_new] as string)
                                 : config.messages[type].new(item_new),
+                            section: mapping[type_os] as type_dashboard_sections,
                             status: "informational",
-                            time: Date.now(),
-                            type: "os"
+                            time: Date.now()
                         });
                     }
                 } while (index_new > 0);
@@ -1045,7 +1054,6 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     }
                 };
             spawn_item[type] = spawn(vars.commands[type], function utilities_os_spawning_close(output:core_spawn_output):void {
-                // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                 const type:type_os_key = output.type as type_os_key,
                     temp:string = output.stdout.trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""),
                     parseTry = function utilities_os_spawning_close_parseTry():boolean {
@@ -1066,12 +1074,11 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                 : JSON.parse(temp);
                         } catch (e:unknown) {
                             log.application({
-                                action: "activate",
-                                config: e as node_error,
+                                error: e as node_error,
                                 message: `Error parsing operating system data of type ${type}.`,
+                                section: "os",
                                 status: "error",
-                                time: Date.now(),
-                                type: "os"
+                                time: Date.now()
                             });
                             spawn_complete(type, completed);
                             return false;
@@ -1087,6 +1094,13 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 spawn_complete(type, builder[type]);
             }, {
                 error: function utilities_os_spawning_spawnError(err:node_childProcess_ExecException):void {
+                    log.application({
+                        error: err,
+                        message: `Child process failure on gathering OS information from command: ${vars.commands[type]}`,
+                        section: "os",
+                        status: "error",
+                        time: Date.now()
+                    });
                     spawn_complete(type, completed);
                 },
                 shell: shell,

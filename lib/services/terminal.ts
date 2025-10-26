@@ -1,5 +1,4 @@
 
-import get_address from "../core/getAddress.ts";
 import log from "../core/log.ts";
 import send from "../transmit/send.ts";
 import vars from "../core/vars.ts";
@@ -44,12 +43,11 @@ const terminal:services_terminal = {
             },
             error = function services_terminalShell_error(err:node_error):void {
                 const config:config_log = {
-                    action: "activate",
-                    config: err,
+                    error: err,
                     message: "Socket for dashboard terminal failed with error.",
+                    section: "terminal",
                     status: "error",
-                    time: Date.now(),
-                    type: "terminal"
+                    time: Date.now()
                 };
                 log.application(config);
                 close();
@@ -60,14 +58,10 @@ const terminal:services_terminal = {
             out = function services_terminalShell_out(output:string):void {
                 send(output, socket, 1);
             },
-            address:transmit_addresses_socket = get_address({
-                socket: socket,
-                type: "ws"
-            }),
             identifiers:terminal_identifiers = {
                 pid: pty.pid,
-                port_browser: address.remote.port,
-                port_terminal: address.local.port,
+                port_browser: socket.addresses.remote.port,
+                port_terminal: socket.addresses.local.port,
                 server_name: socket.server,
                 socket_hash: socket.hash
             };

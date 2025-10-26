@@ -16,12 +16,11 @@ const hash = function utilities_hash(config:config_hash):void {
             hashOutput.hash = output;
             config.callback(hashOutput);
             log.application({
-                action: "add",
-                config: null,
+                error: err,
                 message: output,
+                section: config.section,
                 status: "error",
-                time: Date.now(),
-                type: "socket"
+                time: Date.now()
             });
         };
         node.fs.stat(config.source, function utilities_hash_statCallback(ers:node_error, stat:node_fs_Stats):void {
