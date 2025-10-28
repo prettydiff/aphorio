@@ -7,13 +7,13 @@ import vars from "../core/vars.ts";
 // cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey, keyid, pathlen
 
 const certificate = function services_certificate(config:config_certificate):void {
-    const cert_path:string = `${vars.path.servers + config.name + vars.path.sep}certs${vars.path.sep}`,
+    const cert_path:string = `${vars.path.servers + config.id + vars.path.sep}certs${vars.path.sep}`,
         cert = function services_certificate_cert():void {
             let index:number = 0;
             const commands:string[] = [],
-                domain:string = (vars.servers[config.name].config.domain_local.length < 1)
+                domain:string = (vars.servers[config.id].config.domain_local.length < 1)
                     ? "localhost"
-                    : vars.servers[config.name].config.domain_local[0],
+                    : vars.servers[config.id].config.domain_local[0],
                 crypto = function services_certificate_cert_crypto():void {
                     spawn(commands[index], function services_certificate_cert_crypto_child():void {
                         index = index + 1;
@@ -27,9 +27,9 @@ const certificate = function services_certificate(config:config_certificate):voi
                     }).child();
                 },
                 cert_extensions:string = (function services_certificate_cert_extensions():string {
-                    const server:services_server = (vars.servers[config.name] === undefined)
+                    const server:services_server = (vars.servers[config.id] === undefined)
                             ? null
-                            : vars.servers[config.name].config,
+                            : vars.servers[config.id].config,
                         output:string[] = [
                             `[ ca ]
         basicConstraints       = CA:false

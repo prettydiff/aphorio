@@ -26,6 +26,7 @@ interface transmit_addresses_socket {
 
 interface transmit_dashboard {
     compose: configuration_compose;
+    dashboard_id: string;
     hashes: string[];
     http_request: string;
     logs: config_log[];
@@ -40,6 +41,11 @@ interface transmit_dashboard {
 
 interface transmit_receiver {
     [key:string]: receiver;
+}
+
+interface transmit_socket {
+    socket: node_http_ClientRequest | node_http_ServerResponse | websocket_client;
+    type: "http" | "ws";
 }
 
 interface transmit_socket_messageHandler {
@@ -57,11 +63,6 @@ interface transmit_tlsOptions {
         cert: string;
         key: string;
     };
-}
-
-interface transmit_socket {
-    socket: node_http_ClientRequest | node_http_ServerResponse | websocket_client;
-    type: "http" | "ws";
 }
 
 interface websocket_client extends node_tls_TLSSocket {

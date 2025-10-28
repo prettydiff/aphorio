@@ -2,7 +2,7 @@
 interface config_certificate {
     callback: () => void;
     days: number;
-    name: string;
+    id: string;
     selfSign: boolean;
 }
 
@@ -112,6 +112,11 @@ interface config_os_comparison {
         child: string;
         parent: string;
     };
+}
+
+interface config_servers_file {
+    dashboard_id: string;
+    servers: store_server_config;
 }
 
 interface config_spawn {

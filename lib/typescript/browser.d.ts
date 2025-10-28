@@ -264,6 +264,17 @@ declare global {
         test_item: services_testBrowser;
     }
 
+    interface module_servers_web {
+        activePorts: (name_server:string) => HTMLElement;
+        list: () => void;
+        message: (event:MouseEvent) => void;
+        nodes: {
+            list: HTMLElement;
+            server_new: HTMLButtonElement;
+        };
+        validate: (event:FocusEvent|KeyboardEvent) => void;
+    }
+
     interface module_serverItems {
         cancel: (event:MouseEvent) => void;
         color: (name_server:string, type:type_dashboard_list) => type_activation_status;
@@ -327,17 +338,6 @@ declare global {
         status: (data_item:socket_data) => void;
     }
 
-    interface module_web {
-        activePorts: (name_server:string) => HTMLElement;
-        list: () => void;
-        message: (event:MouseEvent) => void;
-        nodes: {
-            list: HTMLElement;
-            server_new: HTMLButtonElement;
-        };
-        validate: (event:FocusEvent|KeyboardEvent) => void;
-    }
-
     interface module_websocket {
         connected: boolean;
         frameBeautify: (target:"receive"|"send", value?:string) => void;
@@ -382,10 +382,11 @@ declare global {
         sockets_os: module_list;
     }
 
-    interface structure_servers {
+    interface structure_services {
         compose: module_compose;
+        list: (socket_data:socket_data) => void;
+        servers_web: module_servers_web;
         shared: module_serverItems;
-        web: module_web;
     }
 
     interface structure_system {

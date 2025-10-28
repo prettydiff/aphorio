@@ -46,7 +46,8 @@ interface core_vars {
         basic: string;
         complete: string;
     };
-    dashboard: string;
+    dashboard_headers: string;
+    dashboard_id: string;
     environment: {
         date_commit: number;
         hash: string;
@@ -159,7 +160,7 @@ interface server_content {
 }
 
 interface server_instance extends node_net_Server {
-    name?: string;
+    id?: string;
     secure?: boolean;
 }
 

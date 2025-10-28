@@ -95,7 +95,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         const testBrowser:string = test_browser.toString().replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
                                         script = script.replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`).replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
                                     }
-                                    vars.dashboard = fileContents.toString()
+                                    vars.dashboard_headers = fileContents.toString()
                                         .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
                                         .replace("replace_javascript", `${xterm}const universal={commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
                                         .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
@@ -246,9 +246,9 @@ const start_server = function utilities_startServer(process_path:string, testing
                     const configStr:string = (fileContents === null)
                             ? ""
                             : fileContents.toString(),
-                        config:store_server_config = (configStr === "" || (/^\s*\{/).test(configStr) === false || (/\}\s*$/).test(configStr) === false)
+                        config:config_servers_file = (configStr === "" || (/^\s*\{/).test(configStr) === false || (/\}\s*$/).test(configStr) === false)
                             ? null
-                            : JSON.parse(configStr) as store_server_config,
+                            : JSON.parse(configStr) as config_servers_file,
                         includes = function utilities_startServer_taskServers_callback_includes(input:string):void {
                             if (vars.interfaces.includes(input) === false && input.toLowerCase().indexOf("fe80") !== 0) {
                                 vars.interfaces.push(input);
@@ -258,7 +258,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         keys_int:string[] = Object.keys(interfaces),
                         keys_srv:string[] = (config === null)
                             ? null
-                            : Object.keys(config);
+                            : Object.keys(config.servers);
                     let index_int:number = keys_int.length,
                         index_srv:number = (config === null)
                             ? 0
@@ -266,11 +266,12 @@ const start_server = function utilities_startServer(process_path:string, testing
                         server:server = null,
                         sub:number = 0;
                     if (index_srv > 0) {
+                        vars.dashboard_id = config.dashboard_id;
                         do {
                             index_srv = index_srv - 1;
                             index_int = keys_int.length;
                             server = {
-                                config: config[keys_srv[index_srv]],
+                                config: config.servers[keys_srv[index_srv]],
                                 sockets: [],
                                 status: {
                                     open: 0,
@@ -300,7 +301,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             if (Array.isArray(server.config.domain_local) === false) {
                                 server.config.domain_local = [];
                             }
-                            vars.servers[server.config.name] = server;
+                            vars.servers[server.config.id] = server;
                         } while (index_srv > 0);
                     }
                     do {
@@ -407,28 +408,27 @@ const start_server = function utilities_startServer(process_path:string, testing
                     setTimeout(utilities_startServer_readComplete_clock, 950);
                 },
                 // a minimal configuration for a new dashboard server
-                default_server = function utilities_startServer_readComplete_defaultServer(name:string):services_server {
-                    return {
-                        activate: true,
-                        domain_local: [
-                            "localhost",
-                            "127.0.0.1",
-                            "::1"
-                        ],
-                        encryption: "both",
-                        name: name,
-                        ports: {
-                            open: 0,
-                            secure: 0
-                        },
-                        redirect_asset: {
-                            "localhost": {
-                                "/lib/assets/*": "/lib/dashboard/*"
-                            }
-                        },
-                        single_socket: false,
-                        temporary: false
-                    };
+                default_server:services_server = {
+                    activate: true,
+                    domain_local: [
+                        "localhost",
+                        "127.0.0.1",
+                        "::1"
+                    ],
+                    encryption: "both",
+                    id: "",
+                    name: "dashboard",
+                    ports: {
+                        open: 0,
+                        secure: 0
+                    },
+                    redirect_asset: {
+                        "localhost": {
+                            "/lib/assets/*": "/lib/dashboard/*"
+                        }
+                    },
+                    single_socket: false,
+                    temporary: false
                 },
                 start = function utilities_startServer_readComplete_start():void {
                     const servers:string[] = Object.keys(vars.servers),
@@ -461,15 +461,16 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         }
                                         return str;
                                     },
-                                    logItem = function utilities_startServer_readComplete_start_serverCallback_logItem(name:string, encryption:"open"|"secure"):void {
-                                        const conflict:boolean = (vars.servers[name].status[encryption] === 0),
+                                    logItem = function utilities_startServer_readComplete_start_serverCallback_logItem(id:string, encryption:"open"|"secure"):void {
+                                        const conflict:boolean = (vars.servers[id].status[encryption] === 0),
                                             portNumber:number = (conflict === true)
-                                                ? vars.servers[name].config.ports[encryption]
-                                                : vars.servers[name].status[encryption],
+                                                ? vars.servers[id].config.ports[encryption]
+                                                : vars.servers[id].status[encryption],
                                             portDisplay:string = (conflict === true)
                                                 ? vars.text.angry + portNumber + vars.text.none
                                                 : portNumber.toString(),
-                                            str:string = `${vars.text.angry}*${vars.text.none} ${pad(name, longest.name, "right")} - ${pad(encryption, longest.encryption, "right")} - ${vars.text.green + pad(portDisplay, longest.port, "left") + vars.text.none}`;
+                                            name_server:string = vars.servers[id].config.name,
+                                            str:string = `${vars.text.angry}*${vars.text.none} ${pad(name_server, longest.name, "right")} - ${pad(encryption, longest.encryption, "right")} - ${vars.text.green + pad(portDisplay, longest.port, "left") + vars.text.none}`;
                                         if (conflict === true) {
                                             if (portNumber < 1025) {
                                                 logs.push(`${str} (Server offline, typically due to insufficient access for reserved port or port conflict.)`);
@@ -485,12 +486,14 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         name: 0,
                                         port: 0
                                     };
+                                let index:number = 0,
+                                    name:string = "";
                                 servers.sort();
-                                let index:number = 0;
                                 // get string column width
                                 do {
-                                    if (servers[index].length > longest.name) {
-                                        longest.name = servers[index].length;
+                                    name = vars.servers[servers[index]].config.name;
+                                    if (name.length > longest.name) {
+                                        longest.name = name.length;
                                     }
                                     if (vars.servers[servers[index]].config.encryption === "both") {
                                         if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest.port) {
@@ -555,11 +558,11 @@ const start_server = function utilities_startServer(process_path:string, testing
             // delete task_definitions[flag];console.log(Object.keys(task_definitions));
             if (count_task === len_flags) {
                 clock();
-                if (testing === true || vars.servers.dashboard === undefined) {
+                if (testing === true || vars.servers[vars.dashboard_id] === undefined) {
                     server_create({
                         action: "add",
-                        server: default_server("dashboard")
-                    }, start);
+                        server: default_server
+                    }, start, true);
                 } else {
                     start();
                 }
@@ -592,7 +595,6 @@ const start_server = function utilities_startServer(process_path:string, testing
     };
 
     vars.hashes = node.crypto.getHashes();
-    
 
     log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);
 

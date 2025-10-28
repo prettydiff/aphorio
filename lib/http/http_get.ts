@@ -17,8 +17,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         method:"GET"|"HEAD" = (index0.indexOf("HEAD") === 0)
             ? "HEAD"
             : "GET",
-        server_name:string = socket.server,
-        path:string = `${vars.path.servers + server_name + vars.path.sep}assets${vars.path.sep}`,
+        server_id:string = socket.server,
+        path:string = `${vars.path.servers + server_id + vars.path.sep}assets${vars.path.sep}`,
         resource:string = index0[1],
         asset:string[] = resource.split("/"),
         fileFragment:string = asset.join(vars.path.sep).replace(/^(\\|\/)/, ""),
@@ -51,7 +51,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     ""
                 ];
             if (config.template === true) {
-                const name:string = server_name,
+                const name:string = vars.servers[server_id].config.name,
                     templateText:string[] = [
                         "<!doctype html>",
                         "<html lang=\"en\">",
@@ -305,7 +305,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         decoded:string = (decode.includes("?") === true)
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
-    if (server_name === "dashboard") {
+    if (server_id === vars.dashboard_id) {
         const real_path:string = vars.path.project.replace(`test${vars.path.sep}`, "");
         if (decoded.includes("xterm.css") === true) {
             input = `${real_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`;
@@ -313,6 +313,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {
                     compose: vars.compose,
+                    dashboard_id: vars.dashboard_id,
                     hashes: vars.hashes,
                     http_request: vars.http_request,
                     logs: vars.logs,
@@ -324,7 +325,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     terminal: vars.terminal,
                     timeZone_offset: vars.timeZone_offset
                 },
-                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`).replace(/\s+g/, " "),
+                dashboard:string = vars.dashboard_headers.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`).replace(/\s+g/, " "),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",

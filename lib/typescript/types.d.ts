@@ -61,7 +61,7 @@ type type_server_property = "block_list" | "domain_local" | "encryption" | "http
 // * dashboard-os-serv             - services_os_serv             - only the service information of dashboard-os-all
 // * dashboard-os-sock             - services_os_sockets          - only the socket information of dashboard-os-all
 // * dashboard-os-user             - services_os_user             - only the user list information of dashboard-os-all
-// * dashboard-server              - services_dashboard_status    - a single server's configuration data plus an action to perform
+// * dashboard-server              - store_servers                - configuration details and port status for all servers
 // * dashboard-socket-application  - services_socket_application  - status updates about sockets created by this application
 // * dashboard-terminal-resize     - services_terminal-resize     - resizes the shell such that text is formatted properly with invisible control characters
 // * dashboard-websocket-handshake - services_websocket_handshake - custom created message to create a test WebSocket connection
@@ -69,7 +69,7 @@ type type_server_property = "block_list" | "domain_local" | "encryption" | "http
 // * dashboard-websocket-status    - services_websocket_status    - sends connection establishment details for a test socket
 // * test-browser                  - services_test_browser        - test automation messaging to the browser
 type type_service = "dashboard-clock" | "dashboard-compose-container" | "dashboard-compose-variables" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-log" | "dashboard-os-all" | "dashboard-os-devs" | "dashboard-os-disk" | "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-sock" | "dashboard-os-user" | "dashboard-server" | "dashboard-socket-application" | "dashboard-terminal-resize" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
-type type_socket_data = config_log | server_os | services_action_compose | services_action_server | services_clock | services_dashboard_terminal | services_dns_input | services_dns_output | services_dns_reverse | services_docker_compose | services_fileSystem | services_hash | services_http_test | services_os_disk | services_os_intr | services_socket_application | services_terminal_resize | services_testBrowser | services_websocket_handshake | services_websocket_message | services_websocket_status | store_string | string[] | transmit_dashboard | type_list_services;
+type type_socket_data = config_log | server_os | services_action_compose | services_action_server | services_clock | services_dns_input | services_dns_output | services_dns_reverse | services_docker_compose | services_fileSystem | services_hash | services_http_test | services_os_disk | services_os_intr | services_socket_application | services_terminal_resize | services_testBrowser | services_websocket_handshake | services_websocket_message | services_websocket_status | store_servers | store_string | string[] | transmit_dashboard | type_list_services;
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";

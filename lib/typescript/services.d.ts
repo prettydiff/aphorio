@@ -19,19 +19,6 @@ declare global {
         time_zulu: number;
     }
 
-    interface services_dashboard {
-        "activate": type_server_action;
-        "add": type_server_action;
-        "deactivate": type_server_action;
-        "destroy": type_server_action;
-        "modify": type_server_action;
-    }
-
-    interface services_dashboard_activate {
-        name: string;
-        ports: server_ports;
-    }
-
     interface services_dashboard_terminal {
         modes: IModes;
         text: string;
@@ -212,7 +199,7 @@ declare global {
             post?: string;
             put?: string;
         };
-        modification_name?: string;
+        id: string;
         name: string;
         ports: server_ports;
         redirect_asset?: {
