@@ -102,70 +102,74 @@ const server_create = function services_serverCreate(data:services_action_server
                         section: "servers"
                     });
                 };
-            // 1. add server to the vars.servers object
-            config.id = output.hash;
-            if (vars.servers[config.id] === undefined) {
-                if (dashboard === true) {
-                    vars.dashboard_id = output.hash;
-                }
-                if (config.ports === undefined || config.ports === null) {
-                    config.ports = {};
-                }
-                if (config.encryption === "both") {
-                    if (typeof config.ports.open !== "number") {
-                        config.ports.open = 0;
+            if (vars.servers[output.hash] === undefined) {
+                // 1. add server to the vars.servers object
+                config.id = output.hash;
+                if (vars.servers[config.id] === undefined) {
+                    if (dashboard === true) {
+                        vars.dashboard_id = output.hash;
                     }
-                    if (typeof config.ports.secure !== "number") {
-                        config.ports.secure = 0;
+                    if (config.ports === undefined || config.ports === null) {
+                        config.ports = {};
                     }
-                } else if (config.encryption === "open") {
-                    if (typeof config.ports.open !== "number") {
-                        config.ports = {
-                            open: 0
-                        };
+                    if (config.encryption === "both") {
+                        if (typeof config.ports.open !== "number") {
+                            config.ports.open = 0;
+                        }
+                        if (typeof config.ports.secure !== "number") {
+                            config.ports.secure = 0;
+                        }
+                    } else if (config.encryption === "open") {
+                        if (typeof config.ports.open !== "number") {
+                            config.ports = {
+                                open: 0
+                            };
+                        } else {
+                            config.ports = {
+                                open: config.ports.open
+                            };
+                        }
                     } else {
-                        config.ports = {
-                            open: config.ports.open
-                        };
+                        if (typeof config.ports.secure !== "number") {
+                            config.ports = {
+                                secure: 0
+                            };
+                        } else {
+                            config.ports = {
+                                secure: config.ports.secure
+                            };
+                        }
                     }
-                } else {
-                    if (typeof config.ports.secure !== "number") {
-                        config.ports = {
+                    vars.servers[config.id] = {
+                        config: config,
+                        sockets: [],
+                        status: {
+                            open: 0,
                             secure: 0
-                        };
+                        }
+                    };
+                    // 2. add server to servers.json file
+                    if (config.single_socket === true || config.temporary === true) {
+                        complete("config");
                     } else {
-                        config.ports = {
-                            secure: config.ports.secure
-                        };
+                        write();
                     }
-                }
-                vars.servers[config.id] = {
-                    config: config,
-                    sockets: [],
-                    status: {
-                        open: 0,
-                        secure: 0
-                    }
-                };
-                // 2. add server to servers.json file
-                if (config.single_socket === true || config.temporary === true) {
-                    complete("config");
                 } else {
-                    write();
+                    log.application({
+                        error: new Error(),
+                        message: `Server named ${config.name} already exists.  Called on library server_create.`,
+                        section: "servers",
+                        status: "error",
+                        time: Date.now()
+                    });
+                    return;
                 }
+                // 3. create server's directory structure
+                mkdir(path_assets);
+                mkdir(path_certs);
             } else {
-                log.application({
-                    error: new Error(),
-                    message: `Server named ${config.name} already exists.  Called on library server_create.`,
-                    section: "servers",
-                    status: "error",
-                    time: Date.now()
-                });
-                return;
+                services_serverCreate(data, callback, dashboard);
             }
-            // 3. create server's directory structure
-            mkdir(path_assets);
-            mkdir(path_certs);
         },
         digest: "hex",
         hash_input_type: "direct",
