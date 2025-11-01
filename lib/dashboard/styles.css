@@ -261,6 +261,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         .summary{
             display:none;
             h5{font-size:1em;margin:0}
+            p{margin-top:0}
             ul{font-size:1em;margin:1em 0 0;padding:0}
         }
         dt,
@@ -284,6 +285,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     }
     .pass-false{color:var(--fail_bright)}
     .pass-warn{color:var(--text_yellow)}
+    .server_id{max-width:25em;overflow:hidden;text-overflow:ellipsis}
     .summary-stats .file-system-summary-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}
     .tab{display:none}
     .tab-description{border-color:var(--border_soft);border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 0.5em}

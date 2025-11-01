@@ -2,7 +2,6 @@
 import certificate from "./certificate.ts";
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
-import node from "../core/node.ts";
 import server from "../transmit/server.ts";
 import vars from "../core/vars.ts";
 
@@ -17,7 +16,7 @@ import vars from "../core/vars.ts";
 
 const server_halt = function services_serverHalt(data:services_action_server, callback:() => void):void {
     const id:string = data.server.id;
-    if (data.action === "destroy" && id === vars.dashboard_id) {
+    if (id === "" || (data.action === "destroy" && id === vars.dashboard_id)) {
         return;
     } 
     if (vars.servers[id] === undefined) {
@@ -33,114 +32,99 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
             temporary:boolean = vars.servers[id].config.temporary,
             path_config:string = `${vars.path.project}servers.json`,
             path_name:string = vars.path.servers + id + vars.path.sep,
-            flags:store_flag = {
-                config: false,
-                remove: (data.action === "destroy")
-                    ? false
-                    : true,
-                restart: (data.action === "modify")
-                    ? false
-                    : true
+            encryption:type_encryption = vars.servers[id].config.encryption,
+            complete = function services_serverHalt_complete():void {
+                const actionText:string = (data.action.charAt(data.action.length - 1) === "e")
+                    ? `${data.action}d`
+                    : `${data.action}ed`;
+                if (callback !== null) {
+                    // 5. call the callback
+                    callback();
+                }
+                log.application({
+                    error: null,
+                    message: `Server named ${data.server.name} ${actionText}.`,
+                    section: "servers",
+                    status: "informational",
+                    time: Date.now()
+                });
             },
-            complete = function services_serverHalt_complete(flag:"config"|"remove"|"restart"):void {
-                flags[flag] = true;
-                if (flags.config === true && flags.remove === true && flags.restart === true) {
-                    const actionText:string = (data.action.charAt(data.action.length - 1) === "e")
-                        ? `${data.action}d`
-                        : `${data.action}ed`;
-                    if (callback !== null) {
-                        // 8. call the callback
-                        callback();
-                    }
-                    log.application({
-                        error: null,
-                        message: `Server named ${data.server.name} ${actionText}.`,
-                        section: "servers",
-                        status: "informational",
-                        time: Date.now()
-                    });
-                }
-            },
-            file_remove:config_file_remove = {
-                callback: function services_serverHalt_remove():void {
-                    complete("remove");
-                },
-                exclusions: [],
-                location: path_name,
-                section: "servers"
-            },
-            write_json = function services_serverHalt_writeJSON():void {
-                const sockets_open:websocket_client[] = vars.server_meta[id].sockets.open,
-                    sockets_secure:websocket_client[] = vars.server_meta[id].sockets.secure;
-                let index:number = (sockets_open === undefined)
-                    ? 0
-                    : sockets_open.length;
-                if (single_socket === true || temporary === true) {
-                    data.action = "destroy";
-                }
-                // 2. turn off active servers
-                if (vars.server_meta[id].server.open !== undefined && vars.server_meta[id].server.open !== null) {
-                    vars.server_meta[id].server.open.close();
-                }
-                if (vars.server_meta[id].server.secure !== undefined && vars.server_meta[id].server.secure !== null) {
-                    vars.server_meta[id].server.secure.close();
-                }
-                vars.servers[id].status = {
-                    open: 0,
-                    secure: 0
-                };
-                // 3. kill all sockets on the server
-                if (index > 0) {
-                    do {
-                        index = index - 1;
-                        sockets_open[index].destroy();
-                    } while (index > 0);
-                }
-                index = (sockets_secure === undefined)
-                    ? 0
-                    : sockets_secure.length;
-                if (index > 0) {
-                    do {
-                        index = index - 1;
-                        sockets_secure[index].destroy();
-                    } while (index > 0);
-                }
-                delete vars.server_meta[id];
-                // 4. delete vars.sockets[name]
+            write_callback = function services_serverHalt_writeCallback():void {
+                const activate = function servers_serverHalt_activate():void {
+                        if (vars.servers[id].config.activate === true) {
+                            // 4. Reactivate the server(s) if its given "activate" property has a true boolean value
+                            server({
+                                action: "activate",
+                                server: data.server
+                            }, function servers_serverHalt_complete_server():void {
+                                complete();
+                            });
+                        } else {
+                            complete();
+                        }
+                    };
                 if (data.action === "destroy") {
-                    // 5. delete server from vars.server
+                    const  file_remove:config_file_remove = {
+                        callback: function services_serverHalt_remove():void {
+                            activate();
+                        },
+                        exclusions: [],
+                        location: path_name,
+                        section: "servers"
+                    };
                     delete vars.servers[id];
-                    // 6. remove server's directory
+                    // 3a. Remove the web server's assets from the file system
                     file.remove(file_remove);
-                } else if (data.action !== "modify") {
-                    complete("remove");
-                }
-                // 7. modify the server
-                if (data.action === "modify") {
-                    vars.servers[data.server.name].config = data.server;
+                } else if (data.action === "modify" && (encryption === "both" || encryption === "secure")) {
+                    vars.servers[id].config = data.server;
+                    // 3b. Issue new certificates for modified secure server
                     certificate({
                         callback: function services_serverHalt_certificate():void {
                             server(data, function services_serverHalt_certificate_restartComplete():void {
-                                complete("restart");
+                                activate();
                             });
                         },
                         days: 65535,
-                        id: data.server.id,
+                        id: id,
                         selfSign: true
                     });
                 } else {
-                    complete("restart");
+                    activate();
+                }
+            },
+            kill_sockets = function servers_serverHalt_killSockets(sockets:websocket_client[]):void {
+                let index:number = sockets.length;
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        sockets[index].destroy();
+                    } while (index > 0);
                 }
             };
+        
+        if (single_socket === true || temporary === true) {
+            data.action = "destroy";
+        }
+
+        // 1. Disable the servers and kill their sockets
+        if (encryption === "both") {
+            vars.server_meta[id].server.open.close();
+            vars.server_meta[id].server.secure.close();
+            kill_sockets(vars.server_meta[id].sockets.open);
+            kill_sockets(vars.server_meta[id].sockets.secure);
+        } else {
+            vars.server_meta[id].server[encryption].close();
+            kill_sockets(vars.server_meta[id].sockets[encryption]);
+        }
         if (data.action === "destroy" || data.action === "modify") {
-            // 1. modify the servers.json file
-            const keys:string[] = Object.keys(vars.servers),
-                total:number = keys.length,
-                config:config_servers_file = {
-                    dashboard_id: vars.dashboard_id,
-                    servers: {}
-                };
-            let index:number = 0;
+            // 2. modify the servers.json file
+            const config:config_servers_file = {
+                dashboard_id: vars.dashboard_id,
+                servers: {}
+            };
+            let index:number = 0,
+                keys:string[] = [],
+                total:number = 0;
             if (data.action === "modify") {
                 vars.servers[id] = {
                     config: data.server,
@@ -150,8 +134,12 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                         secure: 0
                     }
                 };
+            } else {
+                delete vars.servers[id];
+                delete vars.server_meta[id];
             }
-            // the servers.json file only stores the config property of each server's data
+            keys = Object.keys(vars.servers);
+            total = keys.length;
             if (total > 0) {
                 do {
                     config.servers[keys[index]] = vars.servers[keys[index]].config;
@@ -159,13 +147,13 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 } while (index < total);
             }
             file.write({
-                callback: write_json,
+                callback: write_callback,
                 contents: JSON.stringify(config),
                 location: path_config,
                 section: "servers"
             });
         } else {
-            write_json();
+            write_callback();
         }
     }
 };

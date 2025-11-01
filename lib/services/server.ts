@@ -9,7 +9,7 @@ const servers = function services_server(socketData:socket_data):void {
     if (socketData.service === "dashboard-server") {
         const data:services_action_server = socketData.data as services_action_server,
             callback = function services_server_callback():void {
-                broadcast("dashboard", "dashboard", {
+                broadcast(vars.dashboard_id, "dashboard", {
                     data: vars.servers,
                     service: "dashboard-server"
                 });

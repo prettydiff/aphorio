@@ -931,24 +931,28 @@ const dashboard = function dashboard():void {
                         len:number = config.list.length,
                         tbody:HTMLElement = network.sockets_application.nodes.list,
                         table:HTMLElement = tbody.parentNode,
-                        cell = function dashboard_networkSocketApplicationList_cell(text:string):void {
+                        cell = function dashboard_networkSocketApplicationList_cell(text:string, classy:string):void {
                             const td:HTMLElement = document.createElement("td");
                             td.textContent = text;
+                            if (classy !== null) {
+                                td.setAttribute("class", classy);
+                            }
                             tr.appendChild(td);
                         };
                     tbody.textContent = "";
                     do {
                         tr = document.createElement("tr");
-                        cell(config.list[index].server);
-                        cell(config.list[index].hash);
-                        cell(config.list[index].type);
-                        cell(config.list[index].role);
-                        cell((config.list[index].proxy === null) ? "" : config.list[index].proxy);
-                        cell(String(config.list[index].encrypted));
-                        cell(config.list[index].address.local.address);
-                        cell(String(config.list[index].address.local.port));
-                        cell(config.list[index].address.remote.address);
-                        cell(String(config.list[index].address.remote.port));
+                        cell(config.list[index].server_id, "server_id");
+                        cell(config.list[index].server_name, null);
+                        cell(config.list[index].hash, null);
+                        cell(config.list[index].type, null);
+                        cell(config.list[index].role, null);
+                        cell((config.list[index].proxy === null) ? "" : config.list[index].proxy, null);
+                        cell(String(config.list[index].encrypted), null);
+                        cell(config.list[index].address.local.address, null);
+                        cell(String(config.list[index].address.local.port), null);
+                        cell(config.list[index].address.remote.address, null);
+                        cell(String(config.list[index].address.remote.port), null);
                         tbody.appendChild(tr);
                         index = index + 1;
                     } while (index < len);
@@ -1468,7 +1472,6 @@ const dashboard = function dashboard():void {
                         configuration:services_server = (function dashboard_serverMessage_configuration():services_server {
                             const textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
                                 config:services_server = JSON.parse(textArea.value);
-                            config.id = "";
                             if (payload.servers[config.id] !== undefined) {
                                 payload.servers[config.id].config.encryption = config.encryption;
                             }
@@ -1540,7 +1543,7 @@ const dashboard = function dashboard():void {
                                     : "s";
                                 save.disabled = true;
                                 populate(false, `The server configuration contains ${failures} violation${plural}.`);
-                            } else if (id !== null && id !== undefined && order(serverData) === order(payload.servers[name_server].config)) {
+                            } else if (id !== null && id !== undefined && order(serverData) === order(payload.servers[id].config)) {
                                 save.disabled = true;
                                 populate(false, "The server configuration is valid, but not modified.");
                             } else {
@@ -1579,7 +1582,7 @@ const dashboard = function dashboard():void {
                                 return required;
                             }
                         },
-                        keys = function dashboard_serverValidate_keys(config:config_validate_serverKeys):void {
+                        key_test = function dashboard_serverValidate_keys(config:config_validate_serverKeys):void {
                             const requirement_child:string = (config.required_property === true)
                                     ? "required"
                                     : "supported",
@@ -1668,6 +1671,7 @@ const dashboard = function dashboard():void {
                                             if (keys[indexActual] === config.supported[indexSupported]) {
                                                 keys.splice(indexActual, 1);
                                                 config.supported.splice(indexSupported, 1);
+                                                indexActual = indexActual - 1;
                                             } else if (config.name === "ports" && ((serverData.encryption === "open" && config.supported[indexSupported] === "secure") || (serverData.encryption === "secure" && config.supported[indexSupported] === "open"))) {
                                                 config.supported.splice(indexSupported, 1);
                                             } else if (config.name === null && keys.includes(config.supported[indexSupported]) === false && (config.supported[indexSupported] === "block_list" || config.supported[indexSupported] === "domain_local" || config.supported[indexSupported] === "http" || config.supported[indexSupported] === "redirect_domain" || config.supported[indexSupported] === "redirect_asset") || config.supported[indexSupported] === "single_socket" || config.supported[indexSupported] === "temporary") {
@@ -1706,7 +1710,7 @@ const dashboard = function dashboard():void {
                                 }
                             }
                         },
-                        rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "http", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary"];
+                        rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "http", "id", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary"];
                     let serverData:services_server = null,
                         failures:number = 0;
                     summary.style.display = "block";
@@ -1726,7 +1730,7 @@ const dashboard = function dashboard():void {
                         populate(false, "Required property 'activate' expects a boolean type value.");
                     }
                     // block_list
-                    keys({
+                    key_test({
                         name: "block_list",
                         required_name: false,
                         required_property: true,
@@ -1742,7 +1746,7 @@ const dashboard = function dashboard():void {
                         populate(false, "Required property 'encryption' is not assigned a supported value: \"both\", \"open\", or \"secure\".");
                     }
                     // http
-                    keys({
+                    key_test({
                         name: "http",
                         required_name: false,
                         required_property: false,
@@ -1759,10 +1763,8 @@ const dashboard = function dashboard():void {
                     if (typeof serverData.name === "string" && serverData.name !== "") {
                         if (serverData.name === "new_server") {
                             populate(null, "The name 'new_server' is a default placeholder. A more unique name is preferred.");
-                        } else if (serverData.name === name_server || payload.servers[serverData.name] === undefined) {
-                            populate(true, "Required property 'name' has an appropriate value.");
                         } else {
-                            populate(false, `Name ${serverData.name} is already in use. Value for required property 'name' must be unique.`);
+                            populate(true, "Required property 'name' is present with a value.");
                         }
                     } else {
                         populate(false, "Required property 'name' is not assigned an appropriate string value.");
@@ -1771,7 +1773,7 @@ const dashboard = function dashboard():void {
                     if ((serverData.ports.open === 0 && (serverData.encryption === "both" || serverData.encryption === "open")) || (serverData.ports.secure === 0 && (serverData.encryption === "both" || serverData.encryption === "secure"))) {
                         populate(null, "A port value of 0 will assign a randomly available port from the local machine. A number greater than 0 and less than 65535 is preferred.");
                     }
-                    keys({
+                    key_test({
                         name: "ports",
                         required_name: true,
                         required_property: true,
@@ -1779,7 +1781,7 @@ const dashboard = function dashboard():void {
                         type: "number"
                     });
                     // redirect_asset
-                    keys({
+                    key_test({
                         name: "redirect_asset",
                         required_name: false,
                         required_property: false,
@@ -1787,7 +1789,7 @@ const dashboard = function dashboard():void {
                         type: "store"
                     });
                     // redirect_domain
-                    keys({
+                    key_test({
                         name: "redirect_domain",
                         required_name: false,
                         required_property: false,
@@ -1811,7 +1813,7 @@ const dashboard = function dashboard():void {
                         populate(false, "Optional property 'temporary' expects a boolean type value.");
                     }
                     // parent properties
-                    keys({
+                    key_test({
                         name: null,
                         required_name: false,
                         required_property: true,
@@ -1893,7 +1895,7 @@ const dashboard = function dashboard():void {
                             ? ""
                             : expandButton.textContent;
                     if (newFlag === true || expandText === "Expand") {
-                        let p:HTMLElement = document.createElement("p");
+                        let p:HTMLElement = null;
                         const id:string = serverItem.dataset.id,
                             details:HTMLElement = document.createElement("div"),
                             label:HTMLElement = document.createElement("label"),
@@ -2019,6 +2021,20 @@ const dashboard = function dashboard():void {
                                     if (serverData.redirect_asset !== undefined && serverData.redirect_asset !== null) {
                                         object("redirect_asset");
                                     }
+                                    if (serverData.single_socket !== undefined && serverData.single_socket !== null) {
+                                        if (serverData.single_socket === true) {
+                                            output.push("\"single_socket\": true,");
+                                        } else {
+                                            output.push("\"single_socket\": false,");
+                                        }
+                                    }
+                                    if (serverData.temporary !== undefined && serverData.temporary !== null) {
+                                        if (serverData.temporary === true) {
+                                            output.push("\"temporary\": true");
+                                        } else {
+                                            output.push("\"temporary\": false");
+                                        }
+                                    }
                                     output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
                                     return `${output.join("\n    ")}\n}`;
                                 }())
@@ -2053,7 +2069,10 @@ const dashboard = function dashboard():void {
                             p.appendChild(label);
                             details.appendChild(p);
                         }
+                        p = document.createElement("p");
+                        p.textContent = "Altering the 'id' property will have no effect as it will not change except for new servers awaiting a dynamically created id value.";
                         summaryTitle.appendText("Edit Summary");
+                        summary.appendChild(p);
                         summary.appendChild(summaryTitle);
                         summary.appendChild(summaryUl);
                         summary.setAttribute("class", "summary");
@@ -2069,6 +2088,7 @@ const dashboard = function dashboard():void {
                         }
                         label.appendChild(span);
                         label.appendChild(textArea);
+                        p = document.createElement("p");
                         p.appendChild(label);
                         details.appendChild(p);
                         details.appendChild(summary);

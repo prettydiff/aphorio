@@ -5,7 +5,7 @@ import vars from "./vars.ts";
 const log:log = {
     application: function utilities_logApplication(config:config_log):void {
         vars.logs.push(config);
-        broadcast("dashboard", "dashboard", {
+        broadcast(vars.dashboard_id, "dashboard", {
             data: config,
             service: "dashboard-log"
         });

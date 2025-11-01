@@ -45,7 +45,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                     status: "informational",
                     time: Date.now()
                 });
-                broadcast("dashboard", "dashboard", {
+                broadcast(vars.dashboard_id, "dashboard", {
                     data: null,
                     service: "dashboard-server"
                 });
@@ -57,7 +57,8 @@ const server = function transmit_server(data:services_action_server, callback:(n
                     secure:"open"|"secure" = (serverItem.secure === true)
                         ? "secure"
                         : "open";
-                if (ser.code === "EADDRINUSE") {
+                // we expect the error argument to always populate on an error handler, but not in the case of deliberately killing a server with the "close" method
+                if (ser !== null && ser !== undefined && ser.code === "EADDRINUSE") {
                     log.application({
                         error: ser,
                         message: `Port conflict on port ${vars.servers[serverItem.id].config.ports[secure]} of ${secure} server named ${serverItem.id}.`,

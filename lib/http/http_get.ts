@@ -6,6 +6,7 @@ import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import file_list from "../browser/file_list.ts";
 import node from "../core/node.ts";
+import socket_end from "../transmit/socketEnd.ts";
 import socket_list from "../services/socket_list.ts";
 import vars from "../core/vars.ts";
 
@@ -27,6 +28,13 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                 return heading.join("\r\n");
             }
             return heading.join("\r\n") + body;
+        },
+        destroy = function http_get_destroy():void {
+            socket.off("close", socket_end);
+            socket.off("end", socket_end);
+            socket.off("error", socket_end);
+            socket.destroy();
+            socket_list();
         },
         // a dynamically generated template for page HTML
         html = function http_get_html(config:config_html):string {
@@ -100,9 +108,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             return payload(headerText, bodyText);
         },
         write = function http_get_write(payload:Buffer|string):void {
-            const destroy = function http_get_write_destroy():void {
-                socket.destroy();
-            };
             if (socket.write(payload) === true) {
                 setTimeout(destroy, 100);
             } else {
@@ -273,7 +278,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         socket.write(headerText.join("\r\n"));
                         stream.pipe(socket);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
-                            socket.destroy();
+                            destroy();
                         });
                     } else {
                         // text media types use chunked type response
@@ -284,7 +289,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             const delay:number = Math.max(250, stream.bytesRead / 10000);
                             socket.write("0\r\n\r\n");
                             setTimeout(function http_get_statTest_fileItem_close_delay():void {
-                                socket.destroy();
+                                destroy();
                             }, delay);
                         });
                         socket.write(headerText.join("\r\n"));

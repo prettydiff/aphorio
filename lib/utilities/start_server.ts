@@ -193,7 +193,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                     },
                     osDelay = function utilities_startServer_taskOSMain_osDelay():void {
                         os_lists("all", function utilities_startServer_taskOSMain_osDelay_callback(payload:socket_data):void {
-                            broadcast("dashboard", "dashboard", payload);
+                            broadcast(vars.dashboard_id, "dashboard", payload);
                         });
                         osDaily();
                     },
@@ -401,7 +401,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             time_local: now,
                             time_zulu: (now + (new Date().getTimezoneOffset() * 60000))
                         };
-                    broadcast("dashboard", "dashboard", {
+                    broadcast(vars.dashboard_id, "dashboard", {
                         data: payload,
                         service: "dashboard-clock"
                     });

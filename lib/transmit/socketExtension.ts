@@ -51,7 +51,8 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     ? null
                     : config.socket.proxy.hash,
                 role: config.role,
-                server: config.server,
+                server_id: config.server,
+                server_name: vars.servers[config.server].config.name,
                 type: config.type
             },
             sockets:services_socket_application = socket_list(function transmit_socketExtension_socketList():void {
@@ -125,12 +126,6 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             config.callback(config.socket, config.timeout);
         }
         log.application(log_config);
-        if (socket.address.local.port !== undefined && socket.address.remote.port !== undefined) {
-            broadcast("dashboard", "dashboard", {
-                data: sockets,
-                service: "dashboard-socket-application"
-            });
-        }
     }
 };
 
