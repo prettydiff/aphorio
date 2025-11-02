@@ -31,7 +31,7 @@ interface transmit_dashboard {
     http_request: string;
     logs: config_log[];
     name: string;
-    os: server_os;
+    os: core_server_os;
     path: vars_path;
     servers: store_servers;
     sockets: services_socket_application;

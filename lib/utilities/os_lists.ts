@@ -809,7 +809,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 }
             }
         },
-        main = function utilities_os_main(time:number):server_os {
+        main = function utilities_os_main(time:number):core_server_os {
             const mem:server_os_memoryUsage = process.memoryUsage(),
                 gid:number = (typeof process.getgid === "undefined")
                     ? 0
@@ -817,7 +817,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 uid:number = (typeof process.getuid === "undefined")
                     ? 0
                     : process.getuid(),
-                output:server_os = {
+                output:core_server_os = {
                     devs: {
                         data: [],
                         time: 0
@@ -858,6 +858,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         uptime: node.os.uptime()
                     },
                     process: {
+                        admin: vars.os.process.admin,
                         arch: process.arch,
                         argv: process.argv,
                         cpuSystem: process.cpuUsage().system / 1e6,
@@ -917,7 +918,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             }
             complete[type] = true;
             if (type_os === "all" && index > 0) {
-                const output:server_os = main(now);
+                const output:core_server_os = main(now);
                 do {
                     index = index - 1;
                     if (complete[keys[index]] === false) {
@@ -964,7 +965,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     service: "dashboard-os-all"
                 });
             } else if (type_os === "main") {
-                const output:server_os = main(now);
+                const output:core_server_os = main(now);
                 callback({
                     data: output,
                     service: "dashboard-os-main"

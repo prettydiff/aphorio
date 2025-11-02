@@ -692,160 +692,6 @@ const dashboard = function dashboard():void {
                 },
                 type: "dashboard"
             }),
-            // living status updates for servers, containers, and their sockets
-            status: function dashboard_utilityStatus(data_item:socket_data):void {
-                // const data:services_dashboard_status = data_item.data as services_dashboard_status,
-                // if (data.type !== "socket" && data.message !== "Container status refreshed.") {
-                //     utility.log(data);
-                // }
-                // if (data.status === "error") {
-                // } else {
-                //     if (data.type === "server") {
-                //         const config:services_server = data.configuration as services_server,
-                //             list:HTMLCollectionOf<HTMLElement> = document.getElementById("servers").getElementsByTagName("li");
-                //         let index:number = list.length;
-                //         if (data.action === "destroy") {
-                //             delete payload.servers[config.name];
-                //             do {
-                //                 index = index - 1;
-                //                 if (list[index].getAttribute("data-name") === config.name) {
-                //                     list[index].parentNode.removeChild(list[index]);
-                //                     return;
-                //                 }
-                //             } while (index > 0);
-                //         } else if (data.action === "add" && payload.servers[config.name] === undefined) {
-                //             payload.servers[config.name] = {
-                //                 config: config,
-                //                 sockets: [],
-                //                 status: {
-                //                     open: 0,
-                //                     secure: 0
-                //                 }
-                //             };
-                //             const names:string[] = Object.keys(payload.servers),
-                //                 ul_current:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
-                //                 ul:HTMLElement = (ul_current === undefined)
-                //                     ? document.createElement("ul")
-                //                     : ul_current;
-                //             payload.servers[config.name].status = {
-                //                 open: 0,
-                //                 secure: 0
-                //             };
-                //             names.sort(function dashboard_serverList_sort(a:string, b:string):-1|1 {
-                //                 if (a < b) {
-                //                     return -1;
-                //                 }
-                //                 return 1;
-                //             });
-                //             index = names.length;
-                //             if (names[names.length - 1] === config.name) {
-                //                 ul.appendChild(servers.shared.title(config.name, "server"));
-                //             } else if (names[0] === config.name) {
-                //                 ul.insertBefore(servers.shared.title(config.name, "server"), ul.firstChild);
-                //             } else {
-                //                 do {
-                //                     index = index - 1;
-                //                     if (names[index] === config.name) {
-                //                         ul.insertBefore(servers.shared.title(config.name, "server"), ul.childNodes[index - 1]);
-                //                         break;
-                //                     }
-                //                 } while (index > 0);
-                //             }
-                //         } else if (data.action === "activate") {
-                //             payload.servers[config.name].status = config.ports;
-                //             const color:type_activation_status = servers.shared.color(config.name, "server");
-                //             let oldPorts:HTMLElement = null,
-                //                 activate:HTMLButtonElement = null,
-                //                 deactivate:HTMLButtonElement = null;
-                //             do {
-                //                 index = index - 1;
-                //                 if (list[index].getAttribute("data-name") === config.name) {
-                //                     if (color[0] !== null) {
-                //                         list[index].setAttribute("class", color[0]);
-                //                     }
-                //                     list[index].getElementsByTagName("h4")[0].getElementsByTagName("button")[0].lastChild.textContent = `${config.name} - ${color[1]}`;
-                //                     oldPorts = list[index].getElementsByClassName("active-ports")[0] as HTMLElement;
-                //                     activate = list[index].getElementsByClassName("server-activate")[0] as HTMLButtonElement;
-                //                     deactivate = list[index].getElementsByClassName("server-deactivate")[0] as HTMLButtonElement;
-                //                     if (oldPorts !== undefined) {
-                //                         oldPorts.parentNode.insertBefore(servers.web.activePorts(config.name), oldPorts);
-                //                         oldPorts.parentNode.removeChild(oldPorts);
-                //                     }
-                //                     if (activate !== undefined) {
-                //                         if (color[0] === "green") {
-                //                             activate.disabled = true;
-                //                         } else {
-                //                             activate.disabled = false;
-                //                         }
-                //                     }
-                //                     if (deactivate !== undefined) {
-                //                         if (color[0] === "red") {
-                //                             deactivate.disabled = true;
-                //                         } else {
-                //                             deactivate.disabled = false;
-                //                         }
-                //                     }
-                //                     break;
-                //                 }
-                //             } while (index > 0);
-                //         } else if (data.action === "deactivate") {
-                //             payload.servers[config.name].status = {
-                //                 open: 0,
-                //                 secure: 0
-                //             };
-                //             let oldPorts:HTMLElement = null,
-                //                 activate:HTMLButtonElement = null,
-                //                 deactivate:HTMLButtonElement = null;
-                //             do {
-                //                 index = index - 1;
-                //                 if (list[index].getAttribute("data-name") === config.name) {
-                //                     list[index].setAttribute("class", "red");
-                //                     list[index].getElementsByTagName("h4")[0].getElementsByTagName("button")[0].lastChild.textContent = `${config.name} - offline`;
-                //                     oldPorts = list[index].getElementsByClassName("active-ports")[0] as HTMLElement;
-                //                     activate = list[index].getElementsByClassName("server-activate")[0] as HTMLButtonElement;
-                //                     deactivate = list[index].getElementsByClassName("server-deactivate")[0] as HTMLButtonElement;
-                //                     if (oldPorts !== undefined) {
-                //                         oldPorts.parentNode.insertBefore(servers.web.activePorts(config.name), oldPorts);
-                //                         oldPorts.parentNode.removeChild(oldPorts);
-                //                     }
-                //                     if (activate !== undefined) {
-                //                         activate.disabled = false;
-                //                     }
-                //                     if (deactivate !== undefined) {
-                //                         deactivate.disabled = true;
-                //                     }
-                //                     break;
-                //                 }
-                //             } while (index > 0);
-                //         } else if (data.action === "modify") {
-                //             const list:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
-                //                 items:HTMLCollectionOf<HTMLElement> = list.getElementsByTagName("li");
-                //             let index:number = items.length;
-                //             payload.servers[config.name].config = config;
-                //             if (index > 0) {
-                //                 do {
-                //                     index = index - 1;
-                //                     if (items[index].getAttribute("data-name") === config.name) {
-                //                         list.insertBefore(servers.shared.title(config.name, "server"), items[index]);
-                //                         list.removeChild(items[index]);
-                //                         break;
-                //                     }
-                //                 } while (index > 0);
-                //             }
-                //         }
-                //     } else if (data.type === "compose-containers") {
-                //         if (data.action === "destroy") {
-                //             servers.compose.destroyContainer(data.configuration as services_docker_compose);
-                //         } else {
-                //             servers.compose.container(data.configuration as services_docker_compose);
-                //         }
-                //     } else if (data.type === "compose-variables") {
-                //         const store:store_string = data.configuration as store_string;
-                //         payload.compose.variables = store;
-                //         servers.compose.list("variables");
-                //     }
-                // }
-            }
         },
         network:structure_network = {
             interfaces: {
@@ -2435,6 +2281,7 @@ const dashboard = function dashboard():void {
                     system.os.nodes.os.release.textContent = payload.os.os.release;
                     system.os.nodes.os.type.textContent = payload.os.os.type;
                     system.os.nodes.os.uptime.textContent = payload.os.os.uptime.time();
+                    system.os.nodes.process.admin.textContent = payload.os.process.admin.toString();
                     system.os.nodes.process.arch.textContent = payload.os.process.arch;
                     system.os.nodes.process.argv.textContent = JSON.stringify(payload.os.process.argv);
                     system.os.nodes.process.cpuSystem.textContent = payload.os.process.cpuSystem.time();
@@ -2545,18 +2392,19 @@ const dashboard = function dashboard():void {
                             },
                             path: sections.path,
                             process: {
-                                arch: item("process", 0),
-                                argv: item("process", 1),
-                                cpuSystem: item("process", 2),
-                                cpuUser: item("process", 3),
-                                cwd: item("process", 4),
-                                memoryProcess: item("process", 5),
-                                memoryV8: item("process", 6),
-                                memoryExternal: item("process", 7),
-                                platform: item("process", 8),
-                                pid: item("process", 9),
-                                ppid: item("process", 10),
-                                uptime: item("process", 11)
+                                admin: item("process", 0),
+                                arch: item("process", 1),
+                                argv: item("process", 2),
+                                cpuSystem: item("process", 3),
+                                cpuUser: item("process", 4),
+                                cwd: item("process", 5),
+                                memoryProcess: item("process", 6),
+                                memoryV8: item("process", 7),
+                                memoryExternal: item("process", 8),
+                                platform: item("process", 9),
+                                pid: item("process", 10),
+                                ppid: item("process", 11),
+                                uptime: item("process", 12)
                             },
                             update_button: document.getElementById("os").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                             update_text: document.getElementById("os").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0],
@@ -2570,7 +2418,7 @@ const dashboard = function dashboard():void {
                     return nodeList;
                 }()),
                 service: function dashboard_osService(data_item:socket_data):void {
-                    const main = function dashboard_osService_main(data:server_os):void {
+                    const main = function dashboard_osService_main(data:core_server_os):void {
                             system.os.nodes.update_text.textContent = data.time.dateTime(true, payload.timeZone_offset);
                             payload.os.machine.memory = data.machine.memory;
                             payload.os.os.uptime = data.os.uptime;
@@ -2581,6 +2429,7 @@ const dashboard = function dashboard():void {
                             system.os.nodes.memory.used.textContent = `${(payload.os.machine.memory.total - payload.os.machine.memory.free).bytesLong()}, ${(((payload.os.machine.memory.total - payload.os.machine.memory.free) / payload.os.machine.memory.total) * 100).toFixed(2)}%`;
                             system.os.nodes.memory.total.textContent = `${payload.os.machine.memory.total.bytesLong()}, 100%`;
                             system.os.nodes.os.uptime.textContent = payload.os.os.uptime.time();
+                            system.os.nodes.process.admin.textContent = payload.os.process.admin.toString();
                             system.os.nodes.process.cpuSystem.textContent = payload.os.process.cpuSystem.time();
                             system.os.nodes.process.cpuUser.textContent = payload.os.process.cpuUser.time();
                             system.os.nodes.process.uptime.textContent = payload.os.process.uptime.time();
@@ -2589,7 +2438,7 @@ const dashboard = function dashboard():void {
                             system.os.nodes.process.memoryExternal.textContent = payload.os.process.memory.external.bytesLong();
                         };
                     if (data_item.service === "dashboard-os-all") {
-                        const data:server_os = data_item.data as server_os;
+                        const data:core_server_os = data_item.data as core_server_os;
                         main(data);
                         network.interfaces.list(data.intr);
                         system.disks.list(data.disk);
@@ -2605,7 +2454,7 @@ const dashboard = function dashboard():void {
                     } else if (data_item.service === "dashboard-os-intr") {
                         network.interfaces.list(data_item.data as services_os_intr);
                     } else if (data_item.service === "dashboard-os-main") {
-                        main(data_item.data as server_os);
+                        main(data_item.data as core_server_os);
                     } else if (data_item.service === "dashboard-os-proc") {
                         tables.populate(system.processes, data_item.data as services_os_proc);
                     } else if (data_item.service === "dashboard-os-serv") {

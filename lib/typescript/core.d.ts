@@ -6,6 +6,63 @@ interface configuration_compose {
     variables: store_string;
 }
 
+interface core_server_os {
+    devs: services_os_devs;
+    disk: services_os_disk;
+    intr: services_os_intr;
+    machine: {
+        cpu: {
+            arch: string;
+            cores: number;
+            endianness: string;
+            frequency: number;
+            name: string;
+        };
+        memory: {
+            free: number;
+            total: number;
+        };
+    };
+    os: {
+        env: store_string;
+        hostname: string;
+        name: string;
+        path: string[];
+        platform: string;
+        release: string;
+        type: string;
+        uptime: number;
+    };
+    proc: services_os_proc;
+    process: {
+        admin: boolean;
+        arch: string;
+        argv: string[];
+        cpuSystem: number;
+        cpuUser: number;
+        cwd: string;
+        memory: {
+            external: number;
+            rss: number;
+            V8: number;
+        };
+        pid: number;
+        platform: string;
+        ppid: number;
+        uptime: number;
+        versions: store_string;
+    };
+    serv: services_os_serv;
+    sock: services_os_sock;
+    time: number;
+    user: services_os_user;
+    user_account: {
+        gid: number;
+        homedir: string;
+        uid: number;
+    };
+}
+
 interface core_spawn {
     child: () => void;
     close: () => void;
@@ -58,7 +115,7 @@ interface core_vars {
     intervals: store_number;
     logs: config_log[];
     name: string;
-    os: server_os;
+    os: core_server_os;
     path: vars_path;
     server_meta: server_meta;
     servers: store_servers;
@@ -176,62 +233,6 @@ interface server_meta_item {
     sockets: {
         open: websocket_client[];
         secure: websocket_client[];
-    };
-}
-
-interface server_os {
-    devs: services_os_devs;
-    disk: services_os_disk;
-    intr: services_os_intr;
-    machine: {
-        cpu: {
-            arch: string;
-            cores: number;
-            endianness: string;
-            frequency: number;
-            name: string;
-        };
-        memory: {
-            free: number;
-            total: number;
-        };
-    };
-    os: {
-        env: store_string;
-        hostname: string;
-        name: string;
-        path: string[];
-        platform: string;
-        release: string;
-        type: string;
-        uptime: number;
-    };
-    proc: services_os_proc;
-    process: {
-        arch: string;
-        argv: string[];
-        cpuSystem: number;
-        cpuUser: number;
-        cwd: string;
-        memory: {
-            external: number;
-            rss: number;
-            V8: number;
-        };
-        pid: number;
-        platform: string;
-        ppid: number;
-        uptime: number;
-        versions: store_string;
-    };
-    serv: services_os_serv;
-    sock: services_os_sock;
-    time: number;
-    user: services_os_user;
-    user_account: {
-        gid: number;
-        homedir: string;
-        uid: number;
     };
 }
 

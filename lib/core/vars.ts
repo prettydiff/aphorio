@@ -6,9 +6,11 @@ const vars:core_vars = {
         commands: (function utilities_vars_commands():os_vars {
             const os_vars:os_var_list = {
                 "linux": {
+                    admin_check: "id -u", // true if it returns "0"
                     compose: "docker compose",
                     devs: "lspci -v -k",
                     disk: "lsblk -Ob --json",
+                    docker_list: "docker compose -f ./compose/empty.yml ps --format json",
                     open: "xdg-open",
                     part: "",
                     proc: "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
@@ -20,9 +22,11 @@ const vars:core_vars = {
 
                 },
                 "win32": {
-                    compose: "docket-compose",
+                    admin_check: "([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)", // return a string "true" or "false" value
+                    compose: "docker-compose",
                     devs: "Get-PNPDevice | ConvertTo-json",
                     disk: "Get-Disk | ConvertTo-JSON -compress -depth 2",
+                    docker_list: "docker-compose -f .\\compose\\empty.yml ps --format json",
                     open: "start",
                     part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
                     proc: "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON -compress -depth 1",
@@ -103,6 +107,7 @@ const vars:core_vars = {
                 time: 0
             },
             process: {
+                admin: false,
                 arch: "",
                 argv: [],
                 cpuSystem: 0,

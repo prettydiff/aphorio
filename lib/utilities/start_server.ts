@@ -19,6 +19,7 @@ import vars from "../core/vars.ts";
 
 const start_server = function utilities_startServer(process_path:string, testing:boolean):void {
     const task_definitions:store_string = {
+            admin: "Determines if the application is run with administrative privileges.",
             compose: "Reads the compose.json file and restores the docker compose containers if docker is available.",
             git: "Get the latest update time and hash.",
             html: "Read's the dashboard's HTML file for dynamic modification.",
@@ -36,6 +37,18 @@ const start_server = function utilities_startServer(process_path:string, testing
             test_list: null
         },
         tasks:store_function = {
+            admin: function utilities_startServer_admin():void {
+                spawn(vars.commands.admin_check, function utilities_startServer_admin_callback(output:core_spawn_output):void {
+                    if (output.stdout === "0" || output.stdout === "true") {
+                        vars.os.process.admin = true;
+                    }
+                    readComplete("admin");
+                }, {
+                    shell: (process.platform === "win32")
+                        ? "powershell"
+                        : "sh"
+                }).child();
+            },
             compose: function utilities_startServer_taskCompose():void {
                 const readCompose = function utilities_startServer_taskCompose_readCompose(fileContents:Buffer):void {
                     const callback = function utilities_startServer_taskCompose_readCompose_dockerCallback():void {
@@ -393,7 +406,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                 }
             }
         },
-        readComplete = function utilities_startServer_readComplete(flag:"compose"|"git"|"html"|"options"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list"):void {
+        readComplete = function utilities_startServer_readComplete(flag:"admin"|"compose"|"git"|"html"|"options"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list"):void {
             // sends a server time update every 950ms
             const clock = function utilities_startServer_readComplete_clock():void {
                     const now:number = Date.now(),

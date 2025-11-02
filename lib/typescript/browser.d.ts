@@ -221,6 +221,7 @@ declare global {
         };
         path: HTMLElement;
         process: {
+            admin: HTMLElement;
             arch: HTMLElement;
             argv: HTMLElement;
             cpuSystem: HTMLElement;
@@ -335,7 +336,6 @@ declare global {
         resize: () => void;
         setState: () => void;
         socket: socket_object;
-        status: (data_item:socket_data) => void;
     }
 
     interface module_websocket {
