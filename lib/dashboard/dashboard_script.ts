@@ -1012,38 +1012,38 @@ const dashboard = function dashboard():void {
                     services.compose.nodes.containers_new.onclick = services.shared.create;
                 },
                 list: function dashboard_composeList(type:"containers"|"variables"):void {
-                    const list:string[] = Object.keys(payload.compose[type]).sort(),
-                        parent:HTMLElement = services.compose.nodes[`${type}_list`],
-                        ul:HTMLElement = document.createElement("ul"),
-                        len:number = list.length;
-                    let li:HTMLElement = null,
-                        strong:HTMLElement = null,
-                        span:HTMLElement = null,
-                        index:number = 0;
-                    ul.setAttribute("class", parent.getAttribute("class"));
-                    if (len > 0) {
-                        do {
-                            if (type === "containers") {
-                                li = services.shared.title(payload.compose.containers[list[index]].name, "container");
-                                ul.appendChild(li);
-                            } else if (type === "variables") {
-                                li = document.createElement("li");
-                                strong = document.createElement("strong");
-                                span = document.createElement("span");
-                                strong.appendText(list[index]);
-                                span.appendText(payload.compose[type][list[index]]);
-                                li.appendChild(strong);
-                                li.appendChild(span);
-                                ul.appendChild(li);
-                            }
-                            index = index + 1;
-                        } while (index < len);
-                        parent.parentNode.insertBefore(ul, parent);
-                        parent.parentNode.removeChild(parent);
-                        services.compose.nodes[`${type}_list`] = ul;
-                    } else {
-                        parent.style.display = "none";
-                    }
+                    // const list:string[] = Object.keys(payload.compose[type]).sort(),
+                    //     parent:HTMLElement = services.compose.nodes[`${type}_list`],
+                    //     ul:HTMLElement = document.createElement("ul"),
+                    //     len:number = list.length;
+                    // let li:HTMLElement = null,
+                    //     strong:HTMLElement = null,
+                    //     span:HTMLElement = null,
+                    //     index:number = 0;
+                    // ul.setAttribute("class", parent.getAttribute("class"));
+                    // if (len > 0) {
+                    //     do {
+                    //         if (type === "containers") {
+                    //             li = services.shared.title(payload.compose.containers[list[index]].name, "container");
+                    //             ul.appendChild(li);
+                    //         } else if (type === "variables") {
+                    //             li = document.createElement("li");
+                    //             strong = document.createElement("strong");
+                    //             span = document.createElement("span");
+                    //             strong.appendText(list[index]);
+                    //             span.appendText(payload.compose[type][list[index]]);
+                    //             li.appendChild(strong);
+                    //             li.appendChild(span);
+                    //             ul.appendChild(li);
+                    //         }
+                    //         index = index + 1;
+                    //     } while (index < len);
+                    //     parent.parentNode.insertBefore(ul, parent);
+                    //     parent.parentNode.removeChild(parent);
+                    //     services.compose.nodes[`${type}_list`] = ul;
+                    // } else {
+                    //     parent.style.display = "none";
+                    // }
                 },
                 message: function dashboard_composeMessage(event:MouseEvent):void {
                     const target:HTMLElement = event.target,

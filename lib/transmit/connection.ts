@@ -31,7 +31,7 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                 testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*/),
                 single_socket:boolean = (server.single_socket === true),
                 temporary:boolean = (server.temporary === true),
-                get_address = function utilities_getAddress():transmit_addresses_socket {
+                get_address = function utilities_getAddress(socket_input:websocket_client):transmit_addresses_socket {
                     const parse = function utilities_getAddress_parse(input:string):string {
                             if (input === undefined) {
                                 return "undefined, possibly due to socket closing";
@@ -46,16 +46,16 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                         };
                     return {
                         local: {
-                            address: parse(socket.localAddress),
-                            port: socket.localPort
+                            address: parse(socket_input.localAddress),
+                            port: socket_input.localPort
                         },
                         remote: {
-                            address: parse(socket.remoteAddress),
-                            port: socket.remotePort
+                            address: parse(socket_input.remoteAddress),
+                            port: socket_input.remotePort
                         }
                     };
                 },
-                address:transmit_addresses_socket = get_address(),
+                address:transmit_addresses_socket = get_address(socket),
                 get_domain = function transmit_server_connection_handshake_getDomain(header:string, arrIndex:number, arr:string[]):void {
                     const hostName:string = header.toLowerCase().replace("host:", "").replace(/\s+/g, ""),
                         sIndex:number = hostName.indexOf("]"),
@@ -292,6 +292,7 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                         timeout: null,
                         type: `socket-${server_id}-${domain}`
                     });
+                    proxy.addresses = get_address(proxy);
                     // proxy socket
                     socket_extension({
                         callback: callback,
@@ -304,7 +305,7 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                         socket: proxy,
                         temporary: false,
                         timeout: null,
-                        type: `proxy-${server_id}-${domain}`
+                        type: "proxy"
                     });
                 };
             headerList.forEach(headerEach);
