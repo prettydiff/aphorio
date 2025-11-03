@@ -1,4 +1,5 @@
 
+import get_address from "../core/get_address.ts";
 import hash from "../core/hash.ts";
 import http from "../http/index.ts";
 import message_handler from "./messageHandler.ts";
@@ -10,11 +11,11 @@ import terminal from "../services/terminal.ts";
 import vars from "../core/vars.ts";
 import websocket_test from "../services/websocket.ts";
 
-const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSocket):void {
+const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):void {
     // eslint-disable-next-line no-restricted-syntax
     const server_id:string = this.id,
         server:services_server = vars.servers[server_id].config,
-        handshake = function transmit_server_connection_handshake(data:Buffer):void {
+        handshake = function transmit_connection_handshake(data:Buffer):void {
             let nonceHeader:string = null,
                 domain:string = "",
                 key:string = "",
@@ -31,32 +32,8 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                 testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*/),
                 single_socket:boolean = (server.single_socket === true),
                 temporary:boolean = (server.temporary === true),
-                get_address = function utilities_getAddress(socket_input:websocket_client):transmit_addresses_socket {
-                    const parse = function utilities_getAddress_parse(input:string):string {
-                            if (input === undefined) {
-                                return "undefined, possibly due to socket closing";
-                            }
-                            if (input.indexOf("::ffff:") === 0) {
-                                return input.replace("::ffff:", "");
-                            }
-                            if (input.indexOf(":") > 0 && input.indexOf(".") > 0) {
-                                return input.slice(0, input.lastIndexOf(":"));
-                            }
-                            return input;
-                        };
-                    return {
-                        local: {
-                            address: parse(socket_input.localAddress),
-                            port: socket_input.localPort
-                        },
-                        remote: {
-                            address: parse(socket_input.remoteAddress),
-                            port: socket_input.remotePort
-                        }
-                    };
-                },
                 address:transmit_addresses_socket = get_address(socket),
-                get_domain = function transmit_server_connection_handshake_getDomain(header:string, arrIndex:number, arr:string[]):void {
+                get_domain = function transmit_connection_handshake_getDomain(header:string, arrIndex:number, arr:string[]):void {
                     const hostName:string = header.toLowerCase().replace("host:", "").replace(/\s+/g, ""),
                         sIndex:number = hostName.indexOf("]"),
                         index:number = hostName.indexOf(":"),
@@ -75,7 +52,7 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                             : `Host: ${address.local.address}:${server.ports.open}`;
                     }
                 },
-                get_referer = function transmit_server_connection_handshake_getReferer(header:string):void {
+                get_referer = function transmit_connection_handshake_getReferer(header:string):void {
                     const refererName:string = header.toLowerCase().replace(/referer:\s*/, "");
                     let index:number = (server.block_list === null || server.block_list === undefined)
                         ? 0
@@ -90,7 +67,7 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                         } while (index > 0);
                     }
                 },
-                headerEach = function transmit_server_connection_handshake_headerEach(header:string, arrIndex:number, arr:string[]):void {
+                headerEach = function transmit_connection_handshake_headerEach(header:string, arrIndex:number, arr:string[]):void {
                     if (header.indexOf("Sec-WebSocket-Key") === 0) {
                         key = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                     } else if (header.toLowerCase().indexOf("host:") === 0) {
@@ -102,13 +79,13 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                         type = header.replace(testNonce, "");
                     }
                 },
-                local_service = function transmit_server_connection_handshake_localService():void {
+                local_service = function transmit_connection_handshake_localService():void {
                     if (server.redirect_asset !== undefined && server.redirect_asset !== null && server.redirect_asset[domain] !== undefined) {
                         data = redirection(domain, data, server_id) as Buffer;
                         headerList[0] = data.toString().split("\r\n")[0];
                     }
                     if (key === "") {
-                        const http_action = function transmit_server_connection_handshake_localService_httpAction():void {
+                        const http_action = function transmit_connection_handshake_localService_httpAction():void {
                             const method:type_http_method = headerList[0].slice(0, headerList[0].indexOf(" ")).toLowerCase() as type_http_method;
                             if (http[method] !== undefined) {
                                 if (method === "get" && server_id === vars.dashboard_id && headerList[0].indexOf("GET / HTTP") === 0) {
@@ -119,7 +96,7 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                                     : data.subarray(Buffer.byteLength(headerString))
                                 );
                                 if (server.single_socket === true) {
-                                    const terminate = function transmit_server_connection_handshake_localService_httpAction_terminate():void {
+                                    const terminate = function transmit_connection_handshake_localService_httpAction_terminate():void {
                                         // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                                         const this_socket:websocket_client = this;
                                         server_halt({
@@ -150,11 +127,11 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                             temporary: temporary,
                             timeout: null,
                             type: "http"
-                        });
+                        }, false);
                     } else {
                         // local domain websocket support
-                        const callback = function transmit_server_connection_handshake_hash(hashOutput:hash_output):void {
-                            const client_respond = function transmit_server_connection_handshake_hash_clientRespond():void {
+                        const callback = function transmit_connection_handshake_hash(hashOutput:hash_output):void {
+                            const client_respond = function transmit_connection_handshake_hash_clientRespond():void {
                                     const headers:string[] = [
                                             "HTTP/1.1 101 Switching Protocols",
                                             "Upgrade: websocket",
@@ -216,7 +193,7 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                                 temporary: temporary,
                                 timeout: null,
                                 type: type
-                            });
+                            }, false);
                         };
                         hash({
                             algorithm: "sha1",
@@ -228,7 +205,7 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                         });
                     }
                 },
-                create_proxy = function transmit_server_connection_handshake_createProxy():void {
+                create_proxy = function transmit_connection_handshake_createProxy():void {
                     let count:number = 0;
                     const encrypted:boolean = (
                             socket.encrypted === true &&
@@ -262,7 +239,7 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                                 port: port
                             }) as websocket_client,
                         now:string = process.hrtime.bigint().toString(),
-                        callback = function transmit_server_connection_handshake_createProxy_callback():void {
+                        callback = function transmit_connection_handshake_createProxy_callback():void {
                             count = count + 1;
                             if (count > 1) {
                                 proxy.pipe(socket);
@@ -271,41 +248,43 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
                                     proxy.write(redirection(domain, data, server_id));
                                 } else {
                                     // internal redirection
-                                    socket.on("data", function transmit_server_connection_handshake_createProxy_redirect(message:Buffer):void {
+                                    socket.on("data", function transmit_connection_handshake_createProxy_redirect(message:Buffer):void {
                                         proxy.write(redirection(domain, message, server_id));
                                     });
                                     proxy.write(redirection(domain, data, server_id));
                                 }
                             }
                         };
-                    // requested socket
-                    socket_extension({
-                        callback: callback,
-                        handler: null,
-                        identifier: `${domain}-${now}`,
-                        proxy: proxy,
-                        role: "server",
-                        server: server_id,
-                        single_socket: false,
-                        socket: socket,
-                        temporary: false,
-                        timeout: null,
-                        type: `socket-${server_id}-${domain}`
-                    });
-                    proxy.addresses = get_address(proxy);
-                    // proxy socket
-                    socket_extension({
-                        callback: callback,
-                        handler: null,
-                        identifier: `${domain}-${now}-proxy`,
-                        proxy: socket,
-                        role: "client",
-                        server: server_id,
-                        single_socket: false,
-                        socket: proxy,
-                        temporary: false,
-                        timeout: null,
-                        type: "proxy"
+                    proxy.once("ready", function transmit_connection_handshake_createProxy_ready():void {
+                        // requested socket
+                        socket_extension({
+                            callback: callback,
+                            handler: null,
+                            identifier: `${domain}-${now}`,
+                            proxy: proxy,
+                            role: "server",
+                            server: server_id,
+                            single_socket: false,
+                            socket: socket,
+                            temporary: false,
+                            timeout: null,
+                            type: `relay`
+                        }, false);
+                        proxy.addresses = get_address(proxy);
+                        // proxy socket
+                        socket_extension({
+                            callback: callback,
+                            handler: null,
+                            identifier: `${domain}-${now}-proxy`,
+                            proxy: socket,
+                            role: "client",
+                            server: server_id,
+                            single_socket: false,
+                            socket: proxy,
+                            temporary: false,
+                            timeout: null,
+                            type: "proxy"
+                        }, false);
                     });
                 };
             headerList.forEach(headerEach);
@@ -329,7 +308,7 @@ const connection = function transmit_server_connection(TLS_socket:node_tls_TLSSo
     // unhandled errors on sockets are fatal and will crash the application
     // errors on sockets resulting from stream collisions internal to node must be trapped immediately
     // trapping the error event on a socket any later will still result in a fatal application crash, as of Node 23.1.0, if the error is the result of an internal Node stream collision
-    TLS_socket.on("error", function transmit_server_connection_handshake_error():void{
+    TLS_socket.on("error", function transmit_connection_handshake_error():void{
         return null;
     });
     TLS_socket.once("data", handshake);

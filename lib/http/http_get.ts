@@ -330,7 +330,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     terminal: vars.terminal,
                     timeZone_offset: vars.timeZone_offset
                 },
-                dashboard:string = vars.dashboard_headers.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`).replace(/\s+g/, " "),
+                dashboard:string = vars.dashboard_page.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`).replace(/\s+g/, " "),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",

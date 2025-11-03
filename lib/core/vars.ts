@@ -47,8 +47,8 @@ const vars:core_vars = {
             basic: "",
             complete: ""
         },
-        dashboard_headers: "",
         dashboard_id: "",
+        dashboard_page: "",
         environment: {
             date_commit: 0,
             hash: ""

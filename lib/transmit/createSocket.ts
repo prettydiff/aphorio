@@ -1,4 +1,5 @@
 
+import get_address from "../core/get_address.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import socket_extension from "./socketExtension.ts";
@@ -63,6 +64,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     return null;
                 }
                 startTime = process.hrtime.bigint() - startTime;
+                client.addresses = get_address(client);
                 socket_extension({
                     callback: config.callback,
                     handler: config.handler,
@@ -75,7 +77,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     temporary: false,
                     timeout: startTime,
                     type: config.type
-                });
+                }, true);
             });
         },
         // eslint-disable-next-line max-params

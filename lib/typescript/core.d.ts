@@ -103,8 +103,8 @@ interface core_vars {
         basic: string;
         complete: string;
     };
-    dashboard_headers: string;
     dashboard_id: string;
+    dashboard_page: string;
     environment: {
         date_commit: number;
         hash: string;

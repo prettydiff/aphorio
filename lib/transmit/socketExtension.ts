@@ -1,5 +1,4 @@
 
-import broadcast from "../transmit/broadcast.ts";
 import log from "../core/log.ts";
 import message_handler from "./messageHandler.ts";
 import receiver from "./receiver.ts";
@@ -9,7 +8,7 @@ import socket_end from "./socketEnd.ts";
 import socket_list from "../services/socket_list.ts";
 import vars from "../core/vars.ts";
 
-const socket_extension = function transmit_socketExtension(config:config_websocket_extensions):void {
+const socket_extension = function transmit_socketExtension(config:config_websocket_extensions, pipe:boolean):void {
     const encryption:type_encryption = (config.socket.secure === true)
         ? "secure"
         : "open";
@@ -55,10 +54,6 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 server_name: vars.servers[config.server].config.name,
                 type: config.type
             },
-            sockets:services_socket_application = socket_list(function transmit_socketExtension_socketList():void {
-                vars.server_meta[config.server].sockets[encryption].push(config.socket);
-                vars.servers[config.server].sockets.push(socket);
-            }),
             log_config:config_log = {
                 error: null,
                 message: `Socket ${config.identifier} opened on ${encryption} server ${config.server}.`,
@@ -108,23 +103,17 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             config.socket.on("end", socket_end);
             config.socket.on("error", socket_end);
         }
-        if (config.type !== "http") {
-            config.socket.setKeepAlive(true, 0);   // standard method to retain socket against timeouts from inactivity until a close frame comes in
-            if (config.proxy !== null && config.proxy !== undefined && (config.server !== "dashboard" || (config.server === vars.dashboard_id && config.type !== "dashboard" && config.type !== "dashboard-terminal"))) {
-                config.socket.proxy = config.proxy; // stores the relationship between two sockets when they are piped as a proxy
-                config.proxy.proxy = config.socket; // adds the relationship to the proxy socket as well
-                // do not pipe socket traffic that is part of a web server domain redirection rule
-                if (config.type.indexOf(`proxy-${config.server}-`) !== 0 && config.type.indexOf(`socket-${config.server}-`) !== 0 && config.type !== "dashboard" && config.type !== "dashboard-terminal") {
-                    config.socket.pipe(config.proxy);
-                    config.proxy.pipe(config.socket);
-                }
-            } else {
-                config.socket.proxy = null;
-            }
+        if (pipe === true && config.proxy !== null) {
+            config.socket.pipe(config.proxy);
+            config.proxy.pipe(config.socket);
         }
         if (config.callback !== null && config.callback !== undefined) {
             config.callback(config.socket, config.timeout);
         }
+        socket_list(function transmit_socketExtension_socketList():void {
+            vars.server_meta[config.server].sockets[encryption].push(config.socket);
+            vars.servers[config.server].sockets.push(socket);
+        });
         log.application(log_config);
     }
 };

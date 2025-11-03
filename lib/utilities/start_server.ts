@@ -36,24 +36,52 @@ const start_server = function utilities_startServer(process_path:string, testing
             test_browser: "Finds a designed web browser for test automation if supplied as a terminal argument.",
             test_list: null
         },
-        tasks:store_function = {
+        prerequisit_tasks:store_function = {
             admin: function utilities_startServer_admin():void {
                 spawn(vars.commands.admin_check, function utilities_startServer_admin_callback(output:core_spawn_output):void {
                     const std:string = output.stdout.replace(/\s+/g, "");
                     if (std === "0" || std === "true") {
                         vars.os.process.admin = true;
                     }
-                    readComplete("admin");
+                    complete_tasks("admin", "prereq");
                 }, {
                     shell: (process.platform === "win32")
                         ? "powershell"
                         : "sh"
                 }).child();
             },
+            os_main: function utilities_startServer_taskOSMain():void {
+                const callback = function utilities_startServer_taskOSMain_callback():void {
+                        complete_tasks("os_main", "prereq");
+                    },
+                    osDelay = function utilities_startServer_taskOSMain_osDelay():void {
+                        os_lists("all", function utilities_startServer_taskOSMain_osDelay_callback(payload:socket_data):void {
+                            broadcast(vars.dashboard_id, "dashboard", payload);
+                        });
+                        osDaily();
+                    },
+                    osDaily = function utilities_startServer_taskOSMain_osDaily():void {
+                        setTimeout(osDelay, 86399975);
+                    },
+                    midnight:number = (function utilities_startServer_taskOSMain_midnight():number {
+                        const date:Date = new Date(),
+                            hours:number = date.getHours(),
+                            minutes:number = date.getMinutes(),
+                            seconds:number = date.getSeconds(),
+                            mill:number = date.getMilliseconds(),
+                            night:number = ((23 - hours) * 3600 * 1000) + ((59 - minutes) * 60 * 1000) + ((59 - seconds) * 1000) + (1000 - mill);
+                        vars.timeZone_offset = date.getTimezoneOffset() * 60000;
+                        return night - 25;
+                    }());
+                os_lists("main", callback);
+                setTimeout(osDelay, midnight);
+            }
+        },
+        tasks:store_function = {
             // compose: function utilities_startServer_taskCompose():void {
             //     const readCompose = function utilities_startServer_taskCompose_readCompose(fileContents:Buffer):void {
             //         const callback = function utilities_startServer_taskCompose_readCompose_dockerCallback():void {
-            //             readComplete("compose");
+            //             complete_tasks("compose", "task");
             //         };
             //         if (fileContents === null) {
             //             vars.compose = {
@@ -80,13 +108,13 @@ const start_server = function utilities_startServer(process_path:string, testing
                             vars.environment.date_commit = Number(str[1]) * 1000;
                             vars.environment.hash = str[0];
                             spawn_item.spawn.kill();
-                            readComplete("git");
+                            complete_tasks("git", "task");
                         }, {
                             cwd: process_path.slice(0, process_path.length - 1)
                         });
                         spawn_item.child();
                     } else {
-                        readComplete("git");
+                        complete_tasks("git", "task");
                     }
                 };
                 node.fs.stat(`${process_path}.git`, gitStat);
@@ -109,11 +137,11 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         const testBrowser:string = test_browser.toString().replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
                                         script = script.replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`).replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
                                     }
-                                    vars.dashboard_headers = fileContents.toString()
+                                    vars.dashboard_page = fileContents.toString()
                                         .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
                                         .replace("replace_javascript", `${xterm}const universal={commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
                                         .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
-                                    readComplete("html");
+                                    complete_tasks("html", "task");
                                 },
                                 location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}dashboard.html`,
                                 no_file: null,
@@ -172,86 +200,59 @@ const start_server = function utilities_startServer(process_path:string, testing
                                     store[keys[index]] = "";
                                 }
                             } while (index > 0);
-                            readComplete("options");
+                            complete_tasks("options", "task");
                         } else {
-                            readComplete("options");
+                            complete_tasks("options", "task");
                         }
                     } else {
-                        readComplete("options");
+                        complete_tasks("options", "task");
                     }
                 };
                 callback("no_color", "text");
             },
             os_devs: function utilities_startServer_taskOSDevs():void {
                 const callback = function utilities_startServer_taskOSDevs_callback():void {
-                        readComplete("os_devs");
+                        complete_tasks("os_devs", "task");
                     };
                 os_lists("devs", callback);
             },
             os_disk: function utilities_startServer_taskOSDisk():void {
                 const callback = function utilities_startServer_taskOSDisk_callback():void {
-                        readComplete("os_disk");
+                        complete_tasks("os_disk", "task");
                     };
                 os_lists("disk", callback);
             },
             os_intr: function utilities_startServer_taskOSIntr():void {
                 const callback = function utilities_startServer_taskOSIntr_callback():void {
-                    readComplete("os_intr");
+                    complete_tasks("os_intr", "task");
                 };
                 os_lists("intr", callback);
             },
-            os_main: function utilities_startServer_taskOSMain():void {
-                const callback = function utilities_startServer_taskOSMain_callback():void {
-                        readComplete("os_main");
-                        task_start();
-                    },
-                    osDelay = function utilities_startServer_taskOSMain_osDelay():void {
-                        os_lists("all", function utilities_startServer_taskOSMain_osDelay_callback(payload:socket_data):void {
-                            broadcast(vars.dashboard_id, "dashboard", payload);
-                        });
-                        osDaily();
-                    },
-                    osDaily = function utilities_startServer_taskOSMain_osDaily():void {
-                        setTimeout(osDelay, 86399975);
-                    },
-                    midnight:number = (function utilities_startServer_taskOSMain_midnight():number {
-                        const date:Date = new Date(),
-                            hours:number = date.getHours(),
-                            minutes:number = date.getMinutes(),
-                            seconds:number = date.getSeconds(),
-                            mill:number = date.getMilliseconds(),
-                            night:number = ((23 - hours) * 3600 * 1000) + ((59 - minutes) * 60 * 1000) + ((59 - seconds) * 1000) + (1000 - mill);
-                        vars.timeZone_offset = date.getTimezoneOffset() * 60000;
-                        return night - 25;
-                    }());
-                os_lists("main", callback);
-                setTimeout(osDelay, midnight);
-            },
             os_proc: (process.platform === "win32")
                 ? function utilities_startServer_taskOSProcWindows():void {
-                    readComplete("os_proc");
+                    complete_tasks("os_proc", "task");
                 }
                 : function utilities_startServer_taskOSProc():void {
                     const callback = function utilities_startServer_taskOSProc_callback():void {
-                        readComplete("os_proc");
+                        complete_tasks("os_proc", "task");
                     };
                     os_lists("proc", callback);
                 },
             os_serv: function utilities_startServer_taskOSServ():void {
                 const callback = function utilities_startServer_taskOSServ_callback():void {
-                    readComplete("os_serv");
+                    complete_tasks("os_serv", "task");
                 };
                 os_lists("serv", callback);
             },
             os_sock: function utilities_startServer_taskOSSock():void {
                 const callback = function utilities_startServer_taskOSSock_callback():void {
-                    readComplete("os_sock");
+                    complete_tasks("os_sock", "task");
                 };
                 os_lists("sock", callback);
             },
             os_user: function utilities_startServer_taskOSUser():void {
                 const callback = function utilities_startServer_taskOSUser_callback():void {
-                    readComplete("os_user");
+                    complete_tasks("os_user", "task");
                 };
                 os_lists("user", callback);
             },
@@ -326,7 +327,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             includes(interfaces[keys_int[index_int]][sub].address);
                         } while (sub > 0);
                     } while (index_int > 0);
-                    readComplete("servers");
+                    complete_tasks("servers", "task");
                 };
                 file.read({
                     callback: callback,
@@ -345,7 +346,7 @@ const start_server = function utilities_startServer(process_path:string, testing
         test_stat = function utilities_startServer_testStat(property:"test_browser"|"test_list"):void {
             if (testing === false) {
                 task_definitions[property] = "Ignored unless executing tests.";
-                readComplete(property);
+                complete_tasks(property, "task");
             } else {
                 const get_value = function utilities_startServer_testStat_getValue(arg:"browser"|"list"):void {
                         let address:string = process.argv[index_browser].replace(`${arg}:`, "");
@@ -365,12 +366,12 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 }
                                 if (property === "test_browser") {
                                     vars.test.test_browser = address;
-                                    readComplete("test_browser");
+                                    complete_tasks("test_browser", "task");
                                 } else if (property === "test_list") {
                                     import(address).then(function utilities_startServer_testStat_getValue_list(mod:object):void {
                                         // @ts-expect-error - the Module type definition is not aware of the children exported upon a given module object.
                                         vars.test.list = mod.default;
-                                        readComplete("test_list");
+                                        complete_tasks("test_list", "task");
                                     });
                                 }
                             };
@@ -403,200 +404,219 @@ const start_server = function utilities_startServer(process_path:string, testing
                 }
                 task_definitions.browser_stat = "No option supplied beginning with 'browser:'";
                 if (getting === false) {
-                    readComplete(property);
+                    complete_tasks(property, "task");
                 }
             }
         },
-        readComplete = function utilities_startServer_readComplete(flag:"admin"|"compose"|"git"|"html"|"options"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list"):void {
-            // sends a server time update every 950ms
-            const clock = function utilities_startServer_readComplete_clock():void {
-                    const now:number = Date.now(),
-                        payload:services_clock = {
-                            time_local: now,
-                            time_zulu: (now + (new Date().getTimezoneOffset() * 60000))
-                        };
-                    broadcast(vars.dashboard_id, "dashboard", {
-                        data: payload,
-                        service: "dashboard-clock"
-                    });
-                    setTimeout(utilities_startServer_readComplete_clock, 950);
-                },
-                // a minimal configuration for a new dashboard server
-                default_server:services_server = {
-                    activate: true,
-                    domain_local: [
-                        "localhost",
-                        "127.0.0.1",
-                        "::1"
-                    ],
-                    encryption: "both",
-                    id: "",
-                    name: "dashboard",
-                    ports: {
-                        open: 0,
-                        secure: 0
-                    },
-                    redirect_asset: {
-                        "localhost": {
-                            "/lib/assets/*": "/lib/dashboard/*"
-                        }
-                    },
-                    single_socket: false,
-                    temporary: false
-                },
-                start = function utilities_startServer_readComplete_start():void {
-                    const servers:string[] = Object.keys(vars.servers),
-                        total:number = (testing === true)
-                            ? 1
-                            : servers.length,
-                        callback = function utilities_startServer_readComplete_start_serverCallback():void {
-                            count = count + 1;
-                            if (count === total) {
-                                const time:number = Number(process.hrtime.bigint() - vars.start_time),
-                                    logs:string[] = [
-                                        "",
-                                        `${vars.text.underline}Application completed ${count_task} startup tasks in ${time / 1e9} seconds.${vars.text.none}`,
-                                        "",
-                                        `Process ID: ${vars.text.cyan + process.pid + vars.text.none}`,
-                                        "",
-                                        "Ports:",
-                                    ],
-                                    pad = function utilities_startServer_readComplete_start_serverCallback_pad(str:string, num:number, dir:"left"|"right"):string {
-                                        let item:number = num - str.length;
-                                        if (item > 0) {
-                                            do {
-                                                if (dir === "left") {
-                                                    str = ` ${str}`;
-                                                } else {
-                                                    str = `${str} `;
-                                                }
-                                                item = item - 1;
-                                            } while (item > 0);
-                                        }
-                                        return str;
-                                    },
-                                    logItem = function utilities_startServer_readComplete_start_serverCallback_logItem(id:string, encryption:"open"|"secure"):void {
-                                        const conflict:boolean = (vars.servers[id].status[encryption] === 0),
-                                            portNumber:number = (conflict === true)
-                                                ? vars.servers[id].config.ports[encryption]
-                                                : vars.servers[id].status[encryption],
-                                            portDisplay:string = (conflict === true)
-                                                ? vars.text.angry + portNumber + vars.text.none
-                                                : portNumber.toString(),
-                                            name_server:string = vars.servers[id].config.name,
-                                            str:string = `${vars.text.angry}*${vars.text.none} ${pad(name_server, longest.name, "right")} - ${pad(encryption, longest.encryption, "right")} - ${vars.text.green + pad(portDisplay, longest.port, "left") + vars.text.none}`;
-                                        if (conflict === true) {
-                                            if (portNumber < 1025) {
-                                                logs.push(`${str} (Server offline, typically due to insufficient access for reserved port or port conflict.)`);
-                                            } else {
-                                                logs.push(`${str} (Server offline, typically due to port conflict.)`);
-                                            }
-                                        } else {
-                                            logs.push(str);
-                                        }
-                                    },
-                                    longest:store_number = {
-                                        encryption: 4,
-                                        name: 0,
-                                        port: 0
-                                    };
-                                let index:number = 0,
-                                    name:string = "";
-                                servers.sort();
-                                // get string column width
-                                do {
-                                    name = vars.servers[servers[index]].config.name;
-                                    if (name.length > longest.name) {
-                                        longest.name = name.length;
-                                    }
-                                    if (vars.servers[servers[index]].config.encryption === "both") {
-                                        if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest.port) {
-                                            longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
-                                        }
-                                        if (vars.servers[servers[index]].config.ports["open"].toString().length > longest.port) {
-                                            longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
-                                        }
-                                        longest.encryption = 6;
-                                    } else if (vars.servers[servers[index]].config.encryption === "secure") {
-                                        if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest.port) {
-                                            longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
-                                        }
-                                        longest.encryption = 6;
-                                    } else {
-                                        if (vars.servers[servers[index]].config.ports["open"].toString().length > longest.port) {
-                                            longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
-                                        }
-                                    }
-                                    index = index + 1;
-                                } while (index < servers.length);
-                                if (testing === true) {
-                                    test_index();
-                                } else {
-                                    index = 0;
-                                    do {
-                                        if (vars.servers[servers[index]].config.encryption === "both") {
-                                            logItem(servers[index], "open");
-                                            logItem(servers[index], "secure");
-                                        } else if (vars.servers[servers[index]].config.encryption === "open") {
-                                            logItem(servers[index], "open");
-                                        } else if (vars.servers[servers[index]].config.encryption === "secure") {
-                                            logItem(servers[index], "secure");
-                                        }
-                                        index = index + 1;
-                                    } while (index < servers.length);
-                                    log.shell(logs, true);
-                                }
-                            }
-                        };
-                    let count:number = 0,
-                        index:number = 0;
-                    
-                    if (testing === true) {
-                        server({
-                            action: "activate",
-                            server: vars.servers.dashboard.config
-                        }, callback);
-                    } else {
-                        do {
-                            server({
-                                action: "activate",
-                                server: vars.servers[servers[index]].config
-                            }, callback);
-                            index = index + 1;
-                        } while (index < total);
-                    }
-                };
-            count_task = count_task + 1;
+        complete_tasks = function utilities_startServer_completeTasks(flag:"admin"|"compose"|"git"|"html"|"options"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list", type:"prereq"|"task"):void {
             log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${task_definitions[flag]}`]);
             // to troubleshoot which tasks do not run, in test mode servers task is not executed
             // delete task_definitions[flag];console.log(Object.keys(task_definitions));
-            if (count_task === len_flags) {
-                clock();
-                if (testing === true || vars.servers[vars.dashboard_id] === undefined) {
-                    server_create({
-                        action: "add",
-                        server: default_server
-                    }, start, true);
-                } else {
-                    start();
+            if (type === "prereq") {
+                count_prereqs = count_prereqs + 1;
+                if (count_prereqs === len_prereqs) {
+                    start_tasks();
+                }
+            } else if (type === "task") {
+                count_task = count_task + 1;
+                if (count_task === len_tasks) {
+                    // sends a server time update every 950ms
+                    const clock = function utilities_startServer_readComplete_clock():void {
+                        const now:number = Date.now(),
+                            payload:services_clock = {
+                                time_local: now,
+                                time_zulu: (now + (new Date().getTimezoneOffset() * 60000))
+                            };
+                        broadcast(vars.dashboard_id, "dashboard", {
+                            data: payload,
+                            service: "dashboard-clock"
+                        });
+                        setTimeout(utilities_startServer_readComplete_clock, 950);
+                    },
+                    // a minimal configuration for a new dashboard server
+                    default_server:services_server = {
+                        activate: true,
+                        domain_local: [
+                            "localhost",
+                            "127.0.0.1",
+                            "::1"
+                        ],
+                        encryption: "both",
+                        id: "",
+                        name: "dashboard",
+                        ports: {
+                            open: 0,
+                            secure: 0
+                        },
+                        redirect_asset: {
+                            "localhost": {
+                                "/lib/assets/*": "/lib/dashboard/*"
+                            }
+                        },
+                        single_socket: false,
+                        temporary: false
+                    },
+                    start = function utilities_startServer_readComplete_start():void {
+                        const servers:string[] = Object.keys(vars.servers),
+                            total:number = (testing === true)
+                                ? 1
+                                : servers.length,
+                            callback = function utilities_startServer_readComplete_start_serverCallback():void {
+                                count = count + 1;
+                                if (count === total) {
+                                    const time:number = Number(process.hrtime.bigint() - vars.start_time),
+                                        logs:string[] = [
+                                            "",
+                                            `${vars.text.underline}Application completed ${count_task} startup tasks in ${time / 1e9} seconds.${vars.text.none}`,
+                                            "",
+                                            `Process ID: ${vars.text.cyan + process.pid + vars.text.none}`,
+                                            "",
+                                            "Ports:",
+                                        ],
+                                        pad = function utilities_startServer_readComplete_start_serverCallback_pad(str:string, num:number, dir:"left"|"right"):string {
+                                            let item:number = num - str.length;
+                                            if (item > 0) {
+                                                do {
+                                                    if (dir === "left") {
+                                                        str = ` ${str}`;
+                                                    } else {
+                                                        str = `${str} `;
+                                                    }
+                                                    item = item - 1;
+                                                } while (item > 0);
+                                            }
+                                            return str;
+                                        },
+                                        logItem = function utilities_startServer_readComplete_start_serverCallback_logItem(id:string, encryption:"open"|"secure"):void {
+                                            const conflict:boolean = (vars.servers[id].status[encryption] === 0),
+                                                portNumber:number = (conflict === true)
+                                                    ? vars.servers[id].config.ports[encryption]
+                                                    : vars.servers[id].status[encryption],
+                                                portDisplay:string = (conflict === true)
+                                                    ? vars.text.angry + portNumber + vars.text.none
+                                                    : portNumber.toString(),
+                                                name_server:string = vars.servers[id].config.name,
+                                                str:string = `${vars.text.angry}*${vars.text.none} ${pad(name_server, longest.name, "right")} - ${pad(encryption, longest.encryption, "right")} - ${vars.text.green + pad(portDisplay, longest.port, "left") + vars.text.none}`;
+                                            if (conflict === true) {
+                                                if (portNumber < 1025) {
+                                                    logs.push(`${str} (Server offline, typically due to insufficient access for reserved port or port conflict.)`);
+                                                } else {
+                                                    logs.push(`${str} (Server offline, typically due to port conflict.)`);
+                                                }
+                                            } else {
+                                                logs.push(str);
+                                            }
+                                        },
+                                        longest:store_number = {
+                                            encryption: 4,
+                                            name: 0,
+                                            port: 0
+                                        };
+                                    let index:number = 0,
+                                        name:string = "";
+                                    servers.sort();
+                                    // get string column width
+                                    do {
+                                        name = vars.servers[servers[index]].config.name;
+                                        if (name.length > longest.name) {
+                                            longest.name = name.length;
+                                        }
+                                        if (vars.servers[servers[index]].config.encryption === "both") {
+                                            if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest.port) {
+                                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                            }
+                                            if (vars.servers[servers[index]].config.ports["open"].toString().length > longest.port) {
+                                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                            }
+                                            longest.encryption = 6;
+                                        } else if (vars.servers[servers[index]].config.encryption === "secure") {
+                                            if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest.port) {
+                                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                            }
+                                            longest.encryption = 6;
+                                        } else {
+                                            if (vars.servers[servers[index]].config.ports["open"].toString().length > longest.port) {
+                                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                            }
+                                        }
+                                        index = index + 1;
+                                    } while (index < servers.length);
+                                    if (testing === true) {
+                                        test_index();
+                                    } else {
+                                        index = 0;
+                                        do {
+                                            if (vars.servers[servers[index]].config.encryption === "both") {
+                                                logItem(servers[index], "open");
+                                                logItem(servers[index], "secure");
+                                            } else if (vars.servers[servers[index]].config.encryption === "open") {
+                                                logItem(servers[index], "open");
+                                            } else if (vars.servers[servers[index]].config.encryption === "secure") {
+                                                logItem(servers[index], "secure");
+                                            }
+                                            index = index + 1;
+                                        } while (index < servers.length);
+                                        log.shell(logs, true);
+                                    }
+                                }
+                            };
+                        let count:number = 0,
+                            index:number = 0;
+                        
+                        if (testing === true) {
+                            server({
+                                action: "activate",
+                                server: vars.servers.dashboard.config
+                            }, callback);
+                        } else {
+                            do {
+                                server({
+                                    action: "activate",
+                                    server: vars.servers[servers[index]].config
+                                }, callback);
+                                index = index + 1;
+                            } while (index < total);
+                        }
+                    };
+                    clock();
+                    if (testing === true || vars.servers[vars.dashboard_id] === undefined) {
+                        server_create({
+                            action: "add",
+                            server: default_server
+                        }, start, true);
+                    } else {
+                        start();
+                    }
                 }
             }
         },
-        task_start = function utilities_startServer_taskStart():void {
+        start_tasks = function utilities_startServer_startTasks():void {
             do {
                 index_tasks = index_tasks - 1;
-                if (keys_tasks[index_tasks] !== "os_main") {
-                    if (testing === false || (keys_tasks[index_tasks] !== "servers" && testing === true)) {
-                        tasks[keys_tasks[index_tasks]]();
-                    }
+                if (testing === false || (keys_tasks[index_tasks] !== "servers" && testing === true)) {
+                    tasks[keys_tasks[index_tasks]]();
                 }
             } while (index_tasks > 0);
         },
+        start_prereqs = function utilities_startServer_startPrereqs():void {
+            if (index_prereqs > 0) {
+                do {
+                    index_prereqs = index_prereqs - 1;
+                    prerequisit_tasks[keys_prereqs[index_prereqs]]();
+                } while (index_prereqs > 0);
+            } else {
+                start_tasks();
+            }
+        },
         keys_tasks:string[] = Object.keys(tasks),
-        len_flags:number = (testing === true)
+        keys_prereqs:string[] = Object.keys(prerequisit_tasks),
+        len_tasks:number = (testing === true)
             ? keys_tasks.length - 1 // servers task is not run in test mode
-            : keys_tasks.length;
+            : keys_tasks.length,
+        len_prereqs:number = keys_prereqs.length;
     let index_tasks:number = keys_tasks.length,
+        index_prereqs:number = keys_prereqs.length,
+        count_prereqs:number = 0,
         count_task:number = 0;
 
     BigInt.prototype.time = universal.time;
@@ -622,7 +642,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                 if (index > 0) {
                     utilities_startServer_tasksShell_shellWin(index - 1);
                 } else {
-                    tasks.os_main();
+                    start_prereqs();
                 }
             });
         };
@@ -649,7 +669,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             if (vars.terminal.length < 1) {
                                 vars.terminal.push("/bin/sh");
                             }
-                            tasks.os_main();
+                            start_prereqs();
                         },
                         location: "/etc/shells",
                         no_file: null,
