@@ -78,28 +78,33 @@ const start_server = function utilities_startServer(process_path:string, testing
             }
         },
         tasks:store_function = {
-            // compose: function utilities_startServer_taskCompose():void {
-            //     const readCompose = function utilities_startServer_taskCompose_readCompose(fileContents:Buffer):void {
-            //         const callback = function utilities_startServer_taskCompose_readCompose_dockerCallback():void {
-            //             complete_tasks("compose", "task");
-            //         };
-            //         if (fileContents === null) {
-            //             vars.compose = {
-            //                 containers: {},
-            //                 variables: {}
-            //             };
-            //         } else {
-            //             vars.compose = JSON.parse(fileContents.toString());
-            //         }
-            //         docker_ps(callback);
-            //     };
-            //     file.read({
-            //         callback: readCompose,
-            //         location: `${vars.path.project}compose.json`,
-            //         no_file: null,
-            //         section: "startup"
-            //     });
-            // },
+            compose: function utilities_startServer_taskCompose():void {
+                // const readCompose = function utilities_startServer_taskCompose_readCompose(fileContents:Buffer):void {
+                //     const callback = function utilities_startServer_taskCompose_readCompose_dockerCallback():void {
+                //         complete_tasks("compose", "task");
+                //     };
+                //     if (fileContents === null) {
+                //         vars.compose = {
+                //             containers: {},
+                //             variables: {}
+                //         };
+                //     } else {
+                //         vars.compose = JSON.parse(fileContents.toString());
+                //     }
+                //     docker_ps(callback);
+                // };
+                // file.read({
+                //     callback: readCompose,
+                //     location: `${vars.path.project}compose.json`,
+                //     no_file: null,
+                //     section: "startup"
+                // });
+                if (vars.os.process.admin === false) {
+                    vars.compose.status = "Error: Application must be executed with administrative privileg for Docker support.";
+                    complete_tasks("compose", "task");
+                    return;
+                }
+            },
             git: function utilities_startServer_tasksGit():void {
                 const gitStat = function utilities_startServer_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
                     if (error === null && stat !== null) {
@@ -261,9 +266,9 @@ const start_server = function utilities_startServer(process_path:string, testing
                     const configStr:string = (fileContents === null)
                             ? ""
                             : fileContents.toString(),
-                        config:config_servers_file = (configStr === "" || (/^\s*\{/).test(configStr) === false || (/\}\s*$/).test(configStr) === false)
+                        config:core_servers_file = (configStr === "" || (/^\s*\{/).test(configStr) === false || (/\}\s*$/).test(configStr) === false)
                             ? null
-                            : JSON.parse(configStr) as config_servers_file,
+                            : JSON.parse(configStr) as core_servers_file,
                         includes = function utilities_startServer_taskServers_callback_includes(input:string):void {
                             if (vars.interfaces.includes(input) === false && input.toLowerCase().indexOf("fe80") !== 0) {
                                 vars.interfaces.push(input);
@@ -282,6 +287,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         sub:number = 0;
                     if (index_srv > 0) {
                         vars.dashboard_id = config.dashboard_id;
+                        vars.compose.variables = config["compose-variables"];
                         do {
                             index_srv = index_srv - 1;
                             index_int = keys_int.length;

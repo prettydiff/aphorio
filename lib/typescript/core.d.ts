@@ -1,8 +1,9 @@
 
 // cspell: words serv
 
-interface configuration_compose {
+interface core_compose {
     containers: store_compose;
+    status: string;
     variables: store_string;
 }
 
@@ -63,6 +64,12 @@ interface core_server_os {
     };
 }
 
+interface core_servers_file {
+    "compose-variables": store_string;
+    dashboard_id: string;
+    servers: store_server_config;
+}
+
 interface core_spawn {
     child: () => void;
     close: () => void;
@@ -98,7 +105,7 @@ interface core_universal {
 
 interface core_vars {
     commands: os_vars;
-    compose: configuration_compose;
+    compose: core_compose;
     css: {
         basic: string;
         complete: string;

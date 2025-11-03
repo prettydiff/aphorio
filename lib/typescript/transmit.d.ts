@@ -25,7 +25,7 @@ interface transmit_addresses_socket {
 }
 
 interface transmit_dashboard {
-    compose: configuration_compose;
+    compose: core_compose;
     dashboard_id: string;
     hashes: string[];
     http_request: string;

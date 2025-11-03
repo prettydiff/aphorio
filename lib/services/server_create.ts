@@ -84,7 +84,8 @@ const server_create = function services_serverCreate(data:services_action_server
                 write = function services_serverCreate_write():void {
                     const keys:string[] = Object.keys(vars.servers),
                         total:number = keys.length,
-                        config:config_servers_file = {
+                        config:core_servers_file = {
+                            "compose-variables": vars.compose.variables,
                             dashboard_id: vars.dashboard_id,
                             servers: {}
                         };

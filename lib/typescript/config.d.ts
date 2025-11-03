@@ -114,11 +114,6 @@ interface config_os_comparison {
     };
 }
 
-interface config_servers_file {
-    dashboard_id: string;
-    servers: store_server_config;
-}
-
 interface config_spawn {
     args: string[];
     callback: (stderr:string, stdout:string, error:node_childProcess_ExecException) => void;
