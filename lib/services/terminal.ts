@@ -1,5 +1,5 @@
 
-import get_address from "../utilities/getAddress.ts";
+import get_address from "../core/getAddress.ts";
 import log from "../utilities/log.ts";
 import send from "../transmit/send.ts";
 import vars from "../utilities/vars.ts";

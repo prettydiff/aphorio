@@ -1,6 +1,6 @@
 
 import file from "../utilities/file.ts";
-import get_address from "../utilities/getAddress.ts";
+import get_address from "../core/getAddress.ts";
 import hash from "../utilities/hash.ts";
 import http from "../http/index.ts";
 import log from "../utilities/log.ts";

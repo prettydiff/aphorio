@@ -1,11 +1,11 @@
 
 
-const get_address = function utilities_getAddress(transmit:transmit_socket):transmit_addresses_socket {
+const get_address = function core_getAddress(transmit:transmit_socket):transmit_addresses_socket {
     const response:node_http_ServerResponse = transmit.socket as node_http_ServerResponse,
         socket:node_net_Socket = (transmit.type === "ws")
             ? transmit.socket as websocket_client
             : response.socket,
-        parse = function utilities_getAddress_parse(input:string):string {
+        parse = function core_getAddress_parse(input:string):string {
             if (input === undefined) {
                 return "undefined, possibly due to socket closing";
             }

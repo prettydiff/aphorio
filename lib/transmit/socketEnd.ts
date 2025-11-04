@@ -1,6 +1,6 @@
 
 import broadcast from "./broadcast.ts";
-import get_address from "../utilities/getAddress.ts";
+import get_address from "../core/getAddress.ts";
 import vars from "../utilities/vars.ts";
 
 const socket_end = function transmit_socketEnd():void {
