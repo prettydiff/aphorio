@@ -127,7 +127,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                             temporary: temporary,
                             timeout: null,
                             type: "http"
-                        }, false);
+                        });
                     } else {
                         // local domain websocket support
                         const callback = function transmit_connection_handshake_hash(hashOutput:hash_output):void {
@@ -193,7 +193,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                 temporary: temporary,
                                 timeout: null,
                                 type: type
-                            }, false);
+                            });
                         };
                         hash({
                             algorithm: "sha1",
@@ -269,7 +269,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                             temporary: false,
                             timeout: null,
                             type: `relay`
-                        }, false);
+                        });
                         proxy.addresses = get_address(proxy);
                         // proxy socket
                         socket_extension({
@@ -284,7 +284,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                             temporary: false,
                             timeout: null,
                             type: "proxy"
-                        }, false);
+                        });
                     });
                 };
             headerList.forEach(headerEach);

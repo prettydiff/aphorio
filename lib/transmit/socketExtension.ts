@@ -8,7 +8,7 @@ import socket_end from "./socketEnd.ts";
 import socket_list from "../services/socket_list.ts";
 import vars from "../core/vars.ts";
 
-const socket_extension = function transmit_socketExtension(config:config_websocket_extensions, pipe:boolean):void {
+const socket_extension = function transmit_socketExtension(config:config_websocket_extensions):void {
     const encryption:type_encryption = (config.socket.secure === true)
         ? "secure"
         : "open";
@@ -102,10 +102,6 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             config.socket.on("close", socket_end);
             config.socket.on("end", socket_end);
             config.socket.on("error", socket_end);
-        }
-        if (pipe === true && config.proxy !== null) {
-            config.socket.pipe(config.proxy);
-            config.proxy.pipe(config.socket);
         }
         if (config.callback !== null && config.callback !== undefined) {
             config.callback(config.socket, config.timeout);

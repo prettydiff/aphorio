@@ -30,11 +30,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             return heading.join("\r\n") + body;
         },
         destroy = function http_get_destroy():void {
-            socket.off("close", socket_end);
-            socket.off("end", socket_end);
-            socket.off("error", socket_end);
             socket.destroy();
-            socket_list();
         },
         // a dynamically generated template for page HTML
         html = function http_get_html(config:config_html):string {
@@ -108,13 +104,10 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             return payload(headerText, bodyText);
         },
         write = function http_get_write(payload:Buffer|string):void {
-            if (socket.write(payload) === true) {
+            socket.once("drain", function http_get_write_callback_drain():void {
                 setTimeout(destroy, 100);
-            } else {
-                socket.once("drain", function http_get_write_callback_drain():void {
-                    setTimeout(destroy, 100);
-                });
-            }
+            });
+            socket.write(payload);
         },
         notFound = function http_get_notFound():void {
             write(html({

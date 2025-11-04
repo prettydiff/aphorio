@@ -65,6 +65,10 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                 }
                 startTime = process.hrtime.bigint() - startTime;
                 client.addresses = get_address(client);
+                if (config.proxy !== null) {
+                    client.pipe(config.proxy);
+                    config.proxy.pipe(client);
+                }
                 socket_extension({
                     callback: config.callback,
                     handler: config.handler,
@@ -77,7 +81,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     temporary: false,
                     timeout: startTime,
                     type: config.type
-                }, true);
+                });
             });
         },
         // eslint-disable-next-line max-params
