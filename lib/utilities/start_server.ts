@@ -36,14 +36,14 @@ const start_server = function utilities_startServer(process_path:string, testing
             test_browser: "Finds a designed web browser for test automation if supplied as a terminal argument.",
             test_list: null
         },
-        prerequisit_tasks:store_function = {
+        prerequisite_tasks:store_function = {
             admin: function utilities_startServer_admin():void {
                 spawn(vars.commands.admin_check, function utilities_startServer_admin_callback(output:core_spawn_output):void {
                     const std:string = output.stdout.replace(/\s+/g, "");
                     if (std === "0" || std === "true") {
                         vars.os.process.admin = true;
                     }
-                    complete_tasks("admin", "prereq");
+                    complete_tasks("admin", "prerequisite");
                 }, {
                     shell: (process.platform === "win32")
                         ? "powershell"
@@ -52,7 +52,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             os_main: function utilities_startServer_taskOSMain():void {
                 const callback = function utilities_startServer_taskOSMain_callback():void {
-                        complete_tasks("os_main", "prereq");
+                        complete_tasks("os_main", "prerequisite");
                     },
                     osDelay = function utilities_startServer_taskOSMain_osDelay():void {
                         os_lists("all", function utilities_startServer_taskOSMain_osDelay_callback(payload:socket_data):void {
@@ -100,7 +100,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             //     //     section: "startup"
             //     // });
             //     if (vars.os.process.admin === false) {
-            //         vars.compose.status = "Error: Application must be executed with administrative privileg for Docker support.";
+            //         vars.compose.status = "Error: Application must be executed with administrative privilege for Docker support.";
             //         complete_tasks("compose", "task");
             //         return;
             //     }
@@ -415,13 +415,13 @@ const start_server = function utilities_startServer(process_path:string, testing
                 }
             }
         },
-        complete_tasks = function utilities_startServer_completeTasks(flag:"admin"|"compose"|"git"|"html"|"options"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list", type:"prereq"|"task"):void {
+        complete_tasks = function utilities_startServer_completeTasks(flag:"admin"|"compose"|"git"|"html"|"options"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list", type:"prerequisite"|"task"):void {
             log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${task_definitions[flag]}`]);
             // to troubleshoot which tasks do not run, in test mode servers task is not executed
             // delete task_definitions[flag];console.log(Object.keys(task_definitions));
-            if (type === "prereq") {
-                count_prereqs = count_prereqs + 1;
-                if (count_prereqs === len_prereqs) {
+            if (type === "prerequisite") {
+                count_prerequisites = count_prerequisites + 1;
+                if (count_prerequisites === len_prerequisites) {
                     start_tasks();
                 }
             } else if (type === "task") {
@@ -605,25 +605,25 @@ const start_server = function utilities_startServer(process_path:string, testing
                 }
             } while (index_tasks > 0);
         },
-        start_prereqs = function utilities_startServer_startPrereqs():void {
-            if (index_prereqs > 0) {
+        start_prerequisites = function utilities_startServer_startPrerequisites():void {
+            if (index_prerequisites > 0) {
                 do {
-                    index_prereqs = index_prereqs - 1;
-                    prerequisit_tasks[keys_prereqs[index_prereqs]]();
-                } while (index_prereqs > 0);
+                    index_prerequisites = index_prerequisites - 1;
+                    prerequisite_tasks[keys_prerequisites[index_prerequisites]]();
+                } while (index_prerequisites > 0);
             } else {
                 start_tasks();
             }
         },
         keys_tasks:string[] = Object.keys(tasks),
-        keys_prereqs:string[] = Object.keys(prerequisit_tasks),
+        keys_prerequisites:string[] = Object.keys(prerequisite_tasks),
         len_tasks:number = (testing === true)
             ? keys_tasks.length - 1 // servers task is not run in test mode
             : keys_tasks.length,
-        len_prereqs:number = keys_prereqs.length;
+        len_prerequisites:number = keys_prerequisites.length;
     let index_tasks:number = keys_tasks.length,
-        index_prereqs:number = keys_prereqs.length,
-        count_prereqs:number = 0,
+        index_prerequisites:number = keys_prerequisites.length,
+        count_prerequisites:number = 0,
         count_task:number = 0;
 
     BigInt.prototype.time = universal.time;
@@ -649,7 +649,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                 if (index > 0) {
                     utilities_startServer_tasksShell_shellWin(index - 1);
                 } else {
-                    start_prereqs();
+                    start_prerequisites();
                 }
             });
         };
@@ -676,7 +676,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             if (vars.terminal.length < 1) {
                                 vars.terminal.push("/bin/sh");
                             }
-                            start_prereqs();
+                            start_prerequisites();
                         },
                         location: "/etc/shells",
                         no_file: null,

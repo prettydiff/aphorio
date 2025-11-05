@@ -118,7 +118,8 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
         }
         if (data.action === "destroy" || data.action === "modify") {
             // 2. modify the servers.json file
-            const config:config_servers_file = {
+            const config:core_servers_file = {
+                "compose-variables": vars.compose.variables,
                 dashboard_id: vars.dashboard_id,
                 servers: {}
             };
