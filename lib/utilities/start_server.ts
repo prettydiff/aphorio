@@ -573,7 +573,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         if (testing === true) {
                             server({
                                 action: "activate",
-                                server: vars.servers.dashboard.config
+                                server: vars.servers[vars.dashboard_id].config
                             }, callback);
                         } else {
                             do {

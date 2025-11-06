@@ -153,7 +153,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
             fragment:string = "",
             bodyIndex:number = -1,
             contentLength:number = -1;
-        if (vars.servers.dashboard.config.domain_local.indexOf(host) > -1 || vars.interfaces.indexOf(host) > -1) {
+        if (vars.servers[vars.dashboard_id].config.domain_local.indexOf(host) > -1 || vars.interfaces.indexOf(host) > -1) {
             headers.push("dashboard-http: true");
         }
         headers.push("");

@@ -11,7 +11,7 @@ const terminal:services_terminal = {
     resize: function services_terminalResize(socket_data:socket_data):void {
         const data:services_terminal_resize = socket_data.data as services_terminal_resize,
             socket:websocket_pty = (function services_terminalResize():websocket_pty {
-                const sockets:websocket_client[] = vars.server_meta.dashboard.sockets[data.secure];
+                const sockets:websocket_client[] = vars.server_meta[vars.dashboard_id].sockets[data.secure];
                 let index:number = sockets.length;
                 if (index > 0) {
                     do {
