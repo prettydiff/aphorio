@@ -6,7 +6,6 @@ import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import file_list from "../browser/file_list.ts";
 import node from "../core/node.ts";
-import socket_end from "../transmit/socketEnd.ts";
 import socket_list from "../services/socket_list.ts";
 import vars from "../core/vars.ts";
 
@@ -102,11 +101,14 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         },
         write = function http_get_write(payload:Buffer|string):void {
             // this if condition and the following "else" block are critical for ensuring response messages are delivered completely and the sockets are closed appropriately.
-            if (socket.write(payload) === true) {
+            const destroy = function http_get_write_destroy():void {
                 socket.destroy();
+            };
+            if (socket.write(payload) === true) {
+                setTimeout(destroy, 100);
             } else {
                 socket.once("drain", function http_get_write_callback_drain():void {
-                    socket.destroy();
+                    setTimeout(destroy, 100);
                 });
             }
         },
@@ -272,9 +274,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         socket.write(headerText.join("\r\n"));
                         stream.pipe(socket);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
-                            socket.on("drain", function http_get_statTest_fileItem_close_drain():void {
-                                socket.destroy();
-                            });
+                            socket.destroy();
                         });
                     } else {
                         // text media types use chunked type response
@@ -282,10 +282,11 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         // - this is the most flexible approach when things like TLS impose segmentation separate from chunks piped to the socket
                         const stream:node_fs_ReadStream = node.fs.createReadStream(input);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
+                            const delay:number = Math.max(250, stream.bytesRead / 10000);
                             socket.write("0\r\n\r\n");
-                            socket.on("drain", function http_get_statTest_fileItem_close_drain():void {
+                            setTimeout(function http_get_statTest_fileItem_close_delay():void {
                                 socket.destroy();
-                            });
+                            }, delay);
                         });
                         socket.write(headerText.join("\r\n"));
                         stream.on("data", function http_get_statTest_fileItem_data(chunk:Buffer|string):void {
@@ -325,7 +326,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     terminal: vars.terminal,
                     timeZone_offset: vars.timeZone_offset
                 },
-                dashboard:string = vars.dashboard_page.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`).replace(/\s+g/, " "),
+                dashboard:string = vars.dashboard_page.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",
