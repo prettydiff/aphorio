@@ -104,10 +104,9 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             return payload(headerText, bodyText);
         },
         write = function http_get_write(payload:Buffer|string):void {
-            socket.once("drain", function http_get_write_callback_drain():void {
+            if (socket.write(payload) === true) {
                 setTimeout(destroy, 100);
-            });
-            socket.write(payload);
+            }
         },
         notFound = function http_get_notFound():void {
             write(html({
@@ -303,6 +302,10 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         decoded:string = (decode.includes("?") === true)
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
+    
+    socket.once("drain", function http_get_write_callback_drain():void {
+        destroy();
+    });
     if (server_id === vars.dashboard_id) {
         const real_path:string = vars.path.project.replace(`test${vars.path.sep}`, "");
         if (decoded.includes("xterm.css") === true) {
