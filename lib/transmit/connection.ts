@@ -4,7 +4,6 @@ import hash from "../core/hash.ts";
 import http from "../http/index.ts";
 import message_handler from "./messageHandler.ts";
 import node from "../core/node.ts";
-import redirection from "./redirection.ts";
 import server_halt from "../services/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
 import terminal from "../services/terminal.ts";
@@ -79,11 +78,48 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         type = header.replace(testNonce, "");
                     }
                 },
-                local_service = function transmit_connection_handshake_localService():void {
-                    if (server.redirect_asset !== undefined && server.redirect_asset !== null && server.redirect_asset[domain] !== undefined) {
-                        data = redirection(domain, data, server_id) as Buffer;
-                        headerList[0] = data.toString().split("\r\n")[0];
+                redirection = function transmit_connection_handshake_redirection():Buffer {
+                    const request_path:string = (headerList[0].includes("HTTP") === true)
+                            ? headerList[0].replace(/ +/g, " ").replace(/ $/, "").slice(headerList[0].indexOf(" ") + 1, headerList[0].lastIndexOf(" "))
+                            : null,
+                        keys:string[] = (server.redirect_asset === null || server.redirect_asset === undefined || server.redirect_asset[domain] === undefined)
+                            ? []
+                            : Object.keys(server.redirect_asset[domain]);
+                    let index:number = keys.length;
+
+                    if (index > 0) {
+                        let matched:boolean = false,
+                            wild:string = "";
+                        // look for exact matches first
+                        do {
+                            index = index - 1;
+                            if (keys[index] === request_path && key.charAt(keys[index].length - 1) !== "*") {
+                                headerList[0] = `${headerList[0].slice(0, headerList[0].indexOf(" "))} ${server.redirect_asset[domain][keys[index]] + headerList[0].replace(/ +$/, "").slice(headerList[0].lastIndexOf(" "))}`;
+                                matched = true;
+                                break;
+                            }
+                        } while (index > 0);
+
+                        // look for wildcard matches second
+                        index = keys.length;
+                        if (matched === false) {
+                            do {
+                                index = index - 1;
+                                wild = keys[index].replace(/\*$/, "");
+                                if (keys[index].charAt(key.length - 1) === "*" && request_path.indexOf(wild) === 0 && request_path.indexOf(server.redirect_asset[domain][keys[index]]) !== 0) {
+                                    headerList[0] = `${headerList[0].slice(0, headerList[0].indexOf(" "))} ${request_path.replace(wild, server.redirect_asset[domain][keys[index]]) + headerList[0].replace(/ +$/, "").slice(headerList[0].lastIndexOf(" "))}`;
+                                    break;
+                                }
+                            } while (index > 0);
+                        }
+
+                        return Buffer.from(dataString.replace(headerString, headerList.join("\r\n")));
                     }
+                    return null;
+
+                },
+                local_service = function transmit_connection_handshake_localService():void {
+                    data = redirection();
                     if (key === "") {
                         const http_action = function transmit_connection_handshake_localService_httpAction():void {
                             const method:type_http_method = headerList[0].slice(0, headerList[0].indexOf(" ")).toLowerCase() as type_http_method;
@@ -242,16 +278,25 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         callback = function transmit_connection_handshake_createProxy_callback():void {
                             count = count + 1;
                             if (count > 1) {
+                                const redirect:Buffer = redirection();
                                 proxy.pipe(socket);
-                                if (server.redirect_domain !== undefined && server.redirect_domain !== null && (server.redirect_domain[domain] !== undefined || (socket.encrypted === true && server.redirect_domain[`${domain}.secure`] !== undefined))) {
+
+                                // redirection
+                                if (redirect === null) {
+                                    // no redirection
                                     socket.pipe(proxy);
-                                    proxy.write(redirection(domain, data, server_id));
+                                    proxy.write(data);
                                 } else {
-                                    // internal redirection
-                                    socket.on("data", function transmit_connection_handshake_createProxy_redirect(message:Buffer):void {
-                                        proxy.write(redirection(domain, message, server_id));
-                                    });
-                                    proxy.write(redirection(domain, data, server_id));
+                                    // redirect by domain
+                                    if (server.redirect_domain !== undefined && server.redirect_domain !== null && (server.redirect_domain[domain] !== undefined || (socket.encrypted === true && server.redirect_domain[`${domain}.secure`] !== undefined))) {
+                                        socket.pipe(proxy);
+                                    } else {
+                                        // internal redirection
+                                        socket.on("data", function transmit_connection_handshake_createProxy_redirect(message_data:Buffer):void {
+                                            proxy.write(message_data);
+                                        });
+                                    }
+                                    proxy.write(redirect);
                                 }
                             }
                         };
@@ -286,14 +331,15 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                             type: "proxy"
                         });
                     });
-                };
+                },
+                blocked_host:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(domain) === true),
+                blocked_ip:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
+                no_domain_redirect:boolean = (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[domain] === undefined),
+                domain_local:boolean = server.domain_local.concat(vars.interfaces).includes(domain);
             headerList.forEach(headerEach);
-            if (
-                referer === true ||
-                (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(domain) === true) ||
-                (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true) ||
-                ((server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[domain] === undefined) && server.domain_local.concat(vars.interfaces).includes(domain) === false)
-            ) {
+            if (referer === true || blocked_host === true || blocked_ip === true) {
+                socket.destroy();
+            } else if (no_domain_redirect === true && domain_local === true) {
                 socket.destroy();
             } else {
                 socket.addresses = address;

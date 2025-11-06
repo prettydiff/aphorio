@@ -3496,7 +3496,7 @@ const dashboard = function dashboard():void {
                     button_send: document.getElementById("websocket").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
                     halt_receive: document.getElementById("websocket").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
                     handshake: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                    handshake_label: document.getElementById("websocket").getElementsByClassName("http_response")[0].getElementsByTagName("label")[0].getElementsByTagName("span")[0],
+                    handshake_label: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByClassName("ports")[0].getElementsByTagName("span")[0],
                     handshake_scheme: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
                     handshake_status: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
                     handshake_timeout: document.getElementById("websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
