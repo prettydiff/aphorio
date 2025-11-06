@@ -46,7 +46,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                     time: Date.now()
                 });
                 broadcast(vars.dashboard_id, "dashboard", {
-                    data: null,
+                    data: vars.servers,
                     service: "dashboard-server"
                 });
                 complete(serverItem.id);
@@ -56,25 +56,17 @@ const server = function transmit_server(data:services_action_server, callback:(n
                 const serverItem:server_instance = this,
                     secure:"open"|"secure" = (serverItem.secure === true)
                         ? "secure"
-                        : "open";
-                // we expect the error argument to always populate on an error handler, but not in the case of deliberately killing a server with the "close" method
-                if (ser !== null && ser !== undefined && ser.code === "EADDRINUSE") {
-                    log.application({
-                        error: ser,
-                        message: `Port conflict on port ${vars.servers[serverItem.id].config.ports[secure]} of ${secure} server named ${serverItem.id}.`,
-                        section: "servers",
-                        status: "error",
-                        time: Date.now()
-                    });
-                } else {
-                    log.application({
-                        error: ser,
-                        message: `Server ${serverItem.id} - ${secure} went offline.  Was listening on port ${vars.servers[serverItem.id].config.ports[secure]}.`,
-                        section: "servers",
-                        status: "error",
-                        time: Date.now()
-                    });
-                }
+                        : "open",
+                    message:string = (ser !== null && ser !== undefined && ser.code === "EADDRINUSE")
+                        ? `Port conflict on port ${vars.servers[serverItem.id].config.ports[secure]} of ${secure} server named ${serverItem.id}.`
+                        : `Server ${serverItem.id} - ${secure} went offline.  Was listening on port ${vars.servers[serverItem.id].config.ports[secure]}.`;
+                log.application({
+                    error: ser,
+                    message: message,
+                    section: "servers",
+                    status: "error",
+                    time: Date.now()
+                });
                 complete(serverItem.id);
             };
         // type identification assignment

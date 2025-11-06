@@ -2,6 +2,7 @@
 import get_address from "../core/get_address.ts";
 import hash from "../core/hash.ts";
 import http from "../http/index.ts";
+import log from "../core/log.ts";
 import message_handler from "./messageHandler.ts";
 import node from "../core/node.ts";
 import server_halt from "../services/server_halt.ts";
@@ -354,8 +355,14 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
     // unhandled errors on sockets are fatal and will crash the application
     // errors on sockets resulting from stream collisions internal to node must be trapped immediately
     // trapping the error event on a socket any later will still result in a fatal application crash, as of Node 23.1.0, if the error is the result of an internal Node stream collision
-    TLS_socket.on("error", function transmit_connection_handshake_error():void{
-        return null;
+    TLS_socket.on("error", function transmit_connection_handshake_error(error:node_error):void{
+        log.application({
+            error: error,
+            message: "Socket connection error.",
+            section: "servers",
+            status: "error",
+            time: Date.now()
+        });
     });
     TLS_socket.once("data", handshake);
 };
