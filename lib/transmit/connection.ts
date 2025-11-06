@@ -120,7 +120,10 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
 
                 },
                 local_service = function transmit_connection_handshake_localService():void {
-                    data = redirection();
+                    const redirect:Buffer = redirection();
+                    data = (redirect === null)
+                        ? data
+                        : redirect;
                     if (key === "") {
                         const http_action = function transmit_connection_handshake_localService_httpAction():void {
                             const method:type_http_method = headerList[0].slice(0, headerList[0].indexOf(" ")).toLowerCase() as type_http_method;
