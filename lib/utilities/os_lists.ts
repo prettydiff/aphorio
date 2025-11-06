@@ -1107,7 +1107,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 shell: shell,
                 type: type
             });
-            spawn_item[type].child();
+            spawn_item[type].execute();
         };
     if (type_os === "all" || type_os === undefined || type_os === null) {
         type_os = "all";

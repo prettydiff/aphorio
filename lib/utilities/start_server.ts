@@ -48,7 +48,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                     shell: (process.platform === "win32")
                         ? "powershell"
                         : "sh"
-                }).child();
+                }).execute();
             },
             os_main: function utilities_startServer_taskOSMain():void {
                 const callback = function utilities_startServer_taskOSMain_callback():void {
@@ -78,34 +78,48 @@ const start_server = function utilities_startServer(process_path:string, testing
             }
         },
         tasks:store_function = {
-            // compose: function utilities_startServer_taskCompose():void {
-            //     // const readCompose = function utilities_startServer_taskCompose_readCompose(fileContents:Buffer):void {
-            //     //     const callback = function utilities_startServer_taskCompose_readCompose_dockerCallback():void {
-            //     //         complete_tasks("compose", "task");
-            //     //     };
-            //     //     if (fileContents === null) {
-            //     //         vars.compose = {
-            //     //             containers: {},
-            //     //             variables: {}
-            //     //         };
-            //     //     } else {
-            //     //         vars.compose = JSON.parse(fileContents.toString());
-            //     //     }
-            //     //     docker_ps(callback);
-            //     // };
-            //     // file.read({
-            //     //     callback: readCompose,
-            //     //     location: `${vars.path.project}compose.json`,
-            //     //     no_file: null,
-            //     //     section: "startup"
-            //     // });
-            //     if (vars.os.process.admin === false) {
-            //         vars.compose.status = "Error: Application must be executed with administrative privilege for Docker support.";
-            //         complete_tasks("compose", "task");
-            //         return;
-            //     }
-
-            // },
+            compose: function utilities_startServer_taskCompose():void {
+                // const readCompose = function utilities_startServer_taskCompose_readCompose(fileContents:Buffer):void {
+                //     const callback = function utilities_startServer_taskCompose_readCompose_dockerCallback():void {
+                //         complete_tasks("compose", "task");
+                //     };
+                //     if (fileContents === null) {
+                //         vars.compose = {
+                //             containers: {},
+                //             variables: {}
+                //         };
+                //     } else {
+                //         vars.compose = JSON.parse(fileContents.toString());
+                //     }
+                //     docker_ps(callback);
+                // };
+                // file.read({
+                //     callback: readCompose,
+                //     location: `${vars.path.project}compose.json`,
+                //     no_file: null,
+                //     section: "startup"
+                // });
+                if (vars.os.process.admin === true) {
+                    spawn(vars.commands.docker_list, function utilities_startServer_taskCompose_child(output:core_spawn_output):void {
+                        if ((output.stdout === "" && output.stderr !== "") || output.stdout.charAt(0) !== "{" || output.stdout.charAt(output.stdout.length - 1) !== "}") {
+                            const str:string = output.stderr.replace("error during connect: ", "");
+                            vars.compose.status = `Error: ${str}`;
+                            log.application({
+                                error: null,
+                                message: `Error: ${str}`,
+                                section: "compose",
+                                status: "error",
+                                time: Date.now()
+                            });
+                        } else {
+                            const list = JSON.parse(`[${output.stdout.replace(/\}\n\{/g, "},{")}]`);
+                        }
+                    }).execute();
+                } else {
+                    vars.compose.status = "Error: Application must be executed with administrative privilege for Docker support.";
+                    complete_tasks("compose", "task");
+                }
+            },
             git: function utilities_startServer_tasksGit():void {
                 const gitStat = function utilities_startServer_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
                     if (error === null && stat !== null) {
@@ -118,7 +132,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         }, {
                             cwd: process_path.slice(0, process_path.length - 1)
                         });
-                        spawn_item.child();
+                        spawn_item.execute();
                     } else {
                         complete_tasks("git", "task");
                     }

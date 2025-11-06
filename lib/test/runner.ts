@@ -306,7 +306,7 @@ const test_runner:test_runner = {
                 spawn_item:core_spawn = spawn(item.command, spawn_close, {
                     error: spawn_error
                 });
-            spawn_item.child();
+            spawn_item.execute();
         },
         dom: function test_runner_executeDOM():void {
             if (vars.test.browser_start === false) {

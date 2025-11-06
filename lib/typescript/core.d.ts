@@ -71,12 +71,12 @@ interface core_servers_file {
 }
 
 interface core_spawn {
-    child: () => void;
     close: () => void;
     command: string;
     data_stderr: (buf:Buffer) => void;
     data_stdout: (buf:Buffer) => void;
     error: (err:node_childProcess_ExecException) => void;
+    execute: () => void;
     spawn: node_childProcess_ChildProcess;
     stderr: string[];
     stdout: string[];

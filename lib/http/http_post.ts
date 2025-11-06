@@ -41,7 +41,7 @@ const http_post:http_action = function http_post(headerList:string[], socket:web
                 error: function http_post_error(err:node_childProcess_ExecException):void {
                     socket.write(missing("503 SERVICE UNAVAILABLE", `Server ${server_name} encountered an error executing method ${methodName}.`, err));
                 }
-            }).child();
+            }).execute();
         } else {
             socket.write(missing("501 NOT IMPLEMENTED", `Server configuration for server ${server_name} is missing property http.${methodName}.`, null));
             socket.destroy();

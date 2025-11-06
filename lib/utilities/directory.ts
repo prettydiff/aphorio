@@ -266,7 +266,7 @@ const directory = function utilities_directory(args:config_directory):void {
                                         }
                                     },
                                     shell: "powershell"
-                                }).child();
+                                }).execute();
                             } else {
                                 node.fs.readdir(item, {encoding: "utf8"}, function utilities_directory_statWrapper_stat_dir_readDir(erd:node_error, files:string[]):void {
                                     if (erd !== null) {

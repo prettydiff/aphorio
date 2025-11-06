@@ -72,7 +72,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 }
                 index = index + 1;
             } while (index < len);
-            secondary.child();
+            secondary.execute();
             callback();
         },
         spawn_close_secondary = function services_dockerPS_spawnCloseSecondary(output:core_spawn_output):void {
@@ -87,7 +87,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
                 }
             }
             setTimeout(function utilities_spawn_finish_recurse():void {
-                secondary.child();
+                secondary.execute();
             }, vars.intervals.compose);
         },
         primary:core_spawn = spawn(`${vars.commands.compose} -f ${vars.path.compose_empty} ps --format=json`, spawn_close_primary),
@@ -95,7 +95,7 @@ const docker_ps = function services_dockerPS(callback:() => void):void {
     if (process.platform !== "win32") {
         args.splice(0, 0, "compose");
     }
-    primary.child();
+    primary.execute();
 };
 
 export default docker_ps;

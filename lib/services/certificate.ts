@@ -24,7 +24,7 @@ const certificate = function services_certificate(config:config_certificate):voi
                         }
                     }, {
                         cwd: cert_path
-                    }).child();
+                    }).execute();
                 },
                 cert_extensions:string = (function services_certificate_cert_extensions():string {
                     const server:services_server = (vars.servers[config.id] === undefined)

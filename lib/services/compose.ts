@@ -90,7 +90,7 @@ const compose = function services_compose(socket_data:socket_data):void {
                     }()), `${vars.path.compose}.env`, "variables");
                 },
                 data:store_string = socket_data.data as store_string;
-            spawn(`docker compose -f ${vars.path.compose_empty} ps --format=json`, close).child();
+            spawn(`docker compose -f ${vars.path.compose_empty} ps --format=json`, close).execute();
             vars.compose.variables = data;
         }
     } else if (data.action === "destroy") {
@@ -126,9 +126,9 @@ const compose = function services_compose(socket_data:socket_data):void {
                 }
                 write();
             };
-            spawn(`docker rm ${data.compose.name}`, close_child).child();
+            spawn(`docker rm ${data.compose.name}`, close_child).execute();
         };
-        spawn(`docker kill ${data.compose.name}`, close).child();
+        spawn(`docker kill ${data.compose.name}`, close).execute();
     }
 };
 
