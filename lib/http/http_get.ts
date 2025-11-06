@@ -29,9 +29,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             }
             return heading.join("\r\n") + body;
         },
-        destroy = function http_get_destroy():void {
-            socket.destroy();
-        },
         // a dynamically generated template for page HTML
         html = function http_get_html(config:config_html):string {
             const statusText:string = (function http_get_html_status():string {
@@ -104,11 +101,12 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             return payload(headerText, bodyText);
         },
         write = function http_get_write(payload:Buffer|string):void {
+            // this if condition and the following "else" block are critical for ensuring response messages are delivered completely and the sockets are closed appropriately.
             if (socket.write(payload) === true) {
-                setTimeout(destroy, 100);
+                socket.destroy();
             } else {
                 socket.once("drain", function http_get_write_callback_drain():void {
-                    destroy();
+                    socket.destroy();
                 });
             }
         },
@@ -274,7 +272,9 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         socket.write(headerText.join("\r\n"));
                         stream.pipe(socket);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
-                            destroy();
+                            socket.on("drain", function http_get_statTest_fileItem_close_drain():void {
+                                socket.destroy();
+                            });
                         });
                     } else {
                         // text media types use chunked type response
@@ -282,11 +282,10 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         // - this is the most flexible approach when things like TLS impose segmentation separate from chunks piped to the socket
                         const stream:node_fs_ReadStream = node.fs.createReadStream(input);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
-                            const delay:number = Math.max(250, stream.bytesRead / 10000);
                             socket.write("0\r\n\r\n");
-                            setTimeout(function http_get_statTest_fileItem_close_delay():void {
-                                destroy();
-                            }, delay);
+                            socket.on("drain", function http_get_statTest_fileItem_close_drain():void {
+                                socket.destroy();
+                            });
                         });
                         socket.write(headerText.join("\r\n"));
                         stream.on("data", function http_get_statTest_fileItem_data(chunk:Buffer|string):void {
