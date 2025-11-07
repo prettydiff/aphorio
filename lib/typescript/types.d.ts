@@ -8,7 +8,6 @@ type type_dashboard_action = type_halt_action | "activate" | "add";
 type type_dashboard_list = "container" | "server";
 type type_dashboard_sections = "compose" | "devices" | "dns" | "faq" | "file-system" | "hash" | "help" | "http" | "interfaces" | "log" | "os" | "processes" | "servers" | "services" | "sockets-application" | "sockets-os" | "storage" | "terminal" | "users" | "websocket";
 type type_dashboard_status = "error" | "informational";
-type type_dashboard_type = "compose-containers" | "compose-variables" | "log" | "os" | "server" | "socket" | "terminal" | "websocket-test";
 // type_directory_type
 // 0 - absolute path
 // 1 - file system item type
@@ -45,8 +44,6 @@ type type_server_property = "block_list" | "domain_local" | "encryption" | "http
 //   service name                  - data type transmitted        - description
 //   ---
 // * dashboard-clock               - number                       - current server clock time as epoch number
-// * dashboard-compose-container   - store_string                 - docker compose variables
-// * dashboard-compose-variables   - store_string                 - stores YAML configuration content and a name for a single docker container
 // * dashboard-dns                 - services_dns_output          - data response to a dns query
 // * dashboard-fileSystem          - services_fileSystem          - file system list
 // * dashboard-hash                - services_hash                - hash and base64 computational output
@@ -68,8 +65,8 @@ type type_server_property = "block_list" | "domain_local" | "encryption" | "http
 // * dashboard-websocket-message   - services_websocket_message   - parses the header of a WebSocket message frame header sufficient to respond to the message on a test socket
 // * dashboard-websocket-status    - services_websocket_status    - sends connection establishment details for a test socket
 // * test-browser                  - services_test_browser        - test automation messaging to the browser
-type type_service = "dashboard-clock" | "dashboard-compose-container" | "dashboard-compose-variables" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-log" | "dashboard-os-all" | "dashboard-os-devs" | "dashboard-os-disk" | "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-sock" | "dashboard-os-user" | "dashboard-server" | "dashboard-socket-application" | "dashboard-terminal-resize" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
-type type_socket_data = config_log | core_server_os | services_action_compose | services_action_server | services_clock | services_dns_input | services_dns_output | services_dns_reverse | services_docker_compose | services_fileSystem | services_hash | services_http_test | services_os_disk | services_os_intr | services_socket_application | services_terminal_resize | services_testBrowser | services_websocket_handshake | services_websocket_message | services_websocket_status | store_servers | store_string | string[] | transmit_dashboard | type_list_services;
+type type_service = "dashboard-clock" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-log" | "dashboard-os-all" | "dashboard-os-devs" | "dashboard-os-disk" | "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-sock" | "dashboard-os-user" | "dashboard-server" | "dashboard-socket-application" | "dashboard-terminal-resize" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
+type type_socket_data = config_log | core_server_os | services_action_server | services_clock | services_dns_input | services_dns_output | services_dns_reverse | services_fileSystem | services_hash | services_http_test | services_os_disk | services_os_intr | services_socket_application | services_terminal_resize | services_testBrowser | services_websocket_handshake | services_websocket_message | services_websocket_status | store_servers | store_string | string[] | transmit_dashboard | type_list_services;
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";

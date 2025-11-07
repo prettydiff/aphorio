@@ -1,11 +1,6 @@
 
 // cspell: words opencontainers, serv
 
-interface services_action_compose {
-    action: type_dashboard_action;
-    compose: services_docker_compose;
-}
-
 interface services_action_server {
     action: type_dashboard_action;
     server: services_server;
@@ -14,31 +9,6 @@ interface services_action_server {
 interface services_clock {
     time_local: number;
     time_zulu: number;
-}
-
-interface services_docker_compose {
-    command: string;
-    compose: string;
-    createdAt: string;
-    description: string;
-    exitCode: number;
-    health: string;
-    id: string;
-    image: string;
-    labels: string[];
-    localVolumes: number;
-    mounts: string[];
-    name: string;
-    names: string[];
-    networks: string[];
-    ports: string[];
-    project: string;
-    publishers: services_docker_compose_publishers[];
-    runningFor: string;
-    service: string;
-    size: number;
-    state: type_docker_state;
-    status: string;
 }
 
 interface services_docker_compose_publishers {

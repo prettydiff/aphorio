@@ -42,6 +42,7 @@ const vars:core_vars = {
         compose: {
             containers: {},
             status: "",
+            time: 0,
             variables: {}
         },
         css: {

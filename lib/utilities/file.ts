@@ -49,7 +49,7 @@ const file:file = {
                     if (ind < len) {
                         recursiveStat();
                     } else {
-                        config.callback();
+                        config.callback(config.location, config.identifier);
                     }
                     return;
                 }
@@ -72,7 +72,7 @@ const file:file = {
                                 utilities_fileDir_recursiveStat();
                             } else if (errB === null) {
                                 if (config.callback !== null) {
-                                    config.callback();
+                                    config.callback(config.location, config.identifier);
                                 }
                             } else {
                                 log.application({
@@ -91,7 +91,7 @@ const file:file = {
             if (statError === null) {
                 if (stats.isDirectory() === true) {
                     if (config.callback !== null) {
-                        config.callback();
+                        config.callback(config.location, config.identifier);
                     }
                 } else {
                     errorHandler(null, stats, null);
@@ -105,13 +105,13 @@ const file:file = {
         node.fs.readFile(config.location, function utilities_fileRead_read(err:node_error, file_raw:Buffer):void {
             if (err !== null && err.code === "ENOENT") {
                 if (config.no_file !== null) {
-                    config.no_file();
+                    config.no_file(config.location, config.identifier);
                 } else if (config.callback !== null) {
-                    config.callback(null);
+                    config.callback(null, config.location, config.identifier);
                 }
             } else if (err === null) {
                 if (config.callback !== null) {
-                    config.callback(file_raw);
+                    config.callback(file_raw, config.location, config.identifier);
                 }
             } else {
                 log.application({
@@ -122,7 +122,7 @@ const file:file = {
                     time: Date.now()
                 });
                 if (config.callback !== null) {
-                    config.callback(null);
+                    config.callback(null, config.location, config.identifier);
                 }
             }
         });
@@ -164,7 +164,7 @@ const file:file = {
                             if (item[0] === fileList[0][0]) {
                                 // done
                                 if (config.callback !== null) {
-                                    config.callback();
+                                    config.callback(config.location, config.identifier);
                                 }
                             } else {
                                 // decrement the number of child items in a directory
@@ -201,7 +201,7 @@ const file:file = {
                     };
                 if (fileList.length < 1) {
                     if (config.callback !== null) {
-                        config.callback();
+                        config.callback(config.location, config.identifier);
                     }
                     return;
                 }
@@ -230,13 +230,13 @@ const file:file = {
         }, function utilities_fileStat_stat(ers:node_error, stat:node_fs_BigIntStats):void {
             if (ers !== null && ers.code === "ENOENT") {
                 if (config.no_file !== null) {
-                    config.no_file();
+                    config.no_file(config.location, config.identifier);
                 } else if (config.callback !== null) {
-                    config.callback(stat);
+                    config.callback(stat, config.location, config.identifier);
                 }
             } else if (ers === null) {
                 if (config.callback !== null) {
-                    config.callback(stat);
+                    config.callback(stat, config.location, config.identifier);
                 }
             } else {
                 log.application({
@@ -247,7 +247,7 @@ const file:file = {
                     time: Date.now()
                 });
                 if (config.callback !== null) {
-                    config.callback(null);
+                    config.callback(null, config.location, config.identifier);
                 }
             }
         });
@@ -256,7 +256,7 @@ const file:file = {
         node.fs.writeFile(config.location, config.contents, function utilities_fileWrite_write(erw:node_error):void {
             if (erw === null) {
                 if (config.callback !== null) {
-                    config.callback();
+                    config.callback(config.location, config.identifier);
                 }
             } else {
                 log.application({
@@ -267,7 +267,7 @@ const file:file = {
                     time: Date.now()
                 });
                 if (config.callback !== null) {
-                    config.callback();
+                    config.callback(config.location, config.identifier);
                 }
             }
         });

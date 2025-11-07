@@ -31,35 +31,40 @@ interface config_directory {
 }
 
 interface config_file_mkdir {
-    callback: () => void;
+    callback: (location:string, identifier:string) => void;
+    identifier?: string;
     location: string;
     section: type_dashboard_sections | "startup";
 }
 
 interface config_file_read {
-    callback: (file:Buffer) => void;
+    callback: (file:Buffer, location:string, identifier:string) => void;
+    identifier?: string;
     location: string;
-    no_file: () => void;
+    no_file: (location:string, identifier:string) => void;
     section: type_dashboard_sections | "startup";
 }
 
 interface config_file_remove {
-    callback: () => void;
+    callback: (location:string, identifier:string) => void;
     exclusions: string[];
+    identifier?: string;
     location: string;
     section: type_dashboard_sections | "startup";
 }
 
 interface config_file_stat {
-    callback: (stats:node_fs_BigIntStats) => void;
+    callback: (stats:node_fs_BigIntStats, location:string, identifier:string) => void;
+    identifier?: string;
     location: string;
-    no_file: () => void;
+    no_file: (location:string, identifier:string) => void;
     section: type_dashboard_sections | "startup";
 }
 
 interface config_file_write {
-    callback: () => void;
+    callback: (location:string, identifier:string) => void;
     contents: Buffer | string;
+    identifier?: string;
     location: string;
     section: type_dashboard_sections | "startup";
 }

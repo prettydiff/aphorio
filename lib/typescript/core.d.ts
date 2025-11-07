@@ -4,7 +4,34 @@
 interface core_compose {
     containers: store_compose;
     status: string;
+    time: number;
     variables: store_string;
+}
+interface core_compose_properties {
+    Command: string;
+    CreatedAt: string; // date
+    ExitCode: number;
+    ID: string;
+    Image: string;
+    Labels: string;
+    LocalVolumes: string;
+    Mounts: string;
+    Name: string;
+    Names: string;
+    Networks: string;
+    Ports: string;
+    Project: string;
+    Publishers: {
+        URL: string;
+        TargetPort: number;
+        PublishedPort: number;
+        Protocol: "tcp" | "udp";
+    }[];
+    RunningFor: string;
+    Service: string;
+    Size: string;
+    State: type_docker_state;
+    Status: string;
 }
 
 interface core_server_os {
@@ -269,7 +296,12 @@ interface store_children_os {
 }
 
 interface store_compose {
-    [key:string]: services_docker_compose;
+    [key:string]: {
+        compose: string;
+        location: string;
+        properties: core_compose_properties;
+        state: type_docker_state;
+    }
 }
 
 interface store_elements {

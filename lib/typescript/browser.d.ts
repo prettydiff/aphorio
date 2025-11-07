@@ -65,8 +65,6 @@ declare global {
     interface module_compose {
         activePorts: (name_server:string) => HTMLElement;
         cancelVariables: (event:MouseEvent) => void;
-        container: (config:services_docker_compose) => void;
-        destroyContainer: (config:services_docker_compose) => void;
         editVariables: () => void;
         getTitle: (textArea:HTMLTextAreaElement) => string;
         init: () => void;

@@ -861,36 +861,36 @@ const dashboard = function dashboard():void {
         services:structure_services = {
             compose: {
                 activePorts: function dashboard_composeActivePorts(name_server:string):HTMLElement {
-                    const div:HTMLElement = document.createElement("div"),
-                        h5:HTMLElement = document.createElement("h5"),
-                        portList:HTMLElement = document.createElement("ul"),
-                        ports:services_docker_compose_publishers[] = payload.compose.containers[name_server].publishers;
-                    let portItem:HTMLElement = null,
-                        index:number = ports.length;
-                    if (index < 1) {
-                        return div;
-                    }
-                    ports.sort(function dashboard_composeActivePorts_sort(a:services_docker_compose_publishers, b:services_docker_compose_publishers):-1|1 {
-                        if (a.PublishedPort < b.PublishedPort) {
-                            return 1;
-                        }
-                        return -1;
-                    });
-                    h5.appendText("Active Ports");
-                    div.appendChild(h5);
-                    div.setAttribute("class", "active-ports");
-                    do {
-                        index = index - 1;
-                        portItem = document.createElement("li");
-                        portItem.appendText(`${ports[index].PublishedPort} (${ports[index].Protocol.toUpperCase()})`);
-                        portList.appendChild(portItem);
-                        // prevent redundant output in the case of reporting for both IPv4 and IPv6
-                        if (index > 0 && ports[index - 1].PublishedPort === ports[index].PublishedPort) {
-                            index = index - 1;
-                        }
-                    } while (index > 0);
-                    div.appendChild(portList);
-                    return div;
+                    // const div:HTMLElement = document.createElement("div"),
+                    //     h5:HTMLElement = document.createElement("h5"),
+                    //     portList:HTMLElement = document.createElement("ul"),
+                    //     ports:services_docker_compose_publishers[] = payload.compose.containers[name_server].publishers;
+                    // let portItem:HTMLElement = null,
+                    //     index:number = ports.length;
+                    // if (index < 1) {
+                    //     return div;
+                    // }
+                    // ports.sort(function dashboard_composeActivePorts_sort(a:services_docker_compose_publishers, b:services_docker_compose_publishers):-1|1 {
+                    //     if (a.PublishedPort < b.PublishedPort) {
+                    //         return 1;
+                    //     }
+                    //     return -1;
+                    // });
+                    // h5.appendText("Active Ports");
+                    // div.appendChild(h5);
+                    // div.setAttribute("class", "active-ports");
+                    // do {
+                    //     index = index - 1;
+                    //     portItem = document.createElement("li");
+                    //     portItem.appendText(`${ports[index].PublishedPort} (${ports[index].Protocol.toUpperCase()})`);
+                    //     portList.appendChild(portItem);
+                    //     // prevent redundant output in the case of reporting for both IPv4 and IPv6
+                    //     if (index > 0 && ports[index - 1].PublishedPort === ports[index].PublishedPort) {
+                    //         index = index - 1;
+                    //     }
+                    // } while (index > 0);
+                    // div.appendChild(portList);
+                    // return div;
                 },
                 cancelVariables: function dashboard_composeCancelVariables(event:MouseEvent):void {
                     const target:HTMLElement = event.target.getAncestor("div", "tag"),
@@ -900,38 +900,38 @@ const dashboard = function dashboard():void {
                     services.compose.nodes.variables_list.style.display = "block";
                     services.compose.nodes.variables_new.disabled = false;
                 },
-                container: function dashboard_composeContainer(config:services_docker_compose):void {
-                    const list:HTMLCollectionOf<HTMLElement> = services.compose.nodes.containers_list.getElementsByTagName("li");
-                    let index:number = list.length;
-                    payload.compose.containers[config.name] = config;
-                    if (index > 0) {
-                        do {
-                            index = index - 1;
-                            if (list[index].dataset.id === config.id) {
-                                services.compose.nodes.containers_list.insertBefore(services.shared.title(config.id, "container"), list[index]);
-                                services.compose.nodes.containers_list.removeChild(list[index]);
-                                return;
-                            }
-                        } while (index > 0);
-                    }
-                    services.compose.nodes.containers_list.appendChild(services.shared.title(config.id, "container"));
-                },
-                destroyContainer: function dashboard_composeDestroyContainer(config:services_docker_compose):void {
-                    delete payload.compose.containers[config.name];
-                    if (services.compose.nodes !== null) {
-                        const list:HTMLCollectionOf<HTMLElement> = services.compose.nodes.containers_list.getElementsByTagName("li");
-                        let index:number = list.length;
-                        if (index > 0) {
-                            do {
-                                index = index - 1;
-                                if (list[index].dataset.id === config.id) {
-                                    list[index].parentNode.removeChild(list[index]);
-                                    break;
-                                }
-                            } while (index > 0);
-                        }
-                    }
-                },
+                // container: function dashboard_composeContainer(config:services_docker_compose):void {
+                //     const list:HTMLCollectionOf<HTMLElement> = services.compose.nodes.containers_list.getElementsByTagName("li");
+                //     let index:number = list.length;
+                //     payload.compose.containers[config.name] = config;
+                //     if (index > 0) {
+                //         do {
+                //             index = index - 1;
+                //             if (list[index].dataset.id === config.id) {
+                //                 services.compose.nodes.containers_list.insertBefore(services.shared.title(config.id, "container"), list[index]);
+                //                 services.compose.nodes.containers_list.removeChild(list[index]);
+                //                 return;
+                //             }
+                //         } while (index > 0);
+                //     }
+                //     services.compose.nodes.containers_list.appendChild(services.shared.title(config.id, "container"));
+                // },
+                // destroyContainer: function dashboard_composeDestroyContainer(config:services_docker_compose):void {
+                //     delete payload.compose.containers[config.name];
+                //     if (services.compose.nodes !== null) {
+                //         const list:HTMLCollectionOf<HTMLElement> = services.compose.nodes.containers_list.getElementsByTagName("li");
+                //         let index:number = list.length;
+                //         if (index > 0) {
+                //             do {
+                //                 index = index - 1;
+                //                 if (list[index].dataset.id === config.id) {
+                //                     list[index].parentNode.removeChild(list[index]);
+                //                     break;
+                //                 }
+                //             } while (index > 0);
+                //         }
+                //     }
+                // },
                 editVariables: function dashboard_composeEditVariables():void {
                     const p:HTMLElement = document.createElement("p"),
                         buttons:HTMLElement = document.createElement("p"),
@@ -1056,7 +1056,7 @@ const dashboard = function dashboard():void {
                         value:string = edit.getElementsByTagName("textarea")[0].value;
                     if (title === "Environmental Variables") {
                         const variables:store_string = JSON.parse(value);
-                        utility.message_send(variables, "dashboard-compose-variables");
+                        // utility.message_send(variables, "dashboard-compose-variables");
                         services.compose.nodes.variables_new.disabled = false;
                     } else {
                         const action:type_dashboard_action = classy.replace("server-", "") as type_dashboard_action,
@@ -1067,44 +1067,44 @@ const dashboard = function dashboard():void {
                                 : "down";
                             tools.terminal.socket.send(`docker compose -f ${payload.path.compose + newTitle}.yml ${direction}\n`);
                         } else {
-                            const yaml:string = textArea.value,
-                                trim = function dashboard_composeMessage_trim(input:string):string {
-                                    return input.replace(/^\s+/, "").replace(/\s+$/, "");
-                                },
-                                item:services_docker_compose = (payload.compose.containers[newTitle] === undefined)
-                                    ? {
-                                        command: "",
-                                        compose: "",
-                                        createdAt: "",
-                                        description: "",
-                                        exitCode: 0,
-                                        health: "",
-                                        id: "",
-                                        image: "",
-                                        labels: [],
-                                        localVolumes: null,
-                                        mounts: [],
-                                        name: newTitle,
-                                        names: [newTitle],
-                                        networks: [],
-                                        ports: [],
-                                        project: "",
-                                        publishers: [],
-                                        runningFor: "",
-                                        service: "",
-                                        size: null,
-                                        state: "dead",
-                                        status: ""
-                                    }
-                                    : payload.compose.containers[newTitle],
-                                data:services_action_compose = {
-                                    action: action,
-                                    compose: item
-                                };
-                            item.compose = trim(yaml);
-                            item.description = trim(value);
-                            payload.compose.containers[newTitle] = item;
-                            utility.message_send(data, "dashboard-compose-container");
+                            // const yaml:string = textArea.value,
+                            //     trim = function dashboard_composeMessage_trim(input:string):string {
+                            //         return input.replace(/^\s+/, "").replace(/\s+$/, "");
+                            //     },
+                            //     item:services_docker_compose = (payload.compose.containers[newTitle] === undefined)
+                            //         ? {
+                            //             command: "",
+                            //             compose: "",
+                            //             createdAt: "",
+                            //             description: "",
+                            //             exitCode: 0,
+                            //             health: "",
+                            //             id: "",
+                            //             image: "",
+                            //             labels: [],
+                            //             localVolumes: null,
+                            //             mounts: [],
+                            //             name: newTitle,
+                            //             names: [newTitle],
+                            //             networks: [],
+                            //             ports: [],
+                            //             project: "",
+                            //             publishers: [],
+                            //             runningFor: "",
+                            //             service: "",
+                            //             size: null,
+                            //             state: "dead",
+                            //             status: ""
+                            //         }
+                            //         : payload.compose.containers[newTitle],
+                            //     data:services_action_compose = {
+                            //         action: action,
+                            //         compose: item
+                            //     };
+                            // item.compose = trim(yaml);
+                            // item.description = trim(value);
+                            // payload.compose.containers[newTitle] = item;
+                            // utility.message_send(data, "dashboard-compose-container");
                         }
                         services.compose.nodes.containers_new.disabled = false;
                     }
@@ -1902,7 +1902,7 @@ const dashboard = function dashboard():void {
                             textArea.spellcheck = false;
                             textArea.readOnly = true;
                             if (newFlag === false) {
-                                textArea.value = payload.compose.containers[id].description;
+                                // textArea.value = payload.compose.containers[id].description;
                             }
                             p = document.createElement("p");
                             label = document.createElement("label");

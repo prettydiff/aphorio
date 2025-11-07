@@ -78,7 +78,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             }
         },
         tasks:store_function = {
-            // compose: function utilities_startServer_taskCompose():void {
+            compose: function utilities_startServer_taskCompose():void {
             //     // const readCompose = function utilities_startServer_taskCompose_readCompose(fileContents:Buffer):void {
             //     //     const callback = function utilities_startServer_taskCompose_readCompose_dockerCallback():void {
             //     //         complete_tasks("compose", "task");
@@ -102,29 +102,77 @@ const start_server = function utilities_startServer(process_path:string, testing
 
 
                 
-            //     if (vars.os.process.admin === true) {
-            //         spawn(vars.commands.docker_list, function utilities_startServer_taskCompose_child(output:core_spawn_output):void {
-            //             if (output.stdout.charAt(0) !== "{" || output.stdout.charAt(output.stdout.length - 1) !== "}") {
-            //                 const str:string = `Error: ${output.stderr.replace("error during connect: ", "")}`;
-            //                 vars.compose.status = (str === "")
-            //                     ? "Format error on docker compose process list."
-            //                     : str;
-            //                 log.application({
-            //                     error: null,
-            //                     message: vars.compose.status,
-            //                     section: "compose",
-            //                     status: "error",
-            //                     time: Date.now()
-            //                 });
-            //             } else {
-            //                 const list = JSON.parse(`[${output.stdout.replace(/\}\n\{/g, "},{")}]`);
-            //             }
-            //         }).execute();
-            //     } else {
-            //         vars.compose.status = "Error: Application must be executed with administrative privilege for Docker support.";
-            //         complete_tasks("compose", "task");
-            //     }
-            // },
+                const complete = function (message:string):void {
+                    vars.compose.status = message;
+                    vars.compose.time = Date.now();
+                    complete_tasks("compose", "task");
+                };
+                if (vars.os.process.admin === true) {
+                    spawn(vars.commands.docker_list, function utilities_startServer_taskCompose_child(output:core_spawn_output):void {
+                        const stdout:string = output.stdout.trim();
+                        if (stdout.charAt(0) !== "{" || stdout.charAt(stdout.length - 1) !== "}") {
+                            const str:string = `Error: ${output.stderr.replace("error during connect: ", "")}`;
+                            log.application({
+                                error: null,
+                                message: vars.compose.status,
+                                section: "compose",
+                                status: "error",
+                                time: Date.now()
+                            });
+                            complete((str === "")
+                                ? "Format error on docker compose process list."
+                                : str
+                            );
+                        } else {
+                            const list:core_compose_properties[] = JSON.parse(`[${output.stdout.replace(/\}\n\{/g, "},{")}]`),
+                                len:number = list.length,
+                                file_callback = function utilities_startServer_taskCompose_fileCallback(file:Buffer, location:string, identifier:string):void {
+                                    count = count + 1;
+                                    vars.compose.containers[identifier].compose = file.toString();
+                                    if (count === len) {
+                                        complete("");
+                                    }
+                                };
+                            let index:number = 0,
+                                count:number = 0,
+                                label_index:number = 0,
+                                labels:string[] = null,
+                                location:string = "";
+                            if (len > 0) {
+                                do {
+                                    labels = list[index].Labels.split(",");
+                                    label_index = labels.length;
+                                    if (label_index > 0) {
+                                        do {
+                                            label_index = label_index - 1;
+                                            if (labels[label_index].indexOf("com.docker.compose.project.config_files=") === 0) {
+                                                location = labels[label_index].slice(labels[label_index].indexOf("=") + 1);
+                                                vars.compose.containers[list[index].Name] = {
+                                                    compose: "",
+                                                    location: location,
+                                                    properties: list[index],
+                                                    state: list[index].State
+                                                };
+                                                file.read({
+                                                    callback: file_callback,
+                                                    identifier: list[index].Name,
+                                                    location: location,
+                                                    no_file: null,
+                                                    section: "compose"
+                                                });
+                                                break;
+                                            }
+                                        } while (label_index > 0);
+                                    }
+                                    index = index + 1;
+                                } while (index < len);
+                            }
+                        }
+                    }).execute();
+                } else {
+                    complete("Error: Application must be executed with administrative privilege for Docker support.");
+                }
+            },
             git: function utilities_startServer_tasksGit():void {
                 const gitStat = function utilities_startServer_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
                     if (error === null && stat !== null) {
