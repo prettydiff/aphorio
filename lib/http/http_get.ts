@@ -99,21 +99,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             headerText[2] = `content-length: ${Buffer.byteLength(bodyText)}`;
             return payload(headerText, bodyText);
         },
-        write = function http_get_write(payload:Buffer|string):void {
-            // this if condition and the following "else" block are critical for ensuring response messages are delivered completely and the sockets are closed appropriately.
-            const destroy = function http_get_write_destroy():void {
-                socket.destroy();
-            };
-            if (socket.write(payload) === true) {
-                setTimeout(destroy, 100);
-            } else {
-                socket.once("drain", function http_get_write_callback_drain():void {
-                    setTimeout(destroy, 100);
-                });
-            }
-        },
         notFound = function http_get_notFound():void {
-            write(html({
+            socket.write(html({
                 content: [`<p>Resource not found: <strong>${asset.join("/")}</strong></p>`],
                 content_type: "text/html; utf8",
                 core: false,
@@ -178,7 +165,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                     index_item = index_item + 1;
                                 } while (index_item < total);
                                 content.push("</tbody></table>");
-                                write(html({
+                                socket.write(html({
                                     content: content,
                                     content_type: "text/html; utf8",
                                     core: true,
@@ -264,7 +251,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             ""
                         ];
                     if (method === "HEAD") {
-                        write(headerText.join("\r\n"));
+                        socket.write(headerText.join("\r\n"));
                     } else if (binary === true) {
                         // binary media types use content-length type response
                         // - binary formats were failing on chunked responses because the browser only processed the first chunk
@@ -273,20 +260,13 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         const stream:node_fs_ReadStream = node.fs.createReadStream(input);
                         socket.write(headerText.join("\r\n"));
                         stream.pipe(socket);
-                        stream.on("close", function http_get_statTest_fileItem_close():void {
-                            socket.destroy();
-                        });
                     } else {
                         // text media types use chunked type response
                         // - on TLS some text media was failing to fully transfer on content length type responses, so all text formats are not chunked
                         // - this is the most flexible approach when things like TLS impose segmentation separate from chunks piped to the socket
                         const stream:node_fs_ReadStream = node.fs.createReadStream(input);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
-                            const delay:number = Math.max(250, stream.bytesRead / 10000);
                             socket.write("0\r\n\r\n");
-                            setTimeout(function http_get_statTest_fileItem_close_delay():void {
-                                socket.destroy();
-                            }, delay);
                         });
                         socket.write(headerText.join("\r\n"));
                         stream.on("data", function http_get_statTest_fileItem_data(chunk:Buffer|string):void {
@@ -306,6 +286,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         decoded:string = (decode.includes("?") === true)
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
+    socket.setTimeout(100);
     if (server_id === vars.dashboard_id) {
         const real_path:string = vars.path.project.replace(`test${vars.path.sep}`, "");
         if (decoded.includes("xterm.css") === true) {
@@ -335,7 +316,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     "",
                     ""
                 ];
-            write(headers.join("\r\n") + dashboard);
+            socket.write(headers.join("\r\n") + dashboard);
             return;
         }
     } else if (fileFragment === "") {
@@ -350,6 +331,9 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         location: input,
         no_file: notFound,
         section: "servers"
+    });
+    socket.on("timeout", function http_get_timeout():void {
+        socket.destroy();
     });
 };
 
