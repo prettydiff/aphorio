@@ -11,6 +11,12 @@ interface services_clock {
     time_zulu: number;
 }
 
+interface services_compose {
+    containers: store_compose;
+    status: string;
+    time: number;
+}
+
 interface services_docker_compose_publishers {
     Protocol: "tcp"|"udp";
     PublishedPort: number;

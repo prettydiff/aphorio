@@ -91,6 +91,15 @@ interface core_server_os {
     };
 }
 
+interface core_docker {
+    activate: () => void;
+    create: () => void;
+    deactivate: () => void;
+    delete: () => void;
+    list: (callback:() => void) => void;
+    modify: () => void;
+}
+
 interface core_servers_file {
     "compose-variables": store_string;
     dashboard_id: string;
@@ -299,6 +308,7 @@ interface store_compose {
     [key:string]: {
         compose: string;
         location: string;
+        ports: type_docker_ports;
         properties: core_compose_properties;
         state: type_docker_state;
     }
