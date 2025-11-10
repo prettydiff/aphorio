@@ -6,7 +6,7 @@ import Terminal from "@xterm/xterm";
 // cspell: words bootable, containerd, PUID, PGID, serv, winget
 const dashboard = function dashboard():void {
     let loaded:boolean = false,
-        section:type_dashboard_sections = "servers";
+        section:type_dashboard_sections = "servers_web";
     const payload:transmit_dashboard = null,
         local:string = localStorage.state,
         state:state_store = (local === undefined || local === null)
@@ -30,7 +30,7 @@ const dashboard = function dashboard():void {
                     encryption: true,
                     request: ""
                 },
-                nav: "servers",
+                nav: "servers_web",
                 table_os: {},
                 tables: {},
                 terminal: ""
@@ -322,7 +322,7 @@ const dashboard = function dashboard():void {
             // reset the UI to a near empty baseline
             baseline: function dashboard_utilityBaseline():void {
                 if (loaded === true) {
-                    const serverList:HTMLElement = document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
+                    const serverList:HTMLElement = document.getElementById("servers_web").getElementsByClassName("server-list")[0] as HTMLElement,
                         logs_old:HTMLElement = document.getElementById("application-logs").getElementsByTagName("ul")[0],
                         status:HTMLElement = document.getElementById("connection-status"),
                         terminal_output:HTMLElement = document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
@@ -351,7 +351,7 @@ const dashboard = function dashboard():void {
                             }
                         },
                         fileSummary:HTMLCollectionOf<HTMLElement> = tools.fileSystem.nodes.summary.getElementsByTagName("li"),
-                        server_new:HTMLButtonElement = document.getElementById("servers").getElementsByClassName("server-new")[0] as HTMLButtonElement;
+                        server_new:HTMLButtonElement = document.getElementById("servers_web").getElementsByClassName("server-new")[0] as HTMLButtonElement;
 
                     loaded = false;
                     replace(logs_old, false);
@@ -372,19 +372,12 @@ const dashboard = function dashboard():void {
                     fileSummary[6].getElementsByTagName("strong")[0].textContent = "";
                     fileSummary[7].getElementsByTagName("strong")[0].textContent = "";
                     fileSummary[8].getElementsByTagName("strong")[0].textContent = "";
-                    if (services.compose.nodes !== null) {
-                        services.compose.nodes.containers_list = replace(services.compose.nodes.containers_list, true);
-                        services.compose.nodes.variables_list = replace(services.compose.nodes.variables_list, true);
-                        if (services.compose.nodes.containers_new.disabled === true) {
-                            const compose_containers_cancel:HTMLButtonElement = document.getElementById("compose").getElementsByClassName("section")[1].getElementsByClassName("server-cancel")[0] as HTMLButtonElement;
-                            compose_containers_cancel.click();
-                        }
-                        if (services.compose.nodes.variables_new.disabled === true) {
-                            const compose_variable_cancel:HTMLButtonElement = document.getElementById("compose").getElementsByClassName("section")[0].getElementsByClassName("server-cancel")[0] as HTMLButtonElement;
-                            compose_variable_cancel.click();
-                        }
-                    }
                     server_new.disabled = false;
+                    services.compose_containers.nodes.list.textContent = "";
+                    services.compose_variables.nodes.list.textContent = "";
+                    services.compose_variables.nodes.update_containers.textContent = "";
+                    services.compose_variables.nodes.update_time.textContent = "";
+                    services.compose_variables.nodes.update_variables.textContent = "";
                     services.servers_web.nodes.list = replace(serverList, true);
                     status.setAttribute("class", "connection-offline");
                     status.getElementsByTagName("strong")[0].textContent = "Offline";
@@ -604,7 +597,7 @@ const dashboard = function dashboard():void {
                                 "dashboard-hash": tools.hash.receive,
                                 "dashboard-http": tools.http.receive,
                                 "dashboard-log": utility.log,
-                                "dashboard-servers": services.list,
+                                "dashboard-server": services.servers_web.list,
                                 "dashboard-socket-application": network.sockets_application.list,
                                 "dashboard-websocket-message": tools.websocket.message_receive,
                                 "dashboard-websocket-status": tools.websocket.status
@@ -667,11 +660,9 @@ const dashboard = function dashboard():void {
                                 time: Date.now()
                             },
                             service: "dashboard-log"
-                    });
-
-                        services.servers_web.list();
-                        services.compose.init();
+                        });
                         network.interfaces.init();
+                        services.init();
                         system.os.init();
                         system.disks.init();
                         tables.init(network.sockets_application);
@@ -859,125 +850,30 @@ const dashboard = function dashboard():void {
             }
         },
         services:structure_services = {
-            compose: {
-                activePorts: function dashboard_composeActivePorts(name_server:string):HTMLElement {
-                    // const div:HTMLElement = document.createElement("div"),
-                    //     h5:HTMLElement = document.createElement("h5"),
-                    //     portList:HTMLElement = document.createElement("ul"),
-                    //     ports:services_docker_compose_publishers[] = payload.compose.containers[name_server].publishers;
-                    // let portItem:HTMLElement = null,
-                    //     index:number = ports.length;
-                    // if (index < 1) {
-                    //     return div;
-                    // }
-                    // ports.sort(function dashboard_composeActivePorts_sort(a:services_docker_compose_publishers, b:services_docker_compose_publishers):-1|1 {
-                    //     if (a.PublishedPort < b.PublishedPort) {
-                    //         return 1;
-                    //     }
-                    //     return -1;
-                    // });
-                    // h5.appendText("Active Ports");
-                    // div.appendChild(h5);
-                    // div.setAttribute("class", "active-ports");
-                    // do {
-                    //     index = index - 1;
-                    //     portItem = document.createElement("li");
-                    //     portItem.appendText(`${ports[index].PublishedPort} (${ports[index].Protocol.toUpperCase()})`);
-                    //     portList.appendChild(portItem);
-                    //     // prevent redundant output in the case of reporting for both IPv4 and IPv6
-                    //     if (index > 0 && ports[index - 1].PublishedPort === ports[index].PublishedPort) {
-                    //         index = index - 1;
-                    //     }
-                    // } while (index > 0);
-                    // div.appendChild(portList);
-                    // return div;
-                },
-                cancelVariables: function dashboard_composeCancelVariables(event:MouseEvent):void {
-                    const target:HTMLElement = event.target.getAncestor("div", "tag"),
-                        section:HTMLElement = target.getAncestor("section", "class"),
-                        edit:HTMLElement = section.getElementsByClassName("edit")[0] as HTMLElement;
-                    edit.parentNode.removeChild(edit);
-                    services.compose.nodes.variables_list.style.display = "block";
-                    services.compose.nodes.variables_new.disabled = false;
-                },
-                // container: function dashboard_composeContainer(config:services_docker_compose):void {
-                //     const list:HTMLCollectionOf<HTMLElement> = services.compose.nodes.containers_list.getElementsByTagName("li");
-                //     let index:number = list.length;
-                //     payload.compose.containers[config.name] = config;
-                //     if (index > 0) {
-                //         do {
-                //             index = index - 1;
-                //             if (list[index].dataset.id === config.id) {
-                //                 services.compose.nodes.containers_list.insertBefore(services.shared.title(config.id, "container"), list[index]);
-                //                 services.compose.nodes.containers_list.removeChild(list[index]);
-                //                 return;
-                //             }
-                //         } while (index > 0);
-                //     }
-                //     services.compose.nodes.containers_list.appendChild(services.shared.title(config.id, "container"));
-                // },
-                // destroyContainer: function dashboard_composeDestroyContainer(config:services_docker_compose):void {
-                //     delete payload.compose.containers[config.name];
-                //     if (services.compose.nodes !== null) {
-                //         const list:HTMLCollectionOf<HTMLElement> = services.compose.nodes.containers_list.getElementsByTagName("li");
-                //         let index:number = list.length;
-                //         if (index > 0) {
-                //             do {
-                //                 index = index - 1;
-                //                 if (list[index].dataset.id === config.id) {
-                //                     list[index].parentNode.removeChild(list[index]);
-                //                     break;
-                //                 }
-                //             } while (index > 0);
-                //         }
-                //     }
-                // },
-                editVariables: function dashboard_composeEditVariables():void {
-                    const p:HTMLElement = document.createElement("p"),
-                        buttons:HTMLElement = document.createElement("p"),
-                        label:HTMLElement = document.createElement("label"),
-                        edit:HTMLElement = document.createElement("div"),
-                        ul:HTMLElement = document.createElement("ul"),
-                        textArea:HTMLTextAreaElement = document.createElement("textarea"),
-                        keys:string[] = Object.keys(payload.compose.variables).sort(),
-                        output:string[] = [],
-                        len:number = keys.length,
-                        cancel:HTMLElement = document.createElement("button"),
-                        save:HTMLElement = document.createElement("button");
-                    let index:number = 0;
-                    edit.setAttribute("class", "edit");
-                    if (len > 0) {
-                        do {
-                            output.push(`"${keys[index]}": "${payload.compose.variables[keys[index]]}"`);
-                            index = index + 1;
-                        } while (index < len);
-                        textArea.value = `{\n    ${output.join(",\n    ")}\n}`;
+            compose_containers: {
+                activePorts: function dashboard_composeContainersActivePorts(id:string):HTMLElement {
+                    const div:HTMLElement = document.createElement("div"),
+                        h5:HTMLElement = document.createElement("h5"),
+                        portList:HTMLElement = document.createElement("ul"),
+                        ports:type_docker_ports = payload.compose.containers[id].ports;
+                    let portItem:HTMLElement = null,
+                        index:number = ports.length;
+                    if (index < 1) {
+                        return div;
                     }
-                    cancel.appendText("⚠ Cancel");
-                    cancel.setAttribute("class", "server-cancel");
-                    cancel.onclick = services.compose.cancelVariables;
-                    buttons.appendChild(cancel);
-                    save.appendText("🖪 Modify");
-                    save.setAttribute("class", "server-modify");
-                    save.onclick = services.compose.message;
-                    buttons.appendChild(save);
-                    textArea.setAttribute("class", "compose-variables-edit");
-                    services.compose.nodes.variables_list.style.display = "none";
-                    label.appendText("Docker Compose Variables");
-                    label.appendChild(textArea);
-                    p.setAttribute("class", "compose-edit");
-                    p.appendChild(label);
-                    buttons.setAttribute("class", "buttons");
-                    edit.appendChild(p);
-                    edit.appendChild(ul);
-                    edit.appendChild(buttons);
-                    services.compose.nodes.variables_list.parentNode.appendChild(edit);
-                    services.compose.nodes.variables_new.disabled = true;
-                    textArea.onkeyup = services.compose.validateVariables;
-                    textArea.onfocus = services.compose.validateVariables;
-                    textArea.focus();
+                    h5.appendText("Active Ports");
+                    div.appendChild(h5);
+                    div.setAttribute("class", "active-ports");
+                    do {
+                        index = index - 1;
+                        portItem = document.createElement("li");
+                        portItem.appendText(`${ports[index][0]} (${ports[index][1].toUpperCase()})`);
+                        portList.appendChild(portItem);
+                    } while (index > 0);
+                    div.appendChild(portList);
+                    return div;
                 },
-                getTitle: function dashboard_composeGetTitle(textArea:HTMLTextAreaElement):string {
+                getTitle: function dashboard_composeContainersGetTitle(textArea:HTMLTextAreaElement):string {
                     const regTitle:RegExp = (/^\s+container_name\s*:\s*/),
                         values:string[] = textArea.value.split("\n"),
                         len:number = values.length;
@@ -992,135 +888,97 @@ const dashboard = function dashboard():void {
                     }
                     return "";
                 },
-                init: function dashboard_composeInit():void {
-                    if (payload.compose === null) {
-                        if (services.compose.nodes !== null) {
-                            const composeElement:HTMLElement = document.getElementById("compose"),
-                                sections:HTMLCollectionOf<HTMLElement> = composeElement.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>,
-                                p:HTMLElement = document.createElement("p");
-                                services.compose.nodes = null;
-                            p.appendText("Docker Compose is not available. Please see the logs for additional information.");
-                            composeElement.removeChild(sections[1]);
-                            composeElement.removeChild(sections[0]);
-                            composeElement.appendChild(p);
-                        }
-                        return;
-                    }
-                    services.compose.list("containers");
-                    services.compose.list("variables");
-                    services.compose.nodes.variables_new.onclick = services.compose.editVariables;
-                    services.compose.nodes.containers_new.onclick = services.shared.create;
-                },
-                list: function dashboard_composeList(type:"containers"|"variables"):void {
-                    // const list:string[] = Object.keys(payload.compose[type]).sort(),
-                    //     parent:HTMLElement = services.compose.nodes[`${type}_list`],
-                    //     ul:HTMLElement = document.createElement("ul"),
-                    //     len:number = list.length;
-                    // let li:HTMLElement = null,
-                    //     strong:HTMLElement = null,
-                    //     span:HTMLElement = null,
-                    //     index:number = 0;
-                    // ul.setAttribute("class", parent.getAttribute("class"));
-                    // if (len > 0) {
-                    //     do {
-                    //         if (type === "containers") {
-                    //             li = services.shared.title(payload.compose.containers[list[index]].name, "container");
-                    //             ul.appendChild(li);
-                    //         } else if (type === "variables") {
-                    //             li = document.createElement("li");
-                    //             strong = document.createElement("strong");
-                    //             span = document.createElement("span");
-                    //             strong.appendText(list[index]);
-                    //             span.appendText(payload.compose[type][list[index]]);
-                    //             li.appendChild(strong);
-                    //             li.appendChild(span);
-                    //             ul.appendChild(li);
-                    //         }
-                    //         index = index + 1;
-                    //     } while (index < len);
-                    //     parent.parentNode.insertBefore(ul, parent);
-                    //     parent.parentNode.removeChild(parent);
-                    //     services.compose.nodes[`${type}_list`] = ul;
-                    // } else {
-                    //     parent.style.display = "none";
-                    // }
-                },
-                message: function dashboard_composeMessage(event:MouseEvent):void {
-                    const target:HTMLElement = event.target,
-                        classy:string = target.getAttribute("class"),
-                        edit:HTMLElement = target.getAncestor("edit", "class"),
-                        section:HTMLElement = edit.getAncestor("section", "class"),
-                        title:string = section.getElementsByTagName("h3")[0].textContent,
-                        cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
-                        textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[1],
-                        value:string = edit.getElementsByTagName("textarea")[0].value;
-                    if (title === "Environmental Variables") {
-                        const variables:store_string = JSON.parse(value);
-                        // utility.message_send(variables, "dashboard-compose-variables");
-                        services.compose.nodes.variables_new.disabled = false;
+                list: function dashboard_composeContainersList(socket_data:socket_data):void {
+                    const data:core_compose = socket_data.data as core_compose,
+                        list:string[] = Object.keys(payload.compose.containers).sort(),
+                        variables:string[] = Object.keys(payload.compose.variables).sort(),
+                        list_node:HTMLElement = services.compose_containers.nodes.list,
+                        len:number = list.length;
+                    let li:HTMLElement = null,
+                        index:number = 0;
+                    list_node.textContent = "";
+                    if (len > 0) {
+                        do {
+                            li = services.shared.title(payload.compose.containers[list[index]].properties.Name, "container");
+                            list_node.appendChild(li);
+                            index = index + 1;
+                        } while (index < len);
+                        list_node.style.display = "block";
                     } else {
-                        const action:type_dashboard_action = classy.replace("server-", "") as type_dashboard_action,
-                            newTitle:string = services.compose.getTitle(textArea);
-                        if (action === "activate" || action === "deactivate") {
-                            const direction:"down"|"up --detach" = (action === "activate")
-                                ? "up --detach"
-                                : "down";
-                            tools.terminal.socket.send(`docker compose -f ${payload.path.compose + newTitle}.yml ${direction}\n`);
-                        } else {
-                            // const yaml:string = textArea.value,
-                            //     trim = function dashboard_composeMessage_trim(input:string):string {
-                            //         return input.replace(/^\s+/, "").replace(/\s+$/, "");
-                            //     },
-                            //     item:services_docker_compose = (payload.compose.containers[newTitle] === undefined)
-                            //         ? {
-                            //             command: "",
-                            //             compose: "",
-                            //             createdAt: "",
-                            //             description: "",
-                            //             exitCode: 0,
-                            //             health: "",
-                            //             id: "",
-                            //             image: "",
-                            //             labels: [],
-                            //             localVolumes: null,
-                            //             mounts: [],
-                            //             name: newTitle,
-                            //             names: [newTitle],
-                            //             networks: [],
-                            //             ports: [],
-                            //             project: "",
-                            //             publishers: [],
-                            //             runningFor: "",
-                            //             service: "",
-                            //             size: null,
-                            //             state: "dead",
-                            //             status: ""
-                            //         }
-                            //         : payload.compose.containers[newTitle],
-                            //     data:services_action_compose = {
-                            //         action: action,
-                            //         compose: item
-                            //     };
-                            // item.compose = trim(yaml);
-                            // item.description = trim(value);
-                            // payload.compose.containers[newTitle] = item;
-                            // utility.message_send(data, "dashboard-compose-container");
-                        }
-                        services.compose.nodes.containers_new.disabled = false;
+                        list_node.style.display = "none";
                     }
-                    if (cancel === undefined) {
-                        edit.parentNode.getElementsByTagName("button")[0].click();
-                    } else {
-                        services.shared.cancel(event);
-                    }
+                    payload.compose = data;
+                    services.compose_variables.nodes.update_containers.textContent = len.toString();
+                    services.compose_variables.nodes.update_variables.textContent = variables.length.toString();
+                    services.compose_variables.nodes.update_time.textContent = data.time.dateTime(true, payload.timeZone_offset);
+                    services.compose_variables.list(variables);
                 },
+                message: function dashboard_composeContainersMessage(event:MouseEvent):void {
+                        // const target:HTMLElement = event.target,
+                        //     classy:string = target.getAttribute("class"),
+                        //     edit:HTMLElement = target.getAncestor("edit", "class"),
+                        //     cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
+                        //     textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[1],
+                        //     value:string = edit.getElementsByTagName("textarea")[0].value,
+                        //     action:type_dashboard_action = classy.replace("server-", "") as type_dashboard_action,
+                        //     newTitle:string = services.compose_containers.getTitle(textArea);
+                        // if (action === "activate" || action === "deactivate") {
+                        //     const direction:"down"|"up --detach" = (action === "activate")
+                        //         ? "up --detach"
+                        //         : "down";
+                        //     tools.terminal.socket.send(`docker compose -f ${payload.path.compose + newTitle}.yml ${direction}\n`);
+                        // } else {
+                        //     const yaml:string = textArea.value,
+                        //         trim = function dashboard_composeMessage_trim(input:string):string {
+                        //             return input.replace(/^\s+/, "").replace(/\s+$/, "");
+                        //         },
+                        //         item:services_docker_compose = (payload.compose.containers[newTitle] === undefined)
+                        //             ? {
+                        //                 command: "",
+                        //                 compose: "",
+                        //                 createdAt: "",
+                        //                 description: "",
+                        //                 exitCode: 0,
+                        //                 health: "",
+                        //                 id: "",
+                        //                 image: "",
+                        //                 labels: [],
+                        //                 localVolumes: null,
+                        //                 mounts: [],
+                        //                 name: newTitle,
+                        //                 names: [newTitle],
+                        //                 networks: [],
+                        //                 ports: [],
+                        //                 project: "",
+                        //                 publishers: [],
+                        //                 runningFor: "",
+                        //                 service: "",
+                        //                 size: null,
+                        //                 state: "dead",
+                        //                 status: ""
+                        //             }
+                        //             : payload.compose.containers[newTitle],
+                        //         data:services_action_compose = {
+                        //             action: action,
+                        //             compose: item
+                        //         };
+                        //     item.compose = trim(yaml);
+                        //     item.description = trim(value);
+                        //     payload.compose.containers[newTitle] = item;
+                        //     utility.message_send(data, "dashboard-compose-container");
+                        //     services.compose_containers.nodes.service_new.disabled = false;
+                        // }
+                        // if (cancel === undefined) {
+                        //     edit.parentNode.getElementsByTagName("button")[0].click();
+                        // } else {
+                        //     services.shared.cancel(event);
+                        // }
+                    },
                 nodes: {
-                    containers_list: document.getElementById("compose").getElementsByClassName("compose-container-list")[0] as HTMLElement,
-                    containers_new: document.getElementById("compose").getElementsByClassName("compose-container-new")[0] as HTMLButtonElement,
-                    variables_list: document.getElementById("compose").getElementsByClassName("compose-variable-list")[0] as HTMLElement,
-                    variables_new: document.getElementById("compose").getElementsByClassName("compose-variable-new")[0] as HTMLButtonElement
+                    list: document.getElementById("compose_containers").getElementsByClassName("compose-container-list")[0] as HTMLElement,
+                    service_new: document.getElementById("compose_containers").getElementsByClassName("compose-container-new")[0] as HTMLButtonElement
                 },
-                validateContainer: function dashboard_composeValidateContainer(event:FocusEvent|KeyboardEvent):void {
+                validate: function dashboard_composeContainersValidate(event:FocusEvent|KeyboardEvent):void {
                     const target:HTMLElement = event.target,
                         section:HTMLElement = target.getAncestor("edit", "class"),
                         newItem:boolean = (section.parentNode.getAttribute("class") === "section"),
@@ -1132,7 +990,7 @@ const dashboard = function dashboard():void {
                             : section.getElementsByClassName("server-modify")[0] as HTMLButtonElement,
                         ul:HTMLElement = document.createElement("ul"),
                         reg:RegExp = (/^\s*$/),
-                        title:string = services.compose.getTitle(textArea),
+                        title:string = services.compose_containers.getTitle(textArea),
                         value:string = textArea.value;
                     let valid:boolean = true,
                         li:HTMLElement = document.createElement("li");
@@ -1172,8 +1030,110 @@ const dashboard = function dashboard():void {
                     }
                     old.parentNode.insertBefore(ul, old);
                     old.parentNode.removeChild(old);
+                }
+            },
+            compose_variables: {
+                cancel: function dashboard_composeVariablesCancel(event:MouseEvent):void {
+                    const target:HTMLElement = event.target.getAncestor("div", "tag"),
+                        section:HTMLElement = target.getAncestor("section", "class"),
+                        edit:HTMLElement = section.getElementsByClassName("edit")[0] as HTMLElement;
+                    edit.parentNode.removeChild(edit);
+                    services.compose_variables.nodes.list.style.display = "block";
+                    services.compose_variables.nodes.variable_new.disabled = false;
                 },
-                validateVariables: function dashboard_composeValidateVariables(event:FocusEvent|KeyboardEvent):void {
+                edit: function dashboard_composeVariablesEdit():void {
+                    const p:HTMLElement = document.createElement("p"),
+                        buttons:HTMLElement = document.createElement("p"),
+                        label:HTMLElement = document.createElement("label"),
+                        edit:HTMLElement = document.createElement("div"),
+                        ul:HTMLElement = document.createElement("ul"),
+                        textArea:HTMLTextAreaElement = document.createElement("textarea"),
+                        keys:string[] = Object.keys(payload.compose.variables).sort(),
+                        output:string[] = [],
+                        len:number = keys.length,
+                        cancel:HTMLElement = document.createElement("button"),
+                        save:HTMLElement = document.createElement("button");
+                    let index:number = 0;
+                    edit.setAttribute("class", "edit");
+                    if (len > 0) {
+                        do {
+                            output.push(`"${keys[index]}": "${payload.compose.variables[keys[index]]}"`);
+                            index = index + 1;
+                        } while (index < len);
+                        textArea.value = `{\n    ${output.join(",\n    ")}\n}`;
+                    }
+                    cancel.appendText("⚠ Cancel");
+                    cancel.setAttribute("class", "server-cancel");
+                    cancel.onclick = services.compose_variables.cancel;
+                    buttons.appendChild(cancel);
+                    save.appendText("🖪 Modify");
+                    save.setAttribute("class", "server-modify");
+                    save.onclick = services.compose_variables.message;
+                    buttons.appendChild(save);
+                    textArea.setAttribute("class", "compose-variables-edit");
+                    services.compose_variables.nodes.list.style.display = "none";
+                    label.appendText("Docker Compose Variables");
+                    label.appendChild(textArea);
+                    p.setAttribute("class", "compose-edit");
+                    p.appendChild(label);
+                    buttons.setAttribute("class", "buttons");
+                    edit.appendChild(p);
+                    edit.appendChild(ul);
+                    edit.appendChild(buttons);
+                    services.compose_variables.nodes.list.parentNode.appendChild(edit);
+                    services.compose_variables.nodes.variable_new.disabled = true;
+                    textArea.onkeyup = services.compose_variables.validate;
+                    textArea.onfocus = services.compose_variables.validate;
+                    textArea.focus();
+                },
+                list: function dashboard_composeVariablesList(list:string[]):void {
+                    const list_node:HTMLElement = services.compose_variables.nodes.list,
+                        len:number = list.length;
+                    let li:HTMLElement = null,
+                        strong:HTMLElement = null,
+                        span:HTMLElement = null,
+                        index:number = 0;
+                    list_node.textContent = "";
+                    if (len > 0) {
+                        do {
+                            li = document.createElement("li");
+                            strong = document.createElement("strong");
+                            span = document.createElement("span");
+                            strong.appendText(list[index]);
+                            span.appendText(payload.compose.variables[list[index]]);
+                            li.appendChild(strong);
+                            li.appendChild(span);
+                            list_node.appendChild(li);
+                            index = index + 1;
+                        } while (index < len);
+                        list_node.style.display = "block";
+                    } else {
+                        list_node.style.display = "none";
+                    }
+                },
+                message: function dashboard_composeVariablesMessage(event:MouseEvent):void {
+                    // const target:HTMLElement = event.target,
+                    //     edit:HTMLElement = target.getAncestor("edit", "class"),
+                    //     cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
+                    //     value:string = edit.getElementsByTagName("textarea")[0].value,
+                    //     variables:store_string = JSON.parse(value);
+                    // utility.message_send(variables, "dashboard-compose-variables");
+                    // services.compose_variables.nodes.variable_new.disabled = false;
+                    // if (cancel === undefined) {
+                    //     edit.parentNode.getElementsByTagName("button")[0].click();
+                    // } else {
+                    //     services.shared.cancel(event);
+                    // }
+                },
+                nodes: {
+                    list: document.getElementById("compose_containers").getElementsByClassName("compose-variable-list")[0] as HTMLElement,
+                    update_button: document.getElementById("compose_containers").getElementsByClassName("update-button")[0].getElementsByTagName("button")[0],
+                    update_containers: document.getElementById("compose_containers").getElementsByClassName("section")[0].getElementsByTagName("em")[0],
+                    update_time: document.getElementById("compose_containers").getElementsByClassName("section")[0].getElementsByTagName("time")[0],
+                    update_variables: document.getElementById("compose_containers").getElementsByClassName("section")[0].getElementsByTagName("em")[1],
+                    variable_new: document.getElementById("compose_containers").getElementsByClassName("compose-variable-new")[0] as HTMLButtonElement,
+                },
+                validate: function dashboard_composeVariablesValidate(event:FocusEvent|KeyboardEvent):void {
                     const target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                         value:string = target.value,
                         section:HTMLElement = target.getAncestor("section", "class"),
@@ -1226,10 +1186,31 @@ const dashboard = function dashboard():void {
                     }
                 }
             },
-            list: function dashboard_serverList(socket_data:socket_data):void {
-                const data:store_servers = socket_data.data as store_servers;
-                payload.servers = data;
-
+            init: function dashboard_composeVariablesInit():void {
+                if (payload.compose.status === "") {
+                    services.compose_containers.nodes.service_new.onclick = services.shared.create;
+                    services.compose_variables.nodes.update_time.onclick = null;
+                    services.compose_variables.nodes.variable_new.onclick = services.compose_variables.edit;
+                    services.compose_containers.list({
+                        data: payload.compose,
+                        service: "dashboard-compose"
+                    });
+                    services.servers_web.list({
+                        data: payload.servers,
+                        service: "dashboard-server"
+                    });
+                } else {
+                    const strong:HTMLElement = document.createElement("strong"),
+                        sections:HTMLCollectionOf<Element> = document.getElementById("compose_containers").getElementsByClassName("section"),
+                        description:HTMLElement = document.getElementById("compose_containers").getElementsByTagName("tab-description")[0] as HTMLElement;
+                    strong.textContent = "Error: ";
+                    description.textContent = "";
+                    description.appendChild(strong);
+                    description.appendText(payload.compose.status);
+                    sections[0].textContent = "";
+                    sections[1].textContent = "";
+                    sections[2].textContent = "";
+                }
             },
             servers_web: {
                 activePorts: function dashboard_serverActivePorts(id:string):HTMLElement {
@@ -1275,15 +1256,16 @@ const dashboard = function dashboard():void {
                     div.appendChild(portList);
                     return div;
                 },
-                list: function dashboard_serverList():void {
-                    const list:string[] = Object.keys(payload.servers),
+                list: function dashboard_serverList(socket_data:socket_data):void {
+                    const list:string[] = Object.keys(socket_data.data),
                         list_old:HTMLElement = services.servers_web.nodes.list,
                         list_new:HTMLElement = document.createElement("ul"),
                         total:number = list.length;
                     let index:number = 0,
                         indexSocket:number = 0,
                         totalSocket:number = 0;
-                    services.servers_web.nodes.server_new.onclick = services.shared.create;
+                    payload.servers = socket_data.data as store_servers;
+                    services.servers_web.nodes.service_new.onclick = services.shared.create;
                     list_new.setAttribute("class", list_old.getAttribute("class"));
                     list.sort(function dashboard_serverList_sort(a:string, b:string):-1|1 {
                         if (a < b) {
@@ -1332,12 +1314,12 @@ const dashboard = function dashboard():void {
                         edit.parentNode.getElementsByTagName("button")[0].click();
                     } else {
                         services.shared.cancel(event);
-                        services.servers_web.nodes.server_new.disabled = false;
+                        services.servers_web.nodes.service_new.disabled = false;
                     }
                 },
                 nodes: {
-                    list: document.getElementById("servers").getElementsByClassName("server-list")[0] as HTMLElement,
-                    server_new: document.getElementById("servers").getElementsByClassName("server-new")[0] as HTMLButtonElement
+                    list: document.getElementById("servers_web").getElementsByClassName("server-list")[0] as HTMLElement,
+                    service_new: document.getElementById("servers_web").getElementsByClassName("server-new")[0] as HTMLButtonElement
                 },
                 validate: function dashboard_serverValidate(event:FocusEvent|KeyboardEvent):void {
                     const target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
@@ -1674,9 +1656,7 @@ const dashboard = function dashboard():void {
                 cancel: function dashboard_commonCancel(event:MouseEvent):void {
                     const target:HTMLElement = event.target,
                         edit:HTMLElement = target.getAncestor("edit", "class"),
-                        create:HTMLButtonElement = (section === "servers")
-                            ? services.servers_web.nodes.server_new
-                            : services.compose.nodes.containers_new;
+                        create:HTMLButtonElement = services[section as "servers_web"].nodes.service_new;
                     edit.parentNode.removeChild(edit);
                     create.disabled = false;
                 },
@@ -1729,9 +1709,7 @@ const dashboard = function dashboard():void {
                         classy:string = target.getAttribute("class"),
                         newFlag:boolean = (classy === "server-new" || classy === "compose-container-new"),
                         serverItem:HTMLElement = (newFlag === true)
-                            ? (section === "servers")
-                                ? services.servers_web.nodes.list
-                                : services.compose.nodes.containers_list
+                            ? services[section as "servers_web"].nodes.list
                             : target.getAncestor("li", "tag"),
                         titleButton:HTMLElement = serverItem.getElementsByTagName("button")[0],
                         expandButton:HTMLElement = (newFlag === true)
@@ -1747,7 +1725,7 @@ const dashboard = function dashboard():void {
                             label:HTMLElement = document.createElement("label"),
                             textArea:HTMLTextAreaElement = document.createElement("textarea"),
                             span:HTMLElement = document.createElement("span"),
-                            value:string = (section === "servers")
+                            value:string = (section === "servers_web")
                                 ? (function dashboard_commonDetails_value():string {
                                     const array = function dashboard_commonDetails_value_array(indent:boolean, name:string, property:string[]):void {
                                             const ind:string = (indent === true)
@@ -1892,7 +1870,7 @@ const dashboard = function dashboard():void {
                             summaryUl:HTMLElement = document.createElement("ul"),
                             editButton:HTMLElement = document.createElement("button"),
                             clear:HTMLElement = document.createElement("span");
-                        if (section === "compose") {
+                        if (section === "compose_containers") {
                             const textArea:HTMLTextAreaElement = document.createElement("textarea");
                             let p:HTMLElement = document.createElement("p"),
                                 label:HTMLElement = document.createElement("label"),
@@ -1927,7 +1905,7 @@ const dashboard = function dashboard():void {
                         textArea.value = value;
                         textArea.spellcheck = false;
                         textArea.readOnly = true;
-                        if (section === "compose") {
+                        if (section === "compose_containers") {
                             span.appendText("Compose YAML");
                         } else {
                             span.appendText("Server Configuration");
@@ -1944,11 +1922,7 @@ const dashboard = function dashboard():void {
                             editButton.setAttribute("class", "server-edit");
                             editButton.onclick = services.shared.edit;
                             p.appendChild(editButton);
-                            if (section === "compose") {
-                                details.appendChild(services.compose.activePorts(id));
-                            } else {
-                                details.appendChild(services.servers_web.activePorts(id));
-                            }
+                            details.appendChild(services[section as "servers_web"].activePorts(id));
                         }
                         clear.setAttribute("class", "clear");
                         p = document.createElement("p");
@@ -1993,22 +1967,16 @@ const dashboard = function dashboard():void {
                         buttons.setAttribute("class", "buttons");
                         destroy.appendText("✘ Destroy");
                         destroy.setAttribute("class", "server-destroy");
-                        destroy.onclick = (section === "compose")
-                            ? services.compose.message
-                            : services.servers_web.message;
+                        destroy.onclick = services[section as "servers_web"].message;
                         activate.appendText("⌁ Activate");
                         activate.setAttribute("class", "server-activate");
                         if (listItem.getAttribute("class") === "green") {
                             activate.disabled = true;
                         }
-                        activate.onclick = (section === "compose")
-                            ? services.compose.message
-                            : services.servers_web.message;
+                        activate.onclick = services[section as "servers_web"].message;
                         deactivate.appendText("። Deactivate");
                         deactivate.setAttribute("class", "server-deactivate");
-                        deactivate.onclick = (section === "compose")
-                            ? services.compose.message
-                            : services.servers_web.message;
+                        deactivate.onclick = services[section as "servers_web"].message;
                         if (listItem.getAttribute("class") === "red") {
                             deactivate.disabled = true;
                         }
@@ -2031,15 +1999,13 @@ const dashboard = function dashboard():void {
                         save.appendText("🖪 Modify");
                         save.setAttribute("class", "server-modify");
                     }
-                    save.onclick = (section === "compose")
-                        ? services.compose.message
-                        : services.servers_web.message;
+                    save.onclick = services[section as "servers_web"].message;
                     p.appendChild(save);
                     p.removeChild(clear);
                     p.appendChild(clear);
                     p.setAttribute("class", "buttons");
                     if (createServer === true) {
-                        if (section === "compose") {
+                        if (section === "compose_containers") {
                             note.textContent = "Container status messaging redirected to terminal.";
                         } else {
                             note.textContent = "Please be patient with new secure server activation as creating new TLS certificates requires several seconds.";
@@ -2047,19 +2013,19 @@ const dashboard = function dashboard():void {
                         note.setAttribute("class", "note");
                         p.parentNode.appendChild(note);
                     } else if (dashboard === false) {
-                        note.textContent = (section === "compose")
+                        note.textContent = (section === "compose_containers")
                             ? `Changing the container name of an existing container will create a new container. Ensure the compose file mentions PUID and PGID with values ${payload.os.user_account.uid} and ${payload.os.user_account.gid} to prevent writing files as root.`
                             : "Destroying a server will delete all associated file system artifacts. Back up your data first.";
                         note.setAttribute("class", "note");
                         p.parentNode.appendChild(note);
                     }
-                    if (section === "compose") {
+                    if (section === "compose_containers") {
                         const textArea0:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
                             textArea1:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[1];
                         textArea0.readOnly = false;
                         textArea1.readOnly = false;
-                        textArea1.onkeyup = services.compose.validateContainer;
-                        textArea1.onfocus = services.compose.validateContainer;
+                        //textArea1.onkeyup = services.compose.validateContainer;
+                        //textArea1.onfocus = services.compose.validateContainer;
                         textArea0.focus();
                     } else {
                         const textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0];
@@ -2077,7 +2043,9 @@ const dashboard = function dashboard():void {
                         span:HTMLElement = document.createElement("span"),
                         name:string = (id === undefined)
                             ? `new_${type}`
-                            : payload.servers[id].config.name;
+                            : (type === "server")
+                                ? payload.servers[id].config.name
+                                : payload.compose.containers[id].properties.Name;
                     if (id === undefined) {
                         expand.appendText(name);
                     } else {
@@ -3663,7 +3631,7 @@ const dashboard = function dashboard():void {
         }
 
         // set active tab from state
-        if (state.nav !== "servers") {
+        if (state.nav !== "servers_web") {
             index = navButtons.length;
             do {
                 index = index - 1;
@@ -3673,7 +3641,7 @@ const dashboard = function dashboard():void {
                     navButtons[index].removeAttribute("class");
                 }
             } while (index > 0);
-            document.getElementById("servers").style.display = "none";
+            document.getElementById("servers_web").style.display = "none";
             document.getElementById(state.nav).style.display = "block";
             section = state.nav as type_dashboard_sections;
         }

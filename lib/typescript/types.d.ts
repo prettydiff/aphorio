@@ -6,7 +6,7 @@ type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentE
 type type_certKey = "ca" | "crt" | "key";
 type type_dashboard_action = type_halt_action | "activate" | "add";
 type type_dashboard_list = "container" | "server";
-type type_dashboard_sections = "compose" | "devices" | "dns" | "faq" | "file-system" | "hash" | "help" | "http" | "interfaces" | "log" | "os" | "processes" | "servers" | "services" | "sockets-application" | "sockets-os" | "storage" | "terminal" | "users" | "websocket";
+type type_dashboard_sections = "compose_containers" | "devices" | "dns" | "faq" | "file-system" | "hash" | "help" | "http" | "interfaces" | "log" | "os" | "processes" | "servers_web" | "services" | "sockets-application" | "sockets-os" | "storage" | "terminal" | "users" | "websocket";
 type type_dashboard_status = "error" | "informational";
 // type_directory_type
 // 0 - absolute path

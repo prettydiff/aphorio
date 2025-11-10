@@ -191,7 +191,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                 symbolic: false
                             });
                         },
-                        section: "servers"
+                        section: "servers_web"
                     });
                 },
                 fileItem = function http_get_statTest_fileItem():void {
@@ -337,7 +337,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         callback: statTest,
         location: input,
         no_file: notFound,
-        section: "servers"
+        section: "servers_web"
     });
 };
 

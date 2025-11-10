@@ -62,22 +62,20 @@ declare global {
         [key:string]: (data_item:socket_data) => void;
     }
 
-    interface module_compose {
-        activePorts: (name_server:string) => HTMLElement;
-        cancelVariables: (event:MouseEvent) => void;
-        editVariables: () => void;
-        getTitle: (textArea:HTMLTextAreaElement) => string;
-        init: () => void;
-        list: (type:"containers"|"variables") => void;
+    interface module_compose_variables {
+        cancel: (event:MouseEvent) => void;
+        edit: () => void;
+        list: (list:string[]) => void;
         message: (event:MouseEvent) => void;
         nodes: {
-            containers_list: HTMLElement;
-            containers_new: HTMLButtonElement;
-            variables_list: HTMLElement;
-            variables_new: HTMLButtonElement;
+            list: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_containers: HTMLElement;
+            update_time: HTMLElement;
+            update_variables: HTMLElement;
+            variable_new: HTMLButtonElement;
         };
-        validateContainer: (event:FocusEvent|KeyboardEvent) => void;
-        validateVariables: (event:FocusEvent|KeyboardEvent) => void;
+        validate: (event:FocusEvent|KeyboardEvent) => void;
     }
 
     interface module_disks {
@@ -263,13 +261,14 @@ declare global {
         test_item: services_testBrowser;
     }
 
-    interface module_servers_web {
-        activePorts: (name_server:string) => HTMLElement;
-        list: () => void;
+    interface module_services {
+        activePorts: (id:string) => HTMLElement;
+        getTitle?: (textArea:HTMLTextAreaElement) => string;
+        list: (socket_data:socket_data) => void;
         message: (event:MouseEvent) => void;
         nodes: {
             list: HTMLElement;
-            server_new: HTMLButtonElement;
+            service_new: HTMLButtonElement;
         };
         validate: (event:FocusEvent|KeyboardEvent) => void;
     }
@@ -381,9 +380,10 @@ declare global {
     }
 
     interface structure_services {
-        compose: module_compose;
-        list: (socket_data:socket_data) => void;
-        servers_web: module_servers_web;
+        compose_containers: module_services;
+        compose_variables: module_compose_variables;
+        init: () => void;
+        servers_web: module_services;
         shared: module_serverItems;
     }
 

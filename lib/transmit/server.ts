@@ -41,7 +41,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                 log.application({
                     error: null,
                     message: `Server ${serverItem.id} - ${secure} came online at port ${vars.servers[serverItem.id].config.ports[secure]}.`,
-                    section: "servers",
+                    section: "servers_web",
                     status: "informational",
                     time: Date.now()
                 });
@@ -63,7 +63,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                 log.application({
                     error: ser,
                     message: message,
-                    section: "servers",
+                    section: "servers_web",
                     status: "error",
                     time: Date.now()
                 });
@@ -110,7 +110,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                 },
                 exclusions: null,
                 location: vars.path.servers + data.server.name,
-                section: "servers"
+                section: "servers_web"
             });
         } else {
             start(null);
@@ -128,7 +128,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                     callback: starter,
                     exclusions: null,
                     location: vars.path.servers + id,
-                    section: "servers"
+                    section: "servers_web"
                 });
             } else {
                 starter();

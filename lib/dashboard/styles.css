@@ -217,7 +217,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .title{
         time{color:var(--text_yellow);display:inline-block;font-style:normal;font-weight:bold;margin:0 0 0 0.5em}
     }
-    #compose{
+    #compose_containers{
         textarea.compose-variables-edit{height:10em}
         .compose-variable-list{
             li{background:var(--background_textarea);padding:1em}
@@ -229,7 +229,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     #hash .output{height:15em}
     #help ul{padding:0}
     #os ul{padding:0 0 1em 2em}
-    #servers{
+    #servers_web{
         display:block;
         .detail_item p{margin:0 0 0.5em}
         .note{clear:both;font-size:1.2em}
@@ -418,12 +418,12 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         }
     }
 
-    #compose li,
-    #servers li{border-color:var(--border_color);border-style:solid;border-width:0.1em;list-style:none}
+    #compose_containers li,
+    #servers_web li{border-color:var(--border_color);border-style:solid;border-width:0.1em;list-style:none}
 
     #file-system li,
-    #compose .edit li,
-    #servers .edit li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
+    #compose_containers .edit li,
+    #servers_web .edit li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
 
     #http,
     #websocket {

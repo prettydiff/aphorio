@@ -25,7 +25,7 @@ const read_certs = function utilities_readCerts(name:string, callback:(name:stri
                     log.application({
                         error: new Error(),
                         message: `Required certificate files are missing for server ${name}.`,
-                        section: "servers",
+                        section: "servers_web",
                         status: "error",
                         time: Date.now()
                     });

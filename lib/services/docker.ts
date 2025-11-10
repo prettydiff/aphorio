@@ -20,11 +20,11 @@ const docker:core_docker = {
             const child = function services_docker_list_child(output:core_spawn_output):void {
                 const stdout:string = output.stdout.trim();
                 if (stdout.charAt(0) !== "{" || stdout.charAt(stdout.length - 1) !== "}") {
-                    const str:string = `Error: ${output.stderr.replace("error during connect: ", "")}`;
+                    const str:string = `${output.stderr.replace("error during connect: ", "")}`;
                     log.application({
                         error: null,
                         message: vars.compose.status,
-                        section: "compose",
+                        section: "compose_containers",
                         status: "error",
                         time: now
                     });
@@ -113,7 +113,7 @@ const docker:core_docker = {
                                             identifier: list[index].Name,
                                             location: location,
                                             no_file: null,
-                                            section: "compose"
+                                            section: "compose_containers"
                                         });
                                         break;
                                     }
@@ -126,7 +126,7 @@ const docker:core_docker = {
             };
             spawn(vars.commands.docker_list, child).execute();
         } else {
-            complete("Error: Application must be executed with administrative privilege for Docker support.");
+            complete("Application must be executed with administrative privilege for Docker support.");
         }
     },
     modify: function services_docker_modify():void {}

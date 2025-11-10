@@ -30,7 +30,7 @@
         <h2>Navigation</h2>
         <div>
             <h3>Services</h3>
-            <ul><li><button class="nav-focus" data-section="servers">Web Servers</button></li><li><button data-section="compose">Docker Compose</button></li></ul>
+            <ul><li><button class="nav-focus" data-section="servers_web">Web Servers</button></li><li><button data-section="compose_containers">Docker Compose</button></li></ul>
         </div>
         <div>
             <h3>Network</h3>
@@ -56,9 +56,17 @@
             <p class="tab-description">At this time logs are not saved outside the application, but do persist for the life of the application runtime.</p>
             <ul></ul>
         </div>
-        <div class="tab" id="compose">
+        <div class="tab" id="compose_containers">
             <h2>Docker Compose</h2>
             <p class="tab-description">A list of configured Docker containers and their status. Container status refreshes every ${payload.intervals.compose} seconds. All containers run under the Docker daemon detached from this application.</p>
+            <div class="section">
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Containers</span> <em></em></p>
+                    <p><span>Total Variables</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
+                </div>
+            </div>
             <div class="section">
                 <h3>Environmental Variables</h3>
                 <p class="buttons"><button class="compose-variable-new">Edit Variables</button></p>
@@ -734,7 +742,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
-        <div class="tab" id="servers">
+        <div class="tab" id="servers_web">
             <h2>Web Servers</h2>
             <p class="tab-description">A list of configured HTTP/WS servers hosted by this application and their respective status.</p>
             <div class="definitions">

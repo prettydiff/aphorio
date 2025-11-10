@@ -51,7 +51,7 @@ const server_create = function services_serverCreate(data:services_action_server
                         log.application({
                             error: null,
                             message: `Server named ${config.name} created.`,
-                            section: "servers",
+                            section: "servers_web",
                             status: "informational",
                             time: Date.now()
                         });
@@ -78,7 +78,7 @@ const server_create = function services_serverCreate(data:services_action_server
                     file.mkdir({
                         callback: children,
                         location: location,
-                        section: "servers"
+                        section: "servers_web"
                     });
                 },
                 write = function services_serverCreate_write():void {
@@ -100,7 +100,7 @@ const server_create = function services_serverCreate(data:services_action_server
                         },
                         contents: JSON.stringify(config),
                         location: path_config,
-                        section: "servers"
+                        section: "servers_web"
                     });
                 };
             if (vars.servers[output.hash] === undefined) {
@@ -159,7 +159,7 @@ const server_create = function services_serverCreate(data:services_action_server
                     log.application({
                         error: new Error(),
                         message: `Server named ${config.name} already exists.  Called on library server_create.`,
-                        section: "servers",
+                        section: "servers_web",
                         status: "error",
                         time: Date.now()
                     });
@@ -174,7 +174,7 @@ const server_create = function services_serverCreate(data:services_action_server
         },
         digest: "hex",
         hash_input_type: "direct",
-        section: "servers",
+        section: "servers_web",
         source: String(Date.now()) + String(Math.random()) + vars.os.os.hostname
     });
 };
