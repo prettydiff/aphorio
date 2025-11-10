@@ -13,10 +13,6 @@ const socket_list = function services_socketList(extension?:() => void):services
                     : vars.server_meta[server_id].sockets[encryption].length,
                 index_server:number = 0,
                 socket:websocket_client = null;
-            const flags:store_flag = {
-                dash_meta: (vars.test.testing === true && socket.type === "dashboard"),
-                test_meta: (vars.test.testing === true && socket.type === "dashboard")
-            };
             if (index_list > 0) {
                 do {
                     index_list = index_list - 1;

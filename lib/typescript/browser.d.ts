@@ -68,7 +68,9 @@ declare global {
         list: (list:string[]) => void;
         message: (event:MouseEvent) => void;
         nodes: {
+            body: HTMLElement;
             list: HTMLElement;
+            status: HTMLElement;
             update_button: HTMLButtonElement;
             update_containers: HTMLElement;
             update_time: HTMLElement;

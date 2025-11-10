@@ -374,7 +374,10 @@ const dashboard = function dashboard():void {
                     fileSummary[8].getElementsByTagName("strong")[0].textContent = "";
                     server_new.disabled = false;
                     services.compose_containers.nodes.list.textContent = "";
+                    services.compose_variables.nodes.body.style.display = "block";
                     services.compose_variables.nodes.list.textContent = "";
+                    services.compose_variables.nodes.status.style.display = "none";
+                    services.compose_variables.nodes.status.textContent = "";
                     services.compose_variables.nodes.update_containers.textContent = "";
                     services.compose_variables.nodes.update_time.textContent = "";
                     services.compose_variables.nodes.update_variables.textContent = "";
@@ -1126,7 +1129,9 @@ const dashboard = function dashboard():void {
                     // }
                 },
                 nodes: {
+                    body: document.getElementById("compose_containers").getElementsByClassName("compose-body")[0] as HTMLElement,
                     list: document.getElementById("compose_containers").getElementsByClassName("compose-variable-list")[0] as HTMLElement,
+                    status: document.getElementById("compose-containers").getElementsByClassName("status")[0] as HTMLElement,
                     update_button: document.getElementById("compose_containers").getElementsByClassName("update-button")[0].getElementsByTagName("button")[0],
                     update_containers: document.getElementById("compose_containers").getElementsByClassName("section")[0].getElementsByTagName("em")[0],
                     update_time: document.getElementById("compose_containers").getElementsByClassName("section")[0].getElementsByTagName("time")[0],
@@ -1200,16 +1205,12 @@ const dashboard = function dashboard():void {
                         service: "dashboard-server"
                     });
                 } else {
-                    const strong:HTMLElement = document.createElement("strong"),
-                        sections:HTMLCollectionOf<Element> = document.getElementById("compose_containers").getElementsByClassName("section"),
-                        description:HTMLElement = document.getElementById("compose_containers").getElementsByTagName("tab-description")[0] as HTMLElement;
+                    const strong:HTMLElement = document.createElement("strong");
                     strong.textContent = "Error: ";
-                    description.textContent = "";
-                    description.appendChild(strong);
-                    description.appendText(payload.compose.status);
-                    sections[0].textContent = "";
-                    sections[1].textContent = "";
-                    sections[2].textContent = "";
+                    services.compose_variables.nodes.body.style.display = "none";
+                    services.compose_variables.nodes.status.appendChild(strong);
+                    services.compose_variables.nodes.status.appendText(payload.compose.status);
+                    services.compose_variables.nodes.status.style.display = "block";
                 }
             },
             servers_web: {
