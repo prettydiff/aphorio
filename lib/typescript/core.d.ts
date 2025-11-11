@@ -7,6 +7,22 @@ interface core_compose {
     time: number;
     variables: store_string;
 }
+
+interface core_compose_container {
+    compose: string;
+    created: number;
+    description: string;
+    id: string;
+    image: string;
+    license: string;
+    name: string;
+    location: string;
+    ports: type_docker_ports;
+    state: type_docker_state;
+    status: string;
+    version: string;
+}
+
 interface core_compose_properties {
     Command: string;
     CreatedAt: string; // date
@@ -305,13 +321,7 @@ interface store_children_os {
 }
 
 interface store_compose {
-    [key:string]: {
-        compose: string;
-        location: string;
-        ports: type_docker_ports;
-        properties: core_compose_properties;
-        state: type_docker_state;
-    }
+    [key:string]: core_compose_container;
 }
 
 interface store_elements {

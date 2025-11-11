@@ -62,22 +62,35 @@ declare global {
         [key:string]: (data_item:socket_data) => void;
     }
 
-    interface module_compose_variables {
-        cancel: (event:MouseEvent) => void;
-        edit: () => void;
-        list: (list:string[]) => void;
-        message: (event:MouseEvent) => void;
+    interface module_compose_containers {
+        descriptions: (id:string) => HTMLElement;
+        events: {
+            cancel_variable: (event:MouseEvent) => void;
+            edit_variable: () => void;
+            message_container: (event:MouseEvent) => void;
+            message_variable: (event:MouseEvent) => void;
+            validate_containers: (event:FocusEvent|KeyboardEvent) => void;
+            validate_variables: (event:FocusEvent|KeyboardEvent) => void;
+        };
+        get_title: (textArea:HTMLTextAreaElement) => string;
+        list: (socket_data:socket_data) => void;
         nodes: {
             body: HTMLElement;
-            list: HTMLElement;
+            list_containers: HTMLElement;
+            list_variables: HTMLElement;
+            new_container: HTMLButtonElement;
+            new_variable: HTMLButtonElement;
             status: HTMLElement;
             update_button: HTMLButtonElement;
             update_containers: HTMLElement;
             update_time: HTMLElement;
             update_variables: HTMLElement;
-            variable_new: HTMLButtonElement;
         };
-        validate: (event:FocusEvent|KeyboardEvent) => void;
+    }
+    interface module_compose_variables {
+        cancel: (event:MouseEvent) => void;
+        edit: () => void;
+        message: (event:MouseEvent) => void;
     }
 
     interface module_disks {
@@ -263,7 +276,7 @@ declare global {
         test_item: services_testBrowser;
     }
 
-    interface module_services {
+    interface module_servers_web {
         activePorts: (id:string) => HTMLElement;
         getTitle?: (textArea:HTMLTextAreaElement) => string;
         list: (socket_data:socket_data) => void;
@@ -382,10 +395,9 @@ declare global {
     }
 
     interface structure_services {
-        compose_containers: module_services;
-        compose_variables: module_compose_variables;
+        compose_containers: module_compose_containers;
         init: () => void;
-        servers_web: module_services;
+        servers_web: module_servers_web;
         shared: module_serverItems;
     }
 

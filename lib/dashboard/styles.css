@@ -110,7 +110,7 @@ li {
 div.form,
 div.definitions,
 div.table-filters,
-div.section{border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:0 0 2em}
+div.section{border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:0 0 2em;padding:2em}
 div.section:last-child{margin:0}
 div.table-filters p:last-child{margin:0}
 div.form h3{margin:1.5em 0 0.5em}
@@ -351,6 +351,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         }
         .nav-focus{background:var(--background_dark);border-color:var(--border_soft);color:var(--text_input)}
     }
+    p.update-button:first-child{margin-top:0}
     select{display:block}
     table{border-collapse:collapse;margin:0 0 4em}
     textarea{

@@ -4,6 +4,8 @@ import log from "../core/log.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
+// cspell: words opencontainers
+
 const docker:core_docker = {
     activate: function services_docker_activate():void {},
     create: function services_docker_create():void {},
@@ -35,15 +37,41 @@ const docker:core_docker = {
                 } else {
                     const list:core_compose_properties[] = JSON.parse(`[${output.stdout.replace(/\}\n\{/g, "},{")}]`),
                         len:number = list.length,
-                        file_callback = function services_docker_list_child_fileCallback(file:Buffer, location:string, identifier:string):void {
-                            count = count + 1;
-                            vars.compose.containers[identifier].compose = file.toString();
-                            if (count === len) {console.log(vars.compose.containers.jellyfin);console.log(vars.compose.containers.pihole);
-                                complete("");
+                        file_path = function services_docker_list_child_filePath(out:core_spawn_output):void {
+                            if (out.stdout !== "") {
+                                file.read({
+                                    callback: file_callback,
+                                    identifier: out.type,
+                                    location: out.stdout,
+                                    no_file: null,
+                                    section: "compose_containers"
+                                });
                             }
                         },
-                        ports = function services_docker_list_child_ports():type_docker_ports {
-                            const items:string[] = list[index].Ports.replace(/, /g, ",").split(","),
+                        file_callback = function services_docker_list_child_fileCallback(file:Buffer, location:string, identifier:string):void {
+                            const ind:number = Number(identifier),
+                                id:string = list[ind].ID;
+                            vars.compose.containers[id] = {
+                                compose: file.toString(),
+                                created: new Date(list[ind].CreatedAt).valueOf(),
+                                description: "",
+                                id: id,
+                                image: list[ind].Image,
+                                license: "",
+                                name: list[ind].Name,
+                                location: location,
+                                ports: ports(list[ind]),
+                                state: list[ind].State,
+                                status: list[ind].Status,
+                                version: ""
+                            };
+                            total = total + 1;
+                            spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.description"}}'`, description, {type: identifier}).execute();
+                            spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.licenses"}}'`, license, {type: identifier}).execute();
+                            spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.version"}}'`, version, {type: identifier}).execute();
+                        },
+                        ports = function services_docker_list_child_ports(properties:core_compose_properties):type_docker_ports {
+                            const items:string[] = properties.Ports.replace(/, /g, ",").split(","),
                                 output:type_docker_ports = [],
                                 len:number = items.length;
                             if (len > 0) {
@@ -86,39 +114,39 @@ const docker:core_docker = {
                                 }
                                 return 1;
                             });
+                        },
+                        complete_meta = function services_docker_list_child_completeMeta(id:string):void {
+                            counts[id] = counts[id] + 1;
+                            if (counts[id] === 3) {
+                                count = count + 1;
+                                if (count === total) {
+                                    complete("");
+                                }
+                            }
+                        },
+                        description = function services_docker_list_child_description(out:core_spawn_output):void {
+                            const id:string = list[Number(out.type)].ID;
+                            vars.compose.containers[id].description = out.stdout;
+                            complete_meta(id);
+                        },
+                        license = function services_docker_list_child_license(out:core_spawn_output):void {
+                            const id:string = list[Number(out.type)].ID;
+                            vars.compose.containers[id].license = out.stdout;
+                            complete_meta(id);
+                        },
+                        version = function services_docker_list_child_version(out:core_spawn_output):void {
+                            const id:string = list[Number(out.type)].ID;
+                            vars.compose.containers[id].version = out.stdout;
+                            complete_meta(id);
                         };
                     let index:number = 0,
                         count:number = 0,
-                        label_index:number = 0,
-                        labels:string[] = null,
-                        location:string = "";
+                        total:number = 0,
+                        counts:store_number = {};
                     if (len > 0) {
                         do {
-                            labels = list[index].Labels.split(",");
-                            label_index = labels.length;
-                            if (label_index > 0) {
-                                do {
-                                    label_index = label_index - 1;
-                                    if (labels[label_index].indexOf("com.docker.compose.project.config_files=") === 0) {
-                                        location = labels[label_index].slice(labels[label_index].indexOf("=") + 1);
-                                        vars.compose.containers[list[index].Name] = {
-                                            compose: "",
-                                            location: location,
-                                            ports: ports(),
-                                            properties: list[index],
-                                            state: list[index].State
-                                        };
-                                        file.read({
-                                            callback: file_callback,
-                                            identifier: list[index].Name,
-                                            location: location,
-                                            no_file: null,
-                                            section: "compose_containers"
-                                        });
-                                        break;
-                                    }
-                                } while (label_index > 0);
-                            }
+                            counts[list[index].ID] = 0;
+                            spawn(`docker inspect ${list[index].ID} -f '{{index .Config.Labels "com.docker.compose.project.config_files"}}'`, file_path, {type: index.toString()}).execute();
                             index = index + 1;
                         } while (index < len);
                     }
