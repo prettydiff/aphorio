@@ -374,7 +374,7 @@ const dashboard = function dashboard():void {
                     fileSummary[8].getElementsByTagName("strong")[0].textContent = "";
                     server_new.disabled = false;
                     services.compose_containers.nodes.body.style.display = "block";
-                    services.compose_containers.nodes.list_containers.textContent = "";
+                    services.compose_containers.nodes.list.textContent = "";
                     services.compose_containers.nodes.list_variables.textContent = "";
                     services.compose_containers.nodes.status.style.display = "none";
                     services.compose_containers.nodes.status.textContent = "";
@@ -595,6 +595,7 @@ const dashboard = function dashboard():void {
                             service_map:map_messages = {
                                 // "test-browser": testBrowser,
                                 "dashboard-clock": utility.clock,
+                                "dashboard-compose": services.compose_containers.list,
                                 "dashboard-dns": tools.dns.receive,
                                 "dashboard-fileSystem": tools.fileSystem.receive,
                                 "dashboard-hash": tools.hash.receive,
@@ -856,7 +857,8 @@ const dashboard = function dashboard():void {
             compose_containers: {
                 descriptions: function dashboard_composeContainersDescriptions(id:string):HTMLElement {
                     const div:HTMLElement = document.createElement("div"),
-                        h5:HTMLElement = document.createElement("h5"),
+                        p:HTMLElement = document.createElement("p"),
+                        portHeading:HTMLElement = document.createElement("strong"),
                         portList:HTMLElement = document.createElement("ul"),
                         container:core_compose_container = payload.compose.containers[id],
                         ports:type_docker_ports = container.ports,
@@ -874,9 +876,10 @@ const dashboard = function dashboard():void {
                         };
                     let portItem:HTMLElement = null,
                         index:number = 0;
-                    if (index > 0) {
-                        h5.appendText("Active Ports");
-                        div.appendChild(h5);
+                    if (len > 0) {
+                        portHeading.textContent = "Active Ports";
+                        p.appendChild(portHeading);
+                        div.appendChild(p);
                         div.setAttribute("class", "active-ports");
                         do {
                             portItem = document.createElement("li");
@@ -884,8 +887,10 @@ const dashboard = function dashboard():void {
                             portList.appendChild(portItem);
                             index = index + 1;
                         } while (index < len);
+                        portList.setAttribute("class", "container-ports");
                         div.appendChild(portList);
                     }
+                    ul.setAttribute("class", "container-properties");
                     properties("Created On", container.created.dateTime(true, payload.timeZone_offset));
                     properties("Config Location", container.location);
                     properties("Description", container.description);
@@ -928,6 +933,7 @@ const dashboard = function dashboard():void {
                             } while (index < len);
                             textArea.value = `{\n    ${output.join(",\n    ")}\n}`;
                         }
+                        ul.setAttribute("class", "edit-summary");
                         cancel.appendText("⚠ Cancel");
                         cancel.setAttribute("class", "server-cancel");
                         cancel.onclick = services.compose_containers.events.cancel_variable;
@@ -953,14 +959,13 @@ const dashboard = function dashboard():void {
                         textArea.focus();
                     },
                     message_container: function dashboard_composeContainersMessage(event:MouseEvent):void {
-                        // const target:HTMLElement = event.target,
-                        //     classy:string = target.getAttribute("class"),
-                        //     edit:HTMLElement = target.getAncestor("edit", "class"),
-                        //     cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
-                        //     textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[1],
-                        //     value:string = edit.getElementsByTagName("textarea")[0].value,
-                        //     action:type_dashboard_action = classy.replace("server-", "") as type_dashboard_action,
-                        //     newTitle:string = services.compose_containers.get_title(textArea);
+                        const target:HTMLElement = event.target,
+                            classy:string = target.getAttribute("class"),
+                            edit:HTMLElement = target.getAncestor("edit", "class"),
+                            cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
+                            textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[1],
+                            value:string = edit.getElementsByTagName("textarea")[0].value,
+                            action:type_dashboard_action = classy.replace("server-", "") as type_dashboard_action;
                         // if (action === "activate" || action === "deactivate") {
                         //     const direction:"down"|"up --detach" = (action === "activate")
                         //         ? "up --detach"
@@ -1007,78 +1012,64 @@ const dashboard = function dashboard():void {
                         //     utility.message_send(data, "dashboard-compose-container");
                         //     services.compose_containers.nodes.new_container.disabled = false;
                         // }
-                        // if (cancel === undefined) {
-                        //     edit.parentNode.getElementsByTagName("button")[0].click();
-                        // } else {
-                        //     services.shared.cancel(event);
-                        // }
+                        if (cancel === undefined) {
+                            edit.parentNode.getElementsByTagName("button")[0].click();
+                        } else {
+                            services.shared.cancel(event);
+                        }
                     },
                     message_variable: function dashboard_composeVariablesMessage(event:MouseEvent):void {
-                        // const target:HTMLElement = event.target,
-                        //     edit:HTMLElement = target.getAncestor("edit", "class"),
-                        //     cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
-                        //     value:string = edit.getElementsByTagName("textarea")[0].value,
-                        //     variables:store_string = JSON.parse(value);
-                        // utility.message_send(variables, "dashboard-compose-variables");
-                        // services.compose_containers.nodes.new_variable.disabled = false;
-                        // if (cancel === undefined) {
-                        //     edit.parentNode.getElementsByTagName("button")[0].click();
-                        // } else {
-                        //     services.shared.cancel(event);
-                        // }
+                        const target:HTMLElement = event.target,
+                            edit:HTMLElement = target.getAncestor("edit", "class"),
+                            cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
+                            value:string = edit.getElementsByTagName("textarea")[0].value,
+                            variables:store_string = JSON.parse(value);
+                        utility.message_send(variables, "dashboard-compose-variables");
+                        services.compose_containers.nodes.new_variable.disabled = false;
+                        if (cancel === undefined) {
+                            edit.parentNode.getElementsByTagName("button")[0].click();
+                        } else {
+                            services.shared.cancel(event);
+                        }
                     },
                     validate_containers: function dashboard_composeContainersValidate(event:FocusEvent|KeyboardEvent):void {
                         const target:HTMLElement = event.target,
+                            id:string = target.getAncestor("li", "tag").dataset.id,
                             section:HTMLElement = target.getAncestor("edit", "class"),
                             newItem:boolean = (section.parentNode.getAttribute("class") === "section"),
-                            textArea:HTMLTextAreaElement = section.getElementsByTagName("textarea")[1],
+                            textArea:HTMLTextAreaElement = section.getElementsByTagName("textarea")[0],
                             summary:HTMLElement = section.getElementsByClassName("summary")[0] as HTMLElement,
-                            old:HTMLElement = summary.getElementsByTagName("ul")[0] as HTMLElement,
+                            ul:HTMLElement = summary.getElementsByTagName("ul")[0] as HTMLElement,
                             modify:HTMLButtonElement = (newItem === true)
                                 ? section.getElementsByClassName("server-add")[0] as HTMLButtonElement
                                 : section.getElementsByClassName("server-modify")[0] as HTMLButtonElement,
-                            ul:HTMLElement = document.createElement("ul"),
                             reg:RegExp = (/^\s*$/),
-                            title:string = services.compose_containers.get_title(textArea),
                             value:string = textArea.value;
                         let valid:boolean = true,
                             li:HTMLElement = document.createElement("li");
                         summary.style.display = "block";
+                        ul.textContent = "";
                         if (reg.test(value) === true) {
                             valid = false;
                             li.appendText("Compose file contents must have a value.");
-                            li.setAttribute("class", "pass-false");
-                        } else if (title === "") {
-                            valid = false;
-                            li.appendText("Compose file does not contain a valid container name.");
                             li.setAttribute("class", "pass-false");
                         } else {
                             li.appendText("Compose file contents field contains a value.");
                             li.setAttribute("class", "pass-true");
                         }
                         ul.appendChild(li);
-                        if (valid === true && payload.compose.containers[title] !== undefined) {
-                            if (newItem === true) {
-                                valid = false;
-                                li = document.createElement("li");
-                                li.appendText("There is already a container with this name.");
-                                li.setAttribute("class", "pass-false");
-                                ul.appendChild(li);
-                            } else if (payload.compose.containers[title].compose === value) {
-                                valid = false;
-                                li = document.createElement("li");
-                                li.appendText("Values are populated, but aren't modified.");
-                                li.setAttribute("class", "pass-false");
-                                ul.appendChild(li);
-                            }
+                        if (valid === true && id !== undefined && payload.compose.containers[id].compose === value) {
+                            valid = false;
+                            li = document.createElement("li");
+                            li.appendText("Values are populated, but aren't modified.");
+                            li.setAttribute("class", "pass-false");
+                            ul.appendChild(li);
                         }
                         if (valid === true) {
                             modify.disabled = false;
                         } else {
                             modify.disabled = true;
                         }
-                        old.parentNode.insertBefore(ul, old);
-                        old.parentNode.removeChild(old);
                     },
                     validate_variables: function dashboard_composeVariablesValidate(event:FocusEvent|KeyboardEvent):void {
                         const target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
@@ -1086,8 +1077,7 @@ const dashboard = function dashboard():void {
                             section:HTMLElement = target.getAncestor("section", "class"),
                             edit:HTMLElement = section.getElementsByClassName("edit")[0] as HTMLElement,
                             modify:HTMLButtonElement = section.getElementsByClassName("server-modify")[0] as HTMLButtonElement,
-                            ulOld:HTMLElement = edit.getElementsByTagName("ul")[0],
-                            ulNew:HTMLElement = document.createElement("ul"),
+                            ul:HTMLElement = edit.getElementsByTagName("ul")[0],
                             text = function dashboard_composeValidateVariables_fail(message:string, pass:boolean):void {
                                 const li:HTMLElement = document.createElement("li");
                                 if (pass === true) {
@@ -1097,7 +1087,7 @@ const dashboard = function dashboard():void {
                                 }
                                 li.setAttribute("class", `pass-${pass}`);
                                 li.appendText(message);
-                                ulNew.appendChild(li);
+                                ul.appendChild(li);
                             },
                             sort = function dashboard_composeValidateVariables_sort(object:store_string):string {
                                 const store:store_string = {},
@@ -1112,8 +1102,7 @@ const dashboard = function dashboard():void {
                                 return JSON.stringify(store);
                             };
                         let variables:store_string = null;
-                        ulOld.parentNode.insertBefore(ulNew, ulOld);
-                        ulOld.parentNode.removeChild(ulOld);
+                        ul.textContent = "";
                         if (value === "" || (/^\s*\{\s*\}\s*$/).test(value) === true) {
                             text("Supply key/value pairs in JSON format.", false);
                         } else {
@@ -1133,21 +1122,6 @@ const dashboard = function dashboard():void {
                         }
                     }
                 },
-                get_title: function dashboard_composeContainersGetTitle(textArea:HTMLTextAreaElement):string {
-                    const regTitle:RegExp = (/^\s+container_name\s*:\s*/),
-                        values:string[] = textArea.value.split("\n"),
-                        len:number = values.length;
-                    let index:number = 0;
-                    if (len > 0) {
-                        do {
-                            if (regTitle.test(values[index]) === true) {
-                                return values[index].replace(regTitle, "").replace(/^("|')/, "").replace(/\s*("|')$/, "");
-                            }
-                            index = index + 1;
-                        } while (index < len);
-                    }
-                    return "";
-                },
                 list: function dashboard_composeContainersList(socket_data:socket_data):void {
                     const data:core_compose = socket_data.data as core_compose,
                         list:string[] = (data.containers === null)
@@ -1156,7 +1130,7 @@ const dashboard = function dashboard():void {
                         variables:string[] = (data.variables === null)
                             ? []
                             : Object.keys(data.variables).sort(),
-                        list_containers:HTMLElement = services.compose_containers.nodes.list_containers,
+                        list_containers:HTMLElement = services.compose_containers.nodes.list,
                         list_variables:HTMLElement = services.compose_containers.nodes.list_variables,
                         len_containers:number = list.length,
                         len_variables:number = variables.length;
@@ -1168,6 +1142,7 @@ const dashboard = function dashboard():void {
                         if (len_containers > 0) {
                             do {
                                 li = services.shared.title(list[index], "container");
+                                li.setAttribute("data-id", data.containers[list[index]].id);
                                 list_containers.appendChild(li);
                                 index = index + 1;
                             } while (index < len_containers);
@@ -1179,6 +1154,7 @@ const dashboard = function dashboard():void {
                     if (data.variables !== null) {
                         index = 0;
                         list_variables.textContent = "";
+                        payload.compose.variables = data.variables;
                         if (len_variables > 0) {
                             let span:HTMLElement = null,
                                 strong:HTMLElement = null;
@@ -1186,8 +1162,8 @@ const dashboard = function dashboard():void {
                                 li = document.createElement("li");
                                 strong = document.createElement("strong");
                                 span = document.createElement("span");
-                                strong.appendText(list[index]);
-                                span.appendText(payload.compose.variables[list[index]]);
+                                strong.appendText(variables[index]);
+                                span.appendText(payload.compose.variables[variables[index]]);
                                 li.appendChild(strong);
                                 li.appendChild(span);
                                 list_variables.appendChild(li);
@@ -1204,7 +1180,7 @@ const dashboard = function dashboard():void {
                 },
                 nodes: {
                     body: document.getElementById("compose_containers").getElementsByClassName("compose-body")[0] as HTMLElement,
-                    list_containers: document.getElementById("compose_containers").getElementsByClassName("compose-container-list")[0] as HTMLElement,
+                    list: document.getElementById("compose_containers").getElementsByClassName("compose-container-list")[0] as HTMLElement,
                     list_variables: document.getElementById("compose_containers").getElementsByClassName("compose-variable-list")[0] as HTMLElement,
                     new_container: document.getElementById("compose_containers").getElementsByClassName("compose-container-new")[0] as HTMLButtonElement,
                     new_variable: document.getElementById("compose_containers").getElementsByClassName("compose-variable-new")[0] as HTMLButtonElement,
@@ -1248,6 +1224,7 @@ const dashboard = function dashboard():void {
                     h5.appendText("Active Ports");
                     div.appendChild(h5);
                     div.setAttribute("class", "active-ports");
+                    portList.setAttribute("class", "container-ports");
                     
                     if (encryption === "both") {
                         if (ports.open === 0) {
@@ -1356,7 +1333,7 @@ const dashboard = function dashboard():void {
                         value:string = target.value,
                         edit:HTMLElement = target.getAncestor("edit", "class"),
                         summary:HTMLElement = edit.getElementsByClassName("summary")[0] as HTMLElement,
-                        ul:HTMLElement = document.createElement("ul"),
+                        ul:HTMLElement = summary.getElementsByTagName("ul")[0],
                         pathReg:RegExp = new RegExp(`(\\\\|\\/)${name_server}(\\\\|\\/)`, "g"),
                         populate = function dashboard_serverValidate_populate(pass:boolean, message:string):void {
                             const li:HTMLElement = document.createElement("li");
@@ -1388,8 +1365,6 @@ const dashboard = function dashboard():void {
                                     } while (index < len);
                                     return JSON.stringify(output);
                                 };
-                            summary.removeChild(summary.getElementsByTagName("ul")[0]);
-                            summary.appendChild(ul);
                             if (failures > 0) {
                                 const plural:string = (failures === 1)
                                     ? ""
@@ -1566,6 +1541,7 @@ const dashboard = function dashboard():void {
                         rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "http", "id", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary"];
                     let serverData:services_server = null,
                         failures:number = 0;
+                    ul.textContent = "";
                     summary.style.display = "block";
                     // eslint-disable-next-line no-restricted-syntax
                     try {
@@ -1681,7 +1657,9 @@ const dashboard = function dashboard():void {
                 cancel: function dashboard_commonCancel(event:MouseEvent):void {
                     const target:HTMLElement = event.target,
                         edit:HTMLElement = target.getAncestor("edit", "class"),
-                        create:HTMLButtonElement = services[section as "servers_web"].nodes.service_new;
+                        create:HTMLButtonElement = (section === "servers_web")
+                            ? services[section as "servers_web"].nodes.service_new
+                            : services[section as "compose_containers"].nodes.new_variable;
                     edit.parentNode.removeChild(edit);
                     create.disabled = false;
                 },
@@ -1897,6 +1875,7 @@ const dashboard = function dashboard():void {
                             clear:HTMLElement = document.createElement("span");
                         p = document.createElement("p");
                         p.textContent = "Altering the 'id' property will have no effect as it will not change except for new servers awaiting a dynamically created id value.";
+                        summaryUl.setAttribute("class", "edit-summary");
                         summaryTitle.appendText("Edit Summary");
                         summary.appendChild(p);
                         summary.appendChild(summaryTitle);
@@ -1908,7 +1887,7 @@ const dashboard = function dashboard():void {
                         textArea.spellcheck = false;
                         textArea.readOnly = true;
                         if (section === "compose_containers") {
-                            span.appendText("Compose YAML");
+                            span.appendText("Docker Compose YAML");
                         } else {
                             span.appendText("Server Configuration");
                         }
@@ -1919,12 +1898,15 @@ const dashboard = function dashboard():void {
                         details.appendChild(p);
                         details.appendChild(summary);
                         if (newFlag === false) {
+                            const method:"activePorts"|"descriptions" = (section === "servers_web")
+                                ? "activePorts"
+                                : "descriptions";
                             expandButton.textContent = "Hide";
                             editButton.appendText("✎ Edit");
                             editButton.setAttribute("class", "server-edit");
                             editButton.onclick = services.shared.edit;
                             p.appendChild(editButton);
-                            details.appendChild(services[section as "servers_web"].activePorts(id));
+                            details.appendChild(services[section as "servers_web"][method as "activePorts"](id));
                         }
                         clear.setAttribute("class", "clear");
                         p = document.createElement("p");
@@ -1961,24 +1943,30 @@ const dashboard = function dashboard():void {
                         destroy:HTMLButtonElement = document.createElement("button"),
                         save:HTMLButtonElement = document.createElement("button"),
                         clear:HTMLElement = p.getElementsByClassName("clear")[0] as HTMLElement,
-                        note:HTMLElement = document.createElement("p");
+                        note:HTMLElement = document.createElement("p"),
+                        textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
+                        summary:HTMLElement = edit.getElementsByClassName("summary")[0] as HTMLElement,
+                        message:(event:MouseEvent) => void = (section === "compose_containers")
+                            ? services.compose_containers.events.message_container
+                            : services[section as "servers_web"].message;
                     save.disabled = true;
+                    summary.style.display = "block";
                     if (createServer === false && dashboard === false) {
                         const span:HTMLElement = document.createElement("span"),
                             buttons:HTMLElement = document.createElement("p");
                         buttons.setAttribute("class", "buttons");
                         destroy.appendText("✘ Destroy");
                         destroy.setAttribute("class", "server-destroy");
-                        destroy.onclick = services[section as "servers_web"].message;
+                        destroy.onclick = message;
                         activate.appendText("⌁ Activate");
                         activate.setAttribute("class", "server-activate");
                         if (listItem.getAttribute("class") === "green") {
                             activate.disabled = true;
                         }
-                        activate.onclick = services[section as "servers_web"].message;
+                        activate.onclick = message;
                         deactivate.appendText("። Deactivate");
                         deactivate.setAttribute("class", "server-deactivate");
-                        deactivate.onclick = services[section as "servers_web"].message;
+                        deactivate.onclick = message;
                         if (listItem.getAttribute("class") === "red") {
                             deactivate.disabled = true;
                         }
@@ -2001,7 +1989,7 @@ const dashboard = function dashboard():void {
                         save.appendText("🖪 Modify");
                         save.setAttribute("class", "server-modify");
                     }
-                    save.onclick = services[section as "servers_web"].message;
+                    save.onclick = message;
                     p.appendChild(save);
                     p.removeChild(clear);
                     p.appendChild(clear);
@@ -2022,20 +2010,14 @@ const dashboard = function dashboard():void {
                         p.parentNode.appendChild(note);
                     }
                     if (section === "compose_containers") {
-                        const textArea0:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
-                            textArea1:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[1];
-                        textArea0.readOnly = false;
-                        textArea1.readOnly = false;
-                        //textArea1.onkeyup = services.compose.validateContainer;
-                        //textArea1.onfocus = services.compose.validateContainer;
-                        textArea0.focus();
+                        textArea.onkeyup = services.compose_containers.events.validate_containers;
+                        textArea.onfocus = services.compose_containers.events.validate_containers;
                     } else {
-                        const textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0];
-                        textArea.readOnly = false;
                         textArea.onkeyup = services.servers_web.validate;
                         textArea.onfocus = services.servers_web.validate;
-                        textArea.focus();
                     }
+                    textArea.readOnly = false;
+                    textArea.focus();
                 },
                 // expands server and docker compose sections
                 title: function dashboard_commonTitle(id:string, type:type_dashboard_list):HTMLElement {

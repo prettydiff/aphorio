@@ -114,6 +114,8 @@ interface core_docker {
     delete: () => void;
     list: (callback:() => void) => void;
     modify: () => void;
+    receive: (socket_data:socket_data, transmit:transmit_socket) => void;
+    variables: (variables:store_string, socket:websocket_client) => void;
 }
 
 interface core_servers_file {

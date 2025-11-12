@@ -1,6 +1,11 @@
 
 // cspell: words opencontainers, serv
 
+interface services_action_compose {
+    action: type_dashboard_action;
+    compose: string;
+}
+
 interface services_action_server {
     action: type_dashboard_action;
     server: services_server;

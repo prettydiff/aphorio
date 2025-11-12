@@ -72,11 +72,10 @@ declare global {
             validate_containers: (event:FocusEvent|KeyboardEvent) => void;
             validate_variables: (event:FocusEvent|KeyboardEvent) => void;
         };
-        get_title: (textArea:HTMLTextAreaElement) => string;
         list: (socket_data:socket_data) => void;
         nodes: {
             body: HTMLElement;
-            list_containers: HTMLElement;
+            list: HTMLElement;
             list_variables: HTMLElement;
             new_container: HTMLButtonElement;
             new_variable: HTMLButtonElement;

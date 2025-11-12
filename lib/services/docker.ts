@@ -1,6 +1,7 @@
 
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
+import send from "../transmit/send.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
@@ -42,7 +43,7 @@ const docker:core_docker = {
                                 file.read({
                                     callback: file_callback,
                                     identifier: out.type,
-                                    location: out.stdout,
+                                    location: out.stdout.trim(),
                                     no_file: null,
                                     section: "compose_containers"
                                 });
@@ -126,17 +127,17 @@ const docker:core_docker = {
                         },
                         description = function services_docker_list_child_description(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
-                            vars.compose.containers[id].description = out.stdout;
+                            vars.compose.containers[id].description = out.stdout.trim();
                             complete_meta(id);
                         },
                         license = function services_docker_list_child_license(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
-                            vars.compose.containers[id].license = out.stdout;
+                            vars.compose.containers[id].license = out.stdout.trim();
                             complete_meta(id);
                         },
                         version = function services_docker_list_child_version(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
-                            vars.compose.containers[id].version = out.stdout;
+                            vars.compose.containers[id].version = out.stdout.trim();
                             complete_meta(id);
                         };
                     let index:number = 0,
@@ -157,7 +158,38 @@ const docker:core_docker = {
             complete("Application must be executed with administrative privilege for Docker support.");
         }
     },
-    modify: function services_docker_modify():void {}
+    modify: function services_docker_modify():void {},
+    receive: function services_docker_receive(socket_data:socket_data, transmit:transmit_socket):void {
+        if (socket_data.service === "dashboard-compose-variables") {
+            docker.variables(socket_data.data as store_string, transmit.socket as websocket_client);
+        }
+    },
+    variables: function services_docker_variables(variables:store_string, socket:websocket_client):void {
+        const list:string[] = Object.keys(variables),
+            len:number = list.length,
+            output:string[] = [];
+        if (len > 0) {
+            let index:number = 0;
+            do {
+                output.push(`${list[index]}=${variables[list[index]]}`);
+                index = index + 1;
+            } while (index < len);
+        }
+        file.write({
+            callback: function services_docker_variables_callback():void {
+                vars.compose.variables = variables;
+                docker.list(function services_docker_variables_callback_list():void {
+                    send({
+                        data: vars.compose,
+                        service: "dashboard-compose"
+                    }, socket, 3);
+                });
+            },
+            contents: output.join("\n"),
+            location: `${vars.path.project}compose${vars.path.sep}.env`,
+            section: "compose_containers"
+        });
+    }
 };
 
 export default docker;

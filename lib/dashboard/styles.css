@@ -400,6 +400,13 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         &.inline{display:inline-block}
     }
 
+
+    #compose_containers .container-properties {
+        margin:0;padding:0;
+        li{border-style:none;display:list-item;list-style:none;margin:1em 0 0}
+        strong{display:inline-block;width:12em}
+    }
+
     #interfaces,
     #os,
     #disks{
@@ -423,8 +430,12 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     #servers_web li{border-color:var(--border_color);border-style:solid;border-width:0.1em;list-style:none}
 
     #file-system li,
-    #compose_containers .edit li,
-    #servers_web .edit li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
+    #compose_containers .container-ports li,
+    #compose_containers .edit-summary li,
+    #servers_web .container-ports li,
+    #servers_web .edit-summary li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
+    #compose_containers .edit-summary,
+    #servers_web .edit-summary{margin:0;padding:0}
 
     #http,
     #websocket {

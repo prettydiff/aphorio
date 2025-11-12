@@ -1,6 +1,6 @@
 
-import compose from "../services/compose.ts";
 import dns from "../services/dns.ts";
+import docker from "../services/docker.ts";
 import fileSystem from "../services/fileSystem.ts";
 import hash from "../services/hash.ts";
 import http_request from "../http/http_requestTest.ts";
@@ -15,8 +15,8 @@ import websocket_test from "../services/websocket.ts";
 const router = function transmit_router(socketData:socket_data, transmit:transmit_socket):void {
     const services:type_service = socketData.service,
         actions:transmit_receiver = {
-            "dashboard-compose-container": compose,
-            "dashboard-compose-variables": compose,
+            "dashboard-compose-container": docker.receive,
+            "dashboard-compose-variables": docker.receive,
             "dashboard-dns": dns,
             "dashboard-fileSystem": fileSystem,
             "dashboard-hash": hash,
