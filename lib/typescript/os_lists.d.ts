@@ -184,9 +184,9 @@ interface os_user_windows {
 interface os_vars {
     admin_check: string;
     compose: string;
+    compose_empty: string;
     devs: string;
     disk: string;
-    docker_list: string;
     open: string;
     part: string;
     proc: string;

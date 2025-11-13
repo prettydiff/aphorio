@@ -15,8 +15,8 @@ interface core_compose_container {
     id: string;
     image: string;
     license: string;
-    name: string;
     location: string;
+    name: string;
     ports: type_docker_ports;
     state: type_docker_state;
     status: string;
@@ -38,10 +38,10 @@ interface core_compose_properties {
     Ports: string;
     Project: string;
     Publishers: {
-        URL: string;
-        TargetPort: number;
-        PublishedPort: number;
         Protocol: "tcp" | "udp";
+        PublishedPort: number;
+        TargetPort: number;
+        URL: string;
     }[];
     RunningFor: string;
     Service: string;
@@ -108,12 +108,7 @@ interface core_server_os {
 }
 
 interface core_docker {
-    activate: () => void;
-    create: () => void;
-    deactivate: () => void;
-    delete: () => void;
     list: (callback:() => void) => void;
-    modify: () => void;
     receive: (socket_data:socket_data, transmit:transmit_socket) => void;
     variables: (variables:store_string, socket:websocket_client) => void;
 }
@@ -166,6 +161,12 @@ interface core_vars {
     };
     dashboard_id: string;
     dashboard_page: string;
+    docker: {
+        activate: string;
+        deactivate: string;
+        destroy: string;
+        list: string;
+    };
     environment: {
         date_commit: number;
         hash: string;

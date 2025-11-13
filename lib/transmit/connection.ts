@@ -317,7 +317,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                             socket: socket,
                             temporary: false,
                             timeout: null,
-                            type: `relay`
+                            type: "relay"
                         });
                         proxy.addresses = get_address(proxy);
                         // proxy socket

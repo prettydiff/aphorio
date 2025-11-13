@@ -960,58 +960,23 @@ const dashboard = function dashboard():void {
                     },
                     message_container: function dashboard_composeContainersMessage(event:MouseEvent):void {
                         const target:HTMLElement = event.target,
-                            classy:string = target.getAttribute("class"),
+                            action:type_dashboard_action = target.getAttribute("class").replace("server-", "") as type_dashboard_action,
                             edit:HTMLElement = target.getAncestor("edit", "class"),
                             cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
-                            textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[1],
-                            value:string = edit.getElementsByTagName("textarea")[0].value,
-                            action:type_dashboard_action = classy.replace("server-", "") as type_dashboard_action;
-                        // if (action === "activate" || action === "deactivate") {
-                        //     const direction:"down"|"up --detach" = (action === "activate")
-                        //         ? "up --detach"
-                        //         : "down";
-                        //     tools.terminal.socket.send(`docker compose -f ${payload.path.compose + newTitle}.yml ${direction}\n`);
-                        // } else {
-                        //     const yaml:string = textArea.value,
-                        //         trim = function dashboard_composeMessage_trim(input:string):string {
-                        //             return input.replace(/^\s+/, "").replace(/\s+$/, "");
-                        //         },
-                        //         item:services_docker_compose = (payload.compose.containers[newTitle] === undefined)
-                        //             ? {
-                        //                 command: "",
-                        //                 compose: "",
-                        //                 createdAt: "",
-                        //                 description: "",
-                        //                 exitCode: 0,
-                        //                 health: "",
-                        //                 id: "",
-                        //                 image: "",
-                        //                 labels: [],
-                        //                 localVolumes: null,
-                        //                 mounts: [],
-                        //                 name: newTitle,
-                        //                 names: [newTitle],
-                        //                 networks: [],
-                        //                 ports: [],
-                        //                 project: "",
-                        //                 publishers: [],
-                        //                 runningFor: "",
-                        //                 service: "",
-                        //                 size: null,
-                        //                 state: "dead",
-                        //                 status: ""
-                        //             }
-                        //             : payload.compose.containers[newTitle],
-                        //         data:services_action_compose = {
-                        //             action: action,
-                        //             compose: item
-                        //         };
-                        //     item.compose = trim(yaml);
-                        //     item.description = trim(value);
-                        //     payload.compose.containers[newTitle] = item;
-                        //     utility.message_send(data, "dashboard-compose-container");
-                        //     services.compose_containers.nodes.new_container.disabled = false;
-                        // }
+                            textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
+                            id:string = (action === "add")
+                                ? ""
+                                : edit.getAncestor("li", "tag").dataset.id,
+                            message:services_compose_container = {
+                                action: action,
+                                compose: textArea.value.trim(),
+                                id: id,
+                                location: (action === "add")
+                                    ? ""
+                                    : payload.compose.containers[id].location
+                            };
+                        utility.message_send(message, "dashboard-compose-container");
+                        services.compose_containers.nodes.new_container.disabled = false;
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
                         } else {
@@ -1032,6 +997,15 @@ const dashboard = function dashboard():void {
                             services.shared.cancel(event);
                         }
                     },
+                    update: function dashboard_composeVariablesUpdate():void {
+                        const message:services_compose_container = {
+                            action: "update",
+                            compose: "",
+                            id: "",
+                            location: ""
+                        };
+                        utility.message_send(message, "dashboard-compose-container");
+                    },
                     validate_containers: function dashboard_composeContainersValidate(event:FocusEvent|KeyboardEvent):void {
                         const target:HTMLElement = event.target,
                             id:string = target.getAncestor("li", "tag").dataset.id,
@@ -1046,15 +1020,27 @@ const dashboard = function dashboard():void {
                             reg:RegExp = (/^\s*$/),
                             value:string = textArea.value;
                         let valid:boolean = true,
-                            li:HTMLElement = document.createElement("li");
+                            li:HTMLElement = document.createElement("li"),
+                            name:string = value.split("container_name")[1];
+                        name = (name === undefined)
+                            ? ""
+                            : name.split("\n")[0].replace(/\s*:/, "").trim();
                         summary.style.display = "block";
                         ul.textContent = "";
                         if (reg.test(value) === true) {
                             valid = false;
-                            li.appendText("Compose file contents must have a value.");
+                            li.appendText("Compose file contents must have a value in YAML format.");
                             li.setAttribute("class", "pass-false");
                         } else {
                             li.appendText("Compose file contents field contains a value.");
+                            li.setAttribute("class", "pass-true");
+                        }
+                        if (name === undefined || name === "") {
+                            valid = false;
+                            li.appendText("Compose file must contain a 'container_name' property.");
+                            li.setAttribute("class", "pass-false");
+                        } else {
+                            li.appendText("Compose file contains a 'container_name' property.");
                             li.setAttribute("class", "pass-true");
                         }
                         ul.appendChild(li);
@@ -1195,6 +1181,7 @@ const dashboard = function dashboard():void {
                 if (payload.compose.status === "") {
                     services.compose_containers.nodes.new_container.onclick = services.shared.create;
                     services.compose_containers.nodes.new_variable.onclick = services.compose_containers.events.edit_variable;
+                    services.compose_containers.nodes.update_button.onclick = services.compose_containers.events.update;
                     services.compose_containers.nodes.update_time.onclick = null;
                     services.compose_containers.list({
                         data: payload.compose,

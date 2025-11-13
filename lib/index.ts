@@ -14,6 +14,7 @@ vars.path.project = (vars.test.testing === true)
 vars.path.compose_empty = `${process_path}compose${vars.path.sep}empty.yml`;
 vars.path.compose = `${vars.path.project}compose${vars.path.sep}`;
 vars.path.servers = `${vars.path.project}servers${vars.path.sep}`;
+vars.commands.compose_empty = `${vars.commands.compose} -f ${vars.path.compose_empty}`;
 
 if (process.argv.includes("service-create")) {
     os_service.create(`${process.argv[0]} ${vars.path.project}lib${vars.path.sep}index.ts`, vars.name);

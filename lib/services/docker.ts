@@ -8,12 +8,8 @@ import vars from "../core/vars.ts";
 // cspell: words opencontainers
 
 const docker:core_docker = {
-    activate: function services_docker_activate():void {},
-    create: function services_docker_create():void {},
-    deactivate: function services_docker_deactivate():void {},
-    delete: function services_docker_delete():void {},
     list: function services_docker_list(callback:() => void):void {
-        const complete = function (message:string):void {
+        const complete = function services_docker_list_complete(message:string):void {
                 vars.compose.status = message;
                 vars.compose.time = now;
                 callback();
@@ -36,7 +32,8 @@ const docker:core_docker = {
                         : str
                     );
                 } else {
-                    const list:core_compose_properties[] = JSON.parse(`[${output.stdout.replace(/\}\n\{/g, "},{")}]`),
+                    const counts:store_number = {},
+                        list:core_compose_properties[] = JSON.parse(`[${output.stdout.replace(/\}\n\{/g, "},{")}]`),
                         len:number = list.length,
                         file_path = function services_docker_list_child_filePath(out:core_spawn_output):void {
                             if (out.stdout !== "") {
@@ -79,7 +76,7 @@ const docker:core_docker = {
                                 let index_ports:number = 0,
                                     value:string[] = null,
                                     port:number = 0,
-                                    type:"tcp" = "tcp",
+                                    type:"tcp"|"udp" = "tcp",
                                     end:number = 0,
                                     add:boolean = true;
                                 do {
@@ -142,8 +139,7 @@ const docker:core_docker = {
                         };
                     let index:number = 0,
                         count:number = 0,
-                        total:number = 0,
-                        counts:store_number = {};
+                        total:number = 0;
                     if (len > 0) {
                         do {
                             counts[list[index].ID] = 0;
@@ -153,15 +149,103 @@ const docker:core_docker = {
                     }
                 }
             };
-            spawn(vars.commands.docker_list, child).execute();
+            vars.compose.containers = {};
+            spawn(`${vars.commands.compose_empty} ${vars.docker.list}`, child).execute();
         } else {
             complete("Application must be executed with administrative privilege for Docker support.");
         }
     },
-    modify: function services_docker_modify():void {},
     receive: function services_docker_receive(socket_data:socket_data, transmit:transmit_socket):void {
+        const socket:websocket_client = transmit.socket as websocket_client;
         if (socket_data.service === "dashboard-compose-variables") {
-            docker.variables(socket_data.data as store_string, transmit.socket as websocket_client);
+            docker.variables(socket_data.data as store_string, socket);
+        } else if (socket_data.service === "dashboard-compose-container") {
+            const data:services_compose_container = socket_data.data as services_compose_container,
+                compose_location:string = `${vars.commands.compose} -f ${data.location}`;
+            if (data.action === "activate" || data.action === "deactivate") {
+                spawn(compose_location + vars.docker[data.action], function services_docker_receive_spawn():void {
+                    docker.list(function services_docker_receive_spawn_list():void {
+                        send({
+                            data: vars.compose,
+                            service: "dashboard-compose"
+                        }, socket, 3);
+                    });
+                });
+            } else if (data.action === "add") {
+                const segment:string = data.compose.split("container_name")[1],
+                    name:string = (segment === undefined)
+                        ? null
+                        : segment.split("\n")[0].trim();
+                if (name === null || name === "") {
+                    log.application({
+                        error: null,
+                        message: "Attempted to add a docker container without a 'container_name' field.",
+                        section: "compose_containers",
+                        status: "error",
+                        time: Date.now()
+                    });
+                } else {
+                    const location:string = `${vars.path.compose + name}.yml`,
+                        compose_location:string = `${vars.commands.compose} -f ${location}`;
+                    file.write({
+                        callback: function services_docker_receive_add():void {
+                            spawn(compose_location + vars.docker.activate, function services_docker_receive_add_spawn():void {
+                                docker.list(function services_docker_receive_add_spawn_list():void {
+                                    send({
+                                        data: vars.compose,
+                                        service: "dashboard-compose"
+                                    }, socket, 3);
+                                });
+                            });
+                        },
+                        contents: data.compose,
+                        location: location,
+                        section: "compose_containers"
+                    });
+                }
+            } else if (data.action === "destroy") {
+                spawn(compose_location + vars.docker.deactivate, function services_docker_receive_deactivate():void {
+                    spawn(compose_location + vars.docker.destroy, function services_docker_receive_deactivate_destroy():void {
+                        docker.list(function services_docker_receive_deactivate_destroy_list():void {
+                            send({
+                                data: vars.compose,
+                                service: "dashboard-compose"
+                            }, socket, 3);
+                        });
+                    });
+                });
+            } else if (data.action === "modify") {
+                const running:boolean = (vars.compose.containers[data.id].state === "running"),
+                    list = function services_docker_receive_modifyList():void {
+                        docker.list(function services_docker_receive_modifyList_callback():void {
+                            send({
+                                data: vars.compose,
+                                service: "dashboard-compose"
+                            }, socket, 3);
+                        });
+                    };
+                spawn(compose_location + vars.docker.deactivate, function services_docker_receive_modify():void {
+                    file.write({
+                        callback: function services_docker_receive_modify_write():void {
+                            if (running === true) {
+                                spawn(compose_location + vars.docker.activate, list);
+                            } else {
+                                list();
+                            }
+                        },
+                        contents: data.compose,
+                        location: data.location,
+                        section: "compose_containers"
+                    });
+                });
+            } else if (data.action === "update") {
+                docker.list(function services_docker_receive_update():void {
+                    send({
+                        data: vars.compose,
+                        service: "dashboard-compose"
+                    }, socket, 3);
+                });
+            }
         }
     },
     variables: function services_docker_variables(variables:store_string, socket:websocket_client):void {

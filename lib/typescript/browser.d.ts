@@ -69,6 +69,7 @@ declare global {
             edit_variable: () => void;
             message_container: (event:MouseEvent) => void;
             message_variable: (event:MouseEvent) => void;
+            update: () => void;
             validate_containers: (event:FocusEvent|KeyboardEvent) => void;
             validate_variables: (event:FocusEvent|KeyboardEvent) => void;
         };

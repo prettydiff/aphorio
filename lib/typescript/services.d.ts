@@ -16,10 +16,11 @@ interface services_clock {
     time_zulu: number;
 }
 
-interface services_compose {
-    containers: store_compose;
-    status: string;
-    time: number;
+interface services_compose_container {
+    action: type_dashboard_action;
+    compose: string;
+    id: string;
+    location: string;
 }
 
 interface services_docker_compose_publishers {
