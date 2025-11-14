@@ -1,4 +1,5 @@
-import vars from "../utilities/vars.ts";
+
+import vars from "../core/vars.ts";
 
 // cspell: words blockdevices, fsavail, fssize, fsused, fstype, mountpoint, partflags, pwsh, serv, volu
 

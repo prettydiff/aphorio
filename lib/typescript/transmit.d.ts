@@ -25,20 +25,27 @@ interface transmit_addresses_socket {
 }
 
 interface transmit_dashboard {
-    compose: configuration_compose;
+    compose: core_compose;
+    dashboard_id: string;
     hashes: string[];
     http_request: string;
-    logs: services_dashboard_status[];
-    os: server_os;
+    logs: config_log[];
+    name: string;
+    os: core_server_os;
     path: vars_path;
-    platform: string;
     servers: store_servers;
+    sockets: services_socket_application;
     terminal: string[];
     timeZone_offset: number;
 }
 
 interface transmit_receiver {
     [key:string]: receiver;
+}
+
+interface transmit_socket {
+    socket: node_http_ClientRequest | node_http_ServerResponse | websocket_client;
+    type: "http" | "ws";
 }
 
 interface transmit_socket_messageHandler {
@@ -58,12 +65,8 @@ interface transmit_tlsOptions {
     };
 }
 
-interface transmit_socket {
-    socket: node_http_ClientRequest | node_http_ServerResponse | websocket_client;
-    type: "http" | "ws";
-}
-
 interface websocket_client extends node_tls_TLSSocket {
+    addresses: transmit_addresses_socket;
     fragment: Buffer;
     frame: Buffer;
     frameExtended: number;

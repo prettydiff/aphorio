@@ -1,59 +1,61 @@
 
-import node from "./node.ts";
 
-/* cspell: words appdata, atupn, cputime, lslogins, pwsh, serv, volu */
+/* cspell: words appdata, aphorio, atupn, cputime, lslogins, pwsh, serv, volu */
 
-const win32:boolean = (process.platform === "win32"),
-    gid:number = (typeof process.getgid === "undefined")
-        ? 0
-        : process.getgid(),
-    uid:number = (typeof process.getuid === "undefined")
-        ? 0
-        : process.getuid(),
-    vars:vars = {
-        commands: {
-            compose: (process.platform === "win32")
-                ? "docker-compose"
-                : "docker",
-            docker: "docker",
-            devs: (win32 === true)
-                ? "Get-PNPDevice | ConvertTo-json"
-                : "lspci -v -k",
-            disk: (win32 === true)
-                ? "Get-Disk | ConvertTo-JSON -compress -depth 2"
-                : "lsblk -Ob --json",
-            part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
-            proc: (win32 === true)
-                ? "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON -compress -depth 1"
-                : "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
-            serv: (win32 === true)
-                ? "Get-Service | ConvertTo-JSON -compress -depth 2"
-                : "systemctl list-units --type=service --all --output json",
-            socT: (win32 === true)
-                ? "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2"
-                : "ss -atupn | tail -n +2 | tr -s \" \" \",\"",
-            socU: (win32 === true)
-                ? "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2"
-                : "",
-            user: (win32 === true)
-                ? "Get-LocalUser | ConvertTo-JSON -compress -depth 1"
-                : "lslogins -o user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
-            volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
-        },
+const vars:core_vars = {
+        commands: (function utilities_vars_commands():os_vars {
+            const os_vars:os_var_list = {
+                "linux": {
+                    admin_check: "id -u", // true if it returns "0"
+                    compose: "docker compose",
+                    compose_empty: "",
+                    devs: "lspci -v -k",
+                    disk: "lsblk -Ob --json",
+                    open: "xdg-open",
+                    part: "",
+                    proc: "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
+                    serv: "systemctl list-units --type=service --all --output json",
+                    socT: "ss -atupn | tail -n +2 | tr -s \" \" \",\"",
+                    socU: "",
+                    user: "lslogins -o user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
+                    volu: ""
+
+                },
+                "win32": {
+                    admin_check: "([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)", // return a string "true" or "false" value
+                    compose: "docker-compose",
+                    compose_empty: "",
+                    devs: "Get-PNPDevice | ConvertTo-json",
+                    disk: "Get-Disk | ConvertTo-JSON -compress -depth 2",
+                    open: "start",
+                    part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
+                    proc: "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON -compress -depth 1",
+                    serv: "Get-Service | ConvertTo-JSON -compress -depth 2",
+                    socT: "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2",
+                    socU: "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2",
+                    user: "Get-LocalUser | ConvertTo-JSON -compress -depth 1",
+                    volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
+                }
+            };
+            return os_vars[process.platform];
+        }()),
         compose: {
             containers: {},
+            status: "",
+            time: 0,
             variables: {}
         },
         css: {
             basic: "",
             complete: ""
         },
-        dashboard: "",
+        dashboard_id: "",
+        dashboard_page: "",
         environment: {
             date_commit: 0,
             hash: ""
         },
-        hashes: node.crypto.getHashes(),
+        hashes: [],
         http_request: "",
         interfaces: [
             "localhost",
@@ -65,6 +67,7 @@ const win32:boolean = (process.platform === "win32"),
             compose: 0
         },
         logs: [],
+        name: "aphorio",
         os: {
             devs: {
                 data: [],
@@ -75,56 +78,53 @@ const win32:boolean = (process.platform === "win32"),
                 time: 0
             },
             intr: {
-                data: node.os.networkInterfaces(),
+                data: null,
                 time: 0
             },
             machine: {
                 cpu: {
-                    arch: node.os.arch(),
-                    cores: node.os.cpus().length,
-                    endianness: node.os.endianness(),
-                    frequency: node.os.cpus()[0].speed,
-                    name: node.os.cpus()[0].model,
+                    arch: "",
+                    cores: 0,
+                    endianness: "",
+                    frequency: 0,
+                    name: ""
                 },
                 memory: {
-                    free: node.os.freemem(),
-                    total: node.os.totalmem()
+                    free: 0,
+                    total: 0
                 }
             },
             os: {
-                env: process.env,
-                hostname: node.os.hostname(),
-                name: node.os.version(),
-                path: (process.platform === "win32")
-                    ? process.env.Path.split(";")
-                    : (process.env.PATH === undefined)
-                        ? []
-                        : process.env.PATH.split(":"),
-                platform: node.os.platform(),
-                release: node.os.release(),
-                type: node.os.type(),
-                uptime: node.os.uptime()
+                env: {},
+                hostname: "",
+                name: "",
+                path: [],
+                platform: "",
+                release: "",
+                type: "",
+                uptime: 0
             },
             proc: {
                 data: [],
                 time: 0
             },
             process: {
-                arch: process.arch,
-                argv: process.argv,
-                cpuSystem: process.cpuUsage().system,
-                cpuUser: process.cpuUsage().user,
-                cwd: process.cwd(),
+                admin: false,
+                arch: "",
+                argv: [],
+                cpuSystem: 0,
+                cpuUser: 0,
+                cwd: "",
                 memory: {
                     external: 0,
                     rss: 0,
                     V8: 0
                 },
-                pid: process.pid,
-                platform: process.platform,
-                ppid: process.ppid,
-                uptime: process.uptime(),
-                versions: process.versions
+                pid: 0,
+                platform: "",
+                ppid: 0,
+                uptime: 0,
+                versions: {}
             },
             serv: {
                 data: [],
@@ -140,20 +140,16 @@ const win32:boolean = (process.platform === "win32"),
                 time: 0
             },
             user_account: {
-                gid: (gid === 0)
-                    ? 1000
-                    : gid,
-                homedir: node.os.homedir(),
-                uid: (gid === 0)
-                    ? 1000
-                    : uid
+                gid: 0,
+                homedir: "",
+                uid: 0
             }
         },
         path: {
             compose: "",
             compose_empty: "",
             project: "",
-            sep: node.path.sep,
+            sep: "/",
             servers: ""
         },
         servers: {},

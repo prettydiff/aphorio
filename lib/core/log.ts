@@ -4,20 +4,10 @@ import vars from "./vars.ts";
 
 const log:log = {
     application: function utilities_logApplication(config:config_log):void {
-        const data:services_dashboard_status = {
-                action: config.action,
-                configuration: config.config,
-                message: config.message,
-                status: config.status,
-                time: Date.now(),
-                type: config.type
-            };
-        if (config.type !== "socket") {
-            vars.logs.push(data);
-        }
-        broadcast("dashboard", "dashboard", {
-            data: data,
-            service: "dashboard-status"
+        vars.logs.push(config);
+        broadcast(vars.dashboard_id, "dashboard", {
+            data: config,
+            service: "dashboard-log"
         });
     },
     shell: function utilities_logShell(input:string[], summary?:boolean):void {
@@ -56,8 +46,9 @@ const log:log = {
                 }()),
                 dateString:string = `Updated ${vars.environment.date_commit.dateTime(true, null)} (${difference})`,
                 hash:string = `git log ${vars.text.cyan + vars.text.bold + vars.environment.hash + vars.text.none}`,
+                max:number = Math.max(dateString.length, vars.environment.hash.length),
                 border = function utilities_logShell_border(character:string):string {
-                    let index:number = Math.max(dateString.length, vars.environment.hash.length);
+                    let index:number = max;
                     const output:string[] = [];
                     do {
                         index = index - 1;

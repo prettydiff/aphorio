@@ -40,6 +40,53 @@
     75% {clip-path: inset(0 0 0 calc(100% - 1px)); }
 }
 
+@media screen and (width < 750px) {
+    #dashboard{
+        margin:0 1em;
+        #clock{float:none;margin:0 0 1.7em 0}
+        #clock span,
+        .title span{display:inline-block;width:8.5em}
+        #interfaces,
+        #os,
+        #disks{
+            li > strong{width:10em}
+        }
+        #websocket p#websocket-status{margin:-1.75em -0.9em 1.5em}
+        .title p{display:block;margin:0}
+        main{margin:0}
+        nav{
+            float:none;margin:0 0 2em;
+            div{float:left;width:50%}
+        }
+    }
+    div.form,
+    div.definitions,
+    div.table-filters,
+    div.section{padding:1em}
+}
+@media screen and (width > 749px) {
+    #dashboard{
+        margin:0 2em;
+        #clock{float:right;margin:-2.75em 0 0 0}
+        #interfaces,
+        #os,
+        #disks{
+            li > strong{width:22em}
+        }
+        #websocket p#websocket-status{margin:-1.75em -1.75em 1.5em}
+        .title p{display:inline-block}
+        main{margin:0 0 0 17.75em}
+        nav{
+            float:left;margin:0 0 -1000em 0;
+            div{float:none}
+        }
+    }
+    div.form,
+    div.definitions,
+    div.table-filters,
+    div.section{padding:2em}
+}
+
 .highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}
 .highlight::after,
 .highlight::before{animation:highlight 2s linear infinite;bottom:0;box-shadow:inset 0 0 0 0.2em var(--fail_dark);content:"";left:0;margin:-5%;position:absolute;right:0;top:0;z-index:1}
@@ -158,31 +205,31 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     /* id selectors */
     #application-logs{
         & > ul{background:var(--background_textarea);border-color:var(--textarea_border);border-style:solid;border-width:0.1em;padding:0.5em}
-        code{color:var(--fail_bright)}
+        code{border-style:none;color:var(--fail_bright);margin:0 2em;padding:0}
         li{
             border-style:none;font-size:var(--font-size);font-family:monospace;list-style:none;margin:0.5em 0 0;padding:0;white-space:pre;
-            &.log-error{color:var(--fail_bright)}
+            & p{display:inline-block;margin:0 0 0 1em}
         }
         time{color:var(--text_cyan);display:inline-block;margin:0 1em 0 0}
         ul{height:83.9em;overflow:scroll}
     }
-    #clock{
-        float:right;margin:-2.75em 1.7em 0 0;
-        time{color:var(--text_yellow);font-style:normal;font-weight:bold}
+    #clock,
+    .title{
+        time{color:var(--text_yellow);display:inline-block;font-style:normal;font-weight:bold;margin:0 0 0 0.5em}
     }
-    #compose{
+    #compose_containers{
         textarea.compose-variables-edit{height:10em}
         .compose-variable-list{
             li{background:var(--background_textarea);padding:1em}
             strong{border-color:var(--text);border-style:none solid none none;border-width:0 0.065em 0 0;display:inline-block;margin:0 1.5em 0 0;width:10em}
         }
     }
-    #connection-status{margin:0 1.7em 1.8em}
+    #connection-status{margin:0 0 1.8em}
     #file-system ul{margin:0 0 0 4em;padding:0}
     #hash .output{height:15em}
     #help ul{padding:0}
     #os ul{padding:0 0 1em 2em}
-    #servers{
+    #servers_web{
         display:block;
         .detail_item p{margin:0 0 0.5em}
         .note{clear:both;font-size:1.2em}
@@ -200,7 +247,6 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         .xterm-viewport{overflow:hidden}
     }
     #websocket .http_response p.float-last{width:82%}
-    p#websocket-status{margin:-1.75em -1.75em 1.5em}
     /* end id selectors */
 
     /* class selectors */
@@ -215,6 +261,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         .summary{
             display:none;
             h5{font-size:1em;margin:0}
+            p{margin-top:0}
             ul{font-size:1em;margin:1em 0 0;padding:0}
         }
         dt,
@@ -238,9 +285,11 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     }
     .pass-false{color:var(--fail_bright)}
     .pass-warn{color:var(--text_yellow)}
+    .server_id{max-width:25em;overflow:hidden;text-overflow:ellipsis}
     .summary-stats .file-system-summary-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}
     .tab{display:none}
     .tab-description{border-color:var(--border_soft);border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 0.5em}
+    .title{display:block}
     /* end class selectors */
 
     /* tag selectors */
@@ -272,7 +321,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     }
     div.edit{padding:0 0.694em}
     div > .edit{border-color:var(--border_input);border-style:solid;border-width:0.1em;padding:1em}
-    h1{margin:0 0.67em 0.5em}
+    h1{display:inline-block;margin:0 0.67em 0.5em 0}
     h2{margin:0 0 0.5em}
     h3 .expand{display:block;float:right;font-size:0.6em}
     h4 .expand{display:block;float:right;font-size:0.675em}
@@ -282,16 +331,13 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         h6{font-size:1em}
     }
     main{
-        clear:both;margin:0 0 0 17.75em;padding:0 2em 2em;
+        clear:both;display:none;padding:0 0 2em 0;
         #faq li{list-style:disc}
         li{list-style:none}
     }
     nav{
-        background:var(--background_nav);border-color:var(--background_button);border-style:solid;border-width:0.1em;float:left;margin:0 0 -1000em 2em;
-        div{
-            border-color:var(--border_color);border-style:none none solid none;border-width:0.1em;margin:2em 0 0;padding:0 0 2em;
-            &:last-child{border-style:none}
-        }
+        background:var(--background_nav);border-color:var(--background_button);border-style:solid;border-width:0.1em;
+        div{border-color:var(--border_color);border-style:solid none none;border-width:0.1em;margin:0 0 2em;padding:2em 0 0}
         h2{font-size:0.01em;position:absolute;left:-1000em}
         h3{color:var(--border_color);padding:0 0 0 0.5em;margin:0}
         ul{margin:0;padding:0}
@@ -305,6 +351,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         }
         .nav-focus{background:var(--background_dark);border-color:var(--border_soft);color:var(--text_input)}
     }
+    p.update-button:first-child{margin-top:0}
     select{display:block}
     table{border-collapse:collapse;margin:0 0 4em}
     textarea{
@@ -353,6 +400,13 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         &.inline{display:inline-block}
     }
 
+
+    #compose_containers .container-properties {
+        margin:0;padding:0;
+        li{border-style:none;display:list-item;list-style:none;margin:1em 0 0}
+        strong{display:inline-block;width:12em}
+    }
+
     #interfaces,
     #os,
     #disks{
@@ -360,7 +414,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         li{
             border-style:none;list-style:none;
             & > h6,
-            & > strong{display:inline-block;width:22em}
+            & > strong{display:inline-block}
         }
     }
 
@@ -372,12 +426,16 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         }
     }
 
-    #compose li,
-    #servers li{border-color:var(--border_color);border-style:solid;border-width:0.1em;list-style:none}
+    #compose_containers li,
+    #servers_web li{border-color:var(--border_color);border-style:solid;border-width:0.1em;list-style:none}
 
     #file-system li,
-    #compose .edit li,
-    #servers .edit li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
+    #compose_containers .container-ports li,
+    #compose_containers .edit-summary li,
+    #servers_web .container-ports li,
+    #servers_web .edit-summary li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
+    #compose_containers .edit-summary,
+    #servers_web .edit-summary{margin:0;padding:0}
 
     #http,
     #websocket {

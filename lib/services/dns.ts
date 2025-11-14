@@ -1,5 +1,5 @@
 
-import node from "../utilities/node.ts";
+import node from "../core/node.ts";
 import send from "../transmit/send.ts";
 
 const dns = function services_dns(socket_data:socket_data, transmit:transmit_socket):void {

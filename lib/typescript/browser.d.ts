@@ -62,24 +62,35 @@ declare global {
         [key:string]: (data_item:socket_data) => void;
     }
 
-    interface module_compose {
-        activePorts: (name_server:string) => HTMLElement;
-        cancelVariables: (event:MouseEvent) => void;
-        container: (config:services_docker_compose) => void;
-        destroyContainer: (config:services_docker_compose) => void;
-        editVariables: () => void;
-        getTitle: (textArea:HTMLTextAreaElement) => string;
-        init: () => void;
-        list: (type:"containers"|"variables") => void;
-        message: (event:MouseEvent) => void;
-        nodes: {
-            containers_list: HTMLElement;
-            containers_new: HTMLButtonElement;
-            variables_list: HTMLElement;
-            variables_new: HTMLButtonElement;
+    interface module_compose_containers {
+        descriptions: (id:string) => HTMLElement;
+        events: {
+            cancel_variable: (event:MouseEvent) => void;
+            edit_variable: () => void;
+            message_container: (event:MouseEvent) => void;
+            message_variable: (event:MouseEvent) => void;
+            update: () => void;
+            validate_containers: (event:FocusEvent|KeyboardEvent) => void;
+            validate_variables: (event:FocusEvent|KeyboardEvent) => void;
         };
-        validateContainer: (event:FocusEvent|KeyboardEvent) => void;
-        validateVariables: (event:FocusEvent|KeyboardEvent) => void;
+        list: (socket_data:socket_data) => void;
+        nodes: {
+            body: HTMLElement;
+            list: HTMLElement;
+            list_variables: HTMLElement;
+            new_container: HTMLButtonElement;
+            new_variable: HTMLButtonElement;
+            status: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_containers: HTMLElement;
+            update_time: HTMLElement;
+            update_variables: HTMLElement;
+        };
+    }
+    interface module_compose_variables {
+        cancel: (event:MouseEvent) => void;
+        edit: () => void;
+        message: (event:MouseEvent) => void;
     }
 
     interface module_disks {
@@ -221,6 +232,7 @@ declare global {
         };
         path: HTMLElement;
         process: {
+            admin: HTMLElement;
             arch: HTMLElement;
             argv: HTMLElement;
             cpuSystem: HTMLElement;
@@ -264,6 +276,18 @@ declare global {
         test_item: services_testBrowser;
     }
 
+    interface module_servers_web {
+        activePorts: (id:string) => HTMLElement;
+        getTitle?: (textArea:HTMLTextAreaElement) => string;
+        list: (socket_data:socket_data) => void;
+        message: (event:MouseEvent) => void;
+        nodes: {
+            list: HTMLElement;
+            service_new: HTMLButtonElement;
+        };
+        validate: (event:FocusEvent|KeyboardEvent) => void;
+    }
+
     interface module_serverItems {
         cancel: (event:MouseEvent) => void;
         color: (name_server:string, type:type_dashboard_list) => type_activation_status;
@@ -274,7 +298,7 @@ declare global {
     }
 
     interface module_sockets_application extends module_list {
-        socket_add: (config:services_socket) => void;
+        list: (socket_data:socket_data) => void;
     }
 
     interface module_tables {
@@ -314,24 +338,16 @@ declare global {
     interface module_utility {
         baseline: () => void;
         clock: (data_item:socket_data) => void;
-        clock_node: HTMLElement;
-        log: (item:services_dashboard_status) => void;
+        log: (socket_data:socket_data) => void;
         message_send: (data:type_socket_data, service:type_service) => void;
+        nodes: {
+            clock: HTMLElement;
+            load: HTMLElement;
+            main: HTMLElement;
+        };
         resize: () => void;
         setState: () => void;
         socket: socket_object;
-        status: (data_item:socket_data) => void;
-    }
-
-    interface module_web {
-        activePorts: (name_server:string) => HTMLElement;
-        list: () => void;
-        message: (event:MouseEvent) => void;
-        nodes: {
-            list: HTMLElement;
-            server_new: HTMLButtonElement;
-        };
-        validate: (event:FocusEvent|KeyboardEvent) => void;
     }
 
     interface module_websocket {
@@ -378,10 +394,11 @@ declare global {
         sockets_os: module_list;
     }
 
-    interface structure_servers {
-        compose: module_compose;
+    interface structure_services {
+        compose_containers: module_compose_containers;
+        init: () => void;
+        servers_web: module_servers_web;
         shared: module_serverItems;
-        web: module_web;
     }
 
     interface structure_system {

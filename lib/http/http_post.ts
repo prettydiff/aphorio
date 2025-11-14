@@ -2,8 +2,8 @@
 // supports HTTP methods DELETE, POST, PUT
 // cspell: words prettydiff
 
-import node from "../utilities/node.ts";
-import vars from "../utilities/vars.ts";
+import spawn from "../core/spawn.ts";
+import vars from "../core/vars.ts";
 
 const http_post:http_action = function http_post(headerList:string[], socket:websocket_client, payload:Buffer):void {
     const server_name:string = socket.server,
@@ -24,25 +24,24 @@ const http_post:http_action = function http_post(headerList:string[], socket:web
         };
     if (vars.servers[server_name].config.http !== null && vars.servers[server_name].config.http !== undefined) {
         if (typeof vars.servers[server_name].config.http[methodName as "delete"] === "string") {
-            node.child_process.exec(vars.servers[server_name].config.http[methodName as "delete"], {
+            spawn(vars.servers[server_name].config.http[methodName as "delete"], function http_post_child(output:core_spawn_output):void {
+                socket.write([
+                    "HTTP/1.1 200 OK",
+                    "content-type: text/plain",
+                    "server: prettydiff/webserver",
+                    "",
+                    "",
+                    output.stdout
+                ].join("\r\n"));
+                socket.destroy();
+            }, {
                 env: {
                     payload: payload.toString()
-                }
-            }, function http_post_child(err:node_childProcess_ExecException, stdout:string):void {
-                if (err === null) {
-                    socket.write([
-                        "HTTP/1.1 200 OK",
-                        "content-type: text/plain",
-                        "server: prettydiff/webserver",
-                        "",
-                        "",
-                        stdout
-                    ].join("\r\n"));
-                } else {
+                },
+                error: function http_post_error(err:node_childProcess_ExecException):void {
                     socket.write(missing("503 SERVICE UNAVAILABLE", `Server ${server_name} encountered an error executing method ${methodName}.`, err));
                 }
-                socket.destroy();
-            });
+            }).execute();
         } else {
             socket.write(missing("501 NOT IMPLEMENTED", `Server configuration for server ${server_name} is missing property http.${methodName}.`, null));
             socket.destroy();

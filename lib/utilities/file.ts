@@ -1,8 +1,8 @@
 
 import directory from "./directory.ts";
-import log from "./log.ts";
-import node from "./node.ts";
-import vars from "./vars.ts";
+import log from "../core/log.ts";
+import node from "../core/node.ts";
+import vars from "../core/vars.ts";
 
 // A collection of abstractions for file system handling
 // * mkdir - create one or more directories
@@ -12,7 +12,7 @@ import vars from "./vars.ts";
 // * write - write a file
 
 const file:file = {
-    mkdir: function utilities_fileDir(config:file_mkdir):void {
+    mkdir: function utilities_fileDir(config:config_file_mkdir):void {
         let ind:number = 0;
         const dirs:string[] = config.location.split(vars.path.sep),
             len:number = dirs.length,
@@ -36,12 +36,11 @@ const file:file = {
                         return;
                     }
                     log.application({
-                        action: null,
-                        config: errorInstance,
+                        error: errorInstance,
                         message: `Error making directory ${config.location}`,
+                        section: config.section,
                         status: "error",
-                        time: Date.now(),
-                        type: "log"
+                        time: Date.now()
                     });
                     return;
                 }
@@ -50,17 +49,16 @@ const file:file = {
                     if (ind < len) {
                         recursiveStat();
                     } else {
-                        config.callback();
+                        config.callback(config.location, config.identifier);
                     }
                     return;
                 }
                 log.application({
-                    action: null,
-                    config: new Error(`Destination directory, '${vars.text.cyan + config.location + vars.text.none}', is a ${type}.`),
+                    error: new Error(`Destination directory, '${vars.text.cyan + config.location + vars.text.none}', is a ${type}.`),
                     message: `Destination for mkdir, ${config.location}, already exists.`,
+                    section: config.section,
                     status: "error",
-                    time: Date.now(),
-                    type: "log"
+                    time: Date.now()
                 });
                 return;
             },
@@ -74,16 +72,15 @@ const file:file = {
                                 utilities_fileDir_recursiveStat();
                             } else if (errB === null) {
                                 if (config.callback !== null) {
-                                    config.callback();
+                                    config.callback(config.location, config.identifier);
                                 }
                             } else {
                                 log.application({
-                                    action: null,
-                                    config: errB,
+                                    error: errB,
                                     message: `Error making directory ${config.location}`,
+                                    section: config.section,
                                     status: "error",
-                                    time: Date.now(),
-                                    type: "log"
+                                    time: Date.now()
                                 });
                             }
                         });
@@ -94,7 +91,7 @@ const file:file = {
             if (statError === null) {
                 if (stats.isDirectory() === true) {
                     if (config.callback !== null) {
-                        config.callback();
+                        config.callback(config.location, config.identifier);
                     }
                 } else {
                     errorHandler(null, stats, null);
@@ -104,34 +101,33 @@ const file:file = {
             }
         });
     },
-    read: function utilities_fileRead(config:file_read):void {
+    read: function utilities_fileRead(config:config_file_read):void {
         node.fs.readFile(config.location, function utilities_fileRead_read(err:node_error, file_raw:Buffer):void {
             if (err !== null && err.code === "ENOENT") {
                 if (config.no_file !== null) {
-                    config.no_file();
+                    config.no_file(config.location, config.identifier);
                 } else if (config.callback !== null) {
-                    config.callback(null);
+                    config.callback(null, config.location, config.identifier);
                 }
             } else if (err === null) {
                 if (config.callback !== null) {
-                    config.callback(file_raw);
+                    config.callback(file_raw, config.location, config.identifier);
                 }
             } else {
                 log.application({
-                    action: null,
-                    config: err,
+                    error: err,
                     message: `Error reading file: ${config.location}`,
+                    section: config.section,
                     status: "error",
-                    time: Date.now(),
-                    type: "log"
+                    time: Date.now()
                 });
                 if (config.callback !== null) {
-                    config.callback(null);
+                    config.callback(null, config.location, config.identifier);
                 }
             }
         });
     },
-    remove: function utilities_fileRemove(config:file_remove):void {
+    remove: function utilities_fileRemove(config:config_file_remove):void {
         const removeItems = function utilities_fileRemove_removeItems(list:directory_list|string[]):void {
                 // directory_list: [].failures
                 // 0. absolute path (string)
@@ -156,12 +152,11 @@ const file:file = {
                                     return;
                                 }
                                 log.application({
-                                    action: null,
-                                    config: er,
+                                    error: er,
                                     message: `Error removing file system artifact ${item[0]}`,
+                                    section: config.section,
                                     status: "error",
-                                    time: Date.now(),
-                                    type: "log"
+                                    time: Date.now()
                                 });
                                 return;
                             }
@@ -169,7 +164,7 @@ const file:file = {
                             if (item[0] === fileList[0][0]) {
                                 // done
                                 if (config.callback !== null) {
-                                    config.callback();
+                                    config.callback(config.location, config.identifier);
                                 }
                             } else {
                                 // decrement the number of child items in a directory
@@ -206,7 +201,7 @@ const file:file = {
                     };
                 if (fileList.length < 1) {
                     if (config.callback !== null) {
-                        config.callback();
+                        config.callback(config.location, config.identifier);
                     }
                     return;
                 }
@@ -229,52 +224,50 @@ const file:file = {
             };
         directory(dirConfig);
     },
-    stat: function utilities_fileStat(config:file_stat):void {
+    stat: function utilities_fileStat(config:config_file_stat):void {
         node.fs.stat(config.location, {
             bigint: true
         }, function utilities_fileStat_stat(ers:node_error, stat:node_fs_BigIntStats):void {
             if (ers !== null && ers.code === "ENOENT") {
                 if (config.no_file !== null) {
-                    config.no_file();
+                    config.no_file(config.location, config.identifier);
                 } else if (config.callback !== null) {
-                    config.callback(stat);
+                    config.callback(stat, config.location, config.identifier);
                 }
             } else if (ers === null) {
                 if (config.callback !== null) {
-                    config.callback(stat);
+                    config.callback(stat, config.location, config.identifier);
                 }
             } else {
                 log.application({
-                    action: null,
-                    config: ers,
+                    error: ers,
                     message: `Error reading file: ${config.location}`,
+                    section: config.section,
                     status: "error",
-                    time: Date.now(),
-                    type: "log"
+                    time: Date.now()
                 });
                 if (config.callback !== null) {
-                    config.callback(null);
+                    config.callback(null, config.location, config.identifier);
                 }
             }
         });
     },
-    write: function utilities_fileWrite(config:file_write):void {
+    write: function utilities_fileWrite(config:config_file_write):void {
         node.fs.writeFile(config.location, config.contents, function utilities_fileWrite_write(erw:node_error):void {
             if (erw === null) {
                 if (config.callback !== null) {
-                    config.callback();
+                    config.callback(config.location, config.identifier);
                 }
             } else {
                 log.application({
-                    action: null,
-                    config: erw,
+                    error: erw,
                     message: `Error writing file: ${config.location}`,
+                    section: config.section,
                     status: "error",
-                    time: Date.now(),
-                    type: "log"
+                    time: Date.now()
                 });
                 if (config.callback !== null) {
-                    config.callback();
+                    config.callback(config.location, config.identifier);
                 }
             }
         });

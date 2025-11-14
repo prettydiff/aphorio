@@ -1,14 +1,14 @@
 import create_socket from "../transmit/createSocket.ts";
-import node from "../utilities/node.ts";
+import node from "../core/node.ts";
 import send from "../transmit/send.ts";
-import vars from "../utilities/vars.ts";
+import vars from "../core/vars.ts";
 
 const websocket_test:websocket_test = {
     find_socket: function services_websocket_findSocket(direction:"in"|"out", hashString:string):websocket_client {
         const hash:string = (direction === "in")
             ? hashString.replace("websocketTest-", "")
             : `websocketTest-${hashString}`;
-        let sockets:websocket_client[] = vars.server_meta.dashboard.sockets.open,
+        let sockets:websocket_client[] = vars.server_meta[vars.dashboard_id].sockets.open,
             index:number = sockets.length;
         if (index > 0) {
             do {
@@ -18,7 +18,7 @@ const websocket_test:websocket_test = {
                 }
             } while (index > 0);
         }
-        sockets = vars.server_meta.dashboard.sockets.secure;
+        sockets = vars.server_meta[vars.dashboard_id].sockets.secure;
         index = sockets.length;
         if (index > 0) {
             do {
@@ -96,7 +96,7 @@ const websocket_test:websocket_test = {
                     proxy: null,
                     resource: null,
                     secure: data.encryption,
-                    server: "dashboard",
+                    server: vars.dashboard_id,
                     timeout: 0,
                     type: "websocket-test"
                 };
@@ -114,8 +114,8 @@ const websocket_test:websocket_test = {
             if (host === "") {
                 config.ip = "127.0.0.1";
                 config.port = (data.encryption === true)
-                    ? vars.servers.dashboard.status.secure
-                    : vars.servers.dashboard.status.open;
+                    ? vars.servers[vars.dashboard_id].status.secure
+                    : vars.servers[vars.dashboard_id].status.open;
             // discern host value from IPv6 address plus specified port
             } else if (host.includes("[") === true && host.includes("]") === true) {
                 config.ip = host.slice(host.indexOf("[") + 1, host.indexOf("]"));

@@ -1,46 +1,35 @@
 
 import file from "../utilities/file.ts";
-import log from "../utilities/log.ts";
-import node from "../utilities/node.ts";
-import vars from "../utilities/vars.ts";
+import node from "../core/node.ts";
+import spawn from "../core/spawn.ts";
+import vars from "../core/vars.ts";
 
 // cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey, keyid, pathlen
 
 const certificate = function services_certificate(config:config_certificate):void {
-    const cert_path:string = `${vars.path.servers + config.name + vars.path.sep}certs${vars.path.sep}`,
+    const cert_path:string = `${vars.path.servers + config.id + vars.path.sep}certs${vars.path.sep}`,
         cert = function services_certificate_cert():void {
             let index:number = 0;
             const commands:string[] = [],
-                domain:string = (vars.servers[config.name].config.domain_local.length < 1)
+                domain:string = (vars.servers[config.id].config.domain_local.length < 1)
                     ? "localhost"
-                    : vars.servers[config.name].config.domain_local[0],
+                    : vars.servers[config.id].config.domain_local[0],
                 crypto = function services_certificate_cert_crypto():void {
-                    node.child_process.exec(commands[index], {
-                        cwd: cert_path
-                    }, function services_certificate_cert_crypto_child(erChild:node_childProcess_ExecException):void {
-                        if (erChild === null) {
-                            index = index + 1;
-                            if (index < commands.length) {
-                                services_certificate_cert_crypto();
-                            } else {
-                                config.callback();
-                            }
+                    spawn(commands[index], function services_certificate_cert_crypto_child():void {
+                        index = index + 1;
+                        if (index < commands.length) {
+                            services_certificate_cert_crypto();
                         } else {
-                            log.application({
-                                action: "add",
-                                config: vars.servers[config.name],
-                                message: `Error executing command: ${commands[index]}`,
-                                status: "error",
-                                time: Date.now(),
-                                type: "server"
-                            });
+                            config.callback();
                         }
-                    });
+                    }, {
+                        cwd: cert_path
+                    }).execute();
                 },
                 cert_extensions:string = (function services_certificate_cert_extensions():string {
-                    const server:services_server = (vars.servers[config.name] === undefined)
+                    const server:services_server = (vars.servers[config.id] === undefined)
                             ? null
-                            : vars.servers[config.name].config,
+                            : vars.servers[config.id].config,
                         output:string[] = [
                             `[ ca ]
         basicConstraints       = CA:false
@@ -212,7 +201,8 @@ const certificate = function services_certificate(config:config_certificate):voi
             file.write({
                 callback: create,
                 contents: cert_extensions,
-                location: `${cert_path}extensions.cnf`
+                location: `${cert_path}extensions.cnf`,
+                section: "servers_web"
             });
         };
     file.stat({
@@ -221,9 +211,11 @@ const certificate = function services_certificate(config:config_certificate):voi
         no_file: function services_certificate_mkdir():void {
             file.mkdir({
                 callback: cert,
-                location: cert_path
+                location: cert_path,
+                section: "servers_web"
             });
-        }
+        },
+        section: "servers_web"
     });
 };
 

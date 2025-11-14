@@ -1,7 +1,8 @@
 
-import hash from "./hash.ts";
-import node from "./node.ts";
-import vars from "./vars.ts";
+import hash from "../core/hash.ts";
+import node from "../core/node.ts";
+import spawn from "../core/spawn.ts";
+import vars from "../core/vars.ts";
 
 // similar to node's fs.readdir, but recursive
 const directory = function utilities_directory(args:config_directory):void {
@@ -105,6 +106,7 @@ const directory = function utilities_directory(args:config_directory):void {
                             },
                             digest: "hex",
                             hash_input_type: "file",
+                            section: "file-system",
                             source: null
                         };
                     if (list[0][1] === "file") {
@@ -240,32 +242,31 @@ const directory = function utilities_directory(args:config_directory):void {
                             };
                             if (item === "\\") {
                                 //cspell:disable-next-line
-                                node.child_process.exec("get-volume | convertto-json", {
-                                    shell: "powershell"
-                                }, function utilities_directory_statWrapper_stat_dir_windowsRoot(erw:node_childProcess_ExecException, stdout:string, stderr:string):void {
-                                    if (erw === null && stderr === "") {
-                                        const drives:windows_drives[] = JSON.parse(stdout),
-                                            files:string[] = [];
-                                        let index:number = drives.length;
-                                        if (index > 0) {
-                                            do {
-                                                index = index - 1;
-                                                if (drives[index].DriveLetter !== null) {
-                                                    driveSize[`${drives[index].DriveLetter}:\\`] = drives[index].Size;
-                                                    files.push(`${drives[index].DriveLetter}:\\`);
-                                                }
-                                            } while (index > 0);
-                                        }
-                                        dirBody(files);
-                                    } else {
+                                spawn("get-volume | convertto-json", function utilities_directory_statWrapper_stat_dir_windowsRoot(output:core_spawn_output):void {
+                                    const drives:windows_drives[] = JSON.parse(output.stdout),
+                                        files:string[] = [];
+                                    let index:number = drives.length;
+                                    if (index > 0) {
+                                        do {
+                                            index = index - 1;
+                                            if (drives[index].DriveLetter !== null) {
+                                                driveSize[`${drives[index].DriveLetter}:\\`] = drives[index].Size;
+                                                files.push(`${drives[index].DriveLetter}:\\`);
+                                            }
+                                        } while (index > 0);
+                                    }
+                                    dirBody(files);
+                                }, {
+                                    error: function utilities_directory_statWrapper_stat_dir_windowsRootError(erw:node_childProcess_ExecException):void {
                                         list.failures.push(`${erw.code} - ${item}`);
                                         if (dirs > 0) {
                                             dirCounter(item);
                                         } else {
                                             output();
                                         }
-                                    }
-                                });
+                                    },
+                                    shell: "powershell"
+                                }).execute();
                             } else {
                                 node.fs.readdir(item, {encoding: "utf8"}, function utilities_directory_statWrapper_stat_dir_readDir(erd:node_error, files:string[]):void {
                                     if (erd !== null) {

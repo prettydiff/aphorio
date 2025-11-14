@@ -1,6 +1,7 @@
 
-import log from "../utilities/log.ts";
-import node from "../utilities/node.ts";
+import get_address from "../core/get_address.ts";
+import log from "../core/log.ts";
+import node from "../core/node.ts";
 import socket_extension from "./socketExtension.ts";
 
 const create_socket = function transmit_createSocket(config:config_websocket_create):void {
@@ -35,16 +36,15 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
             : config.headers,
         callbackError = function transmit_createSocket_hash_error(errorMessage:node_error):void {
             log.application({
-                action: "add",
-                config: errorMessage,
+                error: errorMessage,
                 message: `Error attempting websocket connect from client side on server. ${(config.proxy === null)
                     ? "Socket is not a proxy."
                     : `Socket is a proxy to ${config.proxy.hash} on server ${config.proxy.server}.`}`,
+                section: (config.type === "websocket-test")
+                    ? "websocket"
+                    : "sockets-application",
                 status: "error",
-                time: Date.now(),
-                type: (config.type === "websocket-test")
-                    ? "websocket-test"
-                    : "socket"
+                time: Date.now()
             });
             if (config.type === "websocket-test") {
                 config.callback(null, null, errorMessage);
@@ -64,6 +64,11 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     return null;
                 }
                 startTime = process.hrtime.bigint() - startTime;
+                client.addresses = get_address(client);
+                if (config.proxy !== null) {
+                    client.pipe(config.proxy);
+                    config.proxy.pipe(client);
+                }
                 socket_extension({
                     callback: config.callback,
                     handler: config.handler,

@@ -2,7 +2,7 @@
 interface config_certificate {
     callback: () => void;
     days: number;
-    name: string;
+    id: string;
     selfSign: boolean;
 }
 
@@ -30,11 +30,51 @@ interface config_directory {
     symbolic: boolean;
 }
 
+interface config_file_mkdir {
+    callback: (location:string, identifier:string) => void;
+    identifier?: string;
+    location: string;
+    section: type_dashboard_sections | "startup";
+}
+
+interface config_file_read {
+    callback: (file:Buffer, location:string, identifier:string) => void;
+    identifier?: string;
+    location: string;
+    no_file: (location:string, identifier:string) => void;
+    section: type_dashboard_sections | "startup";
+}
+
+interface config_file_remove {
+    callback: (location:string, identifier:string) => void;
+    exclusions: string[];
+    identifier?: string;
+    location: string;
+    section: type_dashboard_sections | "startup";
+}
+
+interface config_file_stat {
+    callback: (stats:node_fs_BigIntStats, location:string, identifier:string) => void;
+    identifier?: string;
+    location: string;
+    no_file: (location:string, identifier:string) => void;
+    section: type_dashboard_sections | "startup";
+}
+
+interface config_file_write {
+    callback: (location:string, identifier:string) => void;
+    contents: Buffer | string;
+    identifier?: string;
+    location: string;
+    section: type_dashboard_sections | "startup";
+}
+
 interface config_hash {
     algorithm: string;
     callback: (hashOutput:hash_output) => void;
     digest: "base64-output" | "base64" | "hex";
     hash_input_type: type_hash_input;
+    section: type_dashboard_sections;
     source: Buffer | string;
 }
 
@@ -49,12 +89,11 @@ interface config_html {
 }
 
 interface config_log {
-    action: type_dashboard_action;
-    config: type_dashboard_config;
+    error: node_childProcess_ExecException | node_error | TypeError;
     message: string;
+    section: type_dashboard_sections | "dashboard" | "startup";
     status: type_dashboard_status;
     time: number;
-    type: type_dashboard_type;
 }
 
 interface config_os_comparison {

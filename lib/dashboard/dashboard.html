@@ -20,18 +20,21 @@
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo="/>
 </head>
 <body id="dashboard">
-    <h1>Server Management Dashboard</h1>
-    <p id="clock">Server Time: <time>00:00:00L (00:00:00Z)</time></p>
+    <div class="title">
+        <h1>Dashboard</h1>
+        <p><span>Page Load Time:</span><time>0.00000 seconds</time></p>
+    </div>
+    <p id="clock"><span>Server Time:</span><time>00:00:00L (00:00:00Z)</time></p>
     <p id="connection-status" class="connection-offline">Dashboard Connection: <strong>Offline</strong></p>
     <nav>
         <h2>Navigation</h2>
         <div>
             <h3>Services</h3>
-            <ul><li><button class="nav-focus" data-section="servers">Web Servers</button></li><li><button data-section="compose">Docker Compose</button></li></ul>
+            <ul><li><button class="nav-focus" data-section="servers_web">Web Servers</button></li><li><button data-section="compose_containers">Docker Compose</button></li></ul>
         </div>
         <div>
             <h3>Network</h3>
-            <ul><li><button data-section="sockets">Sockets / Ports</button></li><li><button data-section="interfaces">Interfaces</button></li></ul>
+            <ul><li><button data-section="interfaces">Interfaces</button></li><li><button data-section="sockets-application">App Sockets</button></li><li><button data-section="sockets-os">OS Sockets</button></li></ul>
         </div>
         <div>
             <h3>System</h3>
@@ -45,6 +48,7 @@
             <h3>Informational</h3>
             <ul><li><button data-section="application-logs">Application Logs</button></li><li><button data-section="help">Help</button></li><li><button data-section="faq">FAQ</button></li></ul>
         </div>
+        <span class="clear"></span>
     </nav>
     <main>
         <div class="tab" id="application-logs">
@@ -52,18 +56,29 @@
             <p class="tab-description">At this time logs are not saved outside the application, but do persist for the life of the application runtime.</p>
             <ul></ul>
         </div>
-        <div class="tab" id="compose">
+        <div class="tab" id="compose_containers">
             <h2>Docker Compose</h2>
             <p class="tab-description">A list of configured Docker containers and their status. Container status refreshes every ${payload.intervals.compose} seconds. All containers run under the Docker daemon detached from this application.</p>
-            <div class="section">
-                <h3>Environmental Variables</h3>
-                <p class="buttons"><button class="compose-variable-new">Edit Variables</button></p>
-                <ul class="compose-variable-list"></ul>
-            </div>
-            <div class="section">
-                <h3>Containers</h3>
-                <p class="buttons"><button class="compose-container-new">New Container</button></p>
-                <ul class="compose-container-list"></ul>
+            <p class="status"></p>
+            <div class="compose-body">
+                <div class="section">
+                    <div class="table-stats">
+                        <p class="update-button"><button>Update List</button></p>
+                        <p><span>Total Containers</span> <em></em></p>
+                        <p><span>Total Variables</span> <em></em></p>
+                        <p><span>Last Updated</span> <time></time></p>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Environmental Variables</h3>
+                    <p class="buttons"><button class="compose-variable-new">Edit Variables</button></p>
+                    <ul class="compose-variable-list"></ul>
+                </div>
+                <div class="section">
+                    <h3>Containers</h3>
+                    <p class="buttons"><button class="compose-container-new">New Container</button></p>
+                    <ul class="compose-container-list"></ul>
+                </div>
             </div>
         </div>
         <div class="tab" id="devices">
@@ -671,6 +686,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <div class="section">
                     <h3>Application Process</h3>
                     <ul>
+                        <li data-name="admin"><strong>Administrative Privilege</strong><span></span></li>
                         <li data-name="arch"><strong>Architecture</strong><span></span></li>
                         <li data-name="argv"><strong>Arguments</strong><span></span></li>
                         <li data-name="cpuSystem"><strong>CPU System Time<sup>1</sup></strong><span></span></li>
@@ -729,7 +745,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
-        <div class="tab" id="servers">
+        <div class="tab" id="servers_web">
             <h2>Web Servers</h2>
             <p class="tab-description">A list of configured HTTP/WS servers hosted by this application and their respective status.</p>
             <div class="definitions">
@@ -839,73 +855,71 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
-        <div class="tab" id="sockets">
-            <h2>Sockets / Ports</h2>
-            <p class="tab-description">A list of connected sockets. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time.</p>
-            <div class="section">
-                <h3>Sockets Managed By This Application</h3>
-                <p>These sockets are created directly by this application.</p>
-                <div class="table-filters">
-                    <h4>List Controls</h4>
-                    <p><label>Column(s) To Filter <select></select></label></p>
-                    <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
-                    <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
-                </div>
-                <div class="section">
-                    <h4>Socket List</h4>
-                    <div class="table-stats">
-                        <p class="update-button"><button>Update List</button></p>
-                        <p><span>Total Sockets</span> <em></em></p>
-                        <p><span>Filtered Sockets</span> <em></em></p>
-                        <p><span>Last Updated</span> <time></time></p>
-                    </div>
-                    <table data-column="0">
-                        <thead><tr>
-                            <th><button data-dir="1">Server</button></th>
-                            <th><button data-dir="1">Socket ID</button></th>
-                            <th><button data-dir="1">Type Descriptor</button></th>
-                            <th><button data-dir="1">Role</button></th>
-                            <th><button data-dir="1">Proxy</button></th>
-                            <th><button data-dir="1">Encrypted</button></th>
-                            <th><button data-dir="1">Local Server IP</button></th>
-                            <th><button data-dir="1">Local Server Port</button></th>
-                            <th><button data-dir="1">Remote IP</button></th>
-                            <th><button data-dir="1">Remote Port</button></th>
-                        </tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+        <div class="tab" id="sockets-application">
+            <h2>App Sockets</h2>
+            <p class="tab-description">A list created by this application. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time.</p>
+            <div class="table-filters">
+                <h4>List Controls</h4>
+                <p><label>Column(s) To Filter <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
             </div>
             <div class="section">
-                <h3>All Sockets In the Operating System</h3>
-                <p>This list presents all sockets and their ports reported by the local operating system including the <em>Application Sockets</em> listed above.</p>
-                <div class="table-filters">
-                    <h4>List Controls</h4>
-                    <p><label>Column(s) To Filter <select></select></label></p>
-                    <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
-                    <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <h4>Socket List</h4>
+                <p>Local address and port are from the perspective of the application server. Remote address and port could represent the local web browser.</p>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Sockets</span> <em></em></p>
+                    <p><span>Filtered Sockets</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
                 </div>
-                <div class="section">
-                    <h4>Socket List</h4>
-                    <div class="table-stats">
-                        <p class="update-button"><button>Update List</button></p>
-                        <p><span>Total Sockets</span> <em></em></p>
-                        <p><span>Filtered Sockets</span> <em></em></p>
-                        <p><span>Last Updated</span> <time></time></p>
-                    </div>
-                    <table data-column="0">
-                        <thead><tr>
-                            <th><button data-dir="1">Type</button></th>
-                            <th><button data-dir="1">Local Address</button></th>
-                            <th><button data-dir="1">Local Port</button></th>
-                            <th><button data-dir="1">Remote Address</button></th>
-                            <th><button data-dir="1">Remote Port</button></th>
-                            <th><button data-dir="1">Process ID</button></th>
-                            <th><button data-dir="1">Process Name</button></th>
-                        </tr></thead>
-                        <tbody></tbody>
-                    </table>
+                <table data-column="0">
+                    <thead><tr>
+                        <th><button data-dir="1">Server</button></th>
+                        <th><button data-dir="1">Server Name</button></th>
+                        <th><button data-dir="1">Socket ID</button></th>
+                        <th><button data-dir="1">Type Descriptor</button></th>
+                        <th><button data-dir="1">Role</button></th>
+                        <th><button data-dir="1">Proxy</button></th>
+                        <th><button data-dir="1">Encrypted</button></th>
+                        <th><button data-dir="1">Local Server IP</button></th>
+                        <th><button data-dir="1">Local Server Port</button></th>
+                        <th><button data-dir="1">Remote IP</button></th>
+                        <th><button data-dir="1">Remote Port</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab" id="sockets-os">
+            <h2>OS Sockets</h2>
+            <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
+            <div class="table-filters">
+                <h4>List Controls</h4>
+                <p><label>Column(s) To Filter <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+            </div>
+            <div class="section">
+                <h4>Socket List</h4>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Sockets</span> <em></em></p>
+                    <p><span>Filtered Sockets</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
                 </div>
+                <table data-column="0">
+                    <thead><tr>
+                        <th><button data-dir="1">Type</button></th>
+                        <th><button data-dir="1">Local Address</button></th>
+                        <th><button data-dir="1">Local Port</button></th>
+                        <th><button data-dir="1">Remote Address</button></th>
+                        <th><button data-dir="1">Remote Port</button></th>
+                        <th><button data-dir="1">Process ID</button></th>
+                        <th><button data-dir="1">Process Name</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
         <div class="tab" id="terminal">
@@ -1053,10 +1067,11 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
                 <h4>Raw Handshake Message</h4>
                 <div class="http_response">
-                    <p><label>Handshake message. Localhost ports: <span></span><textarea class="test-input" spellcheck="false"></textarea></label></p>
+                    <p><label>Handshake message. <textarea class="test-input" spellcheck="false"></textarea></label></p>
                     <p class="float-last"><label>Handshake error messaging <textarea class="test-input" readonly="true" spellcheck="false">Disconnected.</textarea></label></p>
                     <span class="clear"></span>
                 </div>
+                <p class="ports">Localhost ports: <span></span></p>
                 <p class="buttons"><button>Connect</button></p>
             </div>
             <div class="form">

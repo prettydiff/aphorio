@@ -1,12 +1,12 @@
 
-import get_address from "../utilities/getAddress.ts";
-import log from "../utilities/log.ts";
+import log from "../core/log.ts";
 import message_handler from "./messageHandler.ts";
 import receiver from "./receiver.ts";
 import send from "./send.ts";
 import server_halt from "../services/server_halt.ts";
 import socket_end from "./socketEnd.ts";
-import vars from "../utilities/vars.ts";
+import socket_list from "../services/socket_list.ts";
+import vars from "../core/vars.ts";
 
 const socket_extension = function transmit_socketExtension(config:config_websocket_extensions):void {
     const encryption:type_encryption = (config.socket.secure === true)
@@ -42,32 +42,25 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             encryption:"open"|"secure" = (config.socket.secure === true)
                 ? "secure"
                 : "open",
-            socket:services_socket = {
-                address: get_address({
-                    socket: config.socket,
-                    type: "ws"
-                }),
+            socket:services_socket_application_item = {
+                address: config.socket.addresses,
                 encrypted: (config.socket.encrypted === true),
                 hash: config.identifier,
                 proxy: (config.socket.proxy === undefined || config.socket.proxy === null)
                     ? null
                     : config.socket.proxy.hash,
                 role: config.role,
-                server: config.server,
-                time: Date.now(),
+                server_id: config.server,
+                server_name: vars.servers[config.server].config.name,
                 type: config.type
             },
             log_config:config_log = {
-                action: "add",
-                config: socket,
+                error: null,
                 message: `Socket ${config.identifier} opened on ${encryption} server ${config.server}.`,
-                status: "success",
-                time: Date.now(),
-                type: "socket"
+                section: "sockets-application",
+                status: "informational",
+                time: Date.now()
             };
-        vars.server_meta[config.server].sockets[encryption].push(config.socket);
-        vars.servers[config.server].sockets.push(socket);
-
         config.socket.server = config.server;     // identifies which local server the given socket is connected to
         config.socket.hash = config.identifier;   // assigns a unique identifier to the socket based upon the socket's credentials
         config.socket.role = config.role;         // assigns socket creation location
@@ -110,23 +103,13 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             config.socket.on("end", socket_end);
             config.socket.on("error", socket_end);
         }
-        if (config.type !== "http") {
-            config.socket.setKeepAlive(true, 0);   // standard method to retain socket against timeouts from inactivity until a close frame comes in
-            if (config.proxy !== null && config.proxy !== undefined && (config.server !== "dashboard" || (config.server === "dashboard" && config.type !== "dashboard" && config.type !== "dashboard-terminal"))) {
-                config.socket.proxy = config.proxy; // stores the relationship between two sockets when they are piped as a proxy
-                config.proxy.proxy = config.socket; // adds the relationship to the proxy socket as well
-                // do not pipe socket traffic that is part of a web server domain redirection rule
-                if (config.type.indexOf(`proxy-${config.server}-`) !== 0 && config.type.indexOf(`socket-${config.server}-`) !== 0 && config.type !== "dashboard" && config.type !== "dashboard-terminal") {
-                    config.socket.pipe(config.proxy);
-                    config.proxy.pipe(config.socket);
-                }
-            } else {
-                config.socket.proxy = null;
-            }
-        }
         if (config.callback !== null && config.callback !== undefined) {
             config.callback(config.socket, config.timeout);
         }
+        socket_list(function transmit_socketExtension_socketList():void {
+            vars.server_meta[config.server].sockets[encryption].push(config.socket);
+            vars.servers[config.server].sockets.push(socket);
+        });
         log.application(log_config);
     }
 };

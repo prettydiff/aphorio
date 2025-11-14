@@ -5,10 +5,11 @@ import core from "../browser/core.ts";
 import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import file_list from "../browser/file_list.ts";
-import node from "../utilities/node.ts";
-import vars from "../utilities/vars.ts";
+import node from "../core/node.ts";
+import socket_list from "../services/socket_list.ts";
+import vars from "../core/vars.ts";
 
-/* cspell: words msvideo, nofollow, onnection, prettydiff */
+/* cspell: words aphorio, msvideo, nofollow, onnection, prettydiff */
 
 const http_get:http_action = function http_get(headerList:string[], socket:websocket_client):void {
     let input:string = "";
@@ -16,8 +17,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         method:"GET"|"HEAD" = (index0.indexOf("HEAD") === 0)
             ? "HEAD"
             : "GET",
-        server_name:string = socket.server,
-        path:string = `${vars.path.servers + server_name + vars.path.sep}assets${vars.path.sep}`,
+        server_id:string = socket.server,
+        path:string = `${vars.path.servers + server_id + vars.path.sep}assets${vars.path.sep}`,
         resource:string = index0[1],
         asset:string[] = resource.split("/"),
         fileFragment:string = asset.join(vars.path.sep).replace(/^(\\|\/)/, ""),
@@ -45,12 +46,14 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     `HTTP/1.1 ${statusText}`,
                     `content-type: ${config.content_type}`,
                     "",
-                    "server: prettydiff/webserver",
+                    `server: ${vars.name}`,
                     "",
                     ""
                 ];
             if (config.template === true) {
-                const name:string = server_name,
+                const name:string = (server_id === vars.dashboard_id)
+                        ? `${vars.name.capitalize()} Dashboard`
+                        : vars.servers[server_id].config.name,
                     templateText:string[] = [
                         "<!doctype html>",
                         "<html lang=\"en\">",
@@ -99,16 +102,9 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             return payload(headerText, bodyText);
         },
         write = function http_get_write(payload:Buffer|string):void {
-            const destroy = function http_get_write_destroy():void {
-                socket.destroy();
-            };
-            if (socket.write(payload) === true) {
-                setTimeout(destroy, 100);
-            } else {
-                socket.once("drain", function http_get_write_callback_drain():void {
-                    setTimeout(destroy, 100);
-                });
-            }
+            // this if condition and the following "else" block are critical for ensuring response messages are delivered completely and the sockets are closed appropriately.
+            socket.write(payload);
+            socket.destroySoon();
         },
         notFound = function http_get_notFound():void {
             write(html({
@@ -196,7 +192,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                 search: "",
                                 symbolic: false
                             });
-                        }
+                        },
+                        section: "servers_web"
                     });
                 },
                 fileItem = function http_get_statTest_fileItem():void {
@@ -271,7 +268,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         socket.write(headerText.join("\r\n"));
                         stream.pipe(socket);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
-                            socket.destroy();
+                            socket.destroySoon();
                         });
                     } else {
                         // text media types use chunked type response
@@ -279,11 +276,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         // - this is the most flexible approach when things like TLS impose segmentation separate from chunks piped to the socket
                         const stream:node_fs_ReadStream = node.fs.createReadStream(input);
                         stream.on("close", function http_get_statTest_fileItem_close():void {
-                            const delay:number = Math.max(250, stream.bytesRead / 10000);
-                            socket.write("0\r\n\r\n");
-                            setTimeout(function http_get_statTest_fileItem_close_delay():void {
-                                socket.destroy();
-                            }, delay);
+                            write("0\r\n\r\n");
                         });
                         socket.write(headerText.join("\r\n"));
                         stream.on("data", function http_get_statTest_fileItem_data(chunk:Buffer|string):void {
@@ -303,25 +296,24 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         decoded:string = (decode.includes("?") === true)
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
-    if (server_name === "dashboard") {
-        const real_path:string = vars.path.project.replace(`test${vars.path.sep}`, "");
-        if (decoded.includes("xterm.css") === true) {
-            input = `${real_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`;
-        } else if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
+    if (server_id === vars.dashboard_id) {
+        if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {
                     compose: vars.compose,
+                    dashboard_id: vars.dashboard_id,
                     hashes: vars.hashes,
                     http_request: vars.http_request,
                     logs: vars.logs,
+                    name: vars.name,
                     os: vars.os,
                     path: vars.path,
-                    platform: process.platform,
                     servers: vars.servers,
+                    sockets: socket_list(),
                     terminal: vars.terminal,
                     timeZone_offset: vars.timeZone_offset
                 },
-                dashboard:string = vars.dashboard.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`),
+                dashboard:string = vars.dashboard_page.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",
@@ -330,7 +322,11 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     "",
                     ""
                 ];
-            write(headers.join("\r\n") + dashboard);
+            if (method === "GET") {
+                write(headers.join("\r\n") + dashboard);
+            } else if (method === "HEAD") {
+                write(headers.join("\r\n"));
+            }
             return;
         }
     } else if (fileFragment === "") {
@@ -343,7 +339,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
     file.stat({
         callback: statTest,
         location: input,
-        no_file: notFound
+        no_file: notFound,
+        section: "servers_web"
     });
 };
 

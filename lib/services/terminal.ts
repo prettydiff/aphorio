@@ -1,8 +1,7 @@
 
-import get_address from "../utilities/getAddress.ts";
-import log from "../utilities/log.ts";
+import log from "../core/log.ts";
 import send from "../transmit/send.ts";
-import vars from "../utilities/vars.ts";
+import vars from "../core/vars.ts";
 
 import { spawn } from "@lydell/node-pty";
 
@@ -12,7 +11,7 @@ const terminal:services_terminal = {
     resize: function services_terminalResize(socket_data:socket_data):void {
         const data:services_terminal_resize = socket_data.data as services_terminal_resize,
             socket:websocket_pty = (function services_terminalResize():websocket_pty {
-                const sockets:websocket_client[] = vars.server_meta.dashboard.sockets[data.secure];
+                const sockets:websocket_client[] = vars.server_meta[vars.dashboard_id].sockets[data.secure];
                 let index:number = sockets.length;
                 if (index > 0) {
                     do {
@@ -44,12 +43,11 @@ const terminal:services_terminal = {
             },
             error = function services_terminalShell_error(err:node_error):void {
                 const config:config_log = {
-                    action: "activate",
-                    config: err,
+                    error: err,
                     message: "Socket for dashboard terminal failed with error.",
+                    section: "terminal",
                     status: "error",
-                    time: Date.now(),
-                    type: "terminal"
+                    time: Date.now()
                 };
                 log.application(config);
                 close();
@@ -60,14 +58,10 @@ const terminal:services_terminal = {
             out = function services_terminalShell_out(output:string):void {
                 send(output, socket, 1);
             },
-            address:transmit_addresses_socket = get_address({
-                socket: socket,
-                type: "ws"
-            }),
             identifiers:terminal_identifiers = {
                 pid: pty.pid,
-                port_browser: address.remote.port,
-                port_terminal: address.local.port,
+                port_browser: socket.addresses.remote.port,
+                port_terminal: socket.addresses.local.port,
                 server_name: socket.server,
                 socket_hash: socket.hash
             };

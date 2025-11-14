@@ -1,10 +1,5 @@
 // cspell: words bootable, fsavail, fsroots, fssize, fstype, fsused, mountpoint, partflags, parttypename, serv, volu
 
-interface os_child extends node_childProcess_ChildProcess {
-    stdout: os_child_out;
-    type: type_os_key;
-}
-
 interface os_child_out extends node_stream_Readable {
     type: type_os_key;
 }
@@ -184,4 +179,24 @@ interface os_user_windows {
     LastLogon: string;
     Name: string;
     SID: string;
+}
+
+interface os_vars {
+    admin_check: string;
+    compose: string;
+    compose_empty: string;
+    devs: string;
+    disk: string;
+    open: string;
+    part: string;
+    proc: string;
+    serv: string;
+    socT: string;
+    socU: string;
+    user: string;
+    volu: string;
+}
+
+interface os_var_list {
+    [key:string]: os_vars;
 }
