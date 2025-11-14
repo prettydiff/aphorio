@@ -60,18 +60,17 @@ const dashboard = function dashboard():void {
                 }
                 const section:HTMLElement = target.getAncestor("table-filters", "class"),
                     tab:HTMLElement = section.getAncestor("tab", "class"),
-                    tab_name:string = tab.getAttribute("id"),
-                    module:module_list|module_sockets_application = (tab_name === "devices")
-                        ? system.devices
-                        : (tab_name === "processes")
-                            ? system.processes
-                            : (tab_name === "services")
-                                ? system.services
-                                : (tab_name === "sockets-application")
-                                    ? network.sockets_application
-                                    : (tab_name === "sockets-os")
-                                        ? network.sockets_os
-                                        : system.users,
+                    tab_name:type_dashboard_tables = tab.getAttribute("id") as type_dashboard_tables,
+                    module_map = {
+                        "devices": system.devices,
+                        "ports-application": network.ports_application,
+                        "processes": system.processes,
+                        "services": system.services,
+                        "sockets-application": network.sockets_application,
+                        "sockets-os": network.sockets_os,
+                        "users": system.users
+                    },
+                    module:module_list|module_ports_application|module_sockets_application = module_map[tab_name],
                     select:HTMLSelectElement = module.nodes.filter_column,
                     columnIndex:number = select.selectedIndex - 1,
                     list:HTMLCollectionOf<HTMLElement> = module.nodes.list.getElementsByTagName("tr"),
@@ -131,7 +130,7 @@ const dashboard = function dashboard():void {
                 }
             },
             // attaches event listeners to data tables and restores state
-            init: function dashboard_tablesInit(module:module_list|module_sockets_application):void {
+            init: function dashboard_tablesInit(module:module_list|module_ports_application|module_sockets_application):void {
                 const select = function dashboard_tablesSelect(table:HTMLElement, select:HTMLSelectElement):void {
                     const th:HTMLCollectionOf<HTMLElement> = table.getElementsByTagName("th"),
                         len:number = th.length;
@@ -166,7 +165,8 @@ const dashboard = function dashboard():void {
                 module.nodes.update_button.onclick = tables.update;
                 module.nodes.update_button.setAttribute("data-list", module.dataName);
                 select(module.nodes.list.parentNode, module.nodes.filter_column);
-                if (module.dataName === "sockets_application") {
+                if (module.dataName === "ports_application" || module.dataName === "sockets_application") {
+                    tables.filter(null, module.nodes.filter_value);
                     module.nodes.update_button.style.display = "none";
                 } else {
                     // @ts-expect-error - inferring types from an object fails
@@ -487,7 +487,7 @@ const dashboard = function dashboard():void {
                             p.appendChild(code);
                             p.style.display = "block";
                         }
-                    } else {
+                    } else if (str !== "" && str !== null) {
                         code.textContent = str;
                         p.appendChild(code);
                         p.style.display = "block";
@@ -669,6 +669,7 @@ const dashboard = function dashboard():void {
                         services.init();
                         system.os.init();
                         system.disks.init();
+                        tables.init(network.ports_application);
                         tables.init(network.sockets_application);
                         tables.init(network.sockets_os);
                         tables.init(system.devices);
@@ -761,6 +762,79 @@ const dashboard = function dashboard():void {
                     list: document.getElementById("interfaces").getElementsByClassName("item-list")[0] as HTMLElement,
                     update_button: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                     update_text: document.getElementById("interfaces").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
+                }
+            },
+            ports_application: {
+                dataName: "ports_application",
+                list: function dashboard_networkPortsApplicationList():void {
+                    const data:[number, "tcp"|"udp", "container"|"server", string, string][] = [],
+                        keys_container:string[] = Object.keys(payload.compose.containers),
+                        keys_servers:string[] = Object.keys(payload.servers);
+                    let index_item:number = keys_container.length,
+                        index_ports:number = 0,
+                        container:core_compose_container = null,
+                        server:server = null,
+                        tr:HTMLElement = null;
+                    if (index_item > 0) {
+                        do {
+                            index_item = index_item - 1;
+                            container = payload.compose.containers[keys_container[index_item]];
+                            index_ports = container.ports.length;
+                            if (index_ports > 0) {
+                                do {
+                                    index_ports = index_ports - 1;
+                                    data.push([container.ports[index_ports][0], container.ports[index_ports][1], "container", container.name, keys_container[index_item]]);
+                                } while (index_ports > 0);
+                            }
+                        } while (index_item > 0);
+                    }
+                    index_item = keys_servers.length;
+                    if (index_item > 0) {
+                        do {
+                            index_item = index_item - 1;
+                            server = payload.servers[keys_servers[index_item]];
+                            if (server.config.encryption === "both") {
+                                data.push([server.status.open, "tcp", "server", server.config.name, keys_servers[index_item]]);
+                                data.push([server.status.secure, "tcp", "server", server.config.name, keys_servers[index_item]]);
+                            } else {
+                                data.push([server.status[server.config.encryption], "tcp", "server", server.config.name, keys_servers[index_item]]);
+                            }
+                        } while (index_item > 0);
+                    }
+                    data.sort(function dashboard_networkPortsApplicationList_sort(a:[number, "tcp"|"udp", "container"|"server", string, string], b:[number, "tcp"|"udp", "container"|"server", string, string]):-1|1 {
+                        if (a[0] < b[0] || (a[0] === b[0] && a[1] < b[1])) {
+                            return -1;
+                        }
+                        return 1;
+                    });
+                    index_ports = data.length;
+                    index_item = 0;
+                    network.ports_application.nodes.list.textContent = "";
+                    if (index_ports > 0) {
+                        do {
+                            tr = document.createElement("tr");
+                            tables.cell(tr, data[index_item][0].toString(), null);
+                            tables.cell(tr, data[index_item][1], null);
+                            tables.cell(tr, data[index_item][2], null);
+                            tables.cell(tr, data[index_item][3], null);
+                            tables.cell(tr, data[index_item][4], null);
+                            tr.setAttribute("class", (index_item % 2 === 0) ? "even" : "odd");
+                            network.ports_application.nodes.list.appendChild(tr);
+                            index_item = index_item + 1;
+                        } while (index_item < index_ports);
+                    }
+                    network.ports_application.nodes.count.textContent = index_ports.toString();
+                    network.ports_application.nodes.update_text.textContent = Date.now().dateTime(true, payload.timeZone_offset);
+                },
+                nodes: {
+                    caseSensitive: document.getElementById("ports-application").getElementsByTagName("input")[1],
+                    count: document.getElementById("ports-application").getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("ports-application").getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("ports-application").getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("ports-application").getElementsByTagName("input")[0],
+                    list: document.getElementById("ports-application").getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("ports-application").getElementsByTagName("button")[0],
+                    update_text: document.getElementById("ports-application").getElementsByTagName("time")[0]
                 }
             },
             sockets_application: {
@@ -1163,6 +1237,7 @@ const dashboard = function dashboard():void {
                     services.compose_containers.nodes.update_containers.textContent = len_containers.toString();
                     services.compose_containers.nodes.update_variables.textContent = len_variables.toString();
                     services.compose_containers.nodes.update_time.textContent = data.time.dateTime(true, payload.timeZone_offset);
+                    network.ports_application.list();
                 },
                 nodes: {
                     body: document.getElementById("compose_containers").getElementsByClassName("compose-body")[0] as HTMLElement,
@@ -1280,6 +1355,7 @@ const dashboard = function dashboard():void {
                     list_old.parentNode.insertBefore(list_new, list_old);
                     list_old.parentNode.removeChild(list_old);
                     services.servers_web.nodes.list = list_new;
+                    network.ports_application.list();
                 },
                 message: function dashboard_serverMessage(event:MouseEvent):void {
                     const target:HTMLElement = event.target,

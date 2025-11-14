@@ -34,7 +34,7 @@
         </div>
         <div>
             <h3>Network</h3>
-            <ul><li><button data-section="interfaces">Interfaces</button></li><li><button data-section="sockets-application">App Sockets</button></li><li><button data-section="sockets-os">OS Sockets</button></li></ul>
+            <ul><li><button data-section="interfaces">Interfaces</button></li><li><button data-section="ports-application">App Ports</button></li><li><button data-section="sockets-application">App Sockets</button></li><li><button data-section="sockets-os">OS Sockets</button></li></ul>
         </div>
         <div>
             <h3>System</h3>
@@ -714,6 +714,35 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <li data-name="homedir"><strong>Home Directory</strong><span></span></li>
                     </ul>
                 </div>
+            </div>
+        </div>
+        <div class="tab" id="ports-application">
+            <h2>App Ports</h2>
+            <p class="tab-description">A list of ports listened upon by web servers and docker containers managed from this dashboard.</p>
+            <div class="table-filters">
+                <h3>List Controls</h3>
+                <p><label>Column(s) To Filter <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <p class="update-button"><button>Update List</button></p>
+            </div>
+            <div class="section">
+                <h3>Ports List</h3>
+                <div class="table-stats">
+                    <p><span>Total Sockets</span> <em></em></p>
+                    <p><span>Filtered Sockets</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
+                </div>
+                <table>
+                    <thead><tr>
+                        <th><button data-ir="1">Port</button></th>
+                        <th><button data-ir="1">Type</button></th>
+                        <th><button data-ir="1">Service</button></th>
+                        <th><button data-ir="1">Service Name</button></th>
+                        <th><button data-ir="1">Service Id</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
         <div class="tab" id="processes">
