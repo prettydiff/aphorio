@@ -8,6 +8,15 @@ import vars from "../core/vars.ts";
 // cspell: words opencontainers
 
 const docker:core_docker = {
+    commands: {
+        activate: " up --detach",
+        add: " up --detach",
+        deactivate: " stop",
+        destroy: " down",
+        list: " ps --format json",
+        modify: " stop",
+        update: ""
+    },
     list: function services_docker_list(callback:() => void):void {
         const complete = function services_docker_list_complete(message:string):void {
                 vars.compose.status = message;
@@ -150,7 +159,7 @@ const docker:core_docker = {
                 }
             };
             vars.compose.containers = {};
-            spawn(`${vars.commands.compose_empty} ${vars.docker.list}`, child).execute();
+            spawn(`${vars.commands.compose_empty} ${docker.commands.list}`, child).execute();
         } else {
             complete("Application must be executed with administrative privilege for Docker support.");
         }
@@ -161,9 +170,17 @@ const docker:core_docker = {
             docker.variables(socket_data.data as store_string, socket);
         } else if (socket_data.service === "dashboard-compose-container") {
             const data:services_compose_container = socket_data.data as services_compose_container,
-                compose_location:string = `${vars.commands.compose} -f ${data.location}`;
-            if (data.action === "activate" || data.action === "deactivate") {
-                spawn(compose_location + vars.docker[data.action], function services_docker_receive_spawn():void {
+                segment:string = data.compose.split("container_name")[1],
+                name:string = (segment === undefined)
+                    ? null
+                    : segment.split("\n")[0].trim(),
+                location:string = (data.action === "add" && name !== null)
+                    ? `${vars.path.compose + name}.yml`
+                    : data.location,
+                compose_location:string = `${vars.commands.compose} -f ${location}`,
+                command:string = `${compose_location + docker.commands[data.action]} --ansi never --env ${vars.path.compose}.env`;
+            if (data.action === "activate" || data.action === "deactivate" || data.action === "destroy") {
+                spawn(command, function services_docker_receive_spawn():void {
                     docker.list(function services_docker_receive_spawn_list():void {
                         send({
                             data: vars.compose,
@@ -172,10 +189,6 @@ const docker:core_docker = {
                     });
                 });
             } else if (data.action === "add") {
-                const segment:string = data.compose.split("container_name")[1],
-                    name:string = (segment === undefined)
-                        ? null
-                        : segment.split("\n")[0].trim();
                 if (name === null || name === "") {
                     log.application({
                         error: null,
@@ -185,11 +198,9 @@ const docker:core_docker = {
                         time: Date.now()
                     });
                 } else {
-                    const location:string = `${vars.path.compose + name}.yml`,
-                        compose_location:string = `${vars.commands.compose} -f ${location}`;
                     file.write({
                         callback: function services_docker_receive_add():void {
-                            spawn(compose_location + vars.docker.activate, function services_docker_receive_add_spawn():void {
+                            spawn(command, function services_docker_receive_add_spawn():void {
                                 docker.list(function services_docker_receive_add_spawn_list():void {
                                     send({
                                         data: vars.compose,
@@ -203,17 +214,6 @@ const docker:core_docker = {
                         section: "compose_containers"
                     });
                 }
-            } else if (data.action === "destroy") {
-                spawn(compose_location + vars.docker.deactivate, function services_docker_receive_deactivate():void {
-                    spawn(compose_location + vars.docker.destroy, function services_docker_receive_deactivate_destroy():void {
-                        docker.list(function services_docker_receive_deactivate_destroy_list():void {
-                            send({
-                                data: vars.compose,
-                                service: "dashboard-compose"
-                            }, socket, 3);
-                        });
-                    });
-                });
             } else if (data.action === "modify") {
                 const running:boolean = (vars.compose.containers[data.id].state === "running"),
                     list = function services_docker_receive_modifyList():void {
@@ -224,11 +224,11 @@ const docker:core_docker = {
                             }, socket, 3);
                         });
                     };
-                spawn(compose_location + vars.docker.deactivate, function services_docker_receive_modify():void {
+                spawn(command, function services_docker_receive_modify():void {
                     file.write({
                         callback: function services_docker_receive_modify_write():void {
                             if (running === true) {
-                                spawn(compose_location + vars.docker.activate, list);
+                                spawn(compose_location + docker.commands.activate, list);
                             } else {
                                 list();
                             }

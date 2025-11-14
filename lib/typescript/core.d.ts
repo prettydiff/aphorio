@@ -8,6 +8,16 @@ interface core_compose {
     variables: store_string;
 }
 
+interface core_compose_commands {
+    activate: string;
+    add: string;
+    deactivate: string;
+    destroy: string;
+    list: string;
+    modify: string;
+    update: string;
+}
+
 interface core_compose_container {
     compose: string;
     created: number;
@@ -108,6 +118,7 @@ interface core_server_os {
 }
 
 interface core_docker {
+    commands: core_compose_commands;
     list: (callback:() => void) => void;
     receive: (socket_data:socket_data, transmit:transmit_socket) => void;
     variables: (variables:store_string, socket:websocket_client) => void;
@@ -161,12 +172,6 @@ interface core_vars {
     };
     dashboard_id: string;
     dashboard_page: string;
-    docker: {
-        activate: string;
-        deactivate: string;
-        destroy: string;
-        list: string;
-    };
     environment: {
         date_commit: number;
         hash: string;

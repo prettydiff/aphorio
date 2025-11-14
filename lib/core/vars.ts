@@ -51,12 +51,6 @@ const vars:core_vars = {
         },
         dashboard_id: "",
         dashboard_page: "",
-        docker: {
-            activate: " up --detach",
-            deactivate: " down",
-            destroy: " rm",
-            list: " ps --format json"
-        },
         environment: {
             date_commit: 0,
             hash: ""

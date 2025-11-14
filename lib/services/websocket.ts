@@ -96,7 +96,7 @@ const websocket_test:websocket_test = {
                     proxy: null,
                     resource: null,
                     secure: data.encryption,
-                    server: "dashboard",
+                    server: vars.dashboard_id,
                     timeout: 0,
                     type: "websocket-test"
                 };

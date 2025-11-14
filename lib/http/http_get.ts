@@ -9,7 +9,7 @@ import node from "../core/node.ts";
 import socket_list from "../services/socket_list.ts";
 import vars from "../core/vars.ts";
 
-/* cspell: words msvideo, nofollow, onnection, prettydiff */
+/* cspell: words aphorio, msvideo, nofollow, onnection, prettydiff */
 
 const http_get:http_action = function http_get(headerList:string[], socket:websocket_client):void {
     let input:string = "";
@@ -46,12 +46,14 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     `HTTP/1.1 ${statusText}`,
                     `content-type: ${config.content_type}`,
                     "",
-                    "server: prettydiff/webserver",
+                    `server: ${vars.name}`,
                     "",
                     ""
                 ];
             if (config.template === true) {
-                const name:string = vars.servers[server_id].config.name,
+                const name:string = (server_id === vars.dashboard_id)
+                        ? `${vars.name.capitalize()} Dashboard`
+                        : vars.servers[server_id].config.name,
                     templateText:string[] = [
                         "<!doctype html>",
                         "<html lang=\"en\">",
@@ -295,10 +297,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
     if (server_id === vars.dashboard_id) {
-        const real_path:string = vars.path.project.replace(`test${vars.path.sep}`, "");
-        if (decoded.includes("xterm.css") === true) {
-            input = `${real_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`;
-        } else if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
+        if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {
                     compose: vars.compose,
@@ -323,7 +322,11 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     "",
                     ""
                 ];
-            write(headers.join("\r\n") + dashboard);
+            if (method === "GET") {
+                write(headers.join("\r\n") + dashboard);
+            } else if (method === "HEAD") {
+                write(headers.join("\r\n"));
+            }
             return;
         }
     } else if (fileFragment === "") {
