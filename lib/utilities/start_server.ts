@@ -121,6 +121,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         script = script.replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`).replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
                                     }
                                     vars.dashboard_page = fileContents.toString()
+                                        .replace("Server Management Dashboard", `${vars.name.capitalize()} Dashboard`)
                                         .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
                                         .replace("replace_javascript", `${xterm}const universal={commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
                                         .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
