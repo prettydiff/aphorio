@@ -1,8 +1,8 @@
 {
     "author": "Austin Cheney",
-    "bin": "./bin/webserver.js",
+    "bin": "./bin/aphorio.js",
     "bugs": {
-        "url": "https://github.com/prettydiff/webserver/issues"
+        "url": "https://github.com/prettydiff/aphorio/issues"
     },
     "command": "share",
     "comment":"cspell: words lydell, jschardet,",
@@ -29,10 +29,10 @@
     "keywords": [],
     "license": "AGPL-3.0-only",
     "main": "lib/index.ts",
-    "name": "webserver",
+    "name": "aphorio",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/prettydiff/webserver.git"
+        "url": "git+https://github.com/prettydiff/aphorio.git"
     },
     "scripts": {
         "lint":   "node ./node_modules/eslint/bin/eslint.js ./",

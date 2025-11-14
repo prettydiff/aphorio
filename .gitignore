@@ -5,4 +5,7 @@
 /compose/**
 /test
 !/compose/empty.yml
+!/node_modules/@lydell
+!/node_modules/@xterm
+!/node_modules/jschardet
 install.js
