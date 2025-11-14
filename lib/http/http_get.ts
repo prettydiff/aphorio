@@ -9,7 +9,7 @@ import node from "../core/node.ts";
 import socket_list from "../services/socket_list.ts";
 import vars from "../core/vars.ts";
 
-/* cspell: words aphorio, msvideo, nofollow, onnection, prettydiff */
+/* cspell: words msvideo, nofollow, onnection, prettydiff */
 
 const http_get:http_action = function http_get(headerList:string[], socket:websocket_client):void {
     let input:string = "";

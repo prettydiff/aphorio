@@ -1,6 +1,6 @@
 
 
-/* cspell: words appdata, aphorio, atupn, cputime, lslogins, pwsh, serv, volu */
+/* cspell: words appdata, atupn, cputime, lslogins, pwsh, serv, volu */
 
 const vars:core_vars = {
         commands: (function utilities_vars_commands():os_vars {

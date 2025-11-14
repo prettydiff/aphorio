@@ -5,7 +5,17 @@
         "url": "https://github.com/prettydiff/aphorio/issues"
     },
     "command": "share",
-    "comment":"cspell: words lydell, jschardet,",
+    "cspell": {
+        "dictionaryDefinitions": [
+            {
+                "name": "custom-words",
+                "path": "./.words",
+                "addWords": true
+            }
+        ],
+        "dictionaries": ["custom-words"],
+        "ignorePaths": ["node_modules", "./.words"]
+    },
     "description": "WebSocket first web server, HTTP over WebSockets.",
     "dependencies": {
         "@lydell/node-pty": "1.0.2",

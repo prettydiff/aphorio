@@ -1,4 +1,3 @@
-<!-- cspell: words aphorio -->
 
 # Aphorio
 A simple web based dashboard for the following features.

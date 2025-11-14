@@ -5,8 +5,6 @@ import vars from "../core/vars.ts";
 
 import { spawn } from "@lydell/node-pty";
 
-// cspell: words lydell
-
 const terminal:services_terminal = {
     resize: function services_terminalResize(socket_data:socket_data):void {
         const data:services_terminal_resize = socket_data.data as services_terminal_resize,
