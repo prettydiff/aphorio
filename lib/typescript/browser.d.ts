@@ -262,10 +262,10 @@ declare global {
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
-            list: HTMLElement;
             filter_column: HTMLSelectElement;
             filter_count: HTMLElement;
             filter_value: HTMLInputElement;
+            list: HTMLElement;
             update_button: HTMLElement;
             update_text: HTMLElement;
         };
@@ -274,6 +274,7 @@ declare global {
     interface module_remote {
         delay: (config:test_browserItem) => void;
         domFailure: boolean;
+        // eslint-disable-next-line max-params
         error: (message:string, source:string, line:number, col:number, error:Error) => void;
         evaluate: (test:test_assertion_dom) => test_assert;
         event: (item:services_testBrowser, pageLoad:boolean) => void;
@@ -314,6 +315,7 @@ declare global {
 
     interface module_sockets_application extends module_list {
         list: (socket_data:socket_data) => void;
+        update: () => void;
     }
 
     interface module_tables {

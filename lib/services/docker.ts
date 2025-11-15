@@ -200,7 +200,7 @@ const docker:core_docker = {
                 } else {
                     file.write({
                         callback: function services_docker_receive_add():void {
-                            spawn(command, function services_docker_receive_add_spawn(output:core_spawn_output):void {
+                            spawn(command, function services_docker_receive_add_spawn():void {
                                 docker.list(function services_docker_receive_add_spawn_list():void {
                                     send({
                                         data: vars.compose,

@@ -6,7 +6,7 @@ type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentE
 type type_certKey = "ca" | "crt" | "key";
 type type_dashboard_action = type_halt_action | "activate" | "add" | "update";
 type type_dashboard_list = "container" | "server";
-type type_dashboard_tables = "devices" | "ports-application" | "sockets-application" | "sockets-os" | "services" | "users";
+type type_dashboard_tables = "devices" | "ports-application" | "services" | "sockets-application" | "sockets-os" | "users";
 type type_dashboard_sections = type_dashboard_tables | "compose_containers" | "dns" | "faq" | "file-system" | "hash" | "help" | "http" | "interfaces" | "log" | "os" | "ports-application" | "processes" | "servers_web" | "storage" | "terminal" | "websocket";
 type type_dashboard_status = "error" | "informational";
 // type_directory_type

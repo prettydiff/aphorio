@@ -154,6 +154,10 @@ const vars:core_vars = {
         },
         servers: {},
         server_meta: {},
+        sockets: {
+            list: [],
+            time: 0
+        },
         start_time: process.hrtime.bigint(),
         terminal: (process.platform === "win32")
             ? [

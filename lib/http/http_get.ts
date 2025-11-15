@@ -6,7 +6,6 @@ import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import file_list from "../browser/file_list.ts";
 import node from "../core/node.ts";
-import socket_list from "../services/socket_list.ts";
 import vars from "../core/vars.ts";
 
 /* cspell: words msvideo, nofollow, onnection, prettydiff */
@@ -309,7 +308,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     os: vars.os,
                     path: vars.path,
                     servers: vars.servers,
-                    sockets: socket_list(),
+                    sockets: vars.sockets,
                     terminal: vars.terminal,
                     timeZone_offset: vars.timeZone_offset
                 },

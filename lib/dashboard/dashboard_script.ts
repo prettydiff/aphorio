@@ -61,7 +61,7 @@ const dashboard = function dashboard():void {
                 const section:HTMLElement = target.getAncestor("table-filters", "class"),
                     tab:HTMLElement = section.getAncestor("tab", "class"),
                     tab_name:type_dashboard_tables = tab.getAttribute("id") as type_dashboard_tables,
-                    module_map = {
+                    module_map:store_module_map = {
                         "devices": system.devices,
                         "ports-application": network.ports_application,
                         "processes": system.processes,
@@ -162,13 +162,15 @@ const dashboard = function dashboard():void {
                 module.nodes.caseSensitive.onclick = utility.setState;
                 module.nodes.filter_value.onblur = tables.filter;
                 module.nodes.filter_value.onkeyup = tables.filter;
-                module.nodes.update_button.onclick = tables.update;
-                module.nodes.update_button.setAttribute("data-list", module.dataName);
                 select(module.nodes.list.parentNode, module.nodes.filter_column);
-                if (module.dataName === "ports_application" || module.dataName === "sockets_application") {
+                if (module.dataName === "ports_application") {
                     tables.filter(null, module.nodes.filter_value);
-                    module.nodes.update_button.style.display = "none";
+                } else if (module.dataName === "sockets_application") {
+                    tables.filter(null, module.nodes.filter_value);
+                    module.nodes.update_button.onclick = network.sockets_application.update;
                 } else {
+                    module.nodes.update_button.onclick = tables.update;
+                    module.nodes.update_button.setAttribute("data-list", module.dataName);
                     // @ts-expect-error - inferring types from an object fails
                     tables.populate(module, payload.os[module.dataName as type_list_services]);
                 }
@@ -887,7 +889,10 @@ const dashboard = function dashboard():void {
                     update_text: document.getElementById("sockets-application").getElementsByTagName("time")[0]
                 },
                 row: null,
-                sort_name: ["server", "type", "role", "name"]
+                sort_name: ["server", "type", "role", "name"],
+                update: function dashboard_networkSocketApplicationUpdate():void {
+                    utility.message_send(null, "dashboard-socket-application");
+                }
             },
             sockets_os: {
                 dataName: "sock",
