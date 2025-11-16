@@ -117,15 +117,31 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
             kill_sockets(vars.server_meta[id].sockets[encryption]);
         }
         if (data.action === "destroy" || data.action === "modify") {
-            // 2. modify the servers.json file
-            const config:core_servers_file = {
-                "compose-variables": vars.compose.variables,
-                dashboard_id: vars.dashboard_id,
-                servers: {}
+            const modify_file = function servers_serverHalt_modifyFile():void {
+                // 2. modify the servers.json file
+                const config:core_servers_file = {
+                    "compose-variables": vars.compose.variables,
+                    dashboard_id: vars.dashboard_id,
+                    servers: {}
+                };
+                let index:number = 0,
+                    keys:string[] = [],
+                    total:number = 0;
+                keys = Object.keys(vars.servers);
+                total = keys.length;
+                if (total > 0) {
+                    do {
+                        config.servers[keys[index]] = vars.servers[keys[index]].config;
+                        index = index + 1;
+                    } while (index < total);
+                }
+                file.write({
+                    callback: write_callback,
+                    contents: JSON.stringify(config),
+                    location: path_config,
+                    section: "servers_web"
+                });
             };
-            let index:number = 0,
-                keys:string[] = [],
-                total:number = 0;
             if (data.action === "modify") {
                 vars.servers[id] = {
                     config: data.server,
@@ -135,24 +151,17 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                         secure: 0
                     }
                 };
+                modify_file();
             } else {
                 delete vars.servers[id];
                 delete vars.server_meta[id];
+                file.remove({
+                    callback: modify_file,
+                    exclusions: null,
+                    location: vars.path.servers + id,
+                    section: "servers_web"
+                });
             }
-            keys = Object.keys(vars.servers);
-            total = keys.length;
-            if (total > 0) {
-                do {
-                    config.servers[keys[index]] = vars.servers[keys[index]].config;
-                    index = index + 1;
-                } while (index < total);
-            }
-            file.write({
-                callback: write_callback,
-                contents: JSON.stringify(config),
-                location: path_config,
-                section: "servers_web"
-            });
         } else {
             write_callback();
         }

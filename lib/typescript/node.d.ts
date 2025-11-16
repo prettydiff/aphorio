@@ -1,5 +1,5 @@
 
-// cspell: words lydell, RSAPSS
+// cspell: words RSAPSS
 import { ChildProcess, ExecException, ExecOptions, SpawnOptions } from "node:child_process";
 import { ECDH, Hash, KeyObject, RSAKeyPairOptions } from "node:crypto";
 import { AnyRecord, MxRecord, NaptrRecord, SoaRecord, SrvRecord } from "node:dns";

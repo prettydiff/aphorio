@@ -6,8 +6,6 @@ import vars from "../core/vars.ts";
 
 import { detectAll } from "jschardet";
 
-// cspell: words jschardet
-
 const fileSystem = function services_fileSystem(socket_data:socket_data, transmit:transmit_socket):void {
     let parent:type_directory_item = null,
         failures:string[] = [],

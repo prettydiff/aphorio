@@ -4,8 +4,8 @@ import message_handler from "./messageHandler.ts";
 import receiver from "./receiver.ts";
 import send from "./send.ts";
 import server_halt from "../services/server_halt.ts";
-import socket_end from "./socketEnd.ts";
-import socket_list from "../services/socket_list.ts";
+import socket_end from "./socket_end.ts";
+import socket_list_build from "./socket_list_build.ts";
 import vars from "../core/vars.ts";
 
 const socket_extension = function transmit_socketExtension(config:config_websocket_extensions):void {
@@ -106,10 +106,9 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         if (config.callback !== null && config.callback !== undefined) {
             config.callback(config.socket, config.timeout);
         }
-        socket_list(function transmit_socketExtension_socketList():void {
-            vars.server_meta[config.server].sockets[encryption].push(config.socket);
-            vars.servers[config.server].sockets.push(socket);
-        });
+        vars.server_meta[config.server].sockets[encryption].push(config.socket);
+        vars.servers[config.server].sockets.push(socket);
+        socket_list_build();
         log.application(log_config);
     }
 };

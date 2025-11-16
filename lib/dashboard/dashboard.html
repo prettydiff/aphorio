@@ -1,7 +1,7 @@
 
 <!doctype html>
 <html lang="en">
-    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, IRSSI, keyrings, jellyfin, journalctl, libcap, lydell, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, setgid, setuid, uptimeimages, webserver, winget -->
+    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, IRSSI, keyrings, jellyfin, journalctl, libcap, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, setgid, setuid, uptimeimages, winget -->
 <head>
 <meta charset="utf-8"/>
 <title>Server Management Dashboard</title>
@@ -34,7 +34,7 @@
         </div>
         <div>
             <h3>Network</h3>
-            <ul><li><button data-section="interfaces">Interfaces</button></li><li><button data-section="sockets-application">App Sockets</button></li><li><button data-section="sockets-os">OS Sockets</button></li></ul>
+            <ul><li><button data-section="interfaces">Interfaces</button></li><li><button data-section="ports-application">App Ports</button></li><li><button data-section="sockets-application">App Sockets</button></li><li><button data-section="sockets-os">OS Sockets</button></li></ul>
         </div>
         <div>
             <h3>System</h3>
@@ -716,6 +716,34 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
         </div>
+        <div class="tab" id="ports-application">
+            <h2>App Ports</h2>
+            <p class="tab-description">A list of ports listened upon by web servers and docker containers managed from this dashboard.</p>
+            <div class="table-filters">
+                <h3>List Controls</h3>
+                <p><label>Column(s) To Filter <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+            </div>
+            <div class="section">
+                <h3>Ports List</h3>
+                <div class="table-stats">
+                    <p><span>Total Sockets</span> <em></em></p>
+                    <p><span>Filtered Sockets</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
+                </div>
+                <table>
+                    <thead><tr>
+                        <th><button data-ir="1">Port</button></th>
+                        <th><button data-ir="1">Type</button></th>
+                        <th><button data-ir="1">Service</button></th>
+                        <th><button data-ir="1">Service Name</button></th>
+                        <th><button data-ir="1">Service Id</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
         <div class="tab" id="processes">
             <h2>Processes</h2>
             <p class="tab-description">A list of processes running in the local operating system. Data automatically refreshes at server's midnight time.</p>
@@ -857,7 +885,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         </div>
         <div class="tab" id="sockets-application">
             <h2>App Sockets</h2>
-            <p class="tab-description">A list created by this application. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time.</p>
+            <p class="tab-description">A list of sockets created by this application. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time. Local address and port are from the perspective of the application server. Remote address and port could represent the local web browser.</p>
             <div class="table-filters">
                 <h4>List Controls</h4>
                 <p><label>Column(s) To Filter <select></select></label></p>
@@ -866,7 +894,6 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
             <div class="section">
                 <h4>Socket List</h4>
-                <p>Local address and port are from the perspective of the application server. Remote address and port could represent the local web browser.</p>
                 <div class="table-stats">
                     <p class="update-button"><button>Update List</button></p>
                     <p><span>Total Sockets</span> <em></em></p>

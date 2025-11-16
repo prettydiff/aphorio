@@ -1,6 +1,5 @@
-<!-- cspell: words webserver -->
 
-# Web Server
+# Aphorio
 A simple web based dashboard for the following features.
 
 * Web Servers
@@ -8,8 +7,8 @@ A simple web based dashboard for the following features.
   - Server standup via small JSON configuration, which includes optional proxies and traffic redirection
   - Simple and yet more powerful file system navigation via web server
   - Servers include an optional *temporary* option to spin up servers with no state information
-* Provides primitive docker container management for Docker Compose files
-* Provides server management data for:
+* Docker Compose container management
+* OS Data dashboards:
   - Accounts for system and users
   - Network interfaces
   - Network sockets and ports
@@ -17,9 +16,9 @@ A simple web based dashboard for the following features.
   - OS services
   - Processes
   - Storage hardware and partition data
-* Provides remote shell access for a variety of shells executing on the server
+* Provides remote shell access, via browser based dashboard, for a variety of shells executing on the server
 * Graphical file system navigation for the server
-* Provides various network testing tools:
+* Network testing tools:
   - Forward and reverse DNS lookup for up to 11 record types
   - HTTP request tester with complete raw payload inspection for both requests and responses
   - WebSocket tester with raw frame header inspection/editing
@@ -28,17 +27,18 @@ A simple web based dashboard for the following features.
 ## Installation
 1. Install [Node.js](https://nodejs.org/) version 24 or later.
 2. Install [git](https://git-scm.com/)
-3. Execute `git clone https://github.com/prettydiff/webserver.git`
-4. Execute `cd webserver`
-5. Execute `npm install`
+3. Execute `git clone https://github.com/prettydiff/aphorio.git`
+4. Execute `cd aphorio`
 7. Run the application: `npm run server`.
 6. Access the dashboard in a browser on the specified random port.
 
 ## Shell commands
 * `npm run lint` - Executes ESLint for TypeScript to analyze the application against a bunch of draconian rules
-* `npm run server` or `node ./list/index.ts` - Executes the application
-* `npm run test` or  `node ./list/index.ts test` - Runs the test automation
+* `npm run server` or `node ./lib/index.ts` - Executes the application
+* `npm run test` or  `node ./lib/index.ts test` - Runs the test automation
 * `npm run tsc` - Executes the TypeScript compiler to perform explicit type checking
+
+Please note that for Docker support the `npm run server` command must be executed using an administrative account and/or shell.
 
 ### Supported shell command arguments
 All arguments are supported only on the server command, example: `npm run server test no-color`

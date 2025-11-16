@@ -1,11 +1,21 @@
 {
     "author": "Austin Cheney",
-    "bin": "./bin/webserver.js",
+    "bin": "./bin/aphorio.js",
     "bugs": {
-        "url": "https://github.com/prettydiff/webserver/issues"
+        "url": "https://github.com/prettydiff/aphorio/issues"
     },
     "command": "share",
-    "comment":"cspell: words lydell, jschardet,",
+    "cspell": {
+        "dictionaryDefinitions": [
+            {
+                "name": "custom-words",
+                "path": "./.words",
+                "addWords": true
+            }
+        ],
+        "dictionaries": ["custom-words"],
+        "ignorePaths": ["node_modules", "./.words"]
+    },
     "description": "WebSocket first web server, HTTP over WebSockets.",
     "dependencies": {
         "@lydell/node-pty": "1.0.2",
@@ -29,10 +39,10 @@
     "keywords": [],
     "license": "AGPL-3.0-only",
     "main": "lib/index.ts",
-    "name": "webserver",
+    "name": "aphorio",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/prettydiff/webserver.git"
+        "url": "git+https://github.com/prettydiff/aphorio.git"
     },
     "scripts": {
         "lint":   "node ./node_modules/eslint/bin/eslint.js ./",

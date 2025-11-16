@@ -186,6 +186,7 @@ interface core_vars {
     path: vars_path;
     server_meta: server_meta;
     servers: store_servers;
+    sockets: services_socket_application;
     start_time: bigint;
     terminal: string[];
     test: {
@@ -342,6 +343,10 @@ interface store_flag {
 
 interface store_function {
     [key:string]: () => void;
+}
+
+interface store_module_map {
+    [key:string]: module_list | module_ports_application | module_sockets_application;
 }
 
 interface store_number {

@@ -256,9 +256,25 @@ declare global {
         versions: HTMLElement;
     }
 
+    interface module_ports_application {
+        dataName: string;
+        list: () => void;
+        nodes: {
+            caseSensitive: HTMLInputElement;
+            count: HTMLElement;
+            filter_column: HTMLSelectElement;
+            filter_count: HTMLElement;
+            filter_value: HTMLInputElement;
+            list: HTMLElement;
+            update_button: HTMLElement;
+            update_text: HTMLElement;
+        };
+    }
+
     interface module_remote {
         delay: (config:test_browserItem) => void;
         domFailure: boolean;
+        // eslint-disable-next-line max-params
         error: (message:string, source:string, line:number, col:number, error:Error) => void;
         evaluate: (test:test_assertion_dom) => test_assert;
         event: (item:services_testBrowser, pageLoad:boolean) => void;
@@ -299,12 +315,13 @@ declare global {
 
     interface module_sockets_application extends module_list {
         list: (socket_data:socket_data) => void;
+        update: () => void;
     }
 
     interface module_tables {
         cell: (tr:HTMLElement, text:string, raw:string) => void;
         filter: (event:Event, target?:HTMLInputElement) => void;
-        init: (module:module_list|module_sockets_application) => void;
+        init: (module:module_list|module_ports_application|module_sockets_application) => void;
         populate: (module:module_list, item:type_list_services) => void;
         sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
         update: (event:MouseEvent) => void;
@@ -390,6 +407,7 @@ declare global {
 
     interface structure_network {
         interfaces: module_interfaces;
+        ports_application: module_ports_application;
         sockets_application: module_sockets_application;
         sockets_os: module_list;
     }
