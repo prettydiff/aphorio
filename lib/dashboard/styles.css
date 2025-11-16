@@ -220,6 +220,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     #compose_containers{
         textarea.compose-variables-edit{height:10em}
         .compose-variable-list{
+            padding:0;
             li{background:var(--background_textarea);padding:1em}
             strong{border-color:var(--text);border-style:none solid none none;border-width:0 0.065em 0 0;display:inline-block;margin:0 1.5em 0 0;width:10em}
         }
@@ -353,7 +354,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     }
     p.update-button:first-child{margin-top:0}
     select{display:block}
-    table{border-collapse:collapse;margin:0 0 4em}
+    table{border-collapse:collapse;margin:0}
     textarea{
         background:var(--background_textarea);border-color:var(--textarea_border);border-style:solid;border-width:0.065em;box-shadow:0 0 0.1em var(--black);color:var(--text);height:35em;overflow:scroll;
         &.short{height:6em}
