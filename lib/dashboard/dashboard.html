@@ -803,14 +803,14 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         File system paths to external utilities for handling the supported HTTP methods: <em>delete</em>, <em>post</em>, and <em>put</em>.
                         HTTP request bodies are passed into an environmental variable on the respective child process named 'payload'.
                     </p></dd>
+                    <dt><em>id</em> (string)</dt>
+                    <dd><p>A dynamically assigned identifier. The application creates this value and it cannot be modified.</p></dd>
                     <dt><em>name</em> (string)</dt>
                     <dd><p>
-                        The name of this server.
+                        The human readable name of this server.
                     </p></dd>
                     <dt><em>ports</em> (object)</dt>
-                    <dd><p>
-                        The ports on which the server operates.
-                    </p></dd>
+                    <dd><p>The ports on which the server operates.</p></dd>
                     <dt><em>redirect_asset</em> (object)</dt>
                     <dd><p>
                         Redirects resource paths of HTTP requests within the given server based upon the hostname in the HTTP request header.
@@ -913,6 +913,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <th><button data-dir="1">Local Server Port</button></th>
                         <th><button data-dir="1">Remote IP</button></th>
                         <th><button data-dir="1">Remote Port</button></th>
+                        <th><button data-dir="1">User Agent</button></th>
                     </tr></thead>
                     <tbody></tbody>
                 </table>

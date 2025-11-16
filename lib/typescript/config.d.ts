@@ -162,6 +162,7 @@ interface config_websocket_extensions {
     temporary: boolean;
     timeout: bigint;
     type: string;
+    userAgent: string;
 }
 
 interface config_websocket_server {

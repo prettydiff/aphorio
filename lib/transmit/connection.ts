@@ -20,7 +20,8 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                 domain:string = "",
                 key:string = "",
                 referer:boolean = null,
-                type:string = "";
+                type:string = "",
+                userAgent:string = "";
             // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
             const socket:websocket_client = this,
                 dataString:string = data.toString("utf-8"),
@@ -29,7 +30,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                     ? dataString.replace(/^\s+/, "").slice(0, headerIndex)
                     : dataString.replace(/^\s+/, ""),
                 headerList:string[] = headerString.split("\r\n"),
-                testNonce:RegExp = (/^Sec-WebSocket-Protocol:\s*/),
+                testNonce:RegExp = (/^sec-websocket-protocol:\s*/),
                 single_socket:boolean = (server.single_socket === true),
                 temporary:boolean = (server.temporary === true),
                 address:transmit_addresses_socket = get_address(socket),
@@ -68,15 +69,22 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                     }
                 },
                 headerEach = function transmit_connection_handshake_headerEach(header:string, arrIndex:number, arr:string[]):void {
-                    if (header.indexOf("Sec-WebSocket-Key") === 0) {
-                        key = header.slice(header.indexOf("-Key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-                    } else if (header.toLowerCase().indexOf("host:") === 0) {
+                    const lower:string = header.toLowerCase();
+                    if (lower.indexOf("sec-websocket-key") === 0) {
+                        key = header.slice(lower.indexOf("-key:") + 5).replace(/\s/g, "") + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+                    } else if (lower.indexOf("host:") === 0) {
                         get_domain(header, arrIndex, arr);
-                    } else if (header.toLowerCase().indexOf("referer:") === 0) {
+                    } else if (lower.indexOf("referer:") === 0) {
                         get_referer(header);
-                    } else if (testNonce.test(header) === true) {
+                    } else if (testNonce.test(lower) === true) {
                         nonceHeader = header;
-                        type = header.replace(testNonce, "");
+                        type = lower.replace(testNonce, "");
+                    } else if (lower.indexOf("user-agent:") === 0) {
+                        const ua:[string, string] = ["", ""];
+                        userAgent = header.slice(header.indexOf(":") + 1).replace(/^\s+/, "");
+                        ua[0] = userAgent.slice(userAgent.indexOf("(") + 1, userAgent.indexOf(";"));
+                        ua[1] = userAgent.split(" ").pop();
+                        userAgent = `${ua[0]}, ${ua[1]}`;
                     }
                 },
                 redirection = function transmit_connection_handshake_redirection():Buffer {
@@ -124,6 +132,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                     data = (redirect === null)
                         ? data
                         : redirect;
+                    // http
                     if (key === "") {
                         const http_action = function transmit_connection_handshake_localService_httpAction():void {
                             const method:type_http_method = headerList[0].slice(0, headerList[0].indexOf(" ")).toLowerCase() as type_http_method;
@@ -166,8 +175,10 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                             socket: socket,
                             temporary: temporary,
                             timeout: null,
-                            type: "http"
+                            type: "http",
+                            userAgent: userAgent
                         });
+                    // websocket
                     } else {
                         // local domain websocket support
                         const callback = function transmit_connection_handshake_hash(hashOutput:hash_output):void {
@@ -232,7 +243,8 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                 socket: socket,
                                 temporary: temporary,
                                 timeout: null,
-                                type: type
+                                type: type,
+                                userAgent: userAgent
                             });
                         };
                         hash({
@@ -317,7 +329,8 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                             socket: socket,
                             temporary: false,
                             timeout: null,
-                            type: "relay"
+                            type: "relay",
+                            userAgent: userAgent
                         });
                         proxy.addresses = get_address(proxy);
                         // proxy socket
@@ -332,7 +345,8 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                             socket: proxy,
                             temporary: false,
                             timeout: null,
-                            type: "proxy"
+                            type: "proxy",
+                            userAgent: userAgent
                         });
                     });
                 },

@@ -83,6 +83,7 @@ interface websocket_client extends node_tls_TLSSocket {
     server: string;
     status: type_socket_status;
     type: string;
+    userAgent: string;
 }
 
 interface websocket_pty extends websocket_client {

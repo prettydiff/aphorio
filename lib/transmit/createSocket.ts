@@ -3,6 +3,7 @@ import get_address from "../core/get_address.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import socket_extension from "./socketExtension.ts";
+import vars from "../core/vars.ts";
 
 const create_socket = function transmit_createSocket(config:config_websocket_create):void {
     let startTime:bigint = null;
@@ -80,7 +81,8 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     socket: client,
                     temporary: false,
                     timeout: startTime,
-                    type: config.type
+                    type: config.type,
+                    userAgent: `${vars.os.os.type}, ${vars.name.capitalize()} Client Socket`
                 });
             });
         },

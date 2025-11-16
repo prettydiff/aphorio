@@ -9,7 +9,7 @@ const dashboard = function dashboard():void {
         section:type_dashboard_sections = "servers_web";
     const payload:transmit_dashboard = null,
         local:string = localStorage.state,
-        state:state_store = (local === undefined || local === null)
+        state:state_store = (local === undefined || local === null || local === "")
             ? {
                 dns: {
                     hosts: "",
@@ -2056,6 +2056,7 @@ const dashboard = function dashboard():void {
                         cell(String(config.list[index].address.local.port), null);
                         cell(config.list[index].address.remote.address, null);
                         cell(String(config.list[index].address.remote.port), null);
+                        cell(config.list[index].userAgent, null);
                         tbody.appendChild(tr);
                         index = index + 1;
                     } while (index < len);
@@ -3592,7 +3593,10 @@ const dashboard = function dashboard():void {
             navigation = function dashboard_navigation(event:MouseEvent):void {
                 const target:HTMLElement = event.target;
                 let index:number = sections.length;
-                section = target.getAttribute("data-section") as type_dashboard_sections;
+                section = target.dataset.section as type_dashboard_sections;
+                if (document.getElementById(section) === null) {
+                    section = "servers_web";
+                }
                 do {
                     index = index - 1;
                     document.getElementById(sections[index]).style.display = "none";
@@ -3603,7 +3607,7 @@ const dashboard = function dashboard():void {
                     navButtons[index].removeAttribute("class");
                 } while (index > 0);
                 document.getElementById(section).style.display = "block";
-                state.nav = target.dataset.section;
+                state.nav = section;
                 tools.terminal.events.resize();
                 utility.setState();
                 target.setAttribute("class", "nav-focus");
@@ -3614,7 +3618,7 @@ const dashboard = function dashboard():void {
                 let index:number = navButtons.length;
                 do {
                     index = index - 1;
-                    output.push(navButtons[index].getAttribute("data-section"));
+                    output.push(navButtons[index].dataset.section);
                     navButtons[index].onclick = navigation;
                 } while (index > 0);
                 return output;
@@ -3684,7 +3688,7 @@ const dashboard = function dashboard():void {
         }
 
         // set active tab from state
-        if (state.nav !== "servers_web") {
+        if (state.nav !== "servers_web" && document.getElementById(state.nav) !== null) {
             index = navButtons.length;
             do {
                 index = index - 1;
