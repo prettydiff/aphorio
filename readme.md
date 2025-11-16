@@ -38,6 +38,8 @@ A simple web based dashboard for the following features.
 * `npm run test` or  `node ./lib/index.ts test` - Runs the test automation
 * `npm run tsc` - Executes the TypeScript compiler to perform explicit type checking
 
+Please note that for Docker support the `npm run server` command must be executed using an administrative account and/or shell.
+
 ### Supported shell command arguments
 All arguments are supported only on the server command, example: `npm run server test no-color`
 
