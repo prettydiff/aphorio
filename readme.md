@@ -34,8 +34,8 @@ A simple web based dashboard for the following features.
 
 ## Shell commands
 * `npm run lint` - Executes ESLint for TypeScript to analyze the application against a bunch of draconian rules
-* `npm run server` or `node ./list/index.ts` - Executes the application
-* `npm run test` or  `node ./list/index.ts test` - Runs the test automation
+* `npm run server` or `node ./lib/index.ts` - Executes the application
+* `npm run test` or  `node ./lib/index.ts test` - Runs the test automation
 * `npm run tsc` - Executes the TypeScript compiler to perform explicit type checking
 
 ### Supported shell command arguments
