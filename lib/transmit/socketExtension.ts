@@ -52,7 +52,8 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 role: config.role,
                 server_id: config.server,
                 server_name: vars.servers[config.server].config.name,
-                type: config.type
+                type: config.type,
+                userAgent: config.userAgent
             },
             log_config:config_log = {
                 error: null,
@@ -61,10 +62,11 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 status: "informational",
                 time: Date.now()
             };
-        config.socket.server = config.server;     // identifies which local server the given socket is connected to
-        config.socket.hash = config.identifier;   // assigns a unique identifier to the socket based upon the socket's credentials
-        config.socket.role = config.role;         // assigns socket creation location
-        config.socket.type = config.type;         // a classification identifier to functionally identify a common utility of sockets on a given server
+        config.socket.server = config.server;      // identifies which local server the given socket is connected to
+        config.socket.hash = config.identifier;    // assigns a unique identifier to the socket based upon the socket's credentials
+        config.socket.role = config.role;          // assigns socket creation location
+        config.socket.type = config.type;          // a classification identifier to functionally identify a common utility of sockets on a given server
+        config.socket.userAgent = config.userAgent // Attemps to describe the socket by originating OS and browser name/version
         if (config.type === "websocket-test" || config.proxy === null) {
             config.socket.handler = (config.handler === message_handler.default)
                 ? (message_handler[config.server] === undefined)
@@ -80,7 +82,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 config.socket.pong = {};                  // stores termination times and callbacks for pong handling
                 config.socket.queue = [];                 // stores messages for transmit, because websocket protocol cannot intermix messages
             }
-            config.socket.status = "open";            // sets the status flag for the socket
+            config.socket.status = "open"; // sets the status flag for the socket
             if (config.single_socket === true) {
                 const death = function transmit_socketExtension_death():void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax

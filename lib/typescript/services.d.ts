@@ -200,6 +200,7 @@ interface services_socket_application_item {
     server_id: string;
     server_name: string;
     type: string;
+    userAgent: string;
 }
 
 interface services_terminal {

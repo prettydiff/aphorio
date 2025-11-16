@@ -2056,6 +2056,7 @@ const dashboard = function dashboard():void {
                         cell(String(config.list[index].address.local.port), null);
                         cell(config.list[index].address.remote.address, null);
                         cell(String(config.list[index].address.remote.port), null);
+                        cell(config.list[index].userAgent, null);
                         tbody.appendChild(tr);
                         index = index + 1;
                     } while (index < len);
