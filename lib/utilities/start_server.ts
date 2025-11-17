@@ -36,6 +36,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             test_browser: "Finds a designed web browser for test automation if supplied as a terminal argument.",
             test_list: null
         },
+        no_terminal:boolean = (process.argv.includes("no-terminal") === true),
         prerequisite_tasks:store_function = {
             admin: function utilities_startServer_admin():void {
                 spawn(vars.commands.admin_check, function utilities_startServer_admin_callback(output:core_spawn_output):void {
@@ -114,13 +115,20 @@ const start_server = function utilities_startServer(process_path:string, testing
                         if (flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
                             file.read({
                                 callback: function utilities_startServer_taskHTML_readXterm_readHTML(fileContents:Buffer):void {
-                                    const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, "");
+                                    const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
+                                        term_end:string = "<!-- terminal end -->",
+                                        term_start:string = "<!-- terminal start -->";
                                     let script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
                                     if (testing === true) {
                                         const testBrowser:string = test_browser.toString().replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
                                         script = script.replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`).replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
                                     }
-                                    vars.dashboard_page = fileContents.toString()
+                                    vars.dashboard_page = fileContents.toString();
+                                    if (no_terminal === true) {
+                                        vars.dashboard_page = vars.dashboard_page.slice(0, vars.dashboard_page.indexOf(term_start)) + vars.dashboard_page.slice(vars.dashboard_page.indexOf(term_end) + term_end.length);
+                                        vars.dashboard_page = vars.dashboard_page.replace("<li><button data-section=\"terminal\">Terminal</button></li>", "");
+                                    }
+                                    vars.dashboard_page = vars.dashboard_page
                                         .replace("Server Management Dashboard", `${vars.name.capitalize()} Dashboard`)
                                         .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
                                         .replace("replace_javascript", `${xterm}const universal={commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
@@ -150,49 +158,31 @@ const start_server = function utilities_startServer(process_path:string, testing
                         flags.css = true;
                         complete();
                     };
+                if (no_terminal === true) {
+                    flags.xterm_css = true;
+                    flags.xterm_js = true;
+                    xterm_js = "";
+                    xterm_css = "";
+                } else {
+                    file.read({
+                        callback: readXtermCSS,
+                        location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`,
+                        no_file: null,
+                        section: "startup"
+                    });
+                    file.read({
+                        callback: readXtermJS,
+                        location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}lib${vars.path.sep}xterm.js`,
+                        no_file: null,
+                        section: "startup"
+                    });
+                }
                 file.read({
                     callback: readCSS,
                     location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
                     no_file: null,
                     section: "startup"
                 });
-                file.read({
-                    callback: readXtermCSS,
-                    location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`,
-                    no_file: null,
-                    section: "startup"
-                });
-                file.read({
-                    callback: readXtermJS,
-                    location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}lib${vars.path.sep}xterm.js`,
-                    no_file: null,
-                    section: "startup"
-                });
-            },
-            options: function utilities_startServer_taskOptions():void {
-                const callback = function utilities_startServer_taskOptions_callback(key:"no_color", iterate:string):void {
-                    const argv:number = process.argv.indexOf(key);
-                    if (argv > -1) {
-                        process.argv.splice(argv, 1);
-                        if (iterate !== null) {
-                            const store:store_string = vars[iterate as "text"],
-                                keys:string[] = Object.keys(store);
-                            let index:number = keys.length;
-                            do {
-                                index = index - 1;
-                                if (iterate === "text") {
-                                    store[keys[index]] = "";
-                                }
-                            } while (index > 0);
-                            complete_tasks("options", "task");
-                        } else {
-                            complete_tasks("options", "task");
-                        }
-                    } else {
-                        complete_tasks("options", "task");
-                    }
-                };
-                callback("no_color", "text");
             },
             os_devs: function utilities_startServer_taskOSDevs():void {
                 const callback = function utilities_startServer_taskOSDevs_callback():void {
@@ -334,66 +324,53 @@ const start_server = function utilities_startServer(process_path:string, testing
                 complete_tasks(property, "task");
             } else {
                 const get_value = function utilities_startServer_testStat_getValue(arg:"browser"|"list"):void {
-                        let address:string = process.argv[index_browser].replace(`${arg}:`, "");
-                        const address_length:number = address.length,
-                            stat_address:string = (property === "test_list")
-                                ? `${process_path}lib${vars.path.sep}test${vars.path.sep + address.replace(/^\.?(\/|\\)/, "")}`
-                                : address,
-                            stat_browser = function utilities_startServer_testStat_stat(err:node_error, details:node_fs_Stats):void {
-                                if (err === null && details !== null && details !== undefined) {
-                                    if (arg === "browser" && vars.test.browser_args.length > 0) {
-                                        task_definitions.test_browser = `Testing file found for ${arg}: ${vars.text.green + address.replace(/\\\\/g, "\\")} ${vars.test.browser_args.join(" ")} ${vars.text.none}`;
-                                    } else {
-                                        task_definitions[property] = `Testing file found for ${arg}: ${vars.text.green + address.replace(/\\\\/g, "\\") + vars.text.none}`;
-                                    }
+                    let address:string = vars.options[arg];
+                    const address_length:number = address.length,
+                        stat_address:string = (property === "test_list")
+                            ? `${process_path}lib${vars.path.sep}test${vars.path.sep + address.replace(/^\.?(\/|\\)/, "")}`
+                            : address,
+                        stat_browser = function utilities_startServer_testStat_stat(err:node_error, details:node_fs_Stats):void {
+                            if (err === null && details !== null && details !== undefined) {
+                                if (arg === "browser" && vars.test.browser_args.length > 0) {
+                                    task_definitions.test_browser = `Testing file found for ${arg}: ${vars.text.green + address.replace(/\\\\/g, "\\")} ${vars.test.browser_args.join(" ")} ${vars.text.none}`;
                                 } else {
-                                    task_definitions[property] = `Testing file ${vars.text.angry}not${vars.text.none} found for: ${vars.text.red + address.replace(/\\\\/g, "\\") + vars.text.none}`;
+                                    task_definitions[property] = `Testing file found for ${arg}: ${vars.text.green + address.replace(/\\\\/g, "\\") + vars.text.none}`;
                                 }
-                                if (property === "test_browser") {
-                                    vars.test.test_browser = address;
-                                    complete_tasks("test_browser", "task");
-                                } else if (property === "test_list") {
-                                    import(address).then(function utilities_startServer_testStat_getValue_list(mod:object):void {
-                                        // @ts-expect-error - the Module type definition is not aware of the children exported upon a given module object.
-                                        vars.test.list = mod.default;
-                                        complete_tasks("test_list", "task");
-                                    });
-                                }
-                            };
-                        if ((address.charAt(0) === "\"" && address.charAt(address_length - 1) === "\"") || (address.charAt(0) === "'" && address.charAt(address_length - 1) === "'")) {
-                            address = `"${address.slice(1, address_length - 1)}"`;
-                            if (process.platform === "win32") {
-                                address = address.replace(/\\/g, "\"\\\"").replace("\"\\", "\\");
+                            } else {
+                                task_definitions[property] = `Testing file ${vars.text.angry}not${vars.text.none} found for: ${vars.text.red + address.replace(/\\\\/g, "\\") + vars.text.none}`;
                             }
-                        }
-                        if (property === "test_list") {
-                            address = `../test/${address.replace(/\\/g, "/").replace(/^\.?\//, "")}`;
-                        }
-                        node.fs.stat(stat_address, stat_browser);
-                    },
-                    len_browser:number = process.argv.length,
-                    arg_item:"browser"|"list" = property.replace("test_", "") as "browser"|"list";
-                let index_browser:number = len_browser,
-                    getting:boolean = false;
-                if (index_browser > 0) {
-                    do {
-                        index_browser = index_browser - 1;
-                        if (process.argv[index_browser].indexOf(`${arg_item}:`) === 0) {
-                            getting = true;
-                            if (index_browser < len_browser - 1) {
-                                vars.test.browser_args = process.argv.slice(index_browser + 1);
+                            if (property === "test_browser") {
+                                vars.test.test_browser = address;
+                                complete_tasks("test_browser", "task");
+                            } else if (property === "test_list") {
+                                import(address).then(function utilities_startServer_testStat_getValue_list(mod:object):void {
+                                    // @ts-expect-error - the Module type definition is not aware of the children exported upon a given module object.
+                                    vars.test.list = mod.default;
+                                    complete_tasks("test_list", "task");
+                                });
                             }
-                            get_value(arg_item);
+                        };
+                    if (address === "") {
+                        complete_tasks(`test_${arg}`, "task");
+                        return;
+                    }
+                    if ((address.charAt(0) === "\"" && address.charAt(address_length - 1) === "\"") || (address.charAt(0) === "'" && address.charAt(address_length - 1) === "'")) {
+                        address = `"${address.slice(1, address_length - 1)}"`;
+                        if (process.platform === "win32") {
+                            address = address.replace(/\\/g, "\"\\\"").replace("\"\\", "\\");
                         }
-                    } while (index_browser > 0);
-                }
+                    }
+                    if (property === "test_list") {
+                        address = `../test/${address.replace(/\\/g, "/").replace(/^\.?\//, "")}`;
+                    }
+                    node.fs.stat(stat_address, stat_browser);
+                };
+                get_value("browser");
+                get_value("list");
                 task_definitions.browser_stat = "No option supplied beginning with 'browser:'";
-                if (getting === false) {
-                    complete_tasks(property, "task");
-                }
             }
         },
-        complete_tasks = function utilities_startServer_completeTasks(flag:"admin"|"compose"|"git"|"html"|"options"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list", type:"prerequisite"|"task"):void {
+        complete_tasks = function utilities_startServer_completeTasks(flag:"admin"|"compose"|"git"|"html"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list", type:"prerequisite"|"task"):void {
             log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${task_definitions[flag]}`]);
             // to troubleshoot which tasks do not run, in test mode servers task is not executed
             // delete task_definitions[flag];console.log(Object.keys(task_definitions));
@@ -618,54 +595,58 @@ const start_server = function utilities_startServer(process_path:string, testing
     log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);
 
     // update OS list of available shells
-    if (process.platform === "win32") {
-        const stats = function utilities_startServer_tasksShell_shellWin(index:number):void {
-            node.fs.stat(vars.terminal[index], function utilities_startServer_tasksShell_shellWin_callback(err:node_error) {
-                if (err !== null) {
-                    vars.terminal.splice(index, 1);
-                }
-                if (index > 0) {
-                    utilities_startServer_tasksShell_shellWin(index - 1);
-                } else {
-                    start_prerequisites();
-                }
-            });
-        };
-        stats(vars.terminal.length - 1);
+    if (no_terminal === true) {
+        start_prerequisites();
     } else {
-        file.stat({
-            callback: function utilities_startServer_tasksShell_shellStat(stat:node_fs_BigIntStats):void {
-                if (stat === null) {
-                    vars.terminal.push("/bin/sh");
-                } else {
-                    file.read({
-                        callback: function utilities_startServer_tasksShell_shellStat_shellRead(contents:Buffer):void {
-                            const lines:string[] = contents.toString().split("\n"),
-                                len:number = lines.length;
-                            let index:number = 1;
-                            if (len > 1) {
-                                do {
-                                    if (lines[index].indexOf("/bin/") === 0) {
-                                        vars.terminal.push(lines[index]);
-                                    }
-                                    index = index + 1;
-                                } while (index < len);
-                            }
-                            if (vars.terminal.length < 1) {
-                                vars.terminal.push("/bin/sh");
-                            }
-                            start_prerequisites();
-                        },
-                        location: "/etc/shells",
-                        no_file: null,
-                        section: "startup"
-                    });
-                }
-            },
-            location: "/etc/shells",
-            no_file: null,
-            section: "startup"
-        });
+        if (process.platform === "win32") {
+            const stats = function utilities_startServer_tasksShell_shellWin(index:number):void {
+                node.fs.stat(vars.terminal[index], function utilities_startServer_tasksShell_shellWin_callback(err:node_error) {
+                    if (err !== null) {
+                        vars.terminal.splice(index, 1);
+                    }
+                    if (index > 0) {
+                        utilities_startServer_tasksShell_shellWin(index - 1);
+                    } else {
+                        start_prerequisites();
+                    }
+                });
+            };
+            stats(vars.terminal.length - 1);
+        } else {
+            file.stat({
+                callback: function utilities_startServer_tasksShell_shellStat(stat:node_fs_BigIntStats):void {
+                    if (stat === null) {
+                        vars.terminal.push("/bin/sh");
+                    } else {
+                        file.read({
+                            callback: function utilities_startServer_tasksShell_shellStat_shellRead(contents:Buffer):void {
+                                const lines:string[] = contents.toString().split("\n"),
+                                    len:number = lines.length;
+                                let index:number = 1;
+                                if (len > 1) {
+                                    do {
+                                        if (lines[index].indexOf("/bin/") === 0) {
+                                            vars.terminal.push(lines[index]);
+                                        }
+                                        index = index + 1;
+                                    } while (index < len);
+                                }
+                                if (vars.terminal.length < 1) {
+                                    vars.terminal.push("/bin/sh");
+                                }
+                                start_prerequisites();
+                            },
+                            location: "/etc/shells",
+                            no_file: null,
+                            section: "startup"
+                        });
+                    }
+                },
+                location: "/etc/shells",
+                no_file: null,
+                section: "startup"
+            });
+        }
     }
 };
 

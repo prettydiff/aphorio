@@ -182,6 +182,14 @@ interface core_vars {
     intervals: store_number;
     logs: config_log[];
     name: string;
+    options: {
+        "browser": string;
+        "list": string;
+        "no-color": boolean;
+        "no-exit": boolean;
+        "no-terminal": boolean;
+        "test": boolean;
+    };
     os: core_server_os;
     path: vars_path;
     server_meta: server_meta;

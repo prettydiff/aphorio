@@ -3280,6 +3280,9 @@ const dashboard = function dashboard():void {
                 id: null,
                 info: null,
                 init: function dashboard_terminalItem():void {
+                    if (document.getElementById("terminal") === null) {
+                        return;
+                    }
                     const len:number = payload.terminal.length;
                     let option:HTMLElement = null,
                         index:number = 0;
@@ -3309,10 +3312,18 @@ const dashboard = function dashboard():void {
                 },
                 item: null,
                 nodes: {
-                    cols: document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[0],
-                    output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
-                    rows: document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[1],
-                    select: document.getElementById("terminal").getElementsByTagName("select")[0] as HTMLSelectElement
+                    cols: (document.getElementById("terminal") === null)
+                        ? null
+                        : document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[0],
+                    output: (document.getElementById("terminal") === null)
+                        ? null
+                        : document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
+                    rows: (document.getElementById("terminal") === null)
+                        ? null
+                        : document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[1],
+                    select: (document.getElementById("terminal") === null)
+                        ? null
+                        : document.getElementById("terminal").getElementsByTagName("select")[0] as HTMLSelectElement
                 },
                 rows: 0,
                 shell: function dashboard_terminalShell():void {

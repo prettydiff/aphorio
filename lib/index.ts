@@ -1,12 +1,13 @@
 
 import node from "./core/node.ts";
-import os_service from "./utilities/os_service.ts";
 import start_server from "./utilities/start_server.ts";
 import vars from "./core/vars.ts";
 
 vars.path.sep = node.path.sep;
 
 const process_path:string = process.argv[1].slice(0, process.argv[1].indexOf(`${vars.path.sep}lib${vars.path.sep}`)) + vars.path.sep;
+let index:number = process.argv.length,
+    arg:string = null;
 
 vars.path.project = (vars.test.testing === true)
     ? `${process_path}test${vars.path.sep}`
@@ -16,9 +17,28 @@ vars.path.compose = `${vars.path.project}compose${vars.path.sep}`;
 vars.path.servers = `${vars.path.project}servers${vars.path.sep}`;
 vars.commands.compose_empty = `${vars.commands.compose} -f ${vars.path.compose_empty}`;
 
-if (process.argv.includes("service-create")) {
-    os_service.create(`${process.argv[0]} ${vars.path.project}lib${vars.path.sep}index.ts`, vars.name);
-} else if (process.argv.includes("test")) {
+do {
+    index = index - 1;
+    arg = process.argv[index].toLowerCase().replace(/^--/, "");
+    if (vars.options[arg as "test"] !== undefined || vars.options[arg.slice(0, arg.indexOf(":")) as "test"] !== undefined) {
+        if (arg.indexOf("browser") === 0 || arg.indexOf("list") === 0) {
+            vars.options.browser = process.argv[index].slice(process.argv[index].indexOf(":") + 1);
+        } else {
+            vars.options[arg as "test"] = true;
+        }
+    }
+} while (index > 0);
+
+if (vars.options["no-color"] === true) {
+    const keys:string[] = Object.keys(vars.text);
+    index = keys.length;
+    do {
+        index = index - 1;
+        vars.text[keys[index]] = "";
+    } while (index > 0);
+}
+
+if (process.argv.includes("test") === true || process.argv.includes("--test") === true) {
     vars.test.testing = true;
     start_server(process_path, true);
 } else {

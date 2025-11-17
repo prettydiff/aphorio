@@ -43,10 +43,11 @@ Please note that for Docker support the `npm run server` command must be execute
 ### Supported shell command arguments
 All arguments are supported only on the server command, example: `npm run server test no-color`
 
-* `no-color` - Eliminates use of ANSI color codes in terminal output.
 * `browser:<file_path>` - *This option is ignored unless in test mode.* Provides a custom file path for a web browser executable to test against. The file path value can be quoted, but if not quoted then spaces must be escaped according to the given shells syntax rules. Any arguments following this argument will be passed directly to that web browser.
 * `list:<file_path>` - *This option is ignored unless in test mode.* Allows specifying a single test list to execute starting from the project's test directory at */lib/test*.
+* `no-color` - Eliminates use of ANSI color codes in terminal output.
 * `no-exit` - *This option is ignored unless in test mode.* Application remains actively available after completing test automation.
+* `no-terminal` - Eliminates remote terminal access from the application.
 
 <!--
 ## Optional steps to reduce the dependency count to 3:

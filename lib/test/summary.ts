@@ -20,7 +20,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
             ? "green"
             : "angry",
         list:test_counts = vars.test.counts[name],
-        exit:boolean = (process.argv.includes("no-exit") === false);
+        exit:boolean = (vars.options["no-exit"] === false);
     summary.push(`${vars.text.underline}Testing complete for list ${vars.text.cyan + name + vars.text.none}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} List time                : ${vars.text.cyan + list.time_end.time(list.time_start) + vars.text.none}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} List tests               : ${pad_right(18, list.tests_total.commas())}`);
