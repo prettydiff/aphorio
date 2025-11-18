@@ -2039,6 +2039,7 @@ const dashboard = function dashboard():void {
                             td.textContent = text;
                             if (classy !== null) {
                                 td.setAttribute("class", classy);
+                                td.setAttribute("title", text);
                             }
                             tr.appendChild(td);
                         };
