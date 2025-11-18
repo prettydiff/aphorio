@@ -80,11 +80,11 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         nonceHeader = header;
                         type = lower.replace(testNonce, "");
                     } else if (lower.indexOf("user-agent:") === 0) {
-                        const ua:[string, string] = ["", ""];
+                        let ua:string[] = [];
                         userAgent = header.slice(header.indexOf(":") + 1).replace(/^\s+/, "");
-                        ua[0] = userAgent.slice(userAgent.indexOf("(") + 1, userAgent.indexOf(";"));
-                        ua[1] = userAgent.split(" ").pop();
-                        userAgent = `${ua[0]}, ${ua[1]}`;
+                        ua[0] = userAgent.slice(userAgent.indexOf("(") + 1, userAgent.indexOf(")"));
+                        ua = ua[0].split(";");
+                        userAgent = `${ua[0]}, ${ua[1]}, ${userAgent.slice(userAgent.lastIndexOf(")") + 2)}`;
                     }
                 },
                 redirection = function transmit_connection_handshake_redirection():Buffer {
@@ -134,34 +134,34 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         : redirect;
                     // http
                     if (key === "") {
-                        const http_action = function transmit_connection_handshake_localService_httpAction():void {
-                            const method:type_http_method = headerList[0].slice(0, headerList[0].indexOf(" ")).toLowerCase() as type_http_method;
-                            if (http[method] !== undefined) {
-                                if (method === "get" && server_id === vars.dashboard_id && headerList[0].indexOf("GET / HTTP") === 0) {
-                                    vars.http_request = headerString;
+                        const method:type_http_method = headerList[0].slice(0, headerList[0].indexOf(" ")).toLowerCase() as type_http_method,
+                            http_action = function transmit_connection_handshake_localService_httpAction():void {
+                                if (http[method] === undefined) {
+                                    // unsupported HTTP methods result in socket destruction
+                                    socket.destroy();
+                                } else {
+                                    if (method === "get" && server_id === vars.dashboard_id && headerList[0].indexOf("GET / HTTP") === 0) {
+                                        vars.http_request = headerString;
+                                    }
+                                    http[method](headerList, socket, headerIndex < 1
+                                        ? null
+                                        : data.subarray(Buffer.byteLength(headerString))
+                                    );
+                                    if (server.single_socket === true) {
+                                        const terminate = function transmit_connection_handshake_localService_httpAction_terminate():void {
+                                            // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
+                                            const this_socket:websocket_client = this;
+                                            server_halt({
+                                                action: "destroy",
+                                                server: vars.servers[this_socket.server].config
+                                            }, null);
+                                        };
+                                        socket.on("close", terminate);
+                                        socket.on("end", terminate);
+                                        socket.on("error", terminate);
+                                    }
                                 }
-                                http[method](headerList, socket, headerIndex < 1
-                                    ? null
-                                    : data.subarray(Buffer.byteLength(headerString))
-                                );
-                                if (server.single_socket === true) {
-                                    const terminate = function transmit_connection_handshake_localService_httpAction_terminate():void {
-                                        // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                                        const this_socket:websocket_client = this;
-                                        server_halt({
-                                            action: "destroy",
-                                            server: vars.servers[this_socket.server].config
-                                        }, null);
-                                    };
-                                    socket.on("close", terminate);
-                                    socket.on("end", terminate);
-                                    socket.on("error", terminate);
-                                }
-                            } else {
-                                // unsupported HTTP methods result in socket destruction
-                                socket.destroy();
-                            }
-                        };
+                            };
                         let resource:string = headerList[0].slice(headerList[0].indexOf(" ") + 1).trim();
                         resource = resource.slice(0, resource.indexOf(" "));
                         socket_extension({
@@ -175,7 +175,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                             socket: socket,
                             temporary: temporary,
                             timeout: null,
-                            type: "http",
+                            type: `http-${method}`,
                             userAgent: userAgent
                         });
                     // websocket
