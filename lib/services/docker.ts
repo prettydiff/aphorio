@@ -13,7 +13,7 @@ const docker:core_docker = {
         add: " up --detach",
         deactivate: " pause",
         destroy: " down",
-        list: " ps --format json",
+        list: " ps --format json --no-trunc",
         modify: " down",
         update: ""
     },
@@ -65,7 +65,7 @@ const docker:core_docker = {
                                 id: id,
                                 image: list[ind].Image,
                                 license: "",
-                                name: list[ind].Name,
+                                name: list[ind].Names,
                                 location: location,
                                 ports: ports(list[ind]),
                                 state: list[ind].State,
@@ -159,7 +159,7 @@ const docker:core_docker = {
                 }
             };
             vars.compose.containers = {};
-            spawn(`${vars.commands.compose_empty} ${docker.commands.list}`, child).execute();
+            spawn(`docker ${docker.commands.list}`, child).execute();
         } else {
             complete("Application must be executed with administrative privilege for Docker support.");
         }
