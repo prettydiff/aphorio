@@ -460,10 +460,21 @@
                 <h3>Conventions</h3>
                 <div class="section">
                     <h4>General</h4>
-                    <p>From the command line execute the application with <code class="inline">npm run server</code></p>
-                    <p>By default the application assigns random ports for the dashboard. I recommend changing these to a port of your preference, such as 3000.  Then the dashboard can be repeated accessed at <em>http://localhost:3000</em></p>
-                    <p>If extending the application code evaluation can be performed using <code class="inline">npm run tsc</code> or <code class="inline">npm run lint</code></p>
-                    <p>Use the command line argument <em>no-color</em> to remove all ANSI formatting to the terminal output.  Example <code class="inline">npm run server no-color</code></p>
+                    <p>From the command line execute the application with <code class="inline">npm run server</code> or <code class="inline">node lib/index.ts</code>.</p>
+                    <p>By default the application assigns random ports for the dashboard. I recommend changing these to a port of your preference, such as 3000.  Then the dashboard can be repeatedly accessed at <em>http://localhost:3000</em></p>
+                    <p>When extending the application code perform health checks using <code class="inline">npm run tsc</code> and/or <code class="inline">npm run lint</code>.</p>
+                </div>
+                <div class="section">
+                    <h4>Options</h4>
+                    <p>All options work with or without a double dash prefix, for example both are equally supported: <code class="inline">no-color</code> and <code class="inline">--no-color</code></p>
+                    <ul>
+                        <li><em>browser:&lt;file_path&gt;</em> - Use this argument to specify a web browser, by file path, to use for testing the dashboard UI.</li>
+                        <li><em>list:&lt;file_path&gt;</em> - Use this argument to specify a single test list, by file path, to execute during test mode.</li>
+                        <li><em>no-color</em> - If present this option tells the application to never use ANSI formatting in terminal output.</li>
+                        <li><em>no-exit</em> - If present this option tells the application to continue running at the conclusion of test mode, which is helpful to further interact with and debug the dashboard UI.</li>
+                        <li><em>no-terminal</em> - If present this option removes all remote terminal code from the application at application start up.</li>
+                        <li><em>test</em> - If present this option instructs the application to execute test automation.</li>
+                    </ul>
                 </div>
                 <div class="section">
                     <h4>Test Automation</h4>
@@ -950,6 +961,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
+        <!-- terminal start -->
         <div class="tab" id="terminal">
             <h2>Terminal</h2>
             <p class="tab-description">A command terminal to interact with the local operating system. Expect this terminal to mirror the operating system terminal exactly. <em>Text selections in the console are automatically copied to the clipboard.</em></p>
@@ -1004,6 +1016,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <div class="terminal-output"></div>
             </div>
         </div>
+        <!-- terminal end -->
         <div class="tab" id="users">
             <h2>Users</h2>
             <p class="tab-description">A list of user accounts on the local operating system. Data automatically refreshes at server's midnight time.</p>
