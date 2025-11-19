@@ -4,7 +4,6 @@ import connection from "./connection.ts";
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
-import read_certs from "../core/read_certs.ts";
 import vars from "../core/vars.ts";
 
 // cspell: words untrapped
@@ -87,6 +86,8 @@ const server = function transmit_server(data:services_action_server, callback:(n
             port: vars.servers[data.server.id].config.ports[secureType]
         }, listenerCallback);
     };
+
+    // create default structures
     if (Array.isArray(data.server.domain_local) === false) {
         data.server.domain_local = [];
     }
@@ -102,6 +103,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
             }
         };
     }
+
     if (vars.servers[data.server.id].config.encryption === "open") {
         if (vars.servers[data.server.id].config.single_socket === true || vars.servers[data.server.id].config.temporary === true) {
             file.remove({
@@ -109,31 +111,92 @@ const server = function transmit_server(data:services_action_server, callback:(n
                     start(null);
                 },
                 exclusions: null,
-                location: vars.path.servers + data.server.name,
+                location: vars.path.servers + data.server.id,
                 section: "servers_web"
             });
         } else {
             start(null);
         }
     } else {
-        read_certs(data.server.id, function transmit_server_readCerts(id:string, options:transmit_tlsOptions):void {
-            const starter = function transmit_server_readCerts_starterSecure():void {
-                if (vars.servers[id].config.encryption === "both") {
-                    start(null);
+        // for TLS must read the cert chain first
+        const certLocation:string = `${vars.path.servers + data.server.id + vars.path.sep}certs${vars.path.sep}`,
+            certName:string = "server",
+            caName:string = "int",
+            https:transmit_tlsOptions = {
+                options: {
+                    ca: "",
+                    cert: "",
+                    key: ""
+                },
+                fileFlag: {
+                    ca: false,
+                    crt: false,
+                    key: false
                 }
-                start(options);
-            };
-            if (vars.servers[data.server.id].config.single_socket === true || vars.servers[id].config.temporary === true) {
-                file.remove({
-                    callback: starter,
-                    exclusions: null,
-                    location: vars.path.servers + id,
-                    section: "servers_web"
+            },
+            certCheck = function utilities_readCerts_certCheck():void {
+                if (https.fileFlag.ca === true && https.fileFlag.crt === true && https.fileFlag.key === true) {
+                    const starter = function transmit_server_readCerts_starterSecure():void {
+                        if (vars.servers[data.server.id].config.encryption === "both") {
+                            // starts server without TLS certs for non-TLS server
+                            start(null);
+                        }
+                        start(https);
+                    };
+                    if (https.options.ca === "" || https.options.cert === "" || https.options.key === "") {
+                        log.application({
+                            error: new Error(),
+                            message: `Required certificate files are missing for server ${data.server.name}.`,
+                            section: "servers_web",
+                            status: "error",
+                            time: Date.now()
+                        });
+                    }
+                    if (vars.servers[data.server.id].config.single_socket === true || vars.servers[data.server.id].config.temporary === true) {
+                        file.remove({
+                            callback: starter,
+                            exclusions: null,
+                            location: vars.path.servers + data.server.id,
+                            section: "servers_web"
+                        });
+                    } else {
+                        starter();
+                    }
+                }
+            },
+            certRead = function transmit_server_certRead(certType:type_certKey):void {
+                const location:string = (certType === "ca")
+                    ? `${certLocation + caName}.crt`
+                    : `${certLocation + certName}.${certType}`;
+                node.fs.readFile(location, "utf8", function transmit_server_certRead_readFile(fileError:node_error, fileData:string):void {
+                    https.fileFlag[certType] = true;
+                    if (fileError === null) {
+                        if (certType === "crt") {
+                            https.options.cert = fileData;
+                        } else {
+                            https.options[certType] = fileData;
+                        }
+                    }
+                    certCheck();
                 });
-            } else {
-                starter();
-            }
-        });
+            },
+            certStat = function transmit_server_certStat(certType:type_certKey):void {
+                const location:string = (certType === "ca")
+                    ? `${certLocation + caName}.crt`
+                    : `${certLocation + certName}.${certType}`;
+                node.fs.stat(location, function transmit_server_certStat_stat(statError:node_error):void {
+                    if (statError === null) {
+                        certRead(certType);
+                    } else {
+                        https.fileFlag[certType] = true;
+                        certCheck();
+                    }
+                });
+            };
+
+        certStat("ca");
+        certStat("crt");
+        certStat("key");
     }
 };
 
