@@ -6,11 +6,13 @@ import vars from "./vars.ts";
 const spawn = function core_spawn(command:string, callback:(output:core_spawn_output) => void, options?:core_spawn_options):core_spawn {
     const item:core_spawn = {
         close: function core_spawn_close():void {
-            callback({
-                stderr: item.stderr.join(""),
-                stdout: item.stdout.join(""),
-                type: item.type
-            });
+            if (callback !== null) {
+                callback({
+                    stderr: item.stderr.join(""),
+                    stdout: item.stdout.join(""),
+                    type: item.type
+                });
+            }
             item.spawn.kill();
         },
         command: command,

@@ -36,7 +36,6 @@ const start_server = function utilities_startServer(process_path:string, testing
             test_browser: "Finds a designed web browser for test automation if supplied as a terminal argument.",
             test_list: null
         },
-        no_terminal:boolean = (process.argv.includes("no-terminal") === true),
         prerequisite_tasks:store_function = {
             admin: function utilities_startServer_admin():void {
                 spawn(vars.commands.admin_check, function utilities_startServer_admin_callback(output:core_spawn_output):void {
@@ -124,7 +123,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         script = script.replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`).replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
                                     }
                                     vars.dashboard_page = fileContents.toString();
-                                    if (no_terminal === true) {
+                                    if (vars.options["no-terminal"] === true) {
                                         vars.dashboard_page = vars.dashboard_page.slice(0, vars.dashboard_page.indexOf(term_start)) + vars.dashboard_page.slice(vars.dashboard_page.indexOf(term_end) + term_end.length);
                                         vars.dashboard_page = vars.dashboard_page.replace("<li><button data-section=\"terminal\">Terminal</button></li>", "");
                                     }
@@ -158,7 +157,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         flags.css = true;
                         complete();
                     };
-                if (no_terminal === true) {
+                if (vars.options["no-terminal"] === true) {
                     flags.xterm_css = true;
                     flags.xterm_js = true;
                     xterm_js = "";
@@ -423,6 +422,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             total:number = (testing === true)
                                 ? 1
                                 : servers.length,
+                            server_path:string = `${vars.path.node} ${vars.path.project}lib${vars.path.sep}transmit${vars.path.sep}server1.ts`,
                             callback = function utilities_startServer_readComplete_start_serverCallback():void {
                                 count = count + 1;
                                 if (count === total) {
@@ -433,10 +433,10 @@ const start_server = function utilities_startServer(process_path:string, testing
                                             "",
                                             `Process ID: ${vars.text.cyan + process.pid + vars.text.none}`,
                                             "",
-                                            "Ports:",
+                                            "Web Server Ports:",
                                         ],
                                         pad = function utilities_startServer_readComplete_start_serverCallback_pad(str:string, num:number, dir:"left"|"right"):string {
-                                            let item:number = num - str.length;
+                                            let item:number = longest[num] - str.length;
                                             if (item > 0) {
                                                 do {
                                                     if (dir === "left") {
@@ -449,18 +449,11 @@ const start_server = function utilities_startServer(process_path:string, testing
                                             }
                                             return str;
                                         },
-                                        logItem = function utilities_startServer_readComplete_start_serverCallback_logItem(id:string, encryption:"open"|"secure"):void {
-                                            const conflict:boolean = (vars.servers[id].status[encryption] === 0),
-                                                portNumber:number = (conflict === true)
-                                                    ? vars.servers[id].config.ports[encryption]
-                                                    : vars.servers[id].status[encryption],
-                                                portDisplay:string = (conflict === true)
-                                                    ? vars.text.angry + portNumber + vars.text.none
-                                                    : portNumber.toString(),
-                                                name_server:string = vars.servers[id].config.name,
-                                                str:string = `${vars.text.angry}*${vars.text.none} ${pad(name_server, longest.name, "right")} - ${pad(encryption, longest.encryption, "right")} - ${vars.text.green + pad(portDisplay, longest.port, "left") + vars.text.none}`;
+                                        logItem = function utilities_startServer_readComplete_start_serverCallback_logItem(name:string, encryption:"open"|"secure"|"tcp"|"udp", value:string):void {
+                                            const conflict:boolean = (value.indexOf(vars.text.angry) === 0),
+                                                str:string = `${vars.text.angry}*${vars.text.none} ${pad(name, 0, "right")} - ${pad(encryption, 1, "right")} - ${value}`;
                                             if (conflict === true) {
-                                                if (portNumber < 1025) {
+                                                if (Number(value.replace(vars.text.none, "").replace(vars.text.angry, "")) < 1025) {
                                                     logs.push(`${str} (Server offline, typically due to insufficient access for reserved port or port conflict.)`);
                                                 } else {
                                                     logs.push(`${str} (Server offline, typically due to port conflict.)`);
@@ -468,37 +461,35 @@ const start_server = function utilities_startServer(process_path:string, testing
                                             } else {
                                                 logs.push(str);
                                             }
-                                        },
-                                        longest:store_number = {
-                                            encryption: 4,
-                                            name: 0,
-                                            port: 0
                                         };
                                     let index:number = 0,
-                                        name:string = "";
+                                        name:string = "",
+                                        ports:type_docker_ports = null,
+                                        longest:number[] = [0, 0, 0],
+                                        len:number = servers.length;
                                     servers.sort();
                                     // get string column width
                                     do {
                                         name = vars.servers[servers[index]].config.name;
-                                        if (name.length > longest.name) {
-                                            longest.name = name.length;
+                                        if (name.length > longest[0]) {
+                                            longest[0] = name.length;
                                         }
                                         if (vars.servers[servers[index]].config.encryption === "both") {
-                                            if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest.port) {
-                                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                            if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest[2]) {
+                                                longest[2] = vars.servers[servers[index]].config.ports["secure"].toString().length;
                                             }
-                                            if (vars.servers[servers[index]].config.ports["open"].toString().length > longest.port) {
-                                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                            if (vars.servers[servers[index]].config.ports["open"].toString().length > longest[2]) {
+                                                longest[3] = vars.servers[servers[index]].config.ports["secure"].toString().length;
                                             }
-                                            longest.encryption = 6;
+                                            longest[1] = 6;
                                         } else if (vars.servers[servers[index]].config.encryption === "secure") {
-                                            if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest.port) {
-                                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                            if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest[2]) {
+                                                longest[2] = vars.servers[servers[index]].config.ports["secure"].toString().length;
                                             }
-                                            longest.encryption = 6;
+                                            longest[1] = 6;
                                         } else {
-                                            if (vars.servers[servers[index]].config.ports["open"].toString().length > longest.port) {
-                                                longest.port = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                            if (vars.servers[servers[index]].config.ports["open"].toString().length > longest[2]) {
+                                                longest[2] = vars.servers[servers[index]].config.ports["secure"].toString().length;
                                             }
                                         }
                                         index = index + 1;
@@ -506,18 +497,78 @@ const start_server = function utilities_startServer(process_path:string, testing
                                     if (testing === true) {
                                         test_index();
                                     } else {
+                                        const keys:string[] = Object.keys(vars.compose.containers),
+                                            sort = function utilities_startServer_readCompete_start_serverCallback_sort(a:[number, "tcp"|"udp"], b:[number, "tcp"|"udp"]):-1|1 {
+                                                if (a[0] < b[0] || (a[0] === b[0] && a[1] < b[1])) {
+                                                    return -1;
+                                                }
+                                                return 1;
+                                            };
+                                        // from servers
                                         index = 0;
                                         do {
                                             if (vars.servers[servers[index]].config.encryption === "both") {
-                                                logItem(servers[index], "open");
-                                                logItem(servers[index], "secure");
+                                                logItem(vars.servers[servers[index]].config.name, "open", (vars.servers[servers[index]].status.open === 0)
+                                                    ? vars.text.angry + vars.servers[servers[index]].config.ports.open + vars.text.none
+                                                    : vars.text.green + vars.servers[servers[index]].status.open + vars.text.none
+                                                );
+                                                logItem(vars.servers[servers[index]].config.name, "secure", (vars.servers[servers[index]].status.secure === 0)
+                                                    ? vars.text.angry + vars.servers[servers[index]].config.ports.secure + vars.text.none
+                                                    : vars.text.green + vars.servers[servers[index]].status.secure + vars.text.none
+                                                );
                                             } else if (vars.servers[servers[index]].config.encryption === "open") {
-                                                logItem(servers[index], "open");
+                                                logItem(vars.servers[servers[index]].config.name, "open", (vars.servers[servers[index]].status.open === 0)
+                                                    ? vars.text.angry + vars.servers[servers[index]].config.ports.open + vars.text.none
+                                                    : vars.text.green + vars.servers[servers[index]].status.open + vars.text.none
+                                                );
                                             } else if (vars.servers[servers[index]].config.encryption === "secure") {
-                                                logItem(servers[index], "secure");
+                                                logItem(vars.servers[servers[index]].config.name, "secure", (vars.servers[servers[index]].status.secure === 0)
+                                                    ? vars.text.angry + vars.servers[servers[index]].config.ports.secure + vars.text.none
+                                                    : vars.text.green + vars.servers[servers[index]].status.secure + vars.text.none
+                                                );
                                             }
                                             index = index + 1;
-                                        } while (index < servers.length);
+                                        } while (index < len);
+
+                                        // from containers
+                                        len = keys.length;
+                                        if (len > 0) {
+                                            let index_ports:number = 0,
+                                                len_ports:number = 0;
+                                            index = 0;
+                                            longest = [0, 3, 0];
+                                            keys.sort();
+                                            logs.push("");
+                                            logs.push("Container Ports:");
+                                            do {
+                                                if (vars.compose.containers[keys[index]].name.length > longest[0]) {
+                                                    longest[0] = vars.compose.containers[keys[index]].name.length;
+                                                }
+                                                index = index + 1;
+                                            } while (index < len);
+                                            index = 0;
+                                            do {
+                                                ports = vars.compose.containers[keys[index]].ports;
+                                                len_ports = ports.length;
+                                                if (len_ports > 0) {
+                                                    longest[2] = 0;
+                                                    ports.sort(sort);
+                                                    index_ports = 0;
+                                                    do {
+                                                        if (ports[index_ports][0].toString().length > longest[2]) {
+                                                            longest[2] = ports[index_ports][0].toString().length;
+                                                        }
+                                                        index_ports = index_ports + 1;
+                                                    } while (index_ports < len_ports);
+                                                    index_ports = 0;
+                                                    do {
+                                                        logItem(vars.compose.containers[keys[index]].name, ports[index_ports][1], vars.text.green + pad(ports[index_ports][0].toString(), 2, "left") + vars.text.none);
+                                                        index_ports = index_ports + 1;
+                                                    } while (index_ports < len_ports);
+                                                }
+                                                index = index + 1;
+                                            } while (index < len);
+                                        }
                                         log.shell(logs, true);
                                     }
                                 }
@@ -525,6 +576,9 @@ const start_server = function utilities_startServer(process_path:string, testing
                         let count:number = 0,
                             index:number = 0;
                         
+                        // if (testing === true) {
+                        //     spawn(, null);
+                        // }
                         if (testing === true) {
                             server({
                                 action: "activate",
@@ -539,6 +593,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 index = index + 1;
                             } while (index < total);
                         }
+
                     };
                     clock();
                     if (testing === true || vars.servers[vars.dashboard_id] === undefined) {
@@ -595,7 +650,7 @@ const start_server = function utilities_startServer(process_path:string, testing
     log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);
 
     // update OS list of available shells
-    if (no_terminal === true) {
+    if (vars.options["no-terminal"] === true) {
         start_prerequisites();
     } else {
         if (process.platform === "win32") {

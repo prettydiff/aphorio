@@ -60,6 +60,28 @@ interface core_compose_properties {
     Status: string;
 }
 
+interface core_docker {
+    commands: core_compose_commands;
+    list: (callback:() => void) => void;
+    receive: (socket_data:socket_data, transmit:transmit_socket) => void;
+    variables: (variables:store_string, socket:websocket_client) => void;
+}
+
+interface core_server_child_input {
+    encryption: boolean;
+    id: string;
+    path_process: string;
+    port:number;
+    token: string;
+}
+
+interface core_server_child_output {
+    encryption: boolean;
+    id: string;
+    pid: number;
+    port: number;
+}
+
 interface core_server_os {
     devs: services_os_devs;
     disk: services_os_disk;
@@ -115,13 +137,6 @@ interface core_server_os {
         homedir: string;
         uid: number;
     };
-}
-
-interface core_docker {
-    commands: core_compose_commands;
-    list: (callback:() => void) => void;
-    receive: (socket_data:socket_data, transmit:transmit_socket) => void;
-    variables: (variables:store_string, socket:websocket_client) => void;
 }
 
 interface core_servers_file {
@@ -191,7 +206,7 @@ interface core_vars {
         "test": boolean;
     };
     os: core_server_os;
-    path: vars_path;
+    path: core_vars_path;
     server_meta: server_meta;
     servers: store_servers;
     sockets: services_socket_application;
@@ -221,6 +236,15 @@ interface core_vars {
     };
     text: store_string;
     timeZone_offset: number;
+}
+
+interface core_vars_path {
+    compose: string;
+    compose_empty: string;
+    node: string;
+    project: string;
+    sep: "/" | "\\";
+    servers: string;
 }
 
 interface directory_data {
@@ -402,14 +426,6 @@ interface terminal {
     cols: number;
     rows: number;
     shell: string;
-}
-
-interface vars_path {
-    compose: string;
-    compose_empty: string;
-    project: string;
-    sep: "/" | "\\";
-    servers: string;
 }
 
 interface windows_drives {

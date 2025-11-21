@@ -22,10 +22,10 @@ const server = function transmit_server(data:services_action_server, callback:(n
             secureType:"open"|"secure" = (options === null)
                 ? "open"
                 : "secure",
-            complete = function transmit_server_start_complete(server_name:string):void {
+            complete = function transmit_server_start_complete(id:string):void {
                 count = count + 1;
-                if (callback !== null && ((vars.servers[server_name].config.encryption === "both" && count > 1) || vars.servers[server_name].config.encryption !== "both")) {
-                    callback(server_name);
+                if (callback !== null && ((vars.servers[id].config.encryption === "both" && count > 1) || vars.servers[id].config.encryption !== "both")) {
+                    callback(id);
                 }
             },
             listenerCallback = function transmit_server_start_listenerCallback():void {

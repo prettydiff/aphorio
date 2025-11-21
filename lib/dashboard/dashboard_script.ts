@@ -1963,6 +1963,8 @@ const dashboard = function dashboard():void {
                         container:core_compose_container = null,
                         server:server = null,
                         tr:HTMLElement = null;
+
+                    // from containers
                     if (index_item > 0) {
                         do {
                             index_item = index_item - 1;
@@ -1976,6 +1978,8 @@ const dashboard = function dashboard():void {
                             }
                         } while (index_item > 0);
                     }
+
+                    // from servers
                     index_item = keys_servers.length;
                     if (index_item > 0) {
                         do {

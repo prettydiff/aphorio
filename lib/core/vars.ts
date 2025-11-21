@@ -156,6 +156,7 @@ const vars:core_vars = {
         path: {
             compose: "",
             compose_empty: "",
+            node: "",
             project: "",
             sep: "/",
             servers: ""
