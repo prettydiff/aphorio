@@ -422,7 +422,6 @@ const start_server = function utilities_startServer(process_path:string, testing
                             total:number = (testing === true)
                                 ? 1
                                 : servers.length,
-                            server_path:string = `${vars.path.node} ${vars.path.project}lib${vars.path.sep}transmit${vars.path.sep}server1.ts`,
                             callback = function utilities_startServer_readComplete_start_serverCallback():void {
                                 count = count + 1;
                                 if (count === total) {
@@ -575,21 +574,12 @@ const start_server = function utilities_startServer(process_path:string, testing
                             };
                         let count:number = 0,
                             index:number = 0;
-                        
-                        // if (testing === true) {
-                        //     spawn(, null);
-                        // }
+
                         if (testing === true) {
-                            server({
-                                action: "activate",
-                                server: vars.servers[vars.dashboard_id].config
-                            }, callback);
+                            server(vars.servers[vars.dashboard_id].config.id, callback);
                         } else {
                             do {
-                                server({
-                                    action: "activate",
-                                    server: vars.servers[servers[index]].config
-                                }, callback);
+                                server(vars.servers[servers[index]].config.id, callback);
                                 index = index + 1;
                             } while (index < total);
                         }

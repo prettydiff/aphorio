@@ -242,6 +242,7 @@ interface core_vars_path {
     compose: string;
     compose_empty: string;
     node: string;
+    process: string;
     project: string;
     sep: "/" | "\\";
     servers: string;

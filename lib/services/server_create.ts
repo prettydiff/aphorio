@@ -43,7 +43,7 @@ const server_create = function services_serverCreate(data:services_action_server
                             // 5. launch servers
                             certCallback = function services_serverCreate_complete_certificate():void {
                                 if (config.activate === true && config.id !== vars.dashboard_id) {
-                                    server(data, serverCallback);
+                                    server(data.server.id, serverCallback);
                                 } else if (callback !== null) {
                                     callback();
                                 }

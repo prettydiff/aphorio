@@ -8,7 +8,7 @@ import vars from "../core/vars.ts";
 
 // cspell: words untrapped
 
-const server = function transmit_server(data:services_action_server, callback:(name:string) => void):void {
+const server = function transmit_server(id:string, callback:(name:string) => void):void {
     let count:number = 0;
     const start = function transmit_server_start(options:transmit_tlsOptions):void {
         const wsServer:server_instance = (options === null)
@@ -24,7 +24,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                 : "secure",
             complete = function transmit_server_start_complete(id:string):void {
                 count = count + 1;
-                if (callback !== null && ((vars.servers[id].config.encryption === "both" && count > 1) || vars.servers[id].config.encryption !== "both")) {
+                if (callback !== null && callback !== undefined && ((vars.servers[id].config.encryption === "both" && count > 1) || vars.servers[id].config.encryption !== "both")) {
                     callback(id);
                 }
             },
@@ -39,7 +39,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
                 vars.servers[serverItem.id].status[secure] = address.port;
                 log.application({
                     error: null,
-                    message: `Server ${serverItem.id} - ${secure} came online at port ${vars.servers[serverItem.id].config.ports[secure]}.`,
+                    message: `Server ${serverItem.id} - ${secure} came online at port ${address.port}.`,
                     section: "servers_web",
                     status: "informational",
                     time: Date.now()
@@ -72,7 +72,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
         wsServer.secure = (options === null)
             ? false
             : true;
-        wsServer.id = data.server.id;
+        wsServer.id = id;
         wsServer.on("error", server_error);
         wsServer.on("close", server_error);
 
@@ -83,16 +83,16 @@ const server = function transmit_server(data:services_action_server, callback:(n
 
         // secure connection listener
         wsServer.listen({
-            port: vars.servers[data.server.id].config.ports[secureType]
+            port: vars.servers[id].config.ports[secureType]
         }, listenerCallback);
     };
 
     // create default structures
-    if (Array.isArray(data.server.domain_local) === false) {
-        data.server.domain_local = [];
+    if (Array.isArray(vars.servers[id].config.domain_local) === false) {
+        vars.servers[id].config.domain_local = [];
     }
-    if (vars.server_meta[data.server.id] === undefined) {
-        vars.server_meta[data.server.id] = {
+    if (vars.server_meta[id] === undefined) {
+        vars.server_meta[id] = {
             server: {
                 open: null,
                 secure: null
@@ -104,14 +104,14 @@ const server = function transmit_server(data:services_action_server, callback:(n
         };
     }
 
-    if (vars.servers[data.server.id].config.encryption === "open") {
-        if (vars.servers[data.server.id].config.single_socket === true || vars.servers[data.server.id].config.temporary === true) {
+    if (vars.servers[id].config.encryption === "open") {
+        if (vars.servers[id].config.single_socket === true || vars.servers[id].config.temporary === true) {
             file.remove({
                 callback: function transmit_server_readCerts_starterOpen():void {
                     start(null);
                 },
                 exclusions: null,
-                location: vars.path.servers + data.server.id,
+                location: vars.path.servers + id,
                 section: "servers_web"
             });
         } else {
@@ -119,7 +119,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
         }
     } else {
         // for TLS must read the cert chain first
-        const certLocation:string = `${vars.path.servers + data.server.id + vars.path.sep}certs${vars.path.sep}`,
+        const certLocation:string = `${vars.path.servers + id + vars.path.sep}certs${vars.path.sep}`,
             certName:string = "server",
             caName:string = "int",
             https:transmit_tlsOptions = {
@@ -137,7 +137,7 @@ const server = function transmit_server(data:services_action_server, callback:(n
             certCheck = function utilities_readCerts_certCheck():void {
                 if (https.fileFlag.ca === true && https.fileFlag.crt === true && https.fileFlag.key === true) {
                     const starter = function transmit_server_readCerts_starterSecure():void {
-                        if (vars.servers[data.server.id].config.encryption === "both") {
+                        if (vars.servers[id].config.encryption === "both") {
                             // starts server without TLS certs for non-TLS server
                             start(null);
                         }
@@ -146,17 +146,17 @@ const server = function transmit_server(data:services_action_server, callback:(n
                     if (https.options.ca === "" || https.options.cert === "" || https.options.key === "") {
                         log.application({
                             error: new Error(),
-                            message: `Required certificate files are missing for server ${data.server.name}.`,
+                            message: `Required certificate files are missing for server ${vars.servers[id].config.name}.`,
                             section: "servers_web",
                             status: "error",
                             time: Date.now()
                         });
                     }
-                    if (vars.servers[data.server.id].config.single_socket === true || vars.servers[data.server.id].config.temporary === true) {
+                    if (vars.servers[id].config.single_socket === true || vars.servers[id].config.temporary === true) {
                         file.remove({
                             callback: starter,
                             exclusions: null,
-                            location: vars.path.servers + data.server.id,
+                            location: vars.path.servers + id,
                             section: "servers_web"
                         });
                     } else {
