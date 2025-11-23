@@ -8,10 +8,7 @@ interface stat_item extends node_fs_Stats {
     path: string;
     type: type_file;
 }
-
-interface statList extends Array<stat_item> {
-    [index:number]: stat_item;
-}
+type statList = Array<stat_item>;
 
 interface transmit_addresses_socket {
     local: {
@@ -32,7 +29,7 @@ interface transmit_dashboard {
     logs: config_log[];
     name: string;
     os: core_server_os;
-    path: vars_path;
+    path: core_vars_path;
     servers: store_servers;
     sockets: services_socket_application;
     terminal: string[];

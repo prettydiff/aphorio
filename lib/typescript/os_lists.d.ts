@@ -96,6 +96,32 @@ interface os_disk_windows_volume {
     UniqueId: string;
 }
 
+interface os_node_cpu_item {
+    model: string;
+    speed: number;
+    times: {
+        idle: number;
+        irq: number;
+        nice: number;
+        sys: number;
+        user: number;
+    };
+}
+type os_node_cpu = Array<os_node_cpu_item>;
+
+interface os_node_cpuUsage {
+    system: number;
+    user: number;
+}
+
+interface os_node_memoryUsage {
+    arrayBuffers: number;
+    external: number;
+    heapTotal: number;
+    heapUsed: number;
+    rss: number;
+}
+
 interface os_proc {
     id: number;
     memory: number;

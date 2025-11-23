@@ -10,6 +10,7 @@ import os_lists from "./os_lists.ts";
 import server from "../transmit/server.ts";
 import server_create from "../services/server_create.ts";
 import spawn from "../core/spawn.ts";
+import status from "../core/status.ts";
 import test_browser from "../dashboard/test_browser.ts";
 import test_index from "../test/index.ts";
 import universal from "../core/universal.ts";
@@ -130,7 +131,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                     vars.dashboard_page = vars.dashboard_page
                                         .replace("Server Management Dashboard", `${vars.name.capitalize()} Dashboard`)
                                         .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
-                                        .replace("replace_javascript", `${xterm}const universal={commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
+                                        .replace("replace_javascript", `${xterm}const universal={bytes:${universal.bytes.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
                                         .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
                                     complete_tasks("html", "task");
                                 },
@@ -382,20 +383,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                 count_task = count_task + 1;
                 if (count_task === len_tasks) {
                     // sends a server time update every 950ms
-                    const clock = function utilities_startServer_readComplete_clock():void {
-                        const now:number = Date.now(),
-                            payload:services_clock = {
-                                time_local: now,
-                                time_zulu: (now + (new Date().getTimezoneOffset() * 60000))
-                            };
-                        broadcast(vars.dashboard_id, "dashboard", {
-                            data: payload,
-                            service: "dashboard-clock"
-                        });
-                        setTimeout(utilities_startServer_readComplete_clock, 950);
-                    },
-                    // a minimal configuration for a new dashboard server
-                    default_server:services_server = {
+                    const default_server:services_server = {
                         activate: true,
                         domain_local: [
                             "localhost",
@@ -585,7 +573,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         }
 
                     };
-                    clock();
+                    status();
                     if (testing === true || vars.servers[vars.dashboard_id] === undefined) {
                         server_create({
                             action: "add",
@@ -630,6 +618,7 @@ const start_server = function utilities_startServer(process_path:string, testing
     Number.prototype.commas = universal.commas;
     Number.prototype.dateTime = universal.dateTime;
     Number.prototype.time = universal.time;
+    String.prototype.bytes = universal.bytes;
     String.prototype.capitalize = function utilities_startServer_capitalize():string {
         // eslint-disable-next-line no-restricted-syntax
         return this.charAt(0).toUpperCase() + this.slice(1);

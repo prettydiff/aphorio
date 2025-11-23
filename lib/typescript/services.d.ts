@@ -11,11 +11,6 @@ interface services_action_server {
     server: services_server;
 }
 
-interface services_clock {
-    time_local: number;
-    time_zulu: number;
-}
-
 interface services_compose_container {
     action: type_dashboard_action;
     compose: string;
@@ -201,6 +196,23 @@ interface services_socket_application_item {
     server_name: string;
     type: string;
     userAgent: string;
+}
+
+interface services_status {
+    application: services_status_item;
+    docker: {
+        [key:string]: services_status_item;
+    };
+    time_local: number;
+    time_zulu: number;
+}
+
+interface services_status_item {
+    cpu: [number, number],
+    disk: [number, number],
+    mem: [number, number],
+    net: [bigint, bigint],
+    threads: number
 }
 
 interface services_terminal {

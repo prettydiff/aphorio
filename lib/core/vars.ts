@@ -169,6 +169,11 @@ const vars:core_vars = {
             time: 0
         },
         start_time: process.hrtime.bigint(),
+        stats: {
+            children: 1,
+            net_in: 0n,
+            net_out: 0n
+        },
         terminal: (process.platform === "win32")
             ? [
                 "C:\\Program Files\\PowerShell\\7\\pwsh.exe",

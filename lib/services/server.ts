@@ -15,7 +15,7 @@ const servers = function services_server(socketData:socket_data):void {
                 });
             };
         if (data.action === "activate") {
-            server(data, callback);
+            server(data.server.id, callback);
         } else if (data.action === "add") {
             server_create(data, callback, (data.server.id === vars.dashboard_id));
         } else {

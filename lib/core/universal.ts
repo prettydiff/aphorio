@@ -1,5 +1,53 @@
 
 const utilities:core_universal = {
+    bytes: function core_universalBytes():number {
+        // eslint-disable-next-line no-restricted-syntax
+        const input:string = this.toLowerCase(),
+            map:store_number = {
+                kb: 1000,
+                kib: 1024,
+                mb: 1e6,
+                mib: 1024**2,
+                gb: 1e9,
+                gib: 1024**3,
+                tb: 1e12,
+                tib: 1024**4,
+                pb: 1e15,
+                pib: 1024**5,
+                eb: 1e18,
+                eib: 1024**6
+            },
+            scale:string = input.match(/[a-z]+$/)[0],
+            numb:number = Number(input.match(/^\d+(\.{1,2})?/)[0]);
+        if (scale === null || isNaN(numb) === true || (/^\d+(\.\d{1,2})?[a-z]{2,3}$/).test(input) === false || map[scale] === undefined) {
+            return null;
+        }
+        return numb * map[scale];
+    },
+    bytes_big: function core_universalBytes():bigint {
+        // eslint-disable-next-line no-restricted-syntax
+        const input:string = this.toLowerCase(),
+            map:store_bigint = {
+                kb: 1000n,
+                kib: 1024n,
+                mb: BigInt(1e6),
+                mib: 1024n**2n,
+                gb: BigInt(1e9),
+                gib: 1024n**3n,
+                tb: BigInt(1e6) * BigInt(1e6),
+                tib: 1024n**4n,
+                pb: BigInt(1e9) * BigInt(1e6),
+                pib: 1024n**5n,
+                eb: BigInt(1e9) * BigInt(1e9),
+                eib: 1024n**6n
+            },
+            scale:string = input.match(/[a-z]+$/)[0],
+            numb:number = Number(input.match(/^\d+(\.{1,2})?/)[0]);
+        if (scale === null || isNaN(numb) === true || (/^\d+(\.\d{1,2})?[a-z]{2,3}$/).test(input) === false || map[scale] === undefined) {
+            return null;
+        }
+        return BigInt(numb) * map[scale];
+    },
     commas: function core_universalCommas():string {
         // eslint-disable-next-line no-restricted-syntax
         const str:string = String(this),

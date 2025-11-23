@@ -14,6 +14,7 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
                 });
             }
             item.spawn.kill();
+            vars.stats.children = vars.stats.children - 1;
         },
         command: command,
         data_stderr: function core_spawn_stderr(buf:Buffer):void {
@@ -55,6 +56,7 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
                 item.type = options.type;
             }
             item.spawn = spawn;
+            vars.stats.children = vars.stats.children + 1;
         },
         spawn: null,
         stderr: [],

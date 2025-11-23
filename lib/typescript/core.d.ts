@@ -67,6 +67,19 @@ interface core_docker {
     variables: (variables:store_string, socket:websocket_client) => void;
 }
 
+interface core_docker_status_item {
+    BlockIO: string;
+    CPUPerc: string;
+    Container: string;
+    ID: string;
+    MemPerc: string;
+    MemUsage: string;
+    Name: string;
+    NetIO: string;
+    PIDs: number;
+}
+type core_docker_status = Array<core_docker_status_item>;
+
 interface core_server_child_input {
     encryption: boolean;
     id: string;
@@ -173,6 +186,8 @@ interface core_spawn_output {
 }
 
 interface core_universal {
+    bytes: () => number;
+    bytes_big: () => bigint;
     commas: () => string;
     dateTime: (date:boolean, timeZone_offset:number) => string;
     time: () => string;
@@ -211,6 +226,11 @@ interface core_vars {
     servers: store_servers;
     sockets: services_socket_application;
     start_time: bigint;
+    stats: {
+        children: number;
+        net_in: bigint;
+        net_out: bigint;
+    };
     terminal: string[];
     test: {
         browser_args: string[];
@@ -337,14 +357,6 @@ interface server_meta_item {
     };
 }
 
-interface server_os_memoryUsage {
-    arrayBuffers: number;
-    external: number;
-    heapTotal: number;
-    heapUsed: number;
-    rss: number;
-}
-
 interface server_ports {
     open?: number;
     secure?: number;
@@ -352,6 +364,10 @@ interface server_ports {
 
 interface store_arrays {
     [key:string]: Array<object>;
+}
+
+interface store_bigint {
+    [key:string]: bigint;
 }
 
 interface store_children {

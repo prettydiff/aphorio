@@ -810,7 +810,9 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             }
         },
         main = function utilities_os_main(time:number):core_server_os {
-            const mem:server_os_memoryUsage = process.memoryUsage(),
+            const mem:os_node_memoryUsage = process.memoryUsage(),
+                cpu:os_node_cpuUsage = process.cpuUsage(),
+                cpus:os_node_cpu = node.os.cpus(),
                 gid:number = (typeof process.getgid === "undefined")
                     ? 0
                     : process.getgid(),
@@ -833,10 +835,10 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     machine: {
                         cpu: {
                             arch: node.os.arch(),
-                            cores: node.os.cpus().length,
+                            cores: cpus.length,
                             endianness: node.os.endianness(),
-                            frequency: node.os.cpus()[0].speed,
-                            name: node.os.cpus()[0].model
+                            frequency: cpus[0].speed,
+                            name: cpus[0].model
                         },
                         memory: {
                             free: node.os.freemem(),
@@ -861,12 +863,12 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         admin: vars.os.process.admin,
                         arch: process.arch,
                         argv: process.argv,
-                        cpuSystem: process.cpuUsage().system / 1e6,
-                        cpuUser: process.cpuUsage().user / 1e6,
+                        cpuSystem: cpu.system / 1e6,
+                        cpuUser: cpu.user / 1e6,
                         cwd: process.cwd(),
                         memory: {
                             external: mem.external,
-                            rss: process.memoryUsage.rss(),
+                            rss: mem.rss,
                             V8: mem.heapUsed
                         },
                         pid: process.pid,
