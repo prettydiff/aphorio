@@ -65,7 +65,8 @@ const status = function core_status():void {
         });
     } else {
         spawn("docker stats --no-stream --no-trunc --format json", function core_status_spawnDocker(output:core_spawn_output):void {
-            const data:core_docker_status = JSON.parse(`[${output.stdout.replace(/\}\n/g, "},")}]`);
+            const obj:string = `[${output.stdout.replace(/\}\n/g, "},")}]`.replace(/\},\]$/, "}]"),
+                data:core_docker_status = JSON.parse(obj);
             let index:number = data.length,
                 disk:string[] = null,
                 net:string[] = null;
@@ -76,11 +77,11 @@ const status = function core_status():void {
                     net = data[index].NetIO.split(" / ");
                     payload.docker[data[index].ID] = {
                         cpu: [0, Number(data[index].CPUPerc.replace("%", ""))],
-                        disk: [net[0].bytes(), net[1].bytes()],
+                        disk: [disk[0].bytes(), disk[1].bytes()],
                         mem: [data[index].MemUsage.split(" / ")[0].bytes(), Number(data[index].MemPerc.replace("%", ""))],
                         net: [net[0].bytes_big(), net[1].bytes_big()],
                         threads: Number(data[index].PIDs)
-                    }
+                    };
                 } while (index > 0);
             }
             broadcast(vars.dashboard_id, "dashboard", {

@@ -69,8 +69,8 @@ interface core_docker {
 
 interface core_docker_status_item {
     BlockIO: string;
-    CPUPerc: string;
     Container: string;
+    CPUPerc: string;
     ID: string;
     MemPerc: string;
     MemUsage: string;

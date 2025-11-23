@@ -19,7 +19,7 @@ const utilities:core_universal = {
             },
             scale:string = input.match(/[a-z]+$/)[0],
             numb:number = Number(input.match(/^\d+(\.{1,2})?/)[0]);
-        if (scale === null || isNaN(numb) === true || (/^\d+(\.\d{1,2})?[a-z]{2,3}$/).test(input) === false || map[scale] === undefined) {
+        if (scale === null || isNaN(numb) === true || (/^\d+(\.\d{1,3})?[a-z]{2,3}$/).test(input) === false || map[scale] === undefined) {
             return null;
         }
         return numb * map[scale];
@@ -43,7 +43,7 @@ const utilities:core_universal = {
             },
             scale:string = input.match(/[a-z]+$/)[0],
             numb:number = Number(input.match(/^\d+(\.{1,2})?/)[0]);
-        if (scale === null || isNaN(numb) === true || (/^\d+(\.\d{1,2})?[a-z]{2,3}$/).test(input) === false || map[scale] === undefined) {
+        if (scale === null || isNaN(numb) === true || (/^\d+(\.\d{1,3})?[a-z]{2,3}$/).test(input) === false || map[scale] === undefined) {
             return null;
         }
         return BigInt(numb) * map[scale];

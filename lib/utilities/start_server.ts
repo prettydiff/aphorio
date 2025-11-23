@@ -131,7 +131,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                     vars.dashboard_page = vars.dashboard_page
                                         .replace("Server Management Dashboard", `${vars.name.capitalize()} Dashboard`)
                                         .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
-                                        .replace("replace_javascript", `${xterm}const universal={bytes:${universal.bytes.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
+                                        .replace("replace_javascript", `${xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
                                         .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
                                     complete_tasks("html", "task");
                                 },
@@ -619,6 +619,7 @@ const start_server = function utilities_startServer(process_path:string, testing
     Number.prototype.dateTime = universal.dateTime;
     Number.prototype.time = universal.time;
     String.prototype.bytes = universal.bytes;
+    String.prototype.bytes_big = universal.bytes_big;
     String.prototype.capitalize = function utilities_startServer_capitalize():string {
         // eslint-disable-next-line no-restricted-syntax
         return this.charAt(0).toUpperCase() + this.slice(1);
