@@ -18,16 +18,16 @@ const status = function core_status():void {
                 cpu: [0, 0],
                 disk:[0, 0],
                 mem: [0, 0],
-                net: (function core_status_netIO():[bigint, bigint] {
-                    const output:[bigint, bigint] = [vars.stats.net_in, vars.stats.net_out],
+                net: (function core_status_netIO():[number, number] {
+                    const output:[number, number] = [vars.stats.net_in, vars.stats.net_out],
                         keys:string[] = Object.keys(vars.server_meta),
                         sockets = function core_status_netIO_sockets(list:websocket_client[]):void {
                             let index_list:number = list.length;
                             if (index_list > 0) {
                                 do {
                                     index_list = index_list - 1;
-                                    output[0] = output[0] + BigInt(list[index].bytesRead);
-                                    output[1] = output[1] + BigInt(list[index].bytesWritten);
+                                    output[0] = output[0] + list[index].bytesRead;
+                                    output[1] = output[1] + list[index].bytesWritten;
                                 } while (index_list > 0);
                             }
                         };
@@ -79,7 +79,7 @@ const status = function core_status():void {
                         cpu: [0, Number(data[index].CPUPerc.replace("%", ""))],
                         disk: [disk[0].bytes(), disk[1].bytes()],
                         mem: [data[index].MemUsage.split(" / ")[0].bytes(), Number(data[index].MemPerc.replace("%", ""))],
-                        net: [net[0].bytes_big(), net[1].bytes_big()],
+                        net: [net[0].bytes(), net[1].bytes()],
                         threads: Number(data[index].PIDs)
                     };
                 } while (index > 0);

@@ -211,7 +211,7 @@ interface services_status_item {
     cpu: [number, number];
     disk: [number, number];
     mem: [number, number];
-    net: [bigint, bigint];
+    net: [number, number];
     threads: number;
 }
 

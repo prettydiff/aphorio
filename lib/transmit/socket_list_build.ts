@@ -14,8 +14,8 @@ const socket_list = function services_socketList(extension?:() => void):void {
                 socket.off("end", socket_end);
                 socket.off("error", socket_end);
                 socket.destroy();
-                vars.stats.net_in = vars.stats.net_in + BigInt(socket.bytesRead);
-                vars.stats.net_out = vars.stats.net_out + BigInt(socket.bytesWritten);
+                vars.stats.net_in = vars.stats.net_in + socket.bytesRead;
+                vars.stats.net_out = vars.stats.net_out + socket.bytesWritten;
                 vars.server_meta[server_id].sockets[encryption].splice(index, 1);
             };
             let index_list:number = (vars.server_meta[server_id].sockets[encryption] === undefined)

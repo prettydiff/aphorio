@@ -228,8 +228,8 @@ interface core_vars {
     start_time: bigint;
     stats: {
         children: number;
-        net_in: bigint;
-        net_out: bigint;
+        net_in: number;
+        net_out: number;
     };
     terminal: string[];
     test: {

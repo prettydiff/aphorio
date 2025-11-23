@@ -171,8 +171,8 @@ const vars:core_vars = {
         start_time: process.hrtime.bigint(),
         stats: {
             children: 1,
-            net_in: 0n,
-            net_out: 0n
+            net_in: 0,
+            net_out: 0
         },
         terminal: (process.platform === "win32")
             ? [
