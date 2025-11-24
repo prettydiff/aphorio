@@ -11,7 +11,7 @@ import os_lists from "./os_lists.ts";
 import server from "../transmit/server.ts";
 import server_create from "../services/server_create.ts";
 import spawn from "../core/spawn.ts";
-import status from "../core/status.ts";
+import statistics from "../services/statistics.ts";
 import test_browser from "../dashboard/test_browser.ts";
 import test_index from "../test/index.ts";
 import universal from "../core/universal.ts";
