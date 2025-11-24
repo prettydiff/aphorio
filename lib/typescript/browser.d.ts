@@ -356,6 +356,7 @@ declare global {
 
     interface module_utility {
         baseline: () => void;
+        clock: (data_item:socket_data) => void;
         log: (socket_data:socket_data) => void;
         message_send: (data:type_socket_data, service:type_service) => void;
         nodes: {
@@ -366,7 +367,6 @@ declare global {
         resize: () => void;
         setState: () => void;
         socket: socket_object;
-        status: (data_item:socket_data) => void;
     }
 
     interface module_websocket {

@@ -198,13 +198,17 @@ interface services_socket_application_item {
     userAgent: string;
 }
 
-interface services_status {
-    application: services_status_item;
-    docker: {
-        [key:string]: services_status_item;
-    };
+interface services_status_clock {
     time_local: number;
     time_zulu: number;
+}
+
+interface services_status_statistics {
+    application: services_status_item[];
+    docker: {
+        [key:string]: services_status_item[];
+    };
+    now: number;
 }
 
 interface services_status_item {

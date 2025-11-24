@@ -440,6 +440,28 @@ const dashboard = function dashboard():void {
                     utility.socket.socket = null;
                 }
             },
+            // provides server status information
+            clock: function dashboard_utilityClock(data_item:socket_data):void {
+                const data:services_status_clock = data_item.data as services_status_clock,
+                    str = function dashboard_utilityStatus_str(num:number):string {
+                        const date:Date = new Date(num),
+                            hour:string = String(date.getHours()),
+                            minute:string = String(date.getMinutes()),
+                            second:string = String(date.getSeconds()),
+                            hours:string = (hour.length === 1)
+                                ? `0${hour}`
+                                : hour,
+                            minutes:string = (minute.length === 1)
+                                ? `0${minute}`
+                                : minute,
+                            seconds:string = (second.length === 1)
+                                ? `0${second}`
+                                : second;
+                        return `${hours}:${minutes}:${seconds}`;
+                    };
+                utility.nodes.clock.setAttribute("data-local", String(data.time_local));
+                utility.nodes.clock.textContent = `${str(data.time_local)}L (${str(data.time_zulu)}Z)`;
+            },
             // populate the log utility
             log: function dashboard_utilityLog(socket_data:socket_data):void {
                 const item:config_log = socket_data.data as config_log,
@@ -622,7 +644,7 @@ const dashboard = function dashboard():void {
                                 "dashboard-log": utility.log,
                                 "dashboard-server": services.servers_web.list,
                                 "dashboard-socket-application": network.sockets_application.list,
-                                "dashboard-status": utility.status,
+                                "dashboard-status": utility.clock,
                                 "dashboard-websocket-message": tools.websocket.message_receive,
                                 "dashboard-websocket-status": tools.websocket.status
                             };
@@ -707,29 +729,7 @@ const dashboard = function dashboard():void {
                     }
                 },
                 type: "dashboard"
-            }),
-            // provides server status information
-            status: function dashboard_utilityStatus(data_item:socket_data):void {
-                const data:services_status = data_item.data as services_status,
-                    str = function dashboard_utilityStatus_str(num:number):string {
-                        const date:Date = new Date(num),
-                            hour:string = String(date.getHours()),
-                            minute:string = String(date.getMinutes()),
-                            second:string = String(date.getSeconds()),
-                            hours:string = (hour.length === 1)
-                                ? `0${hour}`
-                                : hour,
-                            minutes:string = (minute.length === 1)
-                                ? `0${minute}`
-                                : minute,
-                            seconds:string = (second.length === 1)
-                                ? `0${second}`
-                                : second;
-                        return `${hours}:${minutes}:${seconds}`;
-                    };
-                utility.nodes.clock.setAttribute("data-local", String(data.time_local));
-                utility.nodes.clock.textContent = `${str(data.time_local)}L (${str(data.time_zulu)}Z)`;
-            }
+            })
         },
         services:structure_services = {
             compose_containers: {

@@ -1,5 +1,6 @@
 
 import broadcast from "../transmit/broadcast.ts";
+import clock from "../services/clock.ts";
 import core from "../browser/core.ts";
 import dashboard_script from "../dashboard/dashboard_script.ts";
 import docker from "../services/docker.ts";
@@ -573,7 +574,8 @@ const start_server = function utilities_startServer(process_path:string, testing
                         }
 
                     };
-                    status();
+                    clock();
+                    statistics();
                     if (testing === true || vars.servers[vars.dashboard_id] === undefined) {
                         server_create({
                             action: "add",

@@ -1,5 +1,5 @@
 
-// cspell: words serv
+// cspell: words Perc, serv
 
 interface core_compose {
     containers: store_compose;
@@ -227,9 +227,15 @@ interface core_vars {
     sockets: services_socket_application;
     start_time: bigint;
     stats: {
+        application: services_status_item[];
         children: number;
+        docker: {
+            [key:string]: services_status_item[];
+        };
+        frequency: number;
         net_in: number;
         net_out: number;
+        records: number;
     };
     terminal: string[];
     test: {

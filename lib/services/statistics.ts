@@ -1,70 +1,73 @@
 
 import broadcast from "../transmit/broadcast.ts";
-import node from "./node.ts";
-import spawn from "./spawn.ts";
-import vars from "./vars.ts";
+import node from "../core/node.ts";
+import spawn from "../core/spawn.ts";
+import vars from "../core/vars.ts";
 
 // cspell: words CPUPerc, MemPerc
 
-const status = function core_status():void {
-    const now:number = Date.now(),
-        container_keys:string[] = Object.keys(vars.compose.containers),
+const statistics = function services_statistics():void {
+    const container_keys:string[] = Object.keys(vars.compose.containers),
         container_len:number = container_keys.length,
         cpu:os_node_cpuUsage = process.cpuUsage(),
         mem:os_node_memoryUsage = process.memoryUsage(),
         cpus:os_node_cpu = node.os.cpus(),
-        payload:services_status = {
-            application: {
-                cpu: [0, 0],
-                disk:[0, 0],
-                mem: [0, 0],
-                net: (function core_status_netIO():[number, number] {
-                    const output:[number, number] = [vars.stats.net_in, vars.stats.net_out],
-                        keys:string[] = Object.keys(vars.server_meta),
-                        sockets = function core_status_netIO_sockets(list:websocket_client[]):void {
-                            let index_list:number = list.length;
-                            if (index_list > 0) {
-                                do {
-                                    index_list = index_list - 1;
-                                    output[0] = output[0] + list[index].bytesRead;
-                                    output[1] = output[1] + list[index].bytesWritten;
-                                } while (index_list > 0);
-                            }
-                        };
-                    let index:number = keys.length,
-                        encryption:"both"|"open"|"secure";
-                    if (index > 0) {
-                        do {
-                            index = index - 1;
-                            encryption = vars.servers[keys[index]].config.encryption;
-                            if (encryption === "both") {
-                                sockets(vars.server_meta[keys[index]].sockets.open);
-                                sockets(vars.server_meta[keys[index]].sockets.secure);
-                            } else {
-                                sockets(vars.server_meta[keys[index]].sockets[encryption]);
-                            }
-                        } while (index > 0);
-                    }
-                    return output;
-                }()),
-                threads: vars.stats.children
-            },
-            docker: {},
-            time_local: now,
-            time_zulu: (now + (new Date().getTimezoneOffset() * 60000))
+        application:services_status_item = {
+            cpu: [0, 0],
+            disk:[0, 0],
+            mem: [0, 0],
+            net: (function services_statistics_netIO():[number, number] {
+                const output:[number, number] = [vars.stats.net_in, vars.stats.net_out],
+                    keys:string[] = Object.keys(vars.server_meta),
+                    sockets = function core_status_netIO_sockets(list:websocket_client[]):void {
+                        let index_list:number = list.length;
+                        if (index_list > 0) {
+                            do {
+                                index_list = index_list - 1;
+                                output[0] = output[0] + list[index].bytesRead;
+                                output[1] = output[1] + list[index].bytesWritten;
+                            } while (index_list > 0);
+                        }
+                    };
+                let index:number = keys.length,
+                    encryption:"both"|"open"|"secure";
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        encryption = vars.servers[keys[index]].config.encryption;
+                        if (encryption === "both") {
+                            sockets(vars.server_meta[keys[index]].sockets.open);
+                            sockets(vars.server_meta[keys[index]].sockets.secure);
+                        } else {
+                            sockets(vars.server_meta[keys[index]].sockets[encryption]);
+                        }
+                    } while (index > 0);
+                }
+                return output;
+            }()),
+            threads: vars.stats.children
+        },
+        payload:services_status_statistics = {
+            application: vars.stats.application,
+            docker: vars.stats.docker,
+            now: Date.now()
         };
     // gathering total time and then converting microseconds into milliseconds because CPU timing is in milliseconds
-    payload.application.cpu[0] = (cpu.system + cpu.user) / 1000;
-    payload.application.cpu[1] = (payload.application.cpu[0] / (cpus[0].times.idle + cpus[0].times.irq + cpus[0].times.nice + cpus[0].times.sys + cpus[0].times.user)) * 100;
-    payload.application.mem[0] = mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss;
-    payload.application.mem[1] = (payload.application.mem[0] / vars.os.machine.memory.total) * 100;
+    application.cpu[0] = (cpu.system + cpu.user) / 1000;
+    application.cpu[1] = (application.cpu[0] / (cpus[0].times.idle + cpus[0].times.irq + cpus[0].times.nice + cpus[0].times.sys + cpus[0].times.user)) * 100;
+    application.mem[0] = mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss;
+    application.mem[1] = (application.mem[0] / vars.os.machine.memory.total) * 100;
+    vars.stats.application.push(application);
+    if (vars.stats.application.length > vars.stats.records) {
+        vars.stats.application.splice(0, vars.stats.application.length - vars.stats.records);
+    }
     if (container_len === 0) {
         broadcast(vars.dashboard_id, "dashboard", {
             data: payload,
-            service: "dashboard-status"
+            service: "dashboard-status-statistics"
         });
     } else {
-        spawn("docker stats --no-stream --no-trunc --format json", function core_status_spawnDocker(output:core_spawn_output):void {
+        spawn("docker stats --no-stream --no-trunc --format json", function services_statistics_spawnDocker(output:core_spawn_output):void {
             const obj:string = `[${output.stdout.replace(/\}\n/g, "},")}]`.replace(/\},\]$/, "}]"),
                 data:core_docker_status = JSON.parse(obj);
             let index:number = data.length,
@@ -75,25 +78,33 @@ const status = function core_status():void {
                     index = index - 1;
                     disk = data[index].BlockIO.split(" / ");
                     net = data[index].NetIO.split(" / ");
-                    payload.docker[data[index].ID] = {
+                    if (payload.docker[data[index].ID] === undefined) {
+                        payload.docker[data[index].ID] = [];
+                    }
+                    payload.docker[data[index].ID].push({
                         cpu: [0, Number(data[index].CPUPerc.replace("%", ""))],
                         disk: [disk[0].bytes(), disk[1].bytes()],
                         mem: [data[index].MemUsage.split(" / ")[0].bytes(), Number(data[index].MemPerc.replace("%", ""))],
                         net: [net[0].bytes(), net[1].bytes()],
                         threads: Number(data[index].PIDs)
-                    };
+                    });
+                    if (payload.docker[data[index].ID].length > vars.stats.records) {
+                        payload.docker[data[index].ID].splice(0, payload.docker[data[index].ID].length - vars.stats.records);
+                    }
                 } while (index > 0);
             }
             broadcast(vars.dashboard_id, "dashboard", {
                 data: payload,
-                service: "dashboard-status"
+                service: "dashboard-status-statistics"
             });
         }).execute();
     }
-    setTimeout(core_status, 950);
+    if (vars.stats.frequency > 0) {
+        setTimeout(services_statistics, vars.stats.frequency);
+    }
 };
 
-export default status;
+export default statistics;
 
 // {"BlockIO":"356MB / 349MB","CPUPerc":"0.17%","Container":"256c9e9f1555","ID":"256c9e9f1555e5e5d9592c109293c3399f2d9fcc6e50fa071ed57b98ad786d44","MemPerc":"1.16%","MemUsage":"370.8MiB / 31.26GiB","Name":"mealie","NetIO":"15.5MB / 3.1MB","PIDs":"6"}
 

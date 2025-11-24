@@ -353,7 +353,6 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         }
         .nav-focus{background:var(--background_dark);border-color:var(--border_soft);color:var(--text_input)}
     }
-    p.update-button:first-child{margin-top:0}
     select{display:block}
     table{border-collapse:collapse;margin:0}
     textarea{
@@ -449,6 +448,9 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
 
     .active-ports,
     .edit .summary{background:var(--background);border-color:var(--border_input);border-style:solid;border-width:0.1em;margin:0 0 1em;padding:1em 0.5em}
+
+    .active-ports p:first-child,
+    p.update-button:first-child{margin-top:0}
 
     .compose-container-list,
     .server-list{

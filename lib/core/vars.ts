@@ -170,9 +170,13 @@ const vars:core_vars = {
         },
         start_time: process.hrtime.bigint(),
         stats: {
+            application: [],
             children: 1,
+            docker: {},
+            frequency: 5000,
             net_in: 0,
-            net_out: 0
+            net_out: 0,
+            records: 100
         },
         terminal: (process.platform === "win32")
             ? [
