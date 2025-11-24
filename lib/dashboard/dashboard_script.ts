@@ -259,7 +259,7 @@ const dashboard = function dashboard():void {
                         tableElement.setAttribute("data-column", String(index_th));
 
                         // save state
-                        if (state.tables === undefined) {
+                        if (state.tables === undefined || state.tables === null) {
                             state.tables = {};
                         }
                         do {
@@ -516,26 +516,66 @@ const dashboard = function dashboard():void {
                                 state.table_os[type].filter_value = module.nodes.filter_value.value;
                             }
                         };
-                    state.dns.reverse = tools.dns.nodes.reverse.checked;
-                    state.dns.hosts = tools.dns.nodes.hosts.value;
-                    state.dns.types = tools.dns.nodes.types.value;
-                    state.fileSystem.path = tools.fileSystem.nodes.path.value;
-                    state.fileSystem.search = tools.fileSystem.nodes.search.value;
-                    state.hash.algorithm = (tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex] === undefined)
-                        ? ""
-                        : tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex].textContent;
-                    state.hash.hashFunction = (hashInput[1].checked === true)
-                        ? "base64"
-                        : "hash";
-                    state.hash.type = (hashInput[3].checked === true)
-                        ? "file"
-                        : "string";
-                    state.hash.digest = (hashInput[5].checked === true)
-                        ? "base64"
-                        : "hex";
-                    state.hash.source = tools.hash.nodes.source.value;
-                    state.http.encryption = (tools.http.nodes.encryption.checked === true);
-                    state.http.request = tools.http.nodes.request.value;
+                    if (state.dns === undefined || state.dns === null) {
+                        state.dns = {
+                            reverse: tools.dns.nodes.reverse.checked,
+                            hosts: tools.dns.nodes.hosts.value,
+                            types: tools.dns.nodes.types.value
+                        };
+                    } else {
+                        state.dns.reverse = tools.dns.nodes.reverse.checked;
+                        state.dns.hosts = tools.dns.nodes.hosts.value;
+                        state.dns.types = tools.dns.nodes.types.value;
+                    }
+                    if (state.fileSystem === undefined || state.fileSystem === null) {
+                        state.fileSystem = {
+                            path: tools.fileSystem.nodes.path.value,
+                            search: tools.fileSystem.nodes.search.value
+                        };
+                    } else {
+                        state.fileSystem.path = tools.fileSystem.nodes.path.value;
+                        state.fileSystem.search = tools.fileSystem.nodes.search.value;
+                    }
+                    if (state.hash === undefined || state.hash === null) {
+                        state.hash = {
+                            algorithm: (tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex] === undefined)
+                                ? ""
+                                : tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex].textContent,
+                            hashFunction: (hashInput[1].checked === true)
+                                ? "base64"
+                                : "hash",
+                            type: (hashInput[3].checked === true)
+                                ? "file"
+                                : "string",
+                            digest: (hashInput[5].checked === true)
+                                ? "base64"
+                                : "hex",
+                            source: tools.hash.nodes.source.value
+                        };
+                    } else {
+                        state.hash.algorithm = (tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex] === undefined)
+                            ? ""
+                            : tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex].textContent;
+                        state.hash.hashFunction = (hashInput[1].checked === true)
+                            ? "base64"
+                            : "hash";
+                        state.hash.type = (hashInput[3].checked === true)
+                            ? "file"
+                            : "string";
+                        state.hash.digest = (hashInput[5].checked === true)
+                            ? "base64"
+                            : "hex";
+                        state.hash.source = tools.hash.nodes.source.value;
+                    }
+                    if (state.http === undefined || state.http === null) {
+                        state.http = {
+                            encryption: (tools.http.nodes.encryption.checked === true),
+                            request: tools.http.nodes.request.value
+                        };
+                    } else {
+                        state.http.encryption = (tools.http.nodes.encryption.checked === true);
+                        state.http.request = tools.http.nodes.request.value;
+                    }
                     if (tools.terminal.nodes.select[tools.terminal.nodes.select.selectedIndex] !== undefined) {
                         state.terminal = tools.terminal.nodes.select[tools.terminal.nodes.select.selectedIndex].textContent;
                     }
@@ -2595,9 +2635,11 @@ const dashboard = function dashboard():void {
                     tools.dns.nodes.query.onclick = tools.dns.query;
                     tools.dns.nodes.output.value = "";
                     tools.dns.nodes.lookup.checked = true;
-                    tools.dns.nodes.reverse.checked = state.dns.reverse;
-                    tools.dns.nodes.hosts.value = state.dns.hosts;
-                    tools.dns.nodes.types.value = state.dns.types;
+                    if (state.dns !== undefined && state.dns !== null) {
+                        tools.dns.nodes.reverse.checked = state.dns.reverse;
+                        tools.dns.nodes.hosts.value = state.dns.hosts;
+                        tools.dns.nodes.types.value = state.dns.types;
+                    }
                     tools.dns.nodes.hosts.onkeyup = tools.dns.query;
                     tools.dns.nodes.types.onkeyup = tools.dns.query;
                     tools.dns.nodes.lookup.onclick = tools.dns.directionEvent;
@@ -2818,10 +2860,12 @@ const dashboard = function dashboard():void {
                     tools.fileSystem.nodes.search.onblur = tools.fileSystem.send;
                     tools.fileSystem.nodes.path.onkeydown = tools.fileSystem.key;
                     tools.fileSystem.nodes.search.onkeydown = tools.fileSystem.key;
-                    tools.fileSystem.nodes.path.value = (state.fileSystem.path === "")
+                    tools.fileSystem.nodes.path.value = (state.fileSystem === undefined || state.fileSystem === null || typeof state.fileSystem.path !== "string" || state.fileSystem.path === "")
                         ? payload.path.project.replace(/(\\|\/)webserver(\\|\/)test(\\|\/)?$/, `${payload.path.sep}webserver`)
                         : state.fileSystem.path;
-                    tools.fileSystem.nodes.search.value = state.fileSystem.search;
+                    tools.fileSystem.nodes.search.value = (state.fileSystem === undefined || state.fileSystem === null || typeof state.fileSystem.search !== "string")
+                        ? ""
+                        : state.fileSystem.search;
                     tools.fileSystem.send(null);
                 },
                 key: function dashboard_fileSystemKey(event:KeyboardEvent):void {
@@ -3060,23 +3104,26 @@ const dashboard = function dashboard():void {
                         tools.hash.nodes.algorithm.appendChild(option);
                         index = index + 1;
                     } while (index < len);
-                    if (state.hash.hashFunction === "hash") {
-                        tools.hash.nodes.hash.checked = true;
-                    } else {
-                        tools.hash.nodes.base64.checked = true;
+                    if (state.hash === undefined || state.hash === null) {
+                        if (state.hash.hashFunction === "hash") {
+                            tools.hash.nodes.hash.checked = true;
+                        } else {
+                            tools.hash.nodes.base64.checked = true;
+                        }
+                        if (state.hash.type === "string") {
+                            tools.hash.nodes.string.checked = true;
+                        } else {
+                            tools.hash.nodes.file.checked = true;
+                        }
+                        if (state.hash.digest === "hex") {
+                            tools.hash.nodes.hex.checked = true;
+                        } else {
+                            tools.hash.nodes.digest.checked = true;
+                        }
+                        tools.hash.nodes.source.value = (typeof state.hash.source !== "string")
+                            ? ""
+                            : state.hash.source;
                     }
-                    if (state.hash.type === "string") {
-                        tools.hash.nodes.string.checked = true;
-                    } else {
-                        tools.hash.nodes.file.checked = true;
-                    }
-                    if (state.hash.digest === "hex") {
-                        tools.hash.nodes.hex.checked = true;
-                    } else {
-                        tools.hash.nodes.digest.checked = true;
-                    }
-
-                    tools.hash.nodes.source.value = state.hash.source;
                     tools.hash.nodes.button.onclick = tools.hash.request;
                     tools.hash.nodes.base64.onclick = tools.hash.toggle_mode;
                     tools.hash.nodes.hash.onclick = tools.hash.toggle_mode;
@@ -3138,14 +3185,14 @@ const dashboard = function dashboard():void {
             http: {
                 init: function dashboard_httpInit():void {
                     // populate a default HTTP test value
-                    tools.http.nodes.request.value = (state.http.request === null || state.http.request === undefined || state.http.request === "")
+                    tools.http.nodes.request.value = (state.http === null || state.http === undefined || typeof state.http.request !== "string" || state.http.request === "")
                         ? payload.http_request
                         : state.http.request;
                     tools.http.nodes.http_request.onclick = tools.http.request;
                     tools.http.nodes.responseBody.value = "";
                     tools.http.nodes.responseHeaders.value = "";
                     tools.http.nodes.responseURI.value = "";
-                    if (state.http.encryption === true) {
+                    if (state.http !== null && state.http !== undefined && state.http.encryption === true) {
                         document.getElementById("http").getElementsByTagName("input")[1].checked =  true;
                     } else {
                         document.getElementById("http").getElementsByTagName("input")[0].checked =  true;
@@ -3654,7 +3701,7 @@ const dashboard = function dashboard():void {
             title:HTMLElement = document.getElementsByTagName("h1")[0],
             th:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("th"),
             expand:HTMLCollectionOf<HTMLButtonElement> = document.getElementsByClassName("expand") as HTMLCollectionOf<HTMLButtonElement>,
-            table_keys:string[] = (state.tables === undefined)
+            table_keys:string[] = (state.tables === undefined || state.tables === null)
                 ? []
                 : Object.keys(state.tables);
         let index:number = table_keys.length,
@@ -3665,7 +3712,7 @@ const dashboard = function dashboard():void {
         title.textContent = `${payload.name.capitalize()} Dashboard`;
 
         // restore state of table filter controls
-        if (state.table_os === undefined) {
+        if (state.table_os === undefined || state.table_os === null) {
             state.table_os = {};
         }
 
