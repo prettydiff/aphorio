@@ -112,7 +112,7 @@ const statistics:core_statistics = {
     },
     update: function services_statisticsUpdate(data:socket_data):void {
         const update:services_statistics_update = data.data as services_statistics_update,
-            list:store_servers = {},
+            list:store_server_config = {},
             keys:string[] = Object.keys(vars.servers),
             len:number = keys.length,
             file_data:core_servers_file = {
@@ -127,10 +127,11 @@ const statistics:core_statistics = {
         let index:number = 0;
         if (len > 0) {
             do {
-                list[keys[index]] = vars.servers[keys[index]];
+                list[keys[index]] = vars.servers[keys[index]].config;
                 index = index + 1;
             } while (index < len);
         }
+        file_data.servers = list;
         vars.stats.frequency = update.frequency;
         vars.stats.records = update.records;
         file.write({
