@@ -1935,7 +1935,7 @@ const dashboard = function dashboard():void {
                         return;
                     }
                     utility.message_send({
-                        frequency: frequency,
+                        frequency: (frequency * 1000),
                         records: records
                     }, "dashboard-statistics-update");
                 },
