@@ -1077,10 +1077,10 @@ const dashboard = function dashboard():void {
                 }
                 services.statistics.nodes.frequency.onblur = services.statistics.definitions;
                 services.statistics.nodes.frequency.onkeyup = services.statistics.definitions;
-                services.statistics.nodes.frequency.value = payload.stats.frequency.toString();
+                services.statistics.nodes.frequency.value = (payload.stats.frequency / 1000).toString();
                 services.statistics.nodes.records.onblur = services.statistics.definitions;
                 services.statistics.nodes.records.onkeyup = services.statistics.definitions;
-                services.statistics.nodes.records.value = payload.stats.frequency.toString();
+                services.statistics.nodes.records.value = payload.stats.records.toString();
                 services.servers_web.list({
                     data: payload.servers,
                     service: "dashboard-server"
@@ -1941,9 +1941,15 @@ const dashboard = function dashboard():void {
                 },
                 nodes: {
                     frequency: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
-                    records: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1]
+                    records: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
+                    update: document.getElementById("statistics").getElementsByClassName("section")[0].getElementsByTagName("em")[0]
                 },
-                receive: function dashboard_stasticsReceive(data:socket_data):void {}
+                receive: function dashboard_statisticsReceive(data:socket_data):void {
+                    const stats:services_statistics_data = data.data as services_statistics_data;
+                    services.statistics.nodes.frequency.value = (stats.frequency / 1000).toString();
+                    services.statistics.nodes.records.value = stats.records.toString();
+                    services.statistics.nodes.update.textContent = stats.now.dateTime(true, payload.timeZone_offset);
+                }
             }
         },
         network:structure_network = {

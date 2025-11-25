@@ -320,6 +320,7 @@ declare global {
         nodes: {
             frequency: HTMLInputElement;
             records: HTMLInputElement;
+            update: HTMLElement;
         };
         receive: (data:socket_data) => void;
     }
