@@ -306,13 +306,21 @@ declare global {
         validate: (event:FocusEvent|KeyboardEvent) => void;
     }
 
-    interface module_serverItems {
+    interface module_serverShared {
         cancel: (event:MouseEvent) => void;
         color: (name_server:string, type:type_dashboard_list) => type_activation_status;
         create: (event:MouseEvent) => void;
         details: (event:MouseEvent) => void;
         edit: (event:MouseEvent) => void;
         title: (name_server:string, type:type_dashboard_list) => HTMLElement;
+    }
+
+    interface module_statistics {
+        definitions: (event:FocusEvent|KeyboardEvent) => void;
+        nodes: {
+            frequency: HTMLInputElement;
+            records: HTMLInputElement;
+        };
     }
 
     interface module_sockets_application extends module_list {
@@ -418,7 +426,8 @@ declare global {
         compose_containers: module_compose_containers;
         init: () => void;
         servers_web: module_servers_web;
-        shared: module_serverItems;
+        shared: module_serverShared;
+        statistics: module_statistics;
     }
 
     interface structure_system {

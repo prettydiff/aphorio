@@ -11,7 +11,7 @@ import os_lists from "./os_lists.ts";
 import server from "../transmit/server.ts";
 import server_create from "../services/server_create.ts";
 import spawn from "../core/spawn.ts";
-import status from "../core/status.ts";
+import statistics from "../services/statistics.ts";
 import test_browser from "../dashboard/test_browser.ts";
 import test_index from "../test/index.ts";
 import universal from "../core/universal.ts";
@@ -255,6 +255,8 @@ const start_server = function utilities_startServer(process_path:string, testing
                             : keys_srv.length,
                         server:server = null,
                         sub:number = 0;
+                    vars.stats.frequency = config.stats.frequency;
+                    vars.stats.records = config.stats.records;
                     if (index_srv > 0) {
                         vars.dashboard_id = config.dashboard_id;
                         vars.compose.variables = config["compose-variables"];
@@ -575,7 +577,7 @@ const start_server = function utilities_startServer(process_path:string, testing
 
                     };
                     clock();
-                    statistics();
+                    statistics.data();
                     if (testing === true || vars.servers[vars.dashboard_id] === undefined) {
                         server_create({
                             action: "add",

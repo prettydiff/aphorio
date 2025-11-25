@@ -30,7 +30,7 @@
         <h2>Navigation</h2>
         <div>
             <h3>Services</h3>
-            <ul><li><button class="nav-focus" data-section="servers_web">Web Servers</button></li><li><button data-section="compose_containers">Docker Compose</button></li></ul>
+            <ul><li><button class="nav-focus" data-section="servers_web">Web Servers</button></li><li><button data-section="compose_containers">Docker Compose</button></li><li><button data-section="statistics">Statistics</button></li></ul>
         </div>
         <div>
             <h3>Network</h3>
@@ -865,6 +865,18 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <h3>Server List</h3>
                 <p class="buttons"><button class="server-new">Create Server</button></p>
                 <ul class="server-list"></ul>
+            </div>
+        </div>
+        <div class="tab" id="statistics">
+            <h2>Statistics</h2>
+            <p class="tab-description">Providing a real time metrics for supported services.</p>
+            <div class="table-filters">
+                <h3>Metric Controls</h3>
+                <p><label>Delay between updates in seconds <input spellcheck="false" type="text"/></label></p>
+                <p><label>Maximum number of data points <input spellcheck="false" type="text"/></label></p>
+            </div>
+            <div class="section">
+                <h3>Health Metrics</h3>
             </div>
         </div>
         <div class="tab" id="services">

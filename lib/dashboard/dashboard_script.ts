@@ -1074,6 +1074,12 @@ const dashboard = function dashboard():void {
                     services.compose_containers.nodes.status.appendText(payload.compose.status);
                     services.compose_containers.nodes.status.style.display = "block";
                 }
+                services.statistics.nodes.frequency.onblur = services.statistics.definitions;
+                services.statistics.nodes.frequency.onkeyup = services.statistics.definitions;
+                services.statistics.nodes.frequency.value = payload.stats.frequency.toString();
+                services.statistics.nodes.records.onblur = services.statistics.definitions;
+                services.statistics.nodes.records.onkeyup = services.statistics.definitions;
+                services.statistics.nodes.records.value = payload.stats.frequency.toString();
                 services.servers_web.list({
                     data: payload.servers,
                     service: "dashboard-server"
@@ -1914,6 +1920,27 @@ const dashboard = function dashboard():void {
                     h4.appendChild(expand);
                     li.appendChild(h4);
                     return li;
+                }
+            },
+            statistics: {
+                definitions: function dashboard_statisticsDefinitions(event:FocusEvent|KeyboardEvent):void {
+                    const key:KeyboardEvent = event as KeyboardEvent,
+                        frequency:number = Number(services.statistics.nodes.frequency.value),
+                        records:number = Number(services.statistics.nodes.records.value);
+                    if (key.type === "keyup" && key.key !== "Enter") {
+                        return;
+                    }
+                    if (isNaN(frequency) === true || isNaN(records) === true) {
+                        return;
+                    }
+                    utility.message_send({
+                        frequency: frequency,
+                        records: records
+                    }, "dashboard-statistics-update");
+                },
+                nodes: {
+                    frequency: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
+                    records: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1]
                 }
             }
         },

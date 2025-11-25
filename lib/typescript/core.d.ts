@@ -156,6 +156,10 @@ interface core_servers_file {
     "compose-variables": store_string;
     dashboard_id: string;
     servers: store_server_config;
+    stats: {
+        frequency: number;
+        records: number;
+    };
 }
 
 interface core_spawn {
@@ -183,6 +187,11 @@ interface core_spawn_output {
     stderr: string;
     stdout: string;
     type: string;
+}
+
+interface core_statistics {
+    data: () => void;
+    update: (data:socket_data) => void;
 }
 
 interface core_universal {
@@ -235,6 +244,7 @@ interface core_vars {
         frequency: number;
         net_in: number;
         net_out: number;
+        now: number;
         records: number;
     };
     terminal: string[];

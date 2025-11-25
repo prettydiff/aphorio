@@ -203,12 +203,19 @@ interface services_status_clock {
     time_zulu: number;
 }
 
-interface services_status_statistics {
+interface services_statistics_data {
     application: services_status_item[];
     docker: {
         [key:string]: services_status_item[];
     };
+    frequency: number;
     now: number;
+    records: number;
+}
+
+interface services_statistics_update {
+    frequency: number;
+    records: number;
 }
 
 interface services_status_item {

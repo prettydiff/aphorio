@@ -32,6 +32,7 @@ interface transmit_dashboard {
     path: core_vars_path;
     servers: store_servers;
     sockets: services_socket_application;
+    stats: services_statistics_data;
     terminal: string[];
     timeZone_offset: number;
 }

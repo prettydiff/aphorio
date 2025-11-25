@@ -176,6 +176,7 @@ const vars:core_vars = {
             frequency: 5000,
             net_in: 0,
             net_out: 0,
+            now: 0,
             records: 100
         },
         terminal: (process.platform === "win32")

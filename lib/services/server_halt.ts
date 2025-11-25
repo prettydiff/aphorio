@@ -119,7 +119,11 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 const config:core_servers_file = {
                     "compose-variables": vars.compose.variables,
                     dashboard_id: vars.dashboard_id,
-                    servers: {}
+                    servers: {},
+                    stats: {
+                        frequency: vars.stats.frequency,
+                        records: vars.stats.records
+                    }
                 };
                 let index:number = 0,
                     keys:string[] = [],

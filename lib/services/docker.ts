@@ -1,4 +1,5 @@
 
+import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import send from "../transmit/send.ts";
@@ -9,9 +10,9 @@ import vars from "../core/vars.ts";
 
 const docker:core_docker = {
     commands: {
-        activate: " unpause",
+        activate: " up --detach",
         add: " up --detach",
-        deactivate: " pause",
+        deactivate: " down",
         destroy: " down",
         list: " ps --format json --no-trunc",
         modify: " down",
@@ -42,6 +43,7 @@ const docker:core_docker = {
                     );
                 } else {
                     const counts:store_number = {},
+                        addresses:string[] = [],
                         list:core_compose_properties[] = JSON.parse(`[${output.stdout.replace(/\}\n\{/g, "},{")}]`),
                         len:number = list.length,
                         file_path = function services_docker_list_child_filePath(out:core_spawn_output):void {
@@ -72,6 +74,10 @@ const docker:core_docker = {
                                 status: list[ind].Status,
                                 version: ""
                             };
+                            if (vars.compose.containers[location] !== undefined) {
+                                delete vars.compose.containers[location];
+                            }
+                            addresses.push(location);
                             total = total + 1;
                             spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.description"}}'`, description, {type: identifier}).execute();
                             spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.licenses"}}'`, license, {type: identifier}).execute();
@@ -122,12 +128,63 @@ const docker:core_docker = {
                                 return 1;
                             });
                         },
+                        complete_ps = function services_docker_list_child_completePS():void {
+                            const read = function services_docker_list_child_completePS_read(file:Buffer, location:string):void {
+                                    vars.compose.containers[location] = {
+                                        compose: file.toString(),
+                                        created: 0,
+                                        description: "",
+                                        id: "",
+                                        image: "",
+                                        location: location,
+                                        license: "",
+                                        name: location.split(vars.path.sep).pop().replace(/\.ya?ml$/, ""),
+                                        ports: [],
+                                        state: "dead",
+                                        status: "",
+                                        version: ""
+                                    };
+                                    count = count - 1;
+                                    if (count === 0) {
+                                        complete("");
+                                    }
+                                },
+                                list = function services_docker_list_child_completePS_list(file_list:string[]|directory_list):void {
+                                    const files:string[] = file_list as string[];
+                                    let index:number = files.length,
+                                        count:number = 0;
+                                    if (index > 0) {
+                                        do {
+                                            index = index - 1;
+                                            if (addresses.includes(files[index]) === false && (/\.ya?ml$/).test(files[index]) === true) {
+                                                count = count + 1;
+                                                file.read({
+                                                    callback: read,
+                                                    location: files[index],
+                                                    no_file: null,
+                                                    section: "compose_containers"
+                                                });
+                                            }
+                                        } while (index > 0);
+                                    }
+                                };
+                            directory({
+                                callback: list,
+                                depth: 1,
+                                exclusions: [".env"],
+                                mode: "array",
+                                path: vars.path.compose,
+                                relative: false,
+                                search: "",
+                                symbolic: false
+                            });
+                        },
                         complete_meta = function services_docker_list_child_completeMeta(id:string):void {
                             counts[id] = counts[id] + 1;
                             if (counts[id] === 3) {
                                 count = count + 1;
                                 if (count === total) {
-                                    complete("");
+                                    complete_ps();
                                 }
                             }
                         },

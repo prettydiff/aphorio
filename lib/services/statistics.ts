@@ -1,106 +1,144 @@
 
 import broadcast from "../transmit/broadcast.ts";
+import file from "../utilities/file.ts";
 import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
 // cspell: words CPUPerc, MemPerc
 
-const statistics = function services_statistics():void {
-    const container_keys:string[] = Object.keys(vars.compose.containers),
-        container_len:number = container_keys.length,
-        cpu:os_node_cpuUsage = process.cpuUsage(),
-        mem:os_node_memoryUsage = process.memoryUsage(),
-        cpus:os_node_cpu = node.os.cpus(),
-        application:services_status_item = {
-            cpu: [0, 0],
-            disk:[0, 0],
-            mem: [0, 0],
-            net: (function services_statistics_netIO():[number, number] {
-                const output:[number, number] = [vars.stats.net_in, vars.stats.net_out],
-                    keys:string[] = Object.keys(vars.server_meta),
-                    sockets = function core_status_netIO_sockets(list:websocket_client[]):void {
-                        let index_list:number = list.length;
-                        if (index_list > 0) {
-                            do {
-                                index_list = index_list - 1;
-                                output[0] = output[0] + list[index].bytesRead;
-                                output[1] = output[1] + list[index].bytesWritten;
-                            } while (index_list > 0);
-                        }
-                    };
-                let index:number = keys.length,
-                    encryption:"both"|"open"|"secure";
+const statistics:core_statistics = {
+    data: function services_statisticsData():void {
+        const container_keys:string[] = Object.keys(vars.compose.containers),
+            container_len:number = container_keys.length,
+            cpu:os_node_cpuUsage = process.cpuUsage(),
+            mem:os_node_memoryUsage = process.memoryUsage(),
+            cpus:os_node_cpu = node.os.cpus(),
+            application:services_status_item = {
+                cpu: [0, 0],
+                disk:[0, 0],
+                mem: [0, 0],
+                net: (function services_statistics_netIO():[number, number] {
+                    const output:[number, number] = [vars.stats.net_in, vars.stats.net_out],
+                        keys:string[] = Object.keys(vars.server_meta),
+                        sockets = function core_status_netIO_sockets(list:websocket_client[]):void {
+                            let index_list:number = list.length;
+                            if (index_list > 0) {
+                                do {
+                                    index_list = index_list - 1;
+                                    output[0] = output[0] + list[index].bytesRead;
+                                    output[1] = output[1] + list[index].bytesWritten;
+                                } while (index_list > 0);
+                            }
+                        };
+                    let index:number = keys.length,
+                        encryption:"both"|"open"|"secure";
+                    if (index > 0) {
+                        do {
+                            index = index - 1;
+                            encryption = vars.servers[keys[index]].config.encryption;
+                            if (encryption === "both") {
+                                sockets(vars.server_meta[keys[index]].sockets.open);
+                                sockets(vars.server_meta[keys[index]].sockets.secure);
+                            } else {
+                                sockets(vars.server_meta[keys[index]].sockets[encryption]);
+                            }
+                        } while (index > 0);
+                    }
+                    return output;
+                }()),
+                threads: vars.stats.children
+            },
+            now:number = Date.now(),
+            payload:services_statistics_data = {
+                application: vars.stats.application,
+                docker: vars.stats.docker,
+                frequency: vars.stats.frequency,
+                now: 0,
+                records: vars.stats.records
+            };
+        // gathering total time and then converting microseconds into milliseconds because CPU timing is in milliseconds
+        application.cpu[0] = (cpu.system + cpu.user) / 1000;
+        application.cpu[1] = (application.cpu[0] / (cpus[0].times.idle + cpus[0].times.irq + cpus[0].times.nice + cpus[0].times.sys + cpus[0].times.user)) * 100;
+        application.mem[0] = mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss;
+        application.mem[1] = (application.mem[0] / vars.os.machine.memory.total) * 100;
+        vars.stats.application.push(application);
+        vars.stats.now = now;
+        payload.now = now;
+        if (vars.stats.application.length > vars.stats.records) {
+            vars.stats.application.splice(0, vars.stats.application.length - vars.stats.records);
+        }
+        if (container_len === 0) {
+            broadcast(vars.dashboard_id, "dashboard", {
+                data: payload,
+                service: "dashboard-statistics-data"
+            });
+        } else {
+            spawn("docker stats --no-stream --no-trunc --format json", function services_statisticsData_spawnDocker(output:core_spawn_output):void {
+                const obj:string = `[${output.stdout.replace(/\}\n/g, "},")}]`.replace(/\},\]$/, "}]"),
+                    data:core_docker_status = JSON.parse(obj);
+                let index:number = data.length,
+                    disk:string[] = null,
+                    net:string[] = null;
                 if (index > 0) {
                     do {
                         index = index - 1;
-                        encryption = vars.servers[keys[index]].config.encryption;
-                        if (encryption === "both") {
-                            sockets(vars.server_meta[keys[index]].sockets.open);
-                            sockets(vars.server_meta[keys[index]].sockets.secure);
-                        } else {
-                            sockets(vars.server_meta[keys[index]].sockets[encryption]);
+                        disk = data[index].BlockIO.split(" / ");
+                        net = data[index].NetIO.split(" / ");
+                        if (payload.docker[data[index].ID] === undefined) {
+                            payload.docker[data[index].ID] = [];
+                        }
+                        payload.docker[data[index].ID].push({
+                            cpu: [0, Number(data[index].CPUPerc.replace("%", ""))],
+                            disk: [disk[0].bytes(), disk[1].bytes()],
+                            mem: [data[index].MemUsage.split(" / ")[0].bytes(), Number(data[index].MemPerc.replace("%", ""))],
+                            net: [net[0].bytes(), net[1].bytes()],
+                            threads: Number(data[index].PIDs)
+                        });
+                        if (payload.docker[data[index].ID].length > vars.stats.records) {
+                            payload.docker[data[index].ID].splice(0, payload.docker[data[index].ID].length - vars.stats.records);
                         }
                     } while (index > 0);
                 }
-                return output;
-            }()),
-            threads: vars.stats.children
-        },
-        payload:services_status_statistics = {
-            application: vars.stats.application,
-            docker: vars.stats.docker,
-            now: Date.now()
-        };
-    // gathering total time and then converting microseconds into milliseconds because CPU timing is in milliseconds
-    application.cpu[0] = (cpu.system + cpu.user) / 1000;
-    application.cpu[1] = (application.cpu[0] / (cpus[0].times.idle + cpus[0].times.irq + cpus[0].times.nice + cpus[0].times.sys + cpus[0].times.user)) * 100;
-    application.mem[0] = mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss;
-    application.mem[1] = (application.mem[0] / vars.os.machine.memory.total) * 100;
-    vars.stats.application.push(application);
-    if (vars.stats.application.length > vars.stats.records) {
-        vars.stats.application.splice(0, vars.stats.application.length - vars.stats.records);
-    }
-    if (container_len === 0) {
-        broadcast(vars.dashboard_id, "dashboard", {
-            data: payload,
-            service: "dashboard-status-statistics"
+                broadcast(vars.dashboard_id, "dashboard", {
+                    data: payload,
+                    service: "dashboard-statistics-data"
+                });
+            }).execute();
+        }
+        if (vars.stats.frequency > 0) {
+            setTimeout(services_statisticsData, vars.stats.frequency);
+        }
+    },
+    update: function services_statisticsUpdate(data:socket_data):void {
+        const update:services_statistics_update = data.data as services_statistics_update,
+            list:store_servers = {},
+            keys:string[] = Object.keys(vars.servers),
+            len:number = keys.length,
+            file_data:core_servers_file = {
+                "compose-variables": vars.compose.variables,
+                dashboard_id: vars.dashboard_id,
+                servers: {},
+                stats: {
+                    frequency: update.frequency,
+                    records: update.records
+                }
+            };
+        let index:number = 0;
+        if (len > 0) {
+            do {
+                list[keys[index]] = vars.servers[keys[index]];
+                index = index + 1;
+            } while (index < len);
+        }
+        vars.stats.frequency = update.frequency;
+        vars.stats.records = update.records;
+        file.write({
+            callback: null,
+            contents: JSON.stringify(file_data),
+            location: `${vars.path.project}servers.json`,
+            section: "statistics"
         });
-    } else {
-        spawn("docker stats --no-stream --no-trunc --format json", function services_statistics_spawnDocker(output:core_spawn_output):void {
-            const obj:string = `[${output.stdout.replace(/\}\n/g, "},")}]`.replace(/\},\]$/, "}]"),
-                data:core_docker_status = JSON.parse(obj);
-            let index:number = data.length,
-                disk:string[] = null,
-                net:string[] = null;
-            if (index > 0) {
-                do {
-                    index = index - 1;
-                    disk = data[index].BlockIO.split(" / ");
-                    net = data[index].NetIO.split(" / ");
-                    if (payload.docker[data[index].ID] === undefined) {
-                        payload.docker[data[index].ID] = [];
-                    }
-                    payload.docker[data[index].ID].push({
-                        cpu: [0, Number(data[index].CPUPerc.replace("%", ""))],
-                        disk: [disk[0].bytes(), disk[1].bytes()],
-                        mem: [data[index].MemUsage.split(" / ")[0].bytes(), Number(data[index].MemPerc.replace("%", ""))],
-                        net: [net[0].bytes(), net[1].bytes()],
-                        threads: Number(data[index].PIDs)
-                    });
-                    if (payload.docker[data[index].ID].length > vars.stats.records) {
-                        payload.docker[data[index].ID].splice(0, payload.docker[data[index].ID].length - vars.stats.records);
-                    }
-                } while (index > 0);
-            }
-            broadcast(vars.dashboard_id, "dashboard", {
-                data: payload,
-                service: "dashboard-status-statistics"
-            });
-        }).execute();
-    }
-    if (vars.stats.frequency > 0) {
-        setTimeout(services_statistics, vars.stats.frequency);
     }
 };
 

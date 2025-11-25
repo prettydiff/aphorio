@@ -87,7 +87,11 @@ const server_create = function services_serverCreate(data:services_action_server
                         config:core_servers_file = {
                             "compose-variables": vars.compose.variables,
                             dashboard_id: vars.dashboard_id,
-                            servers: {}
+                            servers: {},
+                            stats: {
+                                frequency: vars.stats.frequency,
+                                records: vars.stats.records
+                            }
                         };
                     let index:number = 0;
                     do {
