@@ -1946,8 +1946,12 @@ const dashboard = function dashboard():void {
                 },
                 receive: function dashboard_statisticsReceive(data:socket_data):void {
                     const stats:services_statistics_data = data.data as services_statistics_data;
-                    services.statistics.nodes.frequency.value = (stats.frequency / 1000).toString();
-                    services.statistics.nodes.records.value = stats.records.toString();
+                    if (document.activeElement !== services.statistics.nodes.frequency) {
+                        services.statistics.nodes.frequency.value = (stats.frequency / 1000).toString();
+                    }
+                    if (document.activeElement !== services.statistics.nodes.records) {
+                        services.statistics.nodes.records.value = stats.records.toString();
+                    }
                     services.statistics.nodes.update.textContent = stats.now.dateTime(true, payload.timeZone_offset);
                 }
             }
