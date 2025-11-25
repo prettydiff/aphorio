@@ -644,7 +644,8 @@ const dashboard = function dashboard():void {
                                 "dashboard-log": utility.log,
                                 "dashboard-server": services.servers_web.list,
                                 "dashboard-socket-application": network.sockets_application.list,
-                                "dashboard-status": utility.clock,
+                                "dashboard-status-clock": utility.clock,
+                                "dashboard-statistics-data": services.statistics.receive,
                                 "dashboard-websocket-message": tools.websocket.message_receive,
                                 "dashboard-websocket-status": tools.websocket.status
                             };
@@ -758,7 +759,6 @@ const dashboard = function dashboard():void {
                         portHeading.textContent = "Active Ports";
                         p.appendChild(portHeading);
                         div.appendChild(p);
-                        div.setAttribute("class", "active-ports");
                         do {
                             portItem = document.createElement("li");
                             portItem.appendText(`${ports[index][0]} (${ports[index][1].toUpperCase()})`);
@@ -768,6 +768,7 @@ const dashboard = function dashboard():void {
                         portList.setAttribute("class", "container-ports");
                         div.appendChild(portList);
                     }
+                    div.setAttribute("class", "active-ports");
                     ul.setAttribute("class", "container-properties");
                     properties("Created On", container.created.dateTime(true, payload.timeZone_offset));
                     properties("Config Location", container.location);
@@ -1941,7 +1942,8 @@ const dashboard = function dashboard():void {
                 nodes: {
                     frequency: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
                     records: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1]
-                }
+                },
+                receive: function dashboard_stasticsReceive(data:socket_data):void {}
             }
         },
         network:structure_network = {

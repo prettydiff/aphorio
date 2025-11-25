@@ -255,8 +255,10 @@ const start_server = function utilities_startServer(process_path:string, testing
                             : keys_srv.length,
                         server:server = null,
                         sub:number = 0;
-                    vars.stats.frequency = config.stats.frequency;
-                    vars.stats.records = config.stats.records;
+                    if (config.stats !== undefined) {
+                        vars.stats.frequency = config.stats.frequency;
+                        vars.stats.records = config.stats.records;
+                    }
                     if (index_srv > 0) {
                         vars.dashboard_id = config.dashboard_id;
                         vars.compose.variables = config["compose-variables"];

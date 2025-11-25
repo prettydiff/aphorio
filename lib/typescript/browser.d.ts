@@ -321,6 +321,7 @@ declare global {
             frequency: HTMLInputElement;
             records: HTMLInputElement;
         };
+        receive: (data:socket_data) => void;
     }
 
     interface module_sockets_application extends module_list {

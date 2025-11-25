@@ -134,7 +134,7 @@ const docker:core_docker = {
                                         compose: file.toString(),
                                         created: 0,
                                         description: "",
-                                        id: "",
+                                        id: location,
                                         image: "",
                                         location: location,
                                         license: "",
@@ -156,7 +156,7 @@ const docker:core_docker = {
                                     if (index > 0) {
                                         do {
                                             index = index - 1;
-                                            if (addresses.includes(files[index]) === false && (/\.ya?ml$/).test(files[index]) === true) {
+                                            if (addresses.includes(files[index]) === false && (/\.ya?ml$/).test(files[index]) === true && files[index].includes("empty.yml") === false) {
                                                 count = count + 1;
                                                 file.read({
                                                     callback: read,
