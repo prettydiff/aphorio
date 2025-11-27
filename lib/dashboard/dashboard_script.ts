@@ -1957,13 +1957,15 @@ const dashboard = function dashboard():void {
                     const stats:services_statistics_data = data.data as services_statistics_data,
                         docker_keys:string[] = Object.keys(stats.docker),
                         docker_len:number = docker_keys.length,
-                        clear:HTMLElement = document.createElement("span"),
-                        colors:string[] = ["#ca3", "#960", "#d60"],
-                        section = function dashboard_statisticsReceive_section(item:services_statistics_item, docker:string):void {
+                        colors:string[] = ["rgba(204,170,51,1)", "rgba(153,102,0,1)", "rgba(221,102,0,1)"],
+                        scrollX:number = document.documentElement.scrollLeft,
+                        scrollY:number = document.documentElement.scrollTop,
+                        container = function dashboard_statisticsReceive_container(item:services_statistics_item, docker:string):void {
                             const section_div:HTMLElement = document.createElement("div"),
                                 h4:HTMLElement = document.createElement("h4"),
+                                clear:HTMLElement = document.createElement("span"),
                                 graph_type:"bar"|"line" = services.statistics.nodes.graph_type[services.statistics.nodes.graph_type.selectedIndex].textContent as "bar"|"line",
-                                graph = function dashboard_statisticsReceive_section_graph(config:graph_config):void {
+                                graph = function dashboard_statisticsReceive_container_graph(config:graph_config):void {
                                     const graph_item:HTMLCanvasElement = document.createElement("canvas"),
                                         len:number = config.item.length,
                                         div:HTMLElement = document.createElement("div"),
@@ -1971,7 +1973,9 @@ const dashboard = function dashboard():void {
                                     let item_index:number = 0;
                                     do {
                                         dataset.push({
-                                            backgroundColor: colors[item_index],
+                                            backgroundColor: (graph_type === "line")
+                                                ? colors[item_index].replace(",1)", ",0.25)")
+                                                : colors[item_index],
                                             borderColor: colors[item_index],
                                             data: config.item[item_index].data,
                                             fill: true,
@@ -2044,12 +2048,19 @@ const dashboard = function dashboard():void {
                         };
                     let index:number = 0;
                     services.statistics.nodes.graphs.textContent = "";
-                    section(stats.application, null);
+                    container(stats.application, null);
                     if (docker_len > 0) {
                         do {
-                            section(stats.docker[docker_keys[index]], docker_keys[index]);
+                            container(stats.docker[docker_keys[index]], docker_keys[index]);
                             index = index + 1;
                         } while (index < docker_len);
+                    }
+                    if (section === "statistics") {
+                        setTimeout(function dashboard_statisticsReceive_scroll():void {
+                                document.documentElement.scrollTo({
+                                left: scrollX, top: scrollY
+                            });
+                        }, 1);
                     }
                     if (document.activeElement !== services.statistics.nodes.frequency) {
                         services.statistics.nodes.frequency.value = (stats.frequency / 1000).toString();

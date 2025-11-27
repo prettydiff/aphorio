@@ -14,6 +14,7 @@ const statistics:core_statistics = {
             cpu:os_node_cpuUsage = process.cpuUsage(),
             mem:os_node_memoryUsage = process.memoryUsage(),
             cpus:os_node_cpu = node.os.cpus(),
+            // net function not used for docker containers
             net = function services_statistics_netIO(type:"in"|"out"):void {
                 let start:number = (type === "in")
                         ? vars.stats.net_in
@@ -140,28 +141,28 @@ const statistics:core_statistics = {
                             };
                         }
                         actual_id.push(data[index].ID);
-                        payload.docker[data[index].ID].cpu.data.push(Number(data[index].CPUPerc.replace("%", "")));
-                        payload.docker[data[index].ID].disk_in.data.push(disk[0].bytes());
-                        payload.docker[data[index].ID].disk_out.data.push(disk[1].bytes());
-                        payload.docker[data[index].ID].mem.data.push(data[index].MemUsage.split(" / ")[0].bytes());
-                        payload.docker[data[index].ID].mem.labels.push(data[index].MemPerc);
-                        payload.docker[data[index].ID].net_in.data.push(net[0].bytes());
-                        payload.docker[data[index].ID].net_out.data.push(net[1].bytes());
-                        payload.docker[data[index].ID].threads.data.push(data[index].PIDs);
-                        splice(vars.stats.application.cpu.data, false);
-                        splice(vars.stats.application.disk_in.data, false);
-                        splice(vars.stats.application.disk_out.data, false);
-                        splice(vars.stats.application.mem.data, false);
-                        splice(vars.stats.application.net_in.data, false);
-                        splice(vars.stats.application.net_out.data, false);
-                        splice(vars.stats.application.threads.data, false);
-                        splice(vars.stats.application.cpu.labels, true);
-                        splice(vars.stats.application.disk_in.labels, true);
-                        splice(vars.stats.application.disk_out.labels, true);
-                        splice(vars.stats.application.mem.labels, false);
-                        splice(vars.stats.application.net_in.labels, true);
-                        splice(vars.stats.application.net_out.labels, true);
-                        splice(vars.stats.application.threads.labels, true);
+                        vars.stats.docker[data[index].ID].cpu.data.push(Number(data[index].CPUPerc.replace("%", "")));
+                        vars.stats.docker[data[index].ID].disk_in.data.push(disk[0].bytes());
+                        vars.stats.docker[data[index].ID].disk_out.data.push(disk[1].bytes());
+                        vars.stats.docker[data[index].ID].mem.data.push(data[index].MemUsage.split(" / ")[0].bytes());
+                        vars.stats.docker[data[index].ID].mem.labels.push(data[index].MemPerc);
+                        vars.stats.docker[data[index].ID].net_in.data.push(net[0].bytes());
+                        vars.stats.docker[data[index].ID].net_out.data.push(net[1].bytes());
+                        vars.stats.docker[data[index].ID].threads.data.push(data[index].PIDs);
+                        splice(vars.stats.docker[data[index].ID].cpu.data, false);
+                        splice(vars.stats.docker[data[index].ID].disk_in.data, false);
+                        splice(vars.stats.docker[data[index].ID].disk_out.data, false);
+                        splice(vars.stats.docker[data[index].ID].mem.data, false);
+                        splice(vars.stats.docker[data[index].ID].net_in.data, false);
+                        splice(vars.stats.docker[data[index].ID].net_out.data, false);
+                        splice(vars.stats.docker[data[index].ID].threads.data, false);
+                        splice(vars.stats.docker[data[index].ID].cpu.labels, true);
+                        splice(vars.stats.docker[data[index].ID].disk_in.labels, true);
+                        splice(vars.stats.docker[data[index].ID].disk_out.labels, true);
+                        splice(vars.stats.docker[data[index].ID].mem.labels, false);
+                        splice(vars.stats.docker[data[index].ID].net_in.labels, true);
+                        splice(vars.stats.docker[data[index].ID].net_out.labels, true);
+                        splice(vars.stats.docker[data[index].ID].threads.labels, true);
                     } while (index > 0);
                     index = payload_id.length;
                     do {
