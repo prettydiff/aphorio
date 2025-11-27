@@ -1,5 +1,6 @@
 
 import core from "../browser/core.ts";
+import Chart from "chart.js/auto";
 // @ts-expect-error - TypeScript claims xterm has no default export, but this is how the documentation says to use it.
 import Terminal from "@xterm/xterm";
 
@@ -19,6 +20,7 @@ const dashboard = function dashboard():void {
                     path: "",
                     search: ""
                 },
+                graph_type: 0,
                 hash: {
                     algorithm: "sha3-512",
                     digest: "hex",
@@ -558,6 +560,7 @@ const dashboard = function dashboard():void {
                         state.fileSystem.path = tools.fileSystem.nodes.path.value;
                         state.fileSystem.search = tools.fileSystem.nodes.search.value;
                     }
+                    state.graph_type = services.statistics.nodes.graph_type.selectedIndex;
                     if (state.hash === undefined || state.hash === null) {
                         state.hash = {
                             algorithm: (tools.hash.nodes.algorithm[tools.hash.nodes.algorithm.selectedIndex] === undefined)
@@ -1078,6 +1081,10 @@ const dashboard = function dashboard():void {
                 services.statistics.nodes.frequency.onblur = services.statistics.definitions;
                 services.statistics.nodes.frequency.onkeyup = services.statistics.definitions;
                 services.statistics.nodes.frequency.value = (payload.stats.frequency / 1000).toString();
+                services.statistics.nodes.graph_type.onchange = utility.setState;
+                services.statistics.nodes.graph_type.selectedIndex = (state.graph_type === null || state.graph_type === undefined)
+                    ? 0
+                    : state.graph_type;
                 services.statistics.nodes.records.onblur = services.statistics.definitions;
                 services.statistics.nodes.records.onkeyup = services.statistics.definitions;
                 services.statistics.nodes.records.value = payload.stats.records.toString();
@@ -1941,11 +1948,109 @@ const dashboard = function dashboard():void {
                 },
                 nodes: {
                     frequency: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
+                    graph_type: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
+                    graphs: document.getElementById("statistics").getElementsByClassName("graphs")[0] as HTMLElement,
                     records: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
                     update: document.getElementById("statistics").getElementsByClassName("section")[0].getElementsByTagName("em")[0]
                 },
                 receive: function dashboard_statisticsReceive(data:socket_data):void {
-                    const stats:services_statistics_data = data.data as services_statistics_data;
+                    const stats:services_statistics_data = data.data as services_statistics_data,
+                        docker_keys:string[] = Object.keys(stats.docker),
+                        docker_len:number = docker_keys.length,
+                        clear:HTMLElement = document.createElement("span"),
+                        colors:string[] = ["#ca3", "#960", "#d60"],
+                        section = function dashboard_statisticsReceive_section(item:services_statistics_item, docker:string):void {
+                            const section_div:HTMLElement = document.createElement("div"),
+                                h4:HTMLElement = document.createElement("h4"),
+                                graph_type:"bar"|"line" = services.statistics.nodes.graph_type[services.statistics.nodes.graph_type.selectedIndex].textContent as "bar"|"line",
+                                graph = function dashboard_statisticsReceive_section_graph(config:graph_config):void {
+                                    const graph_item:HTMLCanvasElement = document.createElement("canvas"),
+                                        len:number = config.item.length,
+                                        div:HTMLElement = document.createElement("div"),
+                                        dataset:graph_dataset[] = [];
+                                    let item_index:number = 0;
+                                    do {
+                                        dataset.push({
+                                            backgroundColor: colors[item_index],
+                                            borderColor: colors[item_index],
+                                            data: config.item[item_index].data,
+                                            fill: true,
+                                            label: config.label[item_index],
+                                            showLine: true,
+                                            tension: 0.2
+                                        });
+                                        item_index = item_index + 1;
+                                    } while (item_index < len);
+                                    new Chart(graph_item, {
+                                        data: {
+                                            labels: config.item[0].labels,
+                                            datasets: dataset
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: config.title
+                                                }
+                                            }
+                                        },
+                                        type: graph_type
+                                    });
+                                    graph_item.setAttribute("class", "graph");
+                                    div.appendChild(graph_item);
+                                    config.parent.appendChild(div);
+                                };
+                            section_div.setAttribute("class", "section");
+                            h4.textContent = (docker === null)
+                                ? "Aphorio Application"
+                                : `Container - ${payload.compose.containers[docker].name}`;
+                            section_div.appendChild(h4);
+                            graph({
+                                item: [item.cpu],
+                                label: ["CPU Usage"],
+                                parent: section_div,
+                                title: "CPU"
+                            });
+                            graph({
+                                item: [item.mem],
+                                label: ["Memory Usage"],
+                                parent: section_div,
+                                title: "Memory"
+                            });
+                            graph({
+                                item: [item.net_in, item.net_out],
+                                label: ["Received", "Sent"],
+                                parent: section_div,
+                                title: "Network Usage"
+                            });
+                            graph({
+                                item: [item.threads],
+                                label: ["Process Count"],
+                                parent: section_div,
+                                title: "Total Processes"
+                            });
+                            if (docker !== null) {
+                                graph({
+                                    item: [item.disk_in, item.disk_out],
+                                    label: ["Read", "Written"],
+                                    parent: section_div,
+                                    title: "Storage Device Usage"
+                                });
+                            }
+                            clear.setAttribute("class", "clear");
+                            section_div.appendChild(clear);
+                            services.statistics.nodes.graphs.appendChild(section_div);
+                        };
+                    let index:number = 0;
+                    services.statistics.nodes.graphs.textContent = "";
+                    section(stats.application, null);
+                    if (docker_len > 0) {
+                        do {
+                            section(stats.docker[docker_keys[index]], docker_keys[index]);
+                            index = index + 1;
+                        } while (index < docker_len);
+                    }
                     if (document.activeElement !== services.statistics.nodes.frequency) {
                         services.statistics.nodes.frequency.value = (stats.frequency / 1000).toString();
                     }

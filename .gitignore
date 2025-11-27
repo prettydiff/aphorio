@@ -5,7 +5,9 @@
 /compose/**
 /test
 !/compose/empty.yml
+!/node_modules/@kurkle
 !/node_modules/@lydell
 !/node_modules/@xterm
+!/node_modules/chart.js
 !/node_modules/jschardet
 install.js

@@ -51,6 +51,7 @@
         #disks{
             li > strong{width:10em}
         }
+        #statistics .graphs .section div{float:none;width:100%}
         #websocket p#websocket-status{margin:-1.75em -0.9em 1.5em}
         .title p{display:block;margin:0}
         main{margin:0}
@@ -74,6 +75,7 @@
             li > strong,
             li > h6{width:22em}
         }
+        #statistics .graphs .section div{float:left;width:20%}
         #websocket p#websocket-status{margin:-1.75em -1.75em 1.5em}
         .title p{display:inline-block}
         main{margin:0 0 0 17.75em}

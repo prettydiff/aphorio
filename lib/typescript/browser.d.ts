@@ -60,6 +60,23 @@ declare global {
         target: HTMLElement;
     }
 
+    interface graph_dataset {
+        backgroundColor: string;
+        borderColor: string;
+        data: number[] | string[];
+        fill: boolean;
+        label: string;
+        showLine: boolean;
+        tension: number;
+    }
+
+    interface graph_config {
+        item: services_statistics_facet[];
+        label: string[];
+        parent: HTMLElement;
+        title: string;
+    }
+
     interface map_messages {
         [key:string]: (data_item:socket_data) => void;
     }
@@ -319,6 +336,8 @@ declare global {
         definitions: (event:FocusEvent|KeyboardEvent) => void;
         nodes: {
             frequency: HTMLInputElement;
+            graph_type: HTMLSelectElement;
+            graphs: HTMLElement;
             records: HTMLInputElement;
             update: HTMLElement;
         };
@@ -460,6 +479,7 @@ declare global {
             path: string;
             search: string;
         };
+        graph_type: number;
         hash: {
             algorithm: string;
             digest: "base64" | "hex";

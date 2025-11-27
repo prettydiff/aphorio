@@ -204,9 +204,9 @@ interface services_status_clock {
 }
 
 interface services_statistics_data {
-    application: services_status_item[];
+    application: services_statistics_item;
     docker: {
-        [key:string]: services_status_item[];
+        [key:string]: services_statistics_item;
     };
     frequency: number;
     now: number;
@@ -218,12 +218,19 @@ interface services_statistics_update {
     records: number;
 }
 
-interface services_status_item {
-    cpu: [number, number];
-    disk: [number, number];
-    mem: [number, number];
-    net: [number, number];
-    threads: number;
+interface services_statistics_facet {
+    labels: string[];
+    data: number[];
+}
+
+interface services_statistics_item {
+    cpu: services_statistics_facet;
+    disk_in: services_statistics_facet;
+    disk_out: services_statistics_facet;
+    mem: services_statistics_facet;
+    net_in: services_statistics_facet;
+    net_out: services_statistics_facet;
+    threads: services_statistics_facet;
 }
 
 interface services_terminal {

@@ -58,7 +58,7 @@
         </div>
         <div class="tab" id="compose_containers">
             <h2>Docker Compose</h2>
-            <p class="tab-description">A list of configured Docker containers and their status. Container status refreshes every ${payload.intervals.compose} seconds. All containers run under the Docker daemon detached from this application.</p>
+            <p class="tab-description">All containers run under the Docker daemon detached from this application.</p>
             <p class="status"></p>
             <div class="compose-body">
                 <div class="section">
@@ -874,10 +874,15 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <h3>Metric Controls</h3>
                 <p><label>Delay between updates in seconds <input spellcheck="false" type="text"/></label></p>
                 <p><label>Maximum number of data points <input spellcheck="false" type="text"/></label></p>
+                <p><label>Graph Type <select>
+                    <option>bar</option>
+                    <option>line</option>
+                </select></label></p>
             </div>
             <div class="section">
                 <h3>Health Metrics</h3>
                 <p>Last updated: <em></em></p>
+                <div class="graphs"></div>
             </div>
         </div>
         <div class="tab" id="services">

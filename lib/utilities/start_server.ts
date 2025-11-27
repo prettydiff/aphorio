@@ -105,18 +105,22 @@ const start_server = function utilities_startServer(process_path:string, testing
                 node.fs.stat(`${process_path}.git`, gitStat);
             },
             html: function utilities_startServer_taskHTML():void {
-                let xterm_js:string = null,
+                let chart_js:string = null,
+                    xterm_js:string = null,
                     xterm_css:string = null;
                 const flags:store_flag = {
+                        chart: false,
                         css: false,
                         xterm_css: false,
                         xterm_js: false
                     },
-                    complete = function utilities_startServer_taskHTML_complete():void {
-                        if (flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
+                    complete = function utilities_startServer_taskHTML_complete(key:string):void {
+                        flags[key] = true;
+                        if (flags.chart === true && flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
                             file.read({
                                 callback: function utilities_startServer_taskHTML_readXterm_readHTML(fileContents:Buffer):void {
                                     const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
+                                        chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, ""),
                                         term_end:string = "<!-- terminal end -->",
                                         term_start:string = "<!-- terminal start -->";
                                     let script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
@@ -131,8 +135,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                     }
                                     vars.dashboard_page = vars.dashboard_page
                                         .replace("Server Management Dashboard", `${vars.name.capitalize()} Dashboard`)
-                                        .replace("${payload.intervals.compose}", (vars.intervals.compose / 1000).toString())
-                                        .replace("replace_javascript", `${xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
+                                        .replace("replace_javascript", `${chart+xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
                                         .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
                                     complete_tasks("html", "task");
                                 },
@@ -142,22 +145,23 @@ const start_server = function utilities_startServer(process_path:string, testing
                             });
                         }
                     },
+                    readChart = function utilities_startServer_taskHTML_readChart(file:Buffer):void {
+                        chart_js = file.toString();
+                        complete("chart");
+                    },
                     readXtermCSS = function utilities_startServer_taskHTML_readXtermCSS(file:Buffer):void {
                         xterm_css = file.toString();
-                        flags.xterm_css = true;
-                        complete();
+                        complete("xterm_css");
                     },
                     readXtermJS = function utilities_startServer_taskHTML_readXtermJS(file:Buffer):void {
                         xterm_js = file.toString();
-                        flags.xterm_js = true;
-                        complete();
+                        complete("xterm_js");
                     },
                     readCSS = function utilities_startServer_taskCSS_readCSS(fileContents:Buffer):void {
                         const css:string = fileContents.toString();
                         vars.css.complete = css.slice(css.indexOf(":root"));
                         vars.css.basic = vars.css.complete.slice(0, css.indexOf("/* end basic html */"));
-                        flags.css = true;
-                        complete();
+                        complete("css");
                     };
                 if (vars.options["no-terminal"] === true) {
                     flags.xterm_css = true;
@@ -178,6 +182,12 @@ const start_server = function utilities_startServer(process_path:string, testing
                         section: "startup"
                     });
                 }
+                file.read({
+                    callback: readChart,
+                    location: `${process_path}node_modules${vars.path.sep}chart.js${vars.path.sep}dist${vars.path.sep}chart.umd.min.js`,
+                    no_file: null,
+                    section: "startup"
+                });
                 file.read({
                     callback: readCSS,
                     location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
