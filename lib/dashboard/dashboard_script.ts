@@ -1949,7 +1949,7 @@ const dashboard = function dashboard():void {
                     utility.message_send({
                         frequency: (frequency * 1000),
                         records: records
-                    }, "dashboard-statistics-update");
+                    }, "dashboard-statistics-change");
                 },
                 nodes: {
                     frequency: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
