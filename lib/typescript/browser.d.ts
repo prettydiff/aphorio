@@ -63,6 +63,8 @@ declare global {
     interface graph_dataset {
         backgroundColor: string;
         borderColor: string;
+        borderRadius: number;
+        borderWidth: number;
         data: number[] | string[];
         fill: boolean;
         label: string;

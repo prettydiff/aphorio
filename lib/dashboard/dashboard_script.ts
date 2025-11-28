@@ -1092,6 +1092,11 @@ const dashboard = function dashboard():void {
                     data: payload.servers,
                     service: "dashboard-server"
                 });
+                Chart.defaults.color = "#ccc";
+                services.statistics.receive({
+                    data: payload.stats,
+                    service: "dashboard-statistics-data"
+                });
             },
             servers_web: {
                 activePorts: function dashboard_serverActivePorts(id:string):HTMLElement {
@@ -1973,10 +1978,10 @@ const dashboard = function dashboard():void {
                                     let item_index:number = 0;
                                     do {
                                         dataset.push({
-                                            backgroundColor: (graph_type === "line")
-                                                ? colors[item_index].replace(",1)", ",0.25)")
-                                                : colors[item_index],
+                                            backgroundColor: colors[item_index].replace(",1)", ",0.1)"),
                                             borderColor: colors[item_index],
+                                            borderRadius: 4,
+                                            borderWidth: 2,
                                             data: config.item[item_index].data,
                                             fill: true,
                                             label: config.label[item_index],
@@ -2002,7 +2007,7 @@ const dashboard = function dashboard():void {
                                         type: graph_type
                                     });
                                     graph_item.setAttribute("class", "graph");
-                                    div.appendChild(graph_item);
+                                    div.appendChild(graph_item);div.style.border="0.1em solid #666";
                                     config.parent.appendChild(div);
                                 };
                             section_div.setAttribute("class", "section");
@@ -2045,8 +2050,24 @@ const dashboard = function dashboard():void {
                             clear.setAttribute("class", "clear");
                             section_div.appendChild(clear);
                             services.statistics.nodes.graphs.appendChild(section_div);
-                        };
-                    let index:number = 0;
+                        },
+                        canvas:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("canvas"),
+                        divs:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("div");
+                    let index:number = canvas.length;
+                    payload.stats = stats;
+                    if (index > 0) {
+                        do {
+                            index = index - 1;
+                            canvas[index].parentNode.removeChild(canvas[index]);
+                        } while (index > 0);
+                    }
+                    index = divs.length;
+                    if (index > 0) {
+                        do {
+                            index = index - 1;
+                            divs[index].parentNode.removeChild(divs[index]);
+                        } while (index > 0);
+                    }
                     services.statistics.nodes.graphs.textContent = "";
                     container(stats.application, null);
                     if (docker_len > 0) {
