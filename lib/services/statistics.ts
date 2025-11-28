@@ -8,6 +8,37 @@ import vars from "../core/vars.ts";
 // cspell: words CPUPerc, MemPerc
 
 const statistics:core_statistics = {
+    change: function services_statisticsChange(data:socket_data):void {
+        const update:services_statistics_change = data.data as services_statistics_change,
+            list:store_server_config = {},
+            keys:string[] = Object.keys(vars.servers),
+            len:number = keys.length,
+            file_data:core_servers_file = {
+                "compose-variables": vars.compose.variables,
+                dashboard_id: vars.dashboard_id,
+                servers: {},
+                stats: {
+                    frequency: update.frequency,
+                    records: update.records
+                }
+            };
+        let index:number = 0;
+        if (len > 0) {
+            do {
+                list[keys[index]] = vars.servers[keys[index]].config;
+                index = index + 1;
+            } while (index < len);
+        }
+        file_data.servers = list;
+        vars.stats.frequency = update.frequency;
+        vars.stats.records = update.records;
+        file.write({
+            callback: null,
+            contents: JSON.stringify(file_data),
+            location: `${vars.path.project}servers.json`,
+            section: "statistics"
+        });
+    },
     data: function services_statisticsData():void {
         const container_keys:string[] = Object.keys(vars.compose.containers),
             container_len:number = container_keys.length,
@@ -99,8 +130,12 @@ const statistics:core_statistics = {
                 const obj:string = `[${output.stdout.replace(/\}\n/g, "},")}]`.replace(/\},\]$/, "}]"),
                     data:core_docker_status = JSON.parse(obj),
                     payload_id:string[] = Object.keys(payload.docker),
+                    compose_list:string[] = Object.keys(vars.compose.containers),
+                    compose_len:number = compose_list.length,
                     actual_id:string[] = [];
                 let index:number = data.length,
+                    compose_index:number = 0,
+                    compose_test:boolean = false,
                     disk:string[] = null,
                     net:string[] = null;
                 if (index > 0) {
@@ -166,11 +201,20 @@ const statistics:core_statistics = {
                     } while (index > 0);
                     index = payload_id.length;
                     do {
-                        index = index - 1;
-                        if (actual_id.includes(payload_id[index]) === false) {
-                            delete payload.docker[payload_id[index]];
+                        compose_test = false;
+                        index = data.length;
+                        do {
+                            index = index - 1;
+                            if (compose_list[compose_index] === data[index].ID) {
+                                compose_test = true;
+                                break;
+                            }
+                        } while (index > 0);
+                        if (compose_test === false) {
+                            vars.stats.docker[compose_list[compose_index]] = null;
                         }
-                    } while (index > 0);
+                        compose_index = compose_index + 1;
+                    } while (compose_index < compose_len);
                 }
                 broadcast(vars.dashboard_id, "dashboard", {
                     data: payload,
@@ -181,37 +225,6 @@ const statistics:core_statistics = {
         if (vars.stats.frequency > 0) {
             setTimeout(services_statisticsData, vars.stats.frequency);
         }
-    },
-    update: function services_statisticsUpdate(data:socket_data):void {
-        const update:services_statistics_update = data.data as services_statistics_update,
-            list:store_server_config = {},
-            keys:string[] = Object.keys(vars.servers),
-            len:number = keys.length,
-            file_data:core_servers_file = {
-                "compose-variables": vars.compose.variables,
-                dashboard_id: vars.dashboard_id,
-                servers: {},
-                stats: {
-                    frequency: update.frequency,
-                    records: update.records
-                }
-            };
-        let index:number = 0;
-        if (len > 0) {
-            do {
-                list[keys[index]] = vars.servers[keys[index]].config;
-                index = index + 1;
-            } while (index < len);
-        }
-        file_data.servers = list;
-        vars.stats.frequency = update.frequency;
-        vars.stats.records = update.records;
-        file.write({
-            callback: null,
-            contents: JSON.stringify(file_data),
-            location: `${vars.path.project}servers.json`,
-            section: "statistics"
-        });
     }
 };
 

@@ -236,7 +236,7 @@ const docker:core_docker = {
                     : data.location,
                 compose_location:string = `${vars.commands.compose} --ansi never --env-file "${vars.path.compose}.env" -f ${location}`,
                 command:string = compose_location + docker.commands[data.action];
-            if (data.action === "activate" || data.action === "deactivate" || data.action === "destroy") {
+            if (data.action === "activate" || data.action === "deactivate") {
                 spawn(command, function services_docker_receive_spawn():void {
                     docker.list(function services_docker_receive_spawn_list():void {
                         send({
@@ -271,6 +271,22 @@ const docker:core_docker = {
                         section: "compose_containers"
                     });
                 }
+            } else if (data.action === "destroy") {
+                spawn(command, function services_docker_receive_destroy():void {
+                    file.remove({
+                        callback: function services_docker_receive_destroy_remove():void {
+                            docker.list(function services_docker_receive_destroy_remove_list():void {
+                                send({
+                                    data: vars.compose,
+                                    service: "dashboard-compose"
+                                }, socket, 3);
+                            });
+                        },
+                        exclusions: [],
+                        location: data.location,
+                        section: "compose_containers"
+                    });
+                });
             } else if (data.action === "modify") {
                 const running:boolean = (vars.compose.containers[data.id].state === "running"),
                     list = function services_docker_receive_modifyList():void {

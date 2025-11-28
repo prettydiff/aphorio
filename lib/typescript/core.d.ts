@@ -190,8 +190,8 @@ interface core_spawn_output {
 }
 
 interface core_statistics {
+    change: (data:socket_data) => void;
     data: () => void;
-    update: (data:socket_data) => void;
 }
 
 interface core_universal {

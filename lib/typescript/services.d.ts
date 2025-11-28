@@ -213,7 +213,7 @@ interface services_statistics_data {
     records: number;
 }
 
-interface services_statistics_update {
+interface services_statistics_change {
     frequency: number;
     records: number;
 }
