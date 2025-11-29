@@ -243,14 +243,8 @@
                     </p>
                 </div>
                 <div class="section">
-                    <h4>I added a new Docker Container but it's showing offline. I also ran <em>docker ps</em> in the terminal and the new container is not in the list.</h4>
-                    <p>Because the Docker Daemon is a service unrelated to this application containers require a separate activation step.</p>
-                    <p>
-                        After the new container is submitted click on the new container that now displays in the container list.
-                        Once expanded there will exist an Edit button under the Docker Compose text area.
-                        Click the Edit button and then click the <em>Activate</em> button that appears.
-                        This button will run the equivalent of Docker's <strong>up</strong> command and dump the output to the terminal.
-                    </p>
+                    <h4>I saved a Docker Compose file but it does not list in this application when offline.</h4>
+                    <p>This application reads container information first from <em>docker ps</em> command, which only provides information on running containers.  Secondly, this application reads compose files from directory: <em>&lt;path to this application&gt;/compose</em> to provide a list of offline containers.</p>
                 </div>
                 <div class="section">
                     <h4>Docker wrote files as user root and now I cannot open them.</h4>
@@ -568,6 +562,16 @@ echo "deb \
     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</code></p></li>
+                </ul>
+                <h4>Node Dependencies (included in the repository)</h4>
+                <ul>
+                    <li><a href="https://www.npmjs.com/package/@lydell/node-pty">@lydell/node-pty</a>, <a href="https://github.com/lydell/node-pty">GitHub</a></li>
+                    <li><a href="https://www.npmjs.com/package/@xterm/xterm">@xterm/xterm</a>, <a href="https://github.com/xtermjs/xterm.js">GitHub</a></li>
+                    <li>
+                        <a href="https://www.npmjs.com/package/chart.js">chart.js</a>, <a href="https://github.com/chartjs/Chart.js">GitHub</a>
+                        <ul><li><a href="https://www.npmjs.com/package/@kurkle/color">@kurkle/color</a>, <a href="https://github.com/kurkle/color">GitHub</a></li></ul>
+                    </li>
+                    <li><a href="https://www.npmjs.com/package/jschardet">jschardet</a>, <a href="https://github.com/aadsm/jschardet">GitHub</a></li>
                 </ul>
             </div>
         </div>

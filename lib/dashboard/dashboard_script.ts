@@ -994,7 +994,18 @@ const dashboard = function dashboard():void {
                     const data:core_compose = socket_data.data as core_compose,
                         list:string[] = (data.containers === null)
                             ? []
-                            : Object.keys(data.containers).sort(),
+                            : Object.keys(data.containers).sort(function dashboard_compose_containersList(a:string, b:string):-1|1 {
+                                const nameA:string = (a.includes(".y") === true)
+                                        ? a.split(payload.path.sep).pop()
+                                        : payload.compose.containers[a].name,
+                                    nameB:string = (b.includes(".y") === true)
+                                        ? b.split(payload.path.sep).pop()
+                                        : payload.compose.containers[b].name;
+                                if (nameA < nameB) {
+                                    return -1;
+                                }
+                                return 1;
+                            }),
                         variables:string[] = (data.variables === null)
                             ? []
                             : Object.keys(data.variables).sort(),
@@ -1974,9 +1985,25 @@ const dashboard = function dashboard():void {
                         id_len:number = id_list.length,
                         colors:string[] = ["rgba(204,170,51,1)", "rgba(153,102,0,1)", "rgba(221,102,0,1)"],
                         graph_type:"bar"|"line" = services.statistics.nodes.graph_type[services.statistics.nodes.graph_type.selectedIndex].textContent as "bar"|"line",
+                        labels:store_string = {
+                            cpu: "CPU Usage, % and Microsecond Value",
+                            disk_in: "Read",
+                            disk_out: "Written",
+                            mem: "Memory Usage, % and Bytes Written",
+                            net_in: "Received",
+                            net_out: "Sent",
+                            threads: "Process Count"
+                        },
+                        title:store_string = {
+                            cpu: "CPU",
+                            disk: "Storage Device Usage",
+                            mem: "Memory",
+                            net: "Network Usage",
+                            threads: "Total Processes"
+                        },
                         destroy = function dashboard_statisticsReceive_destroy(id:string):void {
                             if (services.statistics.graphs[id] !== null && services.statistics.graphs[id] !== undefined) {
-                                const each = function dashboard_statisticsReceive_destory_each(type:"cpu"|"disk"|"mem"|"net"|"threads"):void {
+                                const each = function dashboard_statisticsReceive_destroy_each(type:type_graph):void {
                                     if (services.statistics.graphs[id][type] !== null && services.statistics.graphs[id][type] !== undefined) {
                                         services.statistics.graphs[id][type].destroy();
                                     }
@@ -2025,33 +2052,64 @@ const dashboard = function dashboard():void {
                             destroy(id);
                         },
                         update = function dashboard_statisticsReceive_update(id:string):void {
-                            services.statistics.graphs[id].cpu.data.datasets[0].data = stats.containers[id].cpu.data;
-                            services.statistics.graphs[id].cpu.data.labels = stats.containers[id].cpu.labels;
-                            services.statistics.graphs[id].cpu.update();
-                            if (id !== "application") {
-                                services.statistics.graphs[id].disk.data.datasets[0] = stats.containers[id].disk_in;
-                                services.statistics.graphs[id].disk.data.datasets[0].backgroundColor = colors[0].replace(",1)", ",0.1)");
-                                services.statistics.graphs[id].disk.data.datasets[0].borderColor = colors[0];
-                                services.statistics.graphs[id].disk.data.datasets[0].borderWidth = 2;
-                                services.statistics.graphs[id].disk.data.datasets[0].label = "Read";
-                                services.statistics.graphs[id].disk.data.datasets[1] = stats.containers[id].disk_out;
-                                services.statistics.graphs[id].disk.data.datasets[1].backgroundColor = colors[1].replace(",1)", ",0.1)");
-                                services.statistics.graphs[id].disk.data.datasets[1].borderColor = colors[1];
-                                services.statistics.graphs[id].disk.data.datasets[1].borderWidth = 2;
-                                services.statistics.graphs[id].disk.data.datasets[1].label = "Written";
-                                services.statistics.graphs[id].disk.data.labels = stats.containers[id].disk_in.labels;
-                                services.statistics.graphs[id].disk.update();
-                            }
-                            services.statistics.graphs[id].mem.data.datasets[0].data = stats.containers[id].mem.data;
-                            services.statistics.graphs[id].mem.data.labels = stats.containers[id].mem.labels;
-                            services.statistics.graphs[id].mem.update();
-                            services.statistics.graphs[id].net.data.datasets[0].data = stats.containers[id].net_in.data;
-                            services.statistics.graphs[id].net.data.datasets[1].data = stats.containers[id].net_out.data;
-                            services.statistics.graphs[id].net.data.labels = stats.containers[id].net_in.labels;
-                            services.statistics.graphs[id].net.update();
-                            services.statistics.graphs[id].threads.data.datasets[0].data = stats.containers[id].threads.data;
-                            services.statistics.graphs[id].threads.data.labels = stats.containers[id].threads.labels;
-                            services.statistics.graphs[id].threads.update();
+                            const modify = function dashboard_statisticsReceive_update_modify(config:graph_modify_config):void {
+                                const graph:Chart = services.statistics.graphs[id][config.name];
+                                graph.data.datasets[0].data = config.data_0;
+                                graph.data.datasets[0].backgroundColor = colors[0].replace(",1)", ",0.1)");
+                                graph.data.datasets[0].borderColor = colors[0];
+                                graph.data.datasets[0].borderWidth = 2;
+                                graph.data.datasets[0].label = config.label_0;
+                                if (config.data_1 !== null) {
+                                    graph.data.datasets[1].data = config.data_1;
+                                    graph.data.datasets[1].backgroundColor = colors[1].replace(",1)", ",0.1)");
+                                    graph.data.datasets[1].borderColor = colors[1];
+                                    graph.data.datasets[1].borderWidth = 2;
+                                    graph.data.datasets[1].label = config.label_1;
+                                }
+                                graph.data.labels = config.labels;
+                                graph.options.plugins.title.text = title[config.name];
+                                graph.update();
+                            };
+                            modify({
+                                data_0: stats.containers[id].cpu.data,
+                                data_1: null,
+                                label_0: labels.cpu,
+                                label_1: null,
+                                labels: stats.containers[id].cpu.labels,
+                                name: "cpu"
+                            });
+                            modify({
+                                data_0: stats.containers[id].disk_in.data,
+                                data_1: stats.containers[id].disk_out.data,
+                                label_0: labels.disk_in,
+                                label_1: labels.disk_out,
+                                labels: stats.containers[id].disk_in.labels,
+                                name: "disk"
+                            });
+                            modify({
+                                data_0: stats.containers[id].mem.data,
+                                data_1: null,
+                                label_0: labels.mem,
+                                label_1: null,
+                                labels: stats.containers[id].mem.labels,
+                                name: "mem"
+                            });
+                            modify({
+                                data_0: stats.containers[id].net_in.data,
+                                data_1: stats.containers[id].net_out.data,
+                                label_0: labels.net_in,
+                                label_1: labels.net_out,
+                                labels: stats.containers[id].net_in.labels,
+                                name: "net"
+                            });
+                            modify({
+                                data_0: stats.containers[id].threads.data,
+                                data_1: null,
+                                label_0: labels.threads,
+                                label_1: null,
+                                labels: stats.containers[id].threads.labels,
+                                name: "cpu"
+                            });
                         },
                         container = function dashboard_statisticsReceive_container(id:string):void {
                             const item:services_statistics_item = stats.containers[id],
@@ -2059,7 +2117,7 @@ const dashboard = function dashboard():void {
                                 h4:HTMLElement = document.createElement("h4"),
                                 clear:HTMLElement = document.createElement("span"),
                                 sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("div"),
-                                graph = function dashboard_statisticsReceive_container_graph(config:graph_config, type:"cpu"|"disk"|"mem"|"net"|"threads"):void {
+                                graph = function dashboard_statisticsReceive_container_graph(config:graph_config, type:type_graph):void {
                                     const graph_item:HTMLCanvasElement = document.createElement("canvas"),
                                         len:number = config.item.length,
                                         div:HTMLElement = document.createElement("div"),
@@ -2128,34 +2186,34 @@ const dashboard = function dashboard():void {
                             section_div.appendChild(h4);
                             graph({
                                 item: [item.cpu],
-                                label: ["CPU Usage, % and Microsecond Value"],
+                                label: [labels.cpu],
                                 parent: section_div,
-                                title: "CPU"
+                                title: title.cpu
                             }, "cpu");
                             graph({
                                 item: [item.mem],
-                                label: ["Memory Usage, % and Bytes Written"],
+                                label: [labels.mem],
                                 parent: section_div,
-                                title: "Memory"
+                                title: title.mem
                             }, "mem");
                             graph({
                                 item: [item.net_in, item.net_out],
-                                label: ["Received", "Sent"],
+                                label: [labels.disk_in, labels.disk_out],
                                 parent: section_div,
-                                title: "Network Usage"
+                                title: title.net
                             }, "net");
                             graph({
                                 item: [item.threads],
-                                label: ["Process Count"],
+                                label: [labels.threads],
                                 parent: section_div,
-                                title: "Total Processes"
+                                title: title.threads
                             }, "threads");
                             if (id !== "application") {
                                 graph({
                                     item: [item.disk_in, item.disk_out],
-                                    label: ["Read", "Written"],
+                                    label: [labels.disk_in, labels.disk_out],
                                     parent: section_div,
-                                    title: "Storage Device Usage"
+                                    title: title.disk
                                 }, "disk");
                             }
                             section_div.setAttribute("class", "section");

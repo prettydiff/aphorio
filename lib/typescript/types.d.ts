@@ -26,6 +26,7 @@ type type_docker_state = "created" | "dead" | "exited" | "paused" | "removing" |
 type type_encryption = "both" | "open" | "secure";
 type type_external_port = [number, string, string, string];
 type type_file = "block_device" | "character_device" | "directory" | "fifo_pipe" | "file" | "socket" | "symbolic_link";
+type type_graph = "cpu" | "disk" | "mem" | "net" | "threads";
 type type_halt_action = "deactivate" | "destroy" | "modify";
 type type_hash_input = "direct" | "file";
 type type_http_method = "connect" | "delete" | "get" | "head" | "post" | "put";

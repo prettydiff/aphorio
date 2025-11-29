@@ -60,6 +60,13 @@ declare global {
         target: HTMLElement;
     }
 
+    interface graph_config {
+        item: services_statistics_facet[];
+        label: string[];
+        parent: HTMLElement;
+        title: string;
+    }
+
     interface graph_dataset {
         backgroundColor: string;
         borderColor: string;
@@ -72,11 +79,13 @@ declare global {
         tension: number;
     }
 
-    interface graph_config {
-        item: services_statistics_facet[];
-        label: string[];
-        parent: HTMLElement;
-        title: string;
+    interface graph_modify_config {
+        data_0: number[];
+        data_1: number[];
+        label_0: string;
+        label_1: string;
+        labels: number[],
+        name: "cpu"|"disk"|"mem"|"net"|"threads";
     }
 
     interface map_messages {
