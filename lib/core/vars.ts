@@ -170,38 +170,8 @@ const vars:core_vars = {
         },
         start_time: process.hrtime.bigint(),
         stats: {
-            application: {
-                cpu: {
-                    data: [],
-                    labels: []
-                },
-                disk_in: {
-                    data: [],
-                    labels: []
-                },
-                disk_out: {
-                    data: [],
-                    labels: []
-                },
-                mem: {
-                    labels: [],
-                    data: []
-                },
-                net_in: {
-                    data: [],
-                    labels: []
-                },
-                net_out: {
-                    data: [],
-                    labels: []
-                },
-                threads: {
-                    data: [],
-                    labels: []
-                }
-            },
             children: 1,
-            docker: {},
+            containers: {},
             frequency: 20000,
             net_in: 0,
             net_out: 0,

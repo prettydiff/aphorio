@@ -75,7 +75,7 @@
             li > strong,
             li > h6{width:22em}
         }
-        #statistics .graphs .section div{float:left;width:24.8%}
+        #statistics .graphs .section div{float:left;width:19.8%}
         #websocket p#websocket-status{margin:-1.75em -1.75em 1.5em}
         .title p{display:inline-block}
         main{margin:0 0 0 17.75em}
@@ -243,6 +243,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         }
     }
     #disks .os-interface.fail-list{background:var(--fail_background)}
+    #statistics canvas{background:var(--background_textarea)}
     #terminal {
         .dimensions{float:right;margin:-2em 0 0 0}
         .terminal-output{width:100%}

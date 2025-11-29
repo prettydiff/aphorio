@@ -1,5 +1,5 @@
 // cspell: words serv
-
+import Chart from "chart.js/auto";
 import { Terminal } from "@xterm/xterm";
 
 declare global {
@@ -335,7 +335,17 @@ declare global {
     }
 
     interface module_statistics {
+        change_type: () => void;
         definitions: (event:FocusEvent|KeyboardEvent) => void;
+        graphs: {
+            [key:string]: {
+                cpu: Chart;
+                disk: Chart;
+                mem: Chart;
+                net: Chart;
+                threads: Chart;
+            };
+        };
         nodes: {
             frequency: HTMLInputElement;
             graph_type: HTMLSelectElement;
@@ -343,7 +353,7 @@ declare global {
             records: HTMLInputElement;
             update: HTMLElement;
         };
-        receive: (data:socket_data) => void;
+        receive: (data:socket_data, force?:boolean) => void;
     }
 
     interface module_sockets_application extends module_list {

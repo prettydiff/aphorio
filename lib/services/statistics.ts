@@ -45,11 +45,42 @@ const statistics:core_statistics = {
             cpu:os_node_cpuUsage = process.cpuUsage(),
             mem:os_node_memoryUsage = process.memoryUsage(),
             cpus:os_node_cpu = node.os.cpus(),
+            cpu_total:number = cpus[0].times.idle + cpus[0].times.irq + cpus[0].times.nice + cpus[0].times.sys + cpus[0].times.user,
+            cpu_raw:number = (cpu.system + cpu.user) / 1000,
             // net function not used for docker containers
-            net = function services_statistics_netIO(type:"in"|"out"):void {
-                let start:number = (type === "in")
-                        ? vars.stats.net_in
-                        : vars.stats.net_out;
+            empty = function services_statisticsData_empty(id:string):void {
+                vars.stats.containers[id] = {
+                    cpu: {
+                        data: [],
+                        labels: []
+                    },
+                    disk_in: {
+                        data: [],
+                        labels: []
+                    },
+                    disk_out: {
+                        data: [],
+                        labels: []
+                    },
+                    mem: {
+                        data: [],
+                        labels: []
+                    },
+                    net_in: {
+                        data: [],
+                        labels: []
+                    },
+                    net_out: {
+                        data: [],
+                        labels: []
+                    },
+                    threads: {
+                        data: [],
+                        labels: []
+                    }
+                };
+            },
+            net = function services_statisticsData_netIO(type:"in"|"out"):void {
                 const keys:string[] = Object.keys(vars.server_meta),
                     sockets = function core_status_netIO_sockets(list:websocket_client[]):void {
                         let index_list:number = list.length;
@@ -64,7 +95,10 @@ const statistics:core_statistics = {
                             } while (index_list > 0);
                         }
                     };
-                let index:number = keys.length,
+                let start:number = (type === "in")
+                        ? vars.stats.net_in
+                        : vars.stats.net_out,
+                    index:number = keys.length,
                     encryption:"both"|"open"|"secure";
                 if (index > 0) {
                     do {
@@ -78,49 +112,52 @@ const statistics:core_statistics = {
                         }
                     } while (index > 0);
                 }
-                vars.stats.application[`net_${type}`].data.push(start);
+                vars.stats.containers.application[`net_${type}`].data.push(start);
             },
             splice = function services_statisticsData_splice(item:number[]|string[], empty_labels:boolean):void {
                 const len:number = item.length;
                 if (empty_labels === true) {
                     if (len < vars.stats.records) {
-                        const str:string[] = item as string[];
-                        str.push((len + 1).toString());
+                        const num:number[] = item as number[];
+                        num.push((len + 1));
                     }
                 } else {
                     if (len > vars.stats.records) {
                         item.splice(0, len - vars.stats.records);
                     }
                 }
-            },
-            now:number = Date.now(),
-            payload:services_statistics_data = {
-                application: vars.stats.application,
-                docker: vars.stats.docker,
-                frequency: vars.stats.frequency,
-                now: now,
-                records: vars.stats.records
             };
+        if (vars.stats.containers.application === undefined) {
+            empty("application");
+        }
         // gathering total time and then converting microseconds into milliseconds because CPU timing is in milliseconds
-        vars.stats.application.cpu.data.push((cpu.system + cpu.user) / 1000);
-        vars.stats.application.cpu.labels.push(`${(((cpu.system + cpu.user) / 1000) / (cpus[0].times.idle + cpus[0].times.irq + cpus[0].times.nice + cpus[0].times.sys + cpus[0].times.user)) * 100}%`);
-        vars.stats.application.mem.data.push(mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss);
-        vars.stats.application.mem.labels.push(`${((mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss) / vars.os.machine.memory.total) * 100}%`);
-        vars.stats.application.threads.data.push(vars.stats.children);
+        vars.stats.containers.application.cpu.data.push(Math.round((cpu_raw / cpu_total) * 1000000) / 10000);
+        vars.stats.containers.application.cpu.labels.push(cpu_raw);
+        vars.stats.containers.application.mem.data.push(Math.round(((mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss) / vars.os.machine.memory.total) * 10000) / 100);
+        vars.stats.containers.application.mem.labels.push(mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss);
+        vars.stats.containers.application.threads.data.push(vars.stats.children);
         net("in");
         net("out");
-        vars.stats.now = now;
-        splice(vars.stats.application.cpu.data, false);
-        splice(vars.stats.application.mem.data, false);
-        splice(vars.stats.application.net_in.data, false);
-        splice(vars.stats.application.net_out.data, false);
-        splice(vars.stats.application.threads.data, false);
-        splice(vars.stats.application.cpu.labels, false);
-        splice(vars.stats.application.mem.labels, false);
-        splice(vars.stats.application.net_in.labels, true);
-        splice(vars.stats.application.net_out.labels, true);
-        splice(vars.stats.application.threads.labels, true);
+        vars.stats.now = Date.now();
+        splice(vars.stats.containers.application.cpu.data, false);
+        splice(vars.stats.containers.application.mem.data, false);
+        splice(vars.stats.containers.application.net_in.data, false);
+        splice(vars.stats.containers.application.net_out.data, false);
+        splice(vars.stats.containers.application.threads.data, false);
+        splice(vars.stats.containers.application.cpu.labels, false);
+        splice(vars.stats.containers.application.mem.labels, false);
+        splice(vars.stats.containers.application.net_in.labels, true);
+        splice(vars.stats.containers.application.net_out.labels, true);
+        splice(vars.stats.containers.application.threads.labels, true);
         if (container_len === 0) {
+            const payload:services_statistics_data = {
+                containers: {
+                    application: vars.stats.containers.application
+                },
+                frequency: vars.stats.frequency,
+                now: vars.stats.now,
+                records: vars.stats.records
+            };
             broadcast(vars.dashboard_id, "dashboard", {
                 data: payload,
                 service: "dashboard-statistics-data"
@@ -129,92 +166,58 @@ const statistics:core_statistics = {
             spawn("docker stats --no-stream --no-trunc --format json", function services_statisticsData_spawnDocker(output:core_spawn_output):void {
                 const obj:string = `[${output.stdout.replace(/\}\n/g, "},")}]`.replace(/\},\]$/, "}]"),
                     data:core_docker_status = JSON.parse(obj),
-                    payload_id:string[] = Object.keys(payload.docker),
-                    compose_list:string[] = Object.keys(vars.compose.containers),
-                    compose_len:number = compose_list.length,
-                    actual_id:string[] = [];
+                    actual_id:string[] = [],
+                    payload:services_statistics_data = {
+                        containers: vars.stats.containers,
+                        frequency: vars.stats.frequency,
+                        now: vars.stats.now,
+                        records: vars.stats.records
+                    };
                 let index:number = data.length,
-                    compose_index:number = 0,
-                    compose_test:boolean = false,
                     disk:string[] = null,
-                    net:string[] = null;
+                    net:string[] = null,
+                    cpu_value:number = 0;
                 if (index > 0) {
                     do {
                         index = index - 1;
                         disk = data[index].BlockIO.split(" / ");
                         net = data[index].NetIO.split(" / ");
-                        if (payload.docker[data[index].ID] === undefined) {
-                            payload.docker[data[index].ID] = {
-                                cpu: {
-                                    data: [],
-                                    labels: []
-                                },
-                                disk_in: {
-                                    data: [],
-                                    labels: []
-                                },
-                                disk_out: {
-                                    data: [],
-                                    labels: []
-                                },
-                                mem: {
-                                    data: [],
-                                    labels: []
-                                },
-                                net_in: {
-                                    data: [],
-                                    labels: []
-                                },
-                                net_out: {
-                                    data: [],
-                                    labels: []
-                                },
-                                threads: {
-                                    data: [],
-                                    labels: []
-                                }
-                            };
+                        if (vars.stats.containers[data[index].ID] === undefined) {
+                            empty(data[index].ID);
                         }
                         actual_id.push(data[index].ID);
-                        vars.stats.docker[data[index].ID].cpu.data.push(Number(data[index].CPUPerc.replace("%", "")));
-                        vars.stats.docker[data[index].ID].disk_in.data.push(disk[0].bytes());
-                        vars.stats.docker[data[index].ID].disk_out.data.push(disk[1].bytes());
-                        vars.stats.docker[data[index].ID].mem.data.push(data[index].MemUsage.split(" / ")[0].bytes());
-                        vars.stats.docker[data[index].ID].mem.labels.push(data[index].MemPerc);
-                        vars.stats.docker[data[index].ID].net_in.data.push(net[0].bytes());
-                        vars.stats.docker[data[index].ID].net_out.data.push(net[1].bytes());
-                        vars.stats.docker[data[index].ID].threads.data.push(data[index].PIDs);
-                        splice(vars.stats.docker[data[index].ID].cpu.data, false);
-                        splice(vars.stats.docker[data[index].ID].disk_in.data, false);
-                        splice(vars.stats.docker[data[index].ID].disk_out.data, false);
-                        splice(vars.stats.docker[data[index].ID].mem.data, false);
-                        splice(vars.stats.docker[data[index].ID].net_in.data, false);
-                        splice(vars.stats.docker[data[index].ID].net_out.data, false);
-                        splice(vars.stats.docker[data[index].ID].threads.data, false);
-                        splice(vars.stats.docker[data[index].ID].cpu.labels, true);
-                        splice(vars.stats.docker[data[index].ID].disk_in.labels, true);
-                        splice(vars.stats.docker[data[index].ID].disk_out.labels, true);
-                        splice(vars.stats.docker[data[index].ID].mem.labels, false);
-                        splice(vars.stats.docker[data[index].ID].net_in.labels, true);
-                        splice(vars.stats.docker[data[index].ID].net_out.labels, true);
-                        splice(vars.stats.docker[data[index].ID].threads.labels, true);
+                        cpu_value = Number(data[index].CPUPerc.replace("%", ""));
+                        vars.stats.containers[data[index].ID].cpu.data.push(cpu_value);
+                        vars.stats.containers[data[index].ID].cpu.labels.push(Math.round(cpu_total * cpu_value * 100) / 100);
+                        vars.stats.containers[data[index].ID].disk_in.data.push(disk[0].bytes());
+                        vars.stats.containers[data[index].ID].disk_out.data.push(disk[1].bytes());
+                        vars.stats.containers[data[index].ID].mem.data.push(Number(data[index].MemPerc.replace("%", "")));
+                        vars.stats.containers[data[index].ID].mem.labels.push(data[index].MemUsage.split(" / ")[0].bytes());
+                        vars.stats.containers[data[index].ID].net_in.data.push(net[0].bytes());
+                        vars.stats.containers[data[index].ID].net_out.data.push(net[1].bytes());
+                        vars.stats.containers[data[index].ID].threads.data.push(data[index].PIDs);
+                        splice(vars.stats.containers[data[index].ID].cpu.data, false);
+                        splice(vars.stats.containers[data[index].ID].disk_in.data, false);
+                        splice(vars.stats.containers[data[index].ID].disk_out.data, false);
+                        splice(vars.stats.containers[data[index].ID].mem.data, false);
+                        splice(vars.stats.containers[data[index].ID].net_in.data, false);
+                        splice(vars.stats.containers[data[index].ID].net_out.data, false);
+                        splice(vars.stats.containers[data[index].ID].threads.data, false);
+                        splice(vars.stats.containers[data[index].ID].cpu.labels, false);
+                        splice(vars.stats.containers[data[index].ID].disk_in.labels, true);
+                        splice(vars.stats.containers[data[index].ID].disk_out.labels, true);
+                        splice(vars.stats.containers[data[index].ID].mem.labels, false);
+                        splice(vars.stats.containers[data[index].ID].net_in.labels, true);
+                        splice(vars.stats.containers[data[index].ID].net_out.labels, true);
+                        splice(vars.stats.containers[data[index].ID].threads.labels, true);
                     } while (index > 0);
-                    index = payload_id.length;
+                    index = container_len;
                     do {
-                        compose_test = false;
-                        index = data.length;
-                        do {
-                            index = index - 1;
-                            if (compose_list[compose_index] === data[index].ID) {
-                                compose_test = true;
-                                break;
-                            }
-                        } while (index > 0);
-                        if (compose_test === false) {
-                            vars.stats.docker[compose_list[compose_index]] = null;
+                        index = index - 1;
+                        if (actual_id.includes(container_keys[index]) === false) {
+                            vars.stats.containers[container_keys[index]] = null;
                         }
-                        compose_index = compose_index + 1;
-                    } while (compose_index < compose_len);
+                    } while (index > 0);
                 }
                 broadcast(vars.dashboard_id, "dashboard", {
                     data: payload,

@@ -310,8 +310,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     servers: vars.servers,
                     sockets: vars.sockets,
                     stats: {
-                        application: vars.stats.application,
-                        docker: vars.stats.docker,
+                        containers: vars.stats.containers,
                         frequency: vars.stats.frequency,
                         now: vars.stats.now,
                         records: vars.stats.records

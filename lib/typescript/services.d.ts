@@ -204,8 +204,7 @@ interface services_status_clock {
 }
 
 interface services_statistics_data {
-    application: services_statistics_item;
-    docker: {
+    containers: {
         [key:string]: services_statistics_item;
     };
     frequency: number;
@@ -219,8 +218,8 @@ interface services_statistics_change {
 }
 
 interface services_statistics_facet {
-    labels: string[];
     data: number[];
+    labels: number[];
 }
 
 interface services_statistics_item {

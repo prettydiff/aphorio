@@ -236,9 +236,8 @@ interface core_vars {
     sockets: services_socket_application;
     start_time: bigint;
     stats: {
-        application: services_statistics_item;
         children: number;
-        docker: {
+        containers: {
             [key:string]: services_statistics_item;
         };
         frequency: number;

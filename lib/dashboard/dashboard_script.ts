@@ -1081,7 +1081,7 @@ const dashboard = function dashboard():void {
                 services.statistics.nodes.frequency.onblur = services.statistics.definitions;
                 services.statistics.nodes.frequency.onkeyup = services.statistics.definitions;
                 services.statistics.nodes.frequency.value = (payload.stats.frequency / 1000).toString();
-                services.statistics.nodes.graph_type.onchange = utility.setState;
+                services.statistics.nodes.graph_type.onchange = services.statistics.change_type;
                 services.statistics.nodes.graph_type.selectedIndex = (state.graph_type === null || state.graph_type === undefined)
                     ? 0
                     : state.graph_type;
@@ -1936,6 +1936,13 @@ const dashboard = function dashboard():void {
                 }
             },
             statistics: {
+                change_type: function dashboard_statisticsChangeType():void {
+                    services.statistics.receive({
+                        data: payload.stats,
+                        service: "dashboard-statistics-data"
+                    }, true);
+                    utility.setState();
+                },
                 definitions: function dashboard_statisticsDefinitions(event:FocusEvent|KeyboardEvent):void {
                     const key:KeyboardEvent = event as KeyboardEvent,
                         frequency:number = Number(services.statistics.nodes.frequency.value),
@@ -1951,6 +1958,7 @@ const dashboard = function dashboard():void {
                         records: records
                     }, "dashboard-statistics-change");
                 },
+                graphs: {},
                 nodes: {
                     frequency: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
                     graph_type: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
@@ -1958,19 +1966,100 @@ const dashboard = function dashboard():void {
                     records: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
                     update: document.getElementById("statistics").getElementsByClassName("section")[0].getElementsByTagName("em")[0]
                 },
-                receive: function dashboard_statisticsReceive(data:socket_data):void {
-                    const stats:services_statistics_data = data.data as services_statistics_data,
-                        docker_keys:string[] = Object.keys(stats.docker),
-                        docker_len:number = docker_keys.length,
+                receive: function dashboard_statisticsReceive(data:socket_data, force?:boolean):void {
+                    const stats:services_statistics_data = (data === null)
+                            ? payload.stats
+                            : data.data as services_statistics_data,
+                        id_list:string[] = Object.keys(stats.containers),
+                        id_len:number = id_list.length,
                         colors:string[] = ["rgba(204,170,51,1)", "rgba(153,102,0,1)", "rgba(221,102,0,1)"],
-                        scrollX:number = document.documentElement.scrollLeft,
-                        scrollY:number = document.documentElement.scrollTop,
-                        container = function dashboard_statisticsReceive_container(item:services_statistics_item, docker:string):void {
-                            const section_div:HTMLElement = document.createElement("div"),
+                        graph_type:"bar"|"line" = services.statistics.nodes.graph_type[services.statistics.nodes.graph_type.selectedIndex].textContent as "bar"|"line",
+                        destroy = function dashboard_statisticsReceive_destroy(id:string):void {
+                            if (services.statistics.graphs[id] !== null && services.statistics.graphs[id] !== undefined) {
+                                const each = function dashboard_statisticsReceive_destory_each(type:"cpu"|"disk"|"mem"|"net"|"threads"):void {
+                                    if (services.statistics.graphs[id][type] !== null && services.statistics.graphs[id][type] !== undefined) {
+                                        services.statistics.graphs[id][type].destroy();
+                                    }
+                                };
+                                each("cpu");
+                                each("disk");
+                                each("mem");
+                                each("net");
+                                each("threads");
+                                services.statistics.graphs[id] = null;
+                            }
+                        },
+                        empty = function dashboard_statisticsReceive_empty(id:string):void {
+                            const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("div");
+                            let index:number = sections.length,
+                                h4:HTMLElement = null,
+                                p:HTMLElement = null,
+                                div:HTMLElement = null;
+                            if (index > 0) {
+                                do {
+                                    index = index - 1;
+                                    if (sections[index].dataset.id === id) {
+                                        h4 = sections[index].getElementsByTagName("h4")[0];
+                                        p = document.createElement("p");
+                                        h4.parentNode.removeChild(h4);
+                                        sections[index].textContent = "";
+                                        sections[index].appendChild(h4);
+                                        p.textContent = `Container ${payload.compose.containers[id].name} is not running.`;
+                                        sections[index].appendChild(p);
+                                        return;
+                                    }
+                                } while (index > 0);
+                            }
+                            div = document.createElement("div");
+                            div.setAttribute("class", "section");
+                            div.setAttribute("data-id", id);
+                            h4 = document.createElement("h4");
+                            h4.textContent = (id === "application")
+                                ? "Aphorio Application"
+                                : `Container - ${payload.compose.containers[id].name}`;
+                            p = document.createElement("p");
+                            p.textContent = `Container ${payload.compose.containers[id].name} is not running.`;
+                            div.appendChild(h4);
+                            div.appendChild(p);
+                            services.statistics.nodes.graphs.appendChild(div);
+                            destroy(id);
+                        },
+                        update = function dashboard_statisticsReceive_update(id:string):void {
+                            services.statistics.graphs[id].cpu.data.datasets[0].data = stats.containers[id].cpu.data;
+                            services.statistics.graphs[id].cpu.data.labels = stats.containers[id].cpu.labels;
+                            services.statistics.graphs[id].cpu.update();
+                            if (id !== "application") {
+                                services.statistics.graphs[id].disk.data.datasets[0] = stats.containers[id].disk_in;
+                                services.statistics.graphs[id].disk.data.datasets[0].backgroundColor = colors[0].replace(",1)", ",0.1)");
+                                services.statistics.graphs[id].disk.data.datasets[0].borderColor = colors[0];
+                                services.statistics.graphs[id].disk.data.datasets[0].borderWidth = 2;
+                                services.statistics.graphs[id].disk.data.datasets[0].label = "Read";
+                                services.statistics.graphs[id].disk.data.datasets[1] = stats.containers[id].disk_out;
+                                services.statistics.graphs[id].disk.data.datasets[1].backgroundColor = colors[1].replace(",1)", ",0.1)");
+                                services.statistics.graphs[id].disk.data.datasets[1].borderColor = colors[1];
+                                services.statistics.graphs[id].disk.data.datasets[1].borderWidth = 2;
+                                services.statistics.graphs[id].disk.data.datasets[1].label = "Written";
+                                services.statistics.graphs[id].disk.data.labels = stats.containers[id].disk_in.labels;
+                                services.statistics.graphs[id].disk.update();
+                            }
+                            services.statistics.graphs[id].mem.data.datasets[0].data = stats.containers[id].mem.data;
+                            services.statistics.graphs[id].mem.data.labels = stats.containers[id].mem.labels;
+                            services.statistics.graphs[id].mem.update();
+                            services.statistics.graphs[id].net.data.datasets[0].data = stats.containers[id].net_in.data;
+                            services.statistics.graphs[id].net.data.datasets[1].data = stats.containers[id].net_out.data;
+                            services.statistics.graphs[id].net.data.labels = stats.containers[id].net_in.labels;
+                            services.statistics.graphs[id].net.update();
+                            services.statistics.graphs[id].threads.data.datasets[0].data = stats.containers[id].threads.data;
+                            services.statistics.graphs[id].threads.data.labels = stats.containers[id].threads.labels;
+                            services.statistics.graphs[id].threads.update();
+                        },
+                        container = function dashboard_statisticsReceive_container(id:string):void {
+                            const item:services_statistics_item = stats.containers[id],
+                                section_div:HTMLElement = document.createElement("div"),
                                 h4:HTMLElement = document.createElement("h4"),
                                 clear:HTMLElement = document.createElement("span"),
-                                graph_type:"bar"|"line" = services.statistics.nodes.graph_type[services.statistics.nodes.graph_type.selectedIndex].textContent as "bar"|"line",
-                                graph = function dashboard_statisticsReceive_container_graph(config:graph_config):void {
+                                sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("div"),
+                                graph = function dashboard_statisticsReceive_container_graph(config:graph_config, type:"cpu"|"disk"|"mem"|"net"|"threads"):void {
                                     const graph_item:HTMLCanvasElement = document.createElement("canvas"),
                                         len:number = config.item.length,
                                         div:HTMLElement = document.createElement("div"),
@@ -1990,12 +2079,14 @@ const dashboard = function dashboard():void {
                                         });
                                         item_index = item_index + 1;
                                     } while (item_index < len);
-                                    new Chart(graph_item, {
+                                    // @ts-expect-error - TypeScript is warning on a third party super overloaded construct
+                                    services.statistics.graphs[id][type] = new Chart(graph_item, {
                                         data: {
                                             labels: config.item[0].labels,
                                             datasets: dataset
                                         },
                                         options: {
+                                            animation: false,
                                             responsive: true,
                                             plugins: {
                                                 title: {
@@ -2009,79 +2100,83 @@ const dashboard = function dashboard():void {
                                     graph_item.setAttribute("class", "graph");
                                     div.appendChild(graph_item);div.style.border="0.1em solid #666";
                                     config.parent.appendChild(div);
-                                };
-                            section_div.setAttribute("class", "section");
-                            h4.textContent = (docker === null)
-                                ? "Aphorio Application"
-                                : `Container - ${payload.compose.containers[docker].name}`;
+                                },
+                                name:string = (id === "application")
+                                    ? "Aphorio Application"
+                                    : `Container - ${payload.compose.containers[id].name}`;
+                            let index_sections:number = sections.length;
+                            if (force === true) {
+                                destroy(id);
+                            }
+                            if (index_sections > 0) {
+                                do {
+                                    index_sections = index_sections - 1;
+                                    if (sections[index_sections].dataset.id === id) {
+                                        services.statistics.nodes.graphs.removeChild(sections[index_sections]);
+                                        break;
+                                    }
+                                } while (index_sections > 0);
+                            }
+                            services.statistics.graphs[id] = {
+                                cpu: null,
+                                disk: null,
+                                mem: null,
+                                net: null,
+                                threads: null
+                            };
+                            h4.textContent = name;
                             section_div.appendChild(h4);
                             graph({
                                 item: [item.cpu],
-                                label: ["CPU Usage"],
+                                label: ["CPU Usage, % and Microsecond Value"],
                                 parent: section_div,
                                 title: "CPU"
-                            });
+                            }, "cpu");
                             graph({
                                 item: [item.mem],
-                                label: ["Memory Usage"],
+                                label: ["Memory Usage, % and Bytes Written"],
                                 parent: section_div,
                                 title: "Memory"
-                            });
+                            }, "mem");
                             graph({
                                 item: [item.net_in, item.net_out],
                                 label: ["Received", "Sent"],
                                 parent: section_div,
                                 title: "Network Usage"
-                            });
+                            }, "net");
                             graph({
                                 item: [item.threads],
                                 label: ["Process Count"],
                                 parent: section_div,
                                 title: "Total Processes"
-                            });
-                            if (docker !== null) {
+                            }, "threads");
+                            if (id !== "application") {
                                 graph({
                                     item: [item.disk_in, item.disk_out],
                                     label: ["Read", "Written"],
                                     parent: section_div,
                                     title: "Storage Device Usage"
-                                });
+                                }, "disk");
                             }
+                            section_div.setAttribute("class", "section");
                             clear.setAttribute("class", "clear");
                             section_div.appendChild(clear);
+                            section_div.setAttribute("data-id", id);
                             services.statistics.nodes.graphs.appendChild(section_div);
-                        },
-                        canvas:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("canvas"),
-                        divs:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("div");
-                    let index:number = canvas.length;
+                        };
+                    let index:number = 0;
                     payload.stats = stats;
-                    if (index > 0) {
+                    if (id_len > 0) {
                         do {
-                            index = index - 1;
-                            canvas[index].parentNode.removeChild(canvas[index]);
-                        } while (index > 0);
-                    }
-                    index = divs.length;
-                    if (index > 0) {
-                        do {
-                            index = index - 1;
-                            divs[index].parentNode.removeChild(divs[index]);
-                        } while (index > 0);
-                    }
-                    services.statistics.nodes.graphs.textContent = "";
-                    container(stats.application, null);
-                    if (docker_len > 0) {
-                        do {
-                            container(stats.docker[docker_keys[index]], docker_keys[index]);
+                            if (stats.containers[id_list[index]] === null) {
+                                empty(id_list[index]);
+                            } else if (force === true || services.statistics.graphs[id_list[index]] === undefined || services.statistics.graphs[id_list[index]] === null) {
+                                container(id_list[index]);
+                            } else {
+                                update(id_list[index]);
+                            }
                             index = index + 1;
-                        } while (index < docker_len);
-                    }
-                    if (section === "statistics") {
-                        setTimeout(function dashboard_statisticsReceive_scroll():void {
-                                document.documentElement.scrollTo({
-                                left: scrollX, top: scrollY
-                            });
-                        }, 1);
+                        } while (index < id_len);
                     }
                     if (document.activeElement !== services.statistics.nodes.frequency) {
                         services.statistics.nodes.frequency.value = (stats.frequency / 1000).toString();

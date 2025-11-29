@@ -149,7 +149,7 @@ const docker:core_docker = {
                                         complete("");
                                     }
                                 },
-                                list = function services_docker_list_child_completePS_list(file_list:string[]|directory_list):void {
+                                list = function services_docker_list_child_completePS_list(file_list:directory_list|string[]):void {
                                     const files:string[] = file_list as string[];
                                     let index:number = files.length,
                                         count:number = 0;
