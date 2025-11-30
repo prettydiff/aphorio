@@ -2203,19 +2203,17 @@ const dashboard = function dashboard():void {
                                 title: title.net
                             }, "net");
                             graph({
+                                item: [item.disk_in, item.disk_out],
+                                label: [labels.disk_in, labels.disk_out],
+                                parent: section_div,
+                                title: title.disk
+                            }, "disk");
+                            graph({
                                 item: [item.threads],
                                 label: [labels.threads],
                                 parent: section_div,
                                 title: title.threads
                             }, "threads");
-                            if (id !== "application") {
-                                graph({
-                                    item: [item.disk_in, item.disk_out],
-                                    label: [labels.disk_in, labels.disk_out],
-                                    parent: section_div,
-                                    title: title.disk
-                                }, "disk");
-                            }
                             section_div.setAttribute("class", "section");
                             clear.setAttribute("class", "clear");
                             section_div.appendChild(clear);

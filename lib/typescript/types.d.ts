@@ -18,7 +18,7 @@ type type_dashboard_status = "error" | "informational";
 // 5 - stats
 // 6 - rename write path
 type type_directory_item = [string, type_file, string, number, number, directory_data, string];
-type type_directory_mode = "array" | "hash" | "list" | "read" | "search" | "type";
+type type_directory_mode = "array" | "hash" | "list" | "read" | "search";
 type type_dns_records = node_dns_anyRecord[] | node_dns_mxRecord[] | node_dns_naptrRecord[] | node_dns_soaRecord | node_dns_srvRecord[] | string[] | string[][];
 type type_dns_types = "A" | "AAAA" | "CAA" | "CNAME" | "MX" | "NAPTR" | "NS" | "PTR" | "SOA" | "SRV" | "TXT";
 type type_docker_ports = [number, "tcp"|"udp"][];

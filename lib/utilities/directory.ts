@@ -9,10 +9,17 @@ const directory = function utilities_directory(args:config_directory):void {
         // arguments:
         // * callback - function - the output is passed into the callback as an argument
         // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
-        // * hash - boolean - whether file types should be hashed
         // * exclusions - string array - a list of items to exclude
+        // * mode - "array" | "hash" | "list" | "read" | "search"
+        //      * array - a flat string array of file system addresses
+        //      * hash - the default directory_list array plus a SHA3-512 hash of files
+        //      * list - a flat array of results containing space separated values for file system artifact type, size, and address
+        //      * read - the default result containing a directory_list array, see below
+        //      * search - a directory_list array filtered to results matching the search argument
         // * path - string - where to start in the local file system
-        // * symbolic - boolean - if symbolic links should be identified
+        // * relative - boolean - where to use absolute paths or paths relative to the path argument
+        // * search - string - the string transformed into a regular express to search for out of the result set
+        // * symbolic - boolean - if symbolic links should be identified as opposed to the artifact they point to
         // -
         // directory_list: [].failures
         // 0. absolute path (string)
@@ -320,10 +327,6 @@ const directory = function utilities_directory(args:config_directory):void {
                             }
                         },
                         linkAction = function utilities_directory_statWrapper_stat_linkAction():void {
-                            if (args.mode === "type") {
-                                args.callback(null);
-                                return;
-                            }
                             populate("symbolic_link");
                         },
                         linkCallback = function utilities_directory_statWrapper_stat_linkCallback(linkErr:node_error, linkStat:node_fs_Stats):void {
@@ -380,20 +383,8 @@ const directory = function utilities_directory(args:config_directory):void {
                         };
                     }
                     if (er !== null) {
-                        if (er.message.indexOf("no such file or directory") > 0) {
-                            if (args.mode === "type") {
-                                args.callback(null);
-                                return;
-                            }
-                            populate("error");
-                        } else {
-                            populate("error");
-                        }
+                        populate("error");
                     } else if (stats.isDirectory() === true) {
-                        if (args.mode === "type") {
-                            args.callback(null);
-                            return;
-                        }
                         const dirs:number = (args.path === "\\" && (/^\w:(\\)?$/).test(filePath) === true)
                             ? 1
                             : (args.path === "\\")
@@ -413,36 +404,16 @@ const directory = function utilities_directory(args:config_directory):void {
                         }
                     } else {
                         if (stats.isBlockDevice() === true) {
-                            if (args.mode === "type") {
-                                args.callback(null);
-                            } else {
-                                populate("block_device");
-                            }
+                            populate("block_device");
                         } else if (stats.isCharacterDevice() === true) {
-                            if (args.mode === "type") {
-                                args.callback(null);
-                            } else {
-                                populate("character_device");
-                            }
+                            populate("character_device");
                         } else if (stats.isFIFO() === true) {
-                            if (args.mode === "type") {
-                                args.callback(null);
-                            } else {
-                                populate("fifo_pipe");
-                            }
+                            populate("fifo_pipe");
                         } else if (stats.isSocket() === true) {
-                            if (args.mode === "type") {
-                                args.callback(null);
-                            } else {
-                                populate("socket");
-                            }
+                            populate("socket");
                         } else {
-                            if (args.mode === "type") {
-                                args.callback(null);
-                            } else {
-                                size = size + stats.size;
-                                populate("file");
-                            }
+                            size = size + stats.size;
+                            populate("file");
                         }
                     }
                 });

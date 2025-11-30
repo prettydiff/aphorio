@@ -274,6 +274,7 @@ interface core_vars {
 }
 
 interface core_vars_path {
+    cgroup: string;
     compose: string;
     compose_empty: string;
     node: string;

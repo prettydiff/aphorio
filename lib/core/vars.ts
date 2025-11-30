@@ -41,7 +41,7 @@ const vars:core_vars = {
         }()),
         compose: {
             containers: {},
-            status: "",
+            status: null,
             time: 0,
             variables: {}
         },
@@ -154,6 +154,7 @@ const vars:core_vars = {
             }
         },
         path: {
+            cgroup: "",
             compose: "",
             compose_empty: "",
             node: "",

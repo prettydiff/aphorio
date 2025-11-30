@@ -3,6 +3,7 @@ import broadcast from "../transmit/broadcast.ts";
 import clock from "../services/clock.ts";
 import core from "../browser/core.ts";
 import dashboard_script from "../dashboard/dashboard_script.ts";
+import directory from "./directory.ts";
 import docker from "../services/docker.ts";
 import file from "./file.ts";
 import log from "../core/log.ts";
@@ -22,6 +23,7 @@ import vars from "../core/vars.ts";
 const start_server = function utilities_startServer(process_path:string, testing:boolean):void {
     const task_definitions:store_string = {
             admin: "Determines if the application is run with administrative privileges.",
+            // cgroup: "Find Linux cgroup address for gathering docker performance metrics.",
             compose: "Reads the compose.json file and restores the docker compose containers if docker is available.",
             git: "Get the latest update time and hash.",
             html: "Read's the dashboard's HTML file for dynamic modification.",
@@ -52,6 +54,11 @@ const start_server = function utilities_startServer(process_path:string, testing
                         : "sh"
                 }).execute();
             },
+            compose: function utilities_startServer_compose():void {
+                docker.list(function utilities_startServer_compose_callback():void {
+                    complete_tasks("compose", "prerequisite");
+                });
+            },
             os_main: function utilities_startServer_taskOSMain():void {
                 const callback = function utilities_startServer_taskOSMain_callback():void {
                         complete_tasks("os_main", "prerequisite");
@@ -80,11 +87,13 @@ const start_server = function utilities_startServer(process_path:string, testing
             }
         },
         tasks:store_function = {
-            compose: function utilities_startServer_taskCompose():void {
-                docker.list(function utilities_startServer_taskCompose_callback():void {
-                    complete_tasks("compose", "task");
-                });
-            },
+            // cgroup: function utilities_startServer_cgroup():void {
+            //     if (vars.compose.status === "" && vars.os.process.admin === true) {
+
+            //     } else {
+            //         complete_tasks("cgroup", "task");
+            //     }
+            // },
             git: function utilities_startServer_tasksGit():void {
                 const gitStat = function utilities_startServer_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
                     if (error === null && stat !== null) {
@@ -385,7 +394,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                 task_definitions.browser_stat = "No option supplied beginning with 'browser:'";
             }
         },
-        complete_tasks = function utilities_startServer_completeTasks(flag:"admin"|"compose"|"git"|"html"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list", type:"prerequisite"|"task"):void {
+        complete_tasks = function utilities_startServer_completeTasks(flag:"admin"|"cgroup"|"compose"|"git"|"html"|"os_devs"|"os_disk"|"os_intr"|"os_main"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list", type:"prerequisite"|"task"):void {
             log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${task_definitions[flag]}`]);
             // to troubleshoot which tasks do not run, in test mode servers task is not executed
             // delete task_definitions[flag];console.log(Object.keys(task_definitions));
