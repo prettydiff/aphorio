@@ -84,7 +84,7 @@ declare global {
         data_1: number[];
         label_0: string;
         label_1: string;
-        labels: number[],
+        labels: string[],
         name: "cpu"|"disk"|"mem"|"net"|"threads";
     }
 
@@ -356,6 +356,7 @@ declare global {
             };
         };
         nodes: {
+            duration: HTMLElement;
             frequency: HTMLInputElement;
             graph_type: HTMLSelectElement;
             graphs: HTMLElement;

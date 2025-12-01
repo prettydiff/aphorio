@@ -1971,6 +1971,7 @@ const dashboard = function dashboard():void {
                 },
                 graphs: {},
                 nodes: {
+                    duration: document.getElementById("statistics").getElementsByClassName("section")[0].getElementsByTagName("em")[1],
                     frequency: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
                     graph_type: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
                     graphs: document.getElementById("statistics").getElementsByClassName("graphs")[0] as HTMLElement,
@@ -2108,7 +2109,7 @@ const dashboard = function dashboard():void {
                                 label_0: labels.threads,
                                 label_1: null,
                                 labels: stats.containers[id].threads.labels,
-                                name: "cpu"
+                                name: "threads"
                             });
                         },
                         container = function dashboard_statisticsReceive_container(id:string):void {
@@ -2149,7 +2150,7 @@ const dashboard = function dashboard():void {
                                             plugins: {
                                                 title: {
                                                     display: true,
-                                                    text: config.title
+                                                    text: `${name_literal} - ${config.title}`
                                                 }
                                             }
                                         },
@@ -2159,9 +2160,12 @@ const dashboard = function dashboard():void {
                                     div.appendChild(graph_item);div.style.border="0.1em solid #666";
                                     config.parent.appendChild(div);
                                 },
+                                name_literal:string = (id === "application")
+                                    ? "Aphorio"
+                                    : payload.compose.containers[id].name,
                                 name:string = (id === "application")
-                                    ? "Aphorio Application"
-                                    : `Container - ${payload.compose.containers[id].name}`;
+                                    ? `Application - ${name_literal}`
+                                    : `Container - ${name_literal}`;
                             let index_sections:number = sections.length;
                             if (force === true) {
                                 destroy(id);
@@ -2241,6 +2245,7 @@ const dashboard = function dashboard():void {
                         services.statistics.nodes.records.value = stats.records.toString();
                     }
                     services.statistics.nodes.update.textContent = stats.now.dateTime(true, payload.timeZone_offset);
+                    services.statistics.nodes.duration.textContent = (stats.duration / 1e9).time();
                 }
             }
         },

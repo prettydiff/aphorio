@@ -37,6 +37,40 @@ interface transmit_dashboard {
     timeZone_offset: number;
 }
 
+interface transmit_linux_ip extends Array<transmit_linux_ip_item> {
+    [induex:number]: transmit_linux_ip_item;
+}
+
+interface transmit_linux_ip_item {
+    address: string;
+    broadcast: string;
+    flags: string[];
+    group: string;
+    ifindex: number;
+    ifname: string;
+    linkmode: "DEFAULT";
+    link_index: number;
+    link_netnsid: number;
+    link_type: string;
+    mtu: number;
+    operstate: "DOWN"|"UP";
+    qdisc: string;
+    stats64: {
+        rx: transmit_linux_ip_stats;
+        tx: transmit_linux_ip_stats;
+    };
+}
+
+interface transmit_linux_ip_stats {
+    bytes: number;
+    collisions: number;
+    carrier_errors: number;
+    dropped: number;
+    errors: number;
+    packets: number;
+
+}
+
 interface transmit_receiver {
     [key:string]: receiver;
 }

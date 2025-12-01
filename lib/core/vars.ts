@@ -173,6 +173,7 @@ const vars:core_vars = {
         stats: {
             children: 1,
             containers: {},
+            duration: 0,
             frequency: 20000,
             net_in: 0,
             net_out: 0,

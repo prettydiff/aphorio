@@ -240,6 +240,7 @@ interface core_vars {
         containers: {
             [key:string]: services_statistics_item;
         };
+        duration: number;
         frequency: number;
         net_in: number;
         net_out: number;
@@ -436,6 +437,10 @@ interface store_servers {
 
 interface store_sockets {
     [key:string]: websocket_client[];
+}
+
+interface store_store_flag {
+    [key:string]: store_flag;
 }
 
 interface store_string {

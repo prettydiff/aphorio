@@ -207,6 +207,7 @@ interface services_statistics_data {
     containers: {
         [key:string]: services_statistics_item;
     };
+    duration: number;
     frequency: number;
     now: number;
     records: number;
@@ -219,7 +220,7 @@ interface services_statistics_change {
 
 interface services_statistics_facet {
     data: number[];
-    labels: number[];
+    labels: string[];
 }
 
 interface services_statistics_item {
