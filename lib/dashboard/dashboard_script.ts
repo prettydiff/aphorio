@@ -1987,7 +1987,7 @@ const dashboard = function dashboard():void {
                         colors:string[] = ["rgba(204,170,51,1)", "rgba(153,102,0,1)", "rgba(221,102,0,1)"],
                         graph_type:"bar"|"line" = services.statistics.nodes.graph_type[services.statistics.nodes.graph_type.selectedIndex].textContent as "bar"|"line",
                         labels:store_string = {
-                            cpu: "CPU Usage, % and Microsecond Value",
+                            cpu: "CPU Usage, % and Millisecond Value",
                             disk_in: "Read",
                             disk_out: "Written",
                             mem: "Memory Usage, % and Bytes Written",

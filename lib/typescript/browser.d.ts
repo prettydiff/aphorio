@@ -84,7 +84,7 @@ declare global {
         data_1: number[];
         label_0: string;
         label_1: string;
-        labels: string[],
+        labels: string[];
         name: "cpu"|"disk"|"mem"|"net"|"threads";
     }
 

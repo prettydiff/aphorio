@@ -48,10 +48,10 @@ interface transmit_linux_ip_item {
     group: string;
     ifindex: number;
     ifname: string;
-    linkmode: "DEFAULT";
     link_index: number;
     link_netnsid: number;
     link_type: string;
+    linkmode: "DEFAULT";
     mtu: number;
     operstate: "DOWN"|"UP";
     qdisc: string;
@@ -63,8 +63,8 @@ interface transmit_linux_ip_item {
 
 interface transmit_linux_ip_stats {
     bytes: number;
-    collisions: number;
     carrier_errors: number;
+    collisions: number;
     dropped: number;
     errors: number;
     packets: number;

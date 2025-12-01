@@ -49,7 +49,7 @@ const statistics:core_statistics = {
             cpu_total:number = (function services_statisicsData_cpuTotal():number {
                 const cpus:os_node_cpu = node.os.cpus();
                 let output:number = 0,
-                    index = cpus.length;
+                    index:number = cpus.length;
                 if (index > 0) {
                     do {
                         index = index - 1;
@@ -141,7 +141,7 @@ const statistics:core_statistics = {
                                 actual_keys.push(id);
                                 disk = data[index].BlockIO.split(" / ");
                                 net_data = data[index].NetIO.split(" / ");
-                                vars.stats.containers[id].cpu.data.push(Math.round(cpu_total * Number(data[index].CPUPerc.replace("%", "")) * 100) / 100);
+                                vars.stats.containers[id].cpu.data.push(cpu_total * (Number(data[index].CPUPerc.replace("%", "")) / 1000));
                                 vars.stats.containers[id].cpu.labels.push(data[index].CPUPerc);
                                 vars.stats.containers[id].disk_in.data.push(disk[0].bytes());
                                 vars.stats.containers[id].disk_out.data.push(disk[1].bytes());
@@ -197,8 +197,9 @@ const statistics:core_statistics = {
                             cpu = function services_statisticsData_diskComplete_spawnPS_cpu(file:Buffer, location:string, identifier:string):void {
                                 if (vars.stats.containers[identifier] !== undefined && vars.stats.containers[identifier] !== null) {
                                     const data:string = file.toString(),
-                                        segment:string = data.replace("usage_usec ", ""),
-                                        value:number = Number(segment.slice(0, segment.indexOf("\n"))),
+                                        key:string = "system_usec ",
+                                        segment:string = data.slice(data.indexOf(key) + key.length),
+                                        value:number = Number(segment.slice(0, segment.indexOf("\n"))) / 1000,
                                         per:number = Math.round((value / cpu_total) * 100000) / 100;
                                     vars.stats.containers[identifier].cpu.data.push(value);
                                     vars.stats.containers[identifier].cpu.labels.push(`${(per < 0.01) ? "< 0.01" : per}%`);
@@ -227,7 +228,7 @@ const statistics:core_statistics = {
                                     const value:number = Number(file.toString()),
                                         per:number = Math.round((value / vars.os.machine.memory.total) * 10000) / 100;
                                     vars.stats.containers[identifier].mem.data.push(value);
-                                    vars.stats.containers[identifier].mem.labels.push(`${(per < 0.01) ? "< 0.01" : per}%`)
+                                    vars.stats.containers[identifier].mem.labels.push(`${(per < 0.01) ? "< 0.01" : per}%`);
                                 }
                                 complete(identifier, "mem");
                             },
@@ -321,7 +322,7 @@ const statistics:core_statistics = {
                     setTimeout(services_statisticsData, vars.stats.frequency);
                 }
             },
-            disk = function services_statisticsData_disk(directory_list:string[]|directory_list):void {
+            disk = function services_statisticsData_disk(directory_list:directory_list|string[]):void {
                 const list:directory_list = directory_list as directory_list;
                 let size:number = 0,
                     index:number = list.length;
@@ -459,3 +460,6 @@ export default statistics;
 
 // * windows - IO Write/Read Operations - count of transfers/requests/operations to all sources
 // * windows - IO write/read bytes      - count of bytes to all sources
+
+// node cpu time is milliseconds
+// docker (linux cgroup) cpu time is microseconds
