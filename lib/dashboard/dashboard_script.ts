@@ -1974,10 +1974,10 @@ const dashboard = function dashboard():void {
                                 do {
                                     index_graphs = index_graphs - 1;
                                     graph = services.statistics.graphs[keys[index]][keys_graphs[index_graphs]];
-                                    graph.destroy();
                                     if (graph.canvas !== null && graph.canvas.parentNode !== null) {
                                         graph.canvas.parentNode.parentNode.removeChild(graph.canvas.parentNode);
                                     }
+                                    graph.destroy();
                                 } while (index_graphs > 0);
                             }
                         } while (index > 0);
@@ -2090,6 +2090,7 @@ const dashboard = function dashboard():void {
                             }
                         },
                         create = function dashboard_statisticsGraphComposite_create(type:type_graph_keys):void {
+                            let new_item:boolean = false;
                             const section_div:HTMLElement = (function dashboard_statisticsGraphIndividual_create_div():HTMLElement {
                                     const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>;
                                     let index_sections:number = sections.length;
@@ -2102,6 +2103,7 @@ const dashboard = function dashboard():void {
                                             }
                                         } while (index_sections > 0);
                                     }
+                                    new_item = true;
                                     return document.createElement("div");
                                 }()),
                                 h4:HTMLElement = document.createElement("h4");
@@ -2111,7 +2113,9 @@ const dashboard = function dashboard():void {
                             h4.textContent = services.statistics.graph_config.title[type];
                             section_div.appendChild(h4);
                             update(type, section_div);
-                            services.statistics.nodes.graphs.appendChild(section_div);
+                            if (new_item === true) {
+                                services.statistics.nodes.graphs.appendChild(section_div);
+                            }
                         };
                     let index:number = 0;
                     if (services.statistics.graphs.composite === undefined || services.statistics.graphs.composite === null) {
@@ -2294,6 +2298,7 @@ const dashboard = function dashboard():void {
                             modify("threads");
                         },
                         create = function dashboard_statisticsGraphIndividual_create(id:string):void {
+                            let new_item:boolean = false;
                             const section_div:HTMLElement = (function dashboard_statisticsGraphIndividual_create_div():HTMLElement {
                                     const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>;
                                     let index_sections:number = sections.length;
@@ -2306,6 +2311,7 @@ const dashboard = function dashboard():void {
                                             }
                                         } while (index_sections > 0);
                                     }
+                                    new_item = true;
                                     return document.createElement("div");
                                 }()),
                                 h4:HTMLElement = document.createElement("h4"),
@@ -2330,7 +2336,9 @@ const dashboard = function dashboard():void {
                             section_div.setAttribute("class", "section");
                             section_div.appendChild(clear);
                             section_div.setAttribute("data-id", id);
-                            services.statistics.nodes.graphs.appendChild(section_div);
+                            if (new_item === true) {
+                                services.statistics.nodes.graphs.appendChild(section_div);
+                            }
                         };
                     let index:number = 0;
                     if (id_len > 0) {
