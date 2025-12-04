@@ -355,7 +355,7 @@ declare global {
 
     interface module_statistics {
         change_display: () => void;
-        change_type: (event:Event) => void;
+        change_type: () => void;
         definitions: (event:FocusEvent|KeyboardEvent) => void;
         graph_composite: (force_new:boolean) => void;
         graph_config: {

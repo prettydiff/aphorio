@@ -1,4 +1,6 @@
 
+// cspell: words ifindex, ifname, linkmode, netnsid, operstate, qdisc
+
 interface socket_data {
     data: type_socket_data;
     service: type_service;
@@ -38,7 +40,7 @@ interface transmit_dashboard {
 }
 
 interface transmit_linux_ip extends Array<transmit_linux_ip_item> {
-    [induex:number]: transmit_linux_ip_item;
+    [index:number]: transmit_linux_ip_item;
 }
 
 interface transmit_linux_ip_item {

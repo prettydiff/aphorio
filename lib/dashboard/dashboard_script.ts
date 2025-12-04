@@ -1957,7 +1957,7 @@ const dashboard = function dashboard():void {
                     services.statistics.graphs = {};
                     services.statistics.nodes.graphs.textContent = "";
                     services.statistics.nodes.graphs.setAttribute("data-type", services.statistics.nodes.graph_display.value);
-                    services.statistics.change_type(null);
+                    services.statistics.change_type();
                 },
                 change_type: function dashboard_statisticsChangeType():void {
                     const keys:string[] = Object.keys(services.statistics.graphs);

@@ -19,7 +19,7 @@ type type_dashboard_status = "error" | "informational";
 // 6 - rename write path
 type type_directory_item = [string, type_file, string, number, number, directory_data, string];
 type type_directory_mode = "array" | "hash" | "list" | "read" | "search";
-type type_dns_records = node_dns_anyRecord[] | node_dns_mxRecord[] | node_dns_naptrRecord[] | node_dns_soaRecord | node_dns_srvRecord[] | string[] | string[][];
+type type_dns_records = node_dns_anyRecord[] | node_dns_caaRecord[] | node_dns_mxRecord[] | node_dns_naptrRecord[] | node_dns_soaRecord | node_dns_srvRecord[] | string[] | string[][];
 type type_dns_types = "A" | "AAAA" | "CAA" | "CNAME" | "MX" | "NAPTR" | "NS" | "PTR" | "SOA" | "SRV" | "TXT";
 type type_docker_ports = [number, "tcp"|"udp"][];
 type type_docker_state = "created" | "dead" | "exited" | "paused" | "removing" | "restarting" | "running";
@@ -31,7 +31,7 @@ type type_graph_datasets = [graph_dataset[], string[]];
 type type_graph_keys = "cpu" | "disk_in" | "disk_out" | "mem" | "net_in" | "net_out" | "threads";
 type type_halt_action = "deactivate" | "destroy" | "modify";
 type type_hash_input = "direct" | "file";
-type type_http_method = "connect" | "delete" | "get" | "head" | "post" | "put";
+type type_http_method = "connect" | "get" | "head" | "options" | "trace";
 type type_keys = "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "Backspace" | "c" | "Delete" | "Enter" | "v";
 type type_list_services = services_os_devs|services_os_proc|services_os_serv|services_os_sock|services_os_user;
 type type_lists = os_devs | os_proc | os_serv | os_sock | os_user;
