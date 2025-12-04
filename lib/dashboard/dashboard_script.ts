@@ -1959,13 +1959,34 @@ const dashboard = function dashboard():void {
                     services.statistics.nodes.graphs.setAttribute("data-type", services.statistics.nodes.graph_display.value);
                     services.statistics.change_type(null);
                 },
-                change_type: function dashboard_statisticsChangeType(event:Event):void {
-                    const force_new:boolean = (event !== null);
+                change_type: function dashboard_statisticsChangeType():void {
+                    const keys:string[] = Object.keys(services.statistics.graphs);
+                    let index:number = keys.length,
+                        keys_graphs:type_graph_keys[],
+                        index_graphs:number = 0,
+                        graph:Chart = null;
+                    if (index > 0) {
+                        do {
+                            index = index - 1;
+                            keys_graphs = Object.keys(services.statistics.graphs[keys[index]]) as type_graph_keys[];
+                            index_graphs = keys_graphs.length;
+                            if (index_graphs > 0) {
+                                do {
+                                    index_graphs = index_graphs - 1;
+                                    graph = services.statistics.graphs[keys[index]][keys_graphs[index_graphs]];
+                                    graph.destroy();
+                                    if (graph.canvas !== null && graph.canvas.parentNode !== null) {
+                                        graph.canvas.parentNode.parentNode.removeChild(graph.canvas.parentNode);
+                                    }
+                                } while (index_graphs > 0);
+                            }
+                        } while (index > 0);
+                    }
                     utility.setState();
                     if (services.statistics.nodes.graph_display.value === "individual") {
-                        services.statistics.graph_individual(force_new);
+                        services.statistics.graph_individual(true);
                     } else if (services.statistics.nodes.graph_display.value === "composite") {
-                        services.statistics.graph_composite(force_new);
+                        services.statistics.graph_composite(true);
                     }
                 },
                 definitions: function dashboard_statisticsDefinitions(event:FocusEvent|KeyboardEvent):void {
@@ -2069,9 +2090,8 @@ const dashboard = function dashboard():void {
                             }
                         },
                         create = function dashboard_statisticsGraphComposite_create(type:type_graph_keys):void {
-                            let new_item:boolean = false;
                             const section_div:HTMLElement = (function dashboard_statisticsGraphIndividual_create_div():HTMLElement {
-                                    const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByClassName("div") as HTMLCollectionOf<HTMLElement>;
+                                    const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>;
                                     let index_sections:number = sections.length;
                                     if (index_sections > 0) {
                                         do {
@@ -2082,7 +2102,6 @@ const dashboard = function dashboard():void {
                                             }
                                         } while (index_sections > 0);
                                     }
-                                    new_item = true;
                                     return document.createElement("div");
                                 }()),
                                 h4:HTMLElement = document.createElement("h4");
@@ -2092,9 +2111,7 @@ const dashboard = function dashboard():void {
                             h4.textContent = services.statistics.graph_config.title[type];
                             section_div.appendChild(h4);
                             update(type, section_div);
-                            if (new_item === true) {
-                                services.statistics.nodes.graphs.appendChild(section_div);
-                            }
+                            services.statistics.nodes.graphs.appendChild(section_div);
                         };
                     let index:number = 0;
                     if (services.statistics.graphs.composite === undefined || services.statistics.graphs.composite === null) {
@@ -2277,9 +2294,8 @@ const dashboard = function dashboard():void {
                             modify("threads");
                         },
                         create = function dashboard_statisticsGraphIndividual_create(id:string):void {
-                            let new_item:boolean = false;
                             const section_div:HTMLElement = (function dashboard_statisticsGraphIndividual_create_div():HTMLElement {
-                                    const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByClassName("div") as HTMLCollectionOf<HTMLElement>;
+                                    const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>;
                                     let index_sections:number = sections.length;
                                     if (index_sections > 0) {
                                         do {
@@ -2290,7 +2306,6 @@ const dashboard = function dashboard():void {
                                             }
                                         } while (index_sections > 0);
                                     }
-                                    new_item = true;
                                     return document.createElement("div");
                                 }()),
                                 h4:HTMLElement = document.createElement("h4"),
@@ -2301,9 +2316,6 @@ const dashboard = function dashboard():void {
                                 name:string = (id === "application")
                                     ? `Application - ${name_literal}`
                                     : `Container - ${name_literal}`;
-                            if (force_new === true) {
-                                destroy(id);
-                            }
                             services.statistics.graphs[id] = {
                                 cpu: null,
                                 disk: null,
@@ -2318,9 +2330,7 @@ const dashboard = function dashboard():void {
                             section_div.setAttribute("class", "section");
                             section_div.appendChild(clear);
                             section_div.setAttribute("data-id", id);
-                            if (new_item === true) {
-                                services.statistics.nodes.graphs.appendChild(section_div);
-                            }
+                            services.statistics.nodes.graphs.appendChild(section_div);
                         };
                     let index:number = 0;
                     if (id_len > 0) {
@@ -2357,7 +2367,11 @@ const dashboard = function dashboard():void {
                     }
                     services.statistics.nodes.update.textContent = stats.now.dateTime(true, payload.timeZone_offset);
                     services.statistics.nodes.duration.textContent = (stats.duration / 1e9).time();
-                    services.statistics.change_type(null);
+                    if (services.statistics.nodes.graph_display.value === "individual") {
+                        services.statistics.graph_individual(false);
+                    } else if (services.statistics.nodes.graph_display.value === "composite") {
+                        services.statistics.graph_composite(false);
+                    }
                 }
             }
         },
