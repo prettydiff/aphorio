@@ -51,7 +51,7 @@
         #disks{
             li > strong{width:10em}
         }
-        #statistics .graphs .section div{float:none;width:100%}
+        #statistics .graphs[data-type="individual"] .section div{border-width:0.1em;float:none;width:100%}
         #websocket p#websocket-status{margin:-1.75em -0.9em 1.5em}
         .title p{display:block;margin:0}
         main{margin:0}
@@ -75,7 +75,8 @@
             li > strong,
             li > h6{width:22em}
         }
-        #statistics .graphs .section div{float:left;width:19.8%}
+        #statistics .graphs[data-type="individual"] .section div{float:left;margin:0 0 0 -0.1em;width:calc(20% - 0.1em)}
+        #statistics .graphs[data-type="individual"] .section div:first-child{margin:0}
         #websocket p#websocket-status{margin:-1.75em -1.75em 1.5em}
         .title p{display:inline-block}
         main{margin:0 0 0 17.75em}
@@ -243,7 +244,11 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         }
     }
     #disks .os-interface.fail-list{background:var(--fail_background)}
-    #statistics canvas{background:var(--background_textarea)}
+    #statistics {
+        canvas{background:var(--background_textarea)};
+        .graphs .section div{border-color:var(--border_input);border-style:solid;border-width:0.1em};
+        .graphs[data-type="composite"] .section div{height:40em}
+    }
     #terminal {
         .dimensions{float:right;margin:-2em 0 0 0}
         .terminal-output{width:100%}

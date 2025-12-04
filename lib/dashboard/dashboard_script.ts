@@ -560,6 +560,7 @@ const dashboard = function dashboard():void {
                         state.fileSystem.path = tools.fileSystem.nodes.path.value;
                         state.fileSystem.search = tools.fileSystem.nodes.search.value;
                     }
+                    state.graph_display = services.statistics.nodes.graph_display.selectedIndex;
                     state.graph_type = services.statistics.nodes.graph_type.selectedIndex;
                     if (state.hash === undefined || state.hash === null) {
                         state.hash = {
@@ -1092,10 +1093,15 @@ const dashboard = function dashboard():void {
                 services.statistics.nodes.frequency.onblur = services.statistics.definitions;
                 services.statistics.nodes.frequency.onkeyup = services.statistics.definitions;
                 services.statistics.nodes.frequency.value = (payload.stats.frequency / 1000).toString();
-                services.statistics.nodes.graph_type.onchange = services.statistics.change_type;
+                services.statistics.nodes.graph_display.onchange = services.statistics.change_display;
+                services.statistics.nodes.graph_type.onchange = services.statistics.change_type;    
+                services.statistics.nodes.graph_display.selectedIndex = (state.graph_display === null || state.graph_display === undefined)
+                    ? 0
+                    : state.graph_display;
                 services.statistics.nodes.graph_type.selectedIndex = (state.graph_type === null || state.graph_type === undefined)
                     ? 0
                     : state.graph_type;
+                services.statistics.nodes.graphs.setAttribute("data-type", services.statistics.nodes.graph_display.value);
                 services.statistics.nodes.records.onblur = services.statistics.definitions;
                 services.statistics.nodes.records.onkeyup = services.statistics.definitions;
                 services.statistics.nodes.records.value = payload.stats.records.toString();
@@ -1947,12 +1953,20 @@ const dashboard = function dashboard():void {
                 }
             },
             statistics: {
-                change_type: function dashboard_statisticsChangeType():void {
-                    services.statistics.receive({
-                        data: payload.stats,
-                        service: "dashboard-statistics-data"
-                    }, true);
+                change_display: function dashboard_statisticsChangeDisplay():void {
+                    services.statistics.graphs = {};
+                    services.statistics.nodes.graphs.textContent = "";
+                    services.statistics.nodes.graphs.setAttribute("data-type", services.statistics.nodes.graph_display.value);
+                    services.statistics.change_type(null);
+                },
+                change_type: function dashboard_statisticsChangeType(event:Event):void {
+                    const force_new:boolean = (event !== null);
                     utility.setState();
+                    if (services.statistics.nodes.graph_display.value === "individual") {
+                        services.statistics.graph_individual(force_new);
+                    } else if (services.statistics.nodes.graph_display.value === "composite") {
+                        services.statistics.graph_composite(force_new);
+                    }
                 },
                 definitions: function dashboard_statisticsDefinitions(event:FocusEvent|KeyboardEvent):void {
                     const key:KeyboardEvent = event as KeyboardEvent,
@@ -1969,42 +1983,162 @@ const dashboard = function dashboard():void {
                         records: records
                     }, "dashboard-statistics-change");
                 },
-                graphs: {},
-                nodes: {
-                    duration: document.getElementById("statistics").getElementsByClassName("section")[0].getElementsByTagName("em")[1],
-                    frequency: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
-                    graph_type: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
-                    graphs: document.getElementById("statistics").getElementsByClassName("graphs")[0] as HTMLElement,
-                    records: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
-                    update: document.getElementById("statistics").getElementsByClassName("section")[0].getElementsByTagName("em")[0]
+                graph_composite: function dashboard_statisticsGraphComposite(force_new:boolean):void {
+                    const keys:string[] = Object.keys(payload.stats.containers),
+                        len:number = keys.length,
+                        keys_data:type_graph_keys[] = ["cpu", "disk_in", "disk_out", "mem", "net_in", "net_out", "threads"],
+                        keys_len:number = keys_data.length,
+                        graph_type:"bar"|"line" = services.statistics.nodes.graph_type.value as "bar"|"line",
+                        dataset = function dashboard_statisticsGraphComposite_dataset(type:type_graph_keys):type_graph_datasets {
+                            const output:graph_dataset[] = [],
+                                names:string[] = [],
+                                data = function dashboard_statisticsGraphComposite_dataset_data(ind:number):number[] {
+                                    if (type === "cpu" || type === "mem") {
+                                        const store:number[] = [],
+                                            base:string[] = payload.stats.containers[keys[ind]][type].labels,
+                                            len:number = base.length;
+                                        let start:number = 0;
+                                        do {
+                                            store.push(Number(base[start].replace("%", "").replace("< ", "")));
+                                            start = start + 1;
+                                        } while (start < len);
+                                        return store;
+                                    }
+                                    return payload.stats.containers[keys[ind]][type].data;
+                                };
+                            let index_key:number = 0;
+                            if (len > 0) {
+                                index_key = 0;
+                                do {
+                                    output.push({
+                                        backgroundColor: services.statistics.graph_config.colors[index_key].replace(",1)", ",0.1)"),
+                                        borderColor: services.statistics.graph_config.colors[index_key],
+                                        borderRadius: 4,
+                                        borderWidth: 2,
+                                        data: data(index_key),
+                                        fill: true,
+                                        label: (keys[index_key] === "application")
+                                            ? "Aphorio"
+                                            : payload.compose.containers[keys[index_key]].name,
+                                        showLine: true,
+                                        tension: 0.2
+                                    });
+                                    index_key = index_key + 1;
+                                } while (index_key < len);
+                                index_key = 0;
+                                do {
+                                    names.push((index_key + 1).toString());
+                                    index_key = index_key + 1;
+                                } while (index_key < output[0].data.length);
+                            }
+                            return [output, names];
+                        },
+                        update = function dashboard_statisticsGraphComposite_update(type:type_graph_keys, section:HTMLElement):void {
+                            const dataList:type_graph_datasets = dataset(type),
+                                graph_item:HTMLCanvasElement = (section === null)
+                                    ? null
+                                    : document.createElement("canvas"),
+                                graph:Chart = (section === null)
+                                    ? services.statistics.graphs.composite[type]
+                                    : new Chart(graph_item, {
+                                        data: {
+                                            datasets: dataList[0],
+                                            labels: dataList[1]
+                                        },
+                                        options: {
+                                            animation: false,
+                                            maintainAspectRatio: false,
+                                            responsive: true
+                                        },
+                                        type: graph_type
+                                    });
+                            if (section === null) {
+                                graph.data.datasets = dataList[0];
+                                graph.data.labels = dataList[1];
+                                graph.update();
+                            } else {
+                                const div:HTMLElement = document.createElement("div");
+                                graph_item.setAttribute("class", "graph");
+                                services.statistics.graphs.composite[type] = graph;
+                                div.appendChild(graph_item);
+                                section.appendChild(div);
+                            }
+                        },
+                        create = function dashboard_statisticsGraphComposite_create(type:type_graph_keys):void {
+                            const section_div:HTMLElement = (function dashboard_statisticsGraphIndividual_create_div():HTMLElement {
+                                    const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("div");
+                                    let index_sections:number = sections.length;
+                                    if (index_sections > 0) {
+                                        do {
+                                            index_sections = index_sections - 1;
+                                            if (sections[index_sections].dataset.id === type) {
+                                                sections[index_sections].textContent = "";
+                                                return sections[index_sections];
+                                            }
+                                        } while (index_sections > 0);
+                                    }
+                                    return document.createElement("div");
+                                }()),
+                                h4 = document.createElement("h4");
+
+                            section_div.setAttribute("class", "section");
+                            section_div.setAttribute("data-id", type);
+                            h4.textContent = services.statistics.graph_config.title[type];
+                            section_div.appendChild(h4);
+                            update(type, section_div);
+                            services.statistics.nodes.graphs.appendChild(section_div);
+                        };
+                    let index:number = 0;
+                    if (services.statistics.graphs.composite === undefined || services.statistics.graphs.composite === null) {
+                        services.statistics.graphs.composite = {
+                            cpu: null,
+                            disk_in: null,
+                            disk_out: null,
+                            mem: null,
+                            net_in: null,
+                            net_out: null,
+                            threads: null
+                        };
+                    }
+                    do {
+                        if (force_new === true || services.statistics.graphs.composite[keys_data[index]] === null) {
+                            create(keys_data[index]);
+                        } else {
+                            update(keys_data[index], null);
+                        }
+                        index = index + 1;
+                    } while (index < keys_len);
                 },
-                receive: function dashboard_statisticsReceive(data:socket_data, force?:boolean):void {
-                    const stats:services_statistics_data = (data === null)
-                            ? payload.stats
-                            : data.data as services_statistics_data,
-                        id_list:string[] = Object.keys(stats.containers),
+                graph_config: {
+                    colors: ["rgba(204,170,51,1)", "rgba(153,102,0,1)", "rgba(221,102,0,1)", "rgba(82,21,0,1)", "rgba(27,82,0,1)", "rgba(153,53,127,1)", "rgba(27,82,153,1)", "rgba(157,157,157,1)", "rgba(64,64,64,1)"],
+                    labels: {
+                        cpu: "CPU Usage, % and Millisecond Value",
+                        disk_in: "Read",
+                        disk_out: "Written",
+                        mem: "Memory Usage, % and Bytes Written",
+                        net_in: "Received",
+                        net_out: "Sent",
+                        threads: "Process Count"
+                    },
+                    title: {
+                        cpu: "CPU %",
+                        disk: "Storage Device Usage",
+                        disk_in: "Bytes Read from Storage Devices",
+                        disk_out: "Bytes Written to Storage DEvices",
+                        mem: "Memory %",
+                        net: "Network Usage",
+                        net_in: "Network Bytes Received",
+                        net_out: "Network Bytes Sent",
+                        threads: "Total Processes"
+                    }
+                },
+                graph_individual: function dashboard_statisticsGraphIndividual(force_new:boolean):void {
+                    const id_list:string[] = Object.keys(payload.stats.containers),
                         id_len:number = id_list.length,
-                        colors:string[] = ["rgba(204,170,51,1)", "rgba(153,102,0,1)", "rgba(221,102,0,1)"],
-                        graph_type:"bar"|"line" = services.statistics.nodes.graph_type[services.statistics.nodes.graph_type.selectedIndex].textContent as "bar"|"line",
-                        labels:store_string = {
-                            cpu: "CPU Usage, % and Millisecond Value",
-                            disk_in: "Read",
-                            disk_out: "Written",
-                            mem: "Memory Usage, % and Bytes Written",
-                            net_in: "Received",
-                            net_out: "Sent",
-                            threads: "Process Count"
-                        },
-                        title:store_string = {
-                            cpu: "CPU",
-                            disk: "Storage Device Usage",
-                            mem: "Memory",
-                            net: "Network Usage",
-                            threads: "Total Processes"
-                        },
-                        destroy = function dashboard_statisticsReceive_destroy(id:string):void {
+                        graph_type:"bar"|"line" = services.statistics.nodes.graph_type.value as "bar"|"line",
+                        destroy = function dashboard_statisticsGraphIndividual_destroy(id:string):void {
                             if (services.statistics.graphs[id] !== null && services.statistics.graphs[id] !== undefined) {
-                                const each = function dashboard_statisticsReceive_destroy_each(type:type_graph):void {
+                                const each = function dashboard_statisticsGraphIndividual_destroy_each(type:type_graph):void {
                                     if (services.statistics.graphs[id][type] !== null && services.statistics.graphs[id][type] !== undefined) {
                                         services.statistics.graphs[id][type].destroy();
                                     }
@@ -2017,7 +2151,7 @@ const dashboard = function dashboard():void {
                                 services.statistics.graphs[id] = null;
                             }
                         },
-                        empty = function dashboard_statisticsReceive_empty(id:string):void {
+                        empty = function dashboard_statisticsGraphIndividual_empty(id:string):void {
                             const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("div");
                             let index:number = sections.length,
                                 h4:HTMLElement = null,
@@ -2052,132 +2186,112 @@ const dashboard = function dashboard():void {
                             services.statistics.nodes.graphs.appendChild(div);
                             destroy(id);
                         },
-                        update = function dashboard_statisticsReceive_update(id:string):void {
-                            const modify = function dashboard_statisticsReceive_update_modify(config:graph_modify_config):void {
-                                const graph:Chart = services.statistics.graphs[id][config.name];
-                                graph.data.datasets[0].data = config.data_0;
-                                graph.data.datasets[0].backgroundColor = colors[0].replace(",1)", ",0.1)");
-                                graph.data.datasets[0].borderColor = colors[0];
-                                graph.data.datasets[0].borderWidth = 2;
-                                graph.data.datasets[0].label = config.label_0;
-                                if (config.data_1 !== null) {
-                                    graph.data.datasets[1].data = config.data_1;
-                                    graph.data.datasets[1].backgroundColor = colors[1].replace(",1)", ",0.1)");
-                                    graph.data.datasets[1].borderColor = colors[1];
-                                    graph.data.datasets[1].borderWidth = 2;
-                                    graph.data.datasets[1].label = config.label_1;
+                        update = function dashboard_statisticsGraphIndividual_update(id:string, section:HTMLElement):void {
+                            const modify = function dashboard_statisticsGraphIndividual_update_modify(type:type_graph):void {
+                                const dataList:type_graph_datasets = (function dashboard_statisticsGraphIndividual_dataset():type_graph_datasets {
+                                        const dataset0:graph_dataset = {
+                                                backgroundColor: services.statistics.graph_config.colors[0].replace(",1)", ",0.1)"),
+                                                borderColor: services.statistics.graph_config.colors[0],
+                                                borderRadius: 4,
+                                                borderWidth: 2,
+                                                data: (type === "cpu" || type === "mem" || type === "threads")
+                                                    ? payload.stats.containers[id][type].data
+                                                    : payload.stats.containers[id][`${type}_in` as "disk_in"].data,
+                                                fill: true,
+                                                label: (type === "cpu" || type === "mem" || type === "threads")
+                                                    ? services.statistics.graph_config.labels[type]
+                                                    : services.statistics.graph_config.labels[`${type}_in` as "disk_in"],
+                                                showLine: true,
+                                                tension: 0.2
+                                            },
+                                            dataset1:graph_dataset = (type === "cpu" || type === "mem" || type === "threads")
+                                                ? null
+                                                : {
+                                                    backgroundColor: services.statistics.graph_config.colors[0].replace(",1)", ",0.1)"),
+                                                    borderColor: services.statistics.graph_config.colors[0],
+                                                    borderRadius: 4,
+                                                    borderWidth: 2,
+                                                    data: payload.stats.containers[id][`${type}_out` as "disk_out"].data,
+                                                    fill: true,
+                                                    label: services.statistics.graph_config.labels[`${type}_out` as "disk_out"],
+                                                    showLine: true,
+                                                    tension: 0.2
+                                                };
+                                        if (type === "cpu" || type === "mem" || type === "threads") {
+                                            return [[dataset0], payload.stats.containers[id][type].labels];
+                                        }
+                                        return [[dataset0, dataset1], payload.stats.containers[id][`${type}_in` as "disk_in"].labels];
+                                    }()),
+                                    graph_item:HTMLCanvasElement = (section === null)
+                                        ? null
+                                        : document.createElement("canvas"),
+                                    graph:Chart = (section === null)
+                                        ? services.statistics.graphs[id][type]
+                                        : new Chart(graph_item, {
+                                            data: {
+                                                datasets: dataList[0],
+                                                labels: dataList[1]
+                                            },
+                                            options: {
+                                                animation: false,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    title: {
+                                                        display: true,
+                                                        text: `${(id === "application")
+                                                            ? "Aphorio"
+                                                            : payload.compose.containers[id].name
+                                                        } - ${services.statistics.graph_config.title[type]}`
+                                                    }
+                                                },
+                                                responsive: true
+                                            },
+                                            type: graph_type
+                                        });
+                                if (section === null) {
+                                    graph.data.datasets = dataList[0];
+                                    graph.data.labels = dataList[1];
+                                    graph.update();
+                                } else {
+                                    const div:HTMLElement = document.createElement("div");
+                                    graph_item.setAttribute("class", "graph");
+                                    services.statistics.graphs[id][type] = graph;
+                                    div.appendChild(graph_item);
+                                    section.appendChild(div);
                                 }
-                                graph.data.labels = config.labels;
-                                graph.options.plugins.title.text = title[config.name];
-                                graph.update();
                             };
-                            modify({
-                                data_0: stats.containers[id].cpu.data,
-                                data_1: null,
-                                label_0: labels.cpu,
-                                label_1: null,
-                                labels: stats.containers[id].cpu.labels,
-                                name: "cpu"
-                            });
-                            modify({
-                                data_0: stats.containers[id].disk_in.data,
-                                data_1: stats.containers[id].disk_out.data,
-                                label_0: labels.disk_in,
-                                label_1: labels.disk_out,
-                                labels: stats.containers[id].disk_in.labels,
-                                name: "disk"
-                            });
-                            modify({
-                                data_0: stats.containers[id].mem.data,
-                                data_1: null,
-                                label_0: labels.mem,
-                                label_1: null,
-                                labels: stats.containers[id].mem.labels,
-                                name: "mem"
-                            });
-                            modify({
-                                data_0: stats.containers[id].net_in.data,
-                                data_1: stats.containers[id].net_out.data,
-                                label_0: labels.net_in,
-                                label_1: labels.net_out,
-                                labels: stats.containers[id].net_in.labels,
-                                name: "net"
-                            });
-                            modify({
-                                data_0: stats.containers[id].threads.data,
-                                data_1: null,
-                                label_0: labels.threads,
-                                label_1: null,
-                                labels: stats.containers[id].threads.labels,
-                                name: "threads"
-                            });
+                            modify("cpu");
+                            modify("disk");
+                            modify("mem");
+                            modify("net");
+                            modify("threads");
                         },
-                        container = function dashboard_statisticsReceive_container(id:string):void {
-                            const item:services_statistics_item = stats.containers[id],
-                                section_div:HTMLElement = document.createElement("div"),
+                        create = function dashboard_statisticsGraphIndividual_create(id:string):void {
+                            const item:services_statistics_item = payload.stats.containers[id],
+                                section_div:HTMLElement = (function dashboard_statisticsGraphIndividual_create_div():HTMLElement {
+                                    const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("div");
+                                    let index_sections:number = sections.length;
+                                    if (index_sections > 0) {
+                                        do {
+                                            index_sections = index_sections - 1;
+                                            if (sections[index_sections].dataset.id === id) {
+                                                sections[index_sections].textContent = "";
+                                                return sections[index_sections];
+                                            }
+                                        } while (index_sections > 0);
+                                    }
+                                    return document.createElement("div");
+                                }()),
                                 h4:HTMLElement = document.createElement("h4"),
                                 clear:HTMLElement = document.createElement("span"),
-                                sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("div"),
-                                graph = function dashboard_statisticsReceive_container_graph(config:graph_config, type:type_graph):void {
-                                    const graph_item:HTMLCanvasElement = document.createElement("canvas"),
-                                        len:number = config.item.length,
-                                        div:HTMLElement = document.createElement("div"),
-                                        dataset:graph_dataset[] = [];
-                                    let item_index:number = 0;
-                                    do {
-                                        dataset.push({
-                                            backgroundColor: colors[item_index].replace(",1)", ",0.1)"),
-                                            borderColor: colors[item_index],
-                                            borderRadius: 4,
-                                            borderWidth: 2,
-                                            data: config.item[item_index].data,
-                                            fill: true,
-                                            label: config.label[item_index],
-                                            showLine: true,
-                                            tension: 0.2
-                                        });
-                                        item_index = item_index + 1;
-                                    } while (item_index < len);
-                                    // @ts-expect-error - TypeScript is warning on a third party super overloaded construct
-                                    services.statistics.graphs[id][type] = new Chart(graph_item, {
-                                        data: {
-                                            labels: config.item[0].labels,
-                                            datasets: dataset
-                                        },
-                                        options: {
-                                            animation: false,
-                                            responsive: true,
-                                            plugins: {
-                                                title: {
-                                                    display: true,
-                                                    text: `${name_literal} - ${config.title}`
-                                                }
-                                            }
-                                        },
-                                        type: graph_type
-                                    });
-                                    graph_item.setAttribute("class", "graph");
-                                    div.appendChild(graph_item);div.style.border="0.1em solid #666";
-                                    config.parent.appendChild(div);
-                                },
                                 name_literal:string = (id === "application")
                                     ? "Aphorio"
                                     : payload.compose.containers[id].name,
                                 name:string = (id === "application")
                                     ? `Application - ${name_literal}`
                                     : `Container - ${name_literal}`;
-                            let index_sections:number = sections.length;
-                            if (force === true) {
+                            if (force_new === true) {
                                 destroy(id);
-                            }
-                            if (index_sections > 0) {
-                                do {
-                                    index_sections = index_sections - 1;
-                                    if (sections[index_sections].dataset.id === id) {
-                                        services.statistics.nodes.graphs.removeChild(sections[index_sections]);
-                                        break;
-                                    }
-                                } while (index_sections > 0);
                             }
                             services.statistics.graphs[id] = {
                                 cpu: null,
@@ -2188,56 +2302,40 @@ const dashboard = function dashboard():void {
                             };
                             h4.textContent = name;
                             section_div.appendChild(h4);
-                            graph({
-                                item: [item.cpu],
-                                label: [labels.cpu],
-                                parent: section_div,
-                                title: title.cpu
-                            }, "cpu");
-                            graph({
-                                item: [item.mem],
-                                label: [labels.mem],
-                                parent: section_div,
-                                title: title.mem
-                            }, "mem");
-                            graph({
-                                item: [item.net_in, item.net_out],
-                                label: [labels.disk_in, labels.disk_out],
-                                parent: section_div,
-                                title: title.net
-                            }, "net");
-                            graph({
-                                item: [item.disk_in, item.disk_out],
-                                label: [labels.disk_in, labels.disk_out],
-                                parent: section_div,
-                                title: title.disk
-                            }, "disk");
-                            graph({
-                                item: [item.threads],
-                                label: [labels.threads],
-                                parent: section_div,
-                                title: title.threads
-                            }, "threads");
-                            section_div.setAttribute("class", "section");
+                            update(id, section_div);
                             clear.setAttribute("class", "clear");
+                            section_div.setAttribute("class", "section");
                             section_div.appendChild(clear);
                             section_div.setAttribute("data-id", id);
                             services.statistics.nodes.graphs.appendChild(section_div);
                         };
                     let index:number = 0;
-                    payload.stats = stats;
                     if (id_len > 0) {
                         do {
-                            if (stats.containers[id_list[index]] === null) {
+                            if (payload.stats.containers[id_list[index]] === null) {
                                 empty(id_list[index]);
-                            } else if (force === true || services.statistics.graphs[id_list[index]] === undefined || services.statistics.graphs[id_list[index]] === null) {
-                                container(id_list[index]);
+                            } else if (force_new === true || services.statistics.graphs[id_list[index]] === undefined || services.statistics.graphs[id_list[index]] === null) {
+                                create(id_list[index]);
                             } else {
-                                update(id_list[index]);
+                                update(id_list[index], null);
                             }
                             index = index + 1;
                         } while (index < id_len);
                     }
+                },
+                graphs: {},
+                nodes: {
+                    duration: document.getElementById("statistics").getElementsByClassName("section")[0].getElementsByTagName("em")[1],
+                    frequency: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
+                    graph_display: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[1],
+                    graph_type: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
+                    graphs: document.getElementById("statistics").getElementsByClassName("graphs")[0] as HTMLElement,
+                    records: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
+                    update: document.getElementById("statistics").getElementsByClassName("section")[0].getElementsByTagName("em")[0]
+                },
+                receive: function dashboard_statisticsReceive(data:socket_data):void {
+                    const stats:services_statistics_data = data.data as services_statistics_data;
+                    payload.stats = stats;
                     if (document.activeElement !== services.statistics.nodes.frequency) {
                         services.statistics.nodes.frequency.value = (stats.frequency / 1000).toString();
                     }
@@ -2246,6 +2344,7 @@ const dashboard = function dashboard():void {
                     }
                     services.statistics.nodes.update.textContent = stats.now.dateTime(true, payload.timeZone_offset);
                     services.statistics.nodes.duration.textContent = (stats.duration / 1e9).time();
+                    services.statistics.change_type(null);
                 }
             }
         },

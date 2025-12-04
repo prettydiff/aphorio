@@ -6,7 +6,7 @@ import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
-// cspell: words CPUPerc, MemPerc
+// cspell: words CPUPerc, MemPerc, pids, rbytes, usec, wbytes
 
 const statistics:core_statistics = {
     change: function services_statisticsChange(data:socket_data):void {
@@ -46,7 +46,7 @@ const statistics:core_statistics = {
             container_len:number = container_keys.length,
             cpu:os_node_cpuUsage = process.cpuUsage(),
             mem:os_node_memoryUsage = process.memoryUsage(),
-            cpu_total:number = (function services_statisicsData_cpuTotal():number {
+            cpu_total:number = (function services_statisticsData_cpuTotal():number {
                 const cpus:os_node_cpu = node.os.cpus();
                 let output:number = 0,
                     index:number = cpus.length;
@@ -94,7 +94,7 @@ const statistics:core_statistics = {
                 };
             },
             disk_complete = function services_statisticsData_diskComplete():void {
-                const payload = function services_stasticsData_diskComplete_payload(container_keys:string[], actual_keys:string[]):void {
+                const payload = function services_statisticsData_diskComplete_payload(container_keys:string[], actual_keys:string[]):void {
                     const output:services_statistics_data = {
                         containers: vars.stats.containers,
                         duration: Number(process.hrtime.bigint() - start_time),

@@ -40,7 +40,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             test_list: null
         },
         prerequisite_tasks:store_function = {
-            // prerequiste tasks will execute serially in the order presented
+            // prerequisite tasks will execute serially in the order presented
             admin: function utilities_startServer_admin():void {
                 spawn(vars.commands.admin_check, function utilities_startServer_admin_callback(output:core_spawn_output):void {
                     const std:string = output.stdout.replace(/\s+/g, "");

@@ -60,6 +60,16 @@ declare global {
         target: HTMLElement;
     }
 
+    interface graph_composite {
+        cpu: number[][];
+        disk_in: number[][];
+        disk_out: number[][];
+        mem: number[][];
+        net_in: number[][];
+        net_out: number[][];
+        threads: number[][];
+    }
+
     interface graph_config {
         item: services_statistics_facet[];
         label: string[];
@@ -72,7 +82,7 @@ declare global {
         borderColor: string;
         borderRadius: number;
         borderWidth: number;
-        data: number[] | string[];
+        data: number[];
         fill: boolean;
         label: string;
         showLine: boolean;
@@ -344,26 +354,39 @@ declare global {
     }
 
     interface module_statistics {
-        change_type: () => void;
+        change_display: () => void;
+        change_type: (event:Event) => void;
         definitions: (event:FocusEvent|KeyboardEvent) => void;
+        graph_composite: (force_new:boolean) => void;
+        graph_individual: (force_new:boolean) => void;
+        graph_config: {
+            colors: string[];
+            labels: store_string;
+            title: store_string;
+        };
         graphs: {
             [key:string]: {
                 cpu: Chart;
-                disk: Chart;
+                disk?: Chart;
+                disk_in?: Chart;
+                disk_out?: Chart;
                 mem: Chart;
-                net: Chart;
+                net?: Chart;
+                net_in?: Chart;
+                net_out?: Chart;
                 threads: Chart;
             };
         };
         nodes: {
             duration: HTMLElement;
             frequency: HTMLInputElement;
+            graph_display: HTMLSelectElement;
             graph_type: HTMLSelectElement;
             graphs: HTMLElement;
             records: HTMLInputElement;
             update: HTMLElement;
         };
-        receive: (data:socket_data, force?:boolean) => void;
+        receive: (data:socket_data) => void;
     }
 
     interface module_sockets_application extends module_list {
@@ -501,6 +524,7 @@ declare global {
             path: string;
             search: string;
         };
+        graph_display: number;
         graph_type: number;
         hash: {
             algorithm: string;

@@ -973,8 +973,12 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Delay between updates in seconds <input spellcheck="false" type="text"/></label></p>
                 <p><label>Maximum number of data points <input spellcheck="false" type="text"/></label></p>
                 <p><label>Graph Type<select>
-                    <option>bar</option>
-                    <option>line</option>
+                    <option value="bar">bar</option>
+                    <option value="line">line</option>
+                </select></label></p>
+                <p><label>Display Method<select>
+                    <option value="individual">individual graphs per service</option>
+                    <option value="composite">composite graphs per data type</option>
                 </select></label></p>
             </div>
             <div class="section">
