@@ -358,12 +358,12 @@ declare global {
         change_type: (event:Event) => void;
         definitions: (event:FocusEvent|KeyboardEvent) => void;
         graph_composite: (force_new:boolean) => void;
-        graph_individual: (force_new:boolean) => void;
         graph_config: {
             colors: string[];
             labels: store_string;
             title: store_string;
         };
+        graph_individual: (force_new:boolean) => void;
         graphs: {
             [key:string]: {
                 cpu: Chart;

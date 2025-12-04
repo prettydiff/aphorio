@@ -998,10 +998,10 @@ const dashboard = function dashboard():void {
                             : Object.keys(data.containers).sort(function dashboard_compose_containersList(a:string, b:string):-1|1 {
                                 const nameA:string = (a.includes(".y") === true)
                                         ? a.split(payload.path.sep).pop()
-                                        : payload.compose.containers[a].name,
+                                        : data.containers[a].name,
                                     nameB:string = (b.includes(".y") === true)
                                         ? b.split(payload.path.sep).pop()
-                                        : payload.compose.containers[b].name;
+                                        : data.containers[b].name;
                                 if (nameA < nameB) {
                                     return -1;
                                 }
@@ -2010,19 +2010,23 @@ const dashboard = function dashboard():void {
                             if (len > 0) {
                                 index_key = 0;
                                 do {
-                                    output.push({
-                                        backgroundColor: services.statistics.graph_config.colors[index_key].replace(",1)", ",0.1)"),
-                                        borderColor: services.statistics.graph_config.colors[index_key],
-                                        borderRadius: 4,
-                                        borderWidth: 2,
-                                        data: data(index_key),
-                                        fill: true,
-                                        label: (keys[index_key] === "application")
-                                            ? "Aphorio"
-                                            : payload.compose.containers[keys[index_key]].name,
-                                        showLine: true,
-                                        tension: 0.2
-                                    });
+                                    if (payload.stats.containers[keys[index_key]] !== undefined && payload.stats.containers[keys[index_key]] !== null) {
+                                        output.push({
+                                            backgroundColor: services.statistics.graph_config.colors[index_key].replace(",1)", ",0.1)"),
+                                            borderColor: services.statistics.graph_config.colors[index_key],
+                                            borderRadius: 4,
+                                            borderWidth: 2,
+                                            data: data(index_key),
+                                            fill: true,
+                                            label: (keys[index_key] === "application")
+                                                ? "Aphorio"
+                                                : (payload.compose.containers[keys[index_key]] === null || payload.compose.containers[keys[index_key]] === undefined)
+                                                    ? keys[index_key]
+                                                    : payload.compose.containers[keys[index_key]].name,
+                                            showLine: true,
+                                            tension: 0.2
+                                        });
+                                    }
                                     index_key = index_key + 1;
                                 } while (index_key < len);
                                 index_key = 0;
@@ -2065,8 +2069,9 @@ const dashboard = function dashboard():void {
                             }
                         },
                         create = function dashboard_statisticsGraphComposite_create(type:type_graph_keys):void {
+                            let new_item:boolean = false;
                             const section_div:HTMLElement = (function dashboard_statisticsGraphIndividual_create_div():HTMLElement {
-                                    const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("div");
+                                    const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByClassName("div") as HTMLCollectionOf<HTMLElement>;
                                     let index_sections:number = sections.length;
                                     if (index_sections > 0) {
                                         do {
@@ -2077,16 +2082,19 @@ const dashboard = function dashboard():void {
                                             }
                                         } while (index_sections > 0);
                                     }
+                                    new_item = true;
                                     return document.createElement("div");
                                 }()),
-                                h4 = document.createElement("h4");
+                                h4:HTMLElement = document.createElement("h4");
 
                             section_div.setAttribute("class", "section");
                             section_div.setAttribute("data-id", type);
                             h4.textContent = services.statistics.graph_config.title[type];
                             section_div.appendChild(h4);
                             update(type, section_div);
-                            services.statistics.nodes.graphs.appendChild(section_div);
+                            if (new_item === true) {
+                                services.statistics.nodes.graphs.appendChild(section_div);
+                            }
                         };
                     let index:number = 0;
                     if (services.statistics.graphs.composite === undefined || services.statistics.graphs.composite === null) {
@@ -2110,7 +2118,7 @@ const dashboard = function dashboard():void {
                     } while (index < keys_len);
                 },
                 graph_config: {
-                    colors: ["rgba(204,170,51,1)", "rgba(153,102,0,1)", "rgba(221,102,0,1)", "rgba(82,21,0,1)", "rgba(27,82,0,1)", "rgba(153,53,127,1)", "rgba(27,82,153,1)", "rgba(157,157,157,1)", "rgba(64,64,64,1)"],
+                    colors: ["rgba(204,170,51,1)", "rgba(153,102,0,1)", "rgba(221,102,0,1)", "rgba(182,32,0,1)", "rgba(64,164,21,1)", "rgba(153,53,127,1)", "rgba(27,82,153,1)", "rgba(128,128,128,1)", "rgba(192,192,192,1)"],
                     labels: {
                         cpu: "CPU Usage, % and Millisecond Value",
                         disk_in: "Read",
@@ -2124,7 +2132,7 @@ const dashboard = function dashboard():void {
                         cpu: "CPU %",
                         disk: "Storage Device Usage",
                         disk_in: "Bytes Read from Storage Devices",
-                        disk_out: "Bytes Written to Storage DEvices",
+                        disk_out: "Bytes Written to Storage Devices",
                         mem: "Memory %",
                         net: "Network Usage",
                         net_in: "Network Bytes Received",
@@ -2207,8 +2215,8 @@ const dashboard = function dashboard():void {
                                             dataset1:graph_dataset = (type === "cpu" || type === "mem" || type === "threads")
                                                 ? null
                                                 : {
-                                                    backgroundColor: services.statistics.graph_config.colors[0].replace(",1)", ",0.1)"),
-                                                    borderColor: services.statistics.graph_config.colors[0],
+                                                    backgroundColor: services.statistics.graph_config.colors[1].replace(",1)", ",0.1)"),
+                                                    borderColor: services.statistics.graph_config.colors[1],
                                                     borderRadius: 4,
                                                     borderWidth: 2,
                                                     data: payload.stats.containers[id][`${type}_out` as "disk_out"].data,
@@ -2240,7 +2248,9 @@ const dashboard = function dashboard():void {
                                                         display: true,
                                                         text: `${(id === "application")
                                                             ? "Aphorio"
-                                                            : payload.compose.containers[id].name
+                                                            : (payload.compose.containers[id] === null || payload.compose.containers[id] === undefined)
+                                                                ? id
+                                                                : payload.compose.containers[id].name
                                                         } - ${services.statistics.graph_config.title[type]}`
                                                     }
                                                 },
@@ -2267,9 +2277,9 @@ const dashboard = function dashboard():void {
                             modify("threads");
                         },
                         create = function dashboard_statisticsGraphIndividual_create(id:string):void {
-                            const item:services_statistics_item = payload.stats.containers[id],
-                                section_div:HTMLElement = (function dashboard_statisticsGraphIndividual_create_div():HTMLElement {
-                                    const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByTagName("div");
+                            let new_item:boolean = false;
+                            const section_div:HTMLElement = (function dashboard_statisticsGraphIndividual_create_div():HTMLElement {
+                                    const sections:HTMLCollectionOf<HTMLElement> = services.statistics.nodes.graphs.getElementsByClassName("div") as HTMLCollectionOf<HTMLElement>;
                                     let index_sections:number = sections.length;
                                     if (index_sections > 0) {
                                         do {
@@ -2280,6 +2290,7 @@ const dashboard = function dashboard():void {
                                             }
                                         } while (index_sections > 0);
                                     }
+                                    new_item = true;
                                     return document.createElement("div");
                                 }()),
                                 h4:HTMLElement = document.createElement("h4"),
@@ -2307,7 +2318,9 @@ const dashboard = function dashboard():void {
                             section_div.setAttribute("class", "section");
                             section_div.appendChild(clear);
                             section_div.setAttribute("data-id", id);
-                            services.statistics.nodes.graphs.appendChild(section_div);
+                            if (new_item === true) {
+                                services.statistics.nodes.graphs.appendChild(section_div);
+                            }
                         };
                     let index:number = 0;
                     if (id_len > 0) {

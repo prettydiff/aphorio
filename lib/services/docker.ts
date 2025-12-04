@@ -149,11 +149,11 @@ const docker:core_docker = {
                                         complete("");
                                     }
                                 },
-                                list = function services_docker_list_child_completePS_list(file_list:directory_list|string[]):void {
+                                list_callback = function services_docker_list_child_completePS_listCallback(file_list:directory_list|string[]):void {
                                     const files:string[] = file_list as string[];
-                                    let index:number = files.length,
-                                        count:number = 0;
+                                    let index:number = files.length;
                                     if (index > 0) {
+                                        count = 0;
                                         do {
                                             index = index - 1;
                                             if (addresses.includes(files[index]) === false && (/\.ya?ml$/).test(files[index]) === true && files[index].includes("empty.yml") === false) {
@@ -169,7 +169,7 @@ const docker:core_docker = {
                                     }
                                 };
                             directory({
-                                callback: list,
+                                callback: list_callback,
                                 depth: 1,
                                 exclusions: [".env"],
                                 mode: "array",
@@ -179,7 +179,7 @@ const docker:core_docker = {
                                 symbolic: false
                             });
                         },
-                        complete_meta = function services_docker_list_child_completeMeta(id:string):void {
+                        complete_meta = function services_docker_listCallback_child_completeMeta(id:string):void {
                             counts[id] = counts[id] + 1;
                             if (counts[id] === 3) {
                                 count = count + 1;
@@ -188,17 +188,17 @@ const docker:core_docker = {
                                 }
                             }
                         },
-                        description = function services_docker_list_child_description(out:core_spawn_output):void {
+                        description = function services_docker_listCallback_child_description(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
                             vars.compose.containers[id].description = out.stdout.trim();
                             complete_meta(id);
                         },
-                        license = function services_docker_list_child_license(out:core_spawn_output):void {
+                        license = function services_docker_listCallback_child_license(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
                             vars.compose.containers[id].license = out.stdout.trim();
                             complete_meta(id);
                         },
-                        version = function services_docker_list_child_version(out:core_spawn_output):void {
+                        version = function services_docker_listCallback_child_version(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
                             vars.compose.containers[id].version = out.stdout.trim();
                             complete_meta(id);
