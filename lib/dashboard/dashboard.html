@@ -28,7 +28,7 @@
     <p id="connection-status" class="connection-offline">Dashboard Connection: <strong>Offline</strong></p>
     <nav>
         <h2>Navigation</h2>
-        <div>
+        <div class="first">
             <h3>Services</h3>
             <ul><li><button class="nav-focus" data-section="servers_web">Web Servers</button></li><li><button data-section="compose_containers">Docker Compose</button></li><li><button data-section="statistics">Statistics</button></li></ul>
         </div>
@@ -46,7 +46,7 @@
         </div>
         <div>
             <h3>Informational</h3>
-            <ul><li><button data-section="application-logs">Application Logs</button></li><li><button data-section="help">Help</button></li><li><button data-section="faq">FAQ</button></li></ul>
+            <ul><li><button data-section="application-logs">Application Logs</button></li><li><button data-section="faq">FAQ</button></li><li><button data-section="help">Help</button></li></ul>
         </div>
         <span class="clear"></span>
     </nav>
@@ -89,6 +89,7 @@
                 <p><label>Column(s) To Filter  <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>Device List</h3>
@@ -360,10 +361,11 @@
                     <p>So, for example, a value of 5 means 4 + 1, or read and execute permissions and a value of 7 means read, write, and execute permissions. A complete permission value of <em>0755</em> means owners have complete permissions but users and members of the owner's group(s) can only read and execute to that artifact.</p>
                 </div>
             </div>
-            <div class="section">
+            <div class="table-filters">
                 <h3>Input Controls</h3>
                 <p><label>Absolute file system path address. SMB shares not supported. Executes on press of 'Enter' key or loss of focus. <input spellcheck="false" type="text"/></label></p>
                 <p><label>Search token. Ignored if empty. Executes on press of 'Enter' key or loss of focus. <input spellcheck="false" type="text"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="file-list">
                 <h3>File List</h3>
@@ -482,16 +484,16 @@
                     <p>First, create a service file for <em>systemd</em> to consume at location: <strong>/etc/systemd/system/&lt;service name here&gt;.service</strong></p>
                     <p>My service file looks like:
 <code>[Unit]
-Description=Node Web Server
+Description=Aphorio
 After=network.target
 
 [Service]
 Type=simple
 User=root
-ExecStart=/home/cheney/.nvm/versions/node/v24.4.1/bin/node /home/cheney/webserver/lib/index.ts
+ExecStart=/home/username/.nvm/versions/node/v24.11.1/bin/node /home/username/aphorio/lib/index.ts
 Restart=always
 RestartSec=3
-WorkingDirectory=/home/cheney/webserver
+WorkingDirectory=/home/username/aphorio
 
 [Install]
 WantedBy=multi-user.target</code></p>
@@ -739,6 +741,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>Ports List</h3>
@@ -767,6 +770,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter  <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>Process List</h3>
@@ -879,6 +883,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>Service List</h3>
@@ -906,6 +911,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h4>Socket List</h4>
@@ -942,6 +948,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h4>Socket List</h4>
@@ -980,6 +987,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     <option value="individual">individual graphs per service</option>
                     <option value="composite">composite graphs per data type</option>
                 </select></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>Health Metrics</h3>
@@ -1052,6 +1060,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter  <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>User List</h3>
