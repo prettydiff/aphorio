@@ -1,4 +1,5 @@
 
+import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import send from "../transmit/send.ts";
@@ -9,9 +10,9 @@ import vars from "../core/vars.ts";
 
 const docker:core_docker = {
     commands: {
-        activate: " unpause",
+        activate: " up --detach",
         add: " up --detach",
-        deactivate: " pause",
+        deactivate: " down",
         destroy: " down",
         list: " ps --format json --no-trunc",
         modify: " down",
@@ -42,6 +43,7 @@ const docker:core_docker = {
                     );
                 } else {
                     const counts:store_number = {},
+                        addresses:string[] = [],
                         list:core_compose_properties[] = JSON.parse(`[${output.stdout.replace(/\}\n\{/g, "},{")}]`),
                         len:number = list.length,
                         file_path = function services_docker_list_child_filePath(out:core_spawn_output):void {
@@ -72,6 +74,10 @@ const docker:core_docker = {
                                 status: list[ind].Status,
                                 version: ""
                             };
+                            if (vars.compose.containers[location] !== undefined) {
+                                delete vars.compose.containers[location];
+                            }
+                            addresses.push(location);
                             total = total + 1;
                             spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.description"}}'`, description, {type: identifier}).execute();
                             spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.licenses"}}'`, license, {type: identifier}).execute();
@@ -122,26 +128,77 @@ const docker:core_docker = {
                                 return 1;
                             });
                         },
-                        complete_meta = function services_docker_list_child_completeMeta(id:string):void {
+                        complete_ps = function services_docker_list_child_completePS():void {
+                            const read = function services_docker_list_child_completePS_read(file:Buffer, location:string):void {
+                                    vars.compose.containers[location] = {
+                                        compose: file.toString(),
+                                        created: 0,
+                                        description: "",
+                                        id: location,
+                                        image: "",
+                                        location: location,
+                                        license: "",
+                                        name: location.split(vars.path.sep).pop().replace(/\.ya?ml$/, ""),
+                                        ports: [],
+                                        state: "dead",
+                                        status: "",
+                                        version: ""
+                                    };
+                                    count = count - 1;
+                                    if (count === 0) {
+                                        complete("");
+                                    }
+                                },
+                                list_callback = function services_docker_list_child_completePS_listCallback(file_list:directory_list|string[]):void {
+                                    const files:string[] = file_list as string[];
+                                    let index:number = files.length;
+                                    if (index > 0) {
+                                        count = 0;
+                                        do {
+                                            index = index - 1;
+                                            if (addresses.includes(files[index]) === false && (/\.ya?ml$/).test(files[index]) === true && files[index].includes("empty.yml") === false) {
+                                                count = count + 1;
+                                                file.read({
+                                                    callback: read,
+                                                    location: files[index],
+                                                    no_file: null,
+                                                    section: "compose_containers"
+                                                });
+                                            }
+                                        } while (index > 0);
+                                    }
+                                };
+                            directory({
+                                callback: list_callback,
+                                depth: 1,
+                                exclusions: [".env"],
+                                mode: "array",
+                                path: vars.path.compose,
+                                relative: false,
+                                search: "",
+                                symbolic: false
+                            });
+                        },
+                        complete_meta = function services_docker_listCallback_child_completeMeta(id:string):void {
                             counts[id] = counts[id] + 1;
                             if (counts[id] === 3) {
                                 count = count + 1;
                                 if (count === total) {
-                                    complete("");
+                                    complete_ps();
                                 }
                             }
                         },
-                        description = function services_docker_list_child_description(out:core_spawn_output):void {
+                        description = function services_docker_listCallback_child_description(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
                             vars.compose.containers[id].description = out.stdout.trim();
                             complete_meta(id);
                         },
-                        license = function services_docker_list_child_license(out:core_spawn_output):void {
+                        license = function services_docker_listCallback_child_license(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
                             vars.compose.containers[id].license = out.stdout.trim();
                             complete_meta(id);
                         },
-                        version = function services_docker_list_child_version(out:core_spawn_output):void {
+                        version = function services_docker_listCallback_child_version(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
                             vars.compose.containers[id].version = out.stdout.trim();
                             complete_meta(id);
@@ -179,7 +236,7 @@ const docker:core_docker = {
                     : data.location,
                 compose_location:string = `${vars.commands.compose} --ansi never --env-file "${vars.path.compose}.env" -f ${location}`,
                 command:string = compose_location + docker.commands[data.action];
-            if (data.action === "activate" || data.action === "deactivate" || data.action === "destroy") {
+            if (data.action === "activate" || data.action === "deactivate") {
                 spawn(command, function services_docker_receive_spawn():void {
                     docker.list(function services_docker_receive_spawn_list():void {
                         send({
@@ -214,6 +271,22 @@ const docker:core_docker = {
                         section: "compose_containers"
                     });
                 }
+            } else if (data.action === "destroy") {
+                spawn(command, function services_docker_receive_destroy():void {
+                    file.remove({
+                        callback: function services_docker_receive_destroy_remove():void {
+                            docker.list(function services_docker_receive_destroy_remove_list():void {
+                                send({
+                                    data: vars.compose,
+                                    service: "dashboard-compose"
+                                }, socket, 3);
+                            });
+                        },
+                        exclusions: [],
+                        location: data.location,
+                        section: "compose_containers"
+                    });
+                });
             } else if (data.action === "modify") {
                 const running:boolean = (vars.compose.containers[data.id].state === "running"),
                     list = function services_docker_receive_modifyList():void {

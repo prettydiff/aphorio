@@ -7,6 +7,7 @@ import http_request from "../http/http_requestTest.ts";
 import os from "../services/os.ts";
 import servers from "../services/server.ts";
 import socket_list from "../services/socket_list.ts";
+import statistics from "../services/statistics.ts";
 import terminal from "../services/terminal.ts";
 import test_runner from "../test/runner.ts";
 import websocket_test from "../services/websocket.ts";
@@ -33,6 +34,7 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-os-user": os,
             "dashboard-server": servers,
             "dashboard-socket-application": socket_list,
+            "dashboard-statistics-change": statistics.change,
             "dashboard-terminal-resize": terminal.resize,
             "dashboard-websocket-handshake": websocket_test.handshake,
             "dashboard-websocket-message": websocket_test.message,

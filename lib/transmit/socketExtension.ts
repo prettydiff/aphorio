@@ -66,7 +66,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         config.socket.hash = config.identifier;    // assigns a unique identifier to the socket based upon the socket's credentials
         config.socket.role = config.role;          // assigns socket creation location
         config.socket.type = config.type;          // a classification identifier to functionally identify a common utility of sockets on a given server
-        config.socket.userAgent = config.userAgent // Attempts to describe the socket by originating OS and browser name/version
+        config.socket.userAgent = config.userAgent;// Attempts to describe the socket by originating OS and browser name/version
         if (config.type === "websocket-test" || config.proxy === null) {
             config.socket.handler = (config.handler === message_handler.default)
                 ? (message_handler[config.server] === undefined)

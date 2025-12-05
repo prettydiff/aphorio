@@ -11,11 +11,6 @@ interface services_action_server {
     server: services_server;
 }
 
-interface services_clock {
-    time_local: number;
-    time_zulu: number;
-}
-
 interface services_compose_container {
     action: type_dashboard_action;
     compose: string;
@@ -94,11 +89,10 @@ interface services_hash {
 
 interface services_http {
     connect: http_action;
-    delete: http_action;
     get: http_action;
     head: http_action;
-    post: http_action;
-    put: http_action;
+    options: http_action;
+    trace: http_action;
 }
 
 interface services_http_test {
@@ -201,6 +195,41 @@ interface services_socket_application_item {
     server_name: string;
     type: string;
     userAgent: string;
+}
+
+interface services_status_clock {
+    time_local: number;
+    time_zulu: number;
+}
+
+interface services_statistics_data {
+    containers: {
+        [key:string]: services_statistics_item;
+    };
+    duration: number;
+    frequency: number;
+    now: number;
+    records: number;
+}
+
+interface services_statistics_change {
+    frequency: number;
+    records: number;
+}
+
+interface services_statistics_facet {
+    data: number[];
+    labels: string[];
+}
+
+interface services_statistics_item {
+    cpu: services_statistics_facet;
+    disk_in: services_statistics_facet;
+    disk_out: services_statistics_facet;
+    mem: services_statistics_facet;
+    net_in: services_statistics_facet;
+    net_out: services_statistics_facet;
+    threads: services_statistics_facet;
 }
 
 interface services_terminal {

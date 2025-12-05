@@ -41,7 +41,7 @@ const vars:core_vars = {
         }()),
         compose: {
             containers: {},
-            status: "",
+            status: null,
             time: 0,
             variables: {}
         },
@@ -154,8 +154,11 @@ const vars:core_vars = {
             }
         },
         path: {
+            cgroup: "",
             compose: "",
             compose_empty: "",
+            node: "",
+            process: "",
             project: "",
             sep: "/",
             servers: ""
@@ -167,6 +170,16 @@ const vars:core_vars = {
             time: 0
         },
         start_time: process.hrtime.bigint(),
+        stats: {
+            children: 1,
+            containers: {},
+            duration: 0,
+            frequency: 20000,
+            net_in: 0,
+            net_out: 0,
+            now: 0,
+            records: 10
+        },
         terminal: (process.platform === "win32")
             ? [
                 "C:\\Program Files\\PowerShell\\7\\pwsh.exe",

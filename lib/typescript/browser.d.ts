@@ -1,5 +1,5 @@
 // cspell: words serv
-
+import Chart from "chart.js/auto";
 import { Terminal } from "@xterm/xterm";
 
 declare global {
@@ -34,6 +34,8 @@ declare global {
     }
 
     interface String {
+        bytes: () => number;
+        bytes_big: () => bigint;
         capitalize: () => string;
     }
 
@@ -56,6 +58,44 @@ declare global {
     }
     interface TouchEvent {
         target: HTMLElement;
+    }
+
+    interface graph_composite {
+        cpu: number[][];
+        disk_in: number[][];
+        disk_out: number[][];
+        mem: number[][];
+        net_in: number[][];
+        net_out: number[][];
+        threads: number[][];
+    }
+
+    interface graph_config {
+        item: services_statistics_facet[];
+        label: string[];
+        parent: HTMLElement;
+        title: string;
+    }
+
+    interface graph_dataset {
+        backgroundColor: string;
+        borderColor: string;
+        borderRadius: number;
+        borderWidth: number;
+        data: number[];
+        fill: boolean;
+        label: string;
+        showLine: boolean;
+        tension: number;
+    }
+
+    interface graph_modify_config {
+        data_0: number[];
+        data_1: number[];
+        label_0: string;
+        label_1: string;
+        labels: string[];
+        name: "cpu"|"disk"|"mem"|"net"|"threads";
     }
 
     interface map_messages {
@@ -304,13 +344,49 @@ declare global {
         validate: (event:FocusEvent|KeyboardEvent) => void;
     }
 
-    interface module_serverItems {
+    interface module_serverShared {
         cancel: (event:MouseEvent) => void;
         color: (name_server:string, type:type_dashboard_list) => type_activation_status;
         create: (event:MouseEvent) => void;
         details: (event:MouseEvent) => void;
         edit: (event:MouseEvent) => void;
         title: (name_server:string, type:type_dashboard_list) => HTMLElement;
+    }
+
+    interface module_statistics {
+        change_display: () => void;
+        change_type: () => void;
+        definitions: (event:FocusEvent|KeyboardEvent) => void;
+        graph_composite: (force_new:boolean) => void;
+        graph_config: {
+            colors: string[];
+            labels: store_string;
+            title: store_string;
+        };
+        graph_individual: (force_new:boolean) => void;
+        graphs: {
+            [key:string]: {
+                cpu: Chart;
+                disk?: Chart;
+                disk_in?: Chart;
+                disk_out?: Chart;
+                mem: Chart;
+                net?: Chart;
+                net_in?: Chart;
+                net_out?: Chart;
+                threads: Chart;
+            };
+        };
+        nodes: {
+            duration: HTMLElement;
+            frequency: HTMLInputElement;
+            graph_display: HTMLSelectElement;
+            graph_type: HTMLSelectElement;
+            graphs: HTMLElement;
+            records: HTMLInputElement;
+            update: HTMLElement;
+        };
+        receive: (data:socket_data) => void;
     }
 
     interface module_sockets_application extends module_list {
@@ -416,7 +492,8 @@ declare global {
         compose_containers: module_compose_containers;
         init: () => void;
         servers_web: module_servers_web;
-        shared: module_serverItems;
+        shared: module_serverShared;
+        statistics: module_statistics;
     }
 
     interface structure_system {
@@ -447,6 +524,8 @@ declare global {
             path: string;
             search: string;
         };
+        graph_display: number;
+        graph_type: number;
         hash: {
             algorithm: string;
             digest: "base64" | "hex";

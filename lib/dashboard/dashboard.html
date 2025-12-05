@@ -1,7 +1,7 @@
 
 <!doctype html>
 <html lang="en">
-    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, IRSSI, keyrings, jellyfin, journalctl, libcap, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, setgid, setuid, uptimeimages, winget -->
+    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, IRSSI, keyrings, jellyfin, journalctl, kurkle, libcap, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, setgid, setuid, uptimeimages, winget -->
 <head>
 <meta charset="utf-8"/>
 <title>Server Management Dashboard</title>
@@ -28,9 +28,9 @@
     <p id="connection-status" class="connection-offline">Dashboard Connection: <strong>Offline</strong></p>
     <nav>
         <h2>Navigation</h2>
-        <div>
+        <div class="first">
             <h3>Services</h3>
-            <ul><li><button class="nav-focus" data-section="servers_web">Web Servers</button></li><li><button data-section="compose_containers">Docker Compose</button></li></ul>
+            <ul><li><button class="nav-focus" data-section="servers_web">Web Servers</button></li><li><button data-section="compose_containers">Docker Compose</button></li><li><button data-section="statistics">Statistics</button></li></ul>
         </div>
         <div>
             <h3>Network</h3>
@@ -46,7 +46,7 @@
         </div>
         <div>
             <h3>Informational</h3>
-            <ul><li><button data-section="application-logs">Application Logs</button></li><li><button data-section="help">Help</button></li><li><button data-section="faq">FAQ</button></li></ul>
+            <ul><li><button data-section="application-logs">Application Logs</button></li><li><button data-section="faq">FAQ</button></li><li><button data-section="help">Help</button></li></ul>
         </div>
         <span class="clear"></span>
     </nav>
@@ -58,7 +58,7 @@
         </div>
         <div class="tab" id="compose_containers">
             <h2>Docker Compose</h2>
-            <p class="tab-description">A list of configured Docker containers and their status. Container status refreshes every ${payload.intervals.compose} seconds. All containers run under the Docker daemon detached from this application.</p>
+            <p class="tab-description">All containers run under the Docker daemon detached from this application.</p>
             <p class="status"></p>
             <div class="compose-body">
                 <div class="section">
@@ -89,6 +89,7 @@
                 <p><label>Column(s) To Filter  <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>Device List</h3>
@@ -243,14 +244,8 @@
                     </p>
                 </div>
                 <div class="section">
-                    <h4>I added a new Docker Container but it's showing offline. I also ran <em>docker ps</em> in the terminal and the new container is not in the list.</h4>
-                    <p>Because the Docker Daemon is a service unrelated to this application containers require a separate activation step.</p>
-                    <p>
-                        After the new container is submitted click on the new container that now displays in the container list.
-                        Once expanded there will exist an Edit button under the Docker Compose text area.
-                        Click the Edit button and then click the <em>Activate</em> button that appears.
-                        This button will run the equivalent of Docker's <strong>up</strong> command and dump the output to the terminal.
-                    </p>
+                    <h4>I saved a Docker Compose file but it does not list in this application when offline.</h4>
+                    <p>This application reads container information first from <em>docker ps</em> command, which only provides information on running containers.  Secondly, this application reads compose files from directory: <em>&lt;path to this application&gt;/compose</em> to provide a list of offline containers.</p>
                 </div>
                 <div class="section">
                     <h4>Docker wrote files as user root and now I cannot open them.</h4>
@@ -366,10 +361,11 @@
                     <p>So, for example, a value of 5 means 4 + 1, or read and execute permissions and a value of 7 means read, write, and execute permissions. A complete permission value of <em>0755</em> means owners have complete permissions but users and members of the owner's group(s) can only read and execute to that artifact.</p>
                 </div>
             </div>
-            <div class="section">
+            <div class="table-filters">
                 <h3>Input Controls</h3>
                 <p><label>Absolute file system path address. SMB shares not supported. Executes on press of 'Enter' key or loss of focus. <input spellcheck="false" type="text"/></label></p>
                 <p><label>Search token. Ignored if empty. Executes on press of 'Enter' key or loss of focus. <input spellcheck="false" type="text"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="file-list">
                 <h3>File List</h3>
@@ -488,16 +484,16 @@
                     <p>First, create a service file for <em>systemd</em> to consume at location: <strong>/etc/systemd/system/&lt;service name here&gt;.service</strong></p>
                     <p>My service file looks like:
 <code>[Unit]
-Description=Node Web Server
+Description=Aphorio
 After=network.target
 
 [Service]
 Type=simple
 User=root
-ExecStart=/home/cheney/.nvm/versions/node/v24.4.1/bin/node /home/cheney/webserver/lib/index.ts
+ExecStart=/home/username/.nvm/versions/node/v24.11.1/bin/node /home/username/aphorio/lib/index.ts
 Restart=always
 RestartSec=3
-WorkingDirectory=/home/cheney/webserver
+WorkingDirectory=/home/username/aphorio
 
 [Install]
 WantedBy=multi-user.target</code></p>
@@ -568,6 +564,16 @@ echo "deb \
     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</code></p></li>
+                </ul>
+                <h4>Node Dependencies (included in the repository)</h4>
+                <ul>
+                    <li><a href="https://www.npmjs.com/package/@lydell/node-pty">@lydell/node-pty</a>, <a href="https://github.com/lydell/node-pty">GitHub</a></li>
+                    <li><a href="https://www.npmjs.com/package/@xterm/xterm">@xterm/xterm</a>, <a href="https://github.com/xtermjs/xterm.js">GitHub</a></li>
+                    <li>
+                        <a href="https://www.npmjs.com/package/chart.js">chart.js</a>, <a href="https://github.com/chartjs/Chart.js">GitHub</a>
+                        <ul><li><a href="https://www.npmjs.com/package/@kurkle/color">@kurkle/color</a>, <a href="https://github.com/kurkle/color">GitHub</a></li></ul>
+                    </li>
+                    <li><a href="https://www.npmjs.com/package/jschardet">jschardet</a>, <a href="https://github.com/aadsm/jschardet">GitHub</a></li>
                 </ul>
             </div>
         </div>
@@ -735,6 +741,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>Ports List</h3>
@@ -763,6 +770,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter  <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>Process List</h3>
@@ -875,6 +883,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>Service List</h3>
@@ -902,6 +911,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h4>Socket List</h4>
@@ -938,6 +948,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h4>Socket List</h4>
@@ -959,6 +970,30 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     </tr></thead>
                     <tbody></tbody>
                 </table>
+            </div>
+        </div>
+        <div class="tab" id="statistics">
+            <h2>Statistics</h2>
+            <p class="tab-description">Providing a real time metrics for supported services.</p>
+            <div class="table-filters">
+                <h3>Metric Controls</h3>
+                <p><label>Delay between updates in seconds <input spellcheck="false" type="text"/></label></p>
+                <p><label>Maximum number of data points <input spellcheck="false" type="text"/></label></p>
+                <p><label>Graph Type<select>
+                    <option value="bar">bar</option>
+                    <option value="line">line</option>
+                </select></label></p>
+                <p><label>Display Method<select>
+                    <option value="individual">individual graphs per service</option>
+                    <option value="composite">composite graphs per data type</option>
+                </select></label></p>
+                <span class="clear"></span>
+            </div>
+            <div class="section">
+                <h3>Health Metrics</h3>
+                <p>Last updated: <em></em></p>
+                <p>Processing duration: <em></em></p>
+                <div class="graphs"></div>
             </div>
         </div>
         <!-- terminal start -->
@@ -1025,6 +1060,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p><label>Column(s) To Filter  <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>User List</h3>

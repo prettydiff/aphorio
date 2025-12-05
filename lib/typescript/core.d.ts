@@ -1,5 +1,5 @@
 
-// cspell: words serv
+// cspell: words Perc, serv
 
 interface core_compose {
     containers: store_compose;
@@ -60,6 +60,41 @@ interface core_compose_properties {
     Status: string;
 }
 
+interface core_docker {
+    commands: core_compose_commands;
+    list: (callback:() => void) => void;
+    receive: (socket_data:socket_data, transmit:transmit_socket) => void;
+    variables: (variables:store_string, socket:websocket_client) => void;
+}
+
+interface core_docker_status_item {
+    BlockIO: string;
+    Container: string;
+    CPUPerc: string;
+    ID: string;
+    MemPerc: string;
+    MemUsage: string;
+    Name: string;
+    NetIO: string;
+    PIDs: number;
+}
+type core_docker_status = Array<core_docker_status_item>;
+
+interface core_server_child_input {
+    encryption: boolean;
+    id: string;
+    path_process: string;
+    port:number;
+    token: string;
+}
+
+interface core_server_child_output {
+    encryption: boolean;
+    id: string;
+    pid: number;
+    port: number;
+}
+
 interface core_server_os {
     devs: services_os_devs;
     disk: services_os_disk;
@@ -117,17 +152,14 @@ interface core_server_os {
     };
 }
 
-interface core_docker {
-    commands: core_compose_commands;
-    list: (callback:() => void) => void;
-    receive: (socket_data:socket_data, transmit:transmit_socket) => void;
-    variables: (variables:store_string, socket:websocket_client) => void;
-}
-
 interface core_servers_file {
     "compose-variables": store_string;
     dashboard_id: string;
     servers: store_server_config;
+    stats: {
+        frequency: number;
+        records: number;
+    };
 }
 
 interface core_spawn {
@@ -157,7 +189,14 @@ interface core_spawn_output {
     type: string;
 }
 
+interface core_statistics {
+    change: (data:socket_data) => void;
+    data: () => void;
+}
+
 interface core_universal {
+    bytes: () => number;
+    bytes_big: () => bigint;
     commas: () => string;
     dateTime: (date:boolean, timeZone_offset:number) => string;
     time: () => string;
@@ -191,11 +230,23 @@ interface core_vars {
         "test": boolean;
     };
     os: core_server_os;
-    path: vars_path;
+    path: core_vars_path;
     server_meta: server_meta;
     servers: store_servers;
     sockets: services_socket_application;
     start_time: bigint;
+    stats: {
+        children: number;
+        containers: {
+            [key:string]: services_statistics_item;
+        };
+        duration: number;
+        frequency: number;
+        net_in: number;
+        net_out: number;
+        now: number;
+        records: number;
+    };
     terminal: string[];
     test: {
         browser_args: string[];
@@ -221,6 +272,17 @@ interface core_vars {
     };
     text: store_string;
     timeZone_offset: number;
+}
+
+interface core_vars_path {
+    cgroup: string;
+    compose: string;
+    compose_empty: string;
+    node: string;
+    process: string;
+    project: string;
+    sep: "/" | "\\";
+    servers: string;
 }
 
 interface directory_data {
@@ -312,14 +374,6 @@ interface server_meta_item {
     };
 }
 
-interface server_os_memoryUsage {
-    arrayBuffers: number;
-    external: number;
-    heapTotal: number;
-    heapUsed: number;
-    rss: number;
-}
-
 interface server_ports {
     open?: number;
     secure?: number;
@@ -327,6 +381,10 @@ interface server_ports {
 
 interface store_arrays {
     [key:string]: Array<object>;
+}
+
+interface store_bigint {
+    [key:string]: bigint;
 }
 
 interface store_children {
@@ -381,6 +439,10 @@ interface store_sockets {
     [key:string]: websocket_client[];
 }
 
+interface store_store_flag {
+    [key:string]: store_flag;
+}
+
 interface store_string {
     [key:string]: string;
 }
@@ -402,14 +464,6 @@ interface terminal {
     cols: number;
     rows: number;
     shell: string;
-}
-
-interface vars_path {
-    compose: string;
-    compose_empty: string;
-    project: string;
-    sep: "/" | "\\";
-    servers: string;
 }
 
 interface windows_drives {

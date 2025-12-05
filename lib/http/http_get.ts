@@ -309,6 +309,13 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     path: vars.path,
                     servers: vars.servers,
                     sockets: vars.sockets,
+                    stats: {
+                        containers: vars.stats.containers,
+                        duration: vars.stats.duration,
+                        frequency: vars.stats.frequency,
+                        now: vars.stats.now,
+                        records: vars.stats.records
+                    },
                     terminal: vars.terminal,
                     timeZone_offset: vars.timeZone_offset
                 },

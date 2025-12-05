@@ -1,4 +1,6 @@
 
+// cspell: words ifindex, ifname, linkmode, netnsid, operstate, qdisc
+
 interface socket_data {
     data: type_socket_data;
     service: type_service;
@@ -8,10 +10,7 @@ interface stat_item extends node_fs_Stats {
     path: string;
     type: type_file;
 }
-
-interface statList extends Array<stat_item> {
-    [index:number]: stat_item;
-}
+type statList = Array<stat_item>;
 
 interface transmit_addresses_socket {
     local: {
@@ -32,11 +31,46 @@ interface transmit_dashboard {
     logs: config_log[];
     name: string;
     os: core_server_os;
-    path: vars_path;
+    path: core_vars_path;
     servers: store_servers;
     sockets: services_socket_application;
+    stats: services_statistics_data;
     terminal: string[];
     timeZone_offset: number;
+}
+
+interface transmit_linux_ip extends Array<transmit_linux_ip_item> {
+    [index:number]: transmit_linux_ip_item;
+}
+
+interface transmit_linux_ip_item {
+    address: string;
+    broadcast: string;
+    flags: string[];
+    group: string;
+    ifindex: number;
+    ifname: string;
+    link_index: number;
+    link_netnsid: number;
+    link_type: string;
+    linkmode: "DEFAULT";
+    mtu: number;
+    operstate: "DOWN"|"UP";
+    qdisc: string;
+    stats64: {
+        rx: transmit_linux_ip_stats;
+        tx: transmit_linux_ip_stats;
+    };
+}
+
+interface transmit_linux_ip_stats {
+    bytes: number;
+    carrier_errors: number;
+    collisions: number;
+    dropped: number;
+    errors: number;
+    packets: number;
+
 }
 
 interface transmit_receiver {

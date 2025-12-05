@@ -1,7 +1,7 @@
 /* cspell: words ytdownload, ytstatus */
 
 :root{
-    scrollbar-color:#444 #111;
+    scrollbar-color:#444 #181818;
     --black:#000;
 
     --background:#333;
@@ -51,7 +51,11 @@
         #disks{
             li > strong{width:10em}
         }
+        #statistics {
+            .graphs[data-type="individual"] .section div{border-width:0.1em;float:none;width:100%}
+        }
         #websocket p#websocket-status{margin:-1.75em -0.9em 1.5em}
+        .table-filters p{float:none;margin:1em 0;width:100%}
         .title p{display:block;margin:0}
         main{margin:0}
         nav{
@@ -74,7 +78,12 @@
             li > strong,
             li > h6{width:22em}
         }
+        #statistics {
+            .graphs[data-type="individual"] .section div{float:left;margin:0 0 0 -0.1em;width:calc(20% - 0.1em)}
+            .graphs[data-type="individual"] .section div:first-child{margin:0}
+        }
         #websocket p#websocket-status{margin:-1.75em -1.75em 1.5em}
+        .table-filters p{float:left;margin:1em 2em 0 0;width:calc(50% - 2em)}
         .title p{display:inline-block}
         main{margin:0 0 0 17.75em}
         nav{
@@ -95,7 +104,7 @@
 
 
 html{font-size:10px}
-body{background:var(--background);color:var(--text);font-family:sans-serif;margin:0}
+body{background:var(--background);color:var(--text);font-family:sans-serif;letter-spacing:0.05em;margin:0}
 li {
     p,
     h2,
@@ -241,6 +250,11 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         }
     }
     #disks .os-interface.fail-list{background:var(--fail_background)}
+    #statistics {
+        canvas{background:var(--background_textarea)};
+        .graphs .section div{border-color:var(--border_input);border-style:solid;border-width:0.1em};
+        .graphs[data-type="composite"] .section div{height:40em}
+    }
     #terminal {
         .dimensions{float:right;margin:-2em 0 0 0}
         .terminal-output{width:100%}
@@ -340,6 +354,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     nav{
         background:var(--background_nav);border-color:var(--background_button);border-style:solid;border-width:0.1em;
         div{border-color:var(--border_color);border-style:solid none none;border-width:0.1em;margin:0 0 2em;padding:2em 0 0}
+        div.first{border-style:none}
         h2{font-size:0.01em;position:absolute;left:-1000em}
         h3{color:var(--border_color);padding:0 0 0 0.5em;margin:0}
         ul{margin:0;padding:0}
@@ -353,7 +368,6 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         }
         .nav-focus{background:var(--background_dark);border-color:var(--border_soft);color:var(--text_input)}
     }
-    p.update-button:first-child{margin-top:0}
     select{display:block}
     table{border-collapse:collapse;margin:0}
     textarea{
@@ -450,6 +464,9 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .active-ports,
     .edit .summary{background:var(--background);border-color:var(--border_input);border-style:solid;border-width:0.1em;margin:0 0 1em;padding:1em 0.5em}
 
+    .active-ports p:first-child,
+    p.update-button:first-child{margin-top:0}
+
     .compose-container-list,
     .server-list{
         padding:0;
@@ -470,6 +487,8 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     input[type="text"],
     select,
     textarea{box-sizing:border-box;display:block;font-family:monospace;font-size:1em;margin:0 0 1em;width:100%}
+    input[type="text"],
+    select{height:2.5em;padding:0 0.2em}
 
     input:disabled,
     select:disabled,
