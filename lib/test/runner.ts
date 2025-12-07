@@ -320,7 +320,7 @@ const test_runner:test_runner = {
                     store: vars.test.store,
                     test: vars.test.list[vars.test.index] as test_item_dom
                 },
-                socket:websocket_client = vars.server_meta[vars.dashboard_id].sockets.open[0],
+                socket:websocket_client = vars.server_meta[vars.environment.dashboard_id].sockets.open[0],
                 payload:socket_data = {
                     data: item_service,
                     service: "test-browser"
@@ -424,7 +424,7 @@ const test_runner:test_runner = {
     tools: {
         browser_open: function test_runner_toolsBrowser():void {
             const browserCommand = function test_runner_toolsBrowser_browserCommand():string {
-                    const path:string = `http://localhost:${vars.servers[vars.dashboard_id].status.open}/?test_browser`;
+                    const path:string = `http://localhost:${vars.servers[vars.environment.dashboard_id].status.open}/?test_browser`;
                     if (vars.test.test_browser !== "" && vars.test.test_browser !== null) {
                         if (vars.test.browser_args.length > 0) {
                             return `${vars.commands.open} ${vars.test.test_browser} ${path} ${vars.test.browser_args.join(" ")}`;
@@ -434,7 +434,7 @@ const test_runner:test_runner = {
                     return `${vars.commands.open} ${path}`;
                 },
                 call_dom = function test_runner_toolsBrowser_callDom():void {
-                    if (vars.server_meta[vars.dashboard_id].sockets.open[0] === undefined || vars.server_meta[vars.dashboard_id].sockets.open[0].queue === undefined) {
+                    if (vars.server_meta[vars.environment.dashboard_id].sockets.open[0] === undefined || vars.server_meta[vars.environment.dashboard_id].sockets.open[0].queue === undefined) {
                         setTimeout(test_runner_toolsBrowser_callDom, 50);
                     } else {
                         test_runner.execution.dom();

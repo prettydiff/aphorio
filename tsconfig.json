@@ -1,16 +1,19 @@
 {
     "compilerOptions": {
         "allowImportingTsExtensions": true,
+        "allowUnreachableCode": false,
         "alwaysStrict": true,
         "module": "ES2020",
         "moduleResolution": "node",
         "noEmit": true,
         "noImplicitAny": true,
+        "noUnusedLocals": true,
         "pretty": false,
         "strictFunctionTypes": true,
         "target": "ES2020",
         "types": ["node"],
-        "typeRoots": ["./node_modules/@types"]
+        "typeRoots": ["./node_modules/@types"],
+        "useUnknownInCatchVariables": true
     },
     "exclude": [
         "./compose",

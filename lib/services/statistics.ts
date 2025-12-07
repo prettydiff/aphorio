@@ -16,7 +16,7 @@ const statistics:core_statistics = {
             len:number = keys.length,
             file_data:core_servers_file = {
                 "compose-variables": vars.compose.variables,
-                dashboard_id: vars.dashboard_id,
+                dashboard_id: vars.environment.dashboard_id,
                 servers: {},
                 stats: {
                     frequency: update.frequency,
@@ -114,7 +114,7 @@ const statistics:core_statistics = {
                             } while (index > 0);
                         }
                     }
-                    broadcast(vars.dashboard_id, "dashboard", {
+                    broadcast(vars.environment.dashboard_id, "dashboard", {
                         data: output,
                         service: "dashboard-statistics-data"
                     });

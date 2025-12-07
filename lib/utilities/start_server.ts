@@ -57,7 +57,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             os_main: function utilities_startServer_taskOSMain():void {
                 const osDelay = function utilities_startServer_taskOSMain_osDelay():void {
                         os_lists("all", function utilities_startServer_taskOSMain_osDelay_callback(payload:socket_data):void {
-                            broadcast(vars.dashboard_id, "dashboard", payload);
+                            broadcast(vars.environment.dashboard_id, "dashboard", payload);
                         });
                         osDaily();
                     },
@@ -71,7 +71,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             seconds:number = date.getSeconds(),
                             mill:number = date.getMilliseconds(),
                             night:number = ((23 - hours) * 3600 * 1000) + ((59 - minutes) * 60 * 1000) + ((59 - seconds) * 1000) + (1000 - mill);
-                        vars.timeZone_offset = date.getTimezoneOffset() * 60000;
+                        vars.environment.timeZone_offset = date.getTimezoneOffset() * 60000;
                         return night - 25;
                     }());
                 os_lists("main", start_prerequisites);
@@ -158,13 +158,13 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         const testBrowser:string = test_browser.toString().replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
                                         script = script.replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`).replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
                                     }
-                                    vars.dashboard_page = fileContents.toString();
+                                    vars.environment.dashboard_page = fileContents.toString();
                                     if (vars.options["no-terminal"] === true) {
-                                        vars.dashboard_page = vars.dashboard_page.slice(0, vars.dashboard_page.indexOf(term_start)) + vars.dashboard_page.slice(vars.dashboard_page.indexOf(term_end) + term_end.length);
-                                        vars.dashboard_page = vars.dashboard_page.replace("<li><button data-section=\"terminal\">Terminal</button></li>", "");
+                                        vars.environment.dashboard_page = vars.environment.dashboard_page.slice(0, vars.environment.dashboard_page.indexOf(term_start)) + vars.environment.dashboard_page.slice(vars.environment.dashboard_page.indexOf(term_end) + term_end.length);
+                                        vars.environment.dashboard_page = vars.environment.dashboard_page.replace("<li><button data-section=\"terminal\">Terminal</button></li>", "");
                                     }
-                                    vars.dashboard_page = vars.dashboard_page
-                                        .replace("Server Management Dashboard", `${vars.name.capitalize()} Dashboard`)
+                                    vars.environment.dashboard_page = vars.environment.dashboard_page
+                                        .replace("Server Management Dashboard", `${vars.environment.name.capitalize()} Dashboard`)
                                         .replace("replace_javascript", `${chart+xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
                                         .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
                                     complete_tasks("html");
@@ -280,8 +280,8 @@ const start_server = function utilities_startServer(process_path:string, testing
                             ? null
                             : JSON.parse(configStr) as core_servers_file,
                         includes = function utilities_startServer_taskServers_callback_includes(input:string):void {
-                            if (vars.interfaces.includes(input) === false && input.toLowerCase().indexOf("fe80") !== 0) {
-                                vars.interfaces.push(input);
+                            if (vars.environment.interfaces.includes(input) === false && input.toLowerCase().indexOf("fe80") !== 0) {
+                                vars.environment.interfaces.push(input);
                             }
                         },
                         interfaces:{ [index: string]: node_os_NetworkInterfaceInfo[]; } = node.os.networkInterfaces(),
@@ -300,7 +300,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         vars.stats.records = config.stats.records;
                     }
                     if (index_srv > 0) {
-                        vars.dashboard_id = config.dashboard_id;
+                        vars.environment.dashboard_id = config.dashboard_id;
                         vars.compose.variables = config["compose-variables"];
                         do {
                             index_srv = index_srv - 1;
@@ -416,7 +416,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             }
         },
         log_task = function utilities_startServer_logTask(flag:type_start_pre_tasks | type_start_primary_tasks):void {
-            log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${task_definitions[flag]}`]);
+            log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.environment.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${task_definitions[flag]}`]);
         },
         complete_tasks = function utilities_startServer_completeTasks(flag:type_start_primary_tasks):void {
             log_task(flag);
@@ -455,7 +455,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         callback = function utilities_startServer_readComplete_start_serverCallback():void {
                             count = count + 1;
                             if (count === total) {
-                                const time:number = Number(process.hrtime.bigint() - vars.start_time),
+                                const time:number = Number(process.hrtime.bigint() - vars.environment.start_time),
                                     logs:string[] = [
                                         "",
                                         `${vars.text.underline}Application completed ${count_task} startup tasks in ${time / 1e9} seconds.${vars.text.none}`,
@@ -606,7 +606,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         index:number = 0;
 
                     if (testing === true) {
-                        server(vars.servers[vars.dashboard_id].config.id, callback);
+                        server(vars.servers[vars.environment.dashboard_id].config.id, callback);
                     } else {
                         do {
                             server(vars.servers[servers[index]].config.id, callback);
@@ -617,7 +617,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                 };
                 clock();
                 statistics.data();
-                if (testing === true || vars.servers[vars.dashboard_id] === undefined) {
+                if (testing === true || vars.servers[vars.environment.dashboard_id] === undefined) {
                     server_create({
                         action: "add",
                         server: default_server
@@ -667,7 +667,7 @@ const start_server = function utilities_startServer(process_path:string, testing
         return this.charAt(0).toUpperCase() + this.slice(1);
     };
 
-    vars.hashes = node.crypto.getHashes();
+    vars.environment.hashes = node.crypto.getHashes();
 
     log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);
 
@@ -677,9 +677,9 @@ const start_server = function utilities_startServer(process_path:string, testing
     } else {
         if (process.platform === "win32") {
             const stats = function utilities_startServer_tasksShell_shellWin(index:number):void {
-                node.fs.stat(vars.terminal[index], function utilities_startServer_tasksShell_shellWin_callback(err:node_error) {
+                node.fs.stat(vars.environment.terminal[index], function utilities_startServer_tasksShell_shellWin_callback(err:node_error) {
                     if (err !== null) {
-                        vars.terminal.splice(index, 1);
+                        vars.environment.terminal.splice(index, 1);
                     }
                     if (index > 0) {
                         utilities_startServer_tasksShell_shellWin(index - 1);
@@ -688,12 +688,12 @@ const start_server = function utilities_startServer(process_path:string, testing
                     }
                 });
             };
-            stats(vars.terminal.length - 1);
+            stats(vars.environment.terminal.length - 1);
         } else {
             file.stat({
                 callback: function utilities_startServer_tasksShell_shellStat(stat:node_fs_BigIntStats):void {
                     if (stat === null) {
-                        vars.terminal.push("/bin/sh");
+                        vars.environment.terminal.push("/bin/sh");
                     } else {
                         file.read({
                             callback: function utilities_startServer_tasksShell_shellStat_shellRead(contents:Buffer):void {
@@ -703,13 +703,13 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 if (len > 1) {
                                     do {
                                         if (lines[index].indexOf("/bin/") === 0) {
-                                            vars.terminal.push(lines[index]);
+                                            vars.environment.terminal.push(lines[index]);
                                         }
                                         index = index + 1;
                                     } while (index < len);
                                 }
-                                if (vars.terminal.length < 1) {
-                                    vars.terminal.push("/bin/sh");
+                                if (vars.environment.terminal.length < 1) {
+                                    vars.environment.terminal.push("/bin/sh");
                                 }
                                 start_prerequisites();
                             },

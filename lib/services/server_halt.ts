@@ -16,7 +16,7 @@ import vars from "../core/vars.ts";
 
 const server_halt = function services_serverHalt(data:services_action_server, callback:() => void):void {
     const id:string = data.server.id;
-    if (id === "" || (data.action === "destroy" && id === vars.dashboard_id)) {
+    if (id === "" || (data.action === "destroy" && id === vars.environment.dashboard_id)) {
         return;
     } 
     if (vars.servers[id] === undefined) {
@@ -118,7 +118,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 // 2. modify the servers.json file
                 const config:core_servers_file = {
                     "compose-variables": vars.compose.variables,
-                    dashboard_id: vars.dashboard_id,
+                    dashboard_id: vars.environment.dashboard_id,
                     servers: {},
                     stats: {
                         frequency: vars.stats.frequency,

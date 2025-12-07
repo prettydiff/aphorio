@@ -6,7 +6,7 @@ import vars from "../core/vars.ts";
 const test_listLocalCommands = function test_listLocalCommands():test_list {
     const win32:boolean = (process.platform === "win32"),
         shell:string = (win32 === true)
-            ? (vars.terminal.includes("C:\\Program Files\\PowerShell\\7\\pwsh.exe") === true)
+            ? (vars.environment.terminal.includes("C:\\Program Files\\PowerShell\\7\\pwsh.exe") === true)
                 ? "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
                 : "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
             : "/bin/sh",

@@ -209,18 +209,21 @@ interface core_vars {
         basic: string;
         complete: string;
     };
-    dashboard_id: string;
-    dashboard_page: string;
     environment: {
+        dashboard_id: string;
+        dashboard_page: string;
         date_commit: number;
+        file: boolean;
         hash: string;
+        hashes: string[];
+        http_request: string;
+        interfaces: string[];
+        logs: config_log[];
+        name: string;
+        start_time: bigint;
+        terminal: string[];
+        timeZone_offset: number;
     };
-    hashes: string[];
-    http_request: string;
-    interfaces: string[];
-    intervals: store_number;
-    logs: config_log[];
-    name: string;
     options: {
         "browser": string;
         "list": string;
@@ -234,7 +237,6 @@ interface core_vars {
     server_meta: server_meta;
     servers: store_servers;
     sockets: services_socket_application;
-    start_time: bigint;
     stats: {
         children: number;
         containers: {
@@ -247,7 +249,6 @@ interface core_vars {
         now: number;
         records: number;
     };
-    terminal: string[];
     test: {
         browser_args: string[];
         browser_child: core_spawn;
@@ -271,7 +272,6 @@ interface core_vars {
         total_time_start: bigint;
     };
     text: store_string;
-    timeZone_offset: number;
 }
 
 interface core_vars_path {

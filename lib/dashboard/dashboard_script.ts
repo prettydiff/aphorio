@@ -3406,11 +3406,11 @@ const dashboard = function dashboard():void {
                             tr.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
                             td = document.createElement("td");
                             td.setAttribute("class", "file-name");
-                            button.appendText(name);
                             button.onclick = tools.fileSystem.send;
                             span.setAttribute("class", "icon");
                             span.appendText(icons[item[1]]);
-                            td.appendChild(span);
+                            button.appendChild(span);
+                            button.appendText(` ${name}`);
                             td.appendText(" ");
                             td.appendChild(button);
                             tr.appendChild(td);

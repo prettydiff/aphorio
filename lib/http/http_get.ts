@@ -45,13 +45,13 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     `HTTP/1.1 ${statusText}`,
                     `content-type: ${config.content_type}`,
                     "",
-                    `server: ${vars.name}`,
+                    `server: ${vars.environment.name}`,
                     "",
                     ""
                 ];
             if (config.template === true) {
-                const name:string = (server_id === vars.dashboard_id)
-                        ? `${vars.name.capitalize()} Dashboard`
+                const name:string = (server_id === vars.environment.dashboard_id)
+                        ? `${vars.environment.name.capitalize()} Dashboard`
                         : vars.servers[server_id].config.name,
                     templateText:string[] = [
                         "<!doctype html>",
@@ -295,16 +295,16 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         decoded:string = (decode.includes("?") === true)
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
-    if (server_id === vars.dashboard_id) {
+    if (server_id === vars.environment.dashboard_id) {
         if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {
                     compose: vars.compose,
-                    dashboard_id: vars.dashboard_id,
-                    hashes: vars.hashes,
-                    http_request: vars.http_request,
-                    logs: vars.logs,
-                    name: vars.name,
+                    dashboard_id: vars.environment.dashboard_id,
+                    hashes: vars.environment.hashes,
+                    http_request: vars.environment.http_request,
+                    logs: vars.environment.logs,
+                    name: vars.environment.name,
                     os: vars.os,
                     path: vars.path,
                     servers: vars.servers,
@@ -316,10 +316,10 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         now: vars.stats.now,
                         records: vars.stats.records
                     },
-                    terminal: vars.terminal,
-                    timeZone_offset: vars.timeZone_offset
+                    terminal: vars.environment.terminal,
+                    timeZone_offset: vars.environment.timeZone_offset
                 },
-                dashboard:string = vars.dashboard_page.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`),
+                dashboard:string = vars.environment.dashboard_page.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",
