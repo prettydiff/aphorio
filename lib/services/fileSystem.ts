@@ -78,13 +78,13 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                 failures[0] = "file not found";
                 complete();
             } else {
-                const triple:string[] = output.stdout.split("; "),
-                    category:string = triple[1].slice(0, triple[1].indexOf("/")),
+                const data_file:string[] = output.stdout.split("; "),
+                    category:string = data_file[0].slice(0, data_file[0].indexOf("/")),
                     accepted:string[] = ["message", "multipart", "text"],
-                    charset:string = triple[2].replace("charset=", ""),
+                    charset:string = data_file[1].replace("charset=", ""),
                     binary:boolean = (charset.includes("binary") === true || charset.includes("octet") === true);
                 failures[0] = charset;
-                mime = triple[1];
+                mime = data_file[0];
                 if (accepted.includes(category) === true || binary === false) {
                     node.fs.readFile(data.address, function services_fileSystem_fileCallback_read(erf:node_error, fileData:Buffer):void {
                         if (erf === null) {

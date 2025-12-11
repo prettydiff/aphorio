@@ -124,7 +124,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                 }
                 spawn("file --help", function utilities_startServer_file_spawn(output:core_spawn_output):void {
                     if (output.stdout.indexOf("Usage: file [OPTION...] [FILE...]") === 0) {
-                        vars.commands.file = "file -i ";
+                        vars.commands.file = "file -bi ";
                     }
                     complete_tasks("file");
                 }).execute();
@@ -309,7 +309,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             : keys_srv.length,
                         server:server = null,
                         sub:number = 0;
-                    if (config.stats !== undefined) {
+                    if (config !== null && config.stats !== undefined) {
                         vars.stats.frequency = config.stats.frequency;
                         vars.stats.records = config.stats.records;
                     }
