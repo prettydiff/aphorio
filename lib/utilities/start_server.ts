@@ -118,7 +118,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             file: function utilities_startServer_file():void {
                 if (process.platform === "win32") {
-                    vars.commands.file = `${vars.path.process}node_modules${vars.path.sep}file${vars.path.sep}bin${vars.path.sep}file.exe -i `;
+                    vars.commands.file = `${vars.path.process}node_modules${vars.path.sep}file${vars.path.sep}bin${vars.path.sep}file.exe -bi `;
                     complete_tasks("file");
                     return;
                 }
