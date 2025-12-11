@@ -11,6 +11,8 @@ import terminal from "../services/terminal.ts";
 import vars from "../core/vars.ts";
 import websocket_test from "../services/websocket.ts";
 
+//cspell: words prettydiff
+
 const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):void {
     // eslint-disable-next-line no-restricted-syntax
     const server_id:string = this.id,
@@ -189,7 +191,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                             "Connection: Upgrade",
                                             `Sec-WebSocket-Accept: ${hashOutput.hash}`,
                                             "Access-Control-Allow-Origin: *",
-                                            "Server: webserver"
+                                            "Server: prettydiff/aphorio"
                                         ];
                                     if (nonceHeader !== null) {
                                         headers.push(nonceHeader);

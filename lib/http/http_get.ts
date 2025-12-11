@@ -6,12 +6,12 @@ import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import file_list from "../browser/file_list.ts";
 import node from "../core/node.ts";
+import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
 /* cspell: words msvideo, nofollow, onnection, prettydiff */
 
 const http_get:http_action = function http_get(headerList:string[], socket:websocket_client):void {
-    let input:string = "";
     const index0:string[] = headerList[0].replace(/^\s+/, "").replace(/\s+/, " ").split(" "),
         method:"GET"|"HEAD" = (index0.indexOf("HEAD") === 0)
             ? "HEAD"
@@ -46,6 +46,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     `content-type: ${config.content_type}`,
                     "",
                     `server: ${vars.environment.name}`,
+                    "accept-ranges: bytes",
                     "",
                     ""
                 ];
@@ -116,187 +117,195 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                 template: true
             }));
         },
-        statTest = function http_get_statTest(stat:node_fs_BigIntStats):void {
-            const directory_item = function http_get_statTest_directoryItem():void {
-                    const indexFile:string = `${input.replace(/\\|\/$/, "") + vars.path.sep}index.html`;
-                    file.stat({
-                        callback: function http_get_statItem_directoryItem_callback():void {
-                            input = indexFile;
-                            fileItem();
-                        },
-                        location: indexFile,
-                        no_file: function http_get_statTest_directoryItem_noFile():void {
-                            const callback = function http_get_statTest_directoryItem_noFile_directory(dir:directory_list|string[]):void {
-                                let index_item:number = 0,
-                                    dtg:string[] = null,
-                                    address:string = "";
-                                const list:directory_list = dir as directory_list,
-                                    content:string[] = [
-                                        `<h2>Directory List - ${decodeURI(index0[1])}</h2>`,
-                                        "<table class=\"file-list\"><thead><tr><th><button data-dir=\"1\">object</button></th><th><button data-dir=\"1\">type</button></th><th><button data-dir=\"1\">size</button></th><th><button data-dir=\"1\">modified date</button></th><th><button data-dir=\"1\">modified time</button></th><th><button data-dir=\"1\">permissions</button></th><th><button data-dir=\"1\">children</button></th></tr></thead><tbody>"
-                                    ],
-                                    total:number = list.length,
-                                    icon:store_string = {
-                                        "block_device": "\u2580",
-                                        "character_device": "\u0258",
-                                        "directory": "\ud83d\udcc1",
-                                        "fifo_pipe": "\u275a",
-                                        "file": "\ud83d\uddce",
-                                        "socket": "\ud83d\udd0c",
-                                        "symbolic_link": "\ud83d\udd17"
-                                    },
-                                    scheme:"http"|"https" = (socket.encrypted === true)
-                                        ? "https"
-                                        : "http",
-                                    host:string = (function http_get_host():string {
-                                        let index:number = headerList.length,
-                                            value:string = "";
-                                        do {
-                                            index = index - 1;
-                                            if (headerList[index].toLowerCase().indexOf("host:") === 0) {
-                                                value = headerList[index].slice(headerList[index].indexOf(":") + 1).replace(/\s+/g, "");
-                                            } else if (headerList[index].toLowerCase().indexOf("connection:") === 0) {
-                                                headerList.splice(index, 1);
-                                                index = index + 1;
-                                            }
-                                        } while (index > 0);
-                                        return value;
-                                    }());
-                                do {
-                                    if (list[index_item][3] === 0 && list[index_item][0].indexOf(input) !== list[index_item][0].length - input.length) {
-                                        address = `${scheme}://${host + index0[1].replace(/\/$/, "") + vars.path.sep + list[index_item][0]}`;
-                                        dtg = list[index_item][5].mtimeMs.dateTime(true, null).split(", ");
-                                        content.push(`<tr class="${(index_item % 2 === 0) ? "even" : "odd"}"><td class="file-name"><span class="icon">${icon[list[index_item][1]]}</span> <a href="${address}">${list[index_item][0]}</a></td><td>${list[index_item][1]}</td><td data-raw="${list[index_item][5].size}">${list[index_item][5].size.commas()}</td><td data-raw="${list[index_item][5].mtimeMs}">${dtg[0]}</td><td>${dtg[1]}</td><td>${list[index_item][5].mode === null ? "" : (list[index_item][5].mode & parseInt("777", 8)).toString(8)}</td><td data-raw="${list[index_item][4]}">${list[index_item][4].commas()}</td></tr>`);
-                                    }
-                                    index_item = index_item + 1;
-                                } while (index_item < total);
-                                content.push("</tbody></table>");
-                                write(html({
-                                    content: content,
-                                    content_type: "text/html; utf8",
-                                    core: true,
-                                    page_title: index0[1],
-                                    status: 200,
-                                    template: true,
-                                    script: file_list
-                                }));
-                            };
-                            directory({
-                                callback: callback,
-                                depth: 2,
-                                exclusions: [],
-                                mode: "read",
-                                path: input,
-                                relative: true,
-                                search: "",
-                                symbolic: false
-                            });
-                        },
-                        section: "servers_web"
-                    });
-                },
-                fileItem = function http_get_statTest_fileItem():void {
-                    const content_type:string = (function http_get_statTest_fileItem_contentType():string {
-                            const extension:string = input.slice(input.lastIndexOf(".") + 1);
-                            if (extension === "avi") {
-                                return "video/x-msvideo";
-                            }
-                            if (extension === "css") {
-                                return "text/css; utf8";
-                            }
-                            if (extension === "flv") {
-                                return "video/x-flv";
-                            }
-                            if (extension === "gif") {
-                                return "image/gif";
-                            }
-                            if (extension === "html") {
-                                return "text/html; utf8";
-                            }
-                            if (extension === "ico") {
-                                return "image/x-icon";
-                            }
-                            if (extension === "jpg" || extension === "jpeg") {
-                                return "image/jpeg";
-                            }
-                            if (extension === "js" || extension === "ts") {
-                                return "application/javascript; utf8";
-                            }
-                            if (extension === "json") {
-                                return "application/json; utf8";
-                            }
-                            if (extension === "mp3") {
-                                return "audio/mpeg";
-                            }
-                            if (extension === "mp4" || extension === "mpeg4" || extension === "mkv") {
-                                return "video/mp4";
-                            }
-                            if (extension === "png") {
-                                return "image/png";
-                            }
-                            if (extension === "wmv") {
-                                return "video/x-ms-wmv";
-                            }
-                            if (extension === "xhtml") {
-                                return "application/xml+html; utf8";
-                            }
-                            if (extension === "xml") {
-                                return "application/xml; utf8";
-                            }
-                            return "text/plain; utf8";
-                        }()),
-                        binary:boolean = (content_type.includes("audio/") === true || content_type.includes("image/") === true || content_type.includes("video/") === true),
-                        headerText:string[] = [
-                            "HTTP/1.1 200",
-                            `content-type: ${content_type}`,
-                            (binary === true)
-                                ? `content-length: ${Number(stat.size)}`
-                                : "transfer-encoding: chunked",
-                            "server: prettydiff/webserver",
-                            "",
-                            ""
-                        ];
-                    if (method === "HEAD") {
-                        write(headerText.join("\r\n"));
-                    } else if (binary === true) {
-                        // binary media types use content-length type response
-                        // - binary formats were failing on chunked responses because the browser only processed the first chunk
-                        // - this approach has a lower processing overhead and is thus presumed to be faster to transfer
-                        // - this approach looks like a single payload, but the pipe writes data chunks to the wire as they are available, which is still media streaming
-                        const stream:node_fs_ReadStream = node.fs.createReadStream(input);
-                        socket.write(headerText.join("\r\n"));
-                        stream.pipe(socket);
-                        stream.on("close", function http_get_statTest_fileItem_close():void {
-                            socket.destroySoon();
+        stat = function http_get_stat(input:string):void {
+            const statTest = function http_get_stat_statTest(stat:node_fs_BigIntStats):void {
+                const directory_item = function http_get_stat_statTest_directoryItem():void {
+                        const indexFile:string = `${input.replace(/\\|\/$/, "") + vars.path.sep}index.html`;
+                        file.stat({
+                            callback: function http_get_stat_statItem_directoryItem_callback():void {
+                                input = indexFile;
+                                fileItem();
+                            },
+                            location: indexFile,
+                            no_file: function http_get_stat_statTest_directoryItem_noFile():void {
+                                const callback = function http_get_stat_statTest_directoryItem_noFile_directory(dir:directory_list|string[]):void {
+                                    let index_item:number = 0,
+                                        dtg:string[] = null,
+                                        address:string = "";
+                                    const list:directory_list = dir as directory_list,
+                                        content:string[] = [
+                                            `<h2>Directory List - ${decodeURI(index0[1])}</h2>`,
+                                            "<table class=\"file-list\"><thead><tr><th><button data-dir=\"1\">object</button></th><th><button data-dir=\"1\">type</button></th><th><button data-dir=\"1\">size</button></th><th><button data-dir=\"1\">modified date</button></th><th><button data-dir=\"1\">modified time</button></th><th><button data-dir=\"1\">permissions</button></th><th><button data-dir=\"1\">children</button></th></tr></thead><tbody>"
+                                        ],
+                                        total:number = list.length,
+                                        icon:store_string = {
+                                            "block_device": "\u2580",
+                                            "character_device": "\u0258",
+                                            "directory": "\ud83d\udcc1",
+                                            "fifo_pipe": "\u275a",
+                                            "file": "\ud83d\uddce",
+                                            "socket": "\ud83d\udd0c",
+                                            "symbolic_link": "\ud83d\udd17"
+                                        },
+                                        scheme:"http"|"https" = (socket.encrypted === true)
+                                            ? "https"
+                                            : "http",
+                                        host:string = (function http_get_host():string {
+                                            let index:number = headerList.length,
+                                                value:string = "";
+                                            do {
+                                                index = index - 1;
+                                                if (headerList[index].toLowerCase().indexOf("host:") === 0) {
+                                                    value = headerList[index].slice(headerList[index].indexOf(":") + 1).replace(/\s+/g, "");
+                                                } else if (headerList[index].toLowerCase().indexOf("connection:") === 0) {
+                                                    headerList.splice(index, 1);
+                                                    index = index + 1;
+                                                }
+                                            } while (index > 0);
+                                            return value;
+                                        }());
+                                    do {
+                                        if (list[index_item][3] === 0 && list[index_item][0].indexOf(input) !== list[index_item][0].length - input.length) {
+                                            address = `${scheme}://${host + index0[1].replace(/\/$/, "") + vars.path.sep + list[index_item][0]}`;
+                                            dtg = list[index_item][5].mtimeMs.dateTime(true, null).split(", ");
+                                            content.push(`<tr class="${(index_item % 2 === 0) ? "even" : "odd"}"><td class="file-name"><span class="icon">${icon[list[index_item][1]]}</span> <a href="${address}">${list[index_item][0]}</a></td><td>${list[index_item][1]}</td><td data-raw="${list[index_item][5].size}">${list[index_item][5].size.commas()}</td><td data-raw="${list[index_item][5].mtimeMs}">${dtg[0]}</td><td>${dtg[1]}</td><td>${list[index_item][5].mode === null ? "" : (list[index_item][5].mode & parseInt("777", 8)).toString(8)}</td><td data-raw="${list[index_item][4]}">${list[index_item][4].commas()}</td></tr>`);
+                                        }
+                                        index_item = index_item + 1;
+                                    } while (index_item < total);
+                                    content.push("</tbody></table>");
+                                    write(html({
+                                        content: content,
+                                        content_type: "text/html; utf8",
+                                        core: true,
+                                        page_title: index0[1],
+                                        status: 200,
+                                        template: true,
+                                        script: file_list
+                                    }));
+                                };
+                                directory({
+                                    callback: callback,
+                                    depth: 2,
+                                    exclusions: [],
+                                    mode: "read",
+                                    path: input,
+                                    relative: true,
+                                    search: "",
+                                    symbolic: false
+                                });
+                            },
+                            section: "servers_web"
                         });
-                    } else {
-                        // text media types use chunked type response
-                        // - on TLS some text media was failing to fully transfer on content length type responses, so all text formats are not chunked
-                        // - this is the most flexible approach when things like TLS impose segmentation separate from chunks piped to the socket
-                        const stream:node_fs_ReadStream = node.fs.createReadStream(input);
-                        stream.on("close", function http_get_statTest_fileItem_close():void {
-                            write("0\r\n\r\n");
-                        });
-                        socket.write(headerText.join("\r\n"));
-                        stream.on("data", function http_get_statTest_fileItem_data(chunk:Buffer|string):void {
-                            socket.write(`${Buffer.byteLength(chunk).toString(16)}\r\n${chunk}\r\n`);
-                        });
-                    }
-                };
-            if (stat.isFile() === true) {
-                fileItem();
-            } else if (stat.isDirectory() === true) {
-                directory_item();
-            } else {
-                notFound();
-            }
+                    },
+                    fileItem = function http_get_stat_statTest_fileItem():void {
+                        const type_callback = function http_get_stat_statTest_fileItem_typeCallback(type:string):void {
+                            const headerText:string[] = [
+                                    "HTTP/1.1 200",
+                                    `content-type: ${type}`,
+                                    "transfer-encoding: chunked",
+                                    "server: prettydiff/aphorio",
+                                    "accept-ranges: bytes",
+                                    "",
+                                    ""
+                                ];
+                            if (method === "HEAD") {
+                                write(headerText.join("\r\n"));
+                            } else {
+                                // text media types use chunked type response
+                                // - on TLS some text media was failing to fully transfer on content length type responses, so all text formats are not chunked
+                                // - this is the most flexible approach when things like TLS impose segmentation separate from chunks piped to the socket
+                                const stream:node_fs_ReadStream = node.fs.createReadStream(input);
+                                stream.on("close", function http_get_stat_statTest_fileItem_close():void {
+                                    write("0\r\n\r\n");
+                                });
+                                socket.write(headerText.join("\r\n"));
+                                stream.on("data", function http_get_stat_statTest_fileItem_data(chunk:Buffer|string):void {
+                                    socket.write(`${Buffer.byteLength(chunk).toString(16)}\r\n`);
+                                    socket.write(chunk);
+                                    socket.write("\r\n");
+                                });
+                            }
+                        };
+                        if (vars.environment.file === true) {
+                            spawn(vars.commands.file + input, function http_get_stat_statTest_fileItem_spawn(output:core_spawn_output):void {
+                                const triples:string[] = output.stdout.split("; ");
+                                type_callback(triples[1]);
+                            }).execute();
+                        } else {
+                            type_callback((function http_get_stat_statTest_fileItem_contentType():string {
+                                const extension:string = input.slice(input.lastIndexOf(".") + 1);
+                                if (extension === "avi") {
+                                    return "video/x-msvideo";
+                                }
+                                if (extension === "css") {
+                                    return "text/css; utf8";
+                                }
+                                if (extension === "flv") {
+                                    return "video/x-flv";
+                                }
+                                if (extension === "gif") {
+                                    return "image/gif";
+                                }
+                                if (extension === "html") {
+                                    return "text/html; utf8";
+                                }
+                                if (extension === "ico") {
+                                    return "image/x-icon";
+                                }
+                                if (extension === "jpg" || extension === "jpeg") {
+                                    return "image/jpeg";
+                                }
+                                if (extension === "js" || extension === "ts") {
+                                    return "application/javascript; utf8";
+                                }
+                                if (extension === "json") {
+                                    return "application/json; utf8";
+                                }
+                                if (extension === "mp3") {
+                                    return "audio/mpeg";
+                                }
+                                if (extension === "mp4" || extension === "mpeg4" || extension === "mkv") {
+                                    return "video/mp4";
+                                }
+                                if (extension === "png") {
+                                    return "image/png";
+                                }
+                                if (extension === "wmv") {
+                                    return "video/x-ms-wmv";
+                                }
+                                if (extension === "xhtml") {
+                                    return "application/xml+html; utf8";
+                                }
+                                if (extension === "xml") {
+                                    return "application/xml; utf8";
+                                }
+                                return "text/plain; utf8";
+                            }()));
+                        }
+                    };
+                if (stat.isFile() === true) {
+                    fileItem();
+                } else if (stat.isDirectory() === true) {
+                    directory_item();
+                } else {
+                    notFound();
+                }
+            };
+            file.stat({
+                callback: statTest,
+                location: input,
+                no_file: notFound,
+                section: "servers_web"
+            });
         },
         decode:string = decodeURI(fileFragment),
         decoded:string = (decode.includes("?") === true)
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
     if (server_id === vars.environment.dashboard_id) {
-        if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
+        if (decoded.indexOf("file-system-") === 0) {
+            stat(decoded.replace("file-system-", ""));
+        } else if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {
                     compose: vars.compose,
@@ -324,7 +333,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     "HTTP/1.1 200",
                     "content-type: text/html",
                     `content-length: ${Buffer.byteLength(dashboard)}`,
-                    "server: prettydiff/webserver",
+                    "server: prettydiff/aphorio",
+                    "accept-ranges: bytes",
                     "",
                     ""
                 ];
@@ -337,17 +347,11 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         }
     } else if (fileFragment === "") {
         // server root html file takes the name of the server, not index.html
-        input = `${path}index.html`;
+        stat(`${path}index.html`);
     } else {
         // all other HTTP requests
-        input = path + decoded;
+        stat(path + decoded);
     }
-    file.stat({
-        callback: statTest,
-        location: input,
-        no_file: notFound,
-        section: "servers_web"
-    });
 };
 
 export default http_get;

@@ -47,6 +47,14 @@ declare global {
         time: () => string;
     }
 
+    interface HTMLAudioElement {
+        playing: boolean;
+    }
+
+    interface HTMLVideoElement {
+        playing: boolean;
+    }
+
     interface FocusEvent {
         target: HTMLElement;
     }
@@ -164,6 +172,15 @@ declare global {
         block: boolean;
         init: () => void;
         key: (event:KeyboardEvent) => void;
+        media: {
+            audio: HTMLElement;
+            image: HTMLElement;
+            other: HTMLElement;
+            pdf: HTMLIFrameElement;
+            text: HTMLElement;
+            video: HTMLElement;
+        };
+        media_time: (input:number) => string;
         nodes: {
             content: HTMLElement;
             failures: HTMLElement;

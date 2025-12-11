@@ -2,6 +2,7 @@
 import directory from "../utilities/directory.ts";
 import node from "../core/node.ts";
 import send from "../transmit/send.ts";
+import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
 import { detectAll } from "jschardet";
@@ -10,7 +11,8 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
     let parent:type_directory_item = null,
         failures:string[] = [],
         file:string = null,
-        list_local:directory_list = [];
+        list_local:directory_list = [],
+        mime:string = null;
     const data:services_fileSystem = socket_data.data as services_fileSystem,
         windows_root:RegExp = (/^\w:(\\)?$/),
         complete = function services_fileSystem_complete():void {
@@ -19,6 +21,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                 dirs: list_local,
                 failures: failures,
                 file: file,
+                mime: mime,
                 parent: parent,
                 search: data.search,
                 sep: vars.path.sep
@@ -68,6 +71,38 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             }
             failures = list.failures;
             complete();
+        },
+        fileCallback = function services_fileSystem_fileCallback(output:core_spawn_output):void {
+            if (output.stdout.includes("cannot open") === true) {
+                file = output.stdout.slice(output.stdout.indexOf("; ") + 2).replace("\r\n", "");
+                failures[0] = "file not found";
+                complete();
+            } else {
+                const triple:string[] = output.stdout.split("; "),
+                    category:string = triple[1].slice(0, triple[1].indexOf("/")),
+                    accepted:string[] = ["message", "multipart", "text"],
+                    charset:string = triple[2].replace("charset=", ""),
+                    binary:boolean = (charset.includes("binary") === true || charset.includes("octet") === true);
+                failures[0] = charset;
+                mime = triple[1];
+                if (accepted.includes(category) === true || binary === false) {
+                    node.fs.readFile(data.address, function services_fileSystem_fileCallback_read(erf:node_error, fileData:Buffer):void {
+                        if (erf === null) {
+                            const decoder:node_stringDecoder_StringDecoder = new node.stringDecoder.StringDecoder("utf8");
+                            file = (binary === true)
+                                ? fileData.toString()
+                                : decoder.write(fileData);
+                        } else {
+                            file = erf.message;
+                            failures.push(erf.code);
+                        }
+                        complete();
+                    });
+                } else {
+                    file = "File appears to be binary.";
+                    complete();
+                }
+            }
         },
         readCallback = function services_fileSystem_readCallback(err:node_error, fileContents:Buffer):void {
             if (err === null) {
@@ -137,7 +172,11 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                             directory(config_dir);
                         } else {
                             list_local.push(list[index]);
-                            node.fs.readFile(data.address, readCallback);
+                            if (vars.commands.file === "") {
+                                node.fs.readFile(data.address, readCallback);
+                            } else {
+                                spawn(`${vars.commands.file}"${data.address}"`, fileCallback).execute();
+                            }
                         }
                         return;
                     }

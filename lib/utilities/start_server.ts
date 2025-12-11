@@ -24,6 +24,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             admin: "Determines if the application is run with administrative privileges.",
             cgroup: "Find Linux cgroup address for gathering precision docker performance metrics.",
             compose: "Reads the compose.json file and restores the docker compose containers if docker is available.",
+            file: "Unix 'file' command discovered.",
             git: "Get the latest update time and hash.",
             html: "Read's the dashboard's HTML file for dynamic modification.",
             options: "Modify's application settings according to the use of supported optional command line arguments.",
@@ -114,6 +115,19 @@ const start_server = function utilities_startServer(process_path:string, testing
                     vars.path.cgroup = null;
                     complete_tasks("cgroup");
                 }
+            },
+            file: function utilities_startServer_file():void {
+                if (process.platform === "win32") {
+                    vars.commands.file = `${vars.path.process}node_modules${vars.path.sep}file${vars.path.sep}bin${vars.path.sep}file.exe -i `;
+                    complete_tasks("file");
+                    return;
+                }
+                spawn("file --help", function utilities_startServer_file_spawn(output:core_spawn_output):void {
+                    if (output.stdout.indexOf("Usage: file [OPTION...] [FILE...]") === 0) {
+                        vars.commands.file = "file -i ";
+                    }
+                    complete_tasks("file");
+                }).execute();
             },
             git: function utilities_startServer_tasksGit():void {
                 const gitStat = function utilities_startServer_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {

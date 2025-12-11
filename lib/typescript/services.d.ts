@@ -73,6 +73,7 @@ interface services_fileSystem {
     dirs: type_directory_item[];
     failures: string[];
     file: string;
+    mime: string;
     parent: type_directory_item;
     search: string;
     sep: "/"|"\\";

@@ -269,6 +269,9 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .active-ports h5{font-size:1.2em}
     .block{display:block}
     .buttons button:disabled{color:var(--border_input)}
+    .dependencies{
+        li{list-style:disc;margin:0 0 0 1em}
+    }
     .definition-body{
         display:none;margin:var(--h3-size) 0 0;
         li{border-style:none;list-style:disc}
@@ -480,6 +483,36 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .definitions > .buttons,
     .form > .buttons,
     .section > .buttons{margin:0 0 2em}
+
+    .media {
+        .media-controls{
+            text-align:center;
+            button.play{display:block;float:left}
+            button.stop{display:block;float:right}
+            button{display:inline-block}
+        }
+        .media-slider{
+            background:var(--border-input);border-style:solid;border-width:0.1em;height:2em;margin:0;
+            .progress{background:var(--background_dark);display:block;height:2em;position:static;width:0}
+            .text{left:-2000em;position:absolute}
+            button{background:var(--border-input);border-style:none;box-shadow:none;display:block;height:2em;margin:0;padding:0;width:100%}
+            button:hover{background:var(--border-input)}
+        }
+        .time-current{
+            float:left;
+            span{left:-2000em;position:absolute}
+        }
+        .time-total{
+            float:right;
+            span{left:-2000em;position:absolute}
+        }
+        button {
+            svg{color:var(--background_dark);fill:var(--background_dark);display:block;height:2em;margin:0 auto;width:2em}
+            span{left:-2000em;position:absolute}
+        }
+        input[type="text"]{background-color:var(--background);border-style:none;margin:-1em 0 0;padding:0;width:4.5em}
+    }
+    svg path{fill:var(--background_dark)}
 
     .summary-stats span,
     .table-stats span{display:inline-block;width:12em}

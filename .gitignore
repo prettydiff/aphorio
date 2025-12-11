@@ -9,5 +9,6 @@
 !/node_modules/@lydell
 !/node_modules/@xterm
 !/node_modules/chart.js
+!/node_modules/file
 !/node_modules/jschardet
 install.js

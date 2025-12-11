@@ -355,8 +355,14 @@ const dashboard = function dashboard():void {
                             }
                         },
                         fileSummary:HTMLCollectionOf<HTMLElement> = tools.fileSystem.nodes.summary.getElementsByTagName("li"),
-                        server_new:HTMLButtonElement = document.getElementById("servers_web").getElementsByClassName("server-new")[0] as HTMLButtonElement;
+                        server_new:HTMLButtonElement = document.getElementById("servers_web").getElementsByClassName("server-new")[0] as HTMLButtonElement,
+                        audio:HTMLAudioElement = tools.fileSystem.media.audio.lastChild as HTMLAudioElement,
+                        video:HTMLVideoElement = tools.fileSystem.media.video.lastChild as HTMLVideoElement;
 
+                    audio.pause();
+                    audio.currentTime = 0;
+                    video.pause();
+                    video.currentTime = 0;
                     loaded = false;
                     replace(logs_old, false);
                     lists(network.interfaces, false);
@@ -668,6 +674,7 @@ const dashboard = function dashboard():void {
                             dirs: null,
                             failures: null,
                             file: null,
+                            mime: null,
                             parent: null,
                             search: (fileSearch === "")
                                 ? null
@@ -3322,22 +3329,229 @@ const dashboard = function dashboard():void {
             fileSystem: {
                 block: false,
                 init: function dashboard_fileSystemInit():void {
+                    const textarea:HTMLTextAreaElement = document.createElement("textarea"),
+                        media = function dashboard_fileSystemInit_media(name:"audio"|"video"):void {
+                            const parent:HTMLElement = tools.fileSystem.media[name],
+                                media_element:HTMLAudioElement = document.createElement(name),
+                                source:HTMLElement = document.createElement("source"),
+                                track:HTMLElement = document.createElement("button"),
+                                input = function dashboard_fileSystemInit_media_input(classy:string):void {
+                                    const label:HTMLElement = document.createElement("label"),
+                                        span:HTMLElement = document.createElement("span"),
+                                        input:HTMLInputElement = document.createElement("input");
+                                    label.setAttribute("class", classy);
+                                    input.type = "text";
+                                    input.readOnly = true;
+                                    span.textContent = (classy === "time-current")
+                                        ? "Media current time"
+                                        : "Media total time";
+                                    label.appendChild(span);
+                                    label.appendChild(input);
+                                    p.appendChild(label);
+                                },
+                                control = function dashboard_fileSystemInit_media_control(type:"pause"|"play"|"stop"):void {
+                                    const button:HTMLElement = document.createElement("button"),
+                                        svg:Element = document.createElementNS("http://www.w3.org/2000/svg", "svg"),
+                                        g:Element = document.createElementNS("http://www.w3.org/2000/svg", "g"),
+                                        path:Element = document.createElementNS("http://www.w3.org/2000/svg", "path"),
+                                        path1:Element = document.createElementNS("http://www.w3.org/2000/svg", "path"),
+                                        span:HTMLElement = document.createElement("span");
+                                    button.setAttribute("class", type);
+                                    if (type === "play") {
+                                        path.setAttribute("d", "M85.5,51.7l-69,39.8c-1.3,0.8-3-0.2-3-1.7V10.2c0-1.5,1.7-2.5,3-1.7l69,39.8C86.8,49,86.8,51,85.5,51.7z");
+                                        button.onclick = function dashboard_fileSystemInit_media_control_play(event:MouseEvent):void {
+                                            const el:HTMLElement = event.target as HTMLElement,
+                                                player:HTMLElement = el.getAncestor("div", "tag"),
+                                                media:HTMLAudioElement = player.lastChild as HTMLAudioElement,
+                                                currentTime = function dashboard_fileSystemInit_media_control_play_time():void {
+                                                    const timer:HTMLInputElement = player.getElementsByTagName("input")[0],
+                                                        bar:HTMLElement = player.getElementsByClassName("media-slider")[0].getElementsByClassName("progress")[0] as HTMLElement;
+                                                    timer.value = tools.fileSystem.media_time(media.currentTime);
+                                                    if (media.currentTime === media.duration) {
+                                                        media.playing = false;
+                                                    }
+                                                    if (media.playing === true) {
+                                                        setTimeout(dashboard_fileSystemInit_media_control_play_time, 50);
+                                                        bar.style.width = `${(media.currentTime / media.duration) * 100}%`;
+                                                    }
+                                                };
+                                            if (media.playing === true) {
+                                                media.currentTime = 0;
+                                            }
+                                            media.play();
+                                            media.playing = true;
+                                            setTimeout(currentTime, 50);
+                                        };
+                                    } else if (type === "pause") {
+                                        path.setAttribute("d", "M44.2,78.3H32.1c-1.1,0-2-0.9-2-2V23.7c0-1.1,0.9-2,2-2h12.1c1.1,0,2,0.9,2,2v52.5C46.2,77.4,45.3,78.3,44.2,78.3z");
+                                        path1.setAttribute("d", "M67.9,78.3H55.8c-1.1,0-2-0.9-2-2V23.7c0-1.1,0.9-2,2-2h12.1c1.1,0,2,0.9,2,2v52.5C69.9,77.4,69,78.3,67.9,78.3z");
+                                        button.onclick = function dashboard_fileSystemInit_media_control_pause(event:MouseEvent):void {
+                                            const el:HTMLElement = event.target as HTMLElement,
+                                                player:HTMLElement = el.getAncestor("div", "tag"),
+                                                media:HTMLAudioElement = player.lastChild as HTMLAudioElement;
+                                            media.pause();
+                                            media.playing = false;
+                                        };
+                                    } else {
+                                        path.setAttribute("d", "M78,80H22c-1.1,0-2-0.9-2-2V22c0-1.1,0.9-2,2-2h56c1.1,0,2,0.9,2,2v56C80,79.1,79.1,80,78,80z");
+                                        button.onclick = function dashboard_fileSystemInit_media_control_stop(event:MouseEvent):void {
+                                            const el:HTMLElement = event.target as HTMLElement,
+                                                player:HTMLElement = el.getAncestor("div", "tag"),
+                                                media:HTMLAudioElement = player.lastChild as HTMLAudioElement,
+                                                timer:HTMLInputElement = player.getElementsByTagName("input")[0],
+                                                bar:HTMLElement = player.getElementsByClassName("media-slider")[0].getElementsByClassName("progress")[0] as HTMLElement;
+                                            media.pause();
+                                            bar.style.width = "0%";
+                                            timer.value = "00:00:00";
+                                            media.playing = false;
+                                            media.currentTime = 0;
+                                        };
+                                    }
+                                    svg.setAttribute("version", "1.1");
+                                    svg.setAttribute("viewBox", "0 0 100 100");
+                                    g.appendChild(path);
+                                    if (type === "pause") {
+                                        g.appendChild(path1);
+                                    }
+                                    svg.appendChild(g);
+                                    span.textContent = type;
+                                    button.appendChild(svg);
+                                    button.appendChild(span);
+                                    p.appendChild(button);
+                                },
+                                progress = function dashboard_fileSystemInit_media_progress(event:MouseEvent):void {
+                                    const target:HTMLElement = (event.target.lowName() === "button")
+                                            ? event.target
+                                            : event.target.getAncestor("button", "tag"),
+                                        player:HTMLElement = target.getAncestor("div", "tag"),
+                                        media:HTMLAudioElement = player.lastChild as HTMLAudioElement,
+                                        source:HTMLSourceElement = media.getElementsByTagName("source")[0],
+                                        progress_bar:HTMLElement = target.getElementsByClassName("progress")[0] as HTMLElement,
+                                        distance:number = event.clientX - target.offsetLeft,
+                                        percent:number = distance / target.clientWidth,
+                                        time:number = media.duration * percent;
+                                    //media.currentTime = time;
+                                    source.src = `${source.src.split("#")[0]}#t=${time}`;
+                                    progress_bar.style.width = `${percent * 100}%`;
+                                };
+                            let p:HTMLElement = document.createElement("p"),
+                                span:HTMLElement = document.createElement("span");
+                            // slider / progression track
+                            p.setAttribute("class", "media-slider");
+                            span.setAttribute("class", "text");
+                            span.textContent = "progression";
+                            track.appendChild(span);
+                            span = document.createElement("span");
+                            span.setAttribute("class", "progress");
+                            track.appendChild(span);
+                            track.onclick = progress;
+                            p.appendChild(track);
+                            parent.appendChild(p);
+
+                            // timers
+                            p = document.createElement("p");
+                            input("time-current");
+                            input("time-total");
+                            span = document.createElement("span");
+                            span.setAttribute("class", "clear");
+                            p.appendChild(span);
+                            parent.appendChild(p);
+
+                            // control buttons
+                            p = document.createElement("p");
+                            control("play");
+                            control("pause");
+                            control("stop");
+                            span = document.createElement("span");
+                            span.setAttribute("class", "clear");
+                            p.appendChild(span);
+                            p.setAttribute("class", "media-controls");
+                            parent.appendChild(p);
+
+                            if (name === "video") {
+                                p = document.createElement("p");
+                                p.setAttribute("class", "buffer");
+                                p.textContent = "Video is buffering.";
+                                parent.appendChild(p);
+                            }
+
+                            parent.setAttribute("class", "media");
+                            media_element.appendChild(source);
+                            parent.appendChild(media_element);
+                            media_element.ondurationchange = function dashboard_fileSystemInit_media_duration(event:Event):void {
+                                const target:HTMLVideoElement = event.target as HTMLVideoElement,
+                                    player:HTMLElement = target.getAncestor("div", "tag"),
+                                    media:HTMLAudioElement = player.lastChild as HTMLAudioElement,
+                                    duration:HTMLInputElement = player.getElementsByTagName("input")[1];
+                                if (target.lowName() === "video") {
+                                    const buffer:HTMLElement = player.getElementsByClassName("buffer")[0] as HTMLElement;
+                                    buffer.style.display = "none";
+                                    target.style.height = `${target.videoHeight}px`;
+                                    target.style.width = `${target.videoWidth}px`;
+                                }
+                                duration.value = tools.fileSystem.media_time(media.duration);
+                            };
+                            if (name === "video") {
+                                const video:HTMLVideoElement = media_element as HTMLVideoElement;
+                                video.playsInline = true;
+                                video.preload = "metadata";
+                            }
+                        },
+                        image:HTMLElement = document.createElement("img"),
+                        label:HTMLElement = document.createElement("label");
                     tools.fileSystem.nodes.path.onblur = tools.fileSystem.send;
                     tools.fileSystem.nodes.search.onblur = tools.fileSystem.send;
                     tools.fileSystem.nodes.path.onkeydown = tools.fileSystem.key;
                     tools.fileSystem.nodes.search.onkeydown = tools.fileSystem.key;
                     tools.fileSystem.nodes.path.value = (state.fileSystem === undefined || state.fileSystem === null || typeof state.fileSystem.path !== "string" || state.fileSystem.path === "")
-                        ? payload.path.project.replace(/(\\|\/)webserver(\\|\/)test(\\|\/)?$/, `${payload.path.sep}webserver`)
+                        ? payload.path.project.replace(/test(\\|\/)?$/, "")
                         : state.fileSystem.path;
                     tools.fileSystem.nodes.search.value = (state.fileSystem === undefined || state.fileSystem === null || typeof state.fileSystem.search !== "string")
                         ? ""
                         : state.fileSystem.search;
                     tools.fileSystem.send(null);
+                    tools.fileSystem.media.audio = document.createElement("div");
+                    tools.fileSystem.media.image = document.createElement("p");
+                    tools.fileSystem.media.text = document.createElement("p");
+                    tools.fileSystem.media.video = document.createElement("div");
+                    textarea.spellcheck = false;
+                    tools.fileSystem.media.image.appendChild(image);
+                    tools.fileSystem.media.text.appendText("Text file contents converted to UTF-8 ");
+                    tools.fileSystem.media.text.appendChild(textarea);
+                    tools.fileSystem.media.text.appendChild(label);
+                    media("audio");
+                    media("video");
+                    tools.fileSystem.media.other = document.createElement("p");
+                    tools.fileSystem.media.other.textContent = "File is likely a binary format that cannot be previewed in a web browser.";
+                    tools.fileSystem.media.pdf = document.createElement("iframe");
                 },
                 key: function dashboard_fileSystemKey(event:KeyboardEvent):void {
                     if (event.key.toLowerCase() === "enter") {
                         tools.fileSystem.send(event);
                     }
+                },
+                media: {
+                    audio: null,
+                    image: null,
+                    other: null,
+                    pdf: null,
+                    text: null,
+                    video: null
+                },
+                media_time: function dashboard_fileSystemMediaTime(input:number):string {
+                    const hour:number = Math.floor(input / 3600),
+                        min:number = Math.floor((input % 3600) / 60),
+                        second:number = Math.floor((input % 3600) % 60),
+                        hStr:string = (hour < 10)
+                            ? `0${hour}`
+                            : String(hour),
+                        mStr:string = (min < 10)
+                            ? `0${min}`
+                            : String(min),
+                        sStr:string = (second < 10)
+                            ? `0${second}`
+                            : String(second);
+                    return `${hStr}:${mStr}:${sStr}`;
                 },
                 nodes: {
                     content: document.getElementById("file-system").getElementsByClassName("file-system-content")[0] as HTMLElement,
@@ -3375,6 +3589,8 @@ const dashboard = function dashboard():void {
                             "symbolic_link": "\ud83d\udd17"
                         },
                         failureTitle:HTMLElement = tools.fileSystem.nodes.failures.parentNode.getElementsByTagName("h3")[0],
+                        audio:HTMLAudioElement = tools.fileSystem.media.audio.lastChild as HTMLAudioElement,
+                        video:HTMLVideoElement = tools.fileSystem.media.video.lastChild as HTMLVideoElement,
                         record = function dashboard_fileSystemReceive_record(index:number):void {
                             const item:type_directory_item = (index < 0)
                                     ? fs.parent
@@ -3388,7 +3604,7 @@ const dashboard = function dashboard():void {
                                     ? ((/^\w:(\\)?$/).test(fs.address) === true)
                                         ? "\\"
                                         : item[0]
-                                    : (fs.address === "\\")
+                                    : (item[0].includes(fs.sep) === true)
                                         ? item[0]
                                         : fs.address.replace(/(\\|\/)\s*$/, "") + fs.sep + item[0];
                             let tr:HTMLElement = null,
@@ -3461,6 +3677,10 @@ const dashboard = function dashboard():void {
                     // td[5] = permissions
                     // td[6] = children
                     tbody.textContent = "";
+                    audio.pause();
+                    video.pause();
+                    audio.currentTime = 0;
+                    video.currentTime = 0;
                     if (fs.dirs[0] === null) {
                         tools.fileSystem.nodes.output.style.display = "none";
                     } else {
@@ -3506,15 +3726,65 @@ const dashboard = function dashboard():void {
                         }
                         failureTitle.textContent = "Items in current directory that could not be read";
                     } else {
-                        const strong:HTMLElement = document.createElement("strong");
+                        const strong:HTMLElement = document.createElement("strong"),
+                            media = function dashboard_fileSystemReceive_media(mediaType:type_fileSystem_media):void {
+                                const address:string = `${location.origin}/file-system-${fs.address}`,
+                                    player = function dashboard_fileSystemReceive_media_player(type:"audio"|"video"):void {
+                                        const times:HTMLCollectionOf<HTMLInputElement> = tools.fileSystem.media[type].getElementsByTagName("input"),
+                                            item:HTMLAudioElement|HTMLVideoElement = (type === "audio")
+                                                ? audio
+                                                : video;
+                                        times[0].value = "00:00:00";
+                                        item.getElementsByTagName("source")[0].src = address;
+                                        item.load();
+                                        tools.fileSystem.nodes.content.appendChild(tools.fileSystem.media[type]);
+                                    },
+                                    h3:HTMLElement = document.createElement("h3");
+                                    h3.textContent = "File Contents";
+                                tools.fileSystem.nodes.content.style.display = "block";
+                                tools.fileSystem.nodes.content.textContent = "";
+                                tools.fileSystem.nodes.content.appendChild(h3);
+                                // if ([
+                                //     "application/pdf",
+                                //     "application/x-pdf",
+                                //     "application/acrobat",
+                                //     "text/pdf",
+                                //     "text/x-pdf"].includes(fs.mime) === true
+                                // ) {
+                                //     tools.fileSystem.media.pdf.src = address;
+                                //     tools.fileSystem.nodes.content.appendChild(tools.fileSystem.media.pdf);
+                                // } else
+                                if (mediaType === "audio") {
+                                    player("audio");
+                                } else if (mediaType === "image") {
+                                    const image:HTMLImageElement = tools.fileSystem.media.image.getElementsByTagName("img")[0];
+                                    image.setAttribute("alt", `Dynamically populated image of type ${fs.mime} from file system location ${fs.address}`);
+                                    image.setAttribute("src", address);
+                                    tools.fileSystem.nodes.content.appendChild(tools.fileSystem.media.image);
+                                } else if (mediaType === "text") {
+                                    tools.fileSystem.media.text.getElementsByTagName("textarea")[0].value = fs.file.replace(/\u0000/g, "");
+                                    tools.fileSystem.nodes.content.appendChild(tools.fileSystem.media.text);
+                                } else if (mediaType === "video") {
+                                    const buffer:HTMLElement = tools.fileSystem.media.video.getElementsByClassName("buffer")[0] as HTMLElement;
+                                    buffer.style.display = "block";
+                                    player("video");
+                                } else {
+                                    tools.fileSystem.nodes.content.appendChild(tools.fileSystem.media.other);
+                                }
+                            };
                         strong.appendText(fs.failures[0]);
-                        tools.fileSystem.nodes.content.style.display = "block";
-                        tools.fileSystem.nodes.content.getElementsByTagName("textarea")[0].value = fs.file.replace(/\u0000/g, "");
+                        media(fs.mime.slice(0, fs.mime.indexOf("/")) as type_fileSystem_media);
                         if (fs.failures[0] === "binary") {
                             fails.appendText("File is either binary or uses a text encoding larger than utf8.");
                         } else {
                             fails.appendText("File encoded as ");
                             fails.appendChild(strong);
+                            if (fs.mime !== "" && fs.mime !== null) {
+                                const mime:HTMLElement = document.createElement("strong");
+                                mime.textContent = fs.mime;
+                                fails.appendText(" with mime type ");
+                                fails.appendChild(mime);
+                            }
                             fails.appendText(".");
                         }
                         failureTitle.textContent = "File encoding";
@@ -3541,6 +3811,7 @@ const dashboard = function dashboard():void {
                             dirs: null,
                             failures: null,
                             file: null,
+                            mime: null,
                             parent: null,
                             search: (search !== null && search.replace(/\s+/, "") === "")
                                 ? null

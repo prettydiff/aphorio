@@ -372,10 +372,7 @@
                 <p>Status: <em></em></p>
                 <table data-column="1"><thead><tr><th><button data-dir="1">object</button></th><th><button data-dir="1">type</button></th><th><button data-dir="1">size</button></th><th><button data-dir="1">modified date</button></th><th><button data-dir="1">modified time</button></th><th><button data-dir="1">permissions</button></th><th><button data-dir="1">children</button></th></tr></thead><tbody></tbody></table>
             </div>
-            <div class="file-system-content">
-                <h3>File Contents</h3>
-                <p><label>File contents of a string encoded file in UTF8 encoding <textarea spellcheck="false"></textarea></label></p>
-            </div>
+            <div class="file-system-content"></div>
             <div class="summary-stats">
                 <h3>Summary of Results</h3>
                 <ul class="file-system-summary-list">
@@ -536,16 +533,19 @@ sudo systemctl status &lt;service name here&gt;
             </div>
             <div class="section">
                 <h3>Dependencies</h3>
-                <h4>OpenSSL</h4>
-                <p>OpenSSL is a Swiss Army knife of cryptographic tools, but is primarily used for certificate creation and analysis.</p>
-                <ul>
-                    <li><p>Windows: <code>winget install --id=ShiningLight.OpenSSL.Dev -e</code></p></li>
-                    <li><p>Debian: <code>sudo apt install openssl</code></p></li>
-                </ul>
-                <h4>Docker Compose</h4>
-                <p>Docker Compose is a more convenient way to launch Docker containers by using a tiny YAML file to reference a prebuilt image and map resources from the container to the host machine.</p>
-                <ul>
-                    <li><p>Windows - (Administrative Terminal)
+                <div class="section">
+                    <h4>OpenSSL</h4>
+                    <p>OpenSSL is a Swiss Army knife of cryptographic tools, but is primarily used for certificate creation and analysis.</p>
+                    <ul>
+                        <li><p>Windows: <code>winget install --id=ShiningLight.OpenSSL.Dev -e</code></p></li>
+                        <li><p>Debian: <code>sudo apt install openssl</code></p></li>
+                    </ul>
+                </div>
+                <div class="section">
+                    <h4>Docker Compose</h4>
+                    <p>Docker Compose is a more convenient way to launch Docker containers by using a tiny YAML file to reference a prebuilt image and map resources from the container to the host machine.</p>
+                    <ul>
+                        <li><p>Windows - (Administrative Terminal)
 <code>winget install --id=Docker.DockerCLI -e
 winget install --id=Docker.DockerCompose -e</code></p></li>
                     <li><p>Debian
@@ -564,17 +564,21 @@ echo "deb \
     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</code></p></li>
-                </ul>
-                <h4>Node Dependencies (included in the repository)</h4>
-                <ul>
-                    <li><a href="https://www.npmjs.com/package/@lydell/node-pty">@lydell/node-pty</a>, <a href="https://github.com/lydell/node-pty">GitHub</a></li>
-                    <li><a href="https://www.npmjs.com/package/@xterm/xterm">@xterm/xterm</a>, <a href="https://github.com/xtermjs/xterm.js">GitHub</a></li>
-                    <li>
-                        <a href="https://www.npmjs.com/package/chart.js">chart.js</a>, <a href="https://github.com/chartjs/Chart.js">GitHub</a>
-                        <ul><li><a href="https://www.npmjs.com/package/@kurkle/color">@kurkle/color</a>, <a href="https://github.com/kurkle/color">GitHub</a></li></ul>
-                    </li>
-                    <li><a href="https://www.npmjs.com/package/jschardet">jschardet</a>, <a href="https://github.com/aadsm/jschardet">GitHub</a></li>
-                </ul>
+                    </ul>
+                </div>
+                <div class="section">
+                    <h4>Node Dependencies (included in the repository)</h4>
+                    <ul class="dependencies">
+                        <li><a href="https://www.npmjs.com/package/@lydell/node-pty">@lydell/node-pty</a>, <a href="https://github.com/lydell/node-pty">GitHub</a> - (MIT), the binaries powering XTERM emulation for the UI terminal</li>
+                        <li><a href="https://www.npmjs.com/package/@xterm/xterm">@xterm/xterm</a>, <a href="https://github.com/xtermjs/xterm.js">GitHub</a> - (MIT), the actual browser code for the UI terminal</li>
+                        <li>
+                            <a href="https://www.npmjs.com/package/chart.js">chart.js</a>, <a href="https://github.com/chartjs/Chart.js">GitHub</a> - (MIT), the library that creates the statistics charts
+                            <ul><li><a href="https://www.npmjs.com/package/@kurkle/color">@kurkle/color</a>, <a href="https://github.com/kurkle/color">GitHub</a> - (MIT), a dependency of charts.js library</li></ul>
+                        </li>
+                        <li><a href="https://gnuwin32.sourceforge.net/packages/file.htm">file for win32</a>, (BSD 2-2clause), allows execution of the Unix file utility on Windows</li>
+                        <li><a href="https://www.npmjs.com/package/jschardet">jschardet</a>, <a href="https://github.com/aadsm/jschardet">GitHub</a> - (GPLv2.1), a fall back to discover text encoding of files</li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="tab" id="http">
