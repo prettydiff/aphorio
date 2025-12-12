@@ -504,13 +504,14 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         }
         .time-total{
             float:right;
+            input{text-align:right}
             span{left:-2000em;position:absolute}
         }
         button {
             svg{color:var(--background_dark);fill:var(--background_dark);display:block;height:2em;margin:0 auto;width:2em}
             span{left:-2000em;position:absolute}
         }
-        input[type="text"]{background-color:var(--background);border-style:none;margin:-1em 0 0;padding:0;width:4.5em}
+        input[type="text"]{background-color:var(--background);border-style:none;margin:-1em 0 0;padding:0;width:10em}
     }
     svg path{fill:var(--background_dark)}
 

@@ -3333,7 +3333,6 @@ const dashboard = function dashboard():void {
                         media = function dashboard_fileSystemInit_media(name:"audio"|"video"):void {
                             const parent:HTMLElement = tools.fileSystem.media[name],
                                 media_element:HTMLAudioElement = document.createElement(name),
-                                source:HTMLElement = document.createElement("source"),
                                 track:HTMLElement = document.createElement("button"),
                                 input = function dashboard_fileSystemInit_media_input(classy:string):void {
                                     const label:HTMLElement = document.createElement("label"),
@@ -3425,13 +3424,11 @@ const dashboard = function dashboard():void {
                                             : event.target.getAncestor("button", "tag"),
                                         player:HTMLElement = target.getAncestor("div", "tag"),
                                         media:HTMLAudioElement = player.lastChild as HTMLAudioElement,
-                                        source:HTMLSourceElement = media.getElementsByTagName("source")[0],
                                         progress_bar:HTMLElement = target.getElementsByClassName("progress")[0] as HTMLElement,
-                                        distance:number = event.clientX - target.offsetLeft,
+                                        distance:number = (event.clientX + window.scrollX) - target.offsetLeft,
                                         percent:number = distance / target.clientWidth,
                                         time:number = media.duration * percent;
-                                    //media.currentTime = time;
-                                    source.src = `${source.src.split("#")[0]}#t=${time}`;
+                                    media.currentTime = time;
                                     progress_bar.style.width = `${percent * 100}%`;
                                 };
                             let p:HTMLElement = document.createElement("p"),
@@ -3476,7 +3473,6 @@ const dashboard = function dashboard():void {
                             }
 
                             parent.setAttribute("class", "media");
-                            media_element.appendChild(source);
                             parent.appendChild(media_element);
                             media_element.ondurationchange = function dashboard_fileSystemInit_media_duration(event:Event):void {
                                 const target:HTMLVideoElement = event.target as HTMLVideoElement,
@@ -3733,9 +3729,14 @@ const dashboard = function dashboard():void {
                                         const times:HTMLCollectionOf<HTMLInputElement> = tools.fileSystem.media[type].getElementsByTagName("input"),
                                             item:HTMLAudioElement|HTMLVideoElement = (type === "audio")
                                                 ? audio
-                                                : video;
+                                                : video,
+                                            source:HTMLSourceElement = document.createElement("source");
                                         times[0].value = "00:00:00";
-                                        item.getElementsByTagName("source")[0].src = address;
+                                        source.src = address;
+                                        if (item.childNodes.length > 0) {
+                                            item.removeChild(item.lastChild);
+                                        }
+                                        item.appendChild(source);
                                         item.load();
                                         tools.fileSystem.nodes.content.appendChild(tools.fileSystem.media[type]);
                                     },

@@ -199,10 +199,11 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     },
                     fileItem = function http_get_stat_statTest_fileItem():void {
                         const type_callback = function http_get_stat_statTest_fileItem_typeCallback(type:string):void {
-                            const headerText:string[] = [
-                                    "HTTP/1.1 200",
+                            const category:string = type.slice(0, type.indexOf("/")),
+                                headerText:string[] = [
+                                    "",
                                     `content-type: ${type}`,
-                                    "transfer-encoding: chunked",
+                                    "",
                                     "server: prettydiff/aphorio",
                                     "accept-ranges: bytes",
                                     "",
@@ -211,20 +212,51 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             if (method === "HEAD") {
                                 write(headerText.join("\r\n"));
                             } else {
-                                // text media types use chunked type response
-                                // - on TLS some text media was failing to fully transfer on content length type responses, so all text formats are not chunked
-                                // - this is the most flexible approach when things like TLS impose segmentation separate from chunks piped to the socket
-                                const stream:node_fs_ReadStream = node.fs.createReadStream(input);
-                                stream.on("close", function http_get_stat_statTest_fileItem_close():void {
-                                    write("0\r\n\r\n");
-                                });
-                                socket.write(headerText.join("\r\n"));
-                                stream.on("data", function http_get_stat_statTest_fileItem_data(chunk:Buffer|string):void {
-                                    socket.write(`${Buffer.byteLength(chunk).toString(16)}\r\n`);
-                                    socket.write(chunk);
-                                    socket.write("\r\n");
-                                });
-                            }
+                                if (category === "audio" || category === "video") {
+                                    let range:string = "",
+                                        status:string = (function http_get_stat_statTest_fileItem_partial():string {
+                                            let index:number = headerList.length;
+                                            do {
+                                                index = index - 1;
+                                                if (headerList[index].toLowerCase().indexOf("range:") === 0) {
+                                                    range = headerList[index].toLowerCase().replace(/range:\s*bytes=/, "");
+                                                    return "HTTP/1.1 206";
+                                                }
+                                            } while (index > 0);
+                                            return "HTTP/1.1 206";
+                                        }());
+                                    const start:number = (range === "")
+                                            ? 0
+                                            : Number(range.split("-")[0]),
+                                        end:number = start + (1024 * 1024),
+                                        stream:node_fs_ReadStream = node.fs.createReadStream(input, {
+                                            end: end,
+                                            start: start
+                                        });
+                                    headerText[0] = status;
+                                    headerText[2] = `content-length: ${end - start}`;
+                                    headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${stat.size}`);
+                                    socket.write(headerText.join("\r\n"));
+                                    stream.pipe(socket);
+                                    stream.on("close", function http_get_statTest_fileItem_close():void {
+                                        socket.destroySoon();
+                                    });
+                                } else {
+                                    const stream:node_fs_ReadStream = node.fs.createReadStream(input);
+                                    headerText[0] = "HTTP/1.1 200";
+                                    headerText[2] = "transfer-encoding: chunked";
+                                    stream.on("close", function http_get_stat_statTest_fileItem_close():void {
+                                        write("0\r\n\r\n");
+                                        socket.destroySoon();
+                                    });
+                                    socket.write(headerText.join("\r\n"));
+                                    stream.on("data", function http_get_stat_statTest_fileItem_data(chunk:Buffer|string):void {
+                                        socket.write(`${Buffer.byteLength(chunk).toString(16)}\r\n`);
+                                        socket.write(chunk);
+                                        socket.write("\r\n");
+                                    });
+                                }
+                        }
                         };
                         if (vars.environment.file === true) {
                             spawn(vars.commands.file + input, function http_get_stat_statTest_fileItem_spawn(output:core_spawn_output):void {
