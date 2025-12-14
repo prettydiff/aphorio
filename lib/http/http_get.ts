@@ -210,19 +210,20 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             if (method === "HEAD") {
                                 write(headerText.join("\r\n"));
                             } else {
-                                if (category === "audio" || category === "video") {
-                                    let range:string = "";
-                                    const status:string = (function http_get_stat_statTest_fileItem_partial():string {
-                                            let index:number = headerList.length;
-                                            do {
-                                                index = index - 1;
-                                                if (headerList[index].toLowerCase().indexOf("range:") === 0) {
-                                                    range = headerList[index].toLowerCase().replace(/range:\s*bytes=/, "");
-                                                    return "HTTP/1.1 206";
-                                                }
-                                            } while (index > 0);
+                                let range:string = "";
+                                const status:string = (function http_get_stat_statTest_fileItem_partial():string {
+                                    let index:number = headerList.length;
+                                    do {
+                                        index = index - 1;
+                                        if (headerList[index].toLowerCase().indexOf("range:") === 0) {
+                                            range = headerList[index].toLowerCase().replace(/range:\s*bytes=/, "");
                                             return "HTTP/1.1 206";
-                                        }()),
+                                        }
+                                    } while (index > 0);
+                                    return "HTTP/1.1 200";
+                                }());
+                                if (status === "HTTP/1.1 206") {
+                                    const 
                                         start:number = (range === "")
                                             ? 0
                                             : Number(range.split("-")[0]),
@@ -241,7 +242,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                     });
                                 } else {
                                     const stream:node_fs_ReadStream = node.fs.createReadStream(input);
-                                    headerText[0] = "HTTP/1.1 200";
+                                    headerText[0] = status;
                                     headerText[2] = "transfer-encoding: chunked";
                                     stream.on("close", function http_get_stat_statTest_fileItem_close():void {
                                         write("0\r\n\r\n");
