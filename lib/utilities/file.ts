@@ -128,8 +128,8 @@ const file:file = {
         });
     },
     remove: function utilities_fileRemove(config:config_file_remove):void {
-        const removeItems = function utilities_fileRemove_removeItems(list:directory_list|string[]):void {
-                // directory_list: [].failures
+        const removeItems = function utilities_fileRemove_removeItems(list:core_directory_list):void {
+                // core_directory_list: [].failures
                 // 0. absolute path (string)
                 // 1. type (fileType)
                 // 2. hash (string), empty string unless fileType is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
@@ -138,8 +138,7 @@ const file:file = {
                 // 5. selected properties from fs.Stat plus some link resolution data
                 // 6. write path from the lib/utilities/rename library for file copy
                 let a:number = 0;
-                const fileList:directory_list = list as directory_list,
-                    len:number = fileList.length,
+                const len:number = list.length,
                     destroy = function utilities_fileRemove_removeItems_destroy(item:type_directory_item):void {
                         let b:number = (config.exclusions === null)
                             ? 0
@@ -161,17 +160,17 @@ const file:file = {
                                 return;
                             }
 
-                            if (item[0] === fileList[0][0]) {
+                            if (item[0] === list[0][0]) {
                                 // done
                                 if (config.callback !== null) {
                                     config.callback(config.location, config.identifier);
                                 }
                             } else {
                                 // decrement the number of child items in a directory
-                                fileList[item[3]][4] = fileList[item[3]][4] - 1;
+                                list[item[3]][3] = list[item[3]][3] - 1;
                                 // once a directory is empty, process the directory for removal
-                                if (fileList[item[3]][4] < 1) {
-                                    utilities_fileRemove_removeItems_destroy(fileList[item[3]]);
+                                if (list[item[3]][3] < 1) {
+                                    utilities_fileRemove_removeItems_destroy(list[item[3]]);
                                 }
                             }
                         };
@@ -199,15 +198,15 @@ const file:file = {
                             destruction(null);
                         }
                     };
-                if (fileList.length < 1) {
+                if (list.length < 1) {
                     if (config.callback !== null) {
                         config.callback(config.location, config.identifier);
                     }
                     return;
                 }
                 do {
-                    if ((fileList[a][1] === "directory" && fileList[a][4] === 0) || fileList[a][1] !== "directory") {
-                        destroy(fileList[a]);
+                    if ((list[a][1] === "directory" && list[a][3] === 0) || list[a][1] !== "directory") {
+                        destroy(list[a]);
                     }
                     a = a + 1;
                 } while (a < len);
@@ -216,7 +215,6 @@ const file:file = {
                 callback: removeItems,
                 depth: 0,
                 exclusions: [],
-                mode: "read",
                 path: config.location,
                 relative: false,
                 search: "",

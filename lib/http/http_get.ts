@@ -128,12 +128,11 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             },
                             location: indexFile,
                             no_file: function http_get_stat_statTest_directoryItem_noFile():void {
-                                const callback = function http_get_stat_statTest_directoryItem_noFile_directory(dir:directory_list|string[]):void {
+                                const callback = function http_get_stat_statTest_directoryItem_noFile_directory(list:core_directory_list):void {
                                     let index_item:number = 0,
                                         dtg:string[] = null,
                                         address:string = "";
-                                    const list:directory_list = dir as directory_list,
-                                        content:string[] = [
+                                    const content:string[] = [
                                             `<h2>Directory List - ${decodeURI(index0[1])}</h2>`,
                                             "<table class=\"file-list\"><thead><tr><th><button data-dir=\"1\">object</button></th><th><button data-dir=\"1\">type</button></th><th><button data-dir=\"1\">size</button></th><th><button data-dir=\"1\">modified date</button></th><th><button data-dir=\"1\">modified time</button></th><th><button data-dir=\"1\">permissions</button></th><th><button data-dir=\"1\">children</button></th></tr></thead><tbody>"
                                         ],
@@ -165,10 +164,10 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                             return value;
                                         }());
                                     do {
-                                        if (list[index_item][3] === 0 && list[index_item][0].indexOf(input) !== list[index_item][0].length - input.length) {
+                                        if (list[index_item][2] === 0 && list[index_item][0].indexOf(input) !== list[index_item][0].length - input.length) {
                                             address = `${scheme}://${host + index0[1].replace(/\/$/, "") + vars.path.sep + list[index_item][0]}`;
-                                            dtg = list[index_item][5].mtimeMs.dateTime(true, null).split(", ");
-                                            content.push(`<tr class="${(index_item % 2 === 0) ? "even" : "odd"}"><td class="file-name"><span class="icon">${icon[list[index_item][1]]}</span> <a href="${address}">${list[index_item][0]}</a></td><td>${list[index_item][1]}</td><td data-raw="${list[index_item][5].size}">${list[index_item][5].size.commas()}</td><td data-raw="${list[index_item][5].mtimeMs}">${dtg[0]}</td><td>${dtg[1]}</td><td>${list[index_item][5].mode === null ? "" : (list[index_item][5].mode & parseInt("777", 8)).toString(8)}</td><td data-raw="${list[index_item][4]}">${list[index_item][4].commas()}</td></tr>`);
+                                            dtg = list[index_item][4].mtimeMs.dateTime(true, null).split(", ");
+                                            content.push(`<tr class="${(index_item % 2 === 0) ? "even" : "odd"}"><td class="file-name"><span class="icon">${icon[list[index_item][1]]}</span> <a href="${address}">${list[index_item][0]}</a></td><td>${list[index_item][1]}</td><td data-raw="${list[index_item][4].size}">${list[index_item][4].size.commas()}</td><td data-raw="${list[index_item][4].mtimeMs}">${dtg[0]}</td><td>${dtg[1]}</td><td>${list[index_item][4].mode === null ? "" : (list[index_item][4].mode & parseInt("777", 8)).toString(8)}</td><td data-raw="${list[index_item][3]}">${list[index_item][3].commas()}</td></tr>`);
                                         }
                                         index_item = index_item + 1;
                                     } while (index_item < total);
@@ -187,7 +186,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                     callback: callback,
                                     depth: 2,
                                     exclusions: [],
-                                    mode: "read",
                                     path: input,
                                     relative: true,
                                     search: "",
@@ -213,8 +211,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                 write(headerText.join("\r\n"));
                             } else {
                                 if (category === "audio" || category === "video") {
-                                    let range:string = "",
-                                        status:string = (function http_get_stat_statTest_fileItem_partial():string {
+                                    let range:string = "";
+                                    const status:string = (function http_get_stat_statTest_fileItem_partial():string {
                                             let index:number = headerList.length;
                                             do {
                                                 index = index - 1;
@@ -224,8 +222,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                                 }
                                             } while (index > 0);
                                             return "HTTP/1.1 206";
-                                        }());
-                                    const start:number = (range === "")
+                                        }()),
+                                        start:number = (range === "")
                                             ? 0
                                             : Number(range.split("-")[0]),
                                         end:number = start + (1024 * 1024),

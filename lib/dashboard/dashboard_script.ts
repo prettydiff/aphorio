@@ -3609,8 +3609,8 @@ const dashboard = function dashboard():void {
                                 span:HTMLElement = null,
                                 dtg:string[] = null;
                             summary[item[1]] = summary[item[1]] + 1;
-                            size = size + item[5].size;
-                            dtg = item[5].mtimeMs.dateTime(true, payload.timeZone_offset).split(", ");
+                            size = size + item[4].size;
+                            dtg = item[4].mtimeMs.dateTime(true, payload.timeZone_offset).split(", ");
                             button = document.createElement("button");
                             button.setAttribute("data-raw", name_raw);
                             tr = document.createElement("tr");
@@ -3633,12 +3633,12 @@ const dashboard = function dashboard():void {
 
                             td = document.createElement("td");
                             td.setAttribute("class", "right");
-                            td.setAttribute("data-raw", String(item[5].size));
-                            td.appendText(item[5].size.commas());
+                            td.setAttribute("data-raw", String(item[4].size));
+                            td.appendText(item[4].size.commas());
                             tr.appendChild(td);
 
                             td = document.createElement("td");
-                            td.setAttribute("data-raw", String(item[5].mtimeMs));
+                            td.setAttribute("data-raw", String(item[4].mtimeMs));
                             td.appendText(dtg[0]);
                             tr.appendChild(td);
 
@@ -3647,13 +3647,13 @@ const dashboard = function dashboard():void {
                             tr.appendChild(td);
 
                             td = document.createElement("td");
-                            td.appendText(item[5].mode === null ? "" : (item[5].mode & parseInt("777", 8)).toString(8));
+                            td.appendText(item[4].mode === null ? "" : (item[4].mode & parseInt("777", 8)).toString(8));
                             tr.appendChild(td);
 
                             td = document.createElement("td");
                             td.setAttribute("class", "right");
-                            td.setAttribute("data-raw", String(item[4]));
-                            td.appendText(item[4].commas());
+                            td.setAttribute("data-raw", String(item[3]));
+                            td.appendText(item[3].commas());
                             tr.appendChild(td);
                             tbody.appendChild(tr);
                         };

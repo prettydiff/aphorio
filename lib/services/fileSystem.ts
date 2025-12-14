@@ -11,7 +11,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
     let parent:type_directory_item = null,
         failures:string[] = [],
         file:string = null,
-        list_local:directory_list = [],
+        list_local:core_directory_list = [],
         mime:string = null;
     const data:services_fileSystem = socket_data.data as services_fileSystem,
         windows_root:RegExp = (/^\w:(\\)?$/),
@@ -31,16 +31,15 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                 service: "dashboard-fileSystem"
             }, transmit.socket as websocket_client, 3);
         },
-        dirCallback = function services_fileSystem_dirCallback(dir:directory_list|string[]):void {
-            const list:directory_list = dir as directory_list,
-                len:number = list.length - 1,
+        dirCallback = function services_fileSystem_dirCallback(list:core_directory_list):void {
+            const len:number = list.length - 1,
                 self:type_directory_item = list[0];
             let index:number = 0;
             if (data.search === null) {
                 list.splice(0, 1);
                 if (len > 1) {
                     do {
-                        if (list[index][3] === 0) {
+                        if (list[index][2] === 0) {
                             list_local.push(list[index]);
                         }
                         index = index + 1;
@@ -129,18 +128,14 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             file = `Error, ${err.code}, reading file at ${data.address}. ${err.message}`;
             complete();
         },
-        parentCallback = function services_fileSystem_parentCallback(dir:directory_list|string[]):void {
-            const list:directory_list = dir as directory_list,
-                paths:string[] = data.address.split(vars.path.sep),
+        parentCallback = function services_fileSystem_parentCallback(list:core_directory_list):void {
+            const paths:string[] = data.address.split(vars.path.sep),
                 config_dir:config_directory = {
                     callback: dirCallback,
                     depth: (data.search === null)
                         ? 2
                         : 0,
                     exclusions: [],
-                    mode: (data.search === null)
-                        ? "read"
-                        : "search",
                     path: data.address,
                     relative: (data.search === null),
                     search: (data.search === null)
@@ -148,9 +143,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                         : data.search,
                     symbolic: true
                 };
-            let index:number = (dir === null)
-                    ? 0
-                    : list.length,
+            let index:number = list.length,
                 last_path:string = "";
             if (data.search === null && (data.address === "/" || data.address === "\\" || windows_root.test(data.address) === true)) {
                 if (index > 0) {
@@ -207,7 +200,6 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             callback: parentCallback,
             depth: 2,
             exclusions: [],
-            mode: "read",
             path: parent_path,
             relative: true,
             search: "",

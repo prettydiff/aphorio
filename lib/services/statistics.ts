@@ -322,13 +322,12 @@ const statistics:core_statistics = {
                     setTimeout(services_statisticsData, vars.stats.frequency);
                 }
             },
-            disk = function services_statisticsData_disk(directory_list:directory_list|string[]):void {
-                const list:directory_list = directory_list as directory_list;
+            disk = function services_statisticsData_disk(list:core_directory_list):void {
                 let size:number = 0,
                     index:number = list.length;
                 do {
                     index = index - 1;
-                    size = size + list[index][5].size;
+                    size = size + list[index][4].size;
                 } while (index > 0);
                 vars.stats.containers.application.disk_out.data.push(size);
                 splice(vars.stats.containers.application.disk_out.data, false);
@@ -413,7 +412,6 @@ const statistics:core_statistics = {
             callback: disk,
             depth: 0,
             exclusions: [],
-            mode: "read",
             path: vars.path.project,
             relative: false,
             search: null,

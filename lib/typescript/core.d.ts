@@ -60,6 +60,21 @@ interface core_compose_properties {
     Status: string;
 }
 
+interface core_directory_data {
+    atimeMs: number;
+    ctimeMs: number;
+    linkPath: string;
+    linkType: type_file | "";
+    mode: number;
+    mtimeMs: number;
+    size: number;
+}
+
+interface core_directory_list extends Array<type_directory_item> {
+    [index:number]: type_directory_item;
+    failures?: string[];
+}
+
 interface core_docker {
     commands: core_compose_commands;
     list: (callback:() => void) => void;
@@ -283,21 +298,6 @@ interface core_vars_path {
     project: string;
     sep: "/" | "\\";
     servers: string;
-}
-
-interface directory_data {
-    atimeMs: number;
-    ctimeMs: number;
-    linkPath: string;
-    linkType: "" | "directory" | "file";
-    mode: number;
-    mtimeMs: number;
-    size: number;
-}
-
-interface directory_list extends Array<type_directory_item> {
-    [index:number]: type_directory_item;
-    failures?: string[];
 }
 
 interface dns_callback {
