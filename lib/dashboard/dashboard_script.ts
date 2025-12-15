@@ -2000,7 +2000,7 @@ const dashboard = function dashboard():void {
                 graph_composite: function dashboard_statisticsGraphComposite(force_new:boolean):void {
                     const keys:string[] = Object.keys(payload.stats.containers),
                         len:number = keys.length,
-                        keys_data:type_graph_keys[] = ["cpu", "disk_in", "disk_out", "mem", "net_in", "net_out", "threads"],
+                        keys_data:type_graph_keys[] = ["cpu", "mem", "net_in", "net_out", "threads", "disk_in", "disk_out"],
                         keys_len:number = keys_data.length,
                         graph_type:"bar"|"line" = services.statistics.nodes.graph_type.value as "bar"|"line",
                         dataset = function dashboard_statisticsGraphComposite_dataset(type:type_graph_keys):type_graph_datasets {
@@ -2166,10 +2166,12 @@ const dashboard = function dashboard():void {
                                     }
                                 };
                                 each("cpu");
-                                each("disk");
                                 each("mem");
                                 each("net");
                                 each("threads");
+                                if (id !== "application") {
+                                    each("disk");
+                                }
                                 services.statistics.graphs[id] = null;
                             }
                         },
@@ -2285,10 +2287,12 @@ const dashboard = function dashboard():void {
                                 }
                             };
                             modify("cpu");
-                            modify("disk");
                             modify("mem");
                             modify("net");
                             modify("threads");
+                            if (id !== "application") {
+                                modify("disk");
+                            }
                         },
                         create = function dashboard_statisticsGraphIndividual_create(id:string):void {
                             let new_item:boolean = false;

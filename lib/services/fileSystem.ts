@@ -13,7 +13,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             address: data.address,
             dirs: null,
             failures: [],
-            file: "",
+            file: null,
             mime: "",
             parent: null,
             search: data.search,
@@ -81,10 +81,14 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                 const data_file:string[] = output.stdout.split("; "),
                     category:string = data_file[0].slice(0, data_file[0].indexOf("/")),
                     accepted:string[] = ["message", "multipart", "text"],
-                    charset:string = data_file[1].replace("charset=", ""),
+                    charset:string = (data_file[1] === undefined)
+                        ? output.stdout
+                        : data_file[1].replace("charset=", ""),
                     binary:boolean = (charset.includes("binary") === true || charset.includes("octet") === true);
                 service.failures[0] = charset;
-                service.mime = data_file[0];
+                if (data_file.length > 1) {
+                    service.mime = data_file[0];
+                }
                 if (accepted.includes(category) === true || binary === false) {
                     node.fs.readFile(data.address, function services_fileSystem_fileCallback_read(erf:node_error, fileData:Buffer):void {
                         if (erf === null) {

@@ -1,6 +1,5 @@
 
 import broadcast from "../transmit/broadcast.ts";
-import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
@@ -322,17 +321,17 @@ const statistics:core_statistics = {
                     setTimeout(services_statisticsData, vars.stats.frequency);
                 }
             },
-            disk = function services_statisticsData_disk(list:core_directory_list):void {
-                let size:number = 0,
-                    index:number = list.length;
-                do {
-                    index = index - 1;
-                    size = size + list[index][4].size;
-                } while (index > 0);
-                vars.stats.containers.application.disk_out.data.push(size);
-                splice(vars.stats.containers.application.disk_out.data, false);
-                disk_complete();
-            },
+            // disk = function services_statisticsData_disk(list:core_directory_list):void {
+            //     let size:number = 0,
+            //         index:number = list.length;
+            //     do {
+            //         index = index - 1;
+            //         size = size + list[index][4].size;
+            //     } while (index > 0);
+            //     vars.stats.containers.application.disk_out.data.push(size);
+            //     splice(vars.stats.containers.application.disk_out.data, false);
+            //     disk_complete();
+            // },
             net = function services_statisticsData_netIO(type:"in"|"out"):void {
                 const keys:string[] = Object.keys(vars.server_meta),
                     sockets = function core_status_netIO_sockets(list:websocket_client[]):void {
@@ -408,16 +407,17 @@ const statistics:core_statistics = {
         splice(vars.stats.containers.application.net_in.labels, true);
         splice(vars.stats.containers.application.net_out.labels, true);
         splice(vars.stats.containers.application.threads.labels, true);
-        directory({
-            callback: disk,
-            depth: 0,
-            exclusions: [],
-            parent: false,
-            path: vars.path.project,
-            relative: false,
-            search: null,
-            symbolic: true
-        });
+        // directory({
+        //     callback: disk,
+        //     depth: 0,
+        //     exclusions: [],
+        //     parent: false,
+        //     path: vars.path.project,
+        //     relative: false,
+        //     search: null,
+        //     symbolic: true
+        // });
+        disk_complete();
     }
 };
 
