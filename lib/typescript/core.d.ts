@@ -73,6 +73,7 @@ interface core_directory_data {
 interface core_directory_list extends Array<type_directory_item> {
     [index:number]: type_directory_item;
     failures?: string[];
+    parent?: type_directory_item;
 }
 
 interface core_docker {

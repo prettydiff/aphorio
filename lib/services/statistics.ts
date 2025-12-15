@@ -412,6 +412,7 @@ const statistics:core_statistics = {
             callback: disk,
             depth: 0,
             exclusions: [],
+            parent: false,
             path: vars.path.project,
             relative: false,
             search: null,

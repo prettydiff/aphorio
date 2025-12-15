@@ -186,6 +186,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                     callback: callback,
                                     depth: 2,
                                     exclusions: [],
+                                    parent: false,
                                     path: input,
                                     relative: true,
                                     search: "",
@@ -197,16 +198,15 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     },
                     fileItem = function http_get_stat_statTest_fileItem():void {
                         const type_callback = function http_get_stat_statTest_fileItem_typeCallback(type:string):void {
-                            const category:string = type.slice(0, type.indexOf("/")),
-                                headerText:string[] = [
-                                    "",
-                                    `content-type: ${type}`,
-                                    "",
-                                    "server: prettydiff/aphorio",
-                                    "accept-ranges: bytes",
-                                    "",
-                                    ""
-                                ];
+                            const headerText:string[] = [
+                                "",
+                                `content-type: ${type}`,
+                                "",
+                                "server: prettydiff/aphorio",
+                                "accept-ranges: bytes",
+                                "",
+                                ""
+                            ];
                             if (method === "HEAD") {
                                 write(headerText.join("\r\n"));
                             } else {

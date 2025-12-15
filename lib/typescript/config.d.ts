@@ -23,6 +23,7 @@ interface config_directory {
     callback: (dir:core_directory_list) => void;
     depth: number;
     exclusions: string[];
+    parent: boolean;
     path: string;
     relative: boolean;
     search: string;

@@ -171,6 +171,7 @@ const docker:core_docker = {
                                 callback: list_callback,
                                 depth: 1,
                                 exclusions: [".env"],
+                                parent: false,
                                 path: vars.path.compose,
                                 relative: false,
                                 search: "",

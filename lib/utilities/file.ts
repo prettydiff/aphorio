@@ -215,6 +215,7 @@ const file:file = {
                 callback: removeItems,
                 depth: 0,
                 exclusions: [],
+                parent: false,
                 path: config.location,
                 relative: false,
                 search: "",

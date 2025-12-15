@@ -668,19 +668,6 @@ const dashboard = function dashboard():void {
                 },
                 open: function dashboard_socketOpen(event:Event):void {
                     const target:WebSocket = event.target as WebSocket,
-                        fileSearch:string = tools.fileSystem.nodes.search.value,
-                        fileRequest:services_fileSystem = {
-                            address: tools.fileSystem.nodes.path.value,
-                            dirs: null,
-                            failures: null,
-                            file: null,
-                            mime: null,
-                            parent: null,
-                            search: (fileSearch === "")
-                                ? null
-                                : fileSearch,
-                            sep: null
-                        },
                         status:HTMLElement = document.getElementById("connection-status");
                     utility.socket.connected = true;
                     if (status !== null ) {
@@ -695,7 +682,6 @@ const dashboard = function dashboard():void {
                             utility.socket.queueStore.splice(0, 1);
                         } while (utility.socket.queueStore.length > 0);
                     }
-                    utility.message_send(fileRequest, "dashboard-fileSystem");
                     if (loaded === false) {
                         // populate log data
                         let index:number = payload.logs.length;
@@ -3593,7 +3579,7 @@ const dashboard = function dashboard():void {
                                     : fs.dirs[index],
                                 name:string = (index < 0)
                                     ? ".."
-                                    : (index === 0 && fs.search === null)
+                                    : (index === 0 && fs.search === null && fs.address !== "\\")
                                         ? "."
                                         : item[0],
                                 name_raw:string = (index < 1)

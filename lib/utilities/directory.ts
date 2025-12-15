@@ -1,17 +1,21 @@
 
 import node from "../core/node.ts";
+import spawn from "../core/spawn.ts";
+
+// cspell: words convertto
 
 const directory = function utilities_directory(args:config_directory):void {
     // arguments:
     // * callback - function - the output is passed into the callback as an argument
     // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
     // * exclusions - string array - a list of items to exclude
+    // * parent - boolean - whether to capture data about the parent directory
     // * path - string - where to start in the local file system
     // * relative - boolean - where to use absolute paths or paths relative to the path argument
     // * search - string - the string transformed into a regular express to search for out of the result set
     // * symbolic - boolean - if symbolic links should be identified as opposed to the artifact they point to
     // -
-    // core_directory_list: [].failures
+    // core_directory_list: [] with a .failures and .parent property
     // 0. absolute path (string)
     // 1. type (fileType)
     // 2. parent index (number)
@@ -22,9 +26,9 @@ const directory = function utilities_directory(args:config_directory):void {
     let total:number = 1,
         count:number = 0;
     const output:core_directory_list = [],
-        dir_store:store_number = {},
         failures:string[] = [],
         sep:string = node.path.sep,
+        driveSize:store_number = {},
         search_value:string = (typeof args.search === "string" && args.search !== "")
             ? (sep === "\\")
                 ? args.search.toLowerCase()
@@ -52,42 +56,69 @@ const directory = function utilities_directory(args:config_directory):void {
             ? new RegExp(search_reg_token)
             : null,
         exclusions:string[] = (function utilities_directory_exclusions():string[] {
-            const output:string[] = [],
-                len:number = output.length;
+            const ex:string[] = [],
+                len:number = args.exclusions.length;
             let index:number = 0;
             if (sep === "/") {
                 return args.exclusions;
             }
             if (len > 0) {
                 do {
-                    output.push(args.exclusions[index].toLowerCase());
+                    ex.push(args.exclusions[index].toLowerCase());
                     index = index + 1;
                 } while (index < len);
             }
-            return output;
+            return ex;
         }()),
         method:(filePath:string, callback:(er:node_error, stat:node_fs_Stats) => void) => void = (args.symbolic === true)
             ? node.fs.lstat
             : node.fs.stat,
-        complete = function utilities_directory_complete():void {
+        complete = function utilities_directory_complete(parent:type_directory_item):void {
+            output.failures = failures;
+            output.parent = parent;
+            args.callback(output);
+        },
+        fail = function utilities_directory_fail(code:string, path:string):void {
+            failures.push(`${code} - ${path}`);
+        },
+        counter = function utilities_directory_counter(item:type_directory_item):void {
+            if (item !== null) {
+                output.push(item);
+            }
             if (count === total) {
                 output.failures = failures;
-                output.sort(function utilities_directory_complete_sort(a:type_directory_item, b:type_directory_item):-1|1 {
-                    if (a[1] === "directory" && b[1] !== "directory") {
-                        return -1;
+                if (args.parent === true) {
+                    if (args.path === "/" || args.path === "\\") {
+                        output.parent = null;
+                        args.callback(output);
+                    } else if ((/^\w:(\\)?$/).test(args.path) === true) {
+                        output.parent = ["\\", "directory", 0, 0, {
+                            atimeMs: 0,
+                            ctimeMs: 0,
+                            linkPath: "",
+                            linkType: "",
+                            mode: 0,
+                            mtimeMs: 0,
+                            size: 0
+                        }, ""];
+                        args.callback(output);
+                    } else {
+                        const parent_path:string = (function utilities_directory_counter_parentPath():string {
+                            const paths:string[] = args.path.split(sep);
+                            paths.pop();
+                            if (paths[0] === "" && paths[1] === "" && paths.length === 2 && sep === "/") {
+                                return "/";
+                            }
+                            return paths.join(sep);
+                        }());
+                        stat_wrap(parent_path, true, 0);
                     }
-                    if (a[1] < b[1]) {
-                        return -1;
-                    }
-                    if (a[1] === b[1] && a[0] < b[0]) {
-                        return -1;
-                    }
-                    return 1;
-                });
-                args.callback(output);
+                } else {
+                    complete(null);
+                }
             }
         },
-        stat_wrap = function utilities_directory_statWrap(path:string):void {
+        stat_wrap = function utilities_directory_statWrap(path:string, parent_item:boolean, parent:number):void {
             method(path, function utilities_directory_statWrap_stat(ers:node_error, stat:node_fs_Stats):void {
                 count = count + 1;
                 if (ers === null) {
@@ -122,7 +153,9 @@ const directory = function utilities_directory(args:config_directory):void {
                                     linkType: "",
                                     mode: stat.mode,
                                     mtimeMs: stat.mtimeMs,
-                                    size: stat.size
+                                    size: ((/^\w:(\\)?$/).test(path) === true && driveSize[path] !== undefined)
+                                        ? driveSize[path]
+                                        : stat.size
                                 },
                                 include = function utilities_directory_statWrap_stat_populate_include():boolean {
                                     if (search_value === null) {
@@ -139,76 +172,120 @@ const directory = function utilities_directory(args:config_directory):void {
                                     }
                                     return false;
                                 },
-                                dirs:string[] = path.replace(args.path, "").split(sep),
+                                path_drive:string = ((/^\w:(\\)?$/).test(path) === true)
+                                    ? `${path}\\`
+                                    : path,
+                                dirs:string[] = (args.path === "\\")
+                                    ? path.split(sep)
+                                    : path.replace(args.path, "").split(sep),
                                 rel_name:string = dirs.pop(),
-                                parent:number = (path === args.path)
-                                    ? 0
-                                    : dir_store[path.replace(sep + rel_name, "")],
-                                name:string = (args.relative === true && path !== args.path)
-                                    ? rel_name
-                                    : path;
+                                name:string = ((/^\w:(\\)?$/).test(path) === true)
+                                    ? path_drive
+                                    : (args.relative === true && path !== args.path)
+                                        ? rel_name
+                                        : path,
+                                dir_len:number = (args.path === "\\")
+                                    ? dirs.length + 1
+                                    : dirs.length;
                             if ((exclusions.includes(rel_name) === true && sep === "/") || (exclusions.includes(rel_name.toLowerCase()) === true && sep === "\\")) {
-                                complete();
+                                counter(null);
                             } else {
                                 if (type === "directory") {
-                                    if (path === args.path || args.depth < 1 || dirs.length < args.depth) {
-                                        node.fs.readdir(path, function utilities_directory_statWrap_stat_populate_readdir(err:node_error, dir:string[]):void {
+                                    if (parent_item === true || path_drive === args.path || args.depth < 1 || dir_len < args.depth) {
+                                        node.fs.readdir(path_drive, function utilities_directory_statWrap_stat_populate_readdir(err:node_error, dir:string[]):void {
                                             if (err === null) {
-                                                if (include() === true) {
-                                                    dir_store[path] = output.length;
-                                                    output.push([name, "directory", parent, dir.length, stat_obj, ""]);
+                                                if (parent_item === true) {
+                                                    complete([path_drive, "directory", 0, dir.length, stat_obj, ""]);
+                                                } else {
+                                                    total = total + dir.length;
+                                                    counter([name, "directory", parent, dir.length, stat_obj, ""]);
+                                                    if (args.path !== "\\" || dir_len - 1 < args.depth) {
+                                                        dir.forEach(function utilities_directory_statWrap_stat_populate_readdir_each(value:string):void {
+                                                            utilities_directory_statWrap(path + sep + value, false, output.length - 1);
+                                                        });
+                                                    }
                                                 }
-                                                total = total + dir.length;
-                                                dir.forEach(function utilities_directory_statWrap_stat_populate_readdir_each(value:string):void {
-                                                    stat_wrap(path + sep + value);
-                                                });
                                             } else {
-                                                failures.push(`${err.code} - ${path}`);
-                                                output.push([name, "directory", parent, 0, stat_obj, ""]);
+                                                fail(err.code, path);
+                                                counter(null);
                                             }
-                                            complete();
                                         });
                                     } else {
-                                        complete();
+                                        counter([name, "directory", parent, 0, stat_obj, ""]);
                                     }
-                                } else if (type === "symbolic_link") {
-                                    if (include() === true) {
-                                        node.fs.realpath(path, {encoding:"utf8"}, function utilities_directory_statWrap_stat_populate_linkPath(erp:node_error, real_path:string):void {
+                                } else if (include() === true) {
+                                    if (type === "symbolic_link") {
+                                        node.fs.realpath(path_drive, {encoding:"utf8"}, function utilities_directory_statWrap_stat_populate_linkPath(erp:node_error, real_path:string):void {
                                             if (erp === null) {
                                                 stat_obj.linkPath = real_path;
                                                 node.fs.stat(real_path, function utilities_directory_statWrap_stat_populate_linkPath_linkType(ert:node_error, link_type:node_fs_Stats):void {
                                                     if (ert === null) {
                                                         stat_obj.linkType = get_type(link_type);
                                                     } else {
-                                                        failures.push(`${ert.code} - ${real_path}`);
+                                                        fail(ert.code, real_path);
                                                     }
-                                                    output.push([name, "symbolic_link", parent, 0, stat_obj, ""]);
-                                                    complete();
+                                                    if (parent_item === true) {
+                                                        complete([path, "symbolic_link", 0, 0, stat_obj, ""]);
+                                                    } else {
+                                                        counter([name, "symbolic_link", parent, 0, stat_obj, ""]);
+                                                    }
                                                 });
                                             } else {
-                                                failures.push(`${erp.code} - ${path}`);
-                                                output.push([name, "symbolic_link", parent, 0, stat_obj, ""]);
-                                                complete();
+                                                fail(erp.code, path);
+                                                counter([name, "symbolic_link", parent, 0, stat_obj, ""]);
                                             }
                                         });
                                     } else {
-                                        complete();
+                                        counter([name, type, parent, 0, stat_obj, ""]);
                                     }
                                 } else {
-                                    if (include() === true) {
-                                        output.push([name, type, parent, 0, stat_obj, ""]);
-                                    }
-                                    complete();
+                                    counter(null);
                                 }
                             }
                         };
                     populate(get_type(stat));
                 } else {
-                    failures.push(`${ers.code} - ${path}`);
+                    fail(ers.code, path);
+                    counter(null);
                 }
             });
-        };
-    stat_wrap(args.path);
+        },
+        args_len:number = args.path.length;
+    if (args.path.charAt(args_len - 1) === sep && args_len > 2) {
+        args.path = args.path.slice(0, args_len - 1);
+    }
+    if (args.path === "\\") {
+        spawn("get-volume | convertto-json", function utilities_directory_windows(out:core_spawn_output):void {
+            const drives:windows_drives[] = JSON.parse(out.stdout);
+            let index:number = drives.length;
+            output.push(["\\", "directory", 0, index, {
+                atimeMs: 0,
+                ctimeMs: 0,
+                linkPath: "",
+                linkType: "",
+                mode: 0,
+                mtimeMs: 0,
+                size: 0
+            }, ""]);
+            if (index > 0) {
+                do {
+                    index = index - 1;
+                    if (drives[index].DriveLetter !== null) {
+                        driveSize[`${drives[index].DriveLetter}:`] = drives[index].Size;
+                        stat_wrap(`${drives[index].DriveLetter}:`, false, 0);
+                    }
+                } while (index > 0);
+            }
+        }, {
+            error: function utilities_directory_indowsRootError(erw:node_childProcess_ExecException):void {
+                failures.push(`${erw.code} - \\`);
+                complete(null);
+            },
+            shell: "powershell"
+        }).execute();
+    } else {
+        stat_wrap(args.path, false, 0);
+    }
 };
 
 export default directory;
