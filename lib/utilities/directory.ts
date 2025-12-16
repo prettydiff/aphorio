@@ -106,7 +106,7 @@ const directory = function utilities_directory(args:config_directory):void {
                         const parent_path:string = (function utilities_directory_counter_parentPath():string {
                             const paths:string[] = args.path.split(sep);
                             paths.pop();
-                            if (paths[0] === "" && paths[1] === "" && paths.length === 2 && sep === "/") {
+                            if ((paths[0] === "" && paths.length === 1) || (paths[0] === "" && paths[1] === "" && paths.length === 2 && sep === "/")) {
                                 return "/";
                             }
                             return paths.join(sep);
