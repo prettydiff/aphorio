@@ -357,7 +357,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         records: vars.stats.records
                     },
                     terminal: vars.environment.terminal,
-                    timeZone_offset: vars.environment.timeZone_offset
+                    timeZone_offset: vars.environment.timeZone_offset,
+                    version: vars.environment.version
                 },
                 dashboard:string = vars.environment.dashboard_page.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`),
                 headers:string[] = [

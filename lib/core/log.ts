@@ -45,8 +45,9 @@ const log:log = {
                     return `${years} year${plural(years)} ago`;
                 }()),
                 dateString:string = `Updated ${vars.environment.date_commit.dateTime(true, null)} (${difference})`,
-                hash:string = `git log ${vars.text.cyan + vars.text.bold + vars.environment.hash + vars.text.none}`,
-                max:number = Math.max(dateString.length, vars.environment.hash.length),
+                hash:string = `git log ${vars.text.red + vars.environment.hash + vars.text.none}`,
+                version:string = `Version ${vars.text.blue + vars.text.bold + vars.environment.version + vars.text.none}`,
+                max:number = Math.max(dateString.length, vars.environment.hash.length + 8),
                 border = function utilities_logShell_border(character:string):string {
                     let index:number = max;
                     const output:string[] = [];
@@ -60,6 +61,7 @@ const log:log = {
             logger(border("_"));
             logger(hash);
             logger(dateString);
+            logger(version);
             logger(border("\u203e"));
         }
     }

@@ -83,7 +83,7 @@ type type_socket_data = config_log | core_compose | core_server_os | services_ac
 
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_start_pre_tasks = "admin" | "compose" | "os_main";
-type type_start_primary_tasks = "cgroup" | "file"| "git" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_sock" | "os_user" | "servers" | "test_browser" | "test_list";
+type type_start_primary_tasks = "cgroup" | "file"| "git" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_sock" | "os_user" | "servers" | "test_browser" | "test_list" | "version";
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";
 type type_youtubeDownload_media = "audio" | "video";

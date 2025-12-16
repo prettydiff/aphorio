@@ -239,6 +239,7 @@ interface core_vars {
         start_time: bigint;
         terminal: string[];
         timeZone_offset: number;
+        version: string;
     };
     options: {
         "browser": string;

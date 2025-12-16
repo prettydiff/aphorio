@@ -668,7 +668,9 @@ const dashboard = function dashboard():void {
                 },
                 open: function dashboard_socketOpen(event:Event):void {
                     const target:WebSocket = event.target as WebSocket,
-                        status:HTMLElement = document.getElementById("connection-status");
+                        status:HTMLElement = document.getElementById("connection-status"),
+                        title:HTMLElement = document.getElementsByTagName("h1")[0],
+                        version:HTMLElement = document.createElement("span");
                     utility.socket.connected = true;
                     if (status !== null ) {
                         status.getElementsByTagName("strong")[0].textContent = "Online";
@@ -724,6 +726,9 @@ const dashboard = function dashboard():void {
                         tools.hash.init();
                         utility.nodes.main.style.display = "block";
                         utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
+                        title.textContent = `${payload.name.capitalize()} Dashboard`;
+                        version.textContent = `version ${payload.version}`;
+                        title.appendChild(version);
                     }
                 },
                 type: "dashboard"
@@ -4427,6 +4432,7 @@ const dashboard = function dashboard():void {
                 }
             },
             title:HTMLElement = document.getElementsByTagName("h1")[0],
+            version:HTMLElement = document.createElement("span"),
             th:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("th"),
             expand:HTMLCollectionOf<HTMLButtonElement> = document.getElementsByClassName("expand") as HTMLCollectionOf<HTMLButtonElement>,
             table_keys:string[] = (state.tables === undefined || state.tables === null)
@@ -4438,6 +4444,8 @@ const dashboard = function dashboard():void {
             table:HTMLElement = null;
 
         title.textContent = `${payload.name.capitalize()} Dashboard`;
+        version.textContent = `version ${payload.version}`;
+        title.appendChild(version);
 
         // restore state of table filter controls
         if (state.table_os === undefined || state.table_os === null) {

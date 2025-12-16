@@ -38,7 +38,8 @@ const start_server = function utilities_startServer(process_path:string, testing
             os_user: "Gathers a list of user accounts.",
             servers: "Reads the servers.json file to dynamically standup and populate configured web servers.",
             test_browser: "Finds a designed web browser for test automation if supplied as a terminal argument.",
-            test_list: null
+            test_list: null,
+            version: "Get application version number from package.json file."
         },
         prerequisite_tasks:store_function = {
             // prerequisite tasks will execute serially in the order presented
@@ -375,6 +376,17 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             test_list: function utilities_startServer_taskTestList():void {
                 test_stat("test_list");
+            },
+            version: function utilities_startServer_version():void {
+                file.read({
+                    callback: function utilities_startServer_version_callback(file_contents:Buffer):void {
+                        vars.environment.version = JSON.parse(file_contents.toString()).version;
+                        complete_tasks("version");
+                    },
+                    location: `${vars.path.project}package.json`,
+                    no_file: null,
+                    section: "startup"
+                });
             }
         },
         test_stat = function utilities_startServer_testStat(property:"test_browser"|"test_list"):void {

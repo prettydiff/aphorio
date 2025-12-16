@@ -100,7 +100,8 @@ const vars:core_vars = {
                 ]
                 : [],
             // the amount of time required to covert local time to UTC time
-            timeZone_offset: 0
+            timeZone_offset: 0,
+            version: "0.0.0"
         },
         // command line options for running this application
         options: {
