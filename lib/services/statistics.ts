@@ -417,6 +417,8 @@ const statistics:core_statistics = {
         //     search: null,
         //     symbolic: true
         // });
+        vars.stats.containers.application.disk_out.data.push(0);
+        splice(vars.stats.containers.application.disk_out.data, false);
         disk_complete();
     }
 };
