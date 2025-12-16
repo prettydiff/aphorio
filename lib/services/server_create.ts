@@ -42,7 +42,7 @@ const server_create = function services_serverCreate(data:services_action_server
                             },
                             // 5. launch servers
                             certCallback = function services_serverCreate_complete_certificate():void {
-                                if (config.activate === true && config.id !== vars.dashboard_id) {
+                                if (config.activate === true && config.id !== vars.environment.dashboard_id) {
                                     server(data.server.id, serverCallback);
                                 } else if (callback !== null) {
                                     callback();
@@ -86,7 +86,7 @@ const server_create = function services_serverCreate(data:services_action_server
                         total:number = keys.length,
                         config:core_servers_file = {
                             "compose-variables": vars.compose.variables,
-                            dashboard_id: vars.dashboard_id,
+                            dashboard_id: vars.environment.dashboard_id,
                             servers: {},
                             stats: {
                                 frequency: vars.stats.frequency,
@@ -112,7 +112,7 @@ const server_create = function services_serverCreate(data:services_action_server
                 config.id = output.hash;
                 if (vars.servers[config.id] === undefined) {
                     if (dashboard === true) {
-                        vars.dashboard_id = output.hash;
+                        vars.environment.dashboard_id = output.hash;
                     }
                     if (config.ports === undefined || config.ports === null) {
                         config.ports = {};

@@ -57,6 +57,7 @@
         #websocket p#websocket-status{margin:-1.75em -0.9em 1.5em}
         .table-filters p{float:none;margin:1em 0;width:100%}
         .title p{display:block;margin:0}
+        .title h1 span{display:block;font-size:0.4em;margin:1em 0 -1.2em 0}
         main{margin:0}
         nav{
             float:none;margin:0 0 2em;
@@ -71,7 +72,7 @@
 @media screen and (width > 749px) {
     #dashboard{
         margin:0 2em;
-        #clock{float:right;margin:-2.75em 0 0 0}
+        #clock{float:right;margin:1.4em 0 0 0}
         #interfaces,
         #os,
         #disks{
@@ -85,6 +86,7 @@
         #websocket p#websocket-status{margin:-1.75em -1.75em 1.5em}
         .table-filters p{float:left;margin:1em 2em 0 0;width:calc(50% - 2em)}
         .title p{display:inline-block}
+        .title h1 span{margin:0 0 0 0.5em}
         main{margin:0 0 0 17.75em}
         nav{
             float:left;margin:0 0 -1000em 0;
@@ -269,6 +271,9 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .active-ports h5{font-size:1.2em}
     .block{display:block}
     .buttons button:disabled{color:var(--border_input)}
+    .dependencies{
+        li{list-style:disc;margin:0 0 0 1em}
+    }
     .definition-body{
         display:none;margin:var(--h3-size) 0 0;
         li{border-style:none;list-style:disc}
@@ -481,6 +486,36 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .form > .buttons,
     .section > .buttons{margin:0 0 2em}
 
+    .media {
+        .media-controls{
+            text-align:center;
+            button.play{display:block;float:left}
+            button.stop{display:block;float:right}
+            button{display:inline-block}
+        }
+        .media-slider{
+            background:var(--border-input);border-style:solid;border-width:0.1em;height:2em;margin:0;
+            .progress{background:var(--background_dark);display:block;height:2em;position:static;width:0}
+            .text{left:-2000em;position:absolute}
+            button{background:var(--border-input);border-style:none;box-shadow:none;display:block;height:2em;margin:0;padding:0;width:100%}
+            button:hover{background:var(--border-input)}
+        }
+        .time-current{
+            float:left;
+            span{left:-2000em;position:absolute}
+        }
+        .time-total{
+            float:right;
+            input{text-align:right}
+            span{left:-2000em;position:absolute}
+        }
+        button {
+            svg{color:var(--background_dark);fill:var(--background_dark);display:block;height:2em;margin:0 auto;width:2em}
+            span{left:-2000em;position:absolute}
+        }
+        input[type="text"]{background-color:var(--background);border-style:none;margin:-1em 0 0;padding:0;width:10em}
+    }
+
     .summary-stats span,
     .table-stats span{display:inline-block;width:12em}
 
@@ -489,6 +524,8 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     textarea{box-sizing:border-box;display:block;font-family:monospace;font-size:1em;margin:0 0 1em;width:100%}
     input[type="text"],
     select{height:2.5em;padding:0 0.2em}
+
+    h1 span{font-size:0.35em;font-weight:normal}
 
     input:disabled,
     select:disabled,
@@ -510,4 +547,5 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     em::selection,
     strong::selection,
     time::selection{background-color:var(--text_yellow);color:var(--background)}
+    svg path{fill:var(--background_dark)}
 }

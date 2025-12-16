@@ -20,10 +20,10 @@ interface config_dashboardObject {
 }
 
 interface config_directory {
-    callback: (dir:directory_list | string[]) => void;
+    callback: (dir:core_directory_list) => void;
     depth: number;
     exclusions: string[];
-    mode: type_directory_mode;
+    parent: boolean;
     path: string;
     relative: boolean;
     search: string;

@@ -17,8 +17,7 @@ type type_dashboard_status = "error" | "informational";
 // 4 - child item count
 // 5 - stats
 // 6 - rename write path
-type type_directory_item = [string, type_file, string, number, number, directory_data, string];
-type type_directory_mode = "array" | "hash" | "list" | "read" | "search";
+type type_directory_item = [string, type_file, number, number, core_directory_data, string];
 type type_dns_records = node_dns_anyRecord[] | node_dns_caaRecord[] | node_dns_mxRecord[] | node_dns_naptrRecord[] | node_dns_soaRecord | node_dns_srvRecord[] | string[] | string[][];
 type type_dns_types = "A" | "AAAA" | "CAA" | "CNAME" | "MX" | "NAPTR" | "NS" | "PTR" | "SOA" | "SRV" | "TXT";
 type type_docker_ports = [number, "tcp"|"udp"][];
@@ -26,6 +25,7 @@ type type_docker_state = "created" | "dead" | "exited" | "paused" | "removing" |
 type type_encryption = "both" | "open" | "secure";
 type type_external_port = [number, string, string, string];
 type type_file = "block_device" | "character_device" | "directory" | "fifo_pipe" | "file" | "socket" | "symbolic_link";
+type type_fileSystem_media = "audio" | "image" | "text" | "video";
 type type_graph = "cpu" | "disk" | "mem" | "net" | "threads";
 type type_graph_datasets = [graph_dataset[], string[]];
 type type_graph_keys = "cpu" | "disk_in" | "disk_out" | "mem" | "net_in" | "net_out" | "threads";
@@ -83,7 +83,7 @@ type type_socket_data = config_log | core_compose | core_server_os | services_ac
 
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_start_pre_tasks = "admin" | "compose" | "os_main";
-type type_start_primary_tasks = "cgroup"|"git"|"html"|"os_devs"|"os_disk"|"os_intr"|"os_proc"|"os_serv"|"os_sock"|"os_user"|"servers"|"test_browser"|"test_list";
+type type_start_primary_tasks = "cgroup" | "file"| "git" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_sock" | "os_user" | "servers" | "test_browser" | "test_list" | "version";
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";
 type type_youtubeDownload_media = "audio" | "video";

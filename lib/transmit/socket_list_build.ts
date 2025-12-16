@@ -104,7 +104,7 @@ const socket_list = function services_socketList(extension?:() => void):void {
     } while (index_servers < len);
     vars.sockets.time = Date.now();
     vars.sockets.list = output;
-    broadcast(vars.dashboard_id, "dashboard", {
+    broadcast(vars.environment.dashboard_id, "dashboard", {
         data: vars.sockets,
         service: "dashboard-socket-application"
     });

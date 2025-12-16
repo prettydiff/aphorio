@@ -1,6 +1,5 @@
 
 import broadcast from "../transmit/broadcast.ts";
-import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
@@ -16,7 +15,7 @@ const statistics:core_statistics = {
             len:number = keys.length,
             file_data:core_servers_file = {
                 "compose-variables": vars.compose.variables,
-                dashboard_id: vars.dashboard_id,
+                dashboard_id: vars.environment.dashboard_id,
                 servers: {},
                 stats: {
                     frequency: update.frequency,
@@ -114,7 +113,7 @@ const statistics:core_statistics = {
                             } while (index > 0);
                         }
                     }
-                    broadcast(vars.dashboard_id, "dashboard", {
+                    broadcast(vars.environment.dashboard_id, "dashboard", {
                         data: output,
                         service: "dashboard-statistics-data"
                     });
@@ -322,18 +321,17 @@ const statistics:core_statistics = {
                     setTimeout(services_statisticsData, vars.stats.frequency);
                 }
             },
-            disk = function services_statisticsData_disk(directory_list:directory_list|string[]):void {
-                const list:directory_list = directory_list as directory_list;
-                let size:number = 0,
-                    index:number = list.length;
-                do {
-                    index = index - 1;
-                    size = size + list[index][5].size;
-                } while (index > 0);
-                vars.stats.containers.application.disk_out.data.push(size);
-                splice(vars.stats.containers.application.disk_out.data, false);
-                disk_complete();
-            },
+            // disk = function services_statisticsData_disk(list:core_directory_list):void {
+            //     let size:number = 0,
+            //         index:number = list.length;
+            //     do {
+            //         index = index - 1;
+            //         size = size + list[index][4].size;
+            //     } while (index > 0);
+            //     vars.stats.containers.application.disk_out.data.push(size);
+            //     splice(vars.stats.containers.application.disk_out.data, false);
+            //     disk_complete();
+            // },
             net = function services_statisticsData_netIO(type:"in"|"out"):void {
                 const keys:string[] = Object.keys(vars.server_meta),
                     sockets = function core_status_netIO_sockets(list:websocket_client[]):void {
@@ -409,16 +407,17 @@ const statistics:core_statistics = {
         splice(vars.stats.containers.application.net_in.labels, true);
         splice(vars.stats.containers.application.net_out.labels, true);
         splice(vars.stats.containers.application.threads.labels, true);
-        directory({
-            callback: disk,
-            depth: 0,
-            exclusions: [],
-            mode: "read",
-            path: vars.path.project,
-            relative: false,
-            search: null,
-            symbolic: true
-        });
+        // directory({
+        //     callback: disk,
+        //     depth: 0,
+        //     exclusions: [],
+        //     parent: false,
+        //     path: vars.path.project,
+        //     relative: false,
+        //     search: null,
+        //     symbolic: true
+        // });
+        disk_complete();
     }
 };
 

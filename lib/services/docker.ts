@@ -149,18 +149,17 @@ const docker:core_docker = {
                                         complete("");
                                     }
                                 },
-                                list_callback = function services_docker_list_child_completePS_listCallback(file_list:directory_list|string[]):void {
-                                    const files:string[] = file_list as string[];
+                                list_callback = function services_docker_list_child_completePS_listCallback(files:core_directory_list):void {
                                     let index:number = files.length;
                                     if (index > 0) {
                                         count = 0;
                                         do {
                                             index = index - 1;
-                                            if (addresses.includes(files[index]) === false && (/\.ya?ml$/).test(files[index]) === true && files[index].includes("empty.yml") === false) {
+                                            if (addresses.includes(files[index][0]) === false && (/\.ya?ml$/).test(files[index][0]) === true && files[index][0].includes("empty.yml") === false) {
                                                 count = count + 1;
                                                 file.read({
                                                     callback: read,
-                                                    location: files[index],
+                                                    location: files[index][0],
                                                     no_file: null,
                                                     section: "compose_containers"
                                                 });
@@ -172,7 +171,7 @@ const docker:core_docker = {
                                 callback: list_callback,
                                 depth: 1,
                                 exclusions: [".env"],
-                                mode: "array",
+                                parent: false,
                                 path: vars.path.compose,
                                 relative: false,
                                 search: "",

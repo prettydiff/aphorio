@@ -37,6 +37,7 @@ interface transmit_dashboard {
     stats: services_statistics_data;
     terminal: string[];
     timeZone_offset: number;
+    version: string;
 }
 
 interface transmit_linux_ip extends Array<transmit_linux_ip_item> {

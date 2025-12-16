@@ -1,434 +1,291 @@
 
-import hash from "../core/hash.ts";
 import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
-import vars from "../core/vars.ts";
 
-// similar to node's fs.readdir, but recursive
+// cspell: words convertto
+
 const directory = function utilities_directory(args:config_directory):void {
-        // arguments:
-        // * callback - function - the output is passed into the callback as an argument
-        // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
-        // * exclusions - string array - a list of items to exclude
-        // * mode - "array" | "hash" | "list" | "read" | "search"
-        //      * array - a flat string array of file system addresses
-        //      * hash - the default directory_list array plus a SHA3-512 hash of files
-        //      * list - a flat array of results containing space separated values for file system artifact type, size, and address
-        //      * read - the default result containing a directory_list array, see below
-        //      * search - a directory_list array filtered to results matching the search argument
-        // * path - string - where to start in the local file system
-        // * relative - boolean - where to use absolute paths or paths relative to the path argument
-        // * search - string - the string transformed into a regular express to search for out of the result set
-        // * symbolic - boolean - if symbolic links should be identified as opposed to the artifact they point to
-        // -
-        // directory_list: [].failures
-        // 0. absolute path (string)
-        // 1. type (fileType)
-        // 2. hash (string), empty string unless fileType is "file" and args.hash === true and be aware this is exceedingly slow on large directory trees
-        // 3. parent index (number)
-        // 4. child item count (number)
-        // 5. selected properties from fs.Stat plus some link resolution data
-        // 6. write path from the lib/utilities/rename library for file copy
-        // * property "failures" is a list of file paths that could not be read or opened
-        let dirTest:boolean = false,
-            size:number = 0,
-            dirs:number = 0,
-            longest:number = 0,
-            startItem:string = null;
-        const dirCount:number[] = [],
-            dirNames:string[] = [],
-            sep:string = vars.path.sep,
-            searchLast:number = (args.search === null)
-                ? 0
-                : args.search.length - 1,
-            searchReg:RegExp = (args.search === null)
-                ? null
-                : new RegExp(args.search.slice(1, searchLast)),
-            searchType:type_search = (function utilities_directory_searchType():type_search {
-                if (args.mode === "search") {
-                    const regString:string = args.search.slice(1, searchLast);
-                    if (sep === "\\") {
-                        args.search = args.search.toLowerCase();
-                    }
-                    if (args.search !== "//" && args.search !== "/" && args.search.charAt(0) === "/" && args.search.charAt(searchLast) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(regString) === true) {
-                        return "regex";
-                    }
-                    if (args.search.charAt(0) === "!") {
-                        return "negation";
-                    }
-                    if (args.search.charAt(0) !== "!") {
-                        return "fragment";
-                    }
-                }
+    // arguments:
+    // * callback - function - the output is passed into the callback as an argument
+    // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
+    // * exclusions - string array - a list of items to exclude
+    // * parent - boolean - whether to capture data about the parent directory
+    // * path - string - where to start in the local file system
+    // * relative - boolean - where to use absolute paths or paths relative to the path argument
+    // * search - string - the string transformed into a regular express to search for out of the result set
+    // * symbolic - boolean - if symbolic links should be identified as opposed to the artifact they point to
+    // -
+    // core_directory_list: [] with a .failures and .parent property
+    // 0. absolute path (string)
+    // 1. type (fileType)
+    // 2. parent index (number)
+    // 3. child item count (number)
+    // 4. selected properties from fs.Stat plus some link resolution data
+    // 5. write path from the lib/utilities/rename library for file copy
+    // * property "failures" is a list of file paths that could not be read or opened
+    let total:number = 1,
+        count:number = 0;
+    const output:core_directory_list = [],
+        failures:string[] = [],
+        sep:string = node.path.sep,
+        driveSize:store_number = {},
+        search_value:string = (typeof args.search === "string" && args.search !== "")
+            ? (sep === "\\")
+                ? args.search.toLowerCase()
+                : args.search
+            : null,
+        search_last:number = (search_value === null)
+            ? 0
+            : search_value.length,
+        search_reg_token:string = (search_value === null)
+            ? ""
+            : search_value.slice(1, search_last - 1),
+        search_type:type_search = (function utilities_directory_searchType():type_search {
+            if (search_value === null) {
                 return null;
-            }()),
-            list:directory_list = [],
-            fileList:string[] = [],
-            output = function utilities_directory_output():void {
-                if (args.mode === "array" || args.mode === "list") {
-                    const sortStrings = function utilities_directory_output_sortStrings():string[] {
-                        if (sep === "\\") {
-                            fileList.sort(function utilities_directory_output_sortStrings_sortFunction(a:string, b:string):-1|1 {
-                                if (a.toLowerCase() < b.toLowerCase()) {
-                                    return -1;
-                                }
-                                return 1;
-                            });
-                        } else {
-                            fileList.sort();
-                        }
-                        if (args.path === sep) {
-                            const index:number = fileList.indexOf(sep);
-                            fileList.splice(index, 1);
-                            fileList.splice(0, 0, sep);
-                        }
-                        return fileList;
-                    };
-                    args.callback(sortStrings());
-                } else if (args.mode === "hash") {
-                    let index:number = 0,
-                        fileCount:number = 0;
-                    const listLength:number = list.length,
-                        loop = function utilities_directory_output_hashLoop():void {
-                            do {
-                                index = index + 1;
-                            } while (index < listLength && list[index][1] !== "file");
-                            if (index === listLength) {
-                                args.callback(list);
-                            } else {
-                                hashInput.source = list[index][0];
-                                hash(hashInput);
-                            }
-                        },
-                        hashInput:config_hash = {
-                            algorithm: "sha3-512",
-                            callback: function utilities_directory_output_hashCallback(output:hash_output):void {
-                                list[index][2] = output.hash;
-                                fileCount = fileCount + 1;
-                                if (index > 0) {
-                                    loop();
-                                } else {
-                                    args.callback(list);
-                                }
-                            },
-                            digest: "hex",
-                            hash_input_type: "file",
-                            section: "file-system",
-                            source: null
-                        };
-                    if (list[0][1] === "file") {
-                        hashInput.source = list[0][0];
-                        hash(hashInput);
-                    } else {
-                        loop();
-                    }
-                } else if (args.mode === "search") {
-                    args.callback(list);
-                } else {
-                    args.callback(list);
-                }
-            },
-            method:(filePath:string, callback:(er:node_error, stat:node_fs_Stats) => void) => void = (args.symbolic === true)
-                ? node.fs.lstat
-                : node.fs.stat,
-            dirCounter = function utilities_directory_dirCounter(item:string):void {
-                const dirList:string[] = item.split(sep);
-                let dirPath:string = "",
-                    index:number = 0;
-                dirList.pop();
-                dirPath = dirList.join(sep);
-                if ((/^\w:$/).test(dirPath) === true) {
-                    dirPath = `${dirPath}\\`;
-                } else if (dirPath === "") {
-                    dirPath = sep;
-                }
-                index = dirNames.indexOf(dirPath);
-                if (index < 0 && args.path === "\\" && (/^\w:\\$/).test(dirPath) === true) {
-                    index = 0;
-                }
-                dirCount[index] = dirCount[index] - 1;
-                if (dirNames.length === 0 && item === args.path) {
-                    // empty directory, nothing to traverse
-                    output();
-                } else if (dirCount[index] < 1) {
-                    // dirCount and dirNames are parallel arrays
-                    dirCount.splice(index, 1);
-                    dirNames.splice(index, 1);
-                    dirs = dirs - 1;
-                    if (dirs < 1) {
-                        output();
-                    } else {
-                        utilities_directory_dirCounter(dirPath);
-                    }
-                }
-            },
-            driveSize:store_number = {},
-            statWrapper = function utilities_directory_statWrapper(filePath:string, parent:number):void {
-                method(filePath, function utilities_directory_statWrapper_stat(er:node_error, stats:node_fs_Stats):void {
-                    const statData:directory_data = (stats === undefined)
-                            ? null
-                            : {
-                                atimeMs: stats.atimeMs,
-                                ctimeMs: stats.ctimeMs,
-                                linkPath: "",
-                                linkType: "",
-                                mode: stats.mode,
-                                mtimeMs: stats.mtimeMs,
-                                size: stats.size
-                            },
-                        driveLetter = function utilities_directory_statWrapper_stat_driveLetter(input:string):string {
-                            return `${input}\\`;
-                        },
-                        path_start:string = (args.path === "/")
-                            ? "/"
-                            : args.path.replace(/(\/|\\)$/, "") + sep,
-                        relPath:string = (args.relative === true)
-                            ? filePath.replace(path_start, "")
-                            : filePath,
-                        search = function utilities_directory_statWrapper_stat_search(searchItem:string):boolean {
-                            const names:string = searchItem.split(sep).pop(),
-                                named:string = (sep === "\\")
-                                    ? names.toLowerCase()
-                                    : names;
-                            if (searchType === "regex" && searchReg.test(named) === true) {
-                                return true;
-                            }
-                            if (searchType === "negation" && named.indexOf(args.search.slice(1)) < 0) {
-                                return true;
-                            }
-                            if (searchType === "fragment" && named.indexOf(args.search) > -1) {
-                                return true;
-                            }
-                            return false;
-                        },
-                        dir = function utilities_directory_statWrapper_stat_dir(item:string):void {
-                            const dirBody = function utilities_directory_statWrapper_stat_dir_dirBody(files:string[]):void {
-                                const index:number = (args.mode === "array" || args.mode === "list")
-                                        ? fileList.length
-                                        : list.length,
-                                    relItem:string = (args.relative === true)
-                                        ? (item === "/" || (/^\w:(\\)?$/).test(item) === true)
-                                            ? item
-                                            : item.replace(path_start, "")
-                                        : item;
-                                if (args.path === "\\" && driveSize[item] !== undefined) {
-                                    statData.size = driveSize[item];
-                                }
-                                if (args.mode === "array") {
-                                    fileList.push(relItem);
-                                } else if (args.mode === "list") {
-                                    fileList.push(`directory  0  ${relItem}`);
-                                } else {
-                                    if (args.mode === "search") {
-                                        if (search(item) === true) {
-                                            list.push([relItem, "directory", "", parent, files.length, statData, ""]);
-                                        }
-                                    } else {
-                                        list.push([relItem, "directory", "", parent, files.length, statData, ""]);
-                                    }
-                                }
-                                if (files.length < 1) {
-                                    dirCounter(item);
-                                } else {
-                                    // dirCount and dirNames are parallel arrays
-                                    dirCount.push(files.length);
-                                    dirNames.push(item);
-                                    dirs = dirs + 1;
-                                }
-                                files.forEach(function utilities_directory_statWrapper_stat_dir_readDir_each(value:string):void {
-                                    if (item === "\\") {
-                                        utilities_directory_statWrapper(value, index);
-                                    } else if ((/^\w:\\$/).test(item) === true) {
-                                        utilities_directory_statWrapper(item + value, index);
-                                    } else if (item === "/") {
-                                        utilities_directory_statWrapper(`/${value}`, index);
-                                    } else {
-                                        utilities_directory_statWrapper(item + sep + value, index);
-                                    }
-                                });
-                            };
-                            if (item === "\\") {
-                                //cspell:disable-next-line
-                                spawn("get-volume | convertto-json", function utilities_directory_statWrapper_stat_dir_windowsRoot(output:core_spawn_output):void {
-                                    const drives:windows_drives[] = JSON.parse(output.stdout),
-                                        files:string[] = [];
-                                    let index:number = drives.length;
-                                    if (index > 0) {
-                                        do {
-                                            index = index - 1;
-                                            if (drives[index].DriveLetter !== null) {
-                                                driveSize[`${drives[index].DriveLetter}:\\`] = drives[index].Size;
-                                                files.push(`${drives[index].DriveLetter}:\\`);
-                                            }
-                                        } while (index > 0);
-                                    }
-                                    dirBody(files);
-                                }, {
-                                    error: function utilities_directory_statWrapper_stat_dir_windowsRootError(erw:node_childProcess_ExecException):void {
-                                        list.failures.push(`${erw.code} - ${item}`);
-                                        if (dirs > 0) {
-                                            dirCounter(item);
-                                        } else {
-                                            output();
-                                        }
-                                    },
-                                    shell: "powershell"
-                                }).execute();
-                            } else {
-                                node.fs.readdir(item, {encoding: "utf8"}, function utilities_directory_statWrapper_stat_dir_readDir(erd:node_error, files:string[]):void {
-                                    if (erd !== null) {
-                                        list.failures.push(`${erd.code} - ${item}`);
-                                        if (dirs > 0) {
-                                            dirCounter(item);
-                                        } else {
-                                            output();
-                                        }
-                                    } else {
-                                        dirBody(files);
-                                    }
-                                });
-                            }
-                        },
-                        populate = function utilities_directory_statWrapper_stat_populate(type:"block_device"|"character_device"|"directory"|"error"|"fifo_pipe"|"file"|"socket"|"symbolic_link"):void {
-                            if (type === "error") {
-                                if (list[parent] !== undefined) {
-                                    list[parent][4] = list[parent][4] - 1;
-                                }
-                                list.failures.push(`${er.code} - ${filePath}`);
-                            } else {
-                                if (args.mode === "search") {
-                                    if (search(filePath) === true) {
-                                        list.push([relPath, type, "", parent, 0, statData, ""]);
-                                    }
-                                } else if (args.mode === "array" || args.mode === "list") {
-                                    if (args.mode === "array") {
-                                        fileList.push(relPath);
-                                    } else {
-                                        const typePadding:string = (type === "symbolic_link")
-                                                ? "link     "
-                                                : (type === "file")
-                                                    ? "file     "
-                                                    : "directory",
-                                            comma:string = stats.size.commas(),
-                                            size:number = comma.length;
-                                        if (size > longest) {
-                                            longest = size;
-                                        }
-                                        fileList.push(`${typePadding}  ${comma}  ${relPath}`);
-                                    }
-                                } else {
-                                    list.push([relPath, type, "", parent, 0, statData, ""]);
-                                }
-                            }
-                            if (dirs > 0) {
-                                dirCounter(filePath);
-                            } else {
-                                output();
-                            }
-                        },
-                        linkAction = function utilities_directory_statWrapper_stat_linkAction():void {
-                            populate("symbolic_link");
-                        },
-                        linkCallback = function utilities_directory_statWrapper_stat_linkCallback(linkErr:node_error, linkStat:node_fs_Stats):void {
-                            if (linkErr === null) {
-                                statData.linkType = (linkStat.isDirectory() === true)
-                                    ? "directory"
-                                    : "file";
-                                node.fs.realpath(filePath, function terminal_Commands_directory_statWrapper_stat_linkCallback_realPath(realErr:node_error, realPath:string):void {
-                                    if (realErr === null) {
-                                        statData.linkPath = realPath;
-                                        linkAction();
-                                    } else {
-                                        populate("error");
-                                    }
-                                });
-                            } else {
-                                populate("error");
-                            }
-                        };
-                    if (filePath === "\\") {
-                        const date:Date = new Date(),
-                            empty = function utilities_directory_statWrapper_empty():boolean {
-                                return false;
-                            };
-                        er = null;
-                        stats = {
-                            dev: 0,
-                            ino: 0,
-                            mode: 0,
-                            nlink: 0,
-                            uid: 0,
-                            gid: 0,
-                            rdev: 0,
-                            size: 0,
-                            blksize: 0,
-                            blocks: 0,
+            }
+            if (search_value !== "//" && search_value !== "/" && search_value.charAt(0) === "/" && search_value.charAt(search_last - 1) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(search_reg_token) === true) {
+                return "regex";
+            }
+            if (search_value.charAt(0) === "!") {
+                return "negation";
+            }
+            return "fragment";
+        }()),
+        search_reg:RegExp = (search_type === "regex")
+            ? new RegExp(search_reg_token)
+            : null,
+        exclusions:string[] = (function utilities_directory_exclusions():string[] {
+            const ex:string[] = [],
+                len:number = args.exclusions.length;
+            let index:number = 0;
+            if (sep === "/") {
+                return args.exclusions;
+            }
+            if (len > 0) {
+                do {
+                    ex.push(args.exclusions[index].toLowerCase());
+                    index = index + 1;
+                } while (index < len);
+            }
+            return ex;
+        }()),
+        method:(filePath:string, callback:(er:node_error, stat:node_fs_Stats) => void) => void = (args.symbolic === true)
+            ? node.fs.lstat
+            : node.fs.stat,
+        complete = function utilities_directory_complete(parent:type_directory_item):void {
+            output.failures = failures;
+            output.parent = parent;
+            args.callback(output);
+        },
+        fail = function utilities_directory_fail(code:string, path:string):void {
+            failures.push(`${code} - ${path}`);
+        },
+        counter = function utilities_directory_counter(item:type_directory_item):void {
+            if (item !== null) {
+                output.push(item);
+            }
+            if (count === total) {
+                output.failures = failures;
+                if (args.parent === true) {
+                    if (args.path === "/" || args.path === "\\") {
+                        output.parent = null;
+                        args.callback(output);
+                    } else if ((/^\w:(\\)?$/).test(args.path) === true) {
+                        output.parent = ["\\", "directory", 0, 0, {
                             atimeMs: 0,
-                            mtimeMs: 0,
                             ctimeMs: 0,
-                            birthtimeMs: 0,
-                            atime: date,
-                            mtime: date,
-                            ctime: date,
-                            birthtime: date,
-                            isBlockDevice: empty,
-                            isCharacterDevice: empty,
-                            isDirectory: function utilities_directory_statWrapper_isDirectory():boolean {
-                                return true;
-                            },
-                            isFIFO: empty,
-                            isFile: empty,
-                            isSocket: empty,
-                            isSymbolicLink: empty
-                        };
-                    }
-                    if (er !== null) {
-                        populate("error");
-                    } else if (stats.isDirectory() === true) {
-                        const dirs:number = (args.path === "\\" && (/^\w:(\\)?$/).test(filePath) === true)
-                            ? 1
-                            : (args.path === "\\")
-                                ? `\\${filePath.replace(startItem, "")}`.split(sep).length
-                                : filePath.replace(startItem, "").split(sep).length;
-                        if (args.depth < 1 || dirs < args.depth || dirTest === false) {
-                            dirTest = true;
-                            dir(filePath.replace(/^\w:$/, driveLetter));
-                        } else {
-                            populate("directory");
-                        }
-                    } else if (stats.isSymbolicLink() === true) {
-                        if (args.symbolic === true) {
-                            linkAction();
-                        } else {
-                            node.fs.stat(filePath, linkCallback);
-                        }
+                            linkPath: "",
+                            linkType: "",
+                            mode: 0,
+                            mtimeMs: 0,
+                            size: 0
+                        }, ""];
+                        args.callback(output);
                     } else {
-                        if (stats.isBlockDevice() === true) {
-                            populate("block_device");
-                        } else if (stats.isCharacterDevice() === true) {
-                            populate("character_device");
-                        } else if (stats.isFIFO() === true) {
-                            populate("fifo_pipe");
-                        } else if (stats.isSocket() === true) {
-                            populate("socket");
-                        } else {
-                            size = size + stats.size;
-                            populate("file");
-                        }
+                        const parent_path:string = (function utilities_directory_counter_parentPath():string {
+                            const paths:string[] = args.path.split(sep);
+                            paths.pop();
+                            if ((paths[0] === "" && paths.length === 1) || (paths[0] === "" && paths[1] === "" && paths.length === 2 && sep === "/")) {
+                                return "/";
+                            }
+                            return paths.join(sep);
+                        }());
+                        stat_wrap(parent_path, true, 0);
                     }
-                });
-            };
-        if (args.path === null) {
-            return;
-        }
-        args.path = (args.path.length > 2)
-            ? args.path.replace(/(\/|\\)$/, "")
-            : args.path;
-        startItem = (args.path === "/")
-            ? "/"
-            : args.path + sep;
-        list.failures = [];
-        statWrapper(args.path, 0);
-    };
+                } else {
+                    complete(null);
+                }
+            }
+        },
+        stat_wrap = function utilities_directory_statWrap(path:string, parent_item:boolean, parent:number):void {
+            method(path, function utilities_directory_statWrap_stat(ers:node_error, stat:node_fs_Stats):void {
+                count = count + 1;
+                if (ers === null) {
+                    const get_type = function utilities_directory_statWrap_stat_getType(stat_item:node_fs_Stats):type_file {
+                            if (stat_item.isFile() === true) {
+                                return "file";
+                            }
+                            if (stat_item.isDirectory() === true) {
+                                return "directory";
+                            }
+                            if (stat_item.isBlockDevice() === true) {
+                                return "block_device";
+                            }
+                            if (stat_item.isCharacterDevice() === true) {
+                                return "character_device";
+                            }
+                            if (stat_item.isFIFO() === true) {
+                                return "fifo_pipe";
+                            }
+                            if (stat_item.isSocket() === true) {
+                                return "socket";
+                            }
+                            if (stat_item.isSymbolicLink() === true) {
+                                return "symbolic_link";
+                            }
+                        },
+                        populate = function utilities_directory_statWrap_stat_populate(type:"block_device"|"character_device"|"directory"|"fifo_pipe"|"file"|"socket"|"symbolic_link"):void {
+                            const stat_obj:core_directory_data = {
+                                    atimeMs: stat.atimeMs,
+                                    ctimeMs: stat.ctimeMs,
+                                    linkPath: "",
+                                    linkType: "",
+                                    mode: stat.mode,
+                                    mtimeMs: stat.mtimeMs,
+                                    size: ((/^\w:(\\)?$/).test(path) === true && driveSize[path] !== undefined)
+                                        ? driveSize[path]
+                                        : stat.size
+                                },
+                                include = function utilities_directory_statWrap_stat_populate_include():boolean {
+                                    if (search_value === null) {
+                                        return true;
+                                    }
+                                    if (search_type === "regex" && search_reg.test(rel_name) === true) {
+                                        return true;
+                                    }
+                                    if (search_type === "negation" && rel_name.includes(search_value) === false) {
+                                        return true;
+                                    }
+                                    if (search_type === "fragment" && rel_name.includes(search_value) === true) {
+                                        return true;
+                                    }
+                                    return false;
+                                },
+                                path_drive:string = ((/^\w:(\\)?$/).test(path) === true)
+                                    ? `${path}\\`
+                                    : path,
+                                dirs:string[] = (args.path === "\\")
+                                    ? path.split(sep)
+                                    : path.replace(args.path, "").split(sep),
+                                rel_name:string = dirs.pop(),
+                                name:string = ((/^\w:(\\)?$/).test(path) === true)
+                                    ? path_drive
+                                    : (args.relative === true && path !== args.path)
+                                        ? rel_name
+                                        : path,
+                                dir_len:number = (args.path === "\\")
+                                    ? dirs.length + 1
+                                    : dirs.length;
+                            if ((exclusions.includes(rel_name) === true && sep === "/") || (exclusions.includes(rel_name.toLowerCase()) === true && sep === "\\")) {
+                                counter(null);
+                            } else {
+                                if (type === "directory") {
+                                    if (parent_item === true || path_drive === args.path || args.depth < 1 || dir_len < args.depth) {
+                                        node.fs.readdir(path_drive, function utilities_directory_statWrap_stat_populate_readdir(err:node_error, dir:string[]):void {
+                                            if (err === null) {
+                                                if (parent_item === true) {
+                                                    complete([path_drive, "directory", 0, dir.length, stat_obj, ""]);
+                                                } else {
+                                                    total = total + dir.length;
+                                                    counter([name, "directory", parent, dir.length, stat_obj, ""]);
+                                                    if (args.path !== "\\" || dir_len - 1 < args.depth) {
+                                                        dir.forEach(function utilities_directory_statWrap_stat_populate_readdir_each(value:string):void {
+                                                            utilities_directory_statWrap(path + sep + value, false, output.length - 1);
+                                                        });
+                                                    }
+                                                }
+                                            } else {
+                                                fail(err.code, path);
+                                                counter(null);
+                                            }
+                                        });
+                                    } else {
+                                        counter([name, "directory", parent, 0, stat_obj, ""]);
+                                    }
+                                } else if (include() === true) {
+                                    if (type === "symbolic_link") {
+                                        node.fs.realpath(path_drive, {encoding:"utf8"}, function utilities_directory_statWrap_stat_populate_linkPath(erp:node_error, real_path:string):void {
+                                            if (erp === null) {
+                                                stat_obj.linkPath = real_path;
+                                                node.fs.stat(real_path, function utilities_directory_statWrap_stat_populate_linkPath_linkType(ert:node_error, link_type:node_fs_Stats):void {
+                                                    if (ert === null) {
+                                                        stat_obj.linkType = get_type(link_type);
+                                                    } else {
+                                                        fail(ert.code, real_path);
+                                                    }
+                                                    if (parent_item === true) {
+                                                        complete([path, "symbolic_link", 0, 0, stat_obj, ""]);
+                                                    } else {
+                                                        counter([name, "symbolic_link", parent, 0, stat_obj, ""]);
+                                                    }
+                                                });
+                                            } else {
+                                                fail(erp.code, path);
+                                                counter([name, "symbolic_link", parent, 0, stat_obj, ""]);
+                                            }
+                                        });
+                                    } else {
+                                        counter([name, type, parent, 0, stat_obj, ""]);
+                                    }
+                                } else {
+                                    counter(null);
+                                }
+                            }
+                        };
+                    populate(get_type(stat));
+                } else {
+                    fail(ers.code, path);
+                    counter(null);
+                }
+            });
+        },
+        args_len:number = args.path.length;
+    if (args.path.charAt(args_len - 1) === sep && args_len > 2) {
+        args.path = args.path.slice(0, args_len - 1);
+    }
+    if (args.path === "\\") {
+        spawn("get-volume | convertto-json", function utilities_directory_windows(out:core_spawn_output):void {
+            const drives:windows_drives[] = JSON.parse(out.stdout);
+            let index:number = drives.length;
+            output.push(["\\", "directory", 0, index, {
+                atimeMs: 0,
+                ctimeMs: 0,
+                linkPath: "",
+                linkType: "",
+                mode: 0,
+                mtimeMs: 0,
+                size: 0
+            }, ""]);
+            if (index > 0) {
+                do {
+                    index = index - 1;
+                    if (drives[index].DriveLetter !== null) {
+                        driveSize[`${drives[index].DriveLetter}:`] = drives[index].Size;
+                        stat_wrap(`${drives[index].DriveLetter}:`, false, 0);
+                    }
+                } while (index > 0);
+            }
+        }, {
+            error: function utilities_directory_indowsRootError(erw:node_childProcess_ExecException):void {
+                failures.push(`${erw.code} - \\`);
+                complete(null);
+            },
+            shell: "powershell"
+        }).execute();
+    } else {
+        stat_wrap(args.path, false, 0);
+    }
+};
 
 export default directory;

@@ -44,7 +44,7 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
                     status: "informational",
                     time: Date.now()
                 });
-                broadcast(vars.dashboard_id, "dashboard", {
+                broadcast(vars.environment.dashboard_id, "dashboard", {
                     data: vars.servers,
                     service: "dashboard-server"
                 });

@@ -11,6 +11,8 @@ import terminal from "../services/terminal.ts";
 import vars from "../core/vars.ts";
 import websocket_test from "../services/websocket.ts";
 
+//cspell: words prettydiff
+
 const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):void {
     // eslint-disable-next-line no-restricted-syntax
     const server_id:string = this.id,
@@ -140,8 +142,8 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                     // unsupported HTTP methods result in socket destruction
                                     socket.destroy();
                                 } else {
-                                    if (method === "get" && server_id === vars.dashboard_id && headerList[0].indexOf("GET / HTTP") === 0) {
-                                        vars.http_request = headerString;
+                                    if (method === "get" && server_id === vars.environment.dashboard_id && headerList[0].indexOf("GET / HTTP") === 0) {
+                                        vars.environment.http_request = headerString;
                                     }
                                     http[method](headerList, socket, headerIndex < 1
                                         ? null
@@ -189,7 +191,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                             "Connection: Upgrade",
                                             `Sec-WebSocket-Accept: ${hashOutput.hash}`,
                                             "Access-Control-Allow-Origin: *",
-                                            "Server: webserver"
+                                            "Server: prettydiff/aphorio"
                                         ];
                                     if (nonceHeader !== null) {
                                         headers.push(nonceHeader);
@@ -224,7 +226,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                         terminal.shell(socket as websocket_pty, term);
                                     }
                                 },
-                                terminalFlag:boolean = (server_id === vars.dashboard_id && type === "dashboard-terminal"),
+                                terminalFlag:boolean = (server_id === vars.environment.dashboard_id && type === "dashboard-terminal"),
                                 identifier:string = (terminalFlag === true)
                                     ? `dashboard-terminal-${hashOutput.hash}`
                                     : (type === "websocket-test")
@@ -353,7 +355,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                 blocked_host:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(domain) === true),
                 blocked_ip:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
                 no_domain_redirect:boolean = (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[domain] === undefined),
-                domain_local:boolean = server.domain_local.concat(vars.interfaces).includes(domain);
+                domain_local:boolean = server.domain_local.concat(vars.environment.interfaces).includes(domain);
             headerList.forEach(headerEach);
             if (referer === true || blocked_host === true || blocked_ip === true) {
                 socket.destroy();
@@ -362,7 +364,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
             } else {
                 socket.addresses = address;
                 // do not proxy primary domain -> endless loop
-                if (server.domain_local.includes(domain) === true || vars.interfaces.includes(domain) === true) {
+                if (server.domain_local.includes(domain) === true || vars.environment.interfaces.includes(domain) === true) {
                     local_service();
                 } else {
                     create_proxy();

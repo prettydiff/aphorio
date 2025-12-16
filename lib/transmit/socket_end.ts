@@ -22,7 +22,7 @@ const socket_end = function transmit_socketEnd(error:node_error):void {
             time: Date.now()
         };
 
-    broadcast(vars.dashboard_id, "dashboard", {
+    broadcast(vars.environment.dashboard_id, "dashboard", {
         data: payload_log,
         service: "dashboard-log"
     });

@@ -3,6 +3,7 @@
 /* cspell: words appdata, atupn, cputime, lslogins, pwsh, serv, volu */
 
 const vars:core_vars = {
+        // critical shell commands by operating system
         commands: (function utilities_vars_commands():os_vars {
             const os_vars:os_var_list = {
                 "linux": {
@@ -11,6 +12,7 @@ const vars:core_vars = {
                     compose_empty: "",
                     devs: "lspci -v -k",
                     disk: "lsblk -Ob --json",
+                    file: "",
                     open: "xdg-open",
                     part: "",
                     proc: "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
@@ -27,6 +29,7 @@ const vars:core_vars = {
                     compose_empty: "",
                     devs: "Get-PNPDevice | ConvertTo-json",
                     disk: "Get-Disk | ConvertTo-JSON -compress -depth 2",
+                    file: "",
                     open: "start",
                     part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
                     proc: "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON -compress -depth 1",
@@ -39,35 +42,68 @@ const vars:core_vars = {
             };
             return os_vars[process.platform];
         }()),
+        // properties related to docker and docker compose
         compose: {
+            // docker image details and compose files
             containers: {},
+            // whether the application believes docker and docker compose are executing as an OS service
             status: null,
+            // time of last update
             time: 0,
+            // docker compose environmental variables
             variables: {}
         },
+        // fractions of lib/dashboard/styles.css
         css: {
+            // less css for system generated web pages on web servers
             basic: "",
+            // more complete css for the dashboard
             complete: ""
         },
-        dashboard_id: "",
-        dashboard_page: "",
         environment: {
+            // the web server id that is the dashboard's web server
+            dashboard_id: "",
+            // the fully assembled dashboard HTML after dynamic changes during build time with css and JavaScript included
+            dashboard_page: "",
+            // last git commit date/time
             date_commit: 0,
-            hash: ""
+            // whether linux "file" command is available in the OS system path
+            file: false,
+            // last git commit hash
+            hash: "",
+            // list of supported hash algorithm names
+            hashes: [],
+            // the HTTP request header of the dashboard page request, used as a default value for the dashboard's http test tool
+            http_request: "",
+            // a list of local network addresses as determined from active network interfaces on the OS
+            interfaces: [
+                "localhost",
+                "127.0.0.1",
+                "::1",
+                "[::1]"
+            ],
+            // a store of objects representing a log entry
+            logs: [],
+            // this application's name
+            name: "aphorio",
+            // the earliest recorded time this application starts
+            start_time: process.hrtime.bigint(),
+            // the file system paths of locally available command shells
+            terminal: (process.platform === "win32")
+                ? [
+                    "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+                    "C:\\Program Files\\PowerShell\\7-preview\\pwsh.exe",
+                    "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                    "C:\\Windows\\System32\\cmd.exe",
+                    "C:\\Program Files\\Git\\bin\\bash.exe",
+                    "C:\\Program Files (x86)\\Git\\bin\\bash.exe"
+                ]
+                : [],
+            // the amount of time required to covert local time to UTC time
+            timeZone_offset: 0,
+            version: "0.0.0"
         },
-        hashes: [],
-        http_request: "",
-        interfaces: [
-            "localhost",
-            "127.0.0.1",
-            "::1",
-            "[::1]"
-        ],
-        intervals: {
-            compose: 0
-        },
-        logs: [],
-        name: "aphorio",
+        // command line options for running this application
         options: {
             "browser": null,
             "list": null,
@@ -76,6 +112,7 @@ const vars:core_vars = {
             "no-terminal": false,
             "test": false
         },
+        // raw OS data
         os: {
             devs: {
                 data: [],
@@ -153,6 +190,7 @@ const vars:core_vars = {
                 uid: 0
             }
         },
+        // commonly used file system path addresses that are validated at start up
         path: {
             cgroup: "",
             compose: "",
@@ -163,13 +201,16 @@ const vars:core_vars = {
             sep: "/",
             servers: ""
         },
+        // objects describing web servers and contains objects describing their sockets
         servers: {},
+        // the actual web server objects and their actual socket objects
         server_meta: {},
+        // the list of objects describing sockets connected to this application
         sockets: {
             list: [],
             time: 0
         },
-        start_time: process.hrtime.bigint(),
+        // an information store necessary for calculating this application's portion of the OS performance statistics
         stats: {
             children: 1,
             containers: {},
@@ -180,16 +221,7 @@ const vars:core_vars = {
             now: 0,
             records: 10
         },
-        terminal: (process.platform === "win32")
-            ? [
-                "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-                "C:\\Program Files\\PowerShell\\7-preview\\pwsh.exe",
-                "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-                "C:\\Windows\\System32\\cmd.exe",
-                "C:\\Program Files\\Git\\bin\\bash.exe",
-                "C:\\Program Files (x86)\\Git\\bin\\bash.exe"
-            ]
-            : [],
+        // data properties necessary for executing test automation
         test: {
             browser_args: [],
             browser_child: null,
@@ -210,6 +242,7 @@ const vars:core_vars = {
             total_time_end: 0n,
             total_time_start: 0n
         },
+        // ASCII text decoration for terminal emulators
         text: {
             angry    : "\u001b[1m\u001b[31m",
             blue     : "\u001b[34m",
@@ -224,8 +257,7 @@ const vars:core_vars = {
             red      : "\u001b[31m",
             underline: "\u001b[4m",
             yellow   : "\u001b[33m"
-        },
-        timeZone_offset: 0
+        }
     };
 
 export default vars;
