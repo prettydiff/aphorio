@@ -49,6 +49,10 @@ All arguments are supported only on the server command, example: `npm run server
 * `no-exit` - *This option is ignored unless in test mode.* Application remains actively available after completing test automation.
 * `no-terminal` - Eliminates remote terminal access from the application.
 
+## Tested Platforms
+* Debian Linux 13
+* Windows 11
+
 <!--
 ## Optional steps to reduce the dependency count to 3:
 1. Delete the `node_modules` directory.
