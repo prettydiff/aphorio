@@ -3557,9 +3557,11 @@ const dashboard = function dashboard():void {
                 },
                 receive: function dashboard_fileSystemReceive(data_item:socket_data):void {
                     const fs:services_fileSystem = data_item.data as services_fileSystem,
-                        len:number = fs.dirs.length,
+                        len:number = (fs.dirs === null)
+                            ? 0
+                            : fs.dirs.length,
                         len_fail:number = fs.failures.length,
-                        fails:HTMLElement = (len_fail > 0 && fs.dirs[0][1] === "directory")
+                        fails:HTMLElement = (len_fail > 0 && len > 0 && fs.dirs[0][1] === "directory")
                             ? document.createElement("ul")
                             : document.createElement("p"),
                         summary:store_number = {
@@ -3674,7 +3676,7 @@ const dashboard = function dashboard():void {
                     video.pause();
                     audio.currentTime = 0;
                     video.currentTime = 0;
-                    if (fs.dirs[0] === null) {
+                    if (len < 1 || fs.dirs[0] === null) {
                         tools.fileSystem.nodes.output.style.display = "none";
                     } else {
                         tools.fileSystem.nodes.output.style.display = "block";
@@ -3688,7 +3690,9 @@ const dashboard = function dashboard():void {
                             } while (index_record < len);
                         }
                     }
-                    if (fs.dirs[0][1] === "directory" || fs.search !== null) {
+                    if (len === 0) {
+                        tools.fileSystem.nodes.summary.style.display = "none";
+                    } else if (fs.dirs[0][1] === "directory" || fs.search !== null) {
                         const li:HTMLCollectionOf<HTMLElement> = tools.fileSystem.nodes.summary.getElementsByTagName("li");
                         li[0].getElementsByTagName("strong")[0].textContent = size.commas();
                         li[1].getElementsByTagName("strong")[0].textContent = (fs.dirs.length - 1).commas();
@@ -3705,7 +3709,9 @@ const dashboard = function dashboard():void {
                     }
                     if (fs.file === null) {
                         tools.fileSystem.nodes.content.style.display = "none";
-                        if (len_fail > 0) {
+                        if (len === 0) {
+                            fails.appendText("System cannot access file system object at this address.");
+                        } else if (len_fail > 0) {
                             let index_fail:number = 0,
                                 li:HTMLElement = null;
                             do {
@@ -3769,9 +3775,13 @@ const dashboard = function dashboard():void {
                                 } else {
                                     tools.fileSystem.nodes.content.appendChild(tools.fileSystem.media.other);
                                 }
-                            };
+                            },
+                            mediaType:type_fileSystem_media = fs.mime.slice(0, fs.mime.indexOf("/")) as type_fileSystem_media;
                         strong.appendText(fs.failures[0]);
-                        media(fs.mime.slice(0, fs.mime.indexOf("/")) as type_fileSystem_media);
+                        media((mediaType === "application" && fs.failures[0] !== "binary")
+                            ? "text"
+                            : mediaType
+                        );
                         if (fs.failures[0] === "binary") {
                             fails.appendText("File is either binary or uses a text encoding larger than utf8.");
                         } else {

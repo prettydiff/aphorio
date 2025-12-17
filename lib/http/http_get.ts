@@ -227,7 +227,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                         start:number = (range === "")
                                             ? 0
                                             : Number(range.split("-")[0]),
-                                        end:number = start + (1024 * 1024),
+                                        end:number = Math.min(start + (1024 * 1024), Number(stat.size)),
                                         stream:node_fs_ReadStream = node.fs.createReadStream(input, {
                                             end: end,
                                             start: start

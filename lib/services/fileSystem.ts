@@ -26,7 +26,9 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             }, transmit.socket as websocket_client, 3);
         },
         dirCallback = function services_fileSystem_dirCallback(list:core_directory_list):void {
-            if (list[0][1] === "directory") {
+            if (list.length === 0) {
+                complete();
+            } else if (list[0][1] === "directory") {
                 const local:type_directory_item[] = [],
                     len:number = list.length - 1;
                 let index:number = 1;
