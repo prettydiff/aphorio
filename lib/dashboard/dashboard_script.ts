@@ -1972,10 +1972,12 @@ const dashboard = function dashboard():void {
                                 do {
                                     index_graphs = index_graphs - 1;
                                     graph = services.statistics.graphs[keys[index]][keys_graphs[index_graphs]];
-                                    if (graph.canvas !== null && graph.canvas.parentNode !== null) {
-                                        graph.canvas.parentNode.parentNode.removeChild(graph.canvas.parentNode);
+                                    if (graph !== null) {
+                                        if (graph.canvas !== null && graph.canvas.parentNode !== null) {
+                                            graph.canvas.parentNode.parentNode.removeChild(graph.canvas.parentNode);
+                                        }
+                                        graph.destroy();
                                     }
-                                    graph.destroy();
                                 } while (index_graphs > 0);
                             }
                         } while (index > 0);
