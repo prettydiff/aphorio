@@ -3484,10 +3484,13 @@ const dashboard = function dashboard():void {
                                 }
                                 duration.value = tools.fileSystem.media_time(media.duration);
                             };
+                            media_element.onerror = function dashboard_fileSystemInit_media_duration(event:string|Event):void {
+                                console.log(event);
+                            };
                             if (name === "video") {
                                 const video:HTMLVideoElement = media_element as HTMLVideoElement;
                                 video.playsInline = true;
-                                video.preload = "metadata";
+                                video.preload = "auto";
                             }
                         },
                         image:HTMLElement = document.createElement("img"),
@@ -3739,15 +3742,16 @@ const dashboard = function dashboard():void {
                                         if (item.childNodes.length > 0) {
                                             item.removeChild(item.lastChild);
                                         }
+                                        source.setAttribute("type", fs.mime);
                                         item.appendChild(source);
                                         item.load();
                                         tools.fileSystem.nodes.content.appendChild(tools.fileSystem.media[type]);
                                     },
                                     h3:HTMLElement = document.createElement("h3");
-                                    h3.textContent = "File Contents";
-                                tools.fileSystem.nodes.content.style.display = "block";
+                                h3.textContent = "File Contents";
                                 tools.fileSystem.nodes.content.textContent = "";
                                 tools.fileSystem.nodes.content.appendChild(h3);
+                                tools.fileSystem.nodes.content.style.display = "block";
                                 // if ([
                                 //     "application/pdf",
                                 //     "application/x-pdf",
