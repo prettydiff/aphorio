@@ -4174,7 +4174,7 @@ const dashboard = function dashboard():void {
                     tools.websocket.nodes[`message_${target}_frame`].value = value
                         .replace("{", "{\n    ")
                         .replace(/,/g, ",\n    ")
-                        .replace("}", "\n}")
+                        .replace(/,?\s*\}/, "\n}")
                         .replace(/:/g, ": ");
                 },
                 handshake: function dashboard_websocketHandshake():void {
@@ -4352,6 +4352,7 @@ const dashboard = function dashboard():void {
                     if (data.connected === true) {
                         tools.websocket.nodes.button_handshake.textContent = "Disconnect";
                         tools.websocket.nodes.status.setAttribute("class", "connection-online");
+                        tools.websocket.nodes.status.lastChild.textContent = "Online";
                         tools.websocket.connected = true;
                         tools.websocket.nodes.message_receive_body.value = "";
                         tools.websocket.nodes.message_receive_frame.value = "";
@@ -4359,6 +4360,7 @@ const dashboard = function dashboard():void {
                     } else {
                         tools.websocket.nodes.button_handshake.textContent = "Connect";
                         tools.websocket.nodes.status.setAttribute("class", "connection-offline");
+                        tools.websocket.nodes.status.lastChild.textContent = "Offline";
                         tools.websocket.connected = false;
                         tools.websocket.nodes.button_send.disabled = true;
                     }

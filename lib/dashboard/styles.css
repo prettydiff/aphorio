@@ -264,7 +264,6 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         .xterm-rows{font-size:vars(--font-size)}
         .xterm-viewport{overflow:hidden}
     }
-    #websocket .http_response p.float-last{width:82%}
     /* end id selectors */
 
     /* class selectors */
@@ -298,10 +297,11 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         table{border-style:none}
     }
     .http_response{
-        .form{float:left;margin:2em 0.5%;padding:2em 0.5%;width:47.65%}
+        .form{float:left;margin:2em 0;padding:2em;width:calc(50% - 5.2em)}
+        .form:first-child{margin-right:2em}
         p{
-            float:left;margin:0 2% 0 0;width:16%;
-            &.float-last{margin:0;width:64%}
+            float:left;margin:0 2em 0 0;width:20%;
+            &.float-last{margin:0;width:calc(80% - 2em)}
         }
     }
     .pass-false{color:var(--fail_bright)}
