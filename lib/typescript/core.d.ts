@@ -205,6 +205,13 @@ interface core_spawn_output {
     type: string;
 }
 
+interface core_start_tasks {
+    [key:string]: {
+        label: string;
+        task: () => void;
+    };
+}
+
 interface core_statistics {
     change: (data:socket_data) => void;
     data: () => void;

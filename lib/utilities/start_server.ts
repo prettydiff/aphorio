@@ -20,378 +20,411 @@ import vars from "../core/vars.ts";
 // cspell: words serv
 
 const start_server = function utilities_startServer(process_path:string, testing:boolean):void {
-    const task_definitions:store_string = {
-            admin: "Determines if the application is run with administrative privileges.",
-            cgroup: "Find Linux cgroup address for gathering precision docker performance metrics.",
-            compose: "Reads the compose.json file and restores the docker compose containers if docker is available.",
-            file: "Unix 'file' command discovered.",
-            git: "Get the latest update time and hash.",
-            html: "Read's the dashboard's HTML file for dynamic modification.",
-            options: "Modify's application settings according to the use of supported optional command line arguments.",
-            os_devs: "Gathers a list of devices registered with the OS kernel.",
-            os_disk: "Gathers information about disk hardware and partitions.",
-            os_intr: "Gathers information about the state of available network interfaces.",
-            os_main: "Gathers basic operating system and machine data.",
-            os_proc: "Gathers a list of running processes.",
-            os_serv: "Gathers a list of known services.",
-            os_sock: "Gathers a list of known network sockets.",
-            os_user: "Gathers a list of user accounts.",
-            servers: "Reads the servers.json file to dynamically standup and populate configured web servers.",
-            test_browser: "Finds a designed web browser for test automation if supplied as a terminal argument.",
-            test_list: null,
-            version: "Get application version number from package.json file."
-        },
-        prerequisite_tasks:store_function = {
+    const prerequisite_tasks:core_start_tasks = {
             // prerequisite tasks will execute serially in the order presented
-            admin: function utilities_startServer_admin():void {
-                spawn(vars.commands.admin_check, function utilities_startServer_admin_callback(output:core_spawn_output):void {
-                    const std:string = output.stdout.replace(/\s+/g, "");
-                    if (std === "0" || std === "true") {
-                        vars.os.process.admin = true;
-                    }
-                    start_prerequisites();
-                }, {
-                    shell: (process.platform === "win32")
-                        ? "powershell"
-                        : "sh"
-                }).execute();
+            admin: {
+                label: "Determines if the application is run with administrative privileges.",
+                task: function utilities_startServer_admin():void {
+                    spawn(vars.commands.admin_check, function utilities_startServer_admin_callback(output:core_spawn_output):void {
+                        const std:string = output.stdout.replace(/\s+/g, "");
+                        if (std === "0" || std === "true") {
+                            vars.os.process.admin = true;
+                        }
+                        start_prerequisites();
+                    }, {
+                        shell: (process.platform === "win32")
+                            ? "powershell"
+                            : "sh"
+                    }).execute();
+                }
             },
-            os_main: function utilities_startServer_taskOSMain():void {
-                const osDelay = function utilities_startServer_taskOSMain_osDelay():void {
-                        os_lists("all", function utilities_startServer_taskOSMain_osDelay_callback(payload:socket_data):void {
-                            broadcast(vars.environment.dashboard_id, "dashboard", payload);
-                        });
-                        osDaily();
-                    },
-                    osDaily = function utilities_startServer_taskOSMain_osDaily():void {
-                        setTimeout(osDelay, 86399975);
-                    },
-                    midnight:number = (function utilities_startServer_taskOSMain_midnight():number {
-                        const date:Date = new Date(),
-                            hours:number = date.getHours(),
-                            minutes:number = date.getMinutes(),
-                            seconds:number = date.getSeconds(),
-                            mill:number = date.getMilliseconds(),
-                            night:number = ((23 - hours) * 3600 * 1000) + ((59 - minutes) * 60 * 1000) + ((59 - seconds) * 1000) + (1000 - mill);
-                        vars.environment.timeZone_offset = date.getTimezoneOffset() * 60000;
-                        return night - 25;
-                    }());
-                os_lists("main", start_prerequisites);
-                setTimeout(osDelay, midnight);
+            os_main: {
+                label: "Gathers basic operating system and machine data.",
+                task: function utilities_startServer_taskOSMain():void {
+                    const osDelay = function utilities_startServer_taskOSMain_osDelay():void {
+                            os_lists("all", function utilities_startServer_taskOSMain_osDelay_callback(payload:socket_data):void {
+                                broadcast(vars.environment.dashboard_id, "dashboard", payload);
+                            });
+                            osDaily();
+                        },
+                        osDaily = function utilities_startServer_taskOSMain_osDaily():void {
+                            setTimeout(osDelay, 86399975);
+                        },
+                        midnight:number = (function utilities_startServer_taskOSMain_midnight():number {
+                            const date:Date = new Date(),
+                                hours:number = date.getHours(),
+                                minutes:number = date.getMinutes(),
+                                seconds:number = date.getSeconds(),
+                                mill:number = date.getMilliseconds(),
+                                night:number = ((23 - hours) * 3600 * 1000) + ((59 - minutes) * 60 * 1000) + ((59 - seconds) * 1000) + (1000 - mill);
+                            vars.environment.timeZone_offset = date.getTimezoneOffset() * 60000;
+                            return night - 25;
+                        }());
+                    os_lists("main", start_prerequisites);
+                    setTimeout(osDelay, midnight);
+                }
             },
-            compose: function utilities_startServer_compose():void {
-                docker.list(start_prerequisites);
+            compose: {
+                label: "Reads the compose.json file and restores the docker compose containers if docker is available.",
+                task: function utilities_startServer_compose():void {
+                    docker.list(start_prerequisites);
+                }
             }
         },
-        tasks:store_function = {
-            cgroup: function utilities_startServer_cgroup():void {
-                if (vars.compose.status === "" && vars.os.process.admin === true) {
-                    const addresses:string[] = [
-                            "/sys/fs/cgroup/system.slice/",
-                            "/sys/fs/cgroup/docker/",
-                            "/sys/fs/cgroup/memory/system.slice/",
-                            "/sys/fs/cgroup/memory/docker/"
-                        ],
-                        no_file = function utilities_startServer_cgroup_noFile():void {
-                            index = index + 1;
-                            if (index < 4) {
-                                file.stat({
-                                    callback: stat_callback,
-                                    location: addresses[index],
-                                    no_file: utilities_startServer_cgroup_noFile,
+        tasks:core_start_tasks = {
+            cgroup: {
+                label: "Find Linux cgroup address for gathering precision docker performance metrics.",
+                task: function utilities_startServer_cgroup():void {
+                    if (vars.compose.status === "" && vars.os.process.admin === true) {
+                        const addresses:string[] = [
+                                "/sys/fs/cgroup/system.slice/",
+                                "/sys/fs/cgroup/docker/",
+                                "/sys/fs/cgroup/memory/system.slice/",
+                                "/sys/fs/cgroup/memory/docker/"
+                            ],
+                            no_file = function utilities_startServer_cgroup_noFile():void {
+                                index = index + 1;
+                                if (index < 4) {
+                                    file.stat({
+                                        callback: stat_callback,
+                                        location: addresses[index],
+                                        no_file: utilities_startServer_cgroup_noFile,
+                                        section: "startup"
+                                    });
+                                } else {
+                                    vars.path.cgroup = null;
+                                    complete_tasks("cgroup");
+                                }
+                            },
+                            stat_callback = function utilities_startServer_cgroup_statCallback(stats:node_fs_BigIntStats, location:string):void {
+                                vars.path.cgroup = location;
+                                complete_tasks("cgroup");
+                            };
+                        let index:number = -1;
+                        no_file();
+                    } else {
+                        vars.path.cgroup = null;
+                        complete_tasks("cgroup");
+                    }
+                }
+            },
+            file: {
+                label: "Unix 'file' command discovered.",
+                task: function utilities_startServer_file():void {
+                    if (process.platform === "win32") {
+                        vars.commands.file = `${vars.path.process}node_modules${vars.path.sep}file${vars.path.sep}bin${vars.path.sep}file.exe -bi `;
+                        complete_tasks("file");
+                        return;
+                    }
+                    spawn("file --help", function utilities_startServer_file_spawn(output:core_spawn_output):void {
+                        if (output.stdout.indexOf("Usage: file [OPTION...] [FILE...]") === 0) {
+                            vars.commands.file = "file -bi ";
+                        }
+                        complete_tasks("file");
+                    }).execute();
+                }
+            },
+            git: {
+                label: "Get the latest update time and hash.",
+                task: function utilities_startServer_tasksGit():void {
+                    const gitStat = function utilities_startServer_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
+                        if (error === null && stat !== null) {
+                            const spawn_item:core_spawn = spawn("git show -s --format=%H,%ct HEAD", function utilities_startServer_tasksGit_gitStat_close(output:core_spawn_output):void {
+                                const str:string[] = output.stdout.split(",");
+                                vars.environment.date_commit = Number(str[1]) * 1000;
+                                vars.environment.hash = str[0];
+                                spawn_item.spawn.kill();
+                                complete_tasks("git");
+                            }, {
+                                cwd: process_path.slice(0, process_path.length - 1)
+                            });
+                            spawn_item.execute();
+                        } else {
+                            complete_tasks("git");
+                        }
+                    };
+                    node.fs.stat(`${process_path}.git`, gitStat);
+                }
+            },
+            html: {
+                label: "Read's the dashboard's HTML file for dynamic modification.",
+                task: function utilities_startServer_taskHTML():void {
+                    let chart_js:string = null,
+                        xterm_js:string = null,
+                        xterm_css:string = null;
+                    const flags:store_flag = {
+                            chart: false,
+                            css: false,
+                            xterm_css: false,
+                            xterm_js: false
+                        },
+                        complete = function utilities_startServer_taskHTML_complete(key:string):void {
+                            flags[key] = true;
+                            if (flags.chart === true && flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
+                                file.read({
+                                    callback: function utilities_startServer_taskHTML_readXterm_readHTML(fileContents:Buffer):void {
+                                        const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
+                                            chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, ""),
+                                            term_end:string = "<!-- terminal end -->",
+                                            term_start:string = "<!-- terminal start -->";
+                                        let script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
+                                        if (testing === true) {
+                                            const testBrowser:string = test_browser.toString().replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
+                                            script = script.replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`).replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
+                                        }
+                                        vars.environment.dashboard_page = fileContents.toString();
+                                        if (vars.options["no-terminal"] === true) {
+                                            vars.environment.dashboard_page = vars.environment.dashboard_page.slice(0, vars.environment.dashboard_page.indexOf(term_start)) + vars.environment.dashboard_page.slice(vars.environment.dashboard_page.indexOf(term_end) + term_end.length);
+                                            vars.environment.dashboard_page = vars.environment.dashboard_page.replace("<li><button data-section=\"terminal\">Terminal</button></li>", "");
+                                        }
+                                        vars.environment.dashboard_page = vars.environment.dashboard_page
+                                            .replace("Server Management Dashboard", `${vars.environment.name.capitalize()} Dashboard`)
+                                            .replace("replace_javascript", `${chart+xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
+                                            .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
+                                        complete_tasks("html");
+                                    },
+                                    location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}dashboard.html`,
+                                    no_file: null,
                                     section: "startup"
                                 });
-                            } else {
-                                vars.path.cgroup = null;
-                                complete_tasks("cgroup");
                             }
                         },
-                        stat_callback = function utilities_startServer_cgroup_statCallback(stats:node_fs_BigIntStats, location:string):void {
-                            vars.path.cgroup = location;
-                            complete_tasks("cgroup");
+                        readChart = function utilities_startServer_taskHTML_readChart(file:Buffer):void {
+                            chart_js = file.toString();
+                            complete("chart");
+                        },
+                        readXtermCSS = function utilities_startServer_taskHTML_readXtermCSS(file:Buffer):void {
+                            xterm_css = file.toString();
+                            complete("xterm_css");
+                        },
+                        readXtermJS = function utilities_startServer_taskHTML_readXtermJS(file:Buffer):void {
+                            xterm_js = file.toString();
+                            complete("xterm_js");
+                        },
+                        readCSS = function utilities_startServer_taskCSS_readCSS(fileContents:Buffer):void {
+                            const css:string = fileContents.toString();
+                            vars.css.complete = css.slice(css.indexOf(":root"));
+                            vars.css.basic = vars.css.complete.slice(0, css.indexOf("/* end basic html */"));
+                            complete("css");
                         };
-                    let index:number = -1;
-                    no_file();
-                } else {
-                    vars.path.cgroup = null;
-                    complete_tasks("cgroup");
-                }
-            },
-            file: function utilities_startServer_file():void {
-                if (process.platform === "win32") {
-                    vars.commands.file = `${vars.path.process}node_modules${vars.path.sep}file${vars.path.sep}bin${vars.path.sep}file.exe -bi `;
-                    complete_tasks("file");
-                    return;
-                }
-                spawn("file --help", function utilities_startServer_file_spawn(output:core_spawn_output):void {
-                    if (output.stdout.indexOf("Usage: file [OPTION...] [FILE...]") === 0) {
-                        vars.commands.file = "file -bi ";
-                    }
-                    complete_tasks("file");
-                }).execute();
-            },
-            git: function utilities_startServer_tasksGit():void {
-                const gitStat = function utilities_startServer_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
-                    if (error === null && stat !== null) {
-                        const spawn_item:core_spawn = spawn("git show -s --format=%H,%ct HEAD", function utilities_startServer_tasksGit_gitStat_close(output:core_spawn_output):void {
-                            const str:string[] = output.stdout.split(",");
-                            vars.environment.date_commit = Number(str[1]) * 1000;
-                            vars.environment.hash = str[0];
-                            spawn_item.spawn.kill();
-                            complete_tasks("git");
-                        }, {
-                            cwd: process_path.slice(0, process_path.length - 1)
-                        });
-                        spawn_item.execute();
+                    if (vars.options["no-terminal"] === true) {
+                        flags.xterm_css = true;
+                        flags.xterm_js = true;
+                        xterm_js = "";
+                        xterm_css = "";
                     } else {
-                        complete_tasks("git");
+                        file.read({
+                            callback: readXtermCSS,
+                            location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`,
+                            no_file: null,
+                            section: "startup"
+                        });
+                        file.read({
+                            callback: readXtermJS,
+                            location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}lib${vars.path.sep}xterm.js`,
+                            no_file: null,
+                            section: "startup"
+                        });
                     }
-                };
-                node.fs.stat(`${process_path}.git`, gitStat);
-            },
-            html: function utilities_startServer_taskHTML():void {
-                let chart_js:string = null,
-                    xterm_js:string = null,
-                    xterm_css:string = null;
-                const flags:store_flag = {
-                        chart: false,
-                        css: false,
-                        xterm_css: false,
-                        xterm_js: false
-                    },
-                    complete = function utilities_startServer_taskHTML_complete(key:string):void {
-                        flags[key] = true;
-                        if (flags.chart === true && flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
-                            file.read({
-                                callback: function utilities_startServer_taskHTML_readXterm_readHTML(fileContents:Buffer):void {
-                                    const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
-                                        chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, ""),
-                                        term_end:string = "<!-- terminal end -->",
-                                        term_start:string = "<!-- terminal start -->";
-                                    let script:string = dashboard_script.toString().replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`).replace(/\(\s*\)/, "(core)");
-                                    if (testing === true) {
-                                        const testBrowser:string = test_browser.toString().replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
-                                        script = script.replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`).replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
-                                    }
-                                    vars.environment.dashboard_page = fileContents.toString();
-                                    if (vars.options["no-terminal"] === true) {
-                                        vars.environment.dashboard_page = vars.environment.dashboard_page.slice(0, vars.environment.dashboard_page.indexOf(term_start)) + vars.environment.dashboard_page.slice(vars.environment.dashboard_page.indexOf(term_end) + term_end.length);
-                                        vars.environment.dashboard_page = vars.environment.dashboard_page.replace("<li><button data-section=\"terminal\">Terminal</button></li>", "");
-                                    }
-                                    vars.environment.dashboard_page = vars.environment.dashboard_page
-                                        .replace("Server Management Dashboard", `${vars.environment.name.capitalize()} Dashboard`)
-                                        .replace("replace_javascript", `${chart+xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`)
-                                        .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
-                                    complete_tasks("html");
-                                },
-                                location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}dashboard.html`,
-                                no_file: null,
-                                section: "startup"
-                            });
-                        }
-                    },
-                    readChart = function utilities_startServer_taskHTML_readChart(file:Buffer):void {
-                        chart_js = file.toString();
-                        complete("chart");
-                    },
-                    readXtermCSS = function utilities_startServer_taskHTML_readXtermCSS(file:Buffer):void {
-                        xterm_css = file.toString();
-                        complete("xterm_css");
-                    },
-                    readXtermJS = function utilities_startServer_taskHTML_readXtermJS(file:Buffer):void {
-                        xterm_js = file.toString();
-                        complete("xterm_js");
-                    },
-                    readCSS = function utilities_startServer_taskCSS_readCSS(fileContents:Buffer):void {
-                        const css:string = fileContents.toString();
-                        vars.css.complete = css.slice(css.indexOf(":root"));
-                        vars.css.basic = vars.css.complete.slice(0, css.indexOf("/* end basic html */"));
-                        complete("css");
-                    };
-                if (vars.options["no-terminal"] === true) {
-                    flags.xterm_css = true;
-                    flags.xterm_js = true;
-                    xterm_js = "";
-                    xterm_css = "";
-                } else {
                     file.read({
-                        callback: readXtermCSS,
-                        location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`,
+                        callback: readChart,
+                        location: `${process_path}node_modules${vars.path.sep}chart.js${vars.path.sep}dist${vars.path.sep}chart.umd.min.js`,
                         no_file: null,
                         section: "startup"
                     });
                     file.read({
-                        callback: readXtermJS,
-                        location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}lib${vars.path.sep}xterm.js`,
+                        callback: readCSS,
+                        location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
                         no_file: null,
                         section: "startup"
                     });
                 }
-                file.read({
-                    callback: readChart,
-                    location: `${process_path}node_modules${vars.path.sep}chart.js${vars.path.sep}dist${vars.path.sep}chart.umd.min.js`,
-                    no_file: null,
-                    section: "startup"
-                });
-                file.read({
-                    callback: readCSS,
-                    location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
-                    no_file: null,
-                    section: "startup"
-                });
             },
-            os_devs: function utilities_startServer_taskOSDevs():void {
-                const callback = function utilities_startServer_taskOSDevs_callback():void {
-                        complete_tasks("os_devs");
-                    };
-                os_lists("devs", callback);
-            },
-            os_disk: function utilities_startServer_taskOSDisk():void {
-                const callback = function utilities_startServer_taskOSDisk_callback():void {
-                        complete_tasks("os_disk");
-                    };
-                os_lists("disk", callback);
-            },
-            os_intr: function utilities_startServer_taskOSIntr():void {
-                const callback = function utilities_startServer_taskOSIntr_callback():void {
-                    complete_tasks("os_intr");
-                };
-                os_lists("intr", callback);
-            },
-            os_proc: (process.platform === "win32")
-                ? function utilities_startServer_taskOSProcWindows():void {
-                    complete_tasks("os_proc");
+            os_devs: {
+                label: "Gathers a list of devices registered with the OS kernel.",
+                task: function utilities_startServer_taskOSDevs():void {
+                    const callback = function utilities_startServer_taskOSDevs_callback():void {
+                            complete_tasks("os_devs");
+                        };
+                    os_lists("devs", callback);
                 }
-                : function utilities_startServer_taskOSProc():void {
-                    const callback = function utilities_startServer_taskOSProc_callback():void {
+            },
+            os_disk: {
+                label: "Gathers information about disk hardware and partitions.",
+                task: function utilities_startServer_taskOSDisk():void {
+                    const callback = function utilities_startServer_taskOSDisk_callback():void {
+                            complete_tasks("os_disk");
+                        };
+                    os_lists("disk", callback);
+                }
+            },
+            os_intr: {
+                label: "Gathers information about the state of available network interfaces.",
+                task: function utilities_startServer_taskOSIntr():void {
+                    const callback = function utilities_startServer_taskOSIntr_callback():void {
+                        complete_tasks("os_intr");
+                    };
+                    os_lists("intr", callback);
+                }
+            },
+            os_proc: {
+                label: "Gathers a list of running processes.",
+                task: (process.platform === "win32")
+                    ? function utilities_startServer_taskOSProcWindows():void {
                         complete_tasks("os_proc");
+                    }
+                    : function utilities_startServer_taskOSProc():void {
+                        const callback = function utilities_startServer_taskOSProc_callback():void {
+                            complete_tasks("os_proc");
+                        };
+                        os_lists("proc", callback);
+                    }
+            },
+            os_serv: {
+                label: "Gathers a list of known services.",
+                task: function utilities_startServer_taskOSServ():void {
+                    const callback = function utilities_startServer_taskOSServ_callback():void {
+                        complete_tasks("os_serv");
                     };
-                    os_lists("proc", callback);
-                },
-            os_serv: function utilities_startServer_taskOSServ():void {
-                const callback = function utilities_startServer_taskOSServ_callback():void {
-                    complete_tasks("os_serv");
-                };
-                os_lists("serv", callback);
+                    os_lists("serv", callback);
+                }
             },
-            os_sock: function utilities_startServer_taskOSSock():void {
-                const callback = function utilities_startServer_taskOSSock_callback():void {
-                    complete_tasks("os_sock");
-                };
-                os_lists("sock", callback);
+            os_sock: {
+                label: "Gathers a list of known network sockets.",
+                task: function utilities_startServer_taskOSSock():void {
+                    const callback = function utilities_startServer_taskOSSock_callback():void {
+                        complete_tasks("os_sock");
+                    };
+                    os_lists("sock", callback);
+                }
             },
-            os_user: function utilities_startServer_taskOSUser():void {
-                const callback = function utilities_startServer_taskOSUser_callback():void {
-                    complete_tasks("os_user");
-                };
-                os_lists("user", callback);
+            os_user: {
+                label: "Gathers a list of user accounts.",
+                task: function utilities_startServer_taskOSUser():void {
+                    const callback = function utilities_startServer_taskOSUser_callback():void {
+                        complete_tasks("os_user");
+                    };
+                    os_lists("user", callback);
+                }
             },
-            servers: function utilities_startServer_taskServers():void {
-                const callback = function utilities_startServer_taskServers_callback(fileContents:Buffer):void {
-                    const configStr:string = (fileContents === null)
-                            ? ""
-                            : fileContents.toString(),
-                        config:core_servers_file = (configStr === "" || (/^\s*\{/).test(configStr) === false || (/\}\s*$/).test(configStr) === false)
-                            ? null
-                            : JSON.parse(configStr) as core_servers_file,
-                        includes = function utilities_startServer_taskServers_callback_includes(input:string):void {
-                            if (vars.environment.interfaces.includes(input) === false && input.toLowerCase().indexOf("fe80") !== 0) {
-                                vars.environment.interfaces.push(input);
-                            }
+            servers: {
+                label: "Reads the servers.json file to dynamically standup and populate configured web servers.",
+                task: function utilities_startServer_taskServers():void {
+                    const callback = function utilities_startServer_taskServers_callback(fileContents:Buffer):void {
+                        const configStr:string = (fileContents === null)
+                                ? ""
+                                : fileContents.toString(),
+                            config:core_servers_file = (configStr === "" || (/^\s*\{/).test(configStr) === false || (/\}\s*$/).test(configStr) === false)
+                                ? null
+                                : JSON.parse(configStr) as core_servers_file,
+                            includes = function utilities_startServer_taskServers_callback_includes(input:string):void {
+                                if (vars.environment.interfaces.includes(input) === false && input.toLowerCase().indexOf("fe80") !== 0) {
+                                    vars.environment.interfaces.push(input);
+                                }
+                            },
+                            interfaces:{ [index: string]: node_os_NetworkInterfaceInfo[]; } = node.os.networkInterfaces(),
+                            keys_int:string[] = Object.keys(interfaces),
+                            keys_srv:string[] = (config === null)
+                                ? null
+                                : Object.keys(config.servers);
+                        let index_int:number = keys_int.length,
+                            index_srv:number = (config === null)
+                                ? 0
+                                : keys_srv.length,
+                            server:server = null,
+                            sub:number = 0;
+                        if (config !== null && config.stats !== undefined) {
+                            vars.stats.frequency = config.stats.frequency;
+                            vars.stats.records = config.stats.records;
+                        }
+                        if (index_srv > 0) {
+                            vars.environment.dashboard_id = config.dashboard_id;
+                            vars.compose.variables = config["compose-variables"];
+                            do {
+                                index_srv = index_srv - 1;
+                                index_int = keys_int.length;
+                                server = {
+                                    config: config.servers[keys_srv[index_srv]],
+                                    sockets: [],
+                                    status: {
+                                        open: 0,
+                                        secure: 0
+                                    }
+                                };
+                                if (server.config.ports === null || server.config.ports === undefined) {
+                                    server.config.ports = {
+                                        open: 0,
+                                        secure: 0
+                                    };
+                                } else {
+                                    if (typeof server.config.ports.open !== "number") {
+                                        server.config.ports.open = 0;
+                                    }
+                                    if (typeof server.config.ports.secure !== "number") {
+                                        server.config.ports.secure = 0;
+                                    }
+                                }
+                                if (server.config.block_list === undefined || server.config.block_list === null) {
+                                    server.config.block_list = {
+                                        host: [],
+                                        ip: [],
+                                        referrer: []
+                                    };
+                                }
+                                if (Array.isArray(server.config.domain_local) === false) {
+                                    server.config.domain_local = [];
+                                }
+                                vars.servers[server.config.id] = server;
+                            } while (index_srv > 0);
+                        }
+                        do {
+                            index_int = index_int - 1;
+                            sub = interfaces[keys_int[index_int]].length;
+                            do {
+                                sub = sub - 1;
+                                includes(interfaces[keys_int[index_int]][sub].address);
+                            } while (sub > 0);
+                        } while (index_int > 0);
+                        complete_tasks("servers");
+                    };
+                    file.read({
+                        callback: callback,
+                        location: `${vars.path.project}servers.json`,
+                        no_file: null,
+                        section: "startup"
+                    });
+                }
+            },
+            test_browser: {
+                label: "Finds a designed web browser for test automation if supplied as a terminal argument.",
+                task: function utilities_startServer_taskTestBrowser():void {
+                    test_stat("test_browser");
+                }
+            },
+            test_list: {
+                label: null,
+                task: function utilities_startServer_taskTestList():void {
+                    test_stat("test_list");
+                }
+            },
+            version: {
+                label: "Get application version number from package.json file.",
+                task: function utilities_startServer_version():void {
+                    file.read({
+                        callback: function utilities_startServer_version_callback(file_contents:Buffer):void {
+                            vars.environment.version = JSON.parse(file_contents.toString()).version;
+                            complete_tasks("version");
                         },
-                        interfaces:{ [index: string]: node_os_NetworkInterfaceInfo[]; } = node.os.networkInterfaces(),
-                        keys_int:string[] = Object.keys(interfaces),
-                        keys_srv:string[] = (config === null)
-                            ? null
-                            : Object.keys(config.servers);
-                    let index_int:number = keys_int.length,
-                        index_srv:number = (config === null)
-                            ? 0
-                            : keys_srv.length,
-                        server:server = null,
-                        sub:number = 0;
-                    if (config !== null && config.stats !== undefined) {
-                        vars.stats.frequency = config.stats.frequency;
-                        vars.stats.records = config.stats.records;
-                    }
-                    if (index_srv > 0) {
-                        vars.environment.dashboard_id = config.dashboard_id;
-                        vars.compose.variables = config["compose-variables"];
-                        do {
-                            index_srv = index_srv - 1;
-                            index_int = keys_int.length;
-                            server = {
-                                config: config.servers[keys_srv[index_srv]],
-                                sockets: [],
-                                status: {
-                                    open: 0,
-                                    secure: 0
-                                }
-                            };
-                            if (server.config.ports === null || server.config.ports === undefined) {
-                                server.config.ports = {
-                                    open: 0,
-                                    secure: 0
-                                };
-                            } else {
-                                if (typeof server.config.ports.open !== "number") {
-                                    server.config.ports.open = 0;
-                                }
-                                if (typeof server.config.ports.secure !== "number") {
-                                    server.config.ports.secure = 0;
-                                }
-                            }
-                            if (server.config.block_list === undefined || server.config.block_list === null) {
-                                server.config.block_list = {
-                                    host: [],
-                                    ip: [],
-                                    referrer: []
-                                };
-                            }
-                            if (Array.isArray(server.config.domain_local) === false) {
-                                server.config.domain_local = [];
-                            }
-                            vars.servers[server.config.id] = server;
-                        } while (index_srv > 0);
-                    }
-                    do {
-                        index_int = index_int - 1;
-                        sub = interfaces[keys_int[index_int]].length;
-                        do {
-                            sub = sub - 1;
-                            includes(interfaces[keys_int[index_int]][sub].address);
-                        } while (sub > 0);
-                    } while (index_int > 0);
-                    complete_tasks("servers");
-                };
-                file.read({
-                    callback: callback,
-                    location: `${vars.path.project}servers.json`,
-                    no_file: null,
-                    section: "startup"
-                });
-            },
-            test_browser: function utilities_startServer_taskTestBrowser():void {
-                test_stat("test_browser");
-            },
-            test_list: function utilities_startServer_taskTestList():void {
-                test_stat("test_list");
-            },
-            version: function utilities_startServer_version():void {
-                file.read({
-                    callback: function utilities_startServer_version_callback(file_contents:Buffer):void {
-                        vars.environment.version = JSON.parse(file_contents.toString()).version;
-                        complete_tasks("version");
-                    },
-                    location: `${vars.path.project}package.json`,
-                    no_file: null,
-                    section: "startup"
-                });
+                        location: `${vars.path.project}package.json`,
+                        no_file: null,
+                        section: "startup"
+                    });
+                }
             }
         },
         test_stat = function utilities_startServer_testStat(property:"test_browser"|"test_list"):void {
             if (testing === false) {
-                task_definitions[property] = "Ignored unless executing tests.";
+                tasks[property].label = "Ignored unless executing tests.";
                 complete_tasks(property);
             } else {
                 const get_value = function utilities_startServer_testStat_getValue(arg:"browser"|"list"):void {
@@ -403,12 +436,12 @@ const start_server = function utilities_startServer(process_path:string, testing
                         stat_browser = function utilities_startServer_testStat_stat(err:node_error, details:node_fs_Stats):void {
                             if (err === null && details !== null && details !== undefined) {
                                 if (arg === "browser" && vars.test.browser_args.length > 0) {
-                                    task_definitions.test_browser = `Testing file found for ${arg}: ${vars.text.green + address.replace(/\\\\/g, "\\")} ${vars.test.browser_args.join(" ")} ${vars.text.none}`;
+                                    tasks.test_browser.label = `Testing file found for ${arg}: ${vars.text.green + address.replace(/\\\\/g, "\\")} ${vars.test.browser_args.join(" ")} ${vars.text.none}`;
                                 } else {
-                                    task_definitions[property] = `Testing file found for ${arg}: ${vars.text.green + address.replace(/\\\\/g, "\\") + vars.text.none}`;
+                                    tasks[property].label = `Testing file found for ${arg}: ${vars.text.green + address.replace(/\\\\/g, "\\") + vars.text.none}`;
                                 }
                             } else {
-                                task_definitions[property] = `Testing file ${vars.text.angry}not${vars.text.none} found for: ${vars.text.red + address.replace(/\\\\/g, "\\") + vars.text.none}`;
+                                tasks[property].label = `Testing file ${vars.text.angry}not${vars.text.none} found for: ${vars.text.red + address.replace(/\\\\/g, "\\") + vars.text.none}`;
                             }
                             if (property === "test_browser") {
                                 vars.test.test_browser = address;
@@ -438,14 +471,17 @@ const start_server = function utilities_startServer(process_path:string, testing
                 };
                 get_value("browser");
                 get_value("list");
-                task_definitions.browser_stat = "No option supplied beginning with 'browser:'";
+                tasks.browser_stat.label = "No option supplied beginning with 'browser:'";
             }
         },
-        log_task = function utilities_startServer_logTask(flag:type_start_pre_tasks | type_start_primary_tasks):void {
-            log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.environment.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${task_definitions[flag]}`]);
+        log_task = function utilities_startServer_logTask(list:"prerequisite"|"task", flag:type_start_pre_tasks | type_start_primary_tasks):void {
+            const label:string = (list === "task")
+                ? tasks[flag].label
+                : prerequisite_tasks[flag].label;
+            log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.environment.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${label}`]);
         },
         complete_tasks = function utilities_startServer_completeTasks(flag:type_start_primary_tasks):void {
-            log_task(flag);
+            log_task("task", flag);
             // to troubleshoot which tasks do not run, in test mode servers task is not executed
             // delete task_definitions[flag];console.log(Object.keys(task_definitions));
             count_task = count_task + 1;
@@ -657,17 +693,17 @@ const start_server = function utilities_startServer(process_path:string, testing
             do {
                 index_tasks = index_tasks - 1;
                 if (testing === false || (keys_tasks[index_tasks] !== "servers" && testing === true)) {
-                    tasks[keys_tasks[index_tasks]]();
+                    tasks[keys_tasks[index_tasks]].task();
                 }
             } while (index_tasks > 0);
         },
         start_prerequisites = function utilities_startServer_startPrerequisites():void {
             index_prerequisites = index_prerequisites + 1;
             if (index_prerequisites > 0) {
-                log_task(keys_prerequisites[index_prerequisites - 1]);
+                log_task("prerequisite", keys_prerequisites[index_prerequisites - 1]);
             }
             if (index_prerequisites < len_prerequisites) {
-                prerequisite_tasks[keys_prerequisites[index_prerequisites]]();
+                prerequisite_tasks[keys_prerequisites[index_prerequisites]].task();
             } else {
                 start_tasks();
             }
