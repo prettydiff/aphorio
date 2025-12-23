@@ -804,7 +804,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <div class="definition-body">
                     <div class="section">
                         <h4>Server Descriptions</h4>
-                        <p>These are primitive web servers supporting out of the box HTTP methods: CONNECT, GET, HEAD, OPTIONS, and TRACE.  These servers provide no cache control mechanism.  These servers also do not report failure responses.  In the case a connection violates a server's security or connection policies the socket is immediately destroyed.</p>
+                        <p>These are primitive web servers supporting out of the box HTTP methods: CONNECT, GET, HEAD, OPTIONS, and TRACE.  These servers provide no cache control mechanism.  These servers also do not report failure responses, aside from 404 status.  In the case a connection violates a server's security or connection policies the socket is immediately destroyed.</p>
                         <p>For security and efficiency the <em>connect</em> method creates a web socket connection instead a regular HTTP request redirection.  If the desired destination does not support the Web Socket protocol the corresponding request will silently fail.</p>
                         <p>HTTP methods <em>DELETE</em>, <em>PATCH</em>, <em>POST</em>, and <em>PUT</em> rely upon external services for support.  This external support is configured using the <strong>method</strong> property of the server's configuration object.  Provided the configuration is present the server will prexy the request to the desired service.</p>
                     </div>
@@ -1201,4 +1201,5 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
     </main>
-<script type="application/javascript">replace_javascript</script></body></html>
+<script src="/chart.umd.min.js"></script>
+<script type="module">replace_javascript</script></body></html>

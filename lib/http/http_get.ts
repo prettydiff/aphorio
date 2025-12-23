@@ -337,7 +337,9 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
     if (server_id === vars.environment.dashboard_id) {
-        if (decoded.indexOf("file-system-") === 0) {
+        if (decoded === "chart.umd.min.js") {
+            stat(`${vars.path.project}node_modules${vars.path.sep}chart.js${vars.path.sep}dist${vars.path.sep}chart.umd.min.js`);
+        } else if (decoded.indexOf("file-system-") === 0) {
             stat(decoded.replace("file-system-", ""));
         } else if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
