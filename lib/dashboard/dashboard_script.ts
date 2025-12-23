@@ -1228,14 +1228,10 @@ const dashboard = function dashboard():void {
                     const target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
                         listItem:HTMLElement = target.getAncestor("li", "tag"),
                         id:string = listItem.dataset.id,
-                        name_server:string = (id === undefined)
-                            ? "new_server"
-                            : payload.servers[id].config.name,
                         value:string = target.value,
                         edit:HTMLElement = target.getAncestor("edit", "class"),
                         summary:HTMLElement = edit.getElementsByClassName("summary")[0] as HTMLElement,
                         ul:HTMLElement = summary.getElementsByTagName("ul")[0],
-                        pathReg:RegExp = new RegExp(`(\\\\|\\/)${name_server}(\\\\|\\/)`, "g"),
                         populate = function dashboard_serverValidate_populate(pass:boolean, message:string):void {
                             const li:HTMLElement = document.createElement("li");
                             if (pass === null) {
@@ -1356,15 +1352,12 @@ const dashboard = function dashboard():void {
                                         : serverData[config.name][keys[indexActual]];
                                     if ((
                                         (config.type === "array" && Array.isArray(value) === false) ||
-                                        ((config.type === "string" || config.type === "path") && typeof value !== "string") ||
+                                        (config.type === "string" && typeof value !== "string") ||
                                         (config.type === "number" && typeof value !== "number")
                                     ) && value !== null) {
                                         populate(false, `Property '${keys[indexActual]}' of '${config.name}' is not of type: ${config.type}.`);
                                         pass = false;
-                                    } else if (config.type === "path" && serverData.name !== name_server && pathReg.test(value) === true) {
-                                        populate(null, `Property '${keys[indexActual]}' of '${config.name}' is a file system path that contains a directory references to a prior or default server name.`);
-                                        // @ts-expect-error - The following line complains about comparing a string to a number when the value is not actually a string
-                                    } else if (config.name === "ports" && value > 65535) {
+                                    } else if (config.name === "ports" && typeof value === "number" && value > 65535) {
                                         populate(false, `Property '${keys[indexActual]}' of 'ports' must be a value in range 0 to 65535.`);
                                         pass = false;
                                     } else if (config.type === "array") {
@@ -1395,15 +1388,38 @@ const dashboard = function dashboard():void {
                                         }
                                     }
                                     if (indexSupported > 0) {
+                                        let upper:string = null,
+                                            key:string = null,
+                                            keys:string[] = null;
                                         do {
                                             indexSupported = indexSupported - 1;
-                                            if (keys[indexActual] === config.supported[indexSupported]) {
+                                            upper = config.supported[indexSupported].toUpperCase();
+                                            if (keys[indexActual] === config.supported[indexSupported] || (keys[indexActual] === upper && config.name === "method")) {
+                                                if (config.name === "method") {
+                                                    key = (keys[indexActual] === upper)
+                                                        ? upper
+                                                        : config.supported[indexSupported];
+                                                    if (typeof serverData.method[key as "delete"].address !== "string") {
+                                                        populate(false, `Property method.${key}.address must be a string.`);
+                                                    } else {
+                                                        delete serverData.method[key as "delete"].address;
+                                                    }
+                                                    if (typeof serverData.method[key as "delete"].port !== "number" || serverData.method[key as "delete"].port > 65535) {
+                                                        populate(false, `Property method.${key}.port must be an integer less than 65536.`);
+                                                    } else {
+                                                        delete serverData.method[key as "delete"].port;
+                                                    }
+                                                    keys = Object.keys(delete serverData.method[key as "delete"]);
+                                                    if (keys.length > 0) {
+                                                        populate(false, `Property method.${key} contains unsupported child properties.`);
+                                                    }
+                                                }
                                                 keys.splice(indexActual, 1);
                                                 config.supported.splice(indexSupported, 1);
                                                 indexActual = indexActual - 1;
                                             } else if (config.name === "ports" && ((serverData.encryption === "open" && config.supported[indexSupported] === "secure") || (serverData.encryption === "secure" && config.supported[indexSupported] === "open"))) {
                                                 config.supported.splice(indexSupported, 1);
-                                            } else if (config.name === null && keys.includes(config.supported[indexSupported]) === false && (config.supported[indexSupported] === "block_list" || config.supported[indexSupported] === "domain_local" || config.supported[indexSupported] === "http" || config.supported[indexSupported] === "redirect_domain" || config.supported[indexSupported] === "redirect_asset") || config.supported[indexSupported] === "single_socket" || config.supported[indexSupported] === "temporary") {
+                                            } else if (config.name === null && keys.includes(config.supported[indexSupported]) === false && (config.supported[indexSupported] === "block_list" || config.supported[indexSupported] === "domain_local" || config.supported[indexSupported] === "method" || config.supported[indexSupported] === "redirect_domain" || config.supported[indexSupported] === "redirect_asset") || config.supported[indexSupported] === "single_socket" || config.supported[indexSupported] === "temporary") {
                                                 config.supported.splice(indexSupported, 1);
                                             }
                                         } while (indexSupported > 0);
@@ -1439,7 +1455,7 @@ const dashboard = function dashboard():void {
                                 }
                             }
                         },
-                        rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "http", "id", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary"];
+                        rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary"];
                     let serverData:services_server = null,
                         failures:number = 0;
                     ul.textContent = "";
@@ -1477,11 +1493,11 @@ const dashboard = function dashboard():void {
                     }
                     // http
                     key_test({
-                        name: "http",
+                        name: "method",
                         required_name: false,
                         required_property: false,
-                        supported: ["delete", "post", "put"],
-                        type: "path"
+                        supported: ["delete", "patch", "post", "put"],
+                        type: "method"
                     });
                     // id
                     if (typeof serverData.id === "string") {
@@ -1686,6 +1702,23 @@ const dashboard = function dashboard():void {
                                             output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
                                             output.push("},");
                                         },
+                                        methods = function dashboard_commonDetails_value_methods():void {
+                                            if (serverData.method !== null && serverData.method !== undefined) {
+                                                const keys:string[] = Object.keys(serverData.method),
+                                                    len:number = keys.length;
+                                                keys.sort();
+                                                if (len > 0) {
+                                                    output.push("\"method\": {");
+                                                    keys.forEach(function dashboard_commonDetails_value_methods_key(key:string) {
+                                                        output.push(`    "${key.toLowerCase()}: {`);
+                                                        output.push(`        "address": "${serverData.method[key as "delete"].address}",`);
+                                                        output.push(`        "port": ${serverData.method[key as "delete"].address}`);
+                                                        output.push("    }");
+                                                    });
+                                                    output.push("},");
+                                                }
+                                            }
+                                        },
                                         sanitize = function dashboard_commonDetails_value_sanitize(input:string):string {
                                             return input.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
                                         },
@@ -1721,13 +1754,7 @@ const dashboard = function dashboard():void {
                                         output.push("\"encryption\": \"both\",");
                                     }
                                     output.push(`"id": "${serverData.id}",`);
-                                    if (serverData.http !== null && serverData.http !== undefined) {
-                                        output.push("\"http\": {");
-                                        output.push(`    "delete": "${sanitize(serverData.http.delete)}",`);
-                                        output.push(`    "post": "${sanitize(serverData.http.post)}",`);
-                                        output.push(`    "put": "${sanitize(serverData.http.put)}"`);
-                                        output.push("},");
-                                    }
+                                    methods();
                                     if (newFlag === true) {
                                         output.push("\"name\": \"new_server\",");
                                     } else {

@@ -800,78 +800,91 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <h2>Web Servers</h2>
             <p class="tab-description">A list of configured HTTP/WS servers hosted by this application and their respective status.</p>
             <div class="definitions">
-                <h3>Definitions of Server Object Properties <button class="expand">Expand</button></h3>
-                <dl class="definition-body">
-                    <dt><em>activate</em> (string)</dt>
-                    <dd><p>
-                        Instructs the application to bring the server online automatically at application start and server creation.
-                    </p></dd>
-                    <dt><em>block_list</em> (string array)</dt>
-                    <dd><p>
-                        The block list contains three optional string arrays of criteria to determine if matching sockets should be instantly destroyed.
-                        At this time wildcards, CIDR notation, and ranges are not supported.
-                    </p></dd>
-                    <dt><em>domain_local</em> (string array)</dt>
-                    <dd><p>
-                        Sockets featuring HTTP request host names in this list will be served from this server.
-                        Sockets featuring HTTP request host names not in this list or in the redirect_domain list will be destroyed.
-                    </p></dd>
-                    <dt><em>encryption</em> (string)</dt>
-                    <dd><p>
-                        Whether to create an encrypted server for HTTPS and WSS protocols, an unencrypted server for HTTP and WS protocols, or both.
-                        Accepted values are <em>both</em>, <em>open</em>, or <em>secure</em>.
-                    </p></dd>
-                    <dt><em>http</em> (object)</dt>
-                    <dd><p>
-                        File system paths to external utilities for handling the supported HTTP methods: <em>delete</em>, <em>post</em>, and <em>put</em>.
-                        HTTP request bodies are passed into an environmental variable on the respective child process named 'payload'.
-                    </p></dd>
-                    <dt><em>id</em> (string)</dt>
-                    <dd><p>A dynamically assigned identifier. The application creates this value and it cannot be modified.</p></dd>
-                    <dt><em>name</em> (string)</dt>
-                    <dd><p>
-                        The human readable name of this server.
-                    </p></dd>
-                    <dt><em>ports</em> (object)</dt>
-                    <dd><p>The ports on which the server operates.</p></dd>
-                    <dt><em>redirect_asset</em> (object)</dt>
-                    <dd><p>
-                        Redirects resource paths of HTTP requests within the given server based upon the hostname in the HTTP request header.
-                        This is useful for dynamic or vanity endpoints on a given server that wish to return something different than a relative file system destination.
-                        Each instance uses the structure of <code>"domain": {"resource location": "new location"}</code> because each server can represent 0 or more domain names.
-                    </p><p>
-                        For example there could be an informational dashboard on some server at address: <em>http://myexample.com/api_services/informational/dashboards/uptime/</em>.
-                        For the sake of simplicity you want to serve that dashboard from an internal vanity domain like: <em>http://api.dashboard/</em>.
-                        You would need a rule to redirect from resource <em>/</em> to actual resource at <em>/api_services/informational/dashboards/uptime</em>, and that rule would look like: <code>"api.dashboard": {"/": "/api_services/informational/dashboards/uptime/"}</code>
-                    </p><p>
-                        Asset redirection supports use of wildcards by specifying an asterisk at the end of asset locations.
-                        For example, redirection of request for <em>/api_services/informational/dashboards/uptime/images/interface/title.png</em> to <em>/api/images/interface/title.png</em> would occur with rule: <code>"api.dashboard": {"/api/*": "/api_services/informational/dashboards/uptime/"}</code>
-                        With wildcards all asset requests matching the address up to the asterisk will be redirected to the specified location.
-                    </p><p>
-                        <strong>Please note the terminal slash in the prior examples.</strong>
-                        Without the terminating slash the redirected address becomes <em>/api_services/informational/dashboards/uptimeimages/interface/title.png</em>.
-                    </p></dd>
-                    <dt><em>redirect_domain</em> (object)</dt>
-                    <dd><p>
-                        Redirects traffic to a different server location, such as a vanity domain that may or may not be served from the same server.
-                        Each instance uses the structure of <code>"domain": ["new domain", port_number]</code> because each server can represent 0 or more domain names.
-                        If the 'new domain' is an empty string the requested domain will be used.
-                        If the port number is not a number or 0 the current server's port number will be used.
-                    </p><p>
-                        If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003]</code>
-                    </p></dd>
-                    <dt><em>single_socket</em> (boolean)</dt>
-                    <dd><p>
-                        Providing property <em>single_socket</em> with value <em>true</em> will create a server that only accepts a first successful HTTP or WebSocket connection.
-                        All other connections will be ignored and the server will automatically remove itself once that connection completes.
-                        This server will never writing configuration data and so it will be forever lost once this application closes.
-                    </p></dd>
-                    <dt><em>temporary</em> (boolean)</dt>
-                    <dd><p>
-                        Providing property <em>temporary</em> with value <em>true</em> will create a server that never writes configuration data.
-                        This server will be forever lost once this application closes.
-                    </p></dd>
-                </dl>
+                <h3>Server Information and Configuration <button class="expand">Expand</button></h3>
+                <div class="definition-body">
+                    <div class="section">
+                        <h4>Server Descriptions</h4>
+                        <p>These are primitive web servers supporting out of the box HTTP methods: CONNECT, GET, HEAD, OPTIONS, and TRACE.  These servers provide no cache control mechanism.  These servers also do not report failure responses.  In the case a connection violates a server's security or connection policies the socket is immediately destroyed.</p>
+                        <p>For security and efficiency the <em>connect</em> method creates a web socket connection instead a regular HTTP request redirection.  If the desired destination does not support the Web Socket protocol the corresponding request will silently fail.</p>
+                        <p>HTTP methods <em>DELETE</em>, <em>PATCH</em>, <em>POST</em>, and <em>PUT</em> rely upon external services for support.  This external support is configured using the <strong>method</strong> property of the server's configuration object.  Provided the configuration is present the server will prexy the request to the desired service.</p>
+                    </div>
+                    <div class="section">
+                        <h4>Server Configuration Definitions</h4>
+                        <dl>
+                            <dt><em>activate</em> (string)</dt>
+                            <dd><p>
+                                Instructs the application to bring the server online automatically at application start and server creation.
+                            </p></dd>
+                            <dt><em>block_list</em> (string array)</dt>
+                            <dd><p>
+                                The block list contains three optional string arrays of criteria to determine if matching sockets should be instantly destroyed.
+                                At this time wildcards, CIDR notation, and ranges are not supported.
+                            </p></dd>
+                            <dt><em>domain_local</em> (string array)</dt>
+                            <dd><p>
+                                Sockets featuring HTTP request host names in this list will be served from this server.
+                                Sockets featuring HTTP request host names not in this list or in the redirect_domain list will be destroyed.
+                            </p></dd>
+                            <dt><em>encryption</em> (string)</dt>
+                            <dd><p>
+                                Whether to create an encrypted server for HTTPS and WSS protocols, an unencrypted server for HTTP and WS protocols, or both.
+                                Accepted values are <em>both</em>, <em>open</em>, or <em>secure</em>.
+                            </p></dd>
+                            <dt><em>http</em> (object)</dt>
+                            <dd><p>
+                                File system paths to external utilities for handling the supported HTTP methods: <em>delete</em>, <em>post</em>, and <em>put</em>.
+                                HTTP request bodies are passed into an environmental variable on the respective child process named 'payload'.
+                            </p></dd>
+                            <dt><em>id</em> (string)</dt>
+                            <dd><p>A dynamically assigned identifier. The application creates this value and it cannot be modified.</p></dd>
+                            <dt><em>method</em> (object)</dt>
+                            <dd><p>Key names may include any of <em>delete</em>, <em>patch</em>, <em>post</em>, <em>put</em>. These key names are not case sensitive. The value of these method names is a child object containing the properties <em>address</em> (string) and <em>port</em> (number).</p> <code>"DELETE": {"address": "localhost", "port": 1234}</code></dd>
+                            <dt><em>name</em> (string)</dt>
+                            <dd><p>
+                                The human readable name of this server.
+                            </p></dd>
+                            <dt><em>ports</em> (object)</dt>
+                            <dd><p>The ports on which the server operates.</p></dd>
+                            <dt><em>redirect_asset</em> (object)</dt>
+                            <dd><p>
+                                Redirects resource paths of HTTP requests within the given server based upon the hostname in the HTTP request header.
+                                This is useful for dynamic or vanity endpoints on a given server that wish to return something different than a relative file system destination.
+                                Each instance uses the structure of <code>"domain": {"resource location": "new location"}</code> because each server can represent 0 or more domain names.
+                            </p><p>
+                                For example there could be an informational dashboard on some server at address: <em>http://myexample.com/api_services/informational/dashboards/uptime/</em>.
+                                For the sake of simplicity you want to serve that dashboard from an internal vanity domain like: <em>http://api.dashboard/</em>.
+                                You would need a rule to redirect from resource <em>/</em> to actual resource at <em>/api_services/informational/dashboards/uptime</em>, and that rule would look like: <code>"api.dashboard": {"/": "/api_services/informational/dashboards/uptime/"}</code>
+                            </p><p>
+                                Asset redirection supports use of wildcards by specifying an asterisk at the end of asset locations.
+                                For example, redirection of request for <em>/api_services/informational/dashboards/uptime/images/interface/title.png</em> to <em>/api/images/interface/title.png</em> would occur with rule: <code>"api.dashboard": {"/api/*": "/api_services/informational/dashboards/uptime/"}</code>
+                                With wildcards all asset requests matching the address up to the asterisk will be redirected to the specified location.
+                            </p><p>
+                                <strong>Please note the terminal slash in the prior examples.</strong>
+                                Without the terminating slash the redirected address becomes <em>/api_services/informational/dashboards/uptimeimages/interface/title.png</em>.
+                            </p></dd>
+                            <dt><em>redirect_domain</em> (object)</dt>
+                            <dd><p>
+                                Redirects traffic to a different server location, such as a vanity domain that may or may not be served from the same server.
+                                Each instance uses the structure of <code>"domain": ["new domain", port_number]</code> because each server can represent 0 or more domain names.
+                                If the 'new domain' is an empty string the requested domain will be used.
+                                If the port number is not a number or 0 the current server's port number will be used.
+                            </p><p>
+                                If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003]</code>
+                            </p></dd>
+                            <dt><em>single_socket</em> (boolean)</dt>
+                            <dd><p>
+                                Providing property <em>single_socket</em> with value <em>true</em> will create a server that only accepts a first successful HTTP or WebSocket connection.
+                                All other connections will be ignored and the server will automatically remove itself once that connection completes.
+                                This server will never writing configuration data and so it will be forever lost once this application closes.
+                            </p></dd>
+                            <dt><em>temporary</em> (boolean)</dt>
+                            <dd><p>
+                                Providing property <em>temporary</em> with value <em>true</em> will create a server that never writes configuration data.
+                                This server will be forever lost once this application closes.
+                            </p></dd>
+                        </dl>
+                    </div>
+                </div>
             </div>
             <div class="section">
                 <h3>Web Server List</h3>

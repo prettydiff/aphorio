@@ -10,6 +10,10 @@ vars.path.sep = node.path.sep;
         index:number = process.argv.length,
         arg:string = null;
 
+    if (vars.commands === undefined) {
+        console.log(`Operating system type ${process.platform} is not yet supported.`);
+        process.exit(1);
+    }
     do {
         index = index - 1;
         if (process.argv[index].includes(`${vars.path.sep}node`) === true && vars.path.node === "") {

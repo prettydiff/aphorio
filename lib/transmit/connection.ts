@@ -138,6 +138,19 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                     if (key === "") {
                         const method:type_http_method = headerList[0].slice(0, headerList[0].indexOf(" ")).toLowerCase() as type_http_method,
                             http_action = function transmit_connection_handshake_localService_httpAction():void {
+                                const keys:string[] = (server.method === null || server.method === undefined)
+                                    ? []
+                                    : Object.keys(server.method);
+                                let index:number = keys.length;
+                                if (index > 0) {
+                                    do {
+                                        index = index - 1;
+                                        if (keys[index].toLowerCase() === method) {
+                                            create_proxy(server.method[method as "delete"].address, server.method[method as "delete"].port, socket.encrypted);
+                                            return;
+                                        }
+                                    } while (index > 0);
+                                }
                                 if (http[method] === undefined) {
                                     // unsupported HTTP methods result in socket destruction
                                     socket.destroy();
@@ -259,30 +272,9 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         });
                     }
                 },
-                create_proxy = function transmit_connection_handshake_createProxy():void {
+                create_proxy = function transmit_connection_handshake_createProxy(host:string, port:number, encrypted:boolean):void {
                     let count:number = 0;
-                    const encrypted:boolean = (
-                            socket.encrypted === true &&
-                            server.redirect_domain !== undefined &&
-                            server.redirect_domain !== null &&
-                            server.redirect_domain[`${domain}.secure`] !== undefined
-                        ),
-                        pair:[string, number] = (encrypted === true)
-                            ? server.redirect_domain[`${domain}.secure`]
-                            : (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[domain] === undefined)
-                                ? (socket.encrypted === true)
-                                    ? [address.local.address, server.ports.secure]
-                                    : [address.local.address, server.ports.open]
-                                : server.redirect_domain[domain],
-                        host:string = (pair[0] === undefined || pair[0] === null || pair[0] === "")
-                            ? address.local.address
-                            : pair[0],
-                        port:number = (typeof pair[1] === "number")
-                            ? pair[1]
-                            : (socket.encrypted === true)
-                                ? server.ports.secure
-                                : server.ports.open,
-                        proxy:websocket_client = (encrypted === true)
+                    const proxy:websocket_client = (encrypted === true)
                             ?  node.tls.connect({
                                 host: host,
                                 port: port,
@@ -367,7 +359,28 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                 if (server.domain_local.includes(domain) === true || vars.environment.interfaces.includes(domain) === true) {
                     local_service();
                 } else {
-                    create_proxy();
+                    const encrypted:boolean = (
+                            socket.encrypted === true &&
+                            server.redirect_domain !== undefined &&
+                            server.redirect_domain !== null &&
+                            server.redirect_domain[`${domain}.secure`] !== undefined
+                        ),
+                        pair:[string, number] = (encrypted === true)
+                            ? server.redirect_domain[`${domain}.secure`]
+                            : (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[domain] === undefined)
+                                ? (socket.encrypted === true)
+                                    ? [address.local.address, server.ports.secure]
+                                    : [address.local.address, server.ports.open]
+                                : server.redirect_domain[domain],
+                        host:string = (pair[0] === undefined || pair[0] === null || pair[0] === "")
+                            ? address.local.address
+                            : pair[0],
+                        port:number = (typeof pair[1] === "number")
+                            ? pair[1]
+                            : (socket.encrypted === true)
+                                ? server.ports.secure
+                                : server.ports.open;
+                    create_proxy(host, port, encrypted);
                 }
             }
         };
