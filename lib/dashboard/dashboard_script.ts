@@ -3511,8 +3511,15 @@ const dashboard = function dashboard():void {
                                 }
                                 duration.value = tools.fileSystem.media_time(media.duration);
                             };
-                            media_element.onerror = function dashboard_fileSystemInit_media_duration(event:string|Event):void {
-                                console.log(event);
+                            media_element.onerror = function dashboard_fileSystemInit_media_duration(event:Event|string):void {
+                                const target:HTMLElement = (typeof event === "string")
+                                        ? null
+                                        : event.target as HTMLElement,
+                                    player:HTMLElement = target.getAncestor("div", "tag"),
+                                    buffer:HTMLElement = player.getElementsByClassName("buffer")[0] as HTMLElement;
+                                buffer.textContent = JSON.stringify(event);
+                                buffer.style.display = "block";
+                                
                             };
                             if (name === "video") {
                                 const video:HTMLVideoElement = media_element as HTMLVideoElement;
@@ -4552,6 +4559,13 @@ const dashboard = function dashboard():void {
 
         // handle page resize
         window.onresize = utility.resize;
+        // @ts-expect-error - I am not extending the global window object type for this troubleshooting helper
+        window.show_payload = function dashboard_showPayload():void {
+            // eslint-disable-next-line no-console
+            console.log(JSON.stringify(payload).length);
+            // eslint-disable-next-line no-console
+            console.log(payload);
+        };
     }
 };
 

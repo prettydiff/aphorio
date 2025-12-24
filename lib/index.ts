@@ -1,4 +1,5 @@
 
+import log from "./core/log.ts";
 import node from "./core/node.ts";
 import start_server from "./utilities/start_server.ts";
 import vars from "./core/vars.ts";
@@ -11,7 +12,8 @@ vars.path.sep = node.path.sep;
         arg:string = null;
 
     if (vars.commands === undefined) {
-        console.log(`Operating system type ${process.platform} is not yet supported.`);
+
+        log.shell([`Operating system type ${process.platform} is not yet supported.`]);
         process.exit(1);
     }
     do {

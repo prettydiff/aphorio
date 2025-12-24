@@ -160,11 +160,11 @@ const start_server = function utilities_startServer(process_path:string, testing
                         },
                         complete = function utilities_startServer_taskHTML_complete(key:string):void {
                             flags[key] = true;
-                            if ( flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
+                            if (flags.chart === true && flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
                                 file.read({
                                     callback: function utilities_startServer_taskHTML_readXterm_readHTML(fileContents:Buffer):void {
                                         const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
-                                            //chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, ""),
+                                            chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, ""),
                                             term_end:string = "<!-- terminal end -->",
                                             term_start:string = "<!-- terminal start -->";
                                         let total_script:string = null,
@@ -185,7 +185,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                             vars.environment.dashboard_page = vars.environment.dashboard_page.slice(0, vars.environment.dashboard_page.indexOf(term_start)) + vars.environment.dashboard_page.slice(vars.environment.dashboard_page.indexOf(term_end) + term_end.length);
                                             vars.environment.dashboard_page = vars.environment.dashboard_page.replace("<li><button data-section=\"terminal\">Terminal</button></li>", "");
                                         }
-                                        total_script = `${xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`;
+                                        total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`;
                                         vars.environment.dashboard_page = vars.environment.dashboard_page
                                             .replace("Server Management Dashboard", `${vars.environment.name.capitalize()} Dashboard`)
                                             .replace("replace_javascript", total_script)
@@ -235,12 +235,12 @@ const start_server = function utilities_startServer(process_path:string, testing
                             section: "startup"
                         });
                     }
-                    // file.read({
-                    //     callback: readChart,
-                    //     location: `${process_path}node_modules${vars.path.sep}chart.js${vars.path.sep}dist${vars.path.sep}chart.umd.min.js`,
-                    //     no_file: null,
-                    //     section: "startup"
-                    // });
+                    file.read({
+                        callback: readChart,
+                        location: `${process_path}node_modules${vars.path.sep}chart.js${vars.path.sep}dist${vars.path.sep}chart.umd.min.js`,
+                        no_file: null,
+                        section: "startup"
+                    });
                     file.read({
                         callback: readCSS,
                         location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
