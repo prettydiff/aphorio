@@ -3450,8 +3450,12 @@ const dashboard = function dashboard():void {
                                         media:HTMLAudioElement = player.lastChild as HTMLAudioElement,
                                         progress_bar:HTMLElement = target.getElementsByClassName("progress")[0] as HTMLElement,
                                         distance:number = (event.clientX + window.scrollX) - target.offsetLeft,
-                                        percent:number = distance / target.clientWidth,
-                                        time:number = media.duration * percent;
+                                        percent:number = (isNaN(media.duration) === true)
+                                            ? 0
+                                            : distance / target.clientWidth,
+                                        time:number = (isNaN(media.duration) === true)
+                                            ? 0
+                                            : media.duration * percent;
                                     media.currentTime = time;
                                     progress_bar.style.width = `${percent * 100}%`;
                                 };
@@ -3778,8 +3782,8 @@ const dashboard = function dashboard():void {
                                         }
                                         source.setAttribute("type", fs.mime);
                                         item.appendChild(source);
-                                        item.load();
                                         tools.fileSystem.nodes.content.appendChild(tools.fileSystem.media[type]);
+                                        item.load();
                                     },
                                     h3:HTMLElement = document.createElement("h3");
                                 h3.textContent = "File Contents";
