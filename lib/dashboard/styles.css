@@ -229,7 +229,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .title{
         time{color:var(--text_yellow);display:inline-block;font-style:normal;font-weight:bold;margin:0 0 0 0.5em}
     }
-    #compose_containers{
+    #compose-containers{
         textarea.compose-variables-edit{height:10em}
         .compose-variable-list{
             padding:0;
@@ -421,7 +421,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     }
 
 
-    #compose_containers .container-properties {
+    #compose-containers .container-properties {
         margin:0;padding:0;
         li{border-style:none;display:list-item;list-style:none;margin:1em 0 0}
         strong{display:inline-block;width:12em}
@@ -446,15 +446,15 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         }
     }
 
-    #compose_containers li,
+    #compose-containers li,
     #servers_web li{border-color:var(--border_color);border-style:solid;border-width:0.1em;list-style:none}
 
     #file-system li,
-    #compose_containers .container-ports li,
-    #compose_containers .edit-summary li,
+    #compose-containers .container-ports li,
+    #compose-containers .edit-summary li,
     #servers_web .container-ports li,
     #servers_web .edit-summary li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
-    #compose_containers .edit-summary,
+    #compose-containers .edit-summary,
     #servers_web .edit-summary{margin:0;padding:0}
 
     #http,

@@ -506,7 +506,7 @@ declare global {
     }
 
     interface structure_services {
-        compose_containers: module_compose_containers;
+        "compose-containers": module_compose_containers;
         init: () => void;
         servers_web: module_servers_web;
         shared: module_serverShared;

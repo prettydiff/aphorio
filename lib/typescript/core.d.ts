@@ -236,6 +236,28 @@ interface core_vars {
         dashboard_id: string;
         dashboard_page: string;
         date_commit: number;
+        features: {
+            "application-logs": boolean;
+            "compose-containers": boolean;
+            "devices": boolean;
+            "disks": boolean;
+            "dns": boolean;
+            "file-system": boolean;
+            "hash": boolean;
+            "http": boolean;
+            "interfaces": boolean;
+            "os": boolean;
+            "ports-application": boolean;
+            "processes": boolean;
+            "servers_web": boolean;
+            "services": boolean;
+            "sockets-application": boolean;
+            "sockets-os": boolean;
+            "statistics": boolean;
+            "terminal": boolean;
+            "users": boolean;
+            "websocket": boolean;
+        };
         file: boolean;
         hash: string;
         hashes: string[];
@@ -253,7 +275,6 @@ interface core_vars {
         "list": string;
         "no-color": boolean;
         "no-exit": boolean;
-        "no-terminal": boolean;
         "test": boolean;
     };
     os: core_server_os;

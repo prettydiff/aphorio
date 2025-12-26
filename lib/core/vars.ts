@@ -67,6 +67,29 @@ const vars:core_vars = {
             dashboard_page: "",
             // last git commit date/time
             date_commit: 0,
+            // supported features of this running instance
+            features: {
+                "application-logs": true,
+                "compose-containers": true,
+                "devices": true,
+                "disks": true,
+                "dns": true,
+                "file-system": true,
+                "hash": true,
+                "http": true,
+                "interfaces": true,
+                "os": true,
+                "ports-application": true,
+                "processes": true,
+                "servers_web": true,
+                "services": true,
+                "sockets-application": true,
+                "sockets-os": true,
+                "statistics": true,
+                "terminal": true,
+                "users": true,
+                "websocket": true
+            },
             // whether linux "file" command is available in the OS system path
             file: false,
             // last git commit hash
@@ -109,7 +132,6 @@ const vars:core_vars = {
             "list": null,
             "no-color": false,
             "no-exit": false,
-            "no-terminal": false,
             "test": false
         },
         // raw OS data

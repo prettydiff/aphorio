@@ -8,6 +8,9 @@ import vars from "../core/vars.ts";
 import { detectAll } from "jschardet";
 
 const fileSystem = function services_fileSystem(socket_data:socket_data, transmit:transmit_socket):void {
+    if (vars.environment.features["file-system"] === false) {
+        return;
+    }
     const data:services_fileSystem = socket_data.data as services_fileSystem,
         service:services_fileSystem = {
             address: data.address,

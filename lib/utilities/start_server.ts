@@ -38,6 +38,100 @@ const start_server = function utilities_startServer(process_path:string, testing
                     }).execute();
                 }
             },
+            features: {
+                label: "Reading the features.json file and remove parts of the application.",
+                task: function utilities_startServer_features():void {
+                    const flags:store_string = {
+                            feature: null,
+                            html: null
+                        },
+                        ready = function utilities_startServer_features_ready():void {
+                            if (typeof flags.feature === "string" && typeof flags.html === "string") {
+                                const feature_list:store_flag = JSON.parse(flags.feature),
+                                    section = function utilities_startServer_features_ready_section(section:type_dashboard_features, label:string):void {
+                                        if (feature_list[section] !== true) {
+                                            const end:number = flags.html.indexOf(`<!-- ${section} end -->`),
+                                                start:number = flags.html.indexOf(`<!-- ${section} start -->`);
+                                            flags.html = flags.html.slice(0, start) + flags.html.slice(end + section.length + 13);
+                                            flags.html = (section === "servers_web")
+                                                ? flags.html.replace(`<li><button class="nav-focus" data-section="servers_web">${label}</button></li>`, "")
+                                                : flags.html.replace(`<li><button data-section="${section}">${label}</button></li>`, "");
+                                            vars.environment.features[section] = false;
+                                        } else {
+                                            vars.environment.features[section] = true;
+                                        }
+                                    },
+                                    parent = function utilities_startServer_features_ready_parent():void {
+                                        const nav_end:number = flags.html.indexOf("</nav>"),
+                                            empty:number = flags.html.slice(nav_start, nav_end).indexOf("<ul></ul>");
+                                        let start:number = empty + nav_start,
+                                            end:number = empty + nav_start;
+                                        if (empty > 0) {
+                                            do {
+                                                end = end + 1;
+                                            } while (flags.html.slice(end - 4, end) !== "div>");
+                                            do {
+                                                start = start - 1;
+                                            } while (flags.html.slice(start, start + 4) !== "<div");
+                                            flags.html = flags.html.slice(0, start) + flags.html.slice(end);
+                                            utilities_startServer_features_ready_parent();
+                                        } else {
+                                            if (vars.environment.features.servers_web === false) {
+                                                flags.html = flags.html.replace("<button", "<button class=\"nav-focus\"");
+                                            }
+                                            if ((/<h2>Navigation<\/h2>\s*<div class="first">/).test(flags.html) === false) {
+                                                flags.html = flags.html.replace(/<h2>Navigation<\/h2>\s*<div>/, "<h2>Navigation</h2> <div class=\"first\">");
+                                            }
+                                            start_prerequisites();
+                                        }
+                                    },
+                                    nav_start:number = flags.html.indexOf("<nav>");
+                                section("application-logs", "Application Logs");
+                                section("compose-containers", "Docker Compose");
+                                section("devices", "Devices");
+                                section("disks", "Disks");
+                                section("dns", "DNS Query");
+                                section("file-system", "File System");
+                                section("hash", "Hash / Base64");
+                                section("http", "HTTP Test");
+                                section("interfaces", "Interfaces");
+                                section("os", "OS/Machine");
+                                section("ports-application", "App Ports");
+                                section("processes", "Processes");
+                                section("servers_web", "Web Servers");
+                                section("services", "Services");
+                                section("sockets-application", "App Sockets");
+                                section("sockets-os", "OS Sockets");
+                                section("statistics", "Statistics");
+                                section("terminal", "Terminal");
+                                section("users", "Users");
+                                section("websocket", "WebSocket Test");
+                                parent();
+                                vars.environment.dashboard_page = flags.html;
+                            }
+                        },
+                        callback_html = function utilities_startServer_features_callbackHTML(html_file:Buffer):void {
+                            flags.html = html_file.toString();
+                            ready();
+                        },
+                        callback_feature = function utilities_startServer_features_callbackFeature(feature_file:Buffer):void {
+                            flags.feature = feature_file.toString();
+                            ready();
+                        };
+                    file.read({
+                        callback: callback_html,
+                        location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}dashboard.html`,
+                        no_file: null,
+                        section: "startup"
+                    });
+                    file.read({
+                        callback: callback_feature,
+                        location: `${vars.path.process}features.json`,
+                        no_file: null,
+                        section: "startup"
+                    });
+                }
+            },
             os_main: {
                 label: "Gathers basic operating system and machine data.",
                 task: function utilities_startServer_taskOSMain():void {
@@ -75,7 +169,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             cgroup: {
                 label: "Find Linux cgroup address for gathering precision docker performance metrics.",
                 task: function utilities_startServer_cgroup():void {
-                    if (vars.compose.status === "" && vars.os.process.admin === true) {
+                    if (vars.environment.features["compose-containers"] === true && vars.compose.status === "" && vars.os.process.admin === true) {
                         const addresses:string[] = [
                                 "/sys/fs/cgroup/system.slice/",
                                 "/sys/fs/cgroup/docker/",
@@ -111,17 +205,21 @@ const start_server = function utilities_startServer(process_path:string, testing
             file: {
                 label: "Unix 'file' command discovered.",
                 task: function utilities_startServer_file():void {
-                    if (process.platform === "win32") {
-                        vars.commands.file = `${vars.path.process}node_modules${vars.path.sep}file${vars.path.sep}bin${vars.path.sep}file.exe -bi `;
-                        complete_tasks("file");
-                        return;
-                    }
-                    spawn("file --help", function utilities_startServer_file_spawn(output:core_spawn_output):void {
-                        if (output.stdout.indexOf("Usage: file [OPTION...] [FILE...]") === 0) {
-                            vars.commands.file = "file -bi ";
+                    if (vars.environment.features["file-system"] === true) {
+                        if (process.platform === "win32") {
+                            vars.commands.file = `${vars.path.process}node_modules${vars.path.sep}file${vars.path.sep}bin${vars.path.sep}file.exe -bi `;
+                            complete_tasks("file");
+                            return;
                         }
+                        spawn("file --help", function utilities_startServer_file_spawn(output:core_spawn_output):void {
+                            if (output.stdout.indexOf("Usage: file [OPTION...] [FILE...]") === 0) {
+                                vars.commands.file = "file -bi ";
+                            }
+                            complete_tasks("file");
+                        }).execute();
+                    } else {
                         complete_tasks("file");
-                    }).execute();
+                    }
                 }
             },
             git: {
@@ -161,88 +259,75 @@ const start_server = function utilities_startServer(process_path:string, testing
                         complete = function utilities_startServer_taskHTML_complete(key:string):void {
                             flags[key] = true;
                             if (flags.chart === true && flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
-                                file.read({
-                                    callback: function utilities_startServer_taskHTML_readXterm_readHTML(fileContents:Buffer):void {
-                                        const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
-                                            chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, ""),
-                                            term_end:string = "<!-- terminal end -->",
-                                            term_start:string = "<!-- terminal start -->";
-                                        let total_script:string = null,
-                                            script:string = dashboard_script
-                                                .toString()
-                                                .replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`)
-                                                .replace(/\(\s*\)/, "(core)");
-                                        if (testing === true) {
-                                            const testBrowser:string = test_browser
-                                                .toString()
-                                                .replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
-                                            script = script
-                                                .replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`)
-                                                .replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
-                                        }
-                                        vars.environment.dashboard_page = fileContents.toString();
-                                        if (vars.options["no-terminal"] === true) {
-                                            vars.environment.dashboard_page = vars.environment.dashboard_page.slice(0, vars.environment.dashboard_page.indexOf(term_start)) + vars.environment.dashboard_page.slice(vars.environment.dashboard_page.indexOf(term_end) + term_end.length);
-                                            vars.environment.dashboard_page = vars.environment.dashboard_page.replace("<li><button data-section=\"terminal\">Terminal</button></li>", "");
-                                        }
-                                        total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`;
-                                        vars.environment.dashboard_page = vars.environment.dashboard_page
-                                            .replace("Server Management Dashboard", `${vars.environment.name.capitalize()} Dashboard`)
-                                            .replace("replace_javascript", total_script)
-                                            .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
-                                        complete_tasks("html");
-                                    },
-                                    location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}dashboard.html`,
-                                    no_file: null,
-                                    section: "startup"
-                                });
+                                const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
+                                    chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, "");
+                                let total_script:string = null,
+                                    script:string = dashboard_script
+                                        .toString()
+                                        .replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`)
+                                        .replace(/\(\s*\)/, "(core)");
+                                if (testing === true) {
+                                    const testBrowser:string = test_browser
+                                        .toString()
+                                        .replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
+                                    script = script
+                                        .replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`)
+                                        .replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
+                                }
+                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`;
+                                vars.environment.dashboard_page = vars.environment.dashboard_page
+                                    .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard`)
+                                    .replace("replace_javascript", total_script)
+                                    .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
+                                complete_tasks("html");
                             }
-                        },
-                        readChart = function utilities_startServer_taskHTML_readChart(file:Buffer):void {
-                            chart_js = file.toString();
-                            complete("chart");
-                        },
-                        readXtermCSS = function utilities_startServer_taskHTML_readXtermCSS(file:Buffer):void {
-                            xterm_css = file.toString();
-                            complete("xterm_css");
-                        },
-                        readXtermJS = function utilities_startServer_taskHTML_readXtermJS(file:Buffer):void {
-                            xterm_js = file.toString();
-                            complete("xterm_js");
-                        },
-                        readCSS = function utilities_startServer_taskCSS_readCSS(fileContents:Buffer):void {
-                            const css:string = fileContents.toString();
-                            vars.css.complete = css.slice(css.indexOf(":root"));
-                            vars.css.basic = vars.css.complete.slice(0, css.indexOf("/* end basic html */"));
-                            complete("css");
                         };
-                    if (vars.options["no-terminal"] === true) {
-                        flags.xterm_css = true;
-                        flags.xterm_js = true;
-                        xterm_js = "";
-                        xterm_css = "";
-                    } else {
+                    if (vars.environment.features.terminal === true) {
                         file.read({
-                            callback: readXtermCSS,
+                            callback: function utilities_startServer_taskHTML_readXtermCSS(file:Buffer):void {
+                                xterm_css = file.toString();
+                                complete("xterm_css");
+                            },
                             location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`,
                             no_file: null,
                             section: "startup"
                         });
                         file.read({
-                            callback: readXtermJS,
+                            callback: function utilities_startServer_taskHTML_readXtermJS(file:Buffer):void {
+                                xterm_js = file.toString();
+                                complete("xterm_js");
+                            },
                             location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}lib${vars.path.sep}xterm.js`,
                             no_file: null,
                             section: "startup"
                         });
+                    } else {
+                        flags.xterm_css = true;
+                        flags.xterm_js = true;
+                        xterm_js = "";
+                        xterm_css = "";
+                    }
+                    if (vars.environment.features.statistics === true) {
+                        file.read({
+                            callback: function utilities_startServer_taskHTML_readChart(file:Buffer):void {
+                                chart_js = file.toString();
+                                complete("chart");
+                            },
+                            location: `${process_path}node_modules${vars.path.sep}chart.js${vars.path.sep}dist${vars.path.sep}chart.umd.min.js`,
+                            no_file: null,
+                            section: "startup"
+                        });
+                    } else {
+                        flags.chart = true;
+                        chart_js = "";
                     }
                     file.read({
-                        callback: readChart,
-                        location: `${process_path}node_modules${vars.path.sep}chart.js${vars.path.sep}dist${vars.path.sep}chart.umd.min.js`,
-                        no_file: null,
-                        section: "startup"
-                    });
-                    file.read({
-                        callback: readCSS,
+                        callback: function utilities_startServer_taskCSS_readCSS(fileContents:Buffer):void {
+                            const css:string = fileContents.toString();
+                            vars.css.complete = css.slice(css.indexOf(":root"));
+                            vars.css.basic = vars.css.complete.slice(0, css.indexOf("/* end basic html */"));
+                            complete("css");
+                        },
                         location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
                         no_file: null,
                         section: "startup"
@@ -252,28 +337,40 @@ const start_server = function utilities_startServer(process_path:string, testing
             os_devs: {
                 label: "Gathers a list of devices registered with the OS kernel.",
                 task: function utilities_startServer_taskOSDevs():void {
-                    const callback = function utilities_startServer_taskOSDevs_callback():void {
-                            complete_tasks("os_devs");
-                        };
-                    os_lists("devs", callback);
+                    if (vars.environment.features.devices === true) {
+                        const callback = function utilities_startServer_taskOSDevs_callback():void {
+                                complete_tasks("os_devs");
+                            };
+                        os_lists("devs", callback);
+                    } else {
+                        complete_tasks("os_devs");
+                    }
                 }
             },
             os_disk: {
                 label: "Gathers information about disk hardware and partitions.",
                 task: function utilities_startServer_taskOSDisk():void {
-                    const callback = function utilities_startServer_taskOSDisk_callback():void {
-                            complete_tasks("os_disk");
-                        };
-                    os_lists("disk", callback);
+                    if (vars.environment.features.disks === true) {
+                        const callback = function utilities_startServer_taskOSDisk_callback():void {
+                                complete_tasks("os_disk");
+                            };
+                        os_lists("disk", callback);
+                    } else {
+                        complete_tasks("os_disk");
+                    }
                 }
             },
             os_intr: {
                 label: "Gathers information about the state of available network interfaces.",
                 task: function utilities_startServer_taskOSIntr():void {
-                    const callback = function utilities_startServer_taskOSIntr_callback():void {
+                    if (vars.environment.features.interfaces === true) {
+                        const callback = function utilities_startServer_taskOSIntr_callback():void {
+                            complete_tasks("os_intr");
+                        };
+                        os_lists("intr", callback);
+                    } else {
                         complete_tasks("os_intr");
-                    };
-                    os_lists("intr", callback);
+                    }
                 }
             },
             os_proc: {
@@ -283,37 +380,53 @@ const start_server = function utilities_startServer(process_path:string, testing
                         complete_tasks("os_proc");
                     }
                     : function utilities_startServer_taskOSProc():void {
-                        const callback = function utilities_startServer_taskOSProc_callback():void {
+                        if (vars.environment.features.processes === true) {
+                            const callback = function utilities_startServer_taskOSProc_callback():void {
+                                complete_tasks("os_proc");
+                            };
+                            os_lists("proc", callback);
+                        } else {
                             complete_tasks("os_proc");
-                        };
-                        os_lists("proc", callback);
+                        }
                     }
             },
             os_serv: {
                 label: "Gathers a list of known services.",
                 task: function utilities_startServer_taskOSServ():void {
-                    const callback = function utilities_startServer_taskOSServ_callback():void {
+                    if (vars.environment.features.services === true) {
+                        const callback = function utilities_startServer_taskOSServ_callback():void {
+                            complete_tasks("os_serv");
+                        };
+                        os_lists("serv", callback);
+                    } else {
                         complete_tasks("os_serv");
-                    };
-                    os_lists("serv", callback);
+                    }
                 }
             },
             os_sock: {
                 label: "Gathers a list of known network sockets.",
                 task: function utilities_startServer_taskOSSock():void {
-                    const callback = function utilities_startServer_taskOSSock_callback():void {
+                    if (vars.environment.features["sockets-os"] === true) {
+                        const callback = function utilities_startServer_taskOSSock_callback():void {
+                            complete_tasks("os_sock");
+                        };
+                        os_lists("sock", callback);
+                    } else {
                         complete_tasks("os_sock");
-                    };
-                    os_lists("sock", callback);
+                    }
                 }
             },
             os_user: {
                 label: "Gathers a list of user accounts.",
                 task: function utilities_startServer_taskOSUser():void {
-                    const callback = function utilities_startServer_taskOSUser_callback():void {
+                    if (vars.environment.features.users === true) {
+                        const callback = function utilities_startServer_taskOSUser_callback():void {
+                            complete_tasks("os_user");
+                        };
+                        os_lists("user", callback);
+                    } else {
                         complete_tasks("os_user");
-                    };
-                    os_lists("user", callback);
+                    }
                 }
             },
             servers: {
@@ -342,48 +455,52 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 : keys_srv.length,
                             server:server = null,
                             sub:number = 0;
-                        if (config !== null && config.stats !== undefined) {
-                            vars.stats.frequency = config.stats.frequency;
-                            vars.stats.records = config.stats.records;
+                        if (config !== null) {
+                            vars.environment.dashboard_id = config.dashboard_id;
+                            if (config.stats !== undefined) {
+                                vars.stats.frequency = config.stats.frequency;
+                                vars.stats.records = config.stats.records;
+                            }
                         }
                         if (index_srv > 0) {
-                            vars.environment.dashboard_id = config.dashboard_id;
                             vars.compose.variables = config["compose-variables"];
                             do {
                                 index_srv = index_srv - 1;
-                                index_int = keys_int.length;
-                                server = {
-                                    config: config.servers[keys_srv[index_srv]],
-                                    sockets: [],
-                                    status: {
-                                        open: 0,
-                                        secure: 0
-                                    }
-                                };
-                                if (server.config.ports === null || server.config.ports === undefined) {
-                                    server.config.ports = {
-                                        open: 0,
-                                        secure: 0
+                                if (vars.environment.features.servers_web === true || config.servers[keys_srv[index_srv]].id === config.dashboard_id) {
+                                    index_int = keys_int.length;
+                                    server = {
+                                        config: config.servers[keys_srv[index_srv]],
+                                        sockets: [],
+                                        status: {
+                                            open: 0,
+                                            secure: 0
+                                        }
                                     };
-                                } else {
-                                    if (typeof server.config.ports.open !== "number") {
-                                        server.config.ports.open = 0;
+                                    if (server.config.ports === null || server.config.ports === undefined) {
+                                        server.config.ports = {
+                                            open: 0,
+                                            secure: 0
+                                        };
+                                    } else {
+                                        if (typeof server.config.ports.open !== "number") {
+                                            server.config.ports.open = 0;
+                                        }
+                                        if (typeof server.config.ports.secure !== "number") {
+                                            server.config.ports.secure = 0;
+                                        }
                                     }
-                                    if (typeof server.config.ports.secure !== "number") {
-                                        server.config.ports.secure = 0;
+                                    if (server.config.block_list === undefined || server.config.block_list === null) {
+                                        server.config.block_list = {
+                                            host: [],
+                                            ip: [],
+                                            referrer: []
+                                        };
                                     }
+                                    if (Array.isArray(server.config.domain_local) === false) {
+                                        server.config.domain_local = [];
+                                    }
+                                    vars.servers[server.config.id] = server;
                                 }
-                                if (server.config.block_list === undefined || server.config.block_list === null) {
-                                    server.config.block_list = {
-                                        host: [],
-                                        ip: [],
-                                        referrer: []
-                                    };
-                                }
-                                if (Array.isArray(server.config.domain_local) === false) {
-                                    server.config.domain_local = [];
-                                }
-                                vars.servers[server.config.id] = server;
                             } while (index_srv > 0);
                         }
                         do {
@@ -743,9 +860,7 @@ const start_server = function utilities_startServer(process_path:string, testing
     log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);
 
     // update OS list of available shells
-    if (vars.options["no-terminal"] === true) {
-        start_prerequisites();
-    } else {
+    if (vars.environment.features.terminal === true) {
         if (process.platform === "win32") {
             const stats = function utilities_startServer_tasksShell_shellWin(index:number):void {
                 node.fs.stat(vars.environment.terminal[index], function utilities_startServer_tasksShell_shellWin_callback(err:node_error) {
@@ -795,6 +910,8 @@ const start_server = function utilities_startServer(process_path:string, testing
                 section: "startup"
             });
         }
+    } else {
+        start_prerequisites();
     }
 };
 

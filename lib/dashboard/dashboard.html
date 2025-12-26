@@ -21,7 +21,7 @@
 </head>
 <body id="dashboard">
     <div class="title">
-        <h1>Dashboard</h1>
+        <h1>Server Management Dashboard</h1>
         <p><span>Page Load Time:</span><time>0.00000 seconds</time></p>
         <p id="clock"><span>Server Time:</span><time>00:00:00L (00:00:00Z)</time></p>
     </div>
@@ -30,7 +30,7 @@
         <h2>Navigation</h2>
         <div class="first">
             <h3>Services</h3>
-            <ul><li><button class="nav-focus" data-section="servers_web">Web Servers</button></li><li><button data-section="compose_containers">Docker Compose</button></li><li><button data-section="statistics">Statistics</button></li></ul>
+            <ul><li><button class="nav-focus" data-section="servers_web">Web Servers</button></li><li><button data-section="compose-containers">Docker Compose</button></li><li><button data-section="statistics">Statistics</button></li></ul>
         </div>
         <div>
             <h3>Network</h3>
@@ -51,12 +51,15 @@
         <span class="clear"></span>
     </nav>
     <main>
+        <!-- application-logs start -->
         <div class="tab" id="application-logs">
             <h2>Logs</h2>
             <p class="tab-description">At this time logs are not saved outside the application, but do persist for the life of the application runtime.</p>
             <ul></ul>
         </div>
-        <div class="tab" id="compose_containers">
+        <!-- application-logs end -->
+        <!-- compose-containers start -->
+        <div class="tab" id="compose-containers">
             <h2>Docker Compose</h2>
             <p class="tab-description">All containers run under the Docker daemon detached from this application.</p>
             <p class="status"></p>
@@ -81,6 +84,8 @@
                 </div>
             </div>
         </div>
+        <!-- compose-containers end -->
+        <!-- devices start -->
         <div class="tab" id="devices">
             <h2>Devices</h2>
             <p class="tab-description">A list of hardware devices registered with the OS kernel.</p>
@@ -109,6 +114,8 @@
                 </table>
             </div>
         </div>
+        <!-- devices end -->
+        <!-- disks start -->
         <div class="tab" id="disks">
             <h2>Storage Devices</h2>
             <p class="tab-description">A list of storage devices and their partitions. Data automatically refreshes at server's midnight time.</p>
@@ -121,6 +128,8 @@
                 <div class="item-list"></div>
             </div>
         </div>
+        <!-- disks end -->
+        <!-- dns start -->
         <div class="tab" id="dns">
             <h2>DNS Query</h2>
             <p class="tab-description">Test DNS name resolution from the application's location.</p>
@@ -164,6 +173,8 @@
                 <p><label>List of DNS resolutions in beautified JSON format <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
             </div>
         </div>
+        <!-- dns end -->
+        <!-- faq start -->
         <div class="tab" id="faq">
             <h2>Frequently Asked Questions</h2>
             <p class="tab-description">Please review these items to help troubleshoot common problems.</p>
@@ -320,6 +331,8 @@
                 </div>
             </div>
         </div>
+        <!-- faq end -->
+        <!-- file-system start -->
         <div class="tab" id="file-system">
             <h2>File System</h2>
             <p class="tab-description">This tool allows navigating the hosting machine's file system.</p>
@@ -394,6 +407,8 @@
                 <ul class="file-system-failures"></ul>
             </div>
         </div>
+        <!-- file-system end -->
+        <!-- hash start -->
         <div class="tab" id="hash">
             <h2>Hash / Base64</h2>
             <p class="tab-description">Generate a hash tokens from custom input or the file system.</p>
@@ -446,6 +461,8 @@
                 <p>Input size: <strong>0</strong> bytes.</p>
             </div>
         </div>
+        <!-- hash end -->
+        <!-- help start -->
         <div class="tab" id="help">
             <h2>Help</h2>
             <p class="tab-description">Helpful information about this application.</p>
@@ -465,7 +482,6 @@
                         <li><em>list:&lt;file_path&gt;</em> - Use this argument to specify a single test list, by file path, to execute during test mode.</li>
                         <li><em>no-color</em> - If present this option tells the application to never use ANSI formatting in terminal output.</li>
                         <li><em>no-exit</em> - If present this option tells the application to continue running at the conclusion of test mode, which is helpful to further interact with and debug the dashboard UI.</li>
-                        <li><em>no-terminal</em> - If present this option removes all remote terminal code from the application at application start up.</li>
                         <li><em>test</em> - If present this option instructs the application to execute test automation.</li>
                     </ul>
                 </div>
@@ -581,6 +597,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
         </div>
+        <!-- help end -->
+        <!-- http start -->
         <div class="tab" id="http">
             <h2>HTTP Test</h2>
             <p class="tab-description">A means to write arbitrary HTTP requests and read the raw response.</p>
@@ -648,6 +666,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </ul>
             </div>
         </div>
+        <!-- http end -->
+        <!-- interfaces start -->
         <div class="tab" id="interfaces">
             <h2>Network Interfaces</h2>
             <p class="tab-description">A list of network interfaces and their addressing information. Data automatically refreshes at server's midnight time.</p>
@@ -660,6 +680,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <div class="item-list"></div>
             </div>
         </div>
+        <!-- interfaces end -->
+        <!-- os start -->
         <div class="tab" id="os">
             <h2>OS/Machine</h2>
             <p class="tab-description">A list of descriptive and statistical data about the application's executing environment. Data automatically refreshes at server's midnight time.</p>
@@ -737,6 +759,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
         </div>
+        <!-- os end -->
+        <!-- ports-application start -->
         <div class="tab" id="ports-application">
             <h2>App Ports</h2>
             <p class="tab-description">A list of ports listened upon by web servers and docker containers managed from this dashboard.</p>
@@ -766,6 +790,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
+        <!-- ports-application end -->
+        <!-- processes start -->
         <div class="tab" id="processes">
             <h2>Processes</h2>
             <p class="tab-description">A list of processes running in the local operating system. Data automatically refreshes at server's midnight time.</p>
@@ -796,6 +822,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
+        <!-- processes end -->
+        <!-- servers_web start -->
         <div class="tab" id="servers_web">
             <h2>Web Servers</h2>
             <p class="tab-description">A list of configured HTTP/WS servers hosted by this application and their respective status.</p>
@@ -892,6 +920,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <ul class="server-list"></ul>
             </div>
         </div>
+        <!-- servers_web end -->
+        <!-- services start -->
         <div class="tab" id="services">
             <h2>Services</h2>
             <p class="tab-description">A list of application services on the local operating system. Data automatically refreshes at server's midnight time.</p>
@@ -920,6 +950,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
+        <!-- services end -->
+        <!-- sockets-application start -->
         <div class="tab" id="sockets-application">
             <h2>App Sockets</h2>
             <p class="tab-description">A list of sockets created by this application. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time. Local address and port are from the perspective of the application server. Remote address and port could represent the local web browser.</p>
@@ -957,6 +989,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
+        <!-- sockets-application end -->
+        <!-- sockets-os start -->
         <div class="tab" id="sockets-os">
             <h2>OS Sockets</h2>
             <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
@@ -989,6 +1023,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
+        <!-- sockets-os end -->
+        <!-- statistics start -->
         <div class="tab" id="statistics">
             <h2>Statistics</h2>
             <p class="tab-description">Providing a real time metrics for supported services.</p>
@@ -1013,6 +1049,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <div class="graphs"></div>
             </div>
         </div>
+        <!-- statistics end -->
         <!-- terminal start -->
         <div class="tab" id="terminal">
             <h2>Terminal</h2>
@@ -1069,6 +1106,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- terminal end -->
+        <!-- users start -->
         <div class="tab" id="users">
             <h2>Users</h2>
             <p class="tab-description">A list of user accounts on the local operating system. Data automatically refreshes at server's midnight time.</p>
@@ -1099,6 +1137,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
+        <!-- users end -->
+        <!-- websocket start -->
         <div class="tab" id="websocket">
             <h2>WebSocket Test</h2>
             <p class="tab-description">A tool to open and experiment with arbitrary WebSocket messaging.</p>
@@ -1200,5 +1240,6 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
         </div>
+        <!-- websocket end -->
     </main>
 <script type="module">replace_javascript</script></body></html>

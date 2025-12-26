@@ -4,11 +4,13 @@ import vars from "./vars.ts";
 
 const log:log = {
     application: function utilities_logApplication(config:config_log):void {
-        vars.environment.logs.push(config);
-        broadcast(vars.environment.dashboard_id, "dashboard", {
-            data: config,
-            service: "dashboard-log"
-        });
+        if (vars.environment.features["application-logs"] === true) {
+            vars.environment.logs.push(config);
+            broadcast(vars.environment.dashboard_id, "dashboard", {
+                data: config,
+                service: "dashboard-log"
+            });
+        }
     },
     shell: function utilities_logShell(input:string[], summary?:boolean):void {
         const logger = function utilities_logShell_logger(item:string):void {

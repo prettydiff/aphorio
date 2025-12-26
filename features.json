@@ -1,0 +1,22 @@
+{
+    "application-logs": true,
+    "compose-containers": false,
+    "devices": true,
+    "disks": true,
+    "dns": true,
+    "file-system": true,
+    "hash": true,
+    "http": true,
+    "interfaces": true,
+    "os": true,
+    "ports-application": true,
+    "processes": true,
+    "servers_web": false,
+    "services": true,
+    "sockets-application": true,
+    "sockets-os": true,
+    "statistics": false,
+    "terminal": true,
+    "users": true,
+    "websocket": true
+}

@@ -383,14 +383,14 @@ const dashboard = function dashboard():void {
                     fileSummary[7].getElementsByTagName("strong")[0].textContent = "";
                     fileSummary[8].getElementsByTagName("strong")[0].textContent = "";
                     server_new.disabled = false;
-                    services.compose_containers.nodes.body.style.display = "block";
-                    services.compose_containers.nodes.list.textContent = "";
-                    services.compose_containers.nodes.list_variables.textContent = "";
-                    services.compose_containers.nodes.status.style.display = "none";
-                    services.compose_containers.nodes.status.textContent = "";
-                    services.compose_containers.nodes.update_containers.textContent = "";
-                    services.compose_containers.nodes.update_time.textContent = "";
-                    services.compose_containers.nodes.update_variables.textContent = "";
+                    services["compose-containers"].nodes.body.style.display = "block";
+                    services["compose-containers"].nodes.list.textContent = "";
+                    services["compose-containers"].nodes.list_variables.textContent = "";
+                    services["compose-containers"].nodes.status.style.display = "none";
+                    services["compose-containers"].nodes.status.textContent = "";
+                    services["compose-containers"].nodes.update_containers.textContent = "";
+                    services["compose-containers"].nodes.update_time.textContent = "";
+                    services["compose-containers"].nodes.update_variables.textContent = "";
                     services.servers_web.nodes.list = replace(serverList, true);
                     status.setAttribute("class", "connection-offline");
                     status.getElementsByTagName("strong")[0].textContent = "Offline";
@@ -646,7 +646,7 @@ const dashboard = function dashboard():void {
                         const message_item:socket_data = JSON.parse(event.data),
                             service_map:map_messages = {
                                 // "test-browser": testBrowser,
-                                "dashboard-compose": services.compose_containers.list,
+                                "dashboard-compose": services["compose-containers"].list,
                                 "dashboard-dns": tools.dns.receive,
                                 "dashboard-fileSystem": tools.fileSystem.receive,
                                 "dashboard-hash": tools.hash.receive,
@@ -726,7 +726,6 @@ const dashboard = function dashboard():void {
                         tools.hash.init();
                         utility.nodes.main.style.display = "block";
                         utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
-                        title.textContent = `${payload.name.capitalize()} Dashboard`;
                         version.textContent = `version ${payload.version}`;
                         title.appendChild(version);
                     }
@@ -735,7 +734,7 @@ const dashboard = function dashboard():void {
             })
         },
         services:structure_services = {
-            compose_containers: {
+            "compose-containers": {
                 descriptions: function dashboard_composeContainersDescriptions(id:string):HTMLElement {
                     const div:HTMLElement = document.createElement("div"),
                         p:HTMLElement = document.createElement("p"),
@@ -790,8 +789,8 @@ const dashboard = function dashboard():void {
                             section:HTMLElement = target.getAncestor("section", "class"),
                             edit:HTMLElement = section.getElementsByClassName("edit")[0] as HTMLElement;
                         edit.parentNode.removeChild(edit);
-                        services.compose_containers.nodes.list_variables.style.display = "block";
-                        services.compose_containers.nodes.new_variable.disabled = false;
+                        services["compose-containers"].nodes.list_variables.style.display = "block";
+                        services["compose-containers"].nodes.new_variable.disabled = false;
                     },
                     edit_variable: function dashboard_composeVariablesEdit():void {
                         const p:HTMLElement = document.createElement("p"),
@@ -817,14 +816,14 @@ const dashboard = function dashboard():void {
                         ul.setAttribute("class", "edit-summary");
                         cancel.appendText("⚠ Cancel");
                         cancel.setAttribute("class", "server-cancel");
-                        cancel.onclick = services.compose_containers.events.cancel_variable;
+                        cancel.onclick = services["compose-containers"].events.cancel_variable;
                         buttons.appendChild(cancel);
                         save.appendText("🖪 Modify");
                         save.setAttribute("class", "server-modify");
-                        save.onclick = services.compose_containers.events.message_variable;
+                        save.onclick = services["compose-containers"].events.message_variable;
                         buttons.appendChild(save);
                         textArea.setAttribute("class", "compose-variables-edit");
-                        services.compose_containers.nodes.list_variables.style.display = "none";
+                        services["compose-containers"].nodes.list_variables.style.display = "none";
                         label.appendText("Docker Compose Variables");
                         label.appendChild(textArea);
                         p.setAttribute("class", "compose-edit");
@@ -833,10 +832,10 @@ const dashboard = function dashboard():void {
                         edit.appendChild(p);
                         edit.appendChild(ul);
                         edit.appendChild(buttons);
-                        services.compose_containers.nodes.list_variables.parentNode.appendChild(edit);
-                        services.compose_containers.nodes.new_variable.disabled = true;
-                        textArea.onkeyup = services.compose_containers.events.validate_variables;
-                        textArea.onfocus = services.compose_containers.events.validate_variables;
+                        services["compose-containers"].nodes.list_variables.parentNode.appendChild(edit);
+                        services["compose-containers"].nodes.new_variable.disabled = true;
+                        textArea.onkeyup = services["compose-containers"].events.validate_variables;
+                        textArea.onfocus = services["compose-containers"].events.validate_variables;
                         textArea.focus();
                     },
                     message_container: function dashboard_composeContainersMessage(event:MouseEvent):void {
@@ -857,7 +856,7 @@ const dashboard = function dashboard():void {
                                     : payload.compose.containers[id].location
                             };
                         utility.message_send(message, "dashboard-compose-container");
-                        services.compose_containers.nodes.new_container.disabled = false;
+                        services["compose-containers"].nodes.new_container.disabled = false;
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
                         } else {
@@ -871,7 +870,7 @@ const dashboard = function dashboard():void {
                             value:string = edit.getElementsByTagName("textarea")[0].value,
                             variables:store_string = JSON.parse(value);
                         utility.message_send(variables, "dashboard-compose-variables");
-                        services.compose_containers.nodes.new_variable.disabled = false;
+                        services["compose-containers"].nodes.new_variable.disabled = false;
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
                         } else {
@@ -993,7 +992,7 @@ const dashboard = function dashboard():void {
                     const data:core_compose = socket_data.data as core_compose,
                         list:string[] = (data.containers === null)
                             ? []
-                            : Object.keys(data.containers).sort(function dashboard_compose_containersList(a:string, b:string):-1|1 {
+                            : Object.keys(data.containers).sort(function dashboard_composeContainersList(a:string, b:string):-1|1 {
                                 const nameA:string = (a.includes(".y") === true)
                                         ? a.split(payload.path.sep).pop()
                                         : data.containers[a].name,
@@ -1008,8 +1007,8 @@ const dashboard = function dashboard():void {
                         variables:string[] = (data.variables === null)
                             ? []
                             : Object.keys(data.variables).sort(),
-                        list_containers:HTMLElement = services.compose_containers.nodes.list,
-                        list_variables:HTMLElement = services.compose_containers.nodes.list_variables,
+                        list_containers:HTMLElement = services["compose-containers"].nodes.list,
+                        list_variables:HTMLElement = services["compose-containers"].nodes.list_variables,
                         len_containers:number = list.length,
                         len_variables:number = variables.length;
                     let li:HTMLElement = null,
@@ -1052,41 +1051,41 @@ const dashboard = function dashboard():void {
                             list_variables.style.display = "none";
                         }
                     }
-                    services.compose_containers.nodes.update_containers.textContent = len_containers.toString();
-                    services.compose_containers.nodes.update_variables.textContent = len_variables.toString();
-                    services.compose_containers.nodes.update_time.textContent = data.time.dateTime(true, payload.timeZone_offset);
+                    services["compose-containers"].nodes.update_containers.textContent = len_containers.toString();
+                    services["compose-containers"].nodes.update_variables.textContent = len_variables.toString();
+                    services["compose-containers"].nodes.update_time.textContent = data.time.dateTime(true, payload.timeZone_offset);
                     network.ports_application.list();
                 },
                 nodes: {
-                    body: document.getElementById("compose_containers").getElementsByClassName("compose-body")[0] as HTMLElement,
-                    list: document.getElementById("compose_containers").getElementsByClassName("compose-container-list")[0] as HTMLElement,
-                    list_variables: document.getElementById("compose_containers").getElementsByClassName("compose-variable-list")[0] as HTMLElement,
-                    new_container: document.getElementById("compose_containers").getElementsByClassName("compose-container-new")[0] as HTMLButtonElement,
-                    new_variable: document.getElementById("compose_containers").getElementsByClassName("compose-variable-new")[0] as HTMLButtonElement,
-                    status: document.getElementById("compose_containers").getElementsByClassName("status")[0] as HTMLElement,
-                    update_button: document.getElementById("compose_containers").getElementsByClassName("update-button")[0].getElementsByTagName("button")[0],
-                    update_containers: document.getElementById("compose_containers").getElementsByClassName("section")[0].getElementsByTagName("em")[0],
-                    update_time: document.getElementById("compose_containers").getElementsByClassName("section")[0].getElementsByTagName("time")[0],
-                    update_variables: document.getElementById("compose_containers").getElementsByClassName("section")[0].getElementsByTagName("em")[1]
+                    body: document.getElementById("compose-containers").getElementsByClassName("compose-body")[0] as HTMLElement,
+                    list: document.getElementById("compose-containers").getElementsByClassName("compose-container-list")[0] as HTMLElement,
+                    list_variables: document.getElementById("compose-containers").getElementsByClassName("compose-variable-list")[0] as HTMLElement,
+                    new_container: document.getElementById("compose-containers").getElementsByClassName("compose-container-new")[0] as HTMLButtonElement,
+                    new_variable: document.getElementById("compose-containers").getElementsByClassName("compose-variable-new")[0] as HTMLButtonElement,
+                    status: document.getElementById("compose-containers").getElementsByClassName("status")[0] as HTMLElement,
+                    update_button: document.getElementById("compose-containers").getElementsByClassName("update-button")[0].getElementsByTagName("button")[0],
+                    update_containers: document.getElementById("compose-containers").getElementsByClassName("section")[0].getElementsByTagName("em")[0],
+                    update_time: document.getElementById("compose-containers").getElementsByClassName("section")[0].getElementsByTagName("time")[0],
+                    update_variables: document.getElementById("compose-containers").getElementsByClassName("section")[0].getElementsByTagName("em")[1]
                 }
             },
             init: function dashboard_composeVariablesInit():void {
                 if (payload.compose.status === "") {
-                    services.compose_containers.nodes.new_container.onclick = services.shared.create;
-                    services.compose_containers.nodes.new_variable.onclick = services.compose_containers.events.edit_variable;
-                    services.compose_containers.nodes.update_button.onclick = services.compose_containers.events.update;
-                    services.compose_containers.nodes.update_time.onclick = null;
-                    services.compose_containers.list({
+                    services["compose-containers"].nodes.new_container.onclick = services.shared.create;
+                    services["compose-containers"].nodes.new_variable.onclick = services["compose-containers"].events.edit_variable;
+                    services["compose-containers"].nodes.update_button.onclick = services["compose-containers"].events.update;
+                    services["compose-containers"].nodes.update_time.onclick = null;
+                    services["compose-containers"].list({
                         data: payload.compose,
                         service: "dashboard-compose"
                     });
                 } else {
                     const strong:HTMLElement = document.createElement("strong");
                     strong.textContent = "Error: ";
-                    services.compose_containers.nodes.body.style.display = "none";
-                    services.compose_containers.nodes.status.appendChild(strong);
-                    services.compose_containers.nodes.status.appendText(payload.compose.status);
-                    services.compose_containers.nodes.status.style.display = "block";
+                    services["compose-containers"].nodes.body.style.display = "none";
+                    services["compose-containers"].nodes.status.appendChild(strong);
+                    services["compose-containers"].nodes.status.appendText(payload.compose.status);
+                    services["compose-containers"].nodes.status.style.display = "block";
                 }
                 services.statistics.nodes.frequency.onblur = services.statistics.definitions;
                 services.statistics.nodes.frequency.onkeyup = services.statistics.definitions;
@@ -1576,7 +1575,7 @@ const dashboard = function dashboard():void {
                         edit:HTMLElement = target.getAncestor("edit", "class"),
                         create:HTMLButtonElement = (section === "servers_web")
                             ? services[section as "servers_web"].nodes.service_new
-                            : services[section as "compose_containers"].nodes.new_variable;
+                            : services[section as "compose-containers"].nodes.new_variable;
                     edit.parentNode.removeChild(edit);
                     create.disabled = false;
                 },
@@ -1814,7 +1813,7 @@ const dashboard = function dashboard():void {
                         textArea.value = value;
                         textArea.spellcheck = false;
                         textArea.readOnly = true;
-                        if (section === "compose_containers") {
+                        if (section === "compose-containers") {
                             span.appendText("Docker Compose YAML");
                         } else {
                             span.appendText("Server Configuration");
@@ -1874,8 +1873,8 @@ const dashboard = function dashboard():void {
                         note:HTMLElement = document.createElement("p"),
                         textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
                         summary:HTMLElement = edit.getElementsByClassName("summary")[0] as HTMLElement,
-                        message:(event:MouseEvent) => void = (section === "compose_containers")
-                            ? services.compose_containers.events.message_container
+                        message:(event:MouseEvent) => void = (section === "compose-containers")
+                            ? services["compose-containers"].events.message_container
                             : services[section as "servers_web"].message;
                     save.disabled = true;
                     summary.style.display = "block";
@@ -1923,7 +1922,7 @@ const dashboard = function dashboard():void {
                     p.appendChild(clear);
                     p.setAttribute("class", "buttons");
                     if (createServer === true) {
-                        if (section === "compose_containers") {
+                        if (section === "compose-containers") {
                             note.textContent = "Container status messaging redirected to terminal.";
                         } else {
                             note.textContent = "Please be patient with new secure server activation as creating new TLS certificates requires several seconds.";
@@ -1931,15 +1930,15 @@ const dashboard = function dashboard():void {
                         note.setAttribute("class", "note");
                         p.parentNode.appendChild(note);
                     } else if (dashboard === false) {
-                        note.textContent = (section === "compose_containers")
+                        note.textContent = (section === "compose-containers")
                             ? `Changing the container name of an existing container will create a new container. Ensure the compose file mentions PUID and PGID with values ${payload.os.user_account.uid} and ${payload.os.user_account.gid} to prevent writing files as root.`
                             : "Destroying a server will delete all associated file system artifacts. Back up your data first.";
                         note.setAttribute("class", "note");
                         p.parentNode.appendChild(note);
                     }
-                    if (section === "compose_containers") {
-                        textArea.onkeyup = services.compose_containers.events.validate_containers;
-                        textArea.onfocus = services.compose_containers.events.validate_containers;
+                    if (section === "compose-containers") {
+                        textArea.onkeyup = services["compose-containers"].events.validate_containers;
+                        textArea.onfocus = services["compose-containers"].events.validate_containers;
                     } else {
                         textArea.onkeyup = services.servers_web.validate;
                         textArea.onfocus = services.servers_web.validate;
@@ -4498,8 +4497,6 @@ const dashboard = function dashboard():void {
             button:HTMLElement = null,
             table_key:string[] = null,
             table:HTMLElement = null;
-
-        title.textContent = `${payload.name.capitalize()} Dashboard`;
         version.textContent = `version ${payload.version}`;
         title.appendChild(version);
 

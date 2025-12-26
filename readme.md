@@ -24,6 +24,9 @@ A simple web based dashboard for the following features.
   - WebSocket tester with raw frame header inspection/editing
   - Hash and Base64 tool
 
+## Screenshots
+* 
+
 ## Installation
 1. Install [Node.js](https://nodejs.org/) version 24 or later.
 2. Install [git](https://git-scm.com/)
@@ -47,7 +50,6 @@ All arguments are supported only on the server command, example: `npm run server
 * `list:<file_path>` - *This option is ignored unless in test mode.* Allows specifying a single test list to execute starting from the project's test directory at */lib/test*.
 * `no-color` - Eliminates use of ANSI color codes in terminal output.
 * `no-exit` - *This option is ignored unless in test mode.* Application remains actively available after completing test automation.
-* `no-terminal` - Eliminates remote terminal access from the application.
 
 ## Tested Platforms
 * Debian Linux 13

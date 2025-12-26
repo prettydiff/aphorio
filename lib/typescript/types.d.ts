@@ -6,9 +6,10 @@ type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentE
 type type_certKey = "ca" | "crt" | "key";
 type type_dashboard_action = type_halt_action | "activate" | "add" | "update";
 type type_dashboard_list = "container" | "server";
-type type_dashboard_tables = "devices" | "ports-application" | "services" | "sockets-application" | "sockets-os" | "users";
-type type_dashboard_sections = type_dashboard_tables | "compose_containers" | "dns" | "faq" | "file-system" | "hash" | "help" | "http" | "interfaces" | "log" | "os" | "ports-application" | "processes" | "servers_web" | "statistics" | "storage" | "terminal" | "websocket";
+type type_dashboard_features = type_dashboard_tables | "application-logs" | "compose-containers" | "disks" | "dns" | "file-system" | "hash" | "http" | "interfaces" | "os" | "ports-application" | "processes" | "servers_web" | "statistics" | "terminal" | "websocket";
+type type_dashboard_sections = type_dashboard_features | "faq" | "help";
 type type_dashboard_status = "error" | "informational";
+type type_dashboard_tables = "devices" | "ports-application" | "services" | "sockets-application" | "sockets-os" | "users";
 // type_directory_type
 // 0 - absolute path
 // 1 - file system item type
