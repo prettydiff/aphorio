@@ -1,6 +1,6 @@
 {
     "application-logs": true,
-    "compose-containers": false,
+    "compose-containers": true,
     "devices": true,
     "disks": true,
     "dns": true,
@@ -11,11 +11,11 @@
     "os": true,
     "ports-application": true,
     "processes": true,
-    "servers_web": false,
+    "servers-web": true,
     "services": true,
     "sockets-application": true,
     "sockets-os": true,
-    "statistics": false,
+    "statistics": true,
     "terminal": true,
     "users": true,
     "websocket": true

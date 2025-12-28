@@ -249,7 +249,7 @@ interface core_vars {
             "os": boolean;
             "ports-application": boolean;
             "processes": boolean;
-            "servers_web": boolean;
+            "servers-web": boolean;
             "services": boolean;
             "sockets-application": boolean;
             "sockets-os": boolean;
@@ -442,7 +442,7 @@ interface store_function {
 }
 
 interface store_module_map {
-    [key:string]: module_list | module_ports_application | module_sockets_application;
+    [key:string]: module_list | section_ports_application | section_sockets_application;
 }
 
 interface store_number {

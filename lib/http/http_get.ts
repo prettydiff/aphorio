@@ -193,7 +193,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                     symbolic: false
                                 });
                             },
-                            section: "servers_web"
+                            section: "servers-web"
                         });
                     },
                     fileItem = function http_get_stat_statTest_fileItem():void {
@@ -329,7 +329,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                 callback: statTest,
                 location: input,
                 no_file: notFound,
-                section: "servers_web"
+                section: "servers-web"
             });
         },
         decode:string = decodeURI(fileFragment),

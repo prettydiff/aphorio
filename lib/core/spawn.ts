@@ -29,7 +29,7 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
             log.application({
                 error: err,
                 message: `Error executing docker command: ${command}`,
-                section: "servers_web",
+                section: "servers-web",
                 status: "error",
                 time: Date.now()
             });

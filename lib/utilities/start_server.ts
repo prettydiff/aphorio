@@ -53,8 +53,8 @@ const start_server = function utilities_startServer(process_path:string, testing
                                             const end:number = flags.html.indexOf(`<!-- ${section} end -->`),
                                                 start:number = flags.html.indexOf(`<!-- ${section} start -->`);
                                             flags.html = flags.html.slice(0, start) + flags.html.slice(end + section.length + 13);
-                                            flags.html = (section === "servers_web")
-                                                ? flags.html.replace(`<li><button class="nav-focus" data-section="servers_web">${label}</button></li>`, "")
+                                            flags.html = (section === "servers-web")
+                                                ? flags.html.replace(`<li><button class="nav-focus" data-section="servers-web">${label}</button></li>`, "")
                                                 : flags.html.replace(`<li><button data-section="${section}">${label}</button></li>`, "");
                                             vars.environment.features[section] = false;
                                         } else {
@@ -76,7 +76,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                             flags.html = flags.html.slice(0, start) + flags.html.slice(end);
                                             utilities_startServer_features_ready_parent();
                                         } else {
-                                            if (vars.environment.features.servers_web === false) {
+                                            if (vars.environment.features["servers-web"] === false) {
                                                 flags.html = flags.html.replace("<button", "<button class=\"nav-focus\"");
                                             }
                                             if ((/<h2>Navigation<\/h2>\s*<div class="first">/).test(flags.html) === false) {
@@ -98,7 +98,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 section("os", "OS/Machine");
                                 section("ports-application", "App Ports");
                                 section("processes", "Processes");
-                                section("servers_web", "Web Servers");
+                                section("servers-web", "Web Servers");
                                 section("services", "Services");
                                 section("sockets-application", "App Sockets");
                                 section("sockets-os", "OS Sockets");
@@ -274,7 +274,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         .replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`)
                                         .replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
                                 }
-                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`;
+                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};${script};${core.toString()};dashboard.execute();`;
                                 vars.environment.dashboard_page = vars.environment.dashboard_page
                                     .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard`)
                                     .replace("replace_javascript", total_script)
@@ -466,7 +466,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             vars.compose.variables = config["compose-variables"];
                             do {
                                 index_srv = index_srv - 1;
-                                if (vars.environment.features.servers_web === true || config.servers[keys_srv[index_srv]].id === config.dashboard_id) {
+                                if (vars.environment.features["servers-web"] === true || config.servers[keys_srv[index_srv]].id === config.dashboard_id) {
                                     index_int = keys_int.length;
                                     server = {
                                         config: config.servers[keys_srv[index_srv]],

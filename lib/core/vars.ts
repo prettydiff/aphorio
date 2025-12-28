@@ -81,7 +81,7 @@ const vars:core_vars = {
                 "os": true,
                 "ports-application": true,
                 "processes": true,
-                "servers_web": true,
+                "servers-web": true,
                 "services": true,
                 "sockets-application": true,
                 "sockets-os": true,

@@ -267,7 +267,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                             callback: callback,
                             digest: "base64",
                             hash_input_type: "direct",
-                            section: "servers_web",
+                            section: "servers-web",
                             source: key
                         });
                     }
@@ -391,7 +391,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
         log.application({
             error: error,
             message: "Socket connection error.",
-            section: "servers_web",
+            section: "servers-web",
             status: "error",
             time: Date.now()
         });
