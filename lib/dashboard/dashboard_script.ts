@@ -11,16 +11,18 @@ const ui = function ui():void {
         execute: function dashboard_execute():void {
             // eslint-disable-next-line max-params
             window.onerror = function dashboard_execute_windowError(message:Event|string, source:string, lineno:number, colno:number, error:Error):void {
-                dashboard.utility.log({
-                    data: {
-                        error: error,
-                        message: `JavaScript UI error in browser on line ${lineno} and column ${colno} in ${source}. ${message.toString()}`,
-                        section: "dashboard",
-                        status: "error",
-                        time: Date.now()
-                    },
-                    service: "dashboard-log"
-                });
+                if (dashboard.sections["application-logs"] !== undefined) {
+                    dashboard.sections["application-logs"].receive({
+                        data: {
+                            error: error,
+                            message: `JavaScript UI error in browser on line ${lineno} and column ${colno} in ${source}. ${message.toString()}`,
+                            section: "dashboard",
+                            status: "error",
+                            time: Date.now()
+                        },
+                        service: "dashboard-log"
+                    });
+                }
             };
             const navButtons:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("nav")[0].getElementsByTagName("button"),
                 navigation = function dashboard_execute_navigation(event:MouseEvent):void {
@@ -84,8 +86,8 @@ const ui = function ui():void {
             dashboard.socket = core({
                 close: function dashboard_execute_socketClose():void {
                     const status:HTMLElement = document.getElementById("connection-status");
-                    if (status !== null && status.getAttribute("class") === "connection-online") {
-                        dashboard.utility.log({
+                    if (dashboard.sections["application-logs"] !== undefined && status !== null && status.getAttribute("class") === "connection-online") {
+                        dashboard.sections["application-logs"].receive({
                             data: {
                                 error: null,
                                 message: "Dashboard browser connection offline.",
@@ -94,7 +96,7 @@ const ui = function ui():void {
                                 time: Date.now()
                             },
                             service: "dashboard-log"
-                    });
+                        });
                     }
                     dashboard.socket.connected = false;
                     dashboard.utility.baseline();
@@ -122,7 +124,9 @@ const ui = function ui():void {
                                 "dashboard-http": (dashboard.sections["http-test"] === undefined)
                                     ? null
                                     : dashboard.sections["http-test"].receive,
-                                "dashboard-log": dashboard.utility.log,
+                                "dashboard-log": (dashboard.sections["application-logs"] === undefined)
+                                    ? null
+                                    : dashboard.sections["application-logs"].receive,
                                 "dashboard-os-devs": (dashboard.sections["devices"] === undefined)
                                     ? null
                                     : dashboard.sections["devices"].receive,
@@ -148,7 +152,9 @@ const ui = function ui():void {
                                     ? null
                                     : dashboard.sections["users"].receive,
                                 "dashboard-server": (dashboard.sections["servers-web"] === undefined)
-                                    ? null
+                                    ? (dashboard.sections["ports-application"] === undefined)
+                                        ? null
+                                        : dashboard.sections["ports-application"].receive
                                     : dashboard.sections["servers-web"].receive,
                                 "dashboard-socket-application": (dashboard.sections["sockets-application"] === undefined)
                                     ? null
@@ -223,28 +229,30 @@ const ui = function ui():void {
                         } while (dashboard.socket.queueStore.length > 0);
                     }
                     if (dashboard.global.loaded === false) {
-                        // populate log data
-                        let index:number = dashboard.global.payload.logs.length;
-                        if (index > 0) {
-                            do {
-                                index = index - 1;
-                                dashboard.utility.log({
-                                    data: dashboard.global.payload.logs[index],
-                                    service: "dashboard-log"
-                                });
-                            } while (index > 0);
-                        }
                         dashboard.global.loaded = true;
-                        dashboard.utility.log({
-                            data: {
-                                error: null,
-                                message: "Dashboard browser connection online.",
-                                section: "dashboard",
-                                status: "informational",
-                                time: Date.now()
-                            },
-                            service: "dashboard-log"
-                        });
+                        if (dashboard.sections["application-logs"] !== undefined) {
+                            // populate log data
+                            let index:number = dashboard.global.payload.logs.length;
+                            if (index > 0) {
+                                do {
+                                    index = index - 1;
+                                    dashboard.sections["application-logs"].receive({
+                                        data: dashboard.global.payload.logs[index],
+                                        service: "dashboard-log"
+                                    });
+                                } while (index > 0);
+                            }
+                            dashboard.sections["application-logs"].receive({
+                                data: {
+                                    error: null,
+                                    message: "Dashboard browser connection online.",
+                                    section: "dashboard",
+                                    status: "informational",
+                                    time: Date.now()
+                                },
+                                service: "dashboard-log"
+                            });
+                        }
                         if (dashboard.sections["compose-containers"] !== undefined) {
                             dashboard.sections["compose-containers"].init();
                         }
@@ -280,6 +288,8 @@ const ui = function ui():void {
                         }
                         if (dashboard.sections["servers-web"] !== undefined) {
                             dashboard.sections["servers-web"].init();
+                        } else if (dashboard.sections["ports-application"] !== undefined) {
+                            dashboard.sections["ports-application"].receive();
                         }
                         if (dashboard.sections["services"] !== undefined) {
                             dashboard.tables.init(dashboard.sections["services"]);
@@ -330,13 +340,15 @@ const ui = function ui():void {
 
             // table header sort buttons
             index = th.length;
-            do {
-                index = index - 1;
-                button = th[index].getElementsByTagName("button")[0];
-                if (button !== undefined) {
-                    button.onclick = dashboard.tables.sort;
-                }
-            } while (index > 0);
+            if (index > 0) {
+                do {
+                    index = index - 1;
+                    button = th[index].getElementsByTagName("button")[0];
+                    if (button !== undefined) {
+                        button.onclick = dashboard.tables.sort;
+                    }
+                } while (index > 0);
+            }
 
             // expand buttons
             index = expand.length;
@@ -360,9 +372,14 @@ const ui = function ui():void {
                         navButtons[index].removeAttribute("class");
                     }
                 } while (index > 0);
-                document.getElementById("servers-web").style.display = "none";
+                if (dashboard.sections["servers-web"] !== undefined) {
+                    document.getElementById("servers-web").style.display = "none";
+                }
                 document.getElementById(dashboard.global.state.nav).style.display = "block";
                 dashboard.global.section = dashboard.global.state.nav as type_dashboard_sections;
+            } else if (document.getElementById(dashboard.global.state.nav) === null) {
+                navButtons[0].setAttribute("class", "nav-focus");
+                document.getElementById(navButtons[0].dataset.section).style.display = "block";
             }
 
             // invoke web socket connection to application
@@ -418,6 +435,49 @@ const ui = function ui():void {
             }())
         },
         sections: {
+            // application-logs start
+            "application-logs": {
+                events: null,
+                init: null,
+                nodes: {
+                    list: document.getElementById("application-logs").getElementsByTagName("ul")[0]
+                },
+                receive: function dashboard_sections_applicationLog_receive(socket_data:socket_data):void {
+                    const item:config_log = socket_data.data as config_log,
+                        li:HTMLElement = document.createElement("li"),
+                        timeElement:HTMLElement = document.createElement("time"),
+                        strong:HTMLElement = document.createElement("strong"),
+                        code:HTMLElement = document.createElement("code"),
+                        time:string = `[${item.time.dateTime(true, null)}]`,
+                        p:HTMLElement = document.createElement("p");
+                    timeElement.appendText(time);
+                    strong.textContent = item.section;
+                    p.textContent = item.message;
+                    li.appendChild(timeElement);
+                    li.appendChild(strong);
+                    if (item.status === "error" && item.error !== null) {
+                        const str:string = JSON.stringify(item.error);
+                        if (str === "{}") {
+                            if (item.error.stack !== undefined) {
+                                code.textContent = item.error.stack;
+                                p.appendChild(code);
+                                p.style.display = "block";
+                            }
+                        } else if (str !== "" && str !== null) {
+                            code.textContent = str;
+                            p.appendChild(code);
+                            p.style.display = "block";
+                        }
+                    }
+                    li.appendChild(p);
+                    if (dashboard.sections["application-logs"].nodes.list.childNodes.length > 100) {
+                        dashboard.sections["application-logs"].nodes.list.removeChild(dashboard.sections["application-logs"].nodes.list.lastChild);
+                    }
+                    dashboard.sections["application-logs"].nodes.list.insertBefore(li, dashboard.sections["application-logs"].nodes.list.firstChild);
+                },
+                tools: null
+            },
+            // application-logs end
             // compose-containers start
             "compose-containers": {
                 events: {
@@ -4630,51 +4690,6 @@ const ui = function ui():void {
                 dashboard.utility.nodes.clock.setAttribute("data-local", String(data.time_local));
                 dashboard.utility.nodes.clock.textContent = `${str(data.time_local)}L (${str(data.time_zulu)}Z)`;
             },
-            // populate the log utility
-            log: function dashboard_utility_log(socket_data:socket_data):void {
-                const item:config_log = socket_data.data as config_log,
-                    li:HTMLElement = document.createElement("li"),
-                    timeElement:HTMLElement = document.createElement("time"),
-                    section:HTMLElement = document.getElementById("application-logs"),
-                    ul:HTMLElement = (section === null)
-                        ? null
-                        : section.getElementsByTagName("ul")[0],
-                    strong:HTMLElement = document.createElement("strong"),
-                    code:HTMLElement = document.createElement("code"),
-                    time:string = `[${item.time.dateTime(true, null)}]`,
-                    p:HTMLElement = document.createElement("p");
-                if (section === null) {
-                    return;
-                }
-                timeElement.appendText(time);
-                strong.textContent = (item.section === "startup")
-                    ? "Start Up"
-                    : (item.section === "dashboard")
-                        ? "Dashboard"
-                        : document.getElementById(item.section).getElementsByTagName("h2")[0].textContent;
-                p.textContent = item.message;
-                li.appendChild(timeElement);
-                li.appendChild(strong);
-                if (item.status === "error" && item.error !== null) {
-                    const str:string = JSON.stringify(item.error);
-                    if (str === "{}") {
-                        if (item.error.stack !== undefined) {
-                            code.textContent = item.error.stack;
-                            p.appendChild(code);
-                            p.style.display = "block";
-                        }
-                    } else if (str !== "" && str !== null) {
-                        code.textContent = str;
-                        p.appendChild(code);
-                        p.style.display = "block";
-                    }
-                }
-                li.appendChild(p);
-                if (ul.childNodes.length > 100) {
-                    ul.removeChild(ul.lastChild);
-                }
-                ul.insertBefore(li, ul.firstChild);
-            },
             // send dashboard service messages
             message_send: function dashboard_utility_messageSend(data:type_socket_data, service:type_service):void {
                 const message:socket_data = {
@@ -4697,85 +4712,101 @@ const ui = function ui():void {
             // gathers state artifacts and saves state data
             setState: function dashboard_utility_setState():void {
                 if (dashboard.socket.connected === true) {
-                    const hashInput:HTMLCollectionOf<HTMLInputElement> = document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input"),
+                    const hashInput:HTMLCollectionOf<HTMLInputElement> = (document.getElementById("hash") === null)
+                            ? null
+                            : document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input"),
                         lists = function dashboard_utility_setState_lists(module:module_list):void {
-                            const type:string = module.dataName;
-                            if (dashboard.global.state.table_os[type] === null || dashboard.global.state.table_os[type] === undefined) {
-                                dashboard.global.state.table_os[type] = {
-                                    filter_column: module.nodes.filter_column.selectedIndex,
-                                    filter_sensitive: module.nodes.caseSensitive.checked,
-                                    filter_value: module.nodes.filter_value.value
-                                };
-                            } else {
-                                dashboard.global.state.table_os[type].filter_column = module.nodes.filter_column.selectedIndex;
-                                dashboard.global.state.table_os[type].filter_sensitive = module.nodes.caseSensitive.checked;
-                                dashboard.global.state.table_os[type].filter_value = module.nodes.filter_value.value;
+                            if (module !== undefined) {
+                                const type:string = module.dataName;
+                                if (dashboard.global.state.table_os[type] === null || dashboard.global.state.table_os[type] === undefined) {
+                                    dashboard.global.state.table_os[type] = {
+                                        filter_column: module.nodes.filter_column.selectedIndex,
+                                        filter_sensitive: module.nodes.caseSensitive.checked,
+                                        filter_value: module.nodes.filter_value.value
+                                    };
+                                } else {
+                                    dashboard.global.state.table_os[type].filter_column = module.nodes.filter_column.selectedIndex;
+                                    dashboard.global.state.table_os[type].filter_sensitive = module.nodes.caseSensitive.checked;
+                                    dashboard.global.state.table_os[type].filter_value = module.nodes.filter_value.value;
+                                }
                             }
                         };
-                    if (dashboard.global.state.dns === undefined || dashboard.global.state.dns === null) {
-                        dashboard.global.state.dns = {
-                            reverse: dashboard.sections["dns-query"].nodes.reverse.checked,
-                            hosts: dashboard.sections["dns-query"].nodes.hosts.value,
-                            types: dashboard.sections["dns-query"].nodes.types.value
-                        };
-                    } else {
-                        dashboard.global.state.dns.reverse = dashboard.sections["dns-query"].nodes.reverse.checked;
-                        dashboard.global.state.dns.hosts = dashboard.sections["dns-query"].nodes.hosts.value;
-                        dashboard.global.state.dns.types = dashboard.sections["dns-query"].nodes.types.value;
+                    if (dashboard.sections["dns-query"] !== undefined) {
+                        if (dashboard.global.state.dns === undefined || dashboard.global.state.dns === null) {
+                            dashboard.global.state.dns = {
+                                reverse: dashboard.sections["dns-query"].nodes.reverse.checked,
+                                hosts: dashboard.sections["dns-query"].nodes.hosts.value,
+                                types: dashboard.sections["dns-query"].nodes.types.value
+                            };
+                        } else {
+                            dashboard.global.state.dns.reverse = dashboard.sections["dns-query"].nodes.reverse.checked;
+                            dashboard.global.state.dns.hosts = dashboard.sections["dns-query"].nodes.hosts.value;
+                            dashboard.global.state.dns.types = dashboard.sections["dns-query"].nodes.types.value;
+                        }
                     }
-                    if (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null) {
-                        dashboard.global.state.fileSystem = {
-                            path: dashboard.sections["file-system"].nodes.path.value,
-                            search: dashboard.sections["file-system"].nodes.search.value
-                        };
-                    } else {
-                        dashboard.global.state.fileSystem.path = dashboard.sections["file-system"].nodes.path.value;
-                        dashboard.global.state.fileSystem.search = dashboard.sections["file-system"].nodes.search.value;
+                    if (dashboard.sections["file-system"] !== undefined) {
+                        if (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null) {
+                            dashboard.global.state.fileSystem = {
+                                path: dashboard.sections["file-system"].nodes.path.value,
+                                search: dashboard.sections["file-system"].nodes.search.value
+                            };
+                        } else {
+                            dashboard.global.state.fileSystem.path = dashboard.sections["file-system"].nodes.path.value;
+                            dashboard.global.state.fileSystem.search = dashboard.sections["file-system"].nodes.search.value;
+                        }
                     }
-                    dashboard.global.state.graph_display = dashboard.sections["statistics"].nodes.graph_display.selectedIndex;
-                    dashboard.global.state.graph_type = dashboard.sections["statistics"].nodes.graph_type.selectedIndex;
-                    if (dashboard.global.state.hash === undefined || dashboard.global.state.hash === null) {
-                        dashboard.global.state.hash = {
-                            algorithm: (dashboard.sections["hash"].nodes.algorithm[dashboard.sections["hash"].nodes.algorithm.selectedIndex] === undefined)
+                    if (dashboard.sections["hash"] !== undefined) {
+                        if (dashboard.global.state.hash === undefined || dashboard.global.state.hash === null) {
+                            dashboard.global.state.hash = {
+                                algorithm: (dashboard.sections["hash"].nodes.algorithm[dashboard.sections["hash"].nodes.algorithm.selectedIndex] === undefined)
+                                    ? ""
+                                    : dashboard.sections["hash"].nodes.algorithm[dashboard.sections["hash"].nodes.algorithm.selectedIndex].textContent,
+                                hashFunction: (hashInput[1].checked === true)
+                                    ? "base64"
+                                    : "hash",
+                                type: (hashInput[3].checked === true)
+                                    ? "file"
+                                    : "string",
+                                digest: (hashInput[5].checked === true)
+                                    ? "base64"
+                                    : "hex",
+                                source: dashboard.sections["hash"].nodes.source.value
+                            };
+                        } else {
+                            dashboard.global.state.hash.algorithm = (dashboard.sections["hash"].nodes.algorithm[dashboard.sections["hash"].nodes.algorithm.selectedIndex] === undefined)
                                 ? ""
-                                : dashboard.sections["hash"].nodes.algorithm[dashboard.sections["hash"].nodes.algorithm.selectedIndex].textContent,
-                            hashFunction: (hashInput[1].checked === true)
+                                : dashboard.sections["hash"].nodes.algorithm[dashboard.sections["hash"].nodes.algorithm.selectedIndex].textContent;
+                            dashboard.global.state.hash.hashFunction = (hashInput[1].checked === true)
                                 ? "base64"
-                                : "hash",
-                            type: (hashInput[3].checked === true)
+                                : "hash";
+                            dashboard.global.state.hash.type = (hashInput[3].checked === true)
                                 ? "file"
-                                : "string",
-                            digest: (hashInput[5].checked === true)
+                                : "string";
+                            dashboard.global.state.hash.digest = (hashInput[5].checked === true)
                                 ? "base64"
-                                : "hex",
-                            source: dashboard.sections["hash"].nodes.source.value
-                        };
-                    } else {
-                        dashboard.global.state.hash.algorithm = (dashboard.sections["hash"].nodes.algorithm[dashboard.sections["hash"].nodes.algorithm.selectedIndex] === undefined)
-                            ? ""
-                            : dashboard.sections["hash"].nodes.algorithm[dashboard.sections["hash"].nodes.algorithm.selectedIndex].textContent;
-                        dashboard.global.state.hash.hashFunction = (hashInput[1].checked === true)
-                            ? "base64"
-                            : "hash";
-                        dashboard.global.state.hash.type = (hashInput[3].checked === true)
-                            ? "file"
-                            : "string";
-                        dashboard.global.state.hash.digest = (hashInput[5].checked === true)
-                            ? "base64"
-                            : "hex";
-                        dashboard.global.state.hash.source = dashboard.sections["hash"].nodes.source.value;
+                                : "hex";
+                            dashboard.global.state.hash.source = dashboard.sections["hash"].nodes.source.value;
+                        }
                     }
-                    if (dashboard.global.state.http === undefined || dashboard.global.state.http === null) {
-                        dashboard.global.state.http = {
-                            encryption: (dashboard.sections["http-test"].nodes.encryption.checked === true),
-                            request: dashboard.sections["http-test"].nodes.request.value
-                        };
-                    } else {
-                        dashboard.global.state.http.encryption = (dashboard.sections["http-test"].nodes.encryption.checked === true);
-                        dashboard.global.state.http.request = dashboard.sections["http-test"].nodes.request.value;
+                    if (dashboard.sections["http-test"] !== undefined) {
+                        if (dashboard.global.state.http === undefined || dashboard.global.state.http === null) {
+                            dashboard.global.state.http = {
+                                encryption: (dashboard.sections["http-test"].nodes.encryption.checked === true),
+                                request: dashboard.sections["http-test"].nodes.request.value
+                            };
+                        } else {
+                            dashboard.global.state.http.encryption = (dashboard.sections["http-test"].nodes.encryption.checked === true);
+                            dashboard.global.state.http.request = dashboard.sections["http-test"].nodes.request.value;
+                        }
                     }
-                    if (dashboard.sections["terminal"].nodes.select[dashboard.sections["terminal"].nodes.select.selectedIndex] !== undefined) {
-                        dashboard.global.state.terminal = dashboard.sections["terminal"].nodes.select[dashboard.sections["terminal"].nodes.select.selectedIndex].textContent;
+                    if (dashboard.sections["statistics"] !== undefined) {
+                        dashboard.global.state.graph_display = dashboard.sections["statistics"].nodes.graph_display.selectedIndex;
+                        dashboard.global.state.graph_type = dashboard.sections["statistics"].nodes.graph_type.selectedIndex;
+                    }
+                    if (dashboard.sections["terminal"] !== undefined) {
+                        if (dashboard.sections["terminal"].nodes.select[dashboard.sections["terminal"].nodes.select.selectedIndex] !== undefined) {
+                            dashboard.global.state.terminal = dashboard.sections["terminal"].nodes.select[dashboard.sections["terminal"].nodes.select.selectedIndex].textContent;
+                        }
                     }
                     lists(dashboard.sections["devices"]);
                     lists(dashboard.sections["processes"]);

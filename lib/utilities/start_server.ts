@@ -48,20 +48,24 @@ const start_server = function utilities_startServer(process_path:string, testing
                         ready = function utilities_startServer_features_ready():void {
                             if (typeof flags.feature === "string" && typeof flags.html === "string") {
                                 const feature_list:store_flag = JSON.parse(flags.feature),
-                                    section = function utilities_startServer_features_ready_section(section:type_dashboard_features, label:string):void {
-                                        if (feature_list[section] !== true) {
-                                            const end_html:number = flags.html.indexOf(`<!-- ${section} end -->`),
-                                                start_html:number = flags.html.indexOf(`<!-- ${section} start -->`),
-                                                end_script:number = script.indexOf(`// ${section} end`),
-                                                start_script:number = script.indexOf(`// ${section} start`);
-                                            flags.html = flags.html.slice(0, start_html) + flags.html.slice(end_html + section.length + 13);
-                                            script = script.slice(0, start_script) + script.slice(end_script + section.length + 8);
-                                            flags.html = (section === "servers-web")
+                                    section = function utilities_startServer_features_ready_section(section_name:type_dashboard_features, label:string):void {
+                                        if (feature_list[section_name] !== true) {
+                                            const end_html:number = flags.html.indexOf(`<!-- ${section_name} end -->`),
+                                                start_html:number = flags.html.indexOf(`<!-- ${section_name} start -->`),
+                                                end_script:number = script.indexOf(`// ${section_name} end`),
+                                                start_script:number = script.indexOf(`// ${section_name} start`);
+                                            if (start_html > 0 && end_html > 0) {
+                                                flags.html = flags.html.slice(0, start_html) + flags.html.slice(end_html + section_name.length + 13);
+                                            }
+                                            if (start_script > 0 && end_script > 0) {
+                                                script = script.slice(0, start_script) + script.slice(end_script + section_name.length + 8);
+                                            }
+                                            flags.html = (section_name === "servers-web")
                                                 ? flags.html.replace(`<li><button class="nav-focus" data-section="servers-web">${label}</button></li>`, "")
-                                                : flags.html.replace(`<li><button data-section="${section}">${label}</button></li>`, "");
-                                            vars.environment.features[section] = false;
+                                                : flags.html.replace(`<li><button data-section="${section_name}">${label}</button></li>`, "");
+                                            vars.environment.features[section_name] = false;
                                         } else {
-                                            vars.environment.features[section] = true;
+                                            vars.environment.features[section_name] = true;
                                         }
                                     },
                                     parent = function utilities_startServer_features_ready_parent():void {
