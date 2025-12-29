@@ -2725,6 +2725,10 @@ const ui = function ui():void {
                         service: "dashboard-server"
                     });
                 },
+                nodes: {
+                    list: document.getElementById("servers-web").getElementsByClassName("server-list")[0] as HTMLElement,
+                    service_new: document.getElementById("servers-web").getElementsByClassName("server-new")[0] as HTMLButtonElement
+                },
                 receive: function dashboard_sections_serversWeb_receive(socket_data:socket_data):void {
                     const list:string[] = Object.keys(socket_data.data),
                         list_old:HTMLElement = dashboard.sections["servers-web"].nodes.list,
@@ -2763,10 +2767,6 @@ const ui = function ui():void {
                     if (dashboard.sections["ports-application"] !== undefined) {
                         dashboard.sections["ports-application"].receive();
                     }
-                },
-                nodes: {
-                    list: document.getElementById("servers-web").getElementsByClassName("server-list")[0] as HTMLElement,
-                    service_new: document.getElementById("servers-web").getElementsByClassName("server-new")[0] as HTMLButtonElement
                 },
                 tools: {
                     activePorts: function dashboard_sections_serversWeb_activePorts(id:boolean|string):HTMLElement {
@@ -3517,18 +3517,10 @@ const ui = function ui():void {
                 },
                 item: null,
                 nodes: {
-                    cols: (document.getElementById("terminal") === null)
-                        ? null
-                        : document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[0],
-                    output: (document.getElementById("terminal") === null)
-                        ? null
-                        : document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
-                    rows: (document.getElementById("terminal") === null)
-                        ? null
-                        : document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[1],
-                    select: (document.getElementById("terminal") === null)
-                        ? null
-                        : document.getElementById("terminal").getElementsByTagName("select")[0] as HTMLSelectElement
+                    cols: document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[0],
+                    output: document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
+                    rows: document.getElementById("terminal").getElementsByClassName("dimensions")[0].getElementsByTagName("em")[1],
+                    select: document.getElementById("terminal").getElementsByTagName("select")[0] as HTMLSelectElement
                 },
                 receive: null,
                 rows: 0,
@@ -4532,10 +4524,7 @@ const ui = function ui():void {
             // reset the UI to a near empty baseline
             baseline: function dashboard_utility_baseline():void {
                 if (dashboard.global.loaded === true) {
-                    const serverList:HTMLElement = document.getElementById("server-web").getElementsByClassName("server-list")[0] as HTMLElement,
-                        logs_old:HTMLElement = document.getElementById("application-logs").getElementsByTagName("ul")[0],
-                        status:HTMLElement = document.getElementById("connection-status"),
-                        terminal_output:HTMLElement = document.getElementById("terminal").getElementsByClassName("terminal-output")[0] as HTMLElement,
+                    const status:HTMLElement = document.getElementById("connection-status"),
                         replace = function dashboard_utility_baseline_replace(node:HTMLElement, className:boolean):HTMLElement {
                             if (node !== null && node !== undefined && node.parentNode !== null) {
                                 const node_new:HTMLElement = document.createElement(node.lowName());
@@ -4561,21 +4550,10 @@ const ui = function ui():void {
                                     sectionList.nodes.filter_value.value = "";
                                 }
                             }
-                        },
-                        fileSummary:HTMLCollectionOf<HTMLElement> = dashboard.sections["file-system"].nodes.summary.getElementsByTagName("li"),
-                        server_new:HTMLButtonElement = document.getElementById("servers-web").getElementsByClassName("server-new")[0] as HTMLButtonElement,
-                        audio:HTMLAudioElement = dashboard.sections["file-system"].media.audio.lastChild as HTMLAudioElement,
-                        video:HTMLVideoElement = dashboard.sections["file-system"].media.video.lastChild as HTMLVideoElement;
-
-                    audio.pause();
-                    audio.currentTime = 0;
-                    video.pause();
-                    video.currentTime = 0;
+                        };
                     dashboard.global.loaded = false;
-                    server_new.disabled = false;
                     status.setAttribute("class", "connection-offline");
                     status.getElementsByTagName("strong")[0].textContent = "Offline";
-                    replace(logs_old, false);
                     lists(dashboard.sections["interfaces"], false);
                     lists(dashboard.sections["sockets-application"], true);
                     lists(dashboard.sections["sockets-os"], true);
@@ -4584,7 +4562,27 @@ const ui = function ui():void {
                     lists(dashboard.sections["processes"], true);
                     lists(dashboard.sections["services"], true);
                     lists(dashboard.sections["users"], true);
+                    if (dashboard.sections["application-logs"] !== undefined) {
+                        replace(dashboard.sections["application-logs"].nodes.list, false);
+                    }
+                    if (dashboard.sections["compose-containers"] !== undefined) {
+                        dashboard.sections["compose-containers"].nodes.body.style.display = "block";
+                        dashboard.sections["compose-containers"].nodes.list.textContent = "";
+                        dashboard.sections["compose-containers"].nodes.list_variables.textContent = "";
+                        dashboard.sections["compose-containers"].nodes.status.style.display = "none";
+                        dashboard.sections["compose-containers"].nodes.status.textContent = "";
+                        dashboard.sections["compose-containers"].nodes.update_containers.textContent = "";
+                        dashboard.sections["compose-containers"].nodes.update_time.textContent = "";
+                        dashboard.sections["compose-containers"].nodes.update_variables.textContent = "";
+                    }
                     if (dashboard.sections["file-system"] !== undefined) {
+                        const fileSummary:HTMLCollectionOf<HTMLElement> = dashboard.sections["file-system"].nodes.summary.getElementsByTagName("li"),
+                            audio:HTMLAudioElement = dashboard.sections["file-system"].media.audio.lastChild as HTMLAudioElement,
+                            video:HTMLVideoElement = dashboard.sections["file-system"].media.video.lastChild as HTMLVideoElement;
+                        audio.pause();
+                        audio.currentTime = 0;
+                        video.pause();
+                        video.currentTime = 0;
                         fileSummary[0].getElementsByTagName("strong")[0].textContent = "";
                         fileSummary[1].getElementsByTagName("strong")[0].textContent = "";
                         fileSummary[2].getElementsByTagName("strong")[0].textContent = "";
@@ -4600,16 +4598,6 @@ const ui = function ui():void {
                         dashboard.sections["file-system"].nodes.output.style.display = "none";
                         dashboard.sections["file-system"].nodes.status.textContent = "";
                         dashboard.sections["file-system"].time = 0n;
-                    }
-                    if (dashboard.sections["compose-containers"] !== undefined) {
-                        dashboard.sections["compose-containers"].nodes.body.style.display = "block";
-                        dashboard.sections["compose-containers"].nodes.list.textContent = "";
-                        dashboard.sections["compose-containers"].nodes.list_variables.textContent = "";
-                        dashboard.sections["compose-containers"].nodes.status.style.display = "none";
-                        dashboard.sections["compose-containers"].nodes.status.textContent = "";
-                        dashboard.sections["compose-containers"].nodes.update_containers.textContent = "";
-                        dashboard.sections["compose-containers"].nodes.update_time.textContent = "";
-                        dashboard.sections["compose-containers"].nodes.update_variables.textContent = "";
                     }
                     if (dashboard.sections["os-machine"] !== undefined) {
                         dashboard.sections["os-machine"].nodes_os.cpu.arch.textContent = "";
@@ -4644,10 +4632,12 @@ const ui = function ui():void {
                         dashboard.sections["os-machine"].nodes_os.user.homedir.textContent = "";
                     }
                     if (dashboard.sections["servers-web"] !== undefined) {
-                        dashboard.sections["servers-web"].nodes.list = replace(serverList, true);
+                        const server_new:HTMLButtonElement = document.getElementById("servers-web").getElementsByClassName("server-new")[0] as HTMLButtonElement;
+                        server_new.disabled = false;
+                        dashboard.sections["servers-web"].nodes.list = replace(dashboard.sections["servers-web"].nodes.list, true);
                     }
                     if (dashboard.sections["terminal"] !== undefined) {
-                        dashboard.sections["terminal"].nodes.output = replace(terminal_output, true);
+                        dashboard.sections["terminal"].nodes.output = replace(dashboard.sections["terminal"].nodes.output, true);
                         dashboard.sections["terminal"].nodes.output.removeAttribute("data-info");
                         dashboard.sections["terminal"].nodes.output.removeAttribute("data-size");
                         if (dashboard.sections["terminal"].socket !== null) {
