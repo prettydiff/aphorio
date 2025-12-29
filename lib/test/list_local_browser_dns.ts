@@ -4,7 +4,7 @@ const test_listLocalBrowserDNS:test_list = [
     {
         delay: {
             node: [
-                ["getElementById", "dns", null],
+                ["getElementById", "dns-query", null],
                 ["getElementsByTagName", "h2", 0]
             ],
             qualifier: "greater",
@@ -28,7 +28,7 @@ const test_listLocalBrowserDNS:test_list = [
     {
         delay: {
             node: [
-                ["getElementById", "dns", null],
+                ["getElementById", "dns-query", null],
                 ["getElementsByTagName", "textarea", 0]
             ],
             qualifier: "not",
@@ -40,21 +40,21 @@ const test_listLocalBrowserDNS:test_list = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 0]
                 ]
             },
             {
                 event: "click",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 2]
                 ]
             },
             {
                 event: "setValue",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 2]
                 ],
                 value: "google.com"
@@ -62,14 +62,14 @@ const test_listLocalBrowserDNS:test_list = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 3]
                 ]
             },
             {
                 event: "setValue",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 3]
                 ],
                 value: "A"
@@ -77,7 +77,7 @@ const test_listLocalBrowserDNS:test_list = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "button", 1]
                 ]
             }
@@ -86,7 +86,7 @@ const test_listLocalBrowserDNS:test_list = [
         type: "dom",
         unit: [{
             node: [
-                ["getElementById", "dns", null],
+                ["getElementById", "dns-query", null],
                 ["getElementsByTagName", "textarea", 0]
             ],
             qualifier: "begins",
@@ -100,7 +100,7 @@ const test_listLocalBrowserDNS:test_list = [
     {
         delay: {
             node: [
-                ["getElementById", "dns", null],
+                ["getElementById", "dns-query", null],
                 ["getElementsByTagName", "textarea", 0]
             ],
             qualifier: "not",
@@ -112,21 +112,21 @@ const test_listLocalBrowserDNS:test_list = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 0]
                 ]
             },
             {
                 event: "click",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 2]
                 ]
             },
             {
                 event: "setValue",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 2]
                 ],
                 value: "google.com"
@@ -134,14 +134,14 @@ const test_listLocalBrowserDNS:test_list = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 3]
                 ]
             },
             {
                 event: "setValue",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 3]
                 ],
                 value: "AAAA"
@@ -149,7 +149,7 @@ const test_listLocalBrowserDNS:test_list = [
             {
                 event: "keyup",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 3]
                 ],
                 value: "Enter"
@@ -159,7 +159,7 @@ const test_listLocalBrowserDNS:test_list = [
         type: "dom",
         unit: [{
             node: [
-                ["getElementById", "dns", null],
+                ["getElementById", "dns-query", null],
                 ["getElementsByTagName", "textarea", 0]
             ],
             qualifier: "begins",
@@ -173,7 +173,7 @@ const test_listLocalBrowserDNS:test_list = [
     {
         delay: {
             node: [
-                ["getElementById", "dns", null],
+                ["getElementById", "dns-query", null],
                 ["getElementsByTagName", "textarea", 0]
             ],
             qualifier: "not",
@@ -185,21 +185,21 @@ const test_listLocalBrowserDNS:test_list = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 0]
                 ]
             },
             {
                 event: "click",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 2]
                 ]
             },
             {
                 event: "setValue",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 2]
                 ],
                 value: "google.com"
@@ -207,14 +207,14 @@ const test_listLocalBrowserDNS:test_list = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 3]
                 ]
             },
             {
                 event: "setValue",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 3]
                 ],
                 value: ""
@@ -222,7 +222,7 @@ const test_listLocalBrowserDNS:test_list = [
             {
                 event: "keyup",
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "input", 3]
                 ],
                 value: "Enter"
@@ -233,7 +233,7 @@ const test_listLocalBrowserDNS:test_list = [
         unit: [
             {
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "begins",
@@ -245,7 +245,7 @@ const test_listLocalBrowserDNS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "contains",
@@ -256,7 +256,7 @@ const test_listLocalBrowserDNS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "contains",
@@ -267,7 +267,7 @@ const test_listLocalBrowserDNS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "contains",
@@ -278,7 +278,7 @@ const test_listLocalBrowserDNS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "contains",
@@ -289,7 +289,7 @@ const test_listLocalBrowserDNS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "contains",
@@ -300,7 +300,7 @@ const test_listLocalBrowserDNS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "contains",
@@ -311,7 +311,7 @@ const test_listLocalBrowserDNS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "contains",
@@ -322,7 +322,7 @@ const test_listLocalBrowserDNS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "contains",
@@ -333,7 +333,7 @@ const test_listLocalBrowserDNS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "contains",
@@ -344,7 +344,7 @@ const test_listLocalBrowserDNS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "dns", null],
+                    ["getElementById", "dns-query", null],
                     ["getElementsByTagName", "textarea", 0]
                 ],
                 qualifier: "contains",

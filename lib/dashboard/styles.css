@@ -243,7 +243,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     #help ul{padding:0}
     #http p.float-last{margin:0;width:calc(60% - 4em)}
     #os ul{padding:0 0 1em 2em}
-    #servers_web{
+    #servers-web{
         display:block;
         .detail_item p{margin:0 0 0.5em}
         .note{clear:both;font-size:1.2em}
@@ -447,15 +447,15 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     }
 
     #compose-containers li,
-    #servers_web li{border-color:var(--border_color);border-style:solid;border-width:0.1em;list-style:none}
+    #servers-web li{border-color:var(--border_color);border-style:solid;border-width:0.1em;list-style:none}
 
     #file-system li,
     #compose-containers .container-ports li,
     #compose-containers .edit-summary li,
-    #servers_web .container-ports li,
-    #servers_web .edit-summary li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
+    #servers-web .container-ports li,
+    #servers-web .edit-summary li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
     #compose-containers .edit-summary,
-    #servers_web .edit-summary{margin:0;padding:0}
+    #servers-web .edit-summary{margin:0;padding:0}
 
     #http,
     #websocket {

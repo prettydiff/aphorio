@@ -69,7 +69,7 @@ declare global {
     }
 
     interface dashboard {
-        execute: (core:(config:config_core) => socket_object) => void;
+        execute: () => void;
         global: {
             loaded: boolean;
             payload: transmit_dashboard;
@@ -265,7 +265,7 @@ declare global {
 
     interface module_sections {
         events: {
-            [key:string]: ((event:Event) => void) | ((event:FocusEvent) => void) | ((event:KeyboardEvent) => void) | ((event:MouseEvent) => void) | ((input:terminal_input) => void) | ((event:websocket_event) => void);
+            [key:string]: ((event:Event) => void) | ((event:FocusEvent) => void) | ((event:KeyboardEvent) => void) | ((event:MouseEvent) => void) | ((event:websocket_event) => void) | ((input:terminal_input) => void);
         };
         init: () => void;
         nodes: {
@@ -348,7 +348,7 @@ declare global {
         };
         time: bigint;
         tools: {
-            media_time: (input:boolean|string|number) => string;
+            media_time: (input:boolean|number|string) => string;
         };
     }
 

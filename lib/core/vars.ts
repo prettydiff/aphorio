@@ -73,12 +73,12 @@ const vars:core_vars = {
                 "compose-containers": true,
                 "devices": true,
                 "disks": true,
-                "dns": true,
+                "dns-query": true,
                 "file-system": true,
                 "hash": true,
-                "http": true,
+                "http-test": true,
                 "interfaces": true,
-                "os": true,
+                "os-machine": true,
                 "ports-application": true,
                 "processes": true,
                 "servers-web": true,
@@ -88,7 +88,7 @@ const vars:core_vars = {
                 "statistics": true,
                 "terminal": true,
                 "users": true,
-                "websocket": true
+                "websocket-test": true
             },
             // whether linux "file" command is available in the OS system path
             file: false,

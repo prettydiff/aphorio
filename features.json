@@ -3,12 +3,12 @@
     "compose-containers": true,
     "devices": true,
     "disks": true,
-    "dns": true,
+    "dns-query": true,
     "file-system": true,
     "hash": true,
-    "http": true,
+    "http-test": true,
     "interfaces": true,
-    "os": true,
+    "os-machine": true,
     "ports-application": true,
     "processes": true,
     "servers-web": true,
@@ -18,5 +18,5 @@
     "statistics": true,
     "terminal": true,
     "users": true,
-    "websocket": true
+    "websocket-test": true
 }

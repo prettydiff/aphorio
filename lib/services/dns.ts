@@ -4,7 +4,7 @@ import send from "../transmit/send.ts";
 import vars from "../core/vars.ts";
 
 const dns = function services_dns(socket_data:socket_data, transmit:transmit_socket):void {
-    if (vars.environment.features.dns === false) {
+    if (vars.environment.features["dns-query"] === false) {
         return;
     }
     const data:services_dns_input = socket_data.data as services_dns_input,

@@ -38,11 +38,11 @@
         </div>
         <div>
             <h3>System</h3>
-            <ul><li><button data-section="os">OS/Machine</button></li><li><button data-section="devices">Devices</button></li><li><button data-section="disks">Disks</button></li><li><button data-section="processes">Processes</button></li><li><button data-section="services">Services</button></li><li><button data-section="users">Users</button></li></ul>
+            <ul><li><button data-section="os-machine">OS/Machine</button></li><li><button data-section="devices">Devices</button></li><li><button data-section="disks">Disks</button></li><li><button data-section="processes">Processes</button></li><li><button data-section="services">Services</button></li><li><button data-section="users">Users</button></li></ul>
         </div>
         <div>
             <h3>Tools</h3>
-            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="http">HTTP Test</button></li><li><button data-section="websocket">WebSocket Test</button></li><li><button data-section="dns">DNS Query</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
+            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="http-test">HTTP Test</button></li><li><button data-section="websocket-test">WebSocket Test</button></li><li><button data-section="dns-query">DNS Query</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
         </div>
         <div>
             <h3>Informational</h3>
@@ -129,8 +129,8 @@
             </div>
         </div>
         <!-- disks end -->
-        <!-- dns start -->
-        <div class="tab" id="dns">
+        <!-- dns-query start -->
+        <div class="tab" id="dns-query">
             <h2>DNS Query</h2>
             <p class="tab-description">Test DNS name resolution from the application's location.</p>
             <div class="definitions">
@@ -173,7 +173,7 @@
                 <p><label>List of DNS resolutions in beautified JSON format <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
             </div>
         </div>
-        <!-- dns end -->
+        <!-- dns-query end -->
         <!-- faq start -->
         <div class="tab" id="faq">
             <h2>Frequently Asked Questions</h2>
@@ -598,8 +598,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- help end -->
-        <!-- http start -->
-        <div class="tab" id="http">
+        <!-- http-test start -->
+        <div class="tab" id="http-test">
             <h2>HTTP Test</h2>
             <p class="tab-description">A means to write arbitrary HTTP requests and read the raw response.</p>
             <div class="definitions">
@@ -666,7 +666,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </ul>
             </div>
         </div>
-        <!-- http end -->
+        <!-- http-test end -->
         <!-- interfaces start -->
         <div class="tab" id="interfaces">
             <h2>Network Interfaces</h2>
@@ -681,8 +681,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- interfaces end -->
-        <!-- os start -->
-        <div class="tab" id="os">
+        <!-- os-machine start -->
+        <div class="tab" id="os-machine">
             <h2>OS/Machine</h2>
             <p class="tab-description">A list of descriptive and statistical data about the application's executing environment. Data automatically refreshes at server's midnight time.</p>
             <div class="section">
@@ -759,7 +759,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
         </div>
-        <!-- os end -->
+        <!-- os-machine end -->
         <!-- ports-application start -->
         <div class="tab" id="ports-application">
             <h2>App Ports</h2>
@@ -823,7 +823,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- processes end -->
-        <!-- servers_web start -->
+        <!-- servers-web start -->
         <div class="tab" id="servers-web">
             <h2>Web Servers</h2>
             <p class="tab-description">A list of configured HTTP/WS servers hosted by this application and their respective status.</p>
@@ -920,7 +920,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <ul class="server-list"></ul>
             </div>
         </div>
-        <!-- servers_web end -->
+        <!-- servers-web end -->
         <!-- services start -->
         <div class="tab" id="services">
             <h2>Services</h2>
@@ -1138,8 +1138,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- users end -->
-        <!-- websocket start -->
-        <div class="tab" id="websocket">
+        <!-- websocket-test start -->
+        <div class="tab" id="websocket-test">
             <h2>WebSocket Test</h2>
             <p class="tab-description">A tool to open and experiment with arbitrary WebSocket messaging.</p>
             <div class="definitions">
@@ -1240,6 +1240,6 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
         </div>
-        <!-- websocket end -->
+        <!-- websocket-test end -->
     </main>
 <script type="module">replace_javascript</script></body></html>

@@ -50,9 +50,12 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 const feature_list:store_flag = JSON.parse(flags.feature),
                                     section = function utilities_startServer_features_ready_section(section:type_dashboard_features, label:string):void {
                                         if (feature_list[section] !== true) {
-                                            const end:number = flags.html.indexOf(`<!-- ${section} end -->`),
-                                                start:number = flags.html.indexOf(`<!-- ${section} start -->`);
-                                            flags.html = flags.html.slice(0, start) + flags.html.slice(end + section.length + 13);
+                                            const end_html:number = flags.html.indexOf(`<!-- ${section} end -->`),
+                                                start_html:number = flags.html.indexOf(`<!-- ${section} start -->`),
+                                                end_script:number = script.indexOf(`// ${section} end`),
+                                                start_script:number = script.indexOf(`// ${section} start`);
+                                            flags.html = flags.html.slice(0, start_html) + flags.html.slice(end_html + section.length + 13);
+                                            script = script.slice(0, start_script) + script.slice(end_script + section.length + 8);
                                             flags.html = (section === "servers-web")
                                                 ? flags.html.replace(`<li><button class="nav-focus" data-section="servers-web">${label}</button></li>`, "")
                                                 : flags.html.replace(`<li><button data-section="${section}">${label}</button></li>`, "");
@@ -90,12 +93,12 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 section("compose-containers", "Docker Compose");
                                 section("devices", "Devices");
                                 section("disks", "Disks");
-                                section("dns", "DNS Query");
+                                section("dns-query", "DNS Query");
                                 section("file-system", "File System");
                                 section("hash", "Hash / Base64");
-                                section("http", "HTTP Test");
+                                section("http-test", "HTTP Test");
                                 section("interfaces", "Interfaces");
-                                section("os", "OS/Machine");
+                                section("os-machine", "OS/Machine");
                                 section("ports-application", "App Ports");
                                 section("processes", "Processes");
                                 section("servers-web", "Web Servers");
@@ -105,7 +108,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 section("statistics", "Statistics");
                                 section("terminal", "Terminal");
                                 section("users", "Users");
-                                section("websocket", "WebSocket Test");
+                                section("websocket-test", "WebSocket Test");
                                 parent();
                                 vars.environment.dashboard_page = flags.html;
                             }
@@ -159,7 +162,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                 }
             },
             compose: {
-                label: "Reads the compose.json file and restores the docker compose containers if docker is available.",
+                label: "Restores the docker compose containers if docker is available.",
                 task: function utilities_startServer_compose():void {
                     docker.list(start_prerequisites);
                 }
@@ -261,11 +264,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             if (flags.chart === true && flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
                                 const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
                                     chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, "");
-                                let total_script:string = null,
-                                    script:string = dashboard_script
-                                        .toString()
-                                        .replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}",`)
-                                        .replace(/\(\s*\)/, "(core)");
+                                let total_script:string = null;
                                 if (testing === true) {
                                     const testBrowser:string = test_browser
                                         .toString()
@@ -274,7 +273,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         .replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`)
                                         .replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
                                 }
-                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};${script};${core.toString()};dashboard.execute();`;
+                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`;
                                 vars.environment.dashboard_page = vars.environment.dashboard_page
                                     .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard`)
                                     .replace("replace_javascript", total_script)
@@ -842,7 +841,12 @@ const start_server = function utilities_startServer(process_path:string, testing
         len_prerequisites:number = keys_prerequisites.length;
     let index_tasks:number = keys_tasks.length,
         index_prerequisites:number = -1,
-        count_task:number = 0;
+        count_task:number = 0,
+        script:string = dashboard_script
+            .toString()
+            .replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\")
+            .replace(/"/g, "\\\"")}",`)
+            .replace(/\(\s*\)/, "(core)");
 
     BigInt.prototype.time = universal.time;
     Number.prototype.commas = universal.commas;

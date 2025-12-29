@@ -241,12 +241,12 @@ interface core_vars {
             "compose-containers": boolean;
             "devices": boolean;
             "disks": boolean;
-            "dns": boolean;
+            "dns-query": boolean;
             "file-system": boolean;
             "hash": boolean;
-            "http": boolean;
+            "http-test": boolean;
             "interfaces": boolean;
-            "os": boolean;
+            "os-machine": boolean;
             "ports-application": boolean;
             "processes": boolean;
             "servers-web": boolean;
@@ -256,7 +256,7 @@ interface core_vars {
             "statistics": boolean;
             "terminal": boolean;
             "users": boolean;
-            "websocket": boolean;
+            "websocket-test": boolean;
         };
         file: boolean;
         hash: string;
