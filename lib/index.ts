@@ -1,4 +1,5 @@
 
+import log from "./core/log.ts";
 import node from "./core/node.ts";
 import start_server from "./utilities/start_server.ts";
 import vars from "./core/vars.ts";
@@ -10,6 +11,11 @@ vars.path.sep = node.path.sep;
         index:number = process.argv.length,
         arg:string = null;
 
+    if (vars.commands === undefined) {
+
+        log.shell([`Operating system type ${process.platform} is not yet supported.`]);
+        process.exit(1);
+    }
     do {
         index = index - 1;
         if (process.argv[index].includes(`${vars.path.sep}node`) === true && vars.path.node === "") {

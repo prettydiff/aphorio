@@ -21,7 +21,7 @@
 </head>
 <body id="dashboard">
     <div class="title">
-        <h1>Dashboard</h1>
+        <h1>Server Management Dashboard</h1>
         <p><span>Page Load Time:</span><time>0.00000 seconds</time></p>
         <p id="clock"><span>Server Time:</span><time>00:00:00L (00:00:00Z)</time></p>
     </div>
@@ -30,7 +30,7 @@
         <h2>Navigation</h2>
         <div class="first">
             <h3>Services</h3>
-            <ul><li><button class="nav-focus" data-section="servers_web">Web Servers</button></li><li><button data-section="compose_containers">Docker Compose</button></li><li><button data-section="statistics">Statistics</button></li></ul>
+            <ul><li><button class="nav-focus" data-section="servers-web">Web Servers</button></li><li><button data-section="compose-containers">Docker Compose</button></li><li><button data-section="statistics">Statistics</button></li></ul>
         </div>
         <div>
             <h3>Network</h3>
@@ -38,11 +38,11 @@
         </div>
         <div>
             <h3>System</h3>
-            <ul><li><button data-section="os">OS/Machine</button></li><li><button data-section="devices">Devices</button></li><li><button data-section="disks">Disks</button></li><li><button data-section="processes">Processes</button></li><li><button data-section="services">Services</button></li><li><button data-section="users">Users</button></li></ul>
+            <ul><li><button data-section="os-machine">OS/Machine</button></li><li><button data-section="devices">Devices</button></li><li><button data-section="disks">Disks</button></li><li><button data-section="processes">Processes</button></li><li><button data-section="services">Services</button></li><li><button data-section="users">Users</button></li></ul>
         </div>
         <div>
             <h3>Tools</h3>
-            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="http">HTTP Test</button></li><li><button data-section="websocket">WebSocket Test</button></li><li><button data-section="dns">DNS Query</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
+            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="http-test">HTTP Test</button></li><li><button data-section="websocket-test">WebSocket Test</button></li><li><button data-section="dns-query">DNS Query</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
         </div>
         <div>
             <h3>Informational</h3>
@@ -51,12 +51,15 @@
         <span class="clear"></span>
     </nav>
     <main>
+        <!-- application-logs start -->
         <div class="tab" id="application-logs">
             <h2>Logs</h2>
             <p class="tab-description">At this time logs are not saved outside the application, but do persist for the life of the application runtime.</p>
             <ul></ul>
         </div>
-        <div class="tab" id="compose_containers">
+        <!-- application-logs end -->
+        <!-- compose-containers start -->
+        <div class="tab" id="compose-containers">
             <h2>Docker Compose</h2>
             <p class="tab-description">All containers run under the Docker daemon detached from this application.</p>
             <p class="status"></p>
@@ -81,6 +84,8 @@
                 </div>
             </div>
         </div>
+        <!-- compose-containers end -->
+        <!-- devices start -->
         <div class="tab" id="devices">
             <h2>Devices</h2>
             <p class="tab-description">A list of hardware devices registered with the OS kernel.</p>
@@ -109,6 +114,8 @@
                 </table>
             </div>
         </div>
+        <!-- devices end -->
+        <!-- disks start -->
         <div class="tab" id="disks">
             <h2>Storage Devices</h2>
             <p class="tab-description">A list of storage devices and their partitions. Data automatically refreshes at server's midnight time.</p>
@@ -121,7 +128,9 @@
                 <div class="item-list"></div>
             </div>
         </div>
-        <div class="tab" id="dns">
+        <!-- disks end -->
+        <!-- dns-query start -->
+        <div class="tab" id="dns-query">
             <h2>DNS Query</h2>
             <p class="tab-description">Test DNS name resolution from the application's location.</p>
             <div class="definitions">
@@ -164,6 +173,8 @@
                 <p><label>List of DNS resolutions in beautified JSON format <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
             </div>
         </div>
+        <!-- dns-query end -->
+        <!-- faq start -->
         <div class="tab" id="faq">
             <h2>Frequently Asked Questions</h2>
             <p class="tab-description">Please review these items to help troubleshoot common problems.</p>
@@ -320,6 +331,8 @@
                 </div>
             </div>
         </div>
+        <!-- faq end -->
+        <!-- file-system start -->
         <div class="tab" id="file-system">
             <h2>File System</h2>
             <p class="tab-description">This tool allows navigating the hosting machine's file system.</p>
@@ -394,6 +407,8 @@
                 <ul class="file-system-failures"></ul>
             </div>
         </div>
+        <!-- file-system end -->
+        <!-- hash start -->
         <div class="tab" id="hash">
             <h2>Hash / Base64</h2>
             <p class="tab-description">Generate a hash tokens from custom input or the file system.</p>
@@ -446,6 +461,8 @@
                 <p>Input size: <strong>0</strong> bytes.</p>
             </div>
         </div>
+        <!-- hash end -->
+        <!-- help start -->
         <div class="tab" id="help">
             <h2>Help</h2>
             <p class="tab-description">Helpful information about this application.</p>
@@ -465,7 +482,6 @@
                         <li><em>list:&lt;file_path&gt;</em> - Use this argument to specify a single test list, by file path, to execute during test mode.</li>
                         <li><em>no-color</em> - If present this option tells the application to never use ANSI formatting in terminal output.</li>
                         <li><em>no-exit</em> - If present this option tells the application to continue running at the conclusion of test mode, which is helpful to further interact with and debug the dashboard UI.</li>
-                        <li><em>no-terminal</em> - If present this option removes all remote terminal code from the application at application start up.</li>
                         <li><em>test</em> - If present this option instructs the application to execute test automation.</li>
                     </ul>
                 </div>
@@ -581,7 +597,9 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
         </div>
-        <div class="tab" id="http">
+        <!-- help end -->
+        <!-- http-test start -->
+        <div class="tab" id="http-test">
             <h2>HTTP Test</h2>
             <p class="tab-description">A means to write arbitrary HTTP requests and read the raw response.</p>
             <div class="definitions">
@@ -648,6 +666,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </ul>
             </div>
         </div>
+        <!-- http-test end -->
+        <!-- interfaces start -->
         <div class="tab" id="interfaces">
             <h2>Network Interfaces</h2>
             <p class="tab-description">A list of network interfaces and their addressing information. Data automatically refreshes at server's midnight time.</p>
@@ -660,7 +680,9 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <div class="item-list"></div>
             </div>
         </div>
-        <div class="tab" id="os">
+        <!-- interfaces end -->
+        <!-- os-machine start -->
+        <div class="tab" id="os-machine">
             <h2>OS/Machine</h2>
             <p class="tab-description">A list of descriptive and statistical data about the application's executing environment. Data automatically refreshes at server's midnight time.</p>
             <div class="section">
@@ -737,6 +759,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
         </div>
+        <!-- os-machine end -->
+        <!-- ports-application start -->
         <div class="tab" id="ports-application">
             <h2>App Ports</h2>
             <p class="tab-description">A list of ports listened upon by web servers and docker containers managed from this dashboard.</p>
@@ -766,6 +790,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
+        <!-- ports-application end -->
+        <!-- processes start -->
         <div class="tab" id="processes">
             <h2>Processes</h2>
             <p class="tab-description">A list of processes running in the local operating system. Data automatically refreshes at server's midnight time.</p>
@@ -796,82 +822,97 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
-        <div class="tab" id="servers_web">
+        <!-- processes end -->
+        <!-- servers-web start -->
+        <div class="tab" id="servers-web">
             <h2>Web Servers</h2>
             <p class="tab-description">A list of configured HTTP/WS servers hosted by this application and their respective status.</p>
             <div class="definitions">
-                <h3>Definitions of Server Object Properties <button class="expand">Expand</button></h3>
-                <dl class="definition-body">
-                    <dt><em>activate</em> (string)</dt>
-                    <dd><p>
-                        Instructs the application to bring the server online automatically at application start and server creation.
-                    </p></dd>
-                    <dt><em>block_list</em> (string array)</dt>
-                    <dd><p>
-                        The block list contains three optional string arrays of criteria to determine if matching sockets should be instantly destroyed.
-                        At this time wildcards, CIDR notation, and ranges are not supported.
-                    </p></dd>
-                    <dt><em>domain_local</em> (string array)</dt>
-                    <dd><p>
-                        Sockets featuring HTTP request host names in this list will be served from this server.
-                        Sockets featuring HTTP request host names not in this list or in the redirect_domain list will be destroyed.
-                    </p></dd>
-                    <dt><em>encryption</em> (string)</dt>
-                    <dd><p>
-                        Whether to create an encrypted server for HTTPS and WSS protocols, an unencrypted server for HTTP and WS protocols, or both.
-                        Accepted values are <em>both</em>, <em>open</em>, or <em>secure</em>.
-                    </p></dd>
-                    <dt><em>http</em> (object)</dt>
-                    <dd><p>
-                        File system paths to external utilities for handling the supported HTTP methods: <em>delete</em>, <em>post</em>, and <em>put</em>.
-                        HTTP request bodies are passed into an environmental variable on the respective child process named 'payload'.
-                    </p></dd>
-                    <dt><em>id</em> (string)</dt>
-                    <dd><p>A dynamically assigned identifier. The application creates this value and it cannot be modified.</p></dd>
-                    <dt><em>name</em> (string)</dt>
-                    <dd><p>
-                        The human readable name of this server.
-                    </p></dd>
-                    <dt><em>ports</em> (object)</dt>
-                    <dd><p>The ports on which the server operates.</p></dd>
-                    <dt><em>redirect_asset</em> (object)</dt>
-                    <dd><p>
-                        Redirects resource paths of HTTP requests within the given server based upon the hostname in the HTTP request header.
-                        This is useful for dynamic or vanity endpoints on a given server that wish to return something different than a relative file system destination.
-                        Each instance uses the structure of <code>"domain": {"resource location": "new location"}</code> because each server can represent 0 or more domain names.
-                    </p><p>
-                        For example there could be an informational dashboard on some server at address: <em>http://myexample.com/api_services/informational/dashboards/uptime/</em>.
-                        For the sake of simplicity you want to serve that dashboard from an internal vanity domain like: <em>http://api.dashboard/</em>.
-                        You would need a rule to redirect from resource <em>/</em> to actual resource at <em>/api_services/informational/dashboards/uptime</em>, and that rule would look like: <code>"api.dashboard": {"/": "/api_services/informational/dashboards/uptime/"}</code>
-                    </p><p>
-                        Asset redirection supports use of wildcards by specifying an asterisk at the end of asset locations.
-                        For example, redirection of request for <em>/api_services/informational/dashboards/uptime/images/interface/title.png</em> to <em>/api/images/interface/title.png</em> would occur with rule: <code>"api.dashboard": {"/api/*": "/api_services/informational/dashboards/uptime/"}</code>
-                        With wildcards all asset requests matching the address up to the asterisk will be redirected to the specified location.
-                    </p><p>
-                        <strong>Please note the terminal slash in the prior examples.</strong>
-                        Without the terminating slash the redirected address becomes <em>/api_services/informational/dashboards/uptimeimages/interface/title.png</em>.
-                    </p></dd>
-                    <dt><em>redirect_domain</em> (object)</dt>
-                    <dd><p>
-                        Redirects traffic to a different server location, such as a vanity domain that may or may not be served from the same server.
-                        Each instance uses the structure of <code>"domain": ["new domain", port_number]</code> because each server can represent 0 or more domain names.
-                        If the 'new domain' is an empty string the requested domain will be used.
-                        If the port number is not a number or 0 the current server's port number will be used.
-                    </p><p>
-                        If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003]</code>
-                    </p></dd>
-                    <dt><em>single_socket</em> (boolean)</dt>
-                    <dd><p>
-                        Providing property <em>single_socket</em> with value <em>true</em> will create a server that only accepts a first successful HTTP or WebSocket connection.
-                        All other connections will be ignored and the server will automatically remove itself once that connection completes.
-                        This server will never writing configuration data and so it will be forever lost once this application closes.
-                    </p></dd>
-                    <dt><em>temporary</em> (boolean)</dt>
-                    <dd><p>
-                        Providing property <em>temporary</em> with value <em>true</em> will create a server that never writes configuration data.
-                        This server will be forever lost once this application closes.
-                    </p></dd>
-                </dl>
+                <h3>Server Information and Configuration <button class="expand">Expand</button></h3>
+                <div class="definition-body">
+                    <div class="section">
+                        <h4>Server Descriptions</h4>
+                        <p>These are primitive web servers supporting out of the box HTTP methods: CONNECT, GET, HEAD, OPTIONS, and TRACE.  These servers provide no cache control mechanism.  These servers also do not report failure responses, aside from 404 status.  In the case a connection violates a server's security or connection policies the socket is immediately destroyed.</p>
+                        <p>For security and efficiency the <em>connect</em> method creates a web socket connection instead a regular HTTP request redirection.  If the desired destination does not support the Web Socket protocol the corresponding request will silently fail.</p>
+                        <p>HTTP methods <em>DELETE</em>, <em>PATCH</em>, <em>POST</em>, and <em>PUT</em> rely upon external services for support.  This external support is configured using the <strong>method</strong> property of the server's configuration object.  Provided the configuration is present the server will prexy the request to the desired service.</p>
+                    </div>
+                    <div class="section">
+                        <h4>Server Configuration Definitions</h4>
+                        <dl>
+                            <dt><em>activate</em> (string)</dt>
+                            <dd><p>
+                                Instructs the application to bring the server online automatically at application start and server creation.
+                            </p></dd>
+                            <dt><em>block_list</em> (string array)</dt>
+                            <dd><p>
+                                The block list contains three optional string arrays of criteria to determine if matching sockets should be instantly destroyed.
+                                At this time wildcards, CIDR notation, and ranges are not supported.
+                            </p></dd>
+                            <dt><em>domain_local</em> (string array)</dt>
+                            <dd><p>
+                                Sockets featuring HTTP request host names in this list will be served from this server.
+                                Sockets featuring HTTP request host names not in this list or in the redirect_domain list will be destroyed.
+                            </p></dd>
+                            <dt><em>encryption</em> (string)</dt>
+                            <dd><p>
+                                Whether to create an encrypted server for HTTPS and WSS protocols, an unencrypted server for HTTP and WS protocols, or both.
+                                Accepted values are <em>both</em>, <em>open</em>, or <em>secure</em>.
+                            </p></dd>
+                            <dt><em>http</em> (object)</dt>
+                            <dd><p>
+                                File system paths to external utilities for handling the supported HTTP methods: <em>delete</em>, <em>post</em>, and <em>put</em>.
+                                HTTP request bodies are passed into an environmental variable on the respective child process named 'payload'.
+                            </p></dd>
+                            <dt><em>id</em> (string)</dt>
+                            <dd><p>A dynamically assigned identifier. The application creates this value and it cannot be modified.</p></dd>
+                            <dt><em>method</em> (object)</dt>
+                            <dd><p>Key names may include any of <em>delete</em>, <em>patch</em>, <em>post</em>, <em>put</em>. These key names are not case sensitive. The value of these method names is a child object containing the properties <em>address</em> (string) and <em>port</em> (number).</p> <code>"DELETE": {"address": "localhost", "port": 1234}</code></dd>
+                            <dt><em>name</em> (string)</dt>
+                            <dd><p>
+                                The human readable name of this server.
+                            </p></dd>
+                            <dt><em>ports</em> (object)</dt>
+                            <dd><p>The ports on which the server operates.</p></dd>
+                            <dt><em>redirect_asset</em> (object)</dt>
+                            <dd><p>
+                                Redirects resource paths of HTTP requests within the given server based upon the hostname in the HTTP request header.
+                                This is useful for dynamic or vanity endpoints on a given server that wish to return something different than a relative file system destination.
+                                Each instance uses the structure of <code>"domain": {"resource location": "new location"}</code> because each server can represent 0 or more domain names.
+                            </p><p>
+                                For example there could be an informational dashboard on some server at address: <em>http://myexample.com/api_services/informational/dashboards/uptime/</em>.
+                                For the sake of simplicity you want to serve that dashboard from an internal vanity domain like: <em>http://api.dashboard/</em>.
+                                You would need a rule to redirect from resource <em>/</em> to actual resource at <em>/api_services/informational/dashboards/uptime</em>, and that rule would look like: <code>"api.dashboard": {"/": "/api_services/informational/dashboards/uptime/"}</code>
+                            </p><p>
+                                Asset redirection supports use of wildcards by specifying an asterisk at the end of asset locations.
+                                For example, redirection of request for <em>/api_services/informational/dashboards/uptime/images/interface/title.png</em> to <em>/api/images/interface/title.png</em> would occur with rule: <code>"api.dashboard": {"/api/*": "/api_services/informational/dashboards/uptime/"}</code>
+                                With wildcards all asset requests matching the address up to the asterisk will be redirected to the specified location.
+                            </p><p>
+                                <strong>Please note the terminal slash in the prior examples.</strong>
+                                Without the terminating slash the redirected address becomes <em>/api_services/informational/dashboards/uptimeimages/interface/title.png</em>.
+                            </p></dd>
+                            <dt><em>redirect_domain</em> (object)</dt>
+                            <dd><p>
+                                Redirects traffic to a different server location, such as a vanity domain that may or may not be served from the same server.
+                                Each instance uses the structure of <code>"domain": ["new domain", port_number]</code> because each server can represent 0 or more domain names.
+                                If the 'new domain' is an empty string the requested domain will be used.
+                                If the port number is not a number or 0 the current server's port number will be used.
+                            </p><p>
+                                If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003]</code>
+                            </p></dd>
+                            <dt><em>single_socket</em> (boolean)</dt>
+                            <dd><p>
+                                Providing property <em>single_socket</em> with value <em>true</em> will create a server that only accepts a first successful HTTP or WebSocket connection.
+                                All other connections will be ignored and the server will automatically remove itself once that connection completes.
+                                This server will never writing configuration data and so it will be forever lost once this application closes.
+                            </p></dd>
+                            <dt><em>temporary</em> (boolean)</dt>
+                            <dd><p>
+                                Providing property <em>temporary</em> with value <em>true</em> will create a server that never writes configuration data.
+                                This server will be forever lost once this application closes.
+                            </p></dd>
+                        </dl>
+                    </div>
+                </div>
             </div>
             <div class="section">
                 <h3>Web Server List</h3>
@@ -879,6 +920,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <ul class="server-list"></ul>
             </div>
         </div>
+        <!-- servers-web end -->
+        <!-- services start -->
         <div class="tab" id="services">
             <h2>Services</h2>
             <p class="tab-description">A list of application services on the local operating system. Data automatically refreshes at server's midnight time.</p>
@@ -907,6 +950,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
+        <!-- services end -->
+        <!-- sockets-application start -->
         <div class="tab" id="sockets-application">
             <h2>App Sockets</h2>
             <p class="tab-description">A list of sockets created by this application. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time. Local address and port are from the perspective of the application server. Remote address and port could represent the local web browser.</p>
@@ -944,6 +989,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
+        <!-- sockets-application end -->
+        <!-- sockets-os start -->
         <div class="tab" id="sockets-os">
             <h2>OS Sockets</h2>
             <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
@@ -976,6 +1023,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
+        <!-- sockets-os end -->
+        <!-- statistics start -->
         <div class="tab" id="statistics">
             <h2>Statistics</h2>
             <p class="tab-description">Providing a real time metrics for supported services.</p>
@@ -1000,6 +1049,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <div class="graphs"></div>
             </div>
         </div>
+        <!-- statistics end -->
         <!-- terminal start -->
         <div class="tab" id="terminal">
             <h2>Terminal</h2>
@@ -1056,6 +1106,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- terminal end -->
+        <!-- users start -->
         <div class="tab" id="users">
             <h2>Users</h2>
             <p class="tab-description">A list of user accounts on the local operating system. Data automatically refreshes at server's midnight time.</p>
@@ -1086,7 +1137,9 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
-        <div class="tab" id="websocket">
+        <!-- users end -->
+        <!-- websocket-test start -->
+        <div class="tab" id="websocket-test">
             <h2>WebSocket Test</h2>
             <p class="tab-description">A tool to open and experiment with arbitrary WebSocket messaging.</p>
             <div class="definitions">
@@ -1187,5 +1240,6 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
         </div>
+        <!-- websocket-test end -->
     </main>
-<script type="application/javascript">replace_javascript</script></body></html>
+<script type="module">replace_javascript</script></body></html>

@@ -250,41 +250,47 @@ const directory = function utilities_directory(args:config_directory):void {
                 }
             });
         },
-        args_len:number = args.path.length;
-    if (args.path.charAt(args_len - 1) === sep && args_len > 2) {
-        args.path = args.path.slice(0, args_len - 1);
-    }
-    if (args.path === "\\") {
-        spawn("get-volume | convertto-json", function utilities_directory_windows(out:core_spawn_output):void {
-            const drives:windows_drives[] = JSON.parse(out.stdout);
-            let index:number = drives.length;
-            output.push(["\\", "directory", 0, index, {
-                atimeMs: 0,
-                ctimeMs: 0,
-                linkPath: "",
-                linkType: "",
-                mode: 0,
-                mtimeMs: 0,
-                size: 0
-            }, ""]);
-            if (index > 0) {
-                do {
-                    index = index - 1;
-                    if (drives[index].DriveLetter !== null) {
-                        driveSize[`${drives[index].DriveLetter}:`] = drives[index].Size;
-                        stat_wrap(`${drives[index].DriveLetter}:`, false, 0);
-                    }
-                } while (index > 0);
-            }
-        }, {
-            error: function utilities_directory_indowsRootError(erw:node_childProcess_ExecException):void {
-                failures.push(`${erw.code} - \\`);
-                complete(null);
-            },
-            shell: "powershell"
-        }).execute();
+        args_len:number = (typeof args.path === "string")
+            ? args.path.length
+            : 0;
+    if (args_len > 0) {
+        if (args.path.charAt(args_len - 1) === sep && args_len > 2) {
+            args.path = args.path.slice(0, args_len - 1);
+        }
+        if (args.path === "\\") {
+            spawn("get-volume | convertto-json", function utilities_directory_windows(out:core_spawn_output):void {
+                const drives:windows_drives[] = JSON.parse(out.stdout);
+                let index:number = drives.length;
+                output.push(["\\", "directory", 0, index, {
+                    atimeMs: 0,
+                    ctimeMs: 0,
+                    linkPath: "",
+                    linkType: "",
+                    mode: 0,
+                    mtimeMs: 0,
+                    size: 0
+                }, ""]);
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        if (drives[index].DriveLetter !== null) {
+                            driveSize[`${drives[index].DriveLetter}:`] = drives[index].Size;
+                            stat_wrap(`${drives[index].DriveLetter}:`, false, 0);
+                        }
+                    } while (index > 0);
+                }
+            }, {
+                error: function utilities_directory_indowsRootError(erw:node_childProcess_ExecException):void {
+                    failures.push(`${erw.code} - \\`);
+                    complete(null);
+                },
+                shell: "powershell"
+            }).execute();
+        } else {
+            stat_wrap(args.path, false, 0);
+        }
     } else {
-        stat_wrap(args.path, false, 0);
+        complete(null);
     }
 };
 

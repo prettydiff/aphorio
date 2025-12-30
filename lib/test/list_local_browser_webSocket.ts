@@ -4,7 +4,7 @@ const test_listLocalBrowserWebSocket:test_list = [
     {
         delay: {
             node: [
-                ["getElementById", "websocket", null],
+                ["getElementById", "websocket-test", null],
                 ["getElementsByTagName", "h2", 0]
             ],
             qualifier: "greater",

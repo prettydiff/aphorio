@@ -33,7 +33,7 @@ const docker:core_docker = {
                     log.application({
                         error: null,
                         message: vars.compose.status,
-                        section: "compose_containers",
+                        section: "compose-containers",
                         status: "error",
                         time: now
                     });
@@ -53,7 +53,7 @@ const docker:core_docker = {
                                     identifier: out.type,
                                     location: out.stdout.trim(),
                                     no_file: null,
-                                    section: "compose_containers"
+                                    section: "compose-containers"
                                 });
                             }
                         },
@@ -161,7 +161,7 @@ const docker:core_docker = {
                                                     callback: read,
                                                     location: files[index][0],
                                                     no_file: null,
-                                                    section: "compose_containers"
+                                                    section: "compose-containers"
                                                 });
                                             }
                                         } while (index > 0);
@@ -249,7 +249,7 @@ const docker:core_docker = {
                     log.application({
                         error: null,
                         message: "Attempted to add a docker container without a 'container_name' field.",
-                        section: "compose_containers",
+                        section: "compose-containers",
                         status: "error",
                         time: Date.now()
                     });
@@ -267,7 +267,7 @@ const docker:core_docker = {
                         },
                         contents: data.compose,
                         location: location,
-                        section: "compose_containers"
+                        section: "compose-containers"
                     });
                 }
             } else if (data.action === "destroy") {
@@ -283,7 +283,7 @@ const docker:core_docker = {
                         },
                         exclusions: [],
                         location: data.location,
-                        section: "compose_containers"
+                        section: "compose-containers"
                     });
                 });
             } else if (data.action === "modify") {
@@ -307,7 +307,7 @@ const docker:core_docker = {
                         },
                         contents: data.compose,
                         location: data.location,
-                        section: "compose_containers"
+                        section: "compose-containers"
                     });
                 });
             } else if (data.action === "update") {
@@ -343,7 +343,7 @@ const docker:core_docker = {
             },
             contents: output.join("\n"),
             location: `${vars.path.project}compose${vars.path.sep}.env`,
-            section: "compose_containers"
+            section: "compose-containers"
         });
     }
 };

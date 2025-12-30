@@ -1,5 +1,5 @@
 **/node_modules
-/compose.json
+/features.json
 /servers.json
 /servers
 /compose/**

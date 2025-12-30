@@ -193,7 +193,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                     symbolic: false
                                 });
                             },
-                            section: "servers_web"
+                            section: "servers-web"
                         });
                     },
                     fileItem = function http_get_stat_statTest_fileItem():void {
@@ -223,18 +223,21 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                     return "HTTP/1.1 200";
                                 }());
                                 if (status === "HTTP/1.1 206") {
-                                    const 
-                                        start:number = (range === "")
+                                    const ranges:string[] = range.split("-"),
+                                        size:number = Number(stat.size),
+                                        start:number = (ranges[0] === "")
                                             ? 0
-                                            : Number(range.split("-")[0]),
-                                        end:number = Math.min(start + (1024 * 1024), Number(stat.size)),
+                                            : Number(ranges[0]),
+                                        end:number = (ranges[1] === "" || ranges[1] === undefined)
+                                            ? Math.min(start + (1024 * 1024), size)
+                                            : Number(ranges[1].split("/")[0]),
                                         stream:node_fs_ReadStream = node.fs.createReadStream(input, {
                                             end: end,
                                             start: start
                                         });
                                     headerText[0] = status;
                                     headerText[2] = `content-length: ${end - start}`;
-                                    headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${stat.size}`);
+                                    headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
                                     socket.write(headerText.join("\r\n"));
                                     stream.pipe(socket);
                                     stream.on("close", function http_get_statTest_fileItem_close():void {
@@ -326,7 +329,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                 callback: statTest,
                 location: input,
                 no_file: notFound,
-                section: "servers_web"
+                section: "servers-web"
             });
         },
         decode:string = decodeURI(fileFragment),
@@ -360,7 +363,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     timeZone_offset: vars.environment.timeZone_offset,
                     version: vars.environment.version
                 },
-                dashboard:string = vars.environment.dashboard_page.replace("request: \"\"", `request: \`${list}\``).replace(/const\s+payload\s*=\s*null/, `const payload=${JSON.stringify(payload)}`),
+                dashboard:string = vars.environment.dashboard_page.replace("request: \"\"", `request: \`${list}\``).replace(/\s+payload\s*:\s*null/, `payload:${JSON.stringify(payload)}`),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",

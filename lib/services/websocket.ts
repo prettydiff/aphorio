@@ -1,4 +1,4 @@
-import create_socket from "../transmit/createSocket.ts";
+import create_socket from "../transmit/create_socket.ts";
 import node from "../core/node.ts";
 import send from "../transmit/send.ts";
 import vars from "../core/vars.ts";

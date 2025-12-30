@@ -6,7 +6,7 @@ A simple web based dashboard for the following features.
   - Serves and proxies HTTP over WebSockets for both TCP and TLS
   - Server standup via small JSON configuration, which includes optional proxies and traffic redirection
   - Simple and yet more powerful file system navigation via web server
-  - Servers include an optional *temporary* option to spin up servers with no state information
+  - Servers include a *temporary* option to spin up servers with no state information
 * Docker Compose container management
 * OS Data dashboards:
   - Accounts for system and users
@@ -23,6 +23,12 @@ A simple web based dashboard for the following features.
   - HTTP request tester with complete raw payload inspection for both requests and responses
   - WebSocket tester with raw frame header inspection/editing
   - Hash and Base64 tool
+
+## Feature Management
+Determine which features to exclude by simply setting a boolean value in the `features.json` file.
+
+## Screenshots
+* https://prettydiff.com/aphorio_screenshots/
 
 ## Installation
 1. Install [Node.js](https://nodejs.org/) version 24 or later.
@@ -47,16 +53,7 @@ All arguments are supported only on the server command, example: `npm run server
 * `list:<file_path>` - *This option is ignored unless in test mode.* Allows specifying a single test list to execute starting from the project's test directory at */lib/test*.
 * `no-color` - Eliminates use of ANSI color codes in terminal output.
 * `no-exit` - *This option is ignored unless in test mode.* Application remains actively available after completing test automation.
-* `no-terminal` - Eliminates remote terminal access from the application.
 
 ## Tested Platforms
 * Debian Linux 13
 * Windows 11
-
-<!--
-## Optional steps to reduce the dependency count to 3:
-1. Delete the `node_modules` directory.
-2. Delete the `devDependencies` object from the file `package.json`.
-3. Execute `npm install`.
-4. Restart the application with `npm run server` or your favorite OS service management tool.
--->

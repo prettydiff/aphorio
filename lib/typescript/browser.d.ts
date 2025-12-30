@@ -68,6 +68,67 @@ declare global {
         target: HTMLElement;
     }
 
+    interface dashboard {
+        execute: () => void;
+        global: {
+            loaded: boolean;
+            payload: transmit_dashboard;
+            section: type_dashboard_sections;
+            state: state_store;
+        };
+        sections: {
+            "application-logs": module_sections;
+            "compose-containers": section_compose_containers;
+            "devices": section_devices;
+            "disks": module_sections;
+            "dns-query": section_dns_query;
+            "file-system": section_file_system;
+            "hash": section_hash;
+            "http-test": section_http_test;
+            "interfaces": section_interfaces;
+            "os-machine": section_os;
+            "ports-application": section_ports_application;
+            "processes": section_processes;
+            "servers-web": section_servers_web;
+            "services": section_services;
+            "sockets-application": section_sockets_application;
+            "sockets-os": section_sockets_os;
+            "statistics": section_statistics;
+            "terminal": section_terminal;
+            "users": section_users;
+            "websocket-test": section_websocket_test;
+        };
+        shared_services: {
+            cancel: (event:MouseEvent) => void;
+            color: (name_server:string, type:type_dashboard_list) => type_activation_status;
+            create: (event:MouseEvent) => void;
+            details: (event:MouseEvent) => void;
+            edit: (event:MouseEvent) => void;
+            title: (name_server:string, type:type_dashboard_list) => HTMLElement;
+        };
+        socket: socket_object;
+        tables: {
+            cell: (tr:HTMLElement, text:string, raw:string) => void;
+            filter: (event:Event, target?:HTMLInputElement) => void;
+            init: (module:module_list|section_ports_application|section_sockets_application) => void;
+            populate: (module:module_list, item:type_list_services) => void;
+            sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
+            update: (event:MouseEvent) => void;
+        };
+        utility: {
+            baseline: () => void;
+            clock: (data_item:socket_data) => void;
+            message_send: (data:type_socket_data, service:type_service) => void;
+            nodes: {
+                clock: HTMLElement;
+                load: HTMLElement;
+                main: HTMLElement;
+            };
+            resize: () => void;
+            setState: () => void;
+        };
+    }
+
     interface graph_composite {
         cpu: number[][];
         disk_in: number[][];
@@ -110,137 +171,10 @@ declare global {
         [key:string]: (data_item:socket_data) => void;
     }
 
-    interface module_compose_containers {
-        descriptions: (id:string) => HTMLElement;
-        events: {
-            cancel_variable: (event:MouseEvent) => void;
-            edit_variable: () => void;
-            message_container: (event:MouseEvent) => void;
-            message_variable: (event:MouseEvent) => void;
-            update: () => void;
-            validate_containers: (event:FocusEvent|KeyboardEvent) => void;
-            validate_variables: (event:FocusEvent|KeyboardEvent) => void;
-        };
-        list: (socket_data:socket_data) => void;
-        nodes: {
-            body: HTMLElement;
-            list: HTMLElement;
-            list_variables: HTMLElement;
-            new_container: HTMLButtonElement;
-            new_variable: HTMLButtonElement;
-            status: HTMLElement;
-            update_button: HTMLButtonElement;
-            update_containers: HTMLElement;
-            update_time: HTMLElement;
-            update_variables: HTMLElement;
-        };
-    }
     interface module_compose_variables {
         cancel: (event:MouseEvent) => void;
         edit: () => void;
         message: (event:MouseEvent) => void;
-    }
-
-    interface module_disks {
-        init: () => void;
-        list: (item:services_os_disk) => void;
-        nodes: {
-            count: HTMLElement;
-            list: HTMLElement;
-            update_button: HTMLButtonElement;
-            update_text: HTMLElement;
-        };
-    }
-
-    interface module_dns {
-        direction: (reverse:boolean) => void;
-        directionEvent: (event:MouseEvent) => void;
-        init: () => void;
-        nodes: {
-            hosts: HTMLInputElement;
-            lookup: HTMLInputElement;
-            output: HTMLTextAreaElement;
-            query: HTMLButtonElement;
-            reverse: HTMLInputElement;
-            types: HTMLInputElement;
-        };
-        query: (event:KeyboardEvent|MouseEvent) => void;
-        receive: (data_item:socket_data) => void;
-    }
-
-    interface module_fileSystem {
-        block: boolean;
-        init: () => void;
-        key: (event:KeyboardEvent) => void;
-        media: {
-            audio: HTMLElement;
-            image: HTMLElement;
-            other: HTMLElement;
-            pdf: HTMLIFrameElement;
-            text: HTMLElement;
-            video: HTMLElement;
-        };
-        media_time: (input:number) => string;
-        nodes: {
-            content: HTMLElement;
-            failures: HTMLElement;
-            output: HTMLElement;
-            path: HTMLInputElement;
-            search: HTMLInputElement;
-            status: HTMLElement;
-            summary: HTMLElement;
-        };
-        receive: (data_item:socket_data) => void;
-        send: (event:FocusEvent|KeyboardEvent) => void;
-        time: bigint;
-    }
-
-    interface module_hash {
-        init: () => void;
-        nodes: {
-            algorithm: HTMLSelectElement;
-            base64: HTMLInputElement;
-            button: HTMLButtonElement;
-            digest: HTMLInputElement;
-            file: HTMLInputElement;
-            hash: HTMLInputElement;
-            hex: HTMLInputElement;
-            output: HTMLTextAreaElement;
-            size: HTMLElement;
-            source: HTMLTextAreaElement;
-            string: HTMLInputElement;
-            type: HTMLInputElement;
-        };
-        receive: (data_item:socket_data) => void;
-        request: () => void;
-        toggle_mode: (event:MouseEvent) => void;
-    }
-
-    interface module_http {
-        init: () => void;
-        nodes: {
-            encryption: HTMLInputElement;
-            http_request: HTMLElement;
-            request: HTMLTextAreaElement;
-            responseBody: HTMLTextAreaElement;
-            responseHeaders: HTMLTextAreaElement;
-            responseURI: HTMLTextAreaElement;
-            stats: HTMLCollectionOf<HTMLElement>;
-            timeout: HTMLInputElement;
-        };
-        receive: (data_item:socket_data) => void;
-        request: (event:MouseEvent) => void;
-    }
-
-    interface module_interfaces {
-        init: () => void;
-        list: (item:services_os_intr) => void;
-        nodes: {
-            count: HTMLElement;
-            list: HTMLElement;
-            update_button: HTMLButtonElement;
-            update_text: HTMLElement;
-        };
     }
 
     interface module_list {
@@ -255,14 +189,9 @@ declare global {
             update_button: HTMLButtonElement;
             update_text: HTMLElement;
         };
+        receive: (socket_data:socket_data) => void;
         row: (record:type_lists, tr:HTMLElement) => void;
         sort_name: string[];
-    }
-
-    interface module_os {
-        init: () => void;
-        nodes: module_os_nodes;
-        service: (data_item:socket_data) => void;
     }
 
     interface module_os_nodes {
@@ -313,21 +242,6 @@ declare global {
         versions: HTMLElement;
     }
 
-    interface module_ports_application {
-        dataName: string;
-        list: () => void;
-        nodes: {
-            caseSensitive: HTMLInputElement;
-            count: HTMLElement;
-            filter_column: HTMLSelectElement;
-            filter_count: HTMLElement;
-            filter_value: HTMLInputElement;
-            list: HTMLElement;
-            update_button: HTMLElement;
-            update_text: HTMLElement;
-        };
-    }
-
     interface module_remote {
         delay: (config:test_browserItem) => void;
         domFailure: boolean;
@@ -349,38 +263,207 @@ declare global {
         test_item: services_testBrowser;
     }
 
-    interface module_servers_web {
-        activePorts: (id:string) => HTMLElement;
-        getTitle?: (textArea:HTMLTextAreaElement) => string;
-        list: (socket_data:socket_data) => void;
-        message: (event:MouseEvent) => void;
+    interface module_sections {
+        events: {
+            [key:string]: ((event:Event) => void) | ((event:FocusEvent) => void) | ((event:KeyboardEvent) => void) | ((event:MouseEvent) => void) | ((event:websocket_event) => void) | ((input:terminal_input) => void);
+        };
+        init: () => void;
+        nodes: {
+            [key:string]: HTMLElement;
+        };
+        receive: (socket_data:socket_data) => void;
+        tools: {
+            [key:string]: (input?:boolean|string) => void;
+        };
+    }
+
+    interface section_compose_containers extends module_sections {
+        events: {
+            cancel_variable: (event:MouseEvent) => void;
+            edit_variable: () => void;
+            message_container: (event:MouseEvent) => void;
+            message_variable: (event:MouseEvent) => void;
+            update: () => void;
+            validate_containers: (event:FocusEvent|KeyboardEvent) => void;
+            validate_variables: (event:FocusEvent|KeyboardEvent) => void;
+        };
+        nodes: {
+            body: HTMLElement;
+            list: HTMLElement;
+            list_variables: HTMLElement;
+            new_container: HTMLButtonElement;
+            new_variable: HTMLButtonElement;
+            status: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_containers: HTMLElement;
+            update_time: HTMLElement;
+            update_variables: HTMLElement;
+        };
+    }
+
+    interface section_devices extends module_list {
+        dataName: "devs";
+    }
+
+    interface section_dns_query extends module_sections {
+        events: {
+            directionEvent: (event:MouseEvent) => void;
+            query: (event:KeyboardEvent|MouseEvent) => void;
+        };
+        nodes: {
+            hosts: HTMLInputElement;
+            lookup: HTMLInputElement;
+            output: HTMLTextAreaElement;
+            query: HTMLButtonElement;
+            reverse: HTMLInputElement;
+            types: HTMLInputElement;
+        };
+        tools: {
+            direction: (reverse:boolean|string) => void;
+        };
+    }
+
+    interface section_file_system extends module_sections {
+        block: boolean;
+        events: {
+            key: (event:KeyboardEvent) => void;
+            send: (event:FocusEvent|KeyboardEvent) => void;
+        };
+        media: {
+            audio: HTMLElement;
+            image: HTMLElement;
+            other: HTMLElement;
+            pdf: HTMLIFrameElement;
+            text: HTMLElement;
+            video: HTMLElement;
+        };
+        nodes: {
+            content: HTMLElement;
+            failures: HTMLElement;
+            output: HTMLElement;
+            path: HTMLInputElement;
+            search: HTMLInputElement;
+            status: HTMLElement;
+            summary: HTMLElement;
+        };
+        time: bigint;
+        tools: {
+            media_time: (input:boolean|number|string) => string;
+        };
+    }
+
+    interface section_hash extends module_sections {
+        events: {
+            request: () => void;
+            toggle_mode: (event:MouseEvent) => void;
+        };
+        nodes: {
+            algorithm: HTMLSelectElement;
+            base64: HTMLInputElement;
+            button: HTMLButtonElement;
+            digest: HTMLInputElement;
+            file: HTMLInputElement;
+            hash: HTMLInputElement;
+            hex: HTMLInputElement;
+            output: HTMLTextAreaElement;
+            size: HTMLElement;
+            source: HTMLTextAreaElement;
+            string: HTMLInputElement;
+            type: HTMLInputElement;
+        };
+    }
+
+    interface section_http_test extends module_sections {
+        events: {
+            request: () => void;
+        };
+        nodes: {
+            encryption: HTMLInputElement;
+            http_request: HTMLElement;
+            request: HTMLTextAreaElement;
+            responseBody: HTMLTextAreaElement;
+            responseHeaders: HTMLTextAreaElement;
+            responseURI: HTMLTextAreaElement;
+            stats: HTMLElement;
+            timeout: HTMLInputElement;
+        };
+    }
+
+    interface section_interfaces extends module_sections {
+        init: () => void;
+        nodes: {
+            count: HTMLElement;
+            list: HTMLElement;
+            update_button: HTMLButtonElement;
+            update_text: HTMLElement;
+        };
+        receive: (socket_data:socket_data) => void;
+    }
+
+    interface section_os extends module_sections {
+        nodes_os: module_os_nodes;
+    }
+
+    interface section_ports_application extends module_sections {
+        dataName: "ports_application";
+        nodes: {
+            caseSensitive: HTMLInputElement;
+            count: HTMLElement;
+            filter_column: HTMLSelectElement;
+            filter_count: HTMLElement;
+            filter_value: HTMLInputElement;
+            list: HTMLElement;
+            update_button: HTMLElement;
+            update_text: HTMLElement;
+        };
+        receive: () => void;
+    }
+
+    interface section_processes extends module_list {
+        dataName: "proc";
+    }
+
+    interface section_servers_web extends module_sections {
+        events: {
+            message: (event:MouseEvent) => void;
+            validate: (event:FocusEvent|KeyboardEvent) => void;
+        };
         nodes: {
             list: HTMLElement;
             service_new: HTMLButtonElement;
         };
-        validate: (event:FocusEvent|KeyboardEvent) => void;
+        receive: (socket_data:socket_data) => void;
+        tools: {
+            activePorts: (id:boolean|string) => HTMLElement;
+        };
     }
 
-    interface module_serverShared {
-        cancel: (event:MouseEvent) => void;
-        color: (name_server:string, type:type_dashboard_list) => type_activation_status;
-        create: (event:MouseEvent) => void;
-        details: (event:MouseEvent) => void;
-        edit: (event:MouseEvent) => void;
-        title: (name_server:string, type:type_dashboard_list) => HTMLElement;
+    interface section_services extends module_list {
+        dataName: "serv";
     }
 
-    interface module_statistics {
-        change_display: () => void;
-        change_type: () => void;
-        definitions: (event:FocusEvent|KeyboardEvent) => void;
-        graph_composite: (force_new:boolean) => void;
+    interface section_sockets_application extends module_list {
+        dataName: "sockets_application";
+        tools: {
+            update: () => void;
+        };
+    }
+
+    interface section_sockets_os extends module_list {
+        dataName: "sock";
+    }
+
+    interface section_statistics extends module_sections {
+        events: {
+            change_display: () => void;
+            change_type: () => void;
+            definitions: (event:FocusEvent|KeyboardEvent) => void;
+        };
         graph_config: {
             colors: string[];
             labels: store_string;
             title: store_string;
         };
-        graph_individual: (force_new:boolean) => void;
         graphs: {
             [key:string]: {
                 cpu: Chart;
@@ -404,23 +487,13 @@ declare global {
             update: HTMLElement;
         };
         receive: (data:socket_data) => void;
+        tools: {
+            graph_composite: (force_new:boolean|string) => void;
+            graph_individual: (force_new:boolean|string) => void;
+        };
     }
 
-    interface module_sockets_application extends module_list {
-        list: (socket_data:socket_data) => void;
-        update: () => void;
-    }
-
-    interface module_tables {
-        cell: (tr:HTMLElement, text:string, raw:string) => void;
-        filter: (event:Event, target?:HTMLInputElement) => void;
-        init: (module:module_list|module_ports_application|module_sockets_application) => void;
-        populate: (module:module_list, item:type_list_services) => void;
-        sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
-        update: (event:MouseEvent) => void;
-    }
-
-    interface module_terminal {
+    interface section_terminal extends module_sections {
         cols: number;
         events: {
             change: (event:Event) => void;
@@ -432,7 +505,6 @@ declare global {
         };
         id: string;
         info: terminal_identifiers;
-        init: () => void;
         item: Terminal;
         nodes: {
             cols: HTMLElement;
@@ -441,35 +513,24 @@ declare global {
             select: HTMLSelectElement;
         };
         rows: number;
-        shell: () => void;
         socket: WebSocket;
     }
 
-    interface module_utility {
-        baseline: () => void;
-        clock: (data_item:socket_data) => void;
-        log: (socket_data:socket_data) => void;
-        message_send: (data:type_socket_data, service:type_service) => void;
-        nodes: {
-            clock: HTMLElement;
-            load: HTMLElement;
-            main: HTMLElement;
-        };
-        resize: () => void;
-        setState: () => void;
-        socket: socket_object;
+    interface section_users extends module_list {
+        dataName: "user";
     }
 
-    interface module_websocket {
+    interface section_websocket_test extends module_sections {
         connected: boolean;
-        frameBeautify: (target:"receive"|"send", value?:string) => void;
-        handshake: () => void;
-        handshakeSend: () => void;
+        events: {
+            handshakeSend: () => void;
+            keyup_frame: (event:Event) => void;
+            keyup_message: (event:KeyboardEvent) => void;
+            message_send: () => void;
+        };
+        
+        frameBeautify: (target:"receive"|"send", valueItem?:string) => void;
         init: () => void;
-        keyup_frame: (event:Event) => void;
-        keyup_message: (event:KeyboardEvent) => void;
-        message_receive: (data_item:socket_data) => void;
-        message_send: (event:MouseEvent) => void;
         nodes: {
             button_handshake: HTMLButtonElement;
             button_send: HTMLButtonElement;
@@ -485,9 +546,12 @@ declare global {
             message_send_frame: HTMLTextAreaElement;
             status: HTMLTextAreaElement;
         };
-        parse_frame:() => websocket_frame;
-        status: (data_item:socket_data) => void;
         timeout: number;
+        tools: {
+            handshake: () => void;
+            parse_frame: () => websocket_frame;
+        };
+        transmit: map_messages;
     }
 
     interface socket_object {
@@ -496,39 +560,6 @@ declare global {
         queue: (message:string) => void;
         queueStore: string[];
         socket: WebSocket;
-    }
-
-    interface structure_network {
-        interfaces: module_interfaces;
-        ports_application: module_ports_application;
-        sockets_application: module_sockets_application;
-        sockets_os: module_list;
-    }
-
-    interface structure_services {
-        compose_containers: module_compose_containers;
-        init: () => void;
-        servers_web: module_servers_web;
-        shared: module_serverShared;
-        statistics: module_statistics;
-    }
-
-    interface structure_system {
-        devices: module_list;
-        disks: module_disks;
-        os: module_os;
-        processes: module_list;
-        services: module_list;
-        users: module_list;
-    }
-
-    interface structure_tools {
-        dns: module_dns;
-        fileSystem: module_fileSystem;
-        hash: module_hash;
-        http: module_http;
-        terminal: module_terminal;
-        websocket: module_websocket;
     }
 
     interface state_store {

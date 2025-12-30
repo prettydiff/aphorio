@@ -205,6 +205,13 @@ interface core_spawn_output {
     type: string;
 }
 
+interface core_start_tasks {
+    [key:string]: {
+        label: string;
+        task: () => void;
+    };
+}
+
 interface core_statistics {
     change: (data:socket_data) => void;
     data: () => void;
@@ -229,6 +236,28 @@ interface core_vars {
         dashboard_id: string;
         dashboard_page: string;
         date_commit: number;
+        features: {
+            "application-logs": boolean;
+            "compose-containers": boolean;
+            "devices": boolean;
+            "disks": boolean;
+            "dns-query": boolean;
+            "file-system": boolean;
+            "hash": boolean;
+            "http-test": boolean;
+            "interfaces": boolean;
+            "os-machine": boolean;
+            "ports-application": boolean;
+            "processes": boolean;
+            "servers-web": boolean;
+            "services": boolean;
+            "sockets-application": boolean;
+            "sockets-os": boolean;
+            "statistics": boolean;
+            "terminal": boolean;
+            "users": boolean;
+            "websocket-test": boolean;
+        };
         file: boolean;
         hash: string;
         hashes: string[];
@@ -246,7 +275,6 @@ interface core_vars {
         "list": string;
         "no-color": boolean;
         "no-exit": boolean;
-        "no-terminal": boolean;
         "test": boolean;
     };
     os: core_server_os;
@@ -414,7 +442,7 @@ interface store_function {
 }
 
 interface store_module_map {
-    [key:string]: module_list | module_ports_application | module_sockets_application;
+    [key:string]: module_list | section_ports_application | section_sockets_application;
 }
 
 interface store_number {

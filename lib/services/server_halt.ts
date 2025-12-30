@@ -23,7 +23,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
         log.application({
             error: new Error(),
             message: `Server named ${data.server.name} with id ${data.server.id} does not exist.  Called on library server_halt.`,
-            section: "servers_web",
+            section: "servers-web",
             status: "error",
             time: Date.now()
         });
@@ -44,7 +44,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 log.application({
                     error: null,
                     message: `Server named ${data.server.name} ${actionText}.`,
-                    section: "servers_web",
+                    section: "servers-web",
                     status: "informational",
                     time: Date.now()
                 });
@@ -67,7 +67,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                         },
                         exclusions: [],
                         location: path_name,
-                        section: "servers_web"
+                        section: "servers-web"
                     };
                     delete vars.servers[id];
                     // 3a. Remove the web server's assets from the file system
@@ -140,7 +140,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                     callback: write_callback,
                     contents: JSON.stringify(config),
                     location: path_config,
-                    section: "servers_web"
+                    section: "servers-web"
                 });
             };
             if (data.action === "modify") {
@@ -160,7 +160,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                     callback: modify_file,
                     exclusions: null,
                     location: vars.path.servers + id,
-                    section: "servers_web"
+                    section: "servers-web"
                 });
             }
         } else {

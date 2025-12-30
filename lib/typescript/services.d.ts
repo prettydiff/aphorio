@@ -163,12 +163,13 @@ interface services_server {
     };
     domain_local: string[];
     encryption: type_encryption;
-    http?: {
-        delete?: string;
-        post?: string;
-        put?: string;
-    };
     id: string;
+    method?: {
+        delete?: services_server_method;
+        patch?: services_server_method;
+        post?: services_server_method;
+        put?: services_server_method;
+    };
     name: string;
     ports: server_ports;
     redirect_asset?: {
@@ -179,6 +180,11 @@ interface services_server {
     };
     single_socket?: boolean;
     temporary?: boolean;
+}
+
+interface services_server_method {
+    address: string;
+    port: number;
 }
 
 interface services_socket_application {

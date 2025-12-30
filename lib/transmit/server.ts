@@ -40,7 +40,7 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
                 log.application({
                     error: null,
                     message: `Server ${serverItem.id} - ${secure} came online at port ${address.port}.`,
-                    section: "servers_web",
+                    section: "servers-web",
                     status: "informational",
                     time: Date.now()
                 });
@@ -62,7 +62,7 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
                 log.application({
                     error: ser,
                     message: message,
-                    section: "servers_web",
+                    section: "servers-web",
                     status: "error",
                     time: Date.now()
                 });
@@ -112,7 +112,7 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
                 },
                 exclusions: null,
                 location: vars.path.servers + id,
-                section: "servers_web"
+                section: "servers-web"
             });
         } else {
             start(null);
@@ -147,7 +147,7 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
                         log.application({
                             error: new Error(),
                             message: `Required certificate files are missing for server ${vars.servers[id].config.name}.`,
-                            section: "servers_web",
+                            section: "servers-web",
                             status: "error",
                             time: Date.now()
                         });
@@ -157,7 +157,7 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
                             callback: starter,
                             exclusions: null,
                             location: vars.path.servers + id,
-                            section: "servers_web"
+                            section: "servers-web"
                         });
                     } else {
                         starter();

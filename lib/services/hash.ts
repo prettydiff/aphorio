@@ -1,8 +1,12 @@
 
 import hash from "../core/hash.ts";
 import send from "../transmit/send.ts";
+import vars from "../core/vars.ts";
 
 const hashService = function services_hash(socket_data:socket_data, transmit:transmit_socket):void {
+    if (vars.environment.features.hash === false) {
+        return;
+    }
     const data:services_hash = socket_data.data as services_hash,
         callback = function hashService_callback(output:hash_output):void {
             data.size = output.size;
