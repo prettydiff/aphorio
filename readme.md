@@ -6,7 +6,7 @@ A simple web based dashboard for the following features.
   - Serves and proxies HTTP over WebSockets for both TCP and TLS
   - Server standup via small JSON configuration, which includes optional proxies and traffic redirection
   - Simple and yet more powerful file system navigation via web server
-  - Servers include an optional *temporary* option to spin up servers with no state information
+  - Servers include a *temporary* option to spin up servers with no state information
 * Docker Compose container management
 * OS Data dashboards:
   - Accounts for system and users
@@ -24,8 +24,11 @@ A simple web based dashboard for the following features.
   - WebSocket tester with raw frame header inspection/editing
   - Hash and Base64 tool
 
+## Feature Management
+Determine which features to exclude by simply setting a boolean value in the `features.json` file.
+
 ## Screenshots
-* 
+* https://prettydiff.com/aphorio_screenshots/
 
 ## Installation
 1. Install [Node.js](https://nodejs.org/) version 24 or later.
@@ -54,11 +57,3 @@ All arguments are supported only on the server command, example: `npm run server
 ## Tested Platforms
 * Debian Linux 13
 * Windows 11
-
-<!--
-## Optional steps to reduce the dependency count to 3:
-1. Delete the `node_modules` directory.
-2. Delete the `devDependencies` object from the file `package.json`.
-3. Execute `npm install`.
-4. Restart the application with `npm run server` or your favorite OS service management tool.
--->
