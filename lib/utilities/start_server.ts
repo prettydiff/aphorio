@@ -168,7 +168,11 @@ const start_server = function utilities_startServer(process_path:string, testing
             compose: {
                 label: "Restores the docker compose containers if docker is available.",
                 task: function utilities_startServer_compose():void {
-                    docker.list(start_prerequisites);
+                    if (vars.environment.features["compose-containers"] === true) {
+                        docker.list(start_prerequisites);
+                    } else {
+                        start_prerequisites();
+                    }
                 }
             }
         },
