@@ -342,24 +342,40 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         } else if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {
-                    compose: vars.compose,
+                    compose: (vars.environment.features["compose-containers"] === true)
+                        ? vars.compose
+                        : null,
                     dashboard_id: vars.environment.dashboard_id,
-                    hashes: vars.environment.hashes,
-                    http_request: vars.environment.http_request,
-                    logs: vars.environment.logs,
+                    hashes: (vars.environment.features["hash"] === true)
+                        ? vars.environment.hashes
+                        : null,
+                    http_request: (vars.environment.features["http-test"] === true)
+                        ? vars.environment.http_request
+                        : null,
+                    logs: (vars.environment.features["application-logs"] === true)
+                        ? vars.environment.logs
+                        : null,
                     name: vars.environment.name,
                     os: vars.os,
                     path: vars.path,
-                    servers: vars.servers,
-                    sockets: vars.sockets,
-                    stats: {
-                        containers: vars.stats.containers,
-                        duration: vars.stats.duration,
-                        frequency: vars.stats.frequency,
-                        now: vars.stats.now,
-                        records: vars.stats.records
-                    },
-                    terminal: vars.environment.terminal,
+                    servers: (vars.environment.features["servers-web"] === true)
+                        ? vars.servers
+                        : null,
+                    sockets: (vars.environment.features["sockets-application"] === true)
+                        ? vars.sockets
+                        : null,
+                    stats: (vars.environment.features["statistics"] === true)
+                        ? {
+                            containers: vars.stats.containers,
+                            duration: vars.stats.duration,
+                            frequency: vars.stats.frequency,
+                            now: vars.stats.now,
+                            records: vars.stats.records
+                        }
+                        : null,
+                    terminal: (vars.environment.features["terminal"] === true)
+                        ? vars.environment.terminal
+                        : null,
                     timeZone_offset: vars.environment.timeZone_offset,
                     version: vars.environment.version
                 },

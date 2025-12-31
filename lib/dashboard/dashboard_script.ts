@@ -4680,7 +4680,7 @@ const ui = function ui():void {
             },
             // a universal bucket to store all resize event handlers
             resize: function dashboard_utility_resize():void {
-                if (dashboard.sections["terminal"].socket !== null) {
+                if (dashboard.sections["terminal"] !== undefined && dashboard.sections["terminal"].socket !== null) {
                     dashboard.sections["terminal"].events.resize();
                 }
             },
