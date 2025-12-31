@@ -6,10 +6,11 @@ type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentE
 type type_certKey = "ca" | "crt" | "key";
 type type_dashboard_action = type_halt_action | "activate" | "add" | "update";
 type type_dashboard_list = "container" | "server";
-type type_dashboard_features = type_dashboard_tables | "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "http-test" | "interfaces" | "os-machine" | "ports-application" | "processes" | "servers-web" | "statistics" | "terminal" | "websocket-test";
+type type_dashboard_init = "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "http-test" | "interfaces" | "os-machine" | "ports-application" | "servers-web" | "statistics" | "terminal" | "websocket-test";
+type type_dashboard_features = type_dashboard_init | type_dashboard_tables | "application-logs";
 type type_dashboard_sections = type_dashboard_features | "faq" | "help";
 type type_dashboard_status = "error" | "informational";
-type type_dashboard_tables = "devices" | "ports-application" | "services" | "sockets-application" | "sockets-os" | "users";
+type type_dashboard_tables = "devices" | "ports-application" | "processes" | "services" | "sockets-application" | "sockets-os" | "users";
 // type_directory_type
 // 0 - absolute path
 // 1 - file system item type
