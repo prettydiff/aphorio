@@ -72,8 +72,6 @@ const ui = function ui():void {
                         target.textContent = "Expand";
                     }
                 },
-                title:HTMLElement = document.getElementsByTagName("h1")[0],
-                version:HTMLElement = document.createElement("span"),
                 th:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("th"),
                 expand:HTMLCollectionOf<HTMLButtonElement> = document.getElementsByClassName("expand") as HTMLCollectionOf<HTMLButtonElement>,
                 table_keys:string[] = (dashboard.global.state.tables === undefined || dashboard.global.state.tables === null)
@@ -229,6 +227,11 @@ const ui = function ui():void {
                         } while (dashboard.socket.queueStore.length > 0);
                     }
                     if (dashboard.global.loaded === false) {
+                        const init = function dashboard_execute_init(section_name:type_dashboard_features):void {
+                            if (dashboard.sections[section_name] !== undefined) {
+                                dashboard.sections[section_name].init();
+                            }
+                        };
                         dashboard.global.loaded = true;
                         if (dashboard.sections["application-logs"] !== undefined) {
                             // populate log data
@@ -253,62 +256,28 @@ const ui = function ui():void {
                                 service: "dashboard-log"
                             });
                         }
-                        if (dashboard.sections["compose-containers"] !== undefined) {
-                            dashboard.sections["compose-containers"].init();
-                        }
-                        if (dashboard.sections["devices"] !== undefined) {
-                            dashboard.tables.init(dashboard.sections["devices"]);
-                        }
-                        if (dashboard.sections["disks"] !== undefined) {
-                            dashboard.sections["disks"].init();
-                        }
-                        if (dashboard.sections["dns-query"] !== undefined) {
-                            dashboard.sections["dns-query"].init();
-                        }
-                        if (dashboard.sections["file-system"] !== undefined) {
-                            dashboard.sections["file-system"].init();
-                        }
-                        if (dashboard.sections["hash"] !== undefined) {
-                            dashboard.sections["hash"].init();
-                        }
-                        if (dashboard.sections["http-test"] !== undefined) {
-                            dashboard.sections["http-test"].init();
-                        }
-                        if (dashboard.sections["interfaces"] !== undefined) {
-                            dashboard.sections["interfaces"].init();
-                        }
-                        if (dashboard.sections["os-machine"] !== undefined) {
-                            dashboard.sections["os-machine"].init();
-                        }
-                        if (dashboard.sections["ports-application"] !== undefined) {
-                            dashboard.tables.init(dashboard.sections["ports-application"]);
-                        }
-                        if (dashboard.sections["processes"] !== undefined) {
-                            dashboard.tables.init(dashboard.sections["processes"]);
-                        }
+                        init("compose-containers");
+                        dashboard.tables.init(dashboard.sections["devices"]);
+                        init("disks");
+                        init("dns-query");
+                        init("file-system");
+                        init("hash");
+                        init("http-test");
+                        init("interfaces");
+                        init("os-machine");
+                        dashboard.tables.init(dashboard.sections["ports-application"]);
+                        dashboard.tables.init(dashboard.sections["processes"]);
                         if (dashboard.sections["servers-web"] !== undefined) {
                             dashboard.sections["servers-web"].init();
                         } else if (dashboard.sections["ports-application"] !== undefined) {
                             dashboard.sections["ports-application"].receive();
                         }
-                        if (dashboard.sections["services"] !== undefined) {
-                            dashboard.tables.init(dashboard.sections["services"]);
-                        }
-                        if (dashboard.sections["sockets-application"] !== undefined) {
-                            dashboard.tables.init(dashboard.sections["sockets-application"]);
-                        }
-                        if (dashboard.sections["sockets-os"] !== undefined) {
-                            dashboard.tables.init(dashboard.sections["sockets-os"]);
-                        }
-                        if (dashboard.sections["terminal"] !== undefined) {
-                            dashboard.sections["terminal"].init();
-                        }
-                        if (dashboard.sections["users"] !== undefined) {
-                            dashboard.tables.init(dashboard.sections["users"]);
-                        }
-                        if (dashboard.sections["websocket-test"] !== undefined) {
-                            dashboard.sections["websocket-test"].init();
-                        }
+                        dashboard.tables.init(dashboard.sections["services"]);
+                        dashboard.tables.init(dashboard.sections["sockets-application"]);
+                        dashboard.tables.init(dashboard.sections["sockets-os"]);
+                        init("terminal");
+                        dashboard.tables.init(dashboard.sections["users"]);
+                        init("websocket-test");
                         dashboard.utility.nodes.main.style.display = "block";
                         dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
                         version.textContent = `version ${dashboard.global.payload.version}`;
@@ -317,8 +286,6 @@ const ui = function ui():void {
                 },
                 type: "dashboard"
             });
-            version.textContent = `version ${dashboard.global.payload.version}`;
-            title.appendChild(version);
 
             // restore state of table filter controls
             if (dashboard.global.state.table_os === undefined || dashboard.global.state.table_os === null) {
@@ -4331,7 +4298,8 @@ const ui = function ui():void {
             },
             // attaches event listeners to data tables and restores state
             init: function dashboard_tables_init(module:module_list|section_ports_application|section_sockets_application):void {
-                const select = function dashboard_tables_init_select(table:HTMLElement, select:HTMLSelectElement):void {
+                if (module !== undefined) {
+                    const select = function dashboard_tables_init_select(table:HTMLElement, select:HTMLSelectElement):void {
                         const th:HTMLCollectionOf<HTMLElement> = table.getElementsByTagName("th"),
                             len:number = th.length;
                         let index:number = 0,
@@ -4347,32 +4315,33 @@ const ui = function ui():void {
                             } while (index < len);
                         }
                     };
-                if (dashboard.global.state.table_os[module.dataName] === undefined || dashboard.global.state.table_os[module.dataName] === null) {
-                    dashboard.global.state.table_os[module.dataName] = {
-                        filter_column: module.nodes.filter_column.selectedIndex,
-                        filter_sensitive: module.nodes.caseSensitive.checked,
-                        filter_value: module.nodes.filter_value.value
-                    };
-                } else {
-                    module.nodes.filter_column.selectedIndex = dashboard.global.state.table_os[module.dataName].filter_column;
-                    module.nodes.caseSensitive.checked = dashboard.global.state.table_os[module.dataName].filter_sensitive;
-                    module.nodes.filter_value.value = dashboard.global.state.table_os[module.dataName].filter_value;
-                }
-                module.nodes.filter_column.onchange = dashboard.tables.filter;
-                module.nodes.caseSensitive.onclick = dashboard.utility.setState;
-                module.nodes.filter_value.onblur = dashboard.tables.filter;
-                module.nodes.filter_value.onkeyup = dashboard.tables.filter;
-                select(module.nodes.list.parentNode, module.nodes.filter_column);
-                if (module.dataName === "ports_application") {
-                    dashboard.tables.filter(null, module.nodes.filter_value);
-                } else if (module.dataName === "sockets_application") {
-                    dashboard.tables.filter(null, module.nodes.filter_value);
-                    module.nodes.update_button.onclick = dashboard.sections["sockets-application"].tools.update;
-                } else {
-                    module.nodes.update_button.onclick = dashboard.tables.update;
-                    module.nodes.update_button.setAttribute("data-list", module.dataName);
-                    // @ts-expect-error - inferring types from an object fails
-                    dashboard.tables.populate(module, dashboard.global.payload.os[module.dataName as type_list_services]);
+                    if (dashboard.global.state.table_os[module.dataName] === undefined || dashboard.global.state.table_os[module.dataName] === null) {
+                        dashboard.global.state.table_os[module.dataName] = {
+                            filter_column: module.nodes.filter_column.selectedIndex,
+                            filter_sensitive: module.nodes.caseSensitive.checked,
+                            filter_value: module.nodes.filter_value.value
+                        };
+                    } else {
+                        module.nodes.filter_column.selectedIndex = dashboard.global.state.table_os[module.dataName].filter_column;
+                        module.nodes.caseSensitive.checked = dashboard.global.state.table_os[module.dataName].filter_sensitive;
+                        module.nodes.filter_value.value = dashboard.global.state.table_os[module.dataName].filter_value;
+                    }
+                    module.nodes.filter_column.onchange = dashboard.tables.filter;
+                    module.nodes.caseSensitive.onclick = dashboard.utility.setState;
+                    module.nodes.filter_value.onblur = dashboard.tables.filter;
+                    module.nodes.filter_value.onkeyup = dashboard.tables.filter;
+                    select(module.nodes.list.parentNode, module.nodes.filter_column);
+                    if (module.dataName === "ports_application") {
+                        dashboard.tables.filter(null, module.nodes.filter_value);
+                    } else if (module.dataName === "sockets_application") {
+                        dashboard.tables.filter(null, module.nodes.filter_value);
+                        module.nodes.update_button.onclick = dashboard.sections["sockets-application"].tools.update;
+                    } else {
+                        module.nodes.update_button.onclick = dashboard.tables.update;
+                        module.nodes.update_button.setAttribute("data-list", module.dataName);
+                        // @ts-expect-error - inferring types from an object fails
+                        dashboard.tables.populate(module, dashboard.global.payload.os[module.dataName as type_list_services]);
+                    }
                 }
             },
             // populate large data tables
@@ -4550,7 +4519,8 @@ const ui = function ui():void {
                                     sectionList.nodes.filter_value.value = "";
                                 }
                             }
-                        };
+                        },
+                        title:HTMLElement = document.getElementsByTagName("h1")[0];
                     dashboard.global.loaded = false;
                     status.setAttribute("class", "connection-offline");
                     status.getElementsByTagName("strong")[0].textContent = "Offline";
@@ -4656,6 +4626,7 @@ const ui = function ui():void {
                     dashboard.utility.nodes.load.textContent = "0.00000 seconds";
                     dashboard.utility.nodes.main.style.display = "none";
                     dashboard.socket.socket = null;
+                    title.removeChild(title.getElementsByTagName("span")[0]);
                 }
             },
             // provides server status information
