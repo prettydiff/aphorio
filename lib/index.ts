@@ -1,12 +1,15 @@
 
 import log from "./core/log.ts";
 import node from "./core/node.ts";
+import screenshots from "./utilities/screenshots.ts";
 import start_server from "./utilities/start_server.ts";
 import vars from "./core/vars.ts";
 
 vars.path.sep = node.path.sep;
 
-{
+if (process.argv.includes("screenshot") === true || process.argv.includes("screenshots") === true) {
+    screenshots();
+} else {
     let process_path:string = "",
         index:number = process.argv.length,
         arg:string = null;
