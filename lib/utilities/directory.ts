@@ -34,6 +34,8 @@ const directory = function utilities_directory(args:config_directory):void {
                 ? args.search.toLowerCase()
                 : args.search
             : null,
+        start_path:string = node.path.resolve(args.path).replace(/(\\|\/)$/, ""),
+        start_rel:string = start_path.split(sep).pop(),
         search_last:number = (search_value === null)
             ? 0
             : search_value.length,
@@ -195,8 +197,8 @@ const directory = function utilities_directory(args:config_directory):void {
                                 rel_name:string = dirs.pop(),
                                 name:string = ((/^\w:(\\)?$/).test(path) === true)
                                     ? path_drive
-                                    : (args.relative === true && path !== args.path)
-                                        ? rel_name
+                                    : (args.relative === true)
+                                        ? start_rel + path.slice(path.indexOf(start_rel) + start_rel.length)
                                         : path,
                                 dir_len:number = (args.path === "\\")
                                     ? dirs.length + 1
@@ -303,7 +305,7 @@ const directory = function utilities_directory(args:config_directory):void {
                 shell: "powershell"
             }).execute();
         } else {
-            stat_wrap(args.path, false, 0);
+            stat_wrap(start_path, false, 0);
         }
     } else {
         complete(null);
