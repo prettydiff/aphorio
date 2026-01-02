@@ -7,9 +7,7 @@ import vars from "./core/vars.ts";
 
 vars.path.sep = node.path.sep;
 
-if (process.argv.includes("screenshot") === true || process.argv.includes("screenshots") === true) {
-    screenshots();
-} else {
+{
     let process_path:string = "",
         index:number = process.argv.length,
         arg:string = null;
@@ -54,7 +52,9 @@ if (process.argv.includes("screenshot") === true || process.argv.includes("scree
         } while (index > 0);
     }
 
-    if (process.argv.includes("test") === true || process.argv.includes("--test") === true) {
+    if (process.argv.includes("screenshot") === true || process.argv.includes("screenshots") === true) {
+        screenshots();
+    } else if (process.argv.includes("test") === true || process.argv.includes("--test") === true) {
         vars.test.testing = true;
         start_server(process_path, true);
     } else {

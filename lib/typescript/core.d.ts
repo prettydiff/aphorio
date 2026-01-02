@@ -220,6 +220,7 @@ interface core_statistics {
 interface core_universal {
     bytes: () => number;
     bytes_big: () => bigint;
+    capitalize: () => string;
     commas: () => string;
     dateTime: (date:boolean, timeZone_offset:number) => string;
     time: () => string;

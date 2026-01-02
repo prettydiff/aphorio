@@ -281,7 +281,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         .replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`)
                                         .replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
                                 }
-                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`;
+                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`;
                                 vars.environment.dashboard_page = vars.environment.dashboard_page
                                     .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard`)
                                     .replace("replace_javascript", total_script)
@@ -862,10 +862,7 @@ const start_server = function utilities_startServer(process_path:string, testing
     Number.prototype.time = universal.time;
     String.prototype.bytes = universal.bytes;
     String.prototype.bytes_big = universal.bytes_big;
-    String.prototype.capitalize = function utilities_startServer_capitalize():string {
-        // eslint-disable-next-line no-restricted-syntax
-        return this.charAt(0).toUpperCase() + this.slice(1);
-    };
+    String.prototype.capitalize = universal.capitalize;
 
     vars.environment.hashes = node.crypto.getHashes();
 

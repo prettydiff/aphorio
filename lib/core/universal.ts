@@ -48,6 +48,15 @@ const utilities:core_universal = {
         }
         return BigInt(numb) * map[scale];
     },
+    capitalize: function core_capitalize():string {
+        // eslint-disable-next-line no-restricted-syntax
+        const words:string[] = this.split(" "),
+            output:string[] = [];
+        words.forEach(function core_capitalize_each(value:string):void {
+            output.push(value.charAt(0).toUpperCase() + value.slice(1));
+        });
+        return output.join(" ");
+    },
     commas: function core_universalCommas():string {
         // eslint-disable-next-line no-restricted-syntax
         const str:string = String(this),
