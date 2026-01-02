@@ -28,7 +28,7 @@ A simple web based dashboard for the following features.
 Determine which features to exclude by simply setting a boolean value in the `features.json` file.
 
 ## Screenshots
-* https://prettydiff.com/aphorio_screenshots/
+* https://prettydiff.github.io/aphorio/screenshots/index.html
 
 ## Installation
 1. Install [Node.js](https://nodejs.org/) version 24 or later.
