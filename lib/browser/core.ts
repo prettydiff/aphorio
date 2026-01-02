@@ -144,11 +144,6 @@ const core = function core(config:config_core):socket_object {
                     const input:number = Number(this);
                     return `${input.commas()} bytes (${bytes(input)})`;
                 },
-                // capitalize a string
-                capitalize = function core_capitalize():string {
-                    // eslint-disable-next-line no-restricted-syntax
-                    return this.charAt(0).toUpperCase() + this.slice(1);
-                },
                 // getAncestor - A method to walk up the DOM towards the documentElement.
                 // * identifier: string - The string value to search for.
                 // * selector: "class", "id", "name" - The part of the element to compare the identifier against.
@@ -436,7 +431,8 @@ const core = function core(config:config_core):socket_object {
             Number.prototype.commas                  = universal.commas;
             Number.prototype.dateTime                = universal.dateTime;
             Number.prototype.time                    = universal.time;
-            String.prototype.capitalize              = capitalize;
+
+            String.prototype.capitalize              = universal.capitalize;
         };
     dom();
     return socket;
