@@ -139,12 +139,13 @@ td button{padding:0}
 </style>
 </head><body id="screenshots">`,
                     `<h1>${vars.environment.name.capitalize()} Screenshots</h1>`,
-                    "<nav><ul>"
+                    "<p>Some screenshots may have information blacked out to hide identifying information.</p>",
+                    "<nav style=\"display:none\"><ul>"
                 ],
                 increment = function screenshots_directory_increment():void {
                     index = index + 1;
                     do {
-                        if (list[index][0].includes("thumb") === false && list[index][0].includes(".png") === true && list[index][0].includes("index.html") === false) {
+                        if (index < len && list[index][0].includes("thumb") === false && list[index][0].includes(".png") === true && list[index][0].includes("index.html") === false) {
                             path_abs = vars.path.project + list[index][0];
                             spawn(`${path_vips}vipsheader.exe -f width -f height ${path_abs}`, function screenshots_directory_increment_vipsheader(output_size:core_spawn_output):void {
                                 if (output_size.stderr === "") {
@@ -245,6 +246,12 @@ td button{padding:0}
                 path_abs:string = "",
                 section:string = "",
                 sub_section:string = "";
+            list.sort(function screenshots_directory_sort(a:type_directory_item, b:type_directory_item):-1|1 {
+                if (a[0] < b[0]) {
+                    return -1;
+                }
+                return 1;
+            });
             if (len > 1) {
                 do {
                     index = index - 1;
