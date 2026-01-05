@@ -1,4 +1,4 @@
-# Execution Performance - Browser
+# Execution Performance - Browser, first edition
 Written 18 February 2023. Updated 25 February 2023.
 
 **Note:** 4 January 2026, please see the [second edition paper about performance in the browser](./performance_browser_2.md).
