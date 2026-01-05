@@ -5,7 +5,7 @@ const test_listLocalBrowserOS:test_list = [
     {
         delay: {
             node: [
-                ["getElementById", "os", null],
+                ["getElementById", "os-machine", null],
                 ["getElementsByTagName", "h2", 0]
             ],
             qualifier: "greater",
@@ -27,7 +27,7 @@ const test_listLocalBrowserOS:test_list = [
         unit: [
             {
                 node: [
-                    ["getElementById", "os", null],
+                    ["getElementById", "os-machine", null],
                     ["getElementsByClassName", "table-stats", 0],
                     ["getElementsByTagName", "time", 0]
                 ],
@@ -39,7 +39,7 @@ const test_listLocalBrowserOS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "os", null],
+                    ["getElementById", "os-machine", null],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByTagName", "h3", 0]
@@ -51,7 +51,7 @@ const test_listLocalBrowserOS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "os", null],
+                    ["getElementById", "os-machine", null],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByTagName", "h4", 0]
@@ -63,7 +63,7 @@ const test_listLocalBrowserOS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "os", null],
+                    ["getElementById", "os-machine", null],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByTagName", "h4", 1]
@@ -75,7 +75,7 @@ const test_listLocalBrowserOS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "os", null],
+                    ["getElementById", "os-machine", null],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByClassName", "section", 1],
                     ["getElementsByTagName", "h3", 0]
@@ -87,7 +87,7 @@ const test_listLocalBrowserOS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "os", null],
+                    ["getElementById", "os-machine", null],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByClassName", "section", 1],
                     ["getElementsByTagName", "h4", 0]
@@ -99,7 +99,7 @@ const test_listLocalBrowserOS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "os", null],
+                    ["getElementById", "os-machine", null],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByClassName", "section", 1],
                     ["getElementsByTagName", "h4", 1]
@@ -111,7 +111,7 @@ const test_listLocalBrowserOS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "os", null],
+                    ["getElementById", "os-machine", null],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByClassName", "section", 2],
                     ["getElementsByTagName", "h3", 0]
@@ -123,7 +123,7 @@ const test_listLocalBrowserOS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "os", null],
+                    ["getElementById", "os-machine", null],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByClassName", "section", 2],
                     ["getElementsByTagName", "h4", 0]
@@ -135,7 +135,7 @@ const test_listLocalBrowserOS:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "os", null],
+                    ["getElementById", "os-machine", null],
                     ["getElementsByClassName", "section", 0],
                     ["getElementsByClassName", "section", 3],
                     ["getElementsByTagName", "h3", 0]
@@ -150,7 +150,7 @@ const test_listLocalBrowserOS:test_list = [
     {
         delay: {
             node: [
-                ["getElementById", "os", null],
+                ["getElementById", "os-machine", null],
                 ["getElementsByClassName", "table-stats", 0],
                 ["getElementsByTagName", "time", 0]
             ],
@@ -163,7 +163,7 @@ const test_listLocalBrowserOS:test_list = [
             {
                 event: "click",
                 node: [
-                    ["getElementById", "os", null],
+                    ["getElementById", "os-machine", null],
                     ["getElementsByClassName", "table-stats", 0],
                     ["getElementsByTagName", "button", 0]
                 ]
