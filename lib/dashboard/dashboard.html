@@ -910,6 +910,12 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                                 Providing property <em>temporary</em> with value <em>true</em> will create a server that never writes configuration data.
                                 This server will be forever lost once this application closes.
                             </p></dd>
+                            <dt><em>upgrade</em> (boolean)</dt>
+                            <dd><p>
+                                Whether the server should upgrade open sockets to secure sockets when the <em>Upgrade-Insecure-Requests</em> HTTP request header is detected.
+                                This requires the given web server is running both a secure and open web server.
+                                This works by returning a 301 response to the requesting client for the same resource on the secure server's port with scheme HTTPS.
+                            </p></dd>
                         </dl>
                     </div>
                 </div>

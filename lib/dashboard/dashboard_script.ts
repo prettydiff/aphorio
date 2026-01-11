@@ -2582,7 +2582,7 @@ const ui = function ui():void {
                                     }
                                 }
                             },
-                            rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary"];
+                            rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
                         let serverData:services_server = null,
                             failures:number = 0;
                         ul.textContent = "";
@@ -2684,6 +2684,12 @@ const ui = function ui():void {
                             populate(true, "Optional property 'temporary' is either null or undefined.");
                         } else {
                             populate(false, "Optional property 'temporary' expects a boolean type value.");
+                        }
+                        // upgrade
+                        if (typeof serverData.upgrade === "boolean") {
+                            populate(true, "Property 'upgrade' has boolean type value.");
+                        } else {
+                            populate(false, "Property 'temporary' expects a boolean type value.");
                         }
                         // parent properties
                         key_test({
@@ -3969,13 +3975,17 @@ const ui = function ui():void {
                                             ports: {
                                                 open: 0,
                                                 secure: 0
-                                            }
+                                            },
+                                            upgrade: false
                                         }
                                         : dashboard.global.payload.servers[id].config,
                                     output:string[] = [
                                             "{",
                                             `"activate": ${serverData.activate},`
                                         ];
+                                if (typeof serverData.activate !== "boolean") {
+                                    output.push("\"activate\": true,");
+                                }
                                 if (serverData.block_list !== null && serverData.block_list !== undefined) {
                                     output.push("\"block_list\": {");
                                     array(true, "host", serverData.block_list.host);
@@ -4007,11 +4017,11 @@ const ui = function ui():void {
                                     output.push(`    "secure": ${serverData.ports.secure}`);
                                 }
                                 output.push("},");
-                                if (serverData.redirect_domain !== undefined && serverData.redirect_domain !== null) {
-                                    object("redirect_domain");
-                                }
                                 if (serverData.redirect_asset !== undefined && serverData.redirect_asset !== null) {
                                     object("redirect_asset");
+                                }
+                                if (serverData.redirect_domain !== undefined && serverData.redirect_domain !== null) {
+                                    object("redirect_domain");
                                 }
                                 if (serverData.single_socket !== undefined && serverData.single_socket !== null) {
                                     if (serverData.single_socket === true) {
@@ -4022,10 +4032,13 @@ const ui = function ui():void {
                                 }
                                 if (serverData.temporary !== undefined && serverData.temporary !== null) {
                                     if (serverData.temporary === true) {
-                                        output.push("\"temporary\": true");
+                                        output.push("\"temporary\": true,");
                                     } else {
-                                        output.push("\"temporary\": false");
+                                        output.push("\"temporary\": false,");
                                     }
+                                }
+                                if (typeof serverData.upgrade !== "boolean") {
+                                    output.push("\"upgrade\": false");
                                 }
                                 output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
                                 return `${output.join("\n    ")}\n}`;

@@ -146,6 +146,7 @@ const server_create = function services_serverCreate(data:services_action_server
                         }
                     }
                     vars.servers[config.id] = {
+                        certs: null,
                         config: config,
                         sockets: [],
                         status: {

@@ -87,17 +87,19 @@ interface transmit_socket_messageHandler {
     [key:string]: websocket_message_handler;
 }
 
+interface transmit_tlsCerts {
+    ca: string;
+    cert: string;
+    key: string;
+}
+
 interface transmit_tlsOptions {
     fileFlag: {
         ca: boolean;
         crt: boolean;
         key: boolean;
     };
-    options: {
-        ca: string;
-        cert: string;
-        key: string;
-    };
+    options: transmit_tlsCerts;
 }
 
 interface websocket_client extends node_tls_TLSSocket {

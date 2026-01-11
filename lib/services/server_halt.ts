@@ -145,6 +145,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
             };
             if (data.action === "modify") {
                 vars.servers[id] = {
+                    certs: vars.servers[id].certs,
                     config: data.server,
                     sockets: [],
                     status: {

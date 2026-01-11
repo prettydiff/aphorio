@@ -23,6 +23,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                 key:string = "",
                 referer:boolean = null,
                 type:string = "",
+                upgrade_flag:boolean = false,
                 userAgent:string = "";
             // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
             const socket:websocket_client = this,
@@ -87,6 +88,8 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         ua[0] = userAgent.slice(userAgent.indexOf("(") + 1, userAgent.indexOf(")"));
                         ua = ua[0].split(";");
                         userAgent = `${ua[0]}, ${ua[1]}, ${userAgent.slice(userAgent.lastIndexOf(")") + 2)}`;
+                    } else if ((/^upgrade-insecure-requests:\s*1$/).test(lower) === true && socket.encrypted !== true && server.upgrade === true && vars.servers[server_id].status.secure > 0) {
+                        upgrade_flag = true;
                     }
                 },
                 redirection = function transmit_connection_handshake_redirection():Buffer {
@@ -344,6 +347,50 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         });
                     });
                 },
+                service = function transmit_connection_handshake_service():void {
+                    socket.addresses = address;
+                    // do not proxy primary domain -> endless loop
+                    if (server.domain_local.includes(domain) === true || vars.environment.interfaces.includes(domain) === true) {
+                        local_service();
+                    } else {
+                        const encrypted:boolean = (
+                                socket.encrypted === true &&
+                                server.redirect_domain !== undefined &&
+                                server.redirect_domain !== null &&
+                                server.redirect_domain[`${domain}.secure`] !== undefined
+                            ),
+                            pair:[string, number] = (encrypted === true)
+                                ? server.redirect_domain[`${domain}.secure`]
+                                : (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[domain] === undefined)
+                                    ? (socket.encrypted === true)
+                                        ? [address.local.address, server.ports.secure]
+                                        : [address.local.address, server.ports.open]
+                                    : server.redirect_domain[domain],
+                            host:string = (pair[0] === undefined || pair[0] === null || pair[0] === "")
+                                ? address.local.address
+                                : pair[0],
+                            port:number = (typeof pair[1] === "number")
+                                ? pair[1]
+                                : (socket.encrypted === true)
+                                    ? server.ports.secure
+                                    : server.ports.open;
+                        create_proxy(host, port, encrypted);
+                    }
+                },
+                upgrade = function transmit_connection_handshake_upgrade():void {
+                    const resource_first:string = headerList[0].slice(headerList[0].replace(/ +/, " ").indexOf(" ") + 1),
+                        resource_second:string = resource_first.replace(/\s+HTTP\/\d(\.\d)?/, ""),
+                        resource:string = resource_second.replace(/\/$/, "");
+                    socket.write([
+                        "HTTP/1.1 301",
+                        `location: https://${domain + resource}:${vars.servers[server_id].status.secure}`,
+                        "content-length: 5",
+                        "",
+                        "moved",
+                        "",
+                        ""
+                    ].join("\r\n"));
+                },
                 blocked_host:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(domain) === true),
                 blocked_ip:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
                 no_domain_redirect:boolean = (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[domain] === undefined),
@@ -354,33 +401,18 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
             } else if (no_domain_redirect === true && domain_local === true) {
                 socket.destroy();
             } else {
-                socket.addresses = address;
-                // do not proxy primary domain -> endless loop
-                if (server.domain_local.includes(domain) === true || vars.environment.interfaces.includes(domain) === true) {
-                    local_service();
+                if (upgrade_flag === true as boolean) {
+                    // open socket to open server - redirect client to secure server, http 301
+                    // * server option 'upgrade' must be true
+                    // * must be http request with header 'upgrade-insecure-requests: 1'
+                    upgrade();
+                } else if (data[0] === 22 && socket.encrypted !== true && vars.servers[server_id].status.secure > 0) {
+                    // secure socket to open server - proxy socket to secure server
+                    socket.addresses = address;
+                    socket.encrypted = true;
+                    create_proxy(address.local.address, vars.servers[server_id].status.secure, true);
                 } else {
-                    const encrypted:boolean = (
-                            socket.encrypted === true &&
-                            server.redirect_domain !== undefined &&
-                            server.redirect_domain !== null &&
-                            server.redirect_domain[`${domain}.secure`] !== undefined
-                        ),
-                        pair:[string, number] = (encrypted === true)
-                            ? server.redirect_domain[`${domain}.secure`]
-                            : (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[domain] === undefined)
-                                ? (socket.encrypted === true)
-                                    ? [address.local.address, server.ports.secure]
-                                    : [address.local.address, server.ports.open]
-                                : server.redirect_domain[domain],
-                        host:string = (pair[0] === undefined || pair[0] === null || pair[0] === "")
-                            ? address.local.address
-                            : pair[0],
-                        port:number = (typeof pair[1] === "number")
-                            ? pair[1]
-                            : (socket.encrypted === true)
-                                ? server.ports.secure
-                                : server.ports.open;
-                    create_proxy(host, port, encrypted);
+                    service();
                 }
             }
         };

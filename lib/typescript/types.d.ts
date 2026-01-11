@@ -46,7 +46,7 @@ type type_os_services = type_os_list_names | "all" | "disk" | "intr" | "main";
 type type_paths = "storage" | "web_root";
 type type_search = "fragment" | "negation" | "regex";
 type type_selector = "class" | "id" | "tag";
-type type_server_property = "block_list" | "domain_local" | "encryption" | "http" | "name" | "ports" | "redirect_asset" | "redirect_domain";
+type type_server_property = "activate" | "block_list" | "domain_local" | "encryption" | "id" | "method" | "name" | "ports" | "redirect_asset" | "redirect_domain" | "single_socket" | "temporary" | "upgrade";
 
 //   service name                  - data type transmitted        - description
 //   ---

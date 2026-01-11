@@ -376,6 +376,7 @@ interface os_service {
 }
 
 interface server {
+    certs: transmit_tlsCerts;
     config: services_server;
     sockets: Array<services_socket_application_item>;
     status: server_ports;

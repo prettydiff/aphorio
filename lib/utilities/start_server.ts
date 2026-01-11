@@ -476,6 +476,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 if (vars.environment.features["servers-web"] === true || config.servers[keys_srv[index_srv]].id === config.dashboard_id) {
                                     index_int = keys_int.length;
                                     server = {
+                                        certs: null,
                                         config: config.servers[keys_srv[index_srv]],
                                         sockets: [],
                                         status: {
@@ -640,7 +641,8 @@ const start_server = function utilities_startServer(process_path:string, testing
                         }
                     },
                     single_socket: false,
-                    temporary: false
+                    temporary: false,
+                    upgrade: true
                 },
                 start = function utilities_startServer_readComplete_start():void {
                     const servers:string[] = Object.keys(vars.servers),
