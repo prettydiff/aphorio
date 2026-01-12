@@ -624,12 +624,29 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <li>The protocol is HTTP, forward slash, and a version number, such as <em>HTTP/1.1</em>.</li>
                     </ul>
                     <p>An HTTP request can be either plain text or a TLS encryption. That distinction is not provided in the HTTP header but is inferred by context.</p>
-                    <p>The default behavior of HTTP version 1.1 is to keep a socket open for multiple sequential request/response round trips. HTTP 1.0 does not have this capability, called <em>keep-alive</em>, and it forbidden in HTTP/2 and HTTP/3.  As a result, in HTTP/1.1, we must have an indicator different than socket termination to determine when a response completes. This following list determines response message completion.</p>
+                    <p>
+                        The default behavior of HTTP version 1.1 is to keep a socket open for multiple sequential request/response round trips. HTTP 1.0 does not have this capability, called <em>keep-alive</em>, and it is forbidden in HTTP/2 and HTTP/3.
+                        As a result, in HTTP/1.1, we must have an indicator different than socket termination to determine when a response completes.
+                        This following list determines response message completion.
+                    </p>
                     <ul>
                         <li>The socket closes.</li>
                         <li>The response header is completed with the <em>"\r\n\r\n</em> empty line sequence and the response contains no body portion.</li>
                         <li>The response header contains a heading <em>transfer-encoding: chunked</em> and the body terminates with a message chunk containing exactly <em>0\r\n\r\n</em>.</li>
                         <li>The response header contains a heading <em>content-length</em> with a numeric value and the byte length, not character length, of the body portion only equals that header value.</li>
+                    </ul>
+                    <p>
+                        Ideally HTTP requests should be sent to HTTP servers which then send an HTTP response and same for HTTPS requests to HTTPS servers.
+                        Things become more complex when HTTP responses are sent to HTTPS servers or HTTPS requests are sent to HTTP servers.
+                        All combinations are explained in this list.
+                    </p>
+                    <ul>
+                        <li>Sending an HTTP request to an HTTP server without a <em>Upgrade-Insecure-Requests: 1</em> header should expect a desired HTTP response.</li>
+                        <li>Sending an HTTP request to an HTTP server with a <em>Upgrade-Insecure-Requests: 1</em> header should expect to receive an HTTP 308 redirection response to a related HTTPS server.</li>
+                        <li>Sending a HTTPS request to an HTTP server should expect some form of failure, which could include an unexpected HTTP response or dropping the socket resulting in a socket timeout for the requestor.</li>
+                        <li>It is possible to configure an HTTP server to accept HTTPS requests by checking the first character of the first message on the socket. This application will proxy HTTPS requests to a HTTP server's peer HTTPS server if one is currently running, which silently tunnels HTTPS traffic through the HTTP server. This will appear to the requestor that the HTTP server is actually an HTTPS server while it isn't. This does not violate the cryptography of TLS, but could result in second-order security concerns by setting false expectations upon the server's identity..</li>
+                        <li>Sending an HTTPS request to an HTTPS server will result in a HTTPS response.</li>
+                        <li>Sending an HTTP request to an HTTPS server will result in a dropped socket. Secure servers cannot accept insecure connections.</li>
                     </ul>
                 </div>
             </div>
