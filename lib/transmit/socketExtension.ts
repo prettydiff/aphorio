@@ -57,7 +57,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             },
             log_config:config_log = {
                 error: null,
-                message: `Socket ${config.identifier} opened on ${encryption} server ${config.server}.`,
+                message: `Socket ${config.identifier} opened on ${encryption} server ${config.server} (${vars.servers[config.server].config.name}).`,
                 section: "sockets-application",
                 status: "informational",
                 time: Date.now()

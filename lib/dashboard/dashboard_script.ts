@@ -355,11 +355,11 @@ const ui = function ui():void {
             // handle page resize
             window.onresize = dashboard.utility.resize;
             // @ts-expect-error - I am not extending the global window object type for this troubleshooting helper
-            window.show_payload = function dashboard_execute_showPayload():void {
-                // eslint-disable-next-line no-console
-                console.log(JSON.stringify(dashboard.global.payload).length);
-                // eslint-disable-next-line no-console
-                console.log(dashboard.global.payload);
+            window.show_payload = function dashboard_execute_showPayload():[string, transmit_dashboard] {
+                return [
+                    JSON.stringify(dashboard.global.payload).length.commas(),
+                    dashboard.global.payload
+                ];
             };
         },
         global: {
@@ -437,7 +437,7 @@ const ui = function ui():void {
                         }
                     }
                     li.appendChild(p);
-                    if (dashboard.sections["application-logs"].nodes.list.childNodes.length > 100) {
+                    if (dashboard.sections["application-logs"].nodes.list.childNodes.length > dashboard.global.payload.logs_max) {
                         dashboard.sections["application-logs"].nodes.list.removeChild(dashboard.sections["application-logs"].nodes.list.lastChild);
                     }
                     dashboard.sections["application-logs"].nodes.list.insertBefore(li, dashboard.sections["application-logs"].nodes.list.firstChild);

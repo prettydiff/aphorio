@@ -29,6 +29,7 @@ interface transmit_dashboard {
     hashes: string[];
     http_request: string;
     logs: config_log[];
+    logs_max: number;
     name: string;
     os: core_server_os;
     path: core_vars_path;
