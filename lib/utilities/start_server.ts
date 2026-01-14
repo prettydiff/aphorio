@@ -100,7 +100,6 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 section("dns-query", "DNS Query");
                                 section("file-system", "File System");
                                 section("hash", "Hash / Base64");
-                                section("http-test", "HTTP Test");
                                 section("interfaces", "Interfaces");
                                 section("os-machine", "OS/Machine");
                                 section("ports-application", "App Ports");
@@ -111,8 +110,9 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 section("sockets-os", "OS Sockets");
                                 section("statistics", "Statistics");
                                 section("terminal", "Terminal");
+                                section("test-http", "HTTP Test");
+                                section("test-websocket", "WebSocket Test");
                                 section("users", "Users");
-                                section("websocket-test", "WebSocket Test");
                                 parent();
                                 vars.environment.dashboard_page = flags.html;
                             }

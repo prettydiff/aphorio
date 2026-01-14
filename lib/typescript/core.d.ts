@@ -245,7 +245,6 @@ interface core_vars {
             "dns-query": boolean;
             "file-system": boolean;
             "hash": boolean;
-            "http-test": boolean;
             "interfaces": boolean;
             "os-machine": boolean;
             "ports-application": boolean;
@@ -256,8 +255,9 @@ interface core_vars {
             "sockets-os": boolean;
             "statistics": boolean;
             "terminal": boolean;
+            "test-http": boolean;
+            "test-websocket": boolean;
             "users": boolean;
-            "websocket-test": boolean;
         };
         file: boolean;
         hash: string;
@@ -329,20 +329,6 @@ interface core_vars_path {
     project: string;
     sep: "/" | "\\";
     servers: string;
-}
-
-interface dns_callback {
-    "0": (err:node_error, records:type_dns_records) => void;
-    "1": (err:node_error, records:type_dns_records) => void;
-    "10": (err:node_error, records:type_dns_records) => void;
-    "2": (err:node_error, records:type_dns_records) => void;
-    "3": (err:node_error, records:type_dns_records) => void;
-    "4": (err:node_error, records:type_dns_records) => void;
-    "5": (err:node_error, records:type_dns_records) => void;
-    "6": (err:node_error, records:type_dns_records) => void;
-    "7": (err:node_error, records:type_dns_records) => void;
-    "8": (err:node_error, records:type_dns_records) => void;
-    "9": (err:node_error, records:type_dns_records) => void;
 }
 
 interface external_ports {

@@ -18,7 +18,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
     const server_id:string = this.id,
         server:services_server = vars.servers[server_id].config,
         handshake = function transmit_connection_handshake(data:Buffer):void {
-            let flags:store_flag = {
+            const flags:store_flag = {
                     dashboard_http: false,
                     referer: false,
                     upgrade: false
@@ -34,9 +34,9 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                     type: "",
                     // user agent string if the originating request comes from a web browser
                     userAgent: ""
-                }
-            // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-            const socket:websocket_client = this,
+                },
+                // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
+                socket:websocket_client = this,
                 dataString:string = data.toString("utf-8"),
                 headerIndex:number = dataString.replace(/^\s+/, "").indexOf("\r\n\r\n"),
                 headerString:string = (headerIndex > 0)
@@ -257,12 +257,12 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                 terminalFlag:boolean = (server_id === vars.environment.dashboard_id && store.type === "dashboard-terminal"),
                                 identifier:string = (terminalFlag === true)
                                     ? `dashboard-terminal-${hashOutput.hash}`
-                                    : (store.type === "websocket-test")
+                                    : (store.type === "test-websocket")
                                         ? `websocketTest-browserSocket-${hashOutput.hash}`
                                         : `browserSocket-${hashOutput.hash}`;
                             socket_extension({
                                 callback: client_respond,
-                                handler: (store.type === "websocket-test")
+                                handler: (store.type === "test-websocket")
                                     ? websocket_test.handler_server
                                     : message_handler.default,
                                 identifier: identifier,

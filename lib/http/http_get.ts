@@ -351,7 +351,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     hashes: (vars.environment.features["hash"] === true)
                         ? vars.environment.hashes
                         : null,
-                    http_request: (vars.environment.features["http-test"] === true)
+                    http_request: (vars.environment.features["test-http"] === true)
                         ? vars.environment.http_request
                         : null,
                     logs: (vars.environment.features["application-logs"] === true)

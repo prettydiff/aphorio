@@ -76,7 +76,6 @@ const vars:core_vars = {
                 "dns-query": true,
                 "file-system": true,
                 "hash": true,
-                "http-test": true,
                 "interfaces": true,
                 "os-machine": true,
                 "ports-application": true,
@@ -87,8 +86,9 @@ const vars:core_vars = {
                 "sockets-os": true,
                 "statistics": true,
                 "terminal": true,
-                "users": true,
-                "websocket-test": true
+                "test-http": true,
+                "test-websocket": true,
+                "users": true
             },
             // whether linux "file" command is available in the OS system path
             file: false,

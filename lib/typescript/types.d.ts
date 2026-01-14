@@ -1,12 +1,12 @@
 
-// cspell: words serv, volu
+// cspell: words serv, Tlsa, volu
 
 type type_activation_status = ["amber" | "green" | "red", "deactivated" | "new" | "offline" | "online" | "partially online"];
 type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window", string, number];
 type type_certKey = "ca" | "crt" | "key";
 type type_dashboard_action = type_halt_action | "activate" | "add" | "update";
 type type_dashboard_list = "container" | "server";
-type type_dashboard_init = "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "http-test" | "interfaces" | "os-machine" | "ports-application" | "servers-web" | "statistics" | "terminal" | "websocket-test";
+type type_dashboard_init = "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "os-machine" | "ports-application" | "servers-web" | "statistics" | "terminal" | "test-http" | "test-websocket";
 type type_dashboard_features = type_dashboard_init | type_dashboard_tables | "application-logs";
 type type_dashboard_sections = type_dashboard_features | "faq" | "help";
 type type_dashboard_status = "error" | "informational";
@@ -20,8 +20,8 @@ type type_dashboard_tables = "devices" | "ports-application" | "processes" | "se
 // 5 - stats
 // 6 - rename write path
 type type_directory_item = [string, type_file, number, number, core_directory_data, string];
-type type_dns_records = node_dns_anyRecord[] | node_dns_caaRecord[] | node_dns_mxRecord[] | node_dns_naptrRecord[] | node_dns_soaRecord | node_dns_srvRecord[] | string[] | string[][];
-type type_dns_types = "A" | "AAAA" | "CAA" | "CNAME" | "MX" | "NAPTR" | "NS" | "PTR" | "SOA" | "SRV" | "TXT";
+type type_dns_records = node_dns_anyRecord[] | node_dns_caaRecord[] | node_dns_mxRecord[] | node_dns_naptrRecord[] | node_dns_soaRecord | node_dns_srvRecord[] | node_dns_TlsaRecord[] | string[] | string[][];
+type type_dns_types = "A" | "AAAA" | "CAA" | "CNAME" | "MX" | "NAPTR" | "NS" | "PTR" | "SOA" | "SRV" | "TLSA" | "TXT";
 type type_docker_ports = [number, "tcp"|"udp"][];
 type type_docker_state = "created" | "dead" | "exited" | "paused" | "removing" | "restarting" | "running";
 type type_encryption = "both" | "open" | "secure";

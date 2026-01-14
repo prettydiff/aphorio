@@ -1,4 +1,6 @@
 
+<!-- cspell: words buildx, containerd, dpkg, keyrings, kurkle, winget -->
+
 # Aphorio
 A simple web based dashboard for the following features.
 

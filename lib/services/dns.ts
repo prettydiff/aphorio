@@ -1,4 +1,6 @@
 
+// cspell: words TLSA
+
 import node from "../core/node.ts";
 import send from "../transmit/send.ts";
 import vars from "../core/vars.ts";
@@ -80,7 +82,7 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
                     }
                 };
             },
-            callbacks:dns_callback = {
+            callbacks:services_dns_callback = {
                 "0": callback(0),
                 "1": callback(1),
                 "2": callback(2),
@@ -91,7 +93,8 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
                 "7": callback(7),
                 "8": callback(8),
                 "9": callback(9),
-                "10": callback(10)
+                "10": callback(10),
+                "11": callback(11)
             },
             hostname = function services_dns_hostname():void {
                 let count:number = 0;
@@ -120,6 +123,7 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
         qualifiedPush("PTR");
         qualifiedPush("SOA");
         qualifiedPush("SRV");
+        qualifiedPush("TLSA");
         qualifiedPush("TXT");
         if ((/^A$/).test(types) === true || (/,A$/).test(types) === true || (/^A,/).test(types) === true || (/,A,/).test(types) === true) {
             qualified.push("A");
@@ -135,6 +139,7 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
             qualified.push("PTR");
             qualified.push("SOA");
             qualified.push("SRV");
+            qualified.push("TLSA");
             qualified.push("TXT");
         }
         len_types = qualified.length;

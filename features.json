@@ -6,7 +6,6 @@
     "dns-query": true,
     "file-system": true,
     "hash": true,
-    "http-test": true,
     "interfaces": true,
     "os-machine": true,
     "ports-application": true,
@@ -18,5 +17,6 @@
     "statistics": true,
     "terminal": true,
     "users": true,
-    "websocket-test": true
+    "test-http": true,
+    "test-websocket": true
 }

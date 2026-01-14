@@ -4,7 +4,7 @@ import Chart from "chart.js/auto";
 // @ts-expect-error - TypeScript claims xterm has no default export, but this is how the documentation says to use it.
 import Terminal from "@xterm/xterm";
 
-// cspell: words bootable, PGID, PUID, serv
+// cspell: words bootable, PGID, PUID, serv, TLSA
 
 const ui = function ui():void {
     const dashboard:dashboard = {
@@ -119,9 +119,6 @@ const ui = function ui():void {
                                 "dashboard-hash": (dashboard.sections["hash"] === undefined)
                                     ? null
                                     : dashboard.sections["hash"].receive,
-                                "dashboard-http": (dashboard.sections["http-test"] === undefined)
-                                    ? null
-                                    : dashboard.sections["http-test"].receive,
                                 "dashboard-log": (dashboard.sections["application-logs"] === undefined)
                                     ? null
                                     : dashboard.sections["application-logs"].receive,
@@ -161,12 +158,15 @@ const ui = function ui():void {
                                 "dashboard-statistics-data": (dashboard.sections["statistics"] === undefined)
                                     ? null
                                     : dashboard.sections["statistics"].receive,
-                                "dashboard-websocket-message": (dashboard.sections["websocket-test"] === undefined)
+                                "dashboard-http": (dashboard.sections["test-http"] === undefined)
                                     ? null
-                                    : dashboard.sections["websocket-test"].transmit.message_receive,
-                                "dashboard-websocket-status": (dashboard.sections["websocket-test"] === undefined)
+                                    : dashboard.sections["test-http"].receive,
+                                "dashboard-websocket-message": (dashboard.sections["test-websocket"] === undefined)
                                     ? null
-                                    : dashboard.sections["websocket-test"].transmit.status
+                                    : dashboard.sections["test-websocket"].transmit.message_receive,
+                                "dashboard-websocket-status": (dashboard.sections["test-websocket"] === undefined)
+                                    ? null
+                                    : dashboard.sections["test-websocket"].transmit.status
                             };
                         if (message_item.service === "dashboard-os-all") {
                             const data:core_server_os = message_item.data as core_server_os;
@@ -262,7 +262,6 @@ const ui = function ui():void {
                         init("dns-query");
                         init("file-system");
                         init("hash");
-                        init("http-test");
                         init("interfaces");
                         init("os-machine");
                         dashboard.tables.init(dashboard.sections["ports-application"]);
@@ -276,8 +275,9 @@ const ui = function ui():void {
                         dashboard.tables.init(dashboard.sections["sockets-application"]);
                         dashboard.tables.init(dashboard.sections["sockets-os"]);
                         init("terminal");
+                        init("test-http");
+                        init("test-websocket");
                         dashboard.tables.init(dashboard.sections["users"]);
-                        init("websocket-test");
                         dashboard.utility.nodes.main.style.display = "block";
                         dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
                         version.textContent = `version ${dashboard.global.payload.version}`;
@@ -1140,7 +1140,7 @@ const ui = function ui():void {
                                     if (types[index_types] === "SOA" && Array.isArray(result[hosts[index_hosts]].SOA) === false) {
                                         object(result[hosts[index_hosts]].SOA as node_dns_soaRecord, true);
                                     // array of objects
-                                    } else if ((types[index_types] === "CAA" || types[index_types] === "MX" || types[index_types] === "NAPTR" || types[index_types] === "SRV")) {
+                                    } else if ((types[index_types] === "CAA" || types[index_types] === "MX" || types[index_types] === "NAPTR" || types[index_types] === "SRV" || types[index_types] === "TLSA")) {
                                         record_object = result[hosts[index_hosts]][types[index_types]] as node_dns_soaRecord[];
                                         len_object = record_object.length;
                                         if (len_object < 1) {
@@ -1846,89 +1846,6 @@ const ui = function ui():void {
                 tools: null
             },
             // hash end
-            // http-test start
-            "http-test": {
-                events: {
-                    request: function dashboard_sections_http_request():void {
-                        const encryption:boolean = dashboard.sections["http-test"].nodes.encryption.checked,
-                            timeout:number = Number(dashboard.sections["http-test"].nodes.timeout.value),
-                            data:services_http_test = {
-                                body: "",
-                                encryption: encryption,
-                                headers: dashboard.sections["http-test"].nodes.request.value,
-                                stats: null,
-                                timeout: (isNaN(timeout) === true || timeout < 0)
-                                    ? 0
-                                    : Math.floor(timeout),
-                                uri: ""
-                            },
-                            strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["http-test"].nodes.stats.getElementsByTagName("strong");
-                        dashboard.utility.setState();
-                        dashboard.utility.message_send(data, "dashboard-http");
-                        dashboard.sections["http-test"].nodes.responseBody.value = "";
-                        dashboard.sections["http-test"].nodes.responseHeaders.value = "";
-                        dashboard.sections["http-test"].nodes.responseURI.value = "";
-                        strong[0].textContent = "";
-                        strong[1].textContent = "";
-                        strong[2].textContent = "";
-                        strong[3].textContent = "";
-                        strong[4].textContent = "";
-                        strong[5].textContent = "";
-                        strong[6].textContent = "";
-                        strong[7].textContent = "";
-                    }
-                },
-                init: function dashboard_sections_http_init():void {
-                    // populate a default HTTP test value
-                    dashboard.sections["http-test"].nodes.request.value = (dashboard.global.state.http === null || dashboard.global.state.http === undefined || typeof dashboard.global.state.http.request !== "string" || dashboard.global.state.http.request === "")
-                        ? dashboard.global.payload.http_request
-                        : dashboard.global.state.http.request;
-                    dashboard.sections["http-test"].nodes.http_request.onclick = dashboard.sections["http-test"].events.request;
-                    dashboard.sections["http-test"].nodes.responseBody.value = "";
-                    dashboard.sections["http-test"].nodes.responseHeaders.value = "";
-                    dashboard.sections["http-test"].nodes.responseURI.value = "";
-                    if (dashboard.global.state.http !== null && dashboard.global.state.http !== undefined && dashboard.global.state.http.encryption === true) {
-                        document.getElementById("http-test").getElementsByTagName("input")[1].checked =  true;
-                    } else {
-                        document.getElementById("http-test").getElementsByTagName("input")[0].checked =  true;
-                    }
-                },
-                nodes: {
-                    encryption: document.getElementById("http-test").getElementsByTagName("input")[1],
-                    http_request: document.getElementById("http-test").getElementsByClassName("send_request")[0] as HTMLButtonElement,
-                    request: document.getElementById("http-test").getElementsByTagName("textarea")[0],
-                    responseBody: document.getElementById("http-test").getElementsByTagName("textarea")[3],
-                    responseHeaders: document.getElementById("http-test").getElementsByTagName("textarea")[2],
-                    responseURI: document.getElementById("http-test").getElementsByTagName("textarea")[1],
-                    stats: document.getElementById("http-test").getElementsByClassName("summary-stats")[0] as HTMLElement,
-                    timeout: document.getElementById("http-test").getElementsByTagName("input")[2]
-                },
-                receive: function dashboard_sections_http_receive(data_item:socket_data):void {
-                    const data:services_http_test = data_item.data as services_http_test,
-                        strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["http-test"].nodes.stats.getElementsByTagName("strong");
-                    dashboard.sections["http-test"].nodes.responseBody.value = data.body;
-                    dashboard.sections["http-test"].nodes.responseHeaders.value = data.headers;
-                    dashboard.sections["http-test"].nodes.responseURI.value = data.uri;
-                    // round trip time
-                    strong[0].textContent = `${data.stats.time} seconds`;
-                    // response header size
-                    strong[1].textContent = data.stats.response.size_header.bytesLong();
-                    // response body size
-                    strong[2].textContent = data.stats.response.size_body.bytesLong();
-                    // chunked?
-                    strong[3].textContent = String(data.stats.chunks.chunked);
-                    // chunk count
-                    strong[4].textContent = data.stats.chunks.count.commas();
-                    // request header size
-                    strong[5].textContent = data.stats.request.size_header.bytesLong();
-                    // request body size
-                    strong[6].textContent = data.stats.request.size_body.bytesLong();
-                    // URI length
-                    strong[7].textContent = `${JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length.commas()} characters`;
-                },
-                tools: null
-            },
-            // http-test end
             // interfaces start
             "interfaces": {
                 events: null,
@@ -3552,57 +3469,111 @@ const ui = function ui():void {
                 }
             },
             // terminal end
-            // users start
-            "users": {
-                dataName: "user",
+            // test-http start
+            "test-http": {
+                events: {
+                    request: function dashboard_sections_http_request():void {
+                        const encryption:boolean = dashboard.sections["test-http"].nodes.encryption.checked,
+                            timeout:number = Number(dashboard.sections["test-http"].nodes.timeout.value),
+                            data:services_http_test = {
+                                body: "",
+                                encryption: encryption,
+                                headers: dashboard.sections["test-http"].nodes.request.value,
+                                stats: null,
+                                timeout: (isNaN(timeout) === true || timeout < 0)
+                                    ? 0
+                                    : Math.floor(timeout),
+                                uri: ""
+                            },
+                            strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["test-http"].nodes.stats.getElementsByTagName("strong");
+                        dashboard.utility.setState();
+                        dashboard.utility.message_send(data, "dashboard-http");
+                        dashboard.sections["test-http"].nodes.responseBody.value = "";
+                        dashboard.sections["test-http"].nodes.responseHeaders.value = "";
+                        dashboard.sections["test-http"].nodes.responseURI.value = "";
+                        strong[0].textContent = "";
+                        strong[1].textContent = "";
+                        strong[2].textContent = "";
+                        strong[3].textContent = "";
+                        strong[4].textContent = "";
+                        strong[5].textContent = "";
+                        strong[6].textContent = "";
+                        strong[7].textContent = "";
+                    }
+                },
+                init: function dashboard_sections_http_init():void {
+                    // populate a default HTTP test value
+                    dashboard.sections["test-http"].nodes.request.value = (dashboard.global.state.http === null || dashboard.global.state.http === undefined || typeof dashboard.global.state.http.request !== "string" || dashboard.global.state.http.request === "")
+                        ? dashboard.global.payload.http_request
+                        : dashboard.global.state.http.request;
+                    dashboard.sections["test-http"].nodes.http_request.onclick = dashboard.sections["test-http"].events.request;
+                    dashboard.sections["test-http"].nodes.responseBody.value = "";
+                    dashboard.sections["test-http"].nodes.responseHeaders.value = "";
+                    dashboard.sections["test-http"].nodes.responseURI.value = "";
+                    if (dashboard.global.state.http !== null && dashboard.global.state.http !== undefined && dashboard.global.state.http.encryption === true) {
+                        document.getElementById("test-http").getElementsByTagName("input")[1].checked =  true;
+                    } else {
+                        document.getElementById("test-http").getElementsByTagName("input")[0].checked =  true;
+                    }
+                },
                 nodes: {
-                    caseSensitive: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
-                    count: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-                    filter_column: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
-                    filter_value: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
-                    list: document.getElementById("users").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
+                    encryption: document.getElementById("test-http").getElementsByTagName("input")[1],
+                    http_request: document.getElementById("test-http").getElementsByClassName("send_request")[0] as HTMLButtonElement,
+                    request: document.getElementById("test-http").getElementsByTagName("textarea")[0],
+                    responseBody: document.getElementById("test-http").getElementsByTagName("textarea")[3],
+                    responseHeaders: document.getElementById("test-http").getElementsByTagName("textarea")[2],
+                    responseURI: document.getElementById("test-http").getElementsByTagName("textarea")[1],
+                    stats: document.getElementById("test-http").getElementsByClassName("summary-stats")[0] as HTMLElement,
+                    timeout: document.getElementById("test-http").getElementsByTagName("input")[2]
                 },
-                receive: null,
-                row: function dashboard_networkSocketOSRow(record_item:type_lists, tr:HTMLElement):void {
-                    const record:os_user = record_item as os_user,
-                        uid:string = String(record.uid),
-                        proc:string = String(record.proc);
-                    dashboard.tables.cell(tr, record.name, null);
-                    dashboard.tables.cell(tr, uid, uid);
-                    dashboard.tables.cell(tr, (record.lastLogin === 0)
-                        ? "never"
-                        : record.lastLogin.dateTime(true, null), String(record.lastLogin));
-                    dashboard.tables.cell(tr, proc, proc);
-                    dashboard.tables.cell(tr, record.type, null);
+                receive: function dashboard_sections_http_receive(data_item:socket_data):void {
+                    const data:services_http_test = data_item.data as services_http_test,
+                        strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["test-http"].nodes.stats.getElementsByTagName("strong");
+                    dashboard.sections["test-http"].nodes.responseBody.value = data.body;
+                    dashboard.sections["test-http"].nodes.responseHeaders.value = data.headers;
+                    dashboard.sections["test-http"].nodes.responseURI.value = data.uri;
+                    // round trip time
+                    strong[0].textContent = `${data.stats.time} seconds`;
+                    // response header size
+                    strong[1].textContent = data.stats.response.size_header.bytesLong();
+                    // response body size
+                    strong[2].textContent = data.stats.response.size_body.bytesLong();
+                    // chunked?
+                    strong[3].textContent = String(data.stats.chunks.chunked);
+                    // chunk count
+                    strong[4].textContent = data.stats.chunks.count.commas();
+                    // request header size
+                    strong[5].textContent = data.stats.request.size_header.bytesLong();
+                    // request body size
+                    strong[6].textContent = data.stats.request.size_body.bytesLong();
+                    // URI length
+                    strong[7].textContent = `${JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length.commas()} characters`;
                 },
-                sort_name: ["name", "uid", "lastLogin", "proc"]
+                tools: null
             },
-            // users end
-            // websocket-test start
-            "websocket-test": {
+            // test-http end
+            // test-websocket start
+            "test-websocket": {
                 connected: false,
                 events: {
                     handshakeSend: function dashboard_sections_websocketTest_handshakeSend():void {
-                        const timeout:number = Number(dashboard.sections["websocket-test"].nodes.handshake_timeout.value),
+                        const timeout:number = Number(dashboard.sections["test-websocket"].nodes.handshake_timeout.value),
                             payload:services_websocket_handshake = {
-                                encryption: (dashboard.sections["websocket-test"].nodes.handshake_scheme.checked === true),
-                                message: (dashboard.sections["websocket-test"].connected === true)
+                                encryption: (dashboard.sections["test-websocket"].nodes.handshake_scheme.checked === true),
+                                message: (dashboard.sections["test-websocket"].connected === true)
                                     ? ["disconnect"]
-                                    : dashboard.sections["websocket-test"].nodes.handshake.value.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\r\n/g, "\n").split("\n"),
+                                    : dashboard.sections["test-websocket"].nodes.handshake.value.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\r\n/g, "\n").split("\n"),
                                 timeout: (isNaN(timeout) === true)
                                     ? 0
                                     : timeout
                             };
-                        dashboard.sections["websocket-test"].timeout = payload.timeout;
-                        dashboard.sections["websocket-test"].nodes.status.value = "";
+                        dashboard.sections["test-websocket"].timeout = payload.timeout;
+                        dashboard.sections["test-websocket"].nodes.status.value = "";
                         dashboard.utility.message_send(payload, "dashboard-websocket-handshake");
                     },
                     keyup_frame: function dashboard_sections_websocketTest_keyupFrame(event:Event):void {
                         const encodeLength:TextEncoder = new TextEncoder(),
-                            text:string = dashboard.sections["websocket-test"].nodes.message_send_body.value,
+                            text:string = dashboard.sections["test-websocket"].nodes.message_send_body.value,
                             textLength:number = encodeLength.encode(text).length,
                             frame:websocket_frame = {
                                 extended: 0,
@@ -3619,7 +3590,7 @@ const ui = function ui():void {
                         let frame_try:websocket_frame = null;
                         // eslint-disable-next-line no-restricted-syntax
                         try {
-                            frame_try = dashboard.sections["websocket-test"].tools.parse_frame();
+                            frame_try = dashboard.sections["test-websocket"].tools.parse_frame();
                         // eslint-disable-next-line no-empty
                         } catch {}
                         if (frame_try !== null) {
@@ -3661,82 +3632,82 @@ const ui = function ui():void {
                         if (frame.mask === true) {
                             frame.startByte = frame.startByte + 4;
                         }
-                        if ((event === null || event.target === dashboard.sections["websocket-test"].nodes.message_send_frame) && frame.mask === true) {
+                        if ((event === null || event.target === dashboard.sections["test-websocket"].nodes.message_send_frame) && frame.mask === true) {
                             const encodeKey:TextEncoder = new TextEncoder;
                             frame.maskKey = encodeKey.encode(window.btoa(Math.random().toString() + Math.random().toString() + Math.random().toString()).replace(/0\./g, "").slice(0, 32)) as Buffer;
                         }
-                        dashboard.sections["websocket-test"].frameBeautify("send", JSON.stringify(frame));
+                        dashboard.sections["test-websocket"].frameBeautify("send", JSON.stringify(frame));
                     },
                     keyup_message: function dashboard_sections_websocketTest_keyupMessage(event:KeyboardEvent):void {
-                        dashboard.sections["websocket-test"].events.keyup_frame(event);
+                        dashboard.sections["test-websocket"].events.keyup_frame(event);
                     },
                     message_send: function dashboard_sections_websocketTest_messageSend():void {
                         const payload:services_websocket_message = {
-                            frame: dashboard.sections["websocket-test"].tools.parse_frame(),
-                            message: dashboard.sections["websocket-test"].nodes.message_send_body.value
+                            frame: dashboard.sections["test-websocket"].tools.parse_frame(),
+                            message: dashboard.sections["test-websocket"].nodes.message_send_body.value
                         };
                         dashboard.utility.message_send(payload, "dashboard-websocket-message");
-                        dashboard.sections["websocket-test"].events.keyup_frame(null);
+                        dashboard.sections["test-websocket"].events.keyup_frame(null);
                     }
                 },
                 frameBeautify: function dashboard_sections_websocketTest_frameBeautify(target:"receive"|"send", valueItem?:string):void {
                     const value:string = (valueItem === null || valueItem === undefined)
-                        ? dashboard.sections["websocket-test"].nodes[`message_${target}_frame`].value
+                        ? dashboard.sections["test-websocket"].nodes[`message_${target}_frame`].value
                         : valueItem;
-                    dashboard.sections["websocket-test"].nodes[`message_${target}_frame`].value = value
+                    dashboard.sections["test-websocket"].nodes[`message_${target}_frame`].value = value
                         .replace("{", "{\n    ")
                         .replace(/,/g, ",\n    ")
                         .replace(/,?\s*\}/, "\n}")
                         .replace(/:/g, ": ");
                 },
                 init: function dashboard_sections_websocketTest_init():void {
-                    const form:HTMLElement = dashboard.sections["websocket-test"].nodes.handshake_scheme.getAncestor("form", "class"),
+                    const form:HTMLElement = dashboard.sections["test-websocket"].nodes.handshake_scheme.getAncestor("form", "class"),
                         h4:HTMLElement = form.getElementsByTagName("h4")[0],
                         scheme:HTMLElement = form.getElementsByTagName("p")[1],
                         emOpen:HTMLElement = document.createElement("em"),
                         emSecure:HTMLElement = document.createElement("em");
-                    dashboard.sections["websocket-test"].tools.handshake();
-                    dashboard.sections["websocket-test"].nodes.button_handshake.onclick = dashboard.sections["websocket-test"].events.handshakeSend;
-                    dashboard.sections["websocket-test"].nodes.button_send.onclick = dashboard.sections["websocket-test"].events.message_send;
-                    dashboard.sections["websocket-test"].nodes.message_send_body.onkeyup = dashboard.sections["websocket-test"].events.keyup_message;
-                    dashboard.sections["websocket-test"].nodes.message_send_frame.onblur = dashboard.sections["websocket-test"].events.keyup_frame;
-                    dashboard.sections["websocket-test"].nodes.handshake_label.textContent = "";
+                    dashboard.sections["test-websocket"].tools.handshake();
+                    dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
+                    dashboard.sections["test-websocket"].nodes.button_send.onclick = dashboard.sections["test-websocket"].events.message_send;
+                    dashboard.sections["test-websocket"].nodes.message_send_body.onkeyup = dashboard.sections["test-websocket"].events.keyup_message;
+                    dashboard.sections["test-websocket"].nodes.message_send_frame.onblur = dashboard.sections["test-websocket"].events.keyup_frame;
+                    dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "";
                     if (isNaN(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.open) === true) {
-                        dashboard.sections["websocket-test"].nodes.handshake_scheme.checked = true;
+                        dashboard.sections["test-websocket"].nodes.handshake_scheme.checked = true;
                         h4.style.display = "none";
                         scheme.style.display = "none";
                         emSecure.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.secure);
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendText("secure - ");
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendChild(emSecure);
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendText("secure - ");
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
                     } else if (isNaN(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.secure) === true) {
-                        dashboard.sections["websocket-test"].nodes.handshake_scheme.checked = false;
+                        dashboard.sections["test-websocket"].nodes.handshake_scheme.checked = false;
                         h4.style.display = "none";
                         scheme.style.display = "none";
                         emOpen.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.open);
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendText("open - ");
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendChild(emOpen);
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
                     } else {
                         emOpen.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.open);
                         emSecure.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.secure);
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendText("open - ");
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendChild(emOpen);
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendText(", secure - ");
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendChild(emSecure);
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendText(", secure - ");
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
                     }
                 },
                 nodes: {
-                    button_handshake: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
-                    button_send: document.getElementById("websocket-test").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
-                    halt_receive: document.getElementById("websocket-test").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
-                    handshake: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                    handshake_label: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByClassName("ports")[0].getElementsByTagName("span")[0],
-                    handshake_scheme: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
-                    handshake_status: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
-                    handshake_timeout: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
-                    message_receive_body: document.getElementById("websocket-test").getElementsByClassName("form")[3].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
-                    message_receive_frame: document.getElementById("websocket-test").getElementsByClassName("form")[3].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                    message_send_body: document.getElementById("websocket-test").getElementsByClassName("form")[2].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
-                    message_send_frame: document.getElementById("websocket-test").getElementsByClassName("form")[2].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                    button_handshake: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
+                    button_send: document.getElementById("test-websocket").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
+                    halt_receive: document.getElementById("test-websocket").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
+                    handshake: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                    handshake_label: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByClassName("ports")[0].getElementsByTagName("span")[0],
+                    handshake_scheme: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
+                    handshake_status: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                    handshake_timeout: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
+                    message_receive_body: document.getElementById("test-websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                    message_receive_frame: document.getElementById("test-websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                    message_send_body: document.getElementById("test-websocket").getElementsByClassName("form")[2].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                    message_send_frame: document.getElementById("test-websocket").getElementsByClassName("form")[2].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
                     status: document.getElementById("websocket-status") as HTMLTextAreaElement
                 },
                 receive: null,
@@ -3751,12 +3722,12 @@ const ui = function ui():void {
                         handshakeString.push("Connection: Upgrade");
                         handshakeString.push(`Sec-WebSocket-Key: ${key}`);
                         handshakeString.push(`Origin: ${location.origin}`);
-                        handshakeString.push("Sec-WebSocket-Protocol: websocket-test");
+                        handshakeString.push("Sec-WebSocket-Protocol: test-websocket");
                         handshakeString.push("Sec-WebSocket-Version: 13");
-                        dashboard.sections["websocket-test"].nodes.handshake.value = handshakeString.join("\n");
+                        dashboard.sections["test-websocket"].nodes.handshake.value = handshakeString.join("\n");
                     },
                     parse_frame: function dashboard_sections_websocketTest_parseFrame():websocket_frame {
-                        return JSON.parse(dashboard.sections["websocket-test"].nodes.message_send_frame.value
+                        return JSON.parse(dashboard.sections["test-websocket"].nodes.message_send_frame.value
                             .replace(/",\s+/g, "\",")
                             .replace(/\{\s+/, "{")
                             .replace(/,\s+\}/, "}"));
@@ -3764,53 +3735,82 @@ const ui = function ui():void {
                 },
                 transmit: {
                     message_receive: function dashboard_sections_websocketTest_messageReceive(data_item:socket_data):void {
-                        if ((dashboard.sections["websocket-test"].nodes.halt_receive.checked === true && dashboard.sections["websocket-test"].nodes.message_receive_frame.value !== "") || dashboard.sections["websocket-test"].nodes.halt_receive.checked === false) {
+                        if ((dashboard.sections["test-websocket"].nodes.halt_receive.checked === true && dashboard.sections["test-websocket"].nodes.message_receive_frame.value !== "") || dashboard.sections["test-websocket"].nodes.halt_receive.checked === false) {
                             const data:services_websocket_message = data_item.data as services_websocket_message;
-                            dashboard.sections["websocket-test"].nodes.message_receive_body.value = data.message;
-                            dashboard.sections["websocket-test"].frameBeautify("receive", JSON.stringify(data.frame));
+                            dashboard.sections["test-websocket"].nodes.message_receive_body.value = data.message;
+                            dashboard.sections["test-websocket"].frameBeautify("receive", JSON.stringify(data.frame));
                         }
                     },
                     status: function dashboard_sections_websocketTest_status(data_item:socket_data):void {
                         const data:services_websocket_status = data_item.data as services_websocket_status;
-                        dashboard.sections["websocket-test"].nodes.button_handshake.onclick = dashboard.sections["websocket-test"].events.handshakeSend;
+                        dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
                         if (data.connected === true) {
-                            dashboard.sections["websocket-test"].nodes.button_handshake.textContent = "Disconnect";
-                            dashboard.sections["websocket-test"].nodes.status.setAttribute("class", "connection-online");
-                            dashboard.sections["websocket-test"].nodes.status.lastChild.textContent = "Online";
-                            dashboard.sections["websocket-test"].connected = true;
-                            dashboard.sections["websocket-test"].nodes.message_receive_body.value = "";
-                            dashboard.sections["websocket-test"].nodes.message_receive_frame.value = "";
-                            dashboard.sections["websocket-test"].nodes.button_send.disabled = false;
+                            dashboard.sections["test-websocket"].nodes.button_handshake.textContent = "Disconnect";
+                            dashboard.sections["test-websocket"].nodes.status.setAttribute("class", "connection-online");
+                            dashboard.sections["test-websocket"].nodes.status.lastChild.textContent = "Online";
+                            dashboard.sections["test-websocket"].connected = true;
+                            dashboard.sections["test-websocket"].nodes.message_receive_body.value = "";
+                            dashboard.sections["test-websocket"].nodes.message_receive_frame.value = "";
+                            dashboard.sections["test-websocket"].nodes.button_send.disabled = false;
                         } else {
-                            dashboard.sections["websocket-test"].nodes.button_handshake.textContent = "Connect";
-                            dashboard.sections["websocket-test"].nodes.status.setAttribute("class", "connection-offline");
-                            dashboard.sections["websocket-test"].nodes.status.lastChild.textContent = "Offline";
-                            dashboard.sections["websocket-test"].connected = false;
-                            dashboard.sections["websocket-test"].nodes.button_send.disabled = true;
+                            dashboard.sections["test-websocket"].nodes.button_handshake.textContent = "Connect";
+                            dashboard.sections["test-websocket"].nodes.status.setAttribute("class", "connection-offline");
+                            dashboard.sections["test-websocket"].nodes.status.lastChild.textContent = "Offline";
+                            dashboard.sections["test-websocket"].connected = false;
+                            dashboard.sections["test-websocket"].nodes.button_send.disabled = true;
                         }
                         if (data.error === null) {
                             if (data.connected === true) {
-                                dashboard.sections["websocket-test"].nodes.handshake_status.value = "Connected.";
+                                dashboard.sections["test-websocket"].nodes.handshake_status.value = "Connected.";
                             } else {
-                                dashboard.sections["websocket-test"].nodes.handshake_status.value = "Disconnected.";
+                                dashboard.sections["test-websocket"].nodes.handshake_status.value = "Disconnected.";
                             }
                         } else if (typeof data.error === "string") {
-                            dashboard.sections["websocket-test"].nodes.handshake_status.value = data.error;
+                            dashboard.sections["test-websocket"].nodes.handshake_status.value = data.error;
                         } else {
                             let error:string = JSON.stringify(data.error);
                             if (data.error.code === "ETIMEDOUT") {
-                                dashboard.sections["websocket-test"].nodes.handshake_status.value = `WebSocket handshake exceeded the specified timeout of ${dashboard.sections["websocket-test"].timeout} milliseconds.`;
+                                dashboard.sections["test-websocket"].nodes.handshake_status.value = `WebSocket handshake exceeded the specified timeout of ${dashboard.sections["test-websocket"].timeout} milliseconds.`;
                             } else {
                                 if (typeof data.error !== "string" && data.error.code === "ECONNRESET") {
                                     error = `The server dropped the connection. Ensure the encryption options matches whether the server's port accepts encrypted traffic.\n\n${error}`;
                                 }
-                                dashboard.sections["websocket-test"].nodes.handshake_status.value = error;
+                                dashboard.sections["test-websocket"].nodes.handshake_status.value = error;
                             }
                         }
                     }
                 }
+            },
+            // test-websocket end
+            // users start
+            "users": {
+                dataName: "user",
+                nodes: {
+                    caseSensitive: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
+                    count: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
+                    list: document.getElementById("users").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
+                },
+                receive: null,
+                row: function dashboard_networkSocketOSRow(record_item:type_lists, tr:HTMLElement):void {
+                    const record:os_user = record_item as os_user,
+                        uid:string = String(record.uid),
+                        proc:string = String(record.proc);
+                    dashboard.tables.cell(tr, record.name, null);
+                    dashboard.tables.cell(tr, uid, uid);
+                    dashboard.tables.cell(tr, (record.lastLogin === 0)
+                        ? "never"
+                        : record.lastLogin.dateTime(true, null), String(record.lastLogin));
+                    dashboard.tables.cell(tr, proc, proc);
+                    dashboard.tables.cell(tr, record.type, null);
+                },
+                sort_name: ["name", "uid", "lastLogin", "proc"]
             }
-            // websocket-test end
+            // users end
         },
         shared_services: {
             // back out of server and docker compose editing
@@ -4642,12 +4642,12 @@ const ui = function ui():void {
                             dashboard.sections["terminal"].socket = null;
                         }
                     }
-                    if (dashboard.sections["websocket-test"] !== undefined) {
-                        dashboard.sections["websocket-test"].nodes.handshake_status.value = "Disconnected.";
-                        dashboard.sections["websocket-test"].nodes.button_handshake.textContent = "Connect";
-                        dashboard.sections["websocket-test"].nodes.status.setAttribute("class", "connection-offline");
-                        dashboard.sections["websocket-test"].nodes.message_receive_body.value = "";
-                        dashboard.sections["websocket-test"].nodes.message_receive_frame.value = "";
+                    if (dashboard.sections["test-websocket"] !== undefined) {
+                        dashboard.sections["test-websocket"].nodes.handshake_status.value = "Disconnected.";
+                        dashboard.sections["test-websocket"].nodes.button_handshake.textContent = "Connect";
+                        dashboard.sections["test-websocket"].nodes.status.setAttribute("class", "connection-offline");
+                        dashboard.sections["test-websocket"].nodes.message_receive_body.value = "";
+                        dashboard.sections["test-websocket"].nodes.message_receive_frame.value = "";
                     }
                     dashboard.utility.nodes.clock.textContent = "00:00:00L (00:00:00Z)";
                     dashboard.utility.nodes.load.textContent = "0.00000 seconds";
@@ -4776,17 +4776,6 @@ const ui = function ui():void {
                             dashboard.global.state.hash.source = dashboard.sections["hash"].nodes.source.value;
                         }
                     }
-                    if (dashboard.sections["http-test"] !== undefined) {
-                        if (dashboard.global.state.http === undefined || dashboard.global.state.http === null) {
-                            dashboard.global.state.http = {
-                                encryption: (dashboard.sections["http-test"].nodes.encryption.checked === true),
-                                request: dashboard.sections["http-test"].nodes.request.value
-                            };
-                        } else {
-                            dashboard.global.state.http.encryption = (dashboard.sections["http-test"].nodes.encryption.checked === true);
-                            dashboard.global.state.http.request = dashboard.sections["http-test"].nodes.request.value;
-                        }
-                    }
                     if (dashboard.sections["statistics"] !== undefined) {
                         dashboard.global.state.graph_display = dashboard.sections["statistics"].nodes.graph_display.selectedIndex;
                         dashboard.global.state.graph_type = dashboard.sections["statistics"].nodes.graph_type.selectedIndex;
@@ -4794,6 +4783,17 @@ const ui = function ui():void {
                     if (dashboard.sections["terminal"] !== undefined) {
                         if (dashboard.sections["terminal"].nodes.select[dashboard.sections["terminal"].nodes.select.selectedIndex] !== undefined) {
                             dashboard.global.state.terminal = dashboard.sections["terminal"].nodes.select[dashboard.sections["terminal"].nodes.select.selectedIndex].textContent;
+                        }
+                    }
+                    if (dashboard.sections["test-http"] !== undefined) {
+                        if (dashboard.global.state.http === undefined || dashboard.global.state.http === null) {
+                            dashboard.global.state.http = {
+                                encryption: (dashboard.sections["test-http"].nodes.encryption.checked === true),
+                                request: dashboard.sections["test-http"].nodes.request.value
+                            };
+                        } else {
+                            dashboard.global.state.http.encryption = (dashboard.sections["test-http"].nodes.encryption.checked === true);
+                            dashboard.global.state.http.request = dashboard.sections["test-http"].nodes.request.value;
                         }
                     }
                     lists(dashboard.sections["devices"]);

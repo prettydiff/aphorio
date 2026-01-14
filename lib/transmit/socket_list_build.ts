@@ -38,7 +38,7 @@ const socket_list = function services_socketList(extension?:() => void):void {
                                 if (
                                     // remove the dead socket's configuration
                                     vars.servers[server_id].sockets[index_server].hash === socket_item.hash ||
-                                    // kill any child websocket-test sockets if the corresponding dashboard socket ends
+                                    // kill any child test-websocket sockets if the corresponding dashboard socket ends
                                     (vars.test.testing === true && socket_item.type === "dashboard" && vars.servers[server_id].sockets[index_server].hash === `websocketTest-${socket_item.hash}`) ||
                                     // kill the socket's proxy, if any
                                     (socket_item.proxy !== null && socket_item.proxy !== undefined && vars.servers[server_id].sockets[index_server].hash === socket_item.proxy.hash)

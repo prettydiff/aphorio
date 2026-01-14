@@ -1,7 +1,7 @@
 
 <!doctype html>
 <html lang="en">
-    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, IRSSI, keyrings, jellyfin, journalctl, kurkle, libcap, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, setgid, setuid, uptimeimages, winget -->
+    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, IRSSI, keyrings, jellyfin, journalctl, kurkle, libcap, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, setgid, setuid, TLSA, uptimeimages, winget -->
 <head>
 <meta charset="utf-8"/>
 <title>Server Management Dashboard</title>
@@ -42,7 +42,11 @@
         </div>
         <div>
             <h3>Tools</h3>
-            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="http-test">HTTP Test</button></li><li><button data-section="websocket-test">WebSocket Test</button></li><li><button data-section="dns-query">DNS Query</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
+            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="dns-query">DNS Query</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
+        </div>
+        <div>
+            <h3>Network Tests</h3>
+            <ul><li><button data-section="test-http">HTTP Test</button></li><li><button data-section="test-websocket">WebSocket Test</button></li></ul>
         </div>
         <div>
             <h3>Informational</h3>
@@ -156,6 +160,8 @@
                     <dd>start of authority records</dd>
                     <dt>SRV</dt>
                     <dd>service records</dd>
+                    <dt>TLSA</dt>
+                    <dd>certificate associations</dd>
                     <dt>TXT</dt>
                     <dd>text records</dd>
                 </dl>
@@ -165,7 +171,7 @@
                 <h4>Query Direction</h4>
                 <p><label class="radio">DNS Name Resolve <input checked="checked" name="dns_direction" type="radio" value="resolve"/></label> <label class="radio">Reverse DNS Lookup <input checked="checked" name="dns_direction" type="radio" value="reverse"/></label></p>
                 <p><label>Comma separated list of domains and/or hostname entries <input type="text"/></label></p>
-                <p><label>Comma separated list of record types. Leave blank for all types. Supported types: A, AAAA, CAA, CNAME, MX, NAPTR, NS, PTR, SOA, SRV, TXT <input type="text"/></label></p>
+                <p><label>Comma separated list of record types. Leave blank for all types. Supported types: A, AAAA, CAA, CNAME, MX, NAPTR, NS, PTR, SOA, SRV, TLSA, TXT <input type="text"/></label></p>
                 <p class="buttons"><button>Execute Query</button></p>
             </div>
             <div class="section">
@@ -598,92 +604,6 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- help end -->
-        <!-- http-test start -->
-        <div class="tab" id="http-test">
-            <h2>HTTP Test</h2>
-            <p class="tab-description">A means to write arbitrary HTTP requests and read the raw response.</p>
-            <div class="definitions">
-                <h3>HTTP Format (RFC 2616) <button class="expand">Expand</button></h3>
-                <div class="definition-body">
-                    <p>HTTP is a text-based application layer transmission protocol defined as <a href="https://datatracker.ietf.org/doc/html/rfc2616">RFC 2616</a>.</p>
-                    <p>The first line of an HTTP request a space separated list of method, resource path (also known as <em>end point</em>), and protocol.
-                        Each following line is separated by a CRLF (x0Dx0A) sequence. This application handles that formatting for you.
-                        The header portion of the request is separated from a body portion by an empty line, which is two or more consecutive sequences of CRLF.
-                        A body portion is optional and only used by certain HTTP methods. All lines after the first and before the body portion are headers.
-                        Each header gets its own line and is a case-insensitive name followed by a colon, zero or more spaces, and a text value.</p>
-                    <p>A <em>host</em> header is required and is generally the second line of the raw request string.
-                        The host value is taken from the domain portion of a web address.
-                        The domain portion of an address includes authentication, domain name, and port.
-                        The authentication portion is optional and rarely used.</p>
-                    <p>The port portion of a domain is optional and rarely included if connecting with plain text HTTP over port 80 or encrypted HTTPS over port 443.
-                        In all other cases the port number is a colon separated suffix to the domain name.
-                        In the case of an IPv6 address the domain name must be inclosed in square braces before specifying the port number, example: <strong>host: [2600:1700:1234:5678::a]:8081</strong>.</p>
-                    <ul>
-                        <li>The method is one of the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods">HTTP request methods</a>. <strong>GET</strong> is the most common.</li>
-                        <li>The end point looks like a Unix absolute file path always starting with a forward slash.</li>
-                        <li>The protocol is HTTP, forward slash, and a version number, such as <em>HTTP/1.1</em>.</li>
-                    </ul>
-                    <p>An HTTP request can be either plain text or a TLS encryption. That distinction is not provided in the HTTP header but is inferred by context.</p>
-                    <p>
-                        The default behavior of HTTP version 1.1 is to keep a socket open for multiple sequential request/response round trips. HTTP 1.0 does not have this capability, called <em>keep-alive</em>, and it is forbidden in HTTP/2 and HTTP/3.
-                        As a result, in HTTP/1.1, we must have an indicator different than socket termination to determine when a response completes.
-                        This following list determines response message completion.
-                    </p>
-                    <ul>
-                        <li>The socket closes.</li>
-                        <li>The response header is completed with the <em>"\r\n\r\n</em> empty line sequence and the response contains no body portion.</li>
-                        <li>The response header contains a heading <em>transfer-encoding: chunked</em> and the body terminates with a message chunk containing exactly <em>0\r\n\r\n</em>.</li>
-                        <li>The response header contains a heading <em>content-length</em> with a numeric value and the byte length, not character length, of the body portion only equals that header value.</li>
-                    </ul>
-                    <p>
-                        Ideally HTTP requests should be sent to HTTP servers which then send an HTTP response and same for HTTPS requests to HTTPS servers.
-                        Things become more complex when HTTP responses are sent to HTTPS servers or HTTPS requests are sent to HTTP servers.
-                        All combinations are explained in this list.
-                    </p>
-                    <ul>
-                        <li>Sending an HTTP request to an HTTP server without a <em>Upgrade-Insecure-Requests: 1</em> header should expect a desired HTTP response.</li>
-                        <li>Sending an HTTP request to an HTTP server with a <em>Upgrade-Insecure-Requests: 1</em> header should expect to receive an HTTP 308 redirection response to a related HTTPS server.</li>
-                        <li>Sending a HTTPS request to an HTTP server should expect some form of failure, which could include an unexpected HTTP response or dropping the socket resulting in a socket timeout for the requestor.</li>
-                        <li>It is possible to configure an HTTP server to accept HTTPS requests by checking the first character of the first message on the socket. This application will proxy HTTPS requests to a HTTP server's peer HTTPS server if one is currently running, which silently tunnels HTTPS traffic through the HTTP server. This will appear to the requestor that the HTTP server is actually an HTTPS server while it isn't. This does not violate the cryptography of TLS, but could result in second-order security concerns by setting false expectations upon the server's identity..</li>
-                        <li>Sending an HTTPS request to an HTTPS server will result in a HTTPS response.</li>
-                        <li>Sending an HTTP request to an HTTPS server will result in a dropped socket. Secure servers cannot accept insecure connections.</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="form">
-                <h3>Request</h3>
-                <h4>Scheme</h4>
-                <p><label class="radio">Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
-                <h4>Timeout</h4>
-                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
-                <h4>Raw Request Text</h4>
-                <p><label>Complete raw HTTP request including header <textarea class="test-input" spellcheck="false"></textarea></label></p>
-                <p class="buttons"><button class="send_request">Send Request</button></p>
-            </div>
-            <div class="form">
-                <h3>Response</h3>
-                <div class="http_response">
-                    <p><label>URI <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
-                    <p><label>Response Headers <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
-                    <p class="float-last"><label>Response Body <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
-                    <span class="clear"></span>
-                </div>
-            </div>
-            <div class="summary-stats">
-                <h3>Statistics</h3>
-                <ul>
-                    <li><span>Response Time:</span> <strong></strong></li>
-                    <li><span>Response Header Size:</span> <strong></strong></li>
-                    <li><span>Response Body Size:</span> <strong></strong></li>
-                    <li><span>Response Chunked:</span> <strong></strong></li>
-                    <li><span>Response Chunk Count:</span> <strong></strong></li>
-                    <li><span>Request Header Size:</span> <strong></strong></li>
-                    <li><span>Request Body Size:</span> <strong></strong></li>
-                    <li><span>URI Length:</span> <strong></strong></li>
-                </ul>
-            </div>
-        </div>
-        <!-- http-test end -->
         <!-- interfaces start -->
         <div class="tab" id="interfaces">
             <h2>Network Interfaces</h2>
@@ -1129,40 +1049,94 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- terminal end -->
-        <!-- users start -->
-        <div class="tab" id="users">
-            <h2>Users</h2>
-            <p class="tab-description">A list of user accounts on the local operating system. Data automatically refreshes at server's midnight time.</p>
-            <div class="table-filters">
-                <h3>List Controls</h3>
-                <p><label>Column(s) To Filter  <select></select></label></p>
-                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
-                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
-                <span class="clear"></span>
-            </div>
-            <div class="section">
-                <h3>User List</h3>
-                <div class="table-stats">
-                    <p class="update-button"><button>Update List</button></p>
-                    <p><span>Total Users</span> <em></em></p>
-                    <p><span>Filtered Users</span> <em></em></p>
-                    <p><span>Last Updated</span> <time></time></p>
+        <!-- test-http start -->
+        <div class="tab" id="test-http">
+            <h2>HTTP Test</h2>
+            <p class="tab-description">A means to write arbitrary HTTP requests and read the raw response.</p>
+            <div class="definitions">
+                <h3>HTTP Format (RFC 2616) <button class="expand">Expand</button></h3>
+                <div class="definition-body">
+                    <p>HTTP is a text-based application layer transmission protocol defined as <a href="https://datatracker.ietf.org/doc/html/rfc2616">RFC 2616</a>.</p>
+                    <p>The first line of an HTTP request a space separated list of method, resource path (also known as <em>end point</em>), and protocol.
+                        Each following line is separated by a CRLF (x0Dx0A) sequence. This application handles that formatting for you.
+                        The header portion of the request is separated from a body portion by an empty line, which is two or more consecutive sequences of CRLF.
+                        A body portion is optional and only used by certain HTTP methods. All lines after the first and before the body portion are headers.
+                        Each header gets its own line and is a case-insensitive name followed by a colon, zero or more spaces, and a text value.</p>
+                    <p>A <em>host</em> header is required and is generally the second line of the raw request string.
+                        The host value is taken from the domain portion of a web address.
+                        The domain portion of an address includes authentication, domain name, and port.
+                        The authentication portion is optional and rarely used.</p>
+                    <p>The port portion of a domain is optional and rarely included if connecting with plain text HTTP over port 80 or encrypted HTTPS over port 443.
+                        In all other cases the port number is a colon separated suffix to the domain name.
+                        In the case of an IPv6 address the domain name must be inclosed in square braces before specifying the port number, example: <strong>host: [2600:1700:1234:5678::a]:8081</strong>.</p>
+                    <ul>
+                        <li>The method is one of the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods">HTTP request methods</a>. <strong>GET</strong> is the most common.</li>
+                        <li>The end point looks like a Unix absolute file path always starting with a forward slash.</li>
+                        <li>The protocol is HTTP, forward slash, and a version number, such as <em>HTTP/1.1</em>.</li>
+                    </ul>
+                    <p>An HTTP request can be either plain text or a TLS encryption. That distinction is not provided in the HTTP header but is inferred by context.</p>
+                    <p>
+                        The default behavior of HTTP version 1.1 is to keep a socket open for multiple sequential request/response round trips. HTTP 1.0 does not have this capability, called <em>keep-alive</em>, and it is forbidden in HTTP/2 and HTTP/3.
+                        As a result, in HTTP/1.1, we must have an indicator different than socket termination to determine when a response completes.
+                        This following list determines response message completion.
+                    </p>
+                    <ul>
+                        <li>The socket closes.</li>
+                        <li>The response header is completed with the <em>"\r\n\r\n</em> empty line sequence and the response contains no body portion.</li>
+                        <li>The response header contains a heading <em>transfer-encoding: chunked</em> and the body terminates with a message chunk containing exactly <em>0\r\n\r\n</em>.</li>
+                        <li>The response header contains a heading <em>content-length</em> with a numeric value and the byte length, not character length, of the body portion only equals that header value.</li>
+                    </ul>
+                    <p>
+                        Ideally HTTP requests should be sent to HTTP servers which then send an HTTP response and same for HTTPS requests to HTTPS servers.
+                        Things become more complex when HTTP responses are sent to HTTPS servers or HTTPS requests are sent to HTTP servers.
+                        All combinations are explained in this list.
+                    </p>
+                    <ul>
+                        <li>Sending an HTTP request to an HTTP server without a <em>Upgrade-Insecure-Requests: 1</em> header should expect a desired HTTP response.</li>
+                        <li>Sending an HTTP request to an HTTP server with a <em>Upgrade-Insecure-Requests: 1</em> header should expect to receive an HTTP 308 redirection response to a related HTTPS server.</li>
+                        <li>Sending a HTTPS request to an HTTP server should expect some form of failure, which could include an unexpected HTTP response or dropping the socket resulting in a socket timeout for the requestor.</li>
+                        <li>It is possible to configure an HTTP server to accept HTTPS requests by checking the first character of the first message on the socket. This application will proxy HTTPS requests to a HTTP server's peer HTTPS server if one is currently running, which silently tunnels HTTPS traffic through the HTTP server. This will appear to the requestor that the HTTP server is actually an HTTPS server while it isn't. This does not violate the cryptography of TLS, but could result in second-order security concerns by setting false expectations upon the server's identity..</li>
+                        <li>Sending an HTTPS request to an HTTPS server will result in a HTTPS response.</li>
+                        <li>Sending an HTTP request to an HTTPS server will result in a dropped socket. Secure servers cannot accept insecure connections.</li>
+                    </ul>
                 </div>
-                <table data-column="0">
-                    <thead><tr>
-                        <th><button data-dir="1">Name</button></th>
-                        <th><button data-dir="1">SID/UID</button></th>
-                        <th><button data-dir="1">Last Login</button></th>
-                        <th><button data-dir="1">Process Count</button></th>
-                        <th><button data-dir="1">Account Type</button></th>
-                    </tr></thead>
-                    <tbody></tbody>
-                </table>
+            </div>
+            <div class="form">
+                <h3>Request</h3>
+                <h4>Scheme</h4>
+                <p><label class="radio">Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
+                <h4>Timeout</h4>
+                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
+                <h4>Raw Request Text</h4>
+                <p><label>Complete raw HTTP request including header <textarea class="test-input" spellcheck="false"></textarea></label></p>
+                <p class="buttons"><button class="send_request">Send Request</button></p>
+            </div>
+            <div class="form">
+                <h3>Response</h3>
+                <div class="http_response">
+                    <p><label>URI <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
+                    <p><label>Response Headers <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
+                    <p class="float-last"><label>Response Body <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
+                    <span class="clear"></span>
+                </div>
+            </div>
+            <div class="summary-stats">
+                <h3>Statistics</h3>
+                <ul>
+                    <li><span>Response Time:</span> <strong></strong></li>
+                    <li><span>Response Header Size:</span> <strong></strong></li>
+                    <li><span>Response Body Size:</span> <strong></strong></li>
+                    <li><span>Response Chunked:</span> <strong></strong></li>
+                    <li><span>Response Chunk Count:</span> <strong></strong></li>
+                    <li><span>Request Header Size:</span> <strong></strong></li>
+                    <li><span>Request Body Size:</span> <strong></strong></li>
+                    <li><span>URI Length:</span> <strong></strong></li>
+                </ul>
             </div>
         </div>
-        <!-- users end -->
-        <!-- websocket-test start -->
-        <div class="tab" id="websocket-test">
+        <!-- test-http end -->
+        <!-- test-websocket start -->
+        <div class="tab" id="test-websocket">
             <h2>WebSocket Test</h2>
             <p class="tab-description">A tool to open and experiment with arbitrary WebSocket messaging.</p>
             <div class="definitions">
@@ -1263,6 +1237,38 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
         </div>
-        <!-- websocket-test end -->
+        <!-- test-websocket end -->
+        <!-- users start -->
+        <div class="tab" id="users">
+            <h2>Users</h2>
+            <p class="tab-description">A list of user accounts on the local operating system. Data automatically refreshes at server's midnight time.</p>
+            <div class="table-filters">
+                <h3>List Controls</h3>
+                <p><label>Column(s) To Filter  <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
+            </div>
+            <div class="section">
+                <h3>User List</h3>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Users</span> <em></em></p>
+                    <p><span>Filtered Users</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
+                </div>
+                <table data-column="0">
+                    <thead><tr>
+                        <th><button data-dir="1">Name</button></th>
+                        <th><button data-dir="1">SID/UID</button></th>
+                        <th><button data-dir="1">Last Login</button></th>
+                        <th><button data-dir="1">Process Count</button></th>
+                        <th><button data-dir="1">Account Type</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <!-- users end -->
     </main>
 <script type="module">replace_javascript</script></body></html>

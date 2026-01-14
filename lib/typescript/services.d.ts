@@ -1,5 +1,5 @@
 
-// cspell: words opencontainers, serv
+// cspell: words opencontainers, serv, TLSA
 
 interface services_action_compose {
     action: type_dashboard_action;
@@ -51,6 +51,21 @@ interface services_dns_reverse {
     reverse: true;
 }
 
+interface services_dns_callback {
+    "0": (err:node_error, records:type_dns_records) => void;
+    "1": (err:node_error, records:type_dns_records) => void;
+    "10": (err:node_error, records:type_dns_records) => void;
+    "11": (err:node_error, records:type_dns_records) => void;
+    "2": (err:node_error, records:type_dns_records) => void;
+    "3": (err:node_error, records:type_dns_records) => void;
+    "4": (err:node_error, records:type_dns_records) => void;
+    "5": (err:node_error, records:type_dns_records) => void;
+    "6": (err:node_error, records:type_dns_records) => void;
+    "7": (err:node_error, records:type_dns_records) => void;
+    "8": (err:node_error, records:type_dns_records) => void;
+    "9": (err:node_error, records:type_dns_records) => void;
+}
+
 interface services_dns_output {
     [key:string]: {
         "A"?: type_dns_records;
@@ -64,6 +79,7 @@ interface services_dns_output {
         "PTR"?: type_dns_records;
         "SOA"?: type_dns_records;
         "SRV"?: type_dns_records;
+        "TLSA"?: type_dns_records;
         "TXT"?: type_dns_records;
     };
 }

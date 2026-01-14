@@ -84,7 +84,6 @@ declare global {
             "dns-query": section_dns_query;
             "file-system": section_file_system;
             "hash": section_hash;
-            "http-test": section_http_test;
             "interfaces": section_interfaces;
             "os-machine": section_os;
             "ports-application": section_ports_application;
@@ -95,8 +94,9 @@ declare global {
             "sockets-os": section_sockets_os;
             "statistics": section_statistics;
             "terminal": section_terminal;
+            "test-http": section_http_test;
+            "test-websocket": section_websocket_test;
             "users": section_users;
-            "websocket-test": section_websocket_test;
         };
         shared_services: {
             cancel: (event:MouseEvent) => void;
