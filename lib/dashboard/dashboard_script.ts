@@ -275,6 +275,7 @@ const ui = function ui():void {
                         dashboard.tables.init(dashboard.sections["services"]);
                         dashboard.tables.init(dashboard.sections["sockets-application"]);
                         dashboard.tables.init(dashboard.sections["sockets-os"]);
+                        init("statistics");
                         init("terminal");
                         init("test-http");
                         init("test-websocket");
