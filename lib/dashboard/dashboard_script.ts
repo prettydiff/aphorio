@@ -256,6 +256,7 @@ const ui = function ui():void {
                                 service: "dashboard-log"
                             });
                         }
+                        init("application-logs");
                         init("compose-containers");
                         dashboard.tables.init(dashboard.sections["devices"]);
                         init("disks");
@@ -404,8 +405,15 @@ const ui = function ui():void {
         sections: {
             // application-logs start
             "application-logs": {
-                events: null,
-                init: null,
+                events: {
+                    resize: function dashboard_sections_applicationLog_resize():void {
+                        const output_height:number = window.innerHeight - 50;
+                        dashboard.sections["application-logs"].nodes.list.style.height = `${output_height / 10}em`;
+                    }
+                },
+                init: function dashboard_sections_applicationLog_init():void {
+                    dashboard.sections["application-logs"].events.resize();
+                },
                 nodes: {
                     list: document.getElementById("application-logs").getElementsByTagName("ul")[0]
                 },
@@ -4693,6 +4701,9 @@ const ui = function ui():void {
             },
             // a universal bucket to store all resize event handlers
             resize: function dashboard_utility_resize():void {
+                if (dashboard.sections["application-logs"] !== undefined) {
+                    dashboard.sections["application-logs"].events.resize();
+                }
                 if (dashboard.sections["terminal"] !== undefined && dashboard.sections["terminal"].socket !== null) {
                     dashboard.sections["terminal"].events.resize();
                 }

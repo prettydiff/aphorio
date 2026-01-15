@@ -77,7 +77,7 @@ declare global {
             state: state_store;
         };
         sections: {
-            "application-logs": module_sections;
+            "application-logs": section_applicationLogs;
             "compose-containers": section_compose_containers;
             "devices": section_devices;
             "disks": module_sections;
@@ -273,6 +273,15 @@ declare global {
         receive: (socket_data:socket_data) => void;
         tools: {
             [key:string]: (input?:boolean|string) => void;
+        };
+    }
+
+    interface section_applicationLogs extends module_sections {
+        events: {
+            resize: () => void;
+        };
+        nodes: {
+            list: HTMLElement;
         };
     }
 
