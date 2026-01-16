@@ -146,7 +146,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             exclusions: [],
             parent: true,
             path: data.address,
-            relative: (data.search === null),
+            relative: (data.search !== null),
             search: (data.search === null)
                 ? ""
                 : data.search,

@@ -305,7 +305,11 @@ const directory = function utilities_directory(args:config_directory):void {
                 shell: "powershell"
             }).execute();
         } else {
-            stat_wrap(start_path, false, 0);
+            if (start_path === "") {
+                stat_wrap(sep, false, 0);
+            } else {
+                stat_wrap(start_path, false, 0);
+            }
         }
     } else {
         complete(null);

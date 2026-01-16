@@ -1528,7 +1528,7 @@ const ui = function ui():void {
                                     ? ".."
                                     : (index === 0 && fs.search === null && fs.address !== "\\")
                                         ? "."
-                                        : item[0],
+                                        : item[0].replace(fs.dirs[0][0] + fs.sep, ""),
                                 name_raw:string = (index < 1)
                                     ? ((/^\w:(\\)?$/).test(fs.address) === true)
                                         ? "\\"
