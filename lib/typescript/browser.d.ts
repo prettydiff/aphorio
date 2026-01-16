@@ -335,6 +335,7 @@ declare global {
         block: boolean;
         events: {
             key: (event:KeyboardEvent) => void;
+            resize: () => void;
             send: (event:FocusEvent|KeyboardEvent) => void;
         };
         media: {

@@ -1234,6 +1234,10 @@ const ui = function ui():void {
                             dashboard.sections["file-system"].events.send(event);
                         }
                     },
+                    resize: function dashboard_sections_fileSystem_resize():void {
+                        const outer_height:number = (window.innerHeight - 470) / 10;
+                        dashboard.sections["file-system"].nodes.output.style.maxHeight = `${outer_height}em`;
+                    },
                     send: function dashboard_sections_fileSystem_send(event:FocusEvent|KeyboardEvent):void {
                         const target:HTMLElement = (event === null)
                                 ? dashboard.sections["file-system"].nodes.path
@@ -1471,6 +1475,7 @@ const ui = function ui():void {
                     dashboard.sections["file-system"].media.other = document.createElement("p");
                     dashboard.sections["file-system"].media.other.textContent = "File is likely a binary format that cannot be previewed in a web browser.";
                     dashboard.sections["file-system"].media.pdf = document.createElement("iframe");
+                    dashboard.sections["file-system"].events.resize();
                 },
                 media: {
                     audio: null,
@@ -4704,6 +4709,9 @@ const ui = function ui():void {
             resize: function dashboard_utility_resize():void {
                 if (dashboard.sections["application-logs"] !== undefined) {
                     dashboard.sections["application-logs"].events.resize();
+                }
+                if (dashboard.sections["file-system"] !== undefined) {
+                    dashboard.sections["file-system"].events.resize();
                 }
                 if (dashboard.sections["terminal"] !== undefined && dashboard.sections["terminal"].socket !== null) {
                     dashboard.sections["terminal"].events.resize();
