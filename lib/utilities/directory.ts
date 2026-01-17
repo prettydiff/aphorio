@@ -23,6 +23,7 @@ const directory = function utilities_directory(args:config_directory):void {
     // 4. selected properties from fs.Stat plus some link resolution data
     // 5. write path from the lib/utilities/rename library for file copy
     // * property "failures" is a list of file paths that could not be read or opened
+    let dir_start:boolean = false;
     const output:core_directory_list = [],
         failures:string[] = [],
         sep:string = node.path.sep,
@@ -36,27 +37,6 @@ const directory = function utilities_directory(args:config_directory):void {
             : null,
         start_path:string = node.path.resolve(args.path).replace(/(\\|\/)$/, ""),
         start_rel:string = start_path.split(sep).pop(),
-        search_last:number = (search_value === null)
-            ? 0
-            : search_value.length,
-        search_reg_token:string = (search_value === null)
-            ? ""
-            : search_value.slice(1, search_last - 1),
-        search_type:type_search = (function utilities_directory_searchType():type_search {
-            if (search_value === null) {
-                return null;
-            }
-            if (search_value !== "//" && search_value !== "/" && search_value.charAt(0) === "/" && search_value.charAt(search_last - 1) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(search_reg_token) === true) {
-                return "regex";
-            }
-            if (search_value.charAt(0) === "!") {
-                return "negation";
-            }
-            return "fragment";
-        }()),
-        search_reg:RegExp = (search_type === "regex")
-            ? new RegExp(search_reg_token)
-            : null,
         exclusions:string[] = (function utilities_directory_exclusions():string[] {
             const ex:string[] = [],
                 len:number = args.exclusions.length;
@@ -76,6 +56,55 @@ const directory = function utilities_directory(args:config_directory):void {
             ? node.fs.lstat
             : node.fs.stat,
         complete = function utilities_directory_complete(parent:type_directory_item):void {
+            const len:number = output.length;
+            if (search_value !== null && len > 0) {
+                const search_last:number = (search_value === null)
+                        ? 0
+                        : search_value.length,
+                    search_reg_token:string = (search_value === null)
+                        ? ""
+                        : search_value.slice(1, search_last - 1),
+                    search_type:type_search = (function utilities_directory_searchType():type_search {
+                        if (search_value === null) {
+                            return null;
+                        }
+                        if (search_value !== "//" && search_value !== "/" && search_value.charAt(0) === "/" && search_value.charAt(search_last - 1) === "/" && (/^(?:(?:[^?+*{}()[\]\\|]+|\\.|\[(?:\^?\\.|\^[^\\]|[^\\^])(?:[^\]\\]+|\\.)*\]|\((?:\?[:=!]|\?<[=!]|\?>|\?<[^\W\d]\w*>|\?'[^\W\d]\w*')?|\))(?:(?:[?+*]|\{\d+(?:,\d*)?\})[?+]?)?|\|)*$/).test(search_reg_token) === true) {
+                            return "regex";
+                        }
+                        if (search_value.charAt(0) === "!") {
+                            return "negation";
+                        }
+                        return "fragment";
+                    }()),
+                    search_reg:RegExp = (search_type === "regex")
+                        ? new RegExp(search_reg_token)
+                        : null,
+                    include = function utilities_directory_statWrap_stat_populate_include(item:type_directory_item):void {
+                        const dirs:string[] = (args.path === "\\")
+                                ? item[0].split(sep)
+                                : item[0].replace(args.path, "").split(sep),
+                            name:string = dirs.pop();
+                        if (search_type === "regex" && search_reg.test(name) === true) {
+                            list.push(item);
+                        }
+                        if (search_type === "negation" && name.includes(search_value) === false) {
+                            list.push(item);
+                        }
+                        if (search_type === "fragment" && name.includes(search_value) === true) {
+                            list.push(item);
+                        }
+                    },
+                    list:core_directory_list = [];
+                let index:number = 0;
+                do {
+                    include(output[index]);
+                    index = index + 1;
+                } while (index < len);
+                list.failures = failures;
+                list.parent = output[0];
+                args.callback(list);
+                return;
+            }
             output.failures = failures;
             output.parent = parent;
             args.callback(output);
@@ -84,14 +113,16 @@ const directory = function utilities_directory(args:config_directory):void {
             if (error !== null && path !== null) {
                 failures.push(`${error.code} - ${path}`);
             }
-            counter(parent);
+            if (output.length > 0) {
+                counter(parent);
+            }
         },
         add_item = function utilities_directory_addItem(item:type_directory_item):void {
             output.push(item);
             counter(item[2]);
         },
         counter = function utilities_directory_counter(parent:number):void {
-            if (output[0][1] === "directory" && output[0][3] > 0) {
+            if (dir_start === true) {
                 dir_store[output[parent][0]] = dir_store[output[parent][0]] - 1;
                 if (dir_store[output[parent][0]] === 0) {
                     let index:number = dir_list.length;
@@ -107,7 +138,7 @@ const directory = function utilities_directory(args:config_directory):void {
                     return;
                 }
             }
-            if (args.parent === true) {
+            if (args.parent === true && search_value === null) {
                 if (args.path === "/" || args.path === "\\") {
                     complete(null);
                 } else if ((/^\w:(\\)?$/).test(args.path) === true) {
@@ -173,21 +204,6 @@ const directory = function utilities_directory(args:config_directory):void {
                                         ? driveSize[path]
                                         : stat.size
                                 },
-                                include = function utilities_directory_statWrap_stat_populate_include():boolean {
-                                    if (search_value === null) {
-                                        return true;
-                                    }
-                                    if (search_type === "regex" && search_reg.test(rel_name) === true) {
-                                        return true;
-                                    }
-                                    if (search_type === "negation" && rel_name.includes(search_value) === false) {
-                                        return true;
-                                    }
-                                    if (search_type === "fragment" && rel_name.includes(search_value) === true) {
-                                        return true;
-                                    }
-                                    return false;
-                                },
                                 path_drive:string = ((/^\w:(\\)?$/).test(path) === true)
                                     ? `${path}\\`
                                     : path,
@@ -215,6 +231,9 @@ const directory = function utilities_directory(args:config_directory):void {
                                                         ? dir.length + 1
                                                         : dir.length;
                                                     dir_list.push(name);
+                                                    if (dir_start === false && output.length < 1) {
+                                                        dir_start = true;
+                                                    }
                                                 }
                                                 if (parent_item === true) {
                                                     complete([path_drive, "directory", 0, dir.length, stat_obj, ""]);
@@ -233,7 +252,7 @@ const directory = function utilities_directory(args:config_directory):void {
                                     } else {
                                         add_item([name, "directory", parent, 0, stat_obj, ""]);
                                     }
-                                } else if (include() === true) {
+                                } else {
                                     if (type === "symbolic_link") {
                                         node.fs.realpath(path_drive, {encoding:"utf8"}, function utilities_directory_statWrap_stat_populate_linkPath(erp:node_error, real_path:string):void {
                                             if (erp === null) {
@@ -257,8 +276,6 @@ const directory = function utilities_directory(args:config_directory):void {
                                     } else {
                                         add_item([name, type, parent, 0, stat_obj, ""]);
                                     }
-                                } else {
-                                    fail(null, null, parent);
                                 }
                             }
                         };

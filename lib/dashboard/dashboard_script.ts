@@ -1506,7 +1506,9 @@ const ui = function ui():void {
                         summary:store_number = {
                             "block_device": 0,
                             "character_device": 0,
-                            "directory": -2,
+                            "directory": (fs.search === null)
+                                ? -2
+                                : 0,
                             "fifo_pipe": 0,
                             "file": 0,
                             "socket": 0,
@@ -1533,7 +1535,9 @@ const ui = function ui():void {
                                     ? ".."
                                     : (index === 0 && fs.search === null && fs.address !== "\\")
                                         ? "."
-                                        : item[0].replace(fs.dirs[0][0] + fs.sep, ""),
+                                        : (fs.search === null)
+                                            ? item[0].replace(fs.dirs[0][0] + fs.sep, "")
+                                            : item[0].replace(fs.parent[0] + fs.sep, ""),
                                 name_raw:string = (index < 1)
                                     ? ((/^\w:(\\)?$/).test(fs.address) === true)
                                         ? "\\"
@@ -1619,7 +1623,7 @@ const ui = function ui():void {
                         dashboard.sections["file-system"].nodes.output.style.display = "none";
                     } else {
                         dashboard.sections["file-system"].nodes.output.style.display = "block";
-                        if (fs.parent !== null) {
+                        if (fs.parent !== null && fs.search === null) {
                             record(-1);
                         }
                         if (len > 0) {
@@ -1634,7 +1638,9 @@ const ui = function ui():void {
                     } else if (fs.dirs[0][1] === "directory" || fs.search !== null) {
                         const li:HTMLCollectionOf<HTMLElement> = dashboard.sections["file-system"].nodes.summary.getElementsByTagName("li");
                         li[0].getElementsByTagName("strong")[0].textContent = size.commas();
-                        li[1].getElementsByTagName("strong")[0].textContent = (fs.dirs.length - 1).commas();
+                        li[1].getElementsByTagName("strong")[0].textContent = (fs.search === null)
+                            ? (fs.dirs.length - 1).commas()
+                            : (fs.dirs.length).commas();
                         li[2].getElementsByTagName("strong")[0].textContent = summary.block_device.commas();
                         li[3].getElementsByTagName("strong")[0].textContent = summary.character_device.commas();
                         li[4].getElementsByTagName("strong")[0].textContent = summary.directory.commas();
