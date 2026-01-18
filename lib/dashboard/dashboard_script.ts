@@ -1235,7 +1235,7 @@ const ui = function ui():void {
                         }
                     },
                     resize: function dashboard_sections_fileSystem_resize():void {
-                        const outer_height:number = (window.innerHeight - 470) / 10;
+                        const outer_height:number = (window.innerHeight - 490) / 10;
                         dashboard.sections["file-system"].nodes.output.style.maxHeight = `${outer_height}em`;
                     },
                     send: function dashboard_sections_fileSystem_send(event:FocusEvent|KeyboardEvent):void {
@@ -1531,13 +1531,14 @@ const ui = function ui():void {
                             const item:type_directory_item = (index < 0)
                                     ? fs.parent
                                     : fs.dirs[index],
+                                seed:string = (fs.search === null)
+                                    ? fs.dirs[0][0]
+                                    : fs.parent[0],
                                 name:string = (index < 0)
                                     ? ".."
                                     : (index === 0 && fs.search === null && fs.address !== "\\")
                                         ? "."
-                                        : (fs.search === null)
-                                            ? item[0].replace(fs.dirs[0][0] + fs.sep, "")
-                                            : item[0].replace(fs.parent[0] + fs.sep, ""),
+                                        : item[0].replace(seed.replace(/(\\|\/)\s*$/, "") + fs.sep, ""),
                                 name_raw:string = (index < 1)
                                     ? ((/^\w:(\\)?$/).test(fs.address) === true)
                                         ? "\\"

@@ -63,7 +63,7 @@ const directory = function utilities_directory(args:config_directory):void {
                         : search_value.length,
                     search_reg_token:string = (search_value === null)
                         ? ""
-                        : search_value.slice(1, search_last - 1),
+                        : search_value.slice(1, search_last - 1).replace(/\\/g, "\\"),
                     search_type:type_search = (function utilities_directory_searchType():type_search {
                         if (search_value === null) {
                             return null;
