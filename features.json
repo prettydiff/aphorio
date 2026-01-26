@@ -12,11 +12,14 @@
     "processes": true,
     "servers-web": true,
     "services": true,
-    "sockets-application": true,
-    "sockets-os": true,
+    "sockets-application-tcp": true,
+    "sockets-application-udp": true,
+    "sockets-os-tcp": true,
+    "sockets-os-udp": true,
     "statistics": true,
     "terminal": true,
-    "users": true,
     "test-http": true,
-    "test-websocket": true
+    "test-websocket": true,
+    "udp-socket": true,
+    "users": true
 }

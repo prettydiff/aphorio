@@ -17,7 +17,7 @@ import test_index from "../test/index.ts";
 import universal from "../core/universal.ts";
 import vars from "../core/vars.ts";
 
-// cspell: words serv
+// cspell: words serv, stcp, sudp
 
 const start_server = function utilities_startServer(process_path:string, testing:boolean):void {
     const prerequisite_tasks:core_start_tasks = {
@@ -106,8 +106,10 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 section("processes", "Processes");
                                 section("servers-web", "Web Servers");
                                 section("services", "Services");
-                                section("sockets-application", "App Sockets");
-                                section("sockets-os", "OS Sockets");
+                                section("sockets-application-tcp", "App TCP Sockets");
+                                section("sockets-application-udp", "App UDP Sockets");
+                                section("sockets-os-tcp", "OS TCP Sockets");
+                                section("sockets-os-udp", "OS UDP Sockets");
                                 section("statistics", "Statistics");
                                 section("terminal", "Terminal");
                                 section("test-http", "HTTP Test");
@@ -410,16 +412,29 @@ const start_server = function utilities_startServer(process_path:string, testing
                     }
                 }
             },
-            os_sock: {
-                label: "Gathers a list of known network sockets.",
+            os_stcp: {
+                label: "Gathers a list of known network TCP sockets.",
                 task: function utilities_startServer_taskOSSock():void {
-                    if (vars.environment.features["sockets-os"] === true) {
+                    if (vars.environment.features["sockets-os-tcp"] === true) {
                         const callback = function utilities_startServer_taskOSSock_callback():void {
-                            complete_tasks("os_sock");
+                            complete_tasks("os_stcp");
                         };
-                        os_lists("sock", callback);
+                        os_lists("stcp", callback);
                     } else {
-                        complete_tasks("os_sock");
+                        complete_tasks("os_stcp");
+                    }
+                }
+            },
+            os_sudp: {
+                label: "Gathers a list of known network UDP sockets.",
+                task: function utilities_startServer_taskOSSock():void {
+                    if (vars.environment.features["sockets-os-udp"] === true) {
+                        const callback = function utilities_startServer_taskOSSock_callback():void {
+                            complete_tasks("os_sudp");
+                        };
+                        os_lists("sudp", callback);
+                    } else {
+                        complete_tasks("os_sudp");
                     }
                 }
             },

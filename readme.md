@@ -104,8 +104,8 @@ These dependencies must be installed separate from this application.
 ### Included Dependencies
 These dependencies are included with this application code repository.
 
-* [@lydell/node-pty<](https://www.npmjs.com/package/@lydell/node-pty)
-   * [GitHub](https://github.com/lydell/node-pty)">
+* [@lydell/node-pty](https://www.npmjs.com/package/@lydell/node-pty)
+   * [GitHub](https://github.com/lydell/node-pty)"
    * License - MIT
    * Description - the binaries powering XTERM emulation for the UI terminal
 * [@xterm/xterm](https://www.npmjs.com/package/@xterm/xterm)

@@ -1,4 +1,4 @@
-// cspell: words serv
+// cspell: words serv, stcp, sudp
 import Chart from "chart.js/auto";
 import { Terminal } from "@xterm/xterm";
 
@@ -44,7 +44,7 @@ declare global {
         bytesLong: () => string;
         commas: () => string;
         dateTime: (date:boolean, timezone_offset:number) => string;
-        time: () => string;
+        time: (start?:bigint) => string;
     }
 
     interface HTMLAudioElement {
@@ -90,12 +90,15 @@ declare global {
             "processes": section_processes;
             "servers-web": section_servers_web;
             "services": section_services;
-            "sockets-application": section_sockets_application;
-            "sockets-os": section_sockets_os;
+            "sockets-application-tcp": section_sockets_application;
+            "sockets-application-udp": section_sockets_application;
+            "sockets-os-tcp": section_sockets_os;
+            "sockets-os-udp": section_sockets_os;
             "statistics": section_statistics;
             "terminal": section_terminal;
             "test-http": section_http_test;
             "test-websocket": section_websocket_test;
+            "udp-socket": section_udpSocket;
             "users": section_users;
         };
         shared_services: {
@@ -245,6 +248,7 @@ declare global {
     interface module_remote {
         delay: (config:test_browserItem) => void;
         domFailure: boolean;
+        // eslint-disable-next-line max-params
         error: (message:string, source:string, line:number, col:number, error:Error) => void;
         evaluate: (test:test_assertion_dom) => test_assert;
         event: (item:services_testBrowser, pageLoad:boolean) => void;
@@ -452,14 +456,14 @@ declare global {
     }
 
     interface section_sockets_application extends module_list {
-        dataName: "sockets_application";
+        dataName: "sockets-application-tcp" | "sockets-application-udp";
         tools: {
             update: () => void;
         };
     }
 
     interface section_sockets_os extends module_list {
-        dataName: "sock";
+        dataName: "stcp" | "sudp";
     }
 
     interface section_statistics extends module_sections {
@@ -523,6 +527,37 @@ declare global {
         };
         rows: number;
         socket: WebSocket;
+    }
+
+    interface section_udpSocket extends module_sections {
+        events: {
+            create: () => void;
+            toggle_multicast: () => void;
+            toggle_role: () => void;
+            toggle_type: () => void;
+        };
+        nodes: {
+            button_create: HTMLElement;
+            input_address_client: HTMLInputElement;
+            input_address_server: HTMLInputElement;
+            input_multicast_membership: HTMLInputElement;
+            input_multicast_none: HTMLInputElement;
+            input_multicast_source: HTMLInputElement;
+            input_port_local: HTMLInputElement;
+            input_port_remote: HTMLInputElement;
+            input_role_client: HTMLInputElement;
+            input_role_server: HTMLInputElement;
+            input_type_ipv4: HTMLInputElement;
+            input_type_ipv6: HTMLInputElement;
+            interfaces: HTMLSelectElement;
+            multicast_group: HTMLElement;
+            multicast_interface: HTMLElement;
+            multicast_membership: HTMLElement;
+            multicast_source: HTMLElement;
+            status: HTMLElement;
+            toggle_client: HTMLElement;
+            toggle_server: HTMLElement;
+        };
     }
 
     interface section_users extends module_list {

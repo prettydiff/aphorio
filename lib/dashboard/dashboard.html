@@ -1,7 +1,7 @@
 
 <!doctype html>
 <html lang="en">
-    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, IRSSI, keyrings, jellyfin, journalctl, kurkle, libcap, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, setgid, setuid, TLSA, uptimeimages, winget -->
+    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, internetwork, IRSSI, keyrings, jellyfin, journalctl, kurkle, libcap, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, setgid, setuid, TLSA, uptimeimages, winget -->
 <head>
 <meta charset="utf-8"/>
 <title>Server Management Dashboard</title>
@@ -30,11 +30,11 @@
         <h2>Navigation</h2>
         <div class="first">
             <h3>Services</h3>
-            <ul><li><button class="nav-focus" data-section="servers-web">Web Servers</button></li><li><button data-section="compose-containers">Docker Compose</button></li><li><button data-section="statistics">Statistics</button></li></ul>
+            <ul><li><button class="nav-focus" data-section="servers-web">Web Servers</button></li><li><button data-section="compose-containers">Docker Compose</button></li><li><button data-section="udp-socket">UDP Socket</button></li><li><button data-section="statistics">Statistics</button></li></ul>
         </div>
         <div>
             <h3>Network</h3>
-            <ul><li><button data-section="interfaces">Interfaces</button></li><li><button data-section="ports-application">App Ports</button></li><li><button data-section="sockets-application">App Sockets</button></li><li><button data-section="sockets-os">OS Sockets</button></li></ul>
+            <ul><li><button data-section="interfaces">Interfaces</button></li><li><button data-section="ports-application">App Ports</button></li><li><button data-section="sockets-application-tcp">App TCP Sockets</button></li><li><button data-section="sockets-application-udp">App UDP Sockets</button></li><li><button data-section="sockets-os-tcp">OS TCP Sockets</button></li><li><button data-section="sockets-os-udp">OS UDP Sockets</button></li></ul>
         </div>
         <div>
             <h3>System</h3>
@@ -440,24 +440,25 @@
                 </div>
             </div>
             <div class="form">
-                <h3>Function</h3>
+                <h3>Input</h3>
+                <h4>Function</h4>
                 <p>
                     <label class="radio">Generate Hash <input checked="checked" name="hash_function" type="radio" value="false"/></label>
                     <label class="radio">Base64 Encode <input name="hash_function" type="radio" value="true"/></label>
                 </p>
-                <h3>Input Source Type</h3>
+                <h4>Input Source Type</h4>
                 <p>
                     <label class="radio">String <input checked="checked" name="hash_type" type="radio" value="false"/></label>
                     <label class="radio">File <input name="hash_type" type="radio" value="true"/></label>
                 </p>
-                <h3>Hash Output Format</h3>
+                <h4>Hash Output Format</h4>
                 <p>
                     <label class="radio">Hexadecimal <input checked="checked" name="hash_digest" type="radio" value="false"/></label>
                     <label class="radio">Base64 <input name="hash_digest" type="radio" value="true"/></label>
                 </p>
-                <h3>Hash Algorithm</h3>
+                <h4>Hash Algorithm</h4>
                 <p><label>Choose one of all supported hash algorithms <select></select></label></p>
-                <h3>Input Value</h3>
+                <h4>Input Value</h4>
                 <p><label>Input must be a local absolute file system path if input type is <em>file</em>, otherwise provide any text value. <textarea spellcheck="spellcheck"></textarea></label></p>
                 <p class="buttons"><button>Generate Hash</button></p>
             </div>
@@ -894,19 +895,19 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- services end -->
-        <!-- sockets-application start -->
-        <div class="tab" id="sockets-application">
-            <h2>App Sockets</h2>
-            <p class="tab-description">A list of sockets created by this application. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time. Local address and port are from the perspective of the application server. Remote address and port could represent the local web browser.</p>
+        <!-- sockets-application-tcp start -->
+        <div class="tab" id="sockets-application-tcp">
+            <h2>App TCP Sockets</h2>
+            <p class="tab-description">A list of TCP sockets created by this application. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time. Local address and port are from the perspective of the application server. Remote address and port could represent the local web browser.</p>
             <div class="table-filters">
-                <h4>List Controls</h4>
+                <h3>List Controls</h3>
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
                 <span class="clear"></span>
             </div>
             <div class="section">
-                <h4>Socket List</h4>
+                <h3>TCP Socket List</h3>
                 <div class="table-stats">
                     <p class="update-button"><button>Update List</button></p>
                     <p><span>Total Sockets</span> <em></em></p>
@@ -927,25 +928,26 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <th><button data-dir="1">Remote IP</button></th>
                         <th><button data-dir="1">Remote Port</button></th>
                         <th><button data-dir="1">User Agent</button></th>
+                        <th><button data-dir="1">Age</button></th>
                     </tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
         </div>
-        <!-- sockets-application end -->
-        <!-- sockets-os start -->
-        <div class="tab" id="sockets-os">
-            <h2>OS Sockets</h2>
-            <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
+        <!-- sockets-application-tcp end -->
+        <!-- sockets-application-udp start -->
+        <div class="tab" id="sockets-application-udp">
+            <h2>App UDP Sockets</h2>
+            <p class="tab-description">A list of UDP sockets created by this application.</p>
             <div class="table-filters">
-                <h4>List Controls</h4>
+                <h3>List Controls</h3>
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
                 <span class="clear"></span>
             </div>
             <div class="section">
-                <h4>Socket List</h4>
+                <h3>UDP Socket List</h3>
                 <div class="table-stats">
                     <p class="update-button"><button>Update List</button></p>
                     <p><span>Total Sockets</span> <em></em></p>
@@ -954,7 +956,44 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
                 <table data-column="0">
                     <thead><tr>
-                        <th><button data-dir="1">Type</button></th>
+                            <th><button data-dir="1">Socket ID</button></th>
+                            <th><button data-dir="1">Local IP</button></th>
+                            <th><button data-dir="1">Local Port</button></th>
+                            <th><button data-dir="1">Remote IP</button></th>
+                            <th><button data-dir="1">Remote Port</button></th>
+                            <th><button data-dir="1">Role</button></th>
+                            <th><button data-dir="1">Multicast Group</button></th>
+                            <th><button data-dir="1">Multicast Interface</button></th>
+                            <th><button data-dir="1">Multicast Membership</button></th>
+                            <th><button data-dir="1">Multicast Source</button></th>
+                            <th><button data-dir="1">Age</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <!-- sockets-application-udp end -->
+        <!-- sockets-os-tcp start -->
+        <div class="tab" id="sockets-os-tcp">
+            <h2>OS TCP Sockets</h2>
+            <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
+            <div class="table-filters">
+                <h3>List Controls</h3>
+                <p><label>Column(s) To Filter <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
+            </div>
+            <div class="section">
+                <h3>Socket List</h3>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Sockets</span> <em></em></p>
+                    <p><span>Filtered Sockets</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
+                </div>
+                <table data-column="0">
+                    <thead><tr>
                         <th><button data-dir="1">Local Address</button></th>
                         <th><button data-dir="1">Local Port</button></th>
                         <th><button data-dir="1">Remote Address</button></th>
@@ -966,15 +1005,48 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
-        <!-- sockets-os end -->
+        <!-- sockets-os-tcp end -->
+        <!-- sockets-os-udp start -->
+        <div class="tab" id="sockets-os-udp">
+            <h2>OS UDP Sockets</h2>
+            <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
+            <div class="table-filters">
+                <h3>List Controls</h3>
+                <p><label>Column(s) To Filter <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
+            </div>
+            <div class="section">
+                <h3>Socket List</h3>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Sockets</span> <em></em></p>
+                    <p><span>Filtered Sockets</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
+                </div>
+                <table data-column="0">
+                    <thead><tr>
+                        <th><button data-dir="1">Local Address</button></th>
+                        <th><button data-dir="1">Local Port</button></th>
+                        <th><button data-dir="1">Remote Address</button></th>
+                        <th><button data-dir="1">Remote Port</button></th>
+                        <th><button data-dir="1">Process ID</button></th>
+                        <th><button data-dir="1">Process Name</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <!-- sockets-os-udp end -->
         <!-- statistics start -->
         <div class="tab" id="statistics">
             <h2>Statistics</h2>
             <p class="tab-description">Providing a real time metrics for supported services.</p>
             <div class="table-filters">
                 <h3>Metric Controls</h3>
-                <p><label>Delay between updates in seconds <input spellcheck="false" type="text"/></label></p>
-                <p><label>Maximum number of data points <input spellcheck="false" type="text"/></label></p>
+                <p><label>Delay between updates in seconds <input spellcheck="false" type="number"/></label></p>
+                <p><label>Maximum number of data points <input spellcheck="false" type="number"/></label></p>
                 <p><label>Graph Type<select>
                     <option value="bar">bar</option>
                     <option value="line">line</option>
@@ -1106,7 +1178,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <h4>Scheme</h4>
                 <p><label class="radio">Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
                 <h4>Timeout</h4>
-                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
+                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input spellcheck="false" type="number" value="0"/></label></p>
                 <h4>Raw Request Text</h4>
                 <p><label>Complete raw HTTP request including header <textarea class="test-input" spellcheck="false"></textarea></label></p>
                 <p class="buttons"><button class="send_request">Send Request</button></p>
@@ -1195,7 +1267,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <h4>Scheme</h4>
                 <p><label class="radio">Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label> <em class="block">Ensure ports in the handshake message correspond to the scheme choice.</em></p>
                 <h4>Handshake Timeout</h4>
-                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
+                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input spellcheck="false" type="number" value="0"/></label></p>
                 <h4>Raw Handshake Message</h4>
                 <div class="http_response">
                     <p><label>Handshake message. <textarea class="test-input" spellcheck="false"></textarea></label></p>
@@ -1238,6 +1310,122 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- test-websocket end -->
+        <!-- udp-socket start -->
+        <div class="tab" id="udp-socket">
+            <h2>UDP Socket</h2>
+            <p class="tab-description">Creates a UDP socket and binds it to a specified port.</p>
+            <div class="definitions">
+                <h3>UDP Reference Information <button class="expand">Expand</button></h3>
+                <div class="definition-body">
+                    <div class="section">
+                        <h4>Socket Traffic Distribution</h4>
+                        <p>A UDP socket may send traffic to a single socket end point, multiple socket end points, or all sockets on all interfaces.</p>
+                        <dl>
+                            <dt><em>unicast</em></dt>
+                            <dd>A unicast socket sends data to a single socket end point. This is most similar to TCP.</dd>
+                            <dt><em>multicast</em></dt>
+                            <dd>A multicast socket sends data to all socket end points in the socket's given multicast group. Multicast group membership may be designated by a specified IP in the multicast range or by multicast IP and interface identifier.</dd>
+                            <dt><em>broadcast</em></dt>
+                            <dd>A broadcast socket attempts to send data across all interfaces using a given network's broadcast address.</dd>
+                            <dt><em>anycast</em></dt>
+                            <dd>Anycast is a scheme where multiple destinations share a single address and traffic is routed to the first available of those destinations, such as a load balancer.</dd>
+                        </dl>
+                    </div>
+                    <div class="section">
+                        <h4>Multicast Address Ranges</h4>
+                        <p>IPv4 multicast ranges are as follows, per <a href="https://www.iana.org/assignments/multicast-addresses/multicast-addresses.xhtml">IANA definition</a>:</p>
+                        <ul>
+                            <li>
+                                General, Class D - <em>224.0.0.0 - 239.255.255.255</em> (224.0.0.0/4)
+                                <ul>
+                                    <li>Link Local - <em>224.0.0.0 - 224.0.0.255</em> (224.0.0.0/24)</li>
+                                    <li>
+                                        Globally Scoped - <em>224.0.1.0 - 238.255.255.255</em>
+                                        <ul>
+                                            <li>Internetwork Control Block - <em>224.0.1.0 - 224.0.1.255</em> (224.0.1.0/24)</li>
+                                            <li>AD HOC Block 1 - <em>224.0.2.0 - 224.0.255.255</em></li>
+                                            <li>Reserved - <em>224.1.0.0 - 224.1.255.255</em> (224.1.0.0/16)</li>
+                                            <li>SDP/SAP Block - <em>224.2.0.0 = 224.2.255.255</em> (224.2.0.0/16)</li>
+                                            <li>AD HOC Block 2 - <em>224.3.0.0 - 224.4.255.255</em> (224.3.0.0/24, 224.4.0.0/24)</li>
+                                            <li>Reserved - <em>224.5.0.0 - 224.251.255.255</em></li>
+                                            <li>DIS Transient - <em>224.252.0.0 - 224.255.255.255</em> (224.252.0.0/14)</li>
+                                            <li>Reserved - <em>225.0.0.0 - 231.255.255.255</em> (225.0.0.0/8, 226.0.0.0/7, 228.0.0.0/6)</li>
+                                            <li>
+                                                Source Specific Multicast - <em>232.0.0.0 - 232.255.255.255</em> (232.0.0.0/8)
+                                                <ul>
+                                                    <li>Reserved - <em>232.0.0.0</em></li>
+                                                    <li>Reserved to IANA - <em>232.0.0.1 - 232.0.0.255</em></li>
+                                                    <li>Reserved to Local Host - <em>232.0.1.0 - 232.255.255.255</em></li>
+                                                </ul>
+                                            </li>
+                                            <li>GLOP - <em>233.0.0.0 - 233.251.255.255</em></li>
+                                            <li>AD HOC Block 3 - <em>233.252.0.0 - 233.255.255.255</em> (233.252.0.0/14)</li>
+                                            <li>Unicast-Prefix Based Multicast - <em>234.0.0.0 - 234.255.255.255</em></li>
+                                            <li>Reserved Scoped Multicast - <em>235.0.0.0 - 238.255.255.255</em></li>
+                                            <li>Local-Scoped Multicast - <em>239.0.0.0 - 239.255.255.255</em> (239.0.0.0/8)</li>
+                                        </ul>
+                                    </li>
+                                    <li>Private - <em>239.0.0.0 - 239.255.255.255</em> (239.0.0.0/8)</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <p>IPv6 ranges are as follows, per <a href="https://www.iana.org/assignments/ipv6-multicast-addresses/ipv6-multicast-addresses.xhtml">IANA definition</a>. Please note that within the ranges below single address exceptions are noted by IANA.</p>
+                        <ul>
+                            <li>Node-Local Scope Multicast - <em>ff01::1 - ff01:ffff:ffff:ffff:ffff:ffff:ffff:ffff</em></li>
+                            <li>
+                                Link-Local Scope Multicast - <em>ff02::1 - ff02:ffff:ffff:ffff:ffff:ffff:ffff:ffff</em>
+                                <ul><li>Solicited Node Address - <em>ff02:0:0:0:0:1:ff00:0 - ff02:0:0:0:0:1:ffff:ffff</em></li></ul>
+                            </li>
+                            <li>Site-Local Scope Multicast - <em>ff05::1 - ff05::ffff:ffff:ffff:ffff:ffff:ffff:ffff</em></li>
+                            <li>Variable Scope Multicast - <em>ff0X::1 - ff0X::ffff:ffff:ffff:ffff:ffff:ffff:ffff</em>, where X is any accepted digit and address is not already specified</li>
+                            <li>Unicast-Based Multicast, IANA allocation - <em>ff3X::4000 - ff3X:0:0:0:0:0:7fff:ffff</em>, where X is any accepted digit and address is not already specified</li>
+                            <li>Unicase-Based Multicast, dynamic allocation - <em>ff3X::8000 - ff3X:0:0:0:0:0:ffff:ffff</em>, where X is any accepted digit and address is not already specified</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="form">
+                <h3>Create UDP Socket</h3>
+                <h4>Role</h4>
+                <p>
+                    <label class="radio">Connect (Client) <input name="udp-socket-role" type="radio" value="client"/></label>
+                    <label class="radio">Bind (Server) <input checked="checked" name="udp-socket-role" type="radio" value="server"/></label>
+                </p>
+                <h4>Address Type</h4>
+                <p>
+                    <label class="radio">IPv4 <input name="udp-socket-type" type="radio" value="ipv4"/></label>
+                    <label class="radio">IPv6 <input checked="checked" name="udp-socket-type" type="radio" value="ipv6"/></label>
+                </p>
+            </div>
+            <div class="udp-role-server">
+                <h3>Server Side Configurations</h3>
+                <p>For UDP sockets that act as a point of connection, like a server, they must be bound to a local port. These sockets can optionally become multicast and a multicast socket can either be configured against a local IP address identity or more restrictively against a remote IP address identity. Multicast identity is specific to one or all physical network interfaces of the local machine.</p>
+                <p><label>Local <span></span> Address, <em>optional</em> and limits the socket to a single address identity <input spellcheck="false" type="text"/></label></p>
+                <p><label>Local Port, defaults to a random port <input spellcheck="false" type="number"/></label></p>
+                <h4>Multicast Type</h4>
+                <p>
+                    <label class="multicast">Source Specific Multicast <input name="udp-socket-multicast" type="radio" value="source"/></label>
+                    <label class="multicast">Multicast Membership <input name="udp-socket-multicast" type="radio" value="membership"/></label>
+                    <label class="multicast">Not Multicast <input checked="checked" name="udp-socket-multicast" type="radio" value="none"/></label>
+                </p>
+                <p class="udp-socket-multicast-source"><label>Multicast Source <span></span> Address <input spellcheck="false" type="text"/></label></p>
+                <p class="udp-socket-multicast-group"><label>Multicast Group <span></span> Address <input spellcheck="false" type="text"/></label></p>
+                <p class="udp-socket-multicast-membership"><label>Multicast Membership <span></span> Address <input spellcheck="false" type="text"/></label></p>
+                <p class="udp-socket-multicast-interface"><label>Network Interface <select><option>All Interfaces</option></select></label></p>
+            </div>
+            <div class="udp-role-client">
+                <h3>Connecting Side Configurations</h3>
+                <p>A UDP socket that behaves as a client is merely a socket that connects to a remote address/port and all traffic on that socket, sent or received, will be limited to that remote. It will receive a random local port.</p>
+                <p><label>Destination <span></span> Address <input spellcheck="false" type="text"/></label></p>
+                <p><label>Destination Port <input spellcheck="false" type="number"/></label></p>
+            </div>
+            <div class="form">
+                <h3>Socket Creation</h3>
+                <p><button>Create Socket</button></p>
+                <p>Status: <em class="udp-socket-status"></em></p>
+            </div>
+        </div>
+        <!-- udp-socket end-->
         <!-- users start -->
         <div class="tab" id="users">
             <h2>Users</h2>

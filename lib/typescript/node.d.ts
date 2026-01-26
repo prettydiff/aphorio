@@ -2,11 +2,12 @@
 // cspell: words RSAPSS, Tlsa
 import { ChildProcess, ExecException, ExecOptions, SpawnOptions } from "node:child_process";
 import { ECDH, Hash, KeyObject, RSAKeyPairOptions } from "node:crypto";
+import { Socket as socket_dgram } from "node:dgram";
 import { AnyRecord, CaaRecord, MxRecord, NaptrRecord, SoaRecord, SrvRecord, TlsaRecord } from "node:dns";
 import { BigIntStats, ReadStream, Stats, WriteStream } from "node:fs";
 import { ClientRequest, IncomingMessage, OutgoingHttpHeaders, Server as httpServer, ServerResponse } from "node:http";
 import { RequestOptions } from "node:https";
-import { AddressInfo, NetConnectOpts, Server, Socket } from "node:net";
+import { AddressInfo, NetConnectOpts, Server, Socket as socket_net } from "node:net";
 import { CpuInfo, NetworkInterfaceInfo, NetworkInterfaceInfoIPv4, NetworkInterfaceInfoIPv6 } from "node:os";
 import { Readable } from "node:stream";
 import { StringDecoder } from "node:string_decoder";
@@ -24,6 +25,7 @@ declare global {
     type node_crypto_Hash = Hash;
     type node_crypto_KeyObject = KeyObject;
     type node_crypto_RSAKeyPairOptions = RSAKeyPairOptions;
+    type node_dgram_Socket = socket_dgram;
     type node_dns_anyRecord = AnyRecord;
     type node_dns_caaRecord = CaaRecord;
     type node_dns_mxRecord = MxRecord;
@@ -45,7 +47,7 @@ declare global {
     type node_net_AddressInfo = AddressInfo;
     type node_net_NetConnectOpts = NetConnectOpts;
     type node_net_Server = Server;
-    type node_net_Socket = Socket;
+    type node_net_Socket = socket_net;
     type node_os_CpuInfo = CpuInfo;
     type node_os_NetworkInterfaceInfo = NetworkInterfaceInfo;
     type node_os_NetworkInterfaceInfoIPv4 = NetworkInterfaceInfoIPv4;

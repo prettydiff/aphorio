@@ -1,5 +1,5 @@
 
-// cspell: words Perc, serv
+// cspell: words Perc, serv, stcp, sudp
 
 interface core_compose {
     containers: store_compose;
@@ -158,7 +158,8 @@ interface core_server_os {
         versions: store_string;
     };
     serv: services_os_serv;
-    sock: services_os_sock;
+    stcp: services_os_sock;
+    sudp: services_os_sock;
     time: number;
     user: services_os_user;
     user_account: {
@@ -251,12 +252,15 @@ interface core_vars {
             "processes": boolean;
             "servers-web": boolean;
             "services": boolean;
-            "sockets-application": boolean;
-            "sockets-os": boolean;
+            "sockets-application-tcp": boolean;
+            "sockets-application-udp": boolean;
+            "sockets-os-tcp": boolean;
+            "sockets-os-udp": boolean;
             "statistics": boolean;
             "terminal": boolean;
             "test-http": boolean;
             "test-websocket": boolean;
+            "udp-socket": boolean;
             "users": boolean;
         };
         file: boolean;
@@ -364,7 +368,7 @@ interface os_service {
 interface server {
     certs: transmit_tlsCerts;
     config: services_server;
-    sockets: Array<services_socket_application_item>;
+    sockets: Array<services_socket_application_tcp>;
     status: server_ports;
 }
 

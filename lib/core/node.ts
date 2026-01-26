@@ -3,6 +3,7 @@
 import { isAscii, isUtf8 } from "node:buffer";
 import { exec, fork, spawn } from "node:child_process";
 import { constants as constantsCrypto, createHash, createPrivateKey, createPublicKey, generateKeyPair, getHashes, Hash, privateDecrypt, publicEncrypt } from "node:crypto";
+import { createSocket } from "node:dgram";
 import { resolve as resolveDNS, reverse } from "node:dns";
 import { cp, createReadStream, createWriteStream, lstat, mkdir, open, read, readdir, readFile, readlink, realpath, rename, rm, rmdir, stat, Stats, symlink, unlink, utimes, writeFile } from "node:fs";
 import { createServer as httpServer, get as httpGet, request as httpRequest, STATUS_CODES } from "node:http";
@@ -36,6 +37,9 @@ const node = {
         privateDecrypt: privateDecrypt,
         publicEncrypt: publicEncrypt,
         Hash: Hash
+    },
+    dgram: {
+        createSocket: createSocket
     },
     dns: {
         resolve: resolveDNS,

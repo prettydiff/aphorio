@@ -43,7 +43,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     : `Socket is a proxy to ${config.proxy.hash} on server ${config.proxy.server}.`}`,
                 section: (config.type === "test-websocket")
                     ? "test-websocket"
-                    : "sockets-application",
+                    : "sockets-application-tcp",
                 status: "error",
                 time: Date.now()
             });

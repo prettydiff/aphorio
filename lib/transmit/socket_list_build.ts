@@ -6,7 +6,7 @@ import vars from "../core/vars.ts";
 const socket_list = function services_socketList(extension?:() => void):void {
     const keys:string[] = Object.keys(vars.servers),
         len:number = keys.length,
-        output:services_socket_application_item[] = [],
+        tcp:services_socket_application_tcp[] = [],
         socket_health = function services_socketList_socketHealth(server_id:string, encryption:"open"|"secure"):void {
             const destroy = function services_socketList_socketHealth_destroy(socket:websocket_client, index:number):void {
                 socket.status = "end";
@@ -96,14 +96,14 @@ const socket_list = function services_socketList(extension?:() => void):void {
         // iterate through the sockets on each server
         if (len_socket > 0) {
             do {
-                output.push(vars.servers[keys[index_servers]].sockets[index_sockets]);
+                tcp.push(vars.servers[keys[index_servers]].sockets[index_sockets]);
                 index_sockets = index_sockets + 1;
             } while (index_sockets < len_socket);
         }
         index_servers = index_servers + 1;
     } while (index_servers < len);
     vars.sockets.time = Date.now();
-    vars.sockets.list = output;
+    vars.sockets.tcp = tcp;
     broadcast(vars.environment.dashboard_id, "dashboard", {
         data: vars.sockets,
         service: "dashboard-socket-application"

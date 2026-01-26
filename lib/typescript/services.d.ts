@@ -205,11 +205,12 @@ interface services_server_method {
 }
 
 interface services_socket_application {
-    list: Array<services_socket_application_item>;
+    tcp: Array<services_socket_application_tcp>;
     time: number;
+    udp: Array<services_udp_socket>;
 }
 
-interface services_socket_application_item {
+interface services_socket_application_tcp {
     address: transmit_addresses_socket;
     encrypted: boolean;
     hash: string;
@@ -217,6 +218,7 @@ interface services_socket_application_item {
     role: "client" | "server";
     server_id: string;
     server_name: string;
+    time: number;
     type: string;
     userAgent: string;
 }
@@ -278,6 +280,23 @@ interface services_testBrowser {
     result: test_assert[];
     store: test_primitive;
     test: test_browserItem;
+}
+
+interface services_udp_socket {
+    address_local: string;
+    address_remote: string;
+    handler: (message:Buffer) => void;
+    id: string;
+    multicast_group: string;
+    multicast_interface: string;
+    multicast_membership: string;
+    multicast_source: string;
+    multicast_type: "membership" | "none" | "source";
+    port_local: number;
+    port_remote: number;
+    role: "client" | "server";
+    time: number;
+    type: "ipv4" | "ipv6";
 }
 
 interface services_websocket_handshake {

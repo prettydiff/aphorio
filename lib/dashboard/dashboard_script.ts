@@ -4,7 +4,7 @@ import Chart from "chart.js/auto";
 // @ts-expect-error - TypeScript claims xterm has no default export, but this is how the documentation says to use it.
 import Terminal from "@xterm/xterm";
 
-// cspell: words bootable, PGID, PUID, serv, TLSA
+// cspell: words bootable, PGID, PUID, serv, stcp, sudp, TLSA
 
 const ui = function ui():void {
     const dashboard:dashboard = {
@@ -119,6 +119,9 @@ const ui = function ui():void {
                                 "dashboard-hash": (dashboard.sections["hash"] === undefined)
                                     ? null
                                     : dashboard.sections["hash"].receive,
+                                "dashboard-http": (dashboard.sections["test-http"] === undefined)
+                                    ? null
+                                    : dashboard.sections["test-http"].receive,
                                 "dashboard-log": (dashboard.sections["application-logs"] === undefined)
                                     ? null
                                     : dashboard.sections["application-logs"].receive,
@@ -140,9 +143,12 @@ const ui = function ui():void {
                                 "dashboard-os-serv": (dashboard.sections["services"] === undefined)
                                     ? null
                                     : dashboard.sections["services"].receive,
-                                "dashboard-os-sock": (dashboard.sections["sockets-os"] === undefined)
+                                "dashboard-os-stcp": (dashboard.sections["sockets-os-tcp"] === undefined)
                                     ? null
-                                    : dashboard.sections["sockets-os"].receive,
+                                    : dashboard.sections["sockets-os-tcp"].receive,
+                                "dashboard-os-sudp": (dashboard.sections["sockets-os-udp"] === undefined)
+                                    ? null
+                                    : dashboard.sections["sockets-os-udp"].receive,
                                 "dashboard-os-user": (dashboard.sections["users"] === undefined)
                                     ? null
                                     : dashboard.sections["users"].receive,
@@ -151,16 +157,18 @@ const ui = function ui():void {
                                         ? null
                                         : dashboard.sections["ports-application"].receive
                                     : dashboard.sections["servers-web"].receive,
-                                "dashboard-socket-application": (dashboard.sections["sockets-application"] === undefined)
-                                    ? null
-                                    : dashboard.sections["sockets-application"].receive,
-                                "dashboard-status-clock": dashboard.utility.clock,
+                                "dashboard-socket-application": (dashboard.sections["sockets-application-tcp"] === undefined)
+                                    ? (dashboard.sections["sockets-application-udp"] === undefined)
+                                        ? null
+                                        : dashboard.sections["sockets-application-udp"].receive
+                                    : dashboard.sections["sockets-application-tcp"].receive,
                                 "dashboard-statistics-data": (dashboard.sections["statistics"] === undefined)
                                     ? null
                                     : dashboard.sections["statistics"].receive,
-                                "dashboard-http": (dashboard.sections["test-http"] === undefined)
+                                "dashboard-status-clock": dashboard.utility.clock,
+                                "dashboard-udp-status": (dashboard.sections["udp-socket"] === undefined)
                                     ? null
-                                    : dashboard.sections["test-http"].receive,
+                                    : dashboard.sections["udp-socket"].receive,
                                 "dashboard-websocket-message": (dashboard.sections["test-websocket"] === undefined)
                                     ? null
                                     : dashboard.sections["test-websocket"].transmit.message_receive,
@@ -197,8 +205,8 @@ const ui = function ui():void {
                             if (dashboard.sections["services"] !== undefined) {
                                 dashboard.tables.populate(dashboard.sections["services"], data.serv);
                             }
-                            if (dashboard.sections["sockets-os"] !== undefined) {
-                                dashboard.tables.populate(dashboard.sections["sockets-os"], data.sock);
+                            if (dashboard.sections["sockets-os-tcp"] !== undefined) {
+                                dashboard.tables.populate(dashboard.sections["sockets-os-tcp"], data.stcp);
                             }
                             if (dashboard.sections["users"] !== undefined) {
                                 dashboard.tables.populate(dashboard.sections["users"], data.user);
@@ -273,12 +281,15 @@ const ui = function ui():void {
                             dashboard.sections["ports-application"].receive();
                         }
                         dashboard.tables.init(dashboard.sections["services"]);
-                        dashboard.tables.init(dashboard.sections["sockets-application"]);
-                        dashboard.tables.init(dashboard.sections["sockets-os"]);
+                        dashboard.tables.init(dashboard.sections["sockets-application-tcp"]);
+                        dashboard.tables.init(dashboard.sections["sockets-application-udp"]);
+                        dashboard.tables.init(dashboard.sections["sockets-os-tcp"]);
+                        dashboard.tables.init(dashboard.sections["sockets-os-udp"]);
                         init("statistics");
                         init("terminal");
                         init("test-http");
                         init("test-websocket");
+                        init("udp-socket");
                         dashboard.tables.init(dashboard.sections["users"]);
                         dashboard.utility.nodes.main.style.display = "block";
                         dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
@@ -2652,43 +2663,26 @@ const ui = function ui():void {
                 },
                 receive: function dashboard_sections_serversWeb_receive(socket_data:socket_data):void {
                     const list:string[] = Object.keys(socket_data.data),
-                        list_old:HTMLElement = dashboard.sections["servers-web"].nodes.list,
-                        list_new:HTMLElement = document.createElement("ul"),
+                        list_node:HTMLElement = dashboard.sections["servers-web"].nodes.list,
                         total:number = list.length;
-                    let index:number = 0,
-                        indexSocket:number = 0,
-                        totalSocket:number = 0;
+                    let index:number = 0;
                     dashboard.global.payload.servers = socket_data.data as store_servers;
                     dashboard.sections["servers-web"].nodes.service_new.onclick = dashboard.shared_services.create;
-                    list_new.setAttribute("class", list_old.getAttribute("class"));
                     list.sort(function dashboard_sections_serversWeb_receive_sort(a:string, b:string):-1|1 {
                         if (a < b) {
                             return -1;
                         }
                         return 1;
                     });
+                    list_node.textContent = "";
                     if (total > 0) {
                         do {
                             if (dashboard.global.payload.servers[list[index]].config !== undefined) {
-                                list_new.appendChild(dashboard.shared_services.title(dashboard.global.payload.servers[list[index]].config.id, "server"));
-                                totalSocket = dashboard.global.payload.servers[list[index]].sockets.length;
-                                if (dashboard.sections["sockets-application"] !== undefined && totalSocket > 0) {
-                                    indexSocket = 0;
-                                    do {
-                                        dashboard.sections["sockets-application"].receive({
-                                            data: dashboard.global.payload.sockets,
-                                            service: "dashboard-socket-application"
-                                        });
-                                        indexSocket = indexSocket + 1;
-                                    } while (indexSocket < totalSocket);
-                                }
+                                list_node.appendChild(dashboard.shared_services.title(dashboard.global.payload.servers[list[index]].config.id, "server"));
                             }
                             index = index + 1;
                         } while (index < total);
                     }
-                    list_old.parentNode.insertBefore(list_new, list_old);
-                    list_old.parentNode.removeChild(list_old);
-                    dashboard.sections["servers-web"].nodes.list = list_new;
                     if (dashboard.sections["ports-application"] !== undefined) {
                         dashboard.sections["ports-application"].receive();
                     }
@@ -2764,85 +2758,175 @@ const ui = function ui():void {
                 sort_name: ["name", "status", "description"]
             },
             // services end
-            // sockets-application start
-            "sockets-application": {
-                dataName: "sockets_application",
+            // sockets-application-tcp start
+            "sockets-application-tcp": {
+                dataName: "sockets-application-tcp",
                 nodes: {
-                    caseSensitive: document.getElementById("sockets-application").getElementsByTagName("input")[1],
-                    count: document.getElementById("sockets-application").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-                    filter_column: document.getElementById("sockets-application").getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("sockets-application").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
-                    filter_value: document.getElementById("sockets-application").getElementsByTagName("input")[0],
-                    list: document.getElementById("sockets-application").getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("sockets-application").getElementsByTagName("button")[0],
-                    update_text: document.getElementById("sockets-application").getElementsByTagName("time")[0]
+                    caseSensitive: document.getElementById("sockets-application-tcp").getElementsByTagName("input")[1],
+                    count: document.getElementById("sockets-application-tcp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("sockets-application-tcp").getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("sockets-application-tcp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("sockets-application-tcp").getElementsByTagName("input")[0],
+                    list: document.getElementById("sockets-application-tcp").getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("sockets-application-tcp").getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets-application-tcp").getElementsByTagName("time")[0]
                 },
                 receive: function dashboard_sections_socketsApplication_receive(socket_data:socket_data):void {
                     let tr:HTMLElement = null,
                         index:number = 0;
                     const config:services_socket_application = socket_data.data as services_socket_application,
-                        len:number = config.list.length,
-                        tbody:HTMLElement = dashboard.sections["sockets-application"].nodes.list,
+                        len:number = config.tcp.length,
+                        tbody:HTMLElement = dashboard.sections["sockets-application-tcp"].nodes.list,
                         table:HTMLElement = tbody.parentNode,
-                        cell = function dashboard_sections_socketsApplication_receive_cell(text:string, classy:string):void {
+                        cell = function dashboard_sections_socketsApplication_receive_cell(text:string, classy:string, raw:number):void {
                             const td:HTMLElement = document.createElement("td");
                             td.textContent = text;
                             if (classy !== null) {
                                 td.setAttribute("class", classy);
                                 td.setAttribute("title", text);
                             }
+                            if (raw !== null) {
+                                td.setAttribute("data-raw", String(raw));
+                            }
                             tr.appendChild(td);
-                        };
+                        },
+                        start:bigint = BigInt(config.time * 1e6);
                     tbody.textContent = "";
                     do {
                         tr = document.createElement("tr");
-                        cell(config.list[index].server_id, "server_id");
-                        cell(config.list[index].server_name, null);
-                        cell(config.list[index].hash, null);
-                        cell(config.list[index].type, null);
-                        cell(config.list[index].role, null);
-                        cell((config.list[index].proxy === null) ? "" : config.list[index].proxy, null);
-                        cell(String(config.list[index].encrypted), null);
-                        cell(config.list[index].address.local.address, null);
-                        cell(String(config.list[index].address.local.port), null);
-                        cell(config.list[index].address.remote.address, null);
-                        cell(String(config.list[index].address.remote.port), null);
-                        cell(config.list[index].userAgent, null);
+                        cell(config.tcp[index].server_id, "server_id", null);
+                        cell(config.tcp[index].server_name, null, null);
+                        cell(config.tcp[index].hash, null, null);
+                        cell(config.tcp[index].type, null, null);
+                        cell(config.tcp[index].role, null, null);
+                        cell((config.tcp[index].proxy === null) ? "" : config.tcp[index].proxy, null, null);
+                        cell(String(config.tcp[index].encrypted), null, null);
+                        cell(config.tcp[index].address.local.address, null, null);
+                        cell(String(config.tcp[index].address.local.port), null, null);
+                        cell(config.tcp[index].address.remote.address, null, null);
+                        cell(String(config.tcp[index].address.remote.port), null, null);
+                        cell(config.tcp[index].userAgent, null, null);
+                        cell(start.time(BigInt(config.tcp[index].time * 1e6)), null, config.tcp[index].time);
                         tbody.appendChild(tr);
                         index = index + 1;
                     } while (index < len);
-                    dashboard.sections["sockets-application"].nodes.count.textContent = tbody.getElementsByTagName("tr").length.commas();
-                    dashboard.sections["sockets-application"].nodes.update_text.textContent = config.time.dateTime(true, dashboard.global.payload.timeZone_offset);
-                    dashboard.tables.filter(null, dashboard.sections["sockets-application"].nodes.filter_value);
+                    dashboard.sections["sockets-application-tcp"].nodes.count.textContent = tbody.getElementsByTagName("tr").length.commas();
+                    dashboard.sections["sockets-application-tcp"].nodes.update_text.textContent = config.time.dateTime(true, dashboard.global.payload.timeZone_offset);
+                    dashboard.tables.filter(null, dashboard.sections["sockets-application-tcp"].nodes.filter_value);
                     dashboard.tables.sort(null, table, Number(table.dataset.column));
+                    if (dashboard.sections["sockets-application-udp"] !== undefined) {
+                        dashboard.sections["sockets-application-tcp"].sort_name[0] = "loaded";
+                        if (dashboard.sections["sockets-application-udp"].sort_name[0] === "") {
+                            dashboard.sections["sockets-application-udp"].receive(socket_data);
+                        } else {
+                            dashboard.sections["sockets-application-tcp"].sort_name[0] = "";
+                            dashboard.sections["sockets-application-udp"].sort_name[0] = "";
+                        }
+                    }
                 },
                 row: null,
-                sort_name: ["server", "type", "role", "name"],
+                sort_name: [""],
                 tools: {
                     update: function dashboard_sections_socketsApplication_update():void {
                         dashboard.utility.message_send(null, "dashboard-socket-application");
                     }
                 }
             },
-            // sockets-application end
-            // sockets-os start
-            "sockets-os": {
-                dataName: "sock",
+            // sockets-application-tcp end
+            // sockets-application-udp start
+            "sockets-application-udp": {
+                dataName: "sockets-application-udp",
                 nodes: {
-                    caseSensitive: document.getElementById("sockets-os").getElementsByTagName("input")[1],
-                    count: document.getElementById("sockets-os").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-                    filter_column: document.getElementById("sockets-os").getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("sockets-os").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
-                    filter_value: document.getElementById("sockets-os").getElementsByTagName("input")[0],
-                    list: document.getElementById("sockets-os").getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("sockets-os").getElementsByTagName("button")[0],
-                    update_text: document.getElementById("sockets-os").getElementsByTagName("time")[0]
+                    caseSensitive: document.getElementById("sockets-application-udp").getElementsByTagName("input")[1],
+                    count: document.getElementById("sockets-application-udp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("sockets-application-udp").getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("sockets-application-udp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("sockets-application-udp").getElementsByTagName("input")[0],
+                    list: document.getElementById("sockets-application-udp").getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("sockets-application-udp").getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets-application-udp").getElementsByTagName("time")[0]
+                },
+                receive: function dashboard_sections_socketsApplication_receive(socket_data:socket_data):void {
+                    let tr:HTMLElement = null,
+                        index:number = 0;
+                    const config:services_socket_application = socket_data.data as services_socket_application,
+                        len:number = config.udp.length,
+                        tbody:HTMLElement = dashboard.sections["sockets-application-udp"].nodes.list,
+                        table:HTMLElement = tbody.parentNode,
+                        cell = function dashboard_sections_socketsApplication_receive_cell(text:string, classy:string, raw:number):void {
+                            const td:HTMLElement = document.createElement("td");
+                            td.textContent = text;
+                            if (classy !== null) {
+                                td.setAttribute("class", classy);
+                                td.setAttribute("title", text);
+                            }
+                            if (raw !== null) {
+                                td.setAttribute("data-raw", String(raw));
+                            }
+                            tr.appendChild(td);
+                        },
+                        start:bigint = BigInt(config.time * 1e6);
+                    tbody.textContent = "";
+                    if (len > 0) {
+                        do {
+                            tr = document.createElement("tr");
+                            cell(config.udp[index].id, "server_id", null);
+                            cell(config.udp[index].address_local, null, null);
+                            cell(String(config.udp[index].port_local), null, null);
+                            cell(config.udp[index].address_remote, null, null);
+                            cell(String(config.udp[index].port_remote), null, null);
+                            cell(config.udp[index].role, null, null);
+                            cell(config.udp[index].multicast_group, null, null);
+                            cell(config.udp[index].multicast_interface, null, null);
+                            cell(config.udp[index].multicast_membership, null, null);
+                            cell(config.udp[index].multicast_source, null, null);
+                            cell(start.time(BigInt(config.udp[index].time * 1e6)), null, config.udp[index].time);
+                            tbody.appendChild(tr);
+                            index = index + 1;
+                        } while (index < len);
+                        dashboard.tables.sort(null, table, Number(table.dataset.column));
+                        dashboard.tables.filter(null, dashboard.sections["sockets-application-udp"].nodes.filter_value);
+                    } else {
+                        dashboard.sections["sockets-application-udp"].nodes.filter_count.textContent = "0";
+                    }
+                    dashboard.sections["sockets-application-udp"].nodes.count.textContent = tbody.getElementsByTagName("tr").length.commas();
+                    dashboard.sections["sockets-application-udp"].nodes.update_text.textContent = config.time.dateTime(true, dashboard.global.payload.timeZone_offset);
+                    if (dashboard.sections["sockets-application-tcp"] !== undefined) {
+                        dashboard.sections["sockets-application-udp"].sort_name[0] = "loaded";
+                        if (dashboard.sections["sockets-application-tcp"].sort_name[0] === "") {
+                            dashboard.sections["sockets-application-tcp"].receive(socket_data);
+                        } else {
+                            dashboard.sections["sockets-application-tcp"].sort_name[0] = "";
+                            dashboard.sections["sockets-application-udp"].sort_name[0] = "";
+                        }
+                    }
+                },
+                row: null,
+                sort_name: [""],
+                tools: {
+                    update: function dashboard_sections_socketsApplication_update():void {
+                        dashboard.utility.message_send(null, "dashboard-socket-application");
+                    }
+                }
+            },
+            // sockets-application-udp end
+            // sockets-os-tcp start
+            "sockets-os-tcp": {
+                dataName: "stcp",
+                nodes: {
+                    caseSensitive: document.getElementById("sockets-os-tcp").getElementsByTagName("input")[1],
+                    count: document.getElementById("sockets-os-tcp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("sockets-os-tcp").getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("sockets-os-tcp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("sockets-os-tcp").getElementsByTagName("input")[0],
+                    list: document.getElementById("sockets-os-tcp").getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("sockets-os-tcp").getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets-os-tcp").getElementsByTagName("time")[0]
                 },
                 receive: null,
                 row: function dashboard_sections_socketsOS_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_sock = record_item as os_sock;
                     let index:number = dashboard.global.payload.os.proc.data.length;
-                    dashboard.tables.cell(tr, record.type, null);
                     dashboard.tables.cell(tr, record["local-address"], null);
                     dashboard.tables.cell(tr, String(record["local-port"]), null);
                     dashboard.tables.cell(tr, record["remote-address"], null);
@@ -2862,9 +2946,48 @@ const ui = function ui():void {
                         dashboard.tables.cell(tr, "null", null);
                     }
                 },
-                sort_name: ["type", "local-address", "local-port", "remote-address", "remote-port"]
+                sort_name: ["local-address", "local-port", "remote-address", "remote-port"]
             },
-            // sockets-os end
+            // sockets-os-tcp end
+            // sockets-os-udp start
+            "sockets-os-udp": {
+                dataName: "sudp",
+                nodes: {
+                    caseSensitive: document.getElementById("sockets-os-udp").getElementsByTagName("input")[1],
+                    count: document.getElementById("sockets-os-udp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("sockets-os-udp").getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("sockets-os-udp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("sockets-os-udp").getElementsByTagName("input")[0],
+                    list: document.getElementById("sockets-os-udp").getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("sockets-os-udp").getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets-os-udp").getElementsByTagName("time")[0]
+                },
+                receive: null,
+                row: function dashboard_sections_socketsOS_row(record_item:type_lists, tr:HTMLElement):void {
+                    const record:os_sock = record_item as os_sock;
+                    let index:number = dashboard.global.payload.os.proc.data.length;
+                    dashboard.tables.cell(tr, record["local-address"], null);
+                    dashboard.tables.cell(tr, String(record["local-port"]), null);
+                    dashboard.tables.cell(tr, record["remote-address"], null);
+                    dashboard.tables.cell(tr, String(record["remote-port"]), null);
+                    if (record.process === 0) {
+                        dashboard.tables.cell(tr, "null", null);
+                        dashboard.tables.cell(tr, "null", null);
+                    } else {
+                        dashboard.tables.cell(tr, String(record.process), null);
+                        do {
+                            index = index - 1;
+                            if (dashboard.global.payload.os.proc.data[index] !== undefined && dashboard.global.payload.os.proc.data[index].id === record.process) {
+                                dashboard.tables.cell(tr, dashboard.global.payload.os.proc.data[index].name, null);
+                                return;
+                            }
+                        } while (index > 0);
+                        dashboard.tables.cell(tr, "null", null);
+                    }
+                },
+                sort_name: ["local-address", "local-port", "remote-address", "remote-port"]
+            },
+            // sockets-os-udp end
             // statistics start
             "statistics": {
                 events: {
@@ -3803,6 +3926,146 @@ const ui = function ui():void {
                 }
             },
             // test-websocket end
+            // udp-socket start
+            "udp-socket": {
+                events: {
+                    create: function dashboard_sections_udpSocket_create():void {
+                        const select:HTMLSelectElement = dashboard.sections["udp-socket"].nodes.multicast_interface.getElementsByTagName("select")[0],
+                            port_local:number = Number(dashboard.sections["udp-socket"].nodes.input_port_local.value.trim()),
+                            port_remote:number = Number(dashboard.sections["udp-socket"].nodes.input_port_remote.value.trim()),
+                            multicast_type:"membership"|"none"|"source" = (dashboard.sections["udp-socket"].nodes.input_multicast_membership.checked === true)
+                                ? "membership"
+                                : (dashboard.sections["udp-socket"].nodes.input_multicast_source.checked === true)
+                                    ? "source"
+                                    : "none",
+                            role:"client"|"server" = (dashboard.sections["udp-socket"].nodes.input_role_client.checked === true)
+                                ? "client"
+                                : "server",
+                            payload:services_udp_socket = {
+                                address_local: (role === "client")
+                                    ? dashboard.sections["udp-socket"].nodes.input_address_client.value
+                                    : dashboard.sections["udp-socket"].nodes.input_address_server.value,
+                                address_remote: null,
+                                handler: null,
+                                id: "",
+                                multicast_group: dashboard.sections["udp-socket"].nodes.multicast_group.getElementsByTagName("input")[0].value,
+                                multicast_interface: select[select.selectedIndex].textContent,
+                                multicast_membership: dashboard.sections["udp-socket"].nodes.multicast_source.getElementsByTagName("input")[0].value,
+                                multicast_source: dashboard.sections["udp-socket"].nodes.multicast_source.getElementsByTagName("input")[0].value,
+                                multicast_type: multicast_type,
+                                port_local: (role === "client" && isNaN(port_remote) === false)
+                                    ? port_remote
+                                    : (role === "server" && isNaN(port_local) === false)
+                                        ? port_local
+                                        : 0,
+                                port_remote: null,
+                                role: role,
+                                time: 0,
+                                type: (dashboard.sections["udp-socket"].nodes.input_type_ipv4.checked === true)
+                                    ? "ipv4"
+                                    : "ipv6"
+                            };
+                        dashboard.utility.message_send(payload, "dashboard-udp-socket");
+                    },
+                    toggle_multicast: function dashboard_sections_udpSocket_toggleMulticast():void {
+                        if (dashboard.sections["udp-socket"].nodes.input_multicast_membership.checked === true) {
+                            dashboard.sections["udp-socket"].nodes.multicast_group.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.multicast_interface.style.display = "block";
+                            dashboard.sections["udp-socket"].nodes.multicast_membership.style.display = "block";
+                            dashboard.sections["udp-socket"].nodes.multicast_source.style.display = "none";
+                        } else if (dashboard.sections["udp-socket"].nodes.input_multicast_none.checked === true) {
+                            dashboard.sections["udp-socket"].nodes.multicast_group.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.multicast_interface.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.multicast_membership.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.multicast_source.style.display = "none";
+                        } else {
+                            dashboard.sections["udp-socket"].nodes.multicast_group.style.display = "block";
+                            dashboard.sections["udp-socket"].nodes.multicast_interface.style.display = "block";
+                            dashboard.sections["udp-socket"].nodes.multicast_membership.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.multicast_source.style.display = "block";
+                        }
+                    },
+                    toggle_role: function dashboard_sections_udpSocket_toggleRole():void {
+                        if (dashboard.sections["udp-socket"].nodes.input_role_client.checked === true) {
+                            dashboard.sections["udp-socket"].nodes.toggle_client.style.display = "block";
+                            dashboard.sections["udp-socket"].nodes.toggle_server.style.display = "none";
+                        } else {
+                            dashboard.sections["udp-socket"].nodes.toggle_client.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.toggle_server.style.display = "block";
+                        }
+                    },
+                    toggle_type: function dashboard_sections_udpSocket_toggleType():void {
+                        const type:string = (dashboard.sections["udp-socket"].nodes.input_type_ipv4.checked === true)
+                                ? "IPv4"
+                                : "IPv6",
+                            labels:HTMLCollectionOf<HTMLElement> = document.getElementById("udp-socket").getElementsByTagName("label");
+                        let index:number = labels.length,
+                            span:HTMLElement = null;
+                        do {
+                            index = index - 1;
+                            span = labels[index].getElementsByTagName("span")[0];
+                            if (span !== undefined) {
+                                span.textContent = type;
+                            }
+                        } while (index > 0);
+                    }
+                },
+                init: function dashboard_sections_udpSocket_init():void {
+                    const keys:string[] = Object.keys(dashboard.global.payload.os.intr.data),
+                        len:number = keys.length,
+                        nodes:store_elements = dashboard.sections["udp-socket"].nodes,
+                        events:store_function = dashboard.sections["udp-socket"].events;
+                    nodes.button_create.onclick = events.create;
+                    nodes.input_multicast_membership.onclick = events.toggle_multicast;
+                    nodes.input_multicast_none.onclick = events.toggle_multicast;
+                    nodes.input_multicast_source.onclick = events.toggle_multicast;
+                    nodes.input_role_client.onclick = events.toggle_role;
+                    nodes.input_role_server.onclick = events.toggle_role;
+                    nodes.input_type_ipv4.onclick = events.toggle_type;
+                    nodes.input_type_ipv6.onclick = events.toggle_type;
+                    events.toggle_multicast();
+                    events.toggle_role();
+                    events.toggle_type();
+                    if (len > 0) {
+                        let index:number = 0,
+                            option:HTMLElement = null;
+                        do {
+                            option = document.createElement("option");
+                            option.textContent = keys[index];
+                            nodes.interfaces.appendChild(option);
+                            index = index + 1;
+                        } while (index < len);
+                    }
+                },
+                nodes: {
+                    button_create: document.getElementById("udp-socket").getElementsByClassName("form")[1].getElementsByTagName("button")[0],
+                    input_address_client: document.getElementById("udp-socket").getElementsByTagName("input")[12],
+                    input_address_server: document.getElementById("udp-socket").getElementsByTagName("input")[4],
+                    input_multicast_membership: document.getElementById("udp-socket").getElementsByTagName("input")[7],
+                    input_multicast_none: document.getElementById("udp-socket").getElementsByTagName("input")[8],
+                    input_multicast_source: document.getElementById("udp-socket").getElementsByTagName("input")[6],
+                    input_port_local: document.getElementById("udp-socket").getElementsByTagName("input")[5],
+                    input_port_remote: document.getElementById("udp-socket").getElementsByTagName("input")[13],
+                    input_role_client: document.getElementById("udp-socket").getElementsByTagName("input")[0],
+                    input_role_server: document.getElementById("udp-socket").getElementsByTagName("input")[1],
+                    input_type_ipv4: document.getElementById("udp-socket").getElementsByTagName("input")[2],
+                    input_type_ipv6: document.getElementById("udp-socket").getElementsByTagName("input")[3],
+                    interfaces: document.getElementById("udp-socket").getElementsByTagName("select")[0],
+                    multicast_group: document.getElementById("udp-socket").getElementsByClassName("udp-socket-multicast-group")[0] as HTMLElement,
+                    multicast_interface: document.getElementById("udp-socket").getElementsByClassName("udp-socket-multicast-interface")[0] as HTMLElement,
+                    multicast_membership: document.getElementById("udp-socket").getElementsByClassName("udp-socket-multicast-membership")[0] as HTMLElement,
+                    multicast_source: document.getElementById("udp-socket").getElementsByClassName("udp-socket-multicast-source")[0] as HTMLElement,
+                    status: document.getElementById("udp-socket").getElementsByClassName("udp-socket-status")[0] as HTMLElement,
+                    toggle_client: document.getElementById("udp-socket").getElementsByClassName("udp-role-client")[0] as HTMLElement,
+                    toggle_server: document.getElementById("udp-socket").getElementsByClassName("udp-role-server")[0] as HTMLElement
+                },
+                receive: function dashboard_sections_udpSocket_receive(socket_data:socket_data):void {
+                    const data:string[] = socket_data.data as string[];
+                    dashboard.sections["udp-socket"].nodes.status.textContent = data[0];
+                },
+                tools: {}
+            },
+            // udp-socket end
             // users start
             "users": {
                 dataName: "user",
@@ -4279,8 +4542,10 @@ const ui = function ui():void {
                         "ports-application": dashboard.sections["ports-application"],
                         "processes": dashboard.sections["processes"],
                         "services": dashboard.sections["services"],
-                        "sockets-application": dashboard.sections["sockets-application"],
-                        "sockets-os": dashboard.sections["sockets-os"],
+                        "sockets-application-tcp": dashboard.sections["sockets-application-tcp"],
+                        "sockets-application-udp": dashboard.sections["sockets-application-udp"],
+                        "sockets-os-tcp": dashboard.sections["sockets-os-tcp"],
+                        "sockets-os-udp": dashboard.sections["sockets-os-udp"],
                         "users": dashboard.sections["users"]
                     },
                     module:module_list|section_ports_application|section_sockets_application = module_map[tab_name],
@@ -4381,9 +4646,12 @@ const ui = function ui():void {
                     select(module.nodes.list.parentNode, module.nodes.filter_column);
                     if (module.dataName === "ports_application") {
                         dashboard.tables.filter(null, module.nodes.filter_value);
-                    } else if (module.dataName === "sockets_application") {
+                    } else if (module.dataName === "sockets-application-tcp") {
                         dashboard.tables.filter(null, module.nodes.filter_value);
-                        module.nodes.update_button.onclick = dashboard.sections["sockets-application"].tools.update;
+                        module.nodes.update_button.onclick = dashboard.sections["sockets-application-tcp"].tools.update;
+                    } else if (module.dataName === "sockets-application-udp") {
+                        dashboard.tables.filter(null, module.nodes.filter_value);
+                        module.nodes.update_button.onclick = dashboard.sections["sockets-application-udp"].tools.update;
                     } else {
                         module.nodes.update_button.onclick = dashboard.tables.update;
                         module.nodes.update_button.setAttribute("data-list", module.dataName);
@@ -4573,8 +4841,10 @@ const ui = function ui():void {
                     status.setAttribute("class", "connection-offline");
                     status.getElementsByTagName("strong")[0].textContent = "Offline";
                     lists(dashboard.sections["interfaces"], false);
-                    lists(dashboard.sections["sockets-application"], true);
-                    lists(dashboard.sections["sockets-os"], true);
+                    lists(dashboard.sections["sockets-application-tcp"], true);
+                    lists(dashboard.sections["sockets-application-udp"], true);
+                    lists(dashboard.sections["sockets-os-tcp"], true);
+                    lists(dashboard.sections["sockets-os-udp"], true);
                     lists(dashboard.sections["devices"], true);
                     lists(dashboard.sections["disks"], false);
                     lists(dashboard.sections["processes"], true);
@@ -4826,8 +5096,10 @@ const ui = function ui():void {
                     lists(dashboard.sections["devices"]);
                     lists(dashboard.sections["processes"]);
                     lists(dashboard.sections["services"]);
-                    lists(dashboard.sections["sockets-application"]);
-                    lists(dashboard.sections["sockets-os"]);
+                    lists(dashboard.sections["sockets-application-tcp"]);
+                    lists(dashboard.sections["sockets-application-udp"]);
+                    lists(dashboard.sections["sockets-os-tcp"]);
+                    lists(dashboard.sections["sockets-os-udp"]);
                     lists(dashboard.sections["users"]);
                     localStorage.state = JSON.stringify(dashboard.global.state);
                 }

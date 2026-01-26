@@ -72,7 +72,6 @@ interface transmit_linux_ip_stats {
     dropped: number;
     errors: number;
     packets: number;
-
 }
 
 interface transmit_receiver {
@@ -103,6 +102,23 @@ interface transmit_tlsOptions {
     options: transmit_tlsCerts;
 }
 
+interface transmit_udp extends node_dgram_Socket {
+    addresses: transmit_addresses_socket;
+    id: string;
+    multicast_type: "membership" | "none" | "source";
+    role: "client" | "server";
+    time: number;
+    type: "ipv4" | "ipv6";
+}
+
+interface transmit_udp_module {
+    closed: () => void;
+    create: (socket_data:socket_data, callback:(socket:transmit_udp) => void) => void;
+    handler: (socket:transmit_udp, handler:(message:Buffer) => void) => void;
+    list: (item:services_udp_socket, action:"add"|"remove", now:number) => void;
+    send: (socket:transmit_udp, message_item:Array<number>|Buffer|bigint|number|string) => void;
+}
+
 interface websocket_client extends node_tls_TLSSocket {
     addresses: transmit_addresses_socket;
     fragment: Buffer;
@@ -120,6 +136,7 @@ interface websocket_client extends node_tls_TLSSocket {
     secure: boolean;
     server: string;
     status: type_socket_status;
+    time: number;
     type: string;
     userAgent: string;
 }

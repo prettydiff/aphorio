@@ -1,4 +1,4 @@
-// cspell: words bootable, fsavail, fsroots, fssize, fstype, fsused, mountpoint, partflags, parttypename, serv, volu
+// cspell: words bootable, fsavail, fsroots, fssize, fstype, fsused, mountpoint, partflags, parttypename, serv, stcp, sudp, volu
 
 interface os_child_out extends node_stream_Readable {
     type: type_os_key;
@@ -145,8 +145,8 @@ interface os_raw {
     proc: os_proc_windows[] | string[];
     serv: os_serv_posix[] | os_serv_windows[];
     sock: null;
-    socT: os_sock_tcp_windows[] | string[];
-    socU: os_sock_udp_windows[];
+    stcp: os_sock_tcp_windows[] | string[];
+    sudp: os_sock_udp_windows[];
     user: os_user_windows[] | string[];
     volu: os_disk_windows_volume[];
 }
@@ -176,7 +176,6 @@ interface os_sock {
     process: number;
     "remote-address": string;
     "remote-port": number;
-    type: "tcp" | "udp";
 }
 
 interface os_sock_tcp_windows {
@@ -218,8 +217,8 @@ interface os_vars {
     part: string;
     proc: string;
     serv: string;
-    socT: string;
-    socU: string;
+    stcp: string;
+    sudp: string;
     user: string;
     volu: string;
 }

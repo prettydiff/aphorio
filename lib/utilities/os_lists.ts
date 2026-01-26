@@ -4,7 +4,7 @@ import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
-// cspell: words blockdevices, bootable, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, volu
+// cspell: words blockdevices, bootable, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, stcp, sudp, volu
 
 const os = function utilities_os(type_os:type_os_services, callback:(output:socket_data) => void):void {
     const win32:boolean = (process.platform === "win32"),
@@ -17,7 +17,8 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
         disks:os_disk[] = [],
         processes:os_proc[] = [],
         services:os_serv[] = [],
-        sockets: os_sock[] = [],
+        tcp: os_sock[] = [],
+        udp: os_sock[] = [],
         users: os_user[] = [],
         int:NodeJS.Dict<node_os_NetworkInterfaceInfo[]> = node.os.networkInterfaces(),
         flags:store_flag = {
@@ -26,8 +27,8 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             part: (win32 === false),
             proc: false,
             serv: false,
-            socT: false,
-            socU: (win32 === false),
+            stcp: false,
+            sudp: false,
             user: false,
             volu: (win32 === false)
         },
@@ -37,8 +38,8 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             part: null,
             proc: null,
             serv: null,
-            socT: null,
-            socU: null,
+            stcp: null,
+            sudp: null,
             user: null,
             volu: null
         },
@@ -49,8 +50,8 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             proc: null,
             serv: null,
             sock: null,
-            socT: null,
-            socU: null,
+            stcp: null,
+            sudp: null,
             user: null,
             volu: null
         },
@@ -60,8 +61,8 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             part: true,
             proc: false,
             serv: false,
-            socT: false,
-            socU: (win32 === false),
+            stcp: false,
+            sudp: false,
             user: false,
             volu: true
         },
@@ -348,9 +349,9 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 }
                 completed("serv");
             },
-            socT: function utilities_os_builderSocT():void {
-                const data_win:os_sock_tcp_windows[] = raw.socT as os_sock_tcp_windows[],
-                    data_posix:string[] = raw.socT as string[],
+            stcp: function utilities_os_builderSTCP():void {
+                const data_win:os_sock_tcp_windows[] = raw.stcp as os_sock_tcp_windows[],
+                    data_posix:string[] = raw.stcp as string[],
                     len:number = (win32 === true)
                         ? data_win.length
                         : data_posix.length,
@@ -380,10 +381,9 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                 "remote-address": (data_win[index].RemoteAddress === null)
                                     ? ""
                                     : data_win[index].RemoteAddress,
-                                "remote-port": data_win[index].RemotePort,
-                                "type": "tcp"
+                                "remote-port": data_win[index].RemotePort
                             };
-                            sockets.push(sock);
+                            tcp.push(sock);
                         } else {
                             line = data_posix[index].split(",");
                             if (line.length > 5) {
@@ -394,19 +394,22 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                         ? 0
                                         : Number(line[7].replace("pid=", "")),
                                     "remote-address": getAddress(5),
-                                    "remote-port": getPort(5),
-                                    "type": line[0] as "tcp"
+                                    "remote-port": getPort(5)
                                 };
-                                sockets.push(sock);
+                                if (line[0] === "tcp") {
+                                    tcp.push(sock);
+                                } else {
+                                    udp.push(sock);
+                                }
                             }
                         }
                         index = index + 1;
                     } while (index < len);
                 }
-                completed("socT");
+                completed("stcp");
             },
-            socU: function utilities_os_builderSocU():void {
-                const data_win:os_sock_udp_windows[] = raw.socU as os_sock_udp_windows[],
+            sudp: function utilities_os_builderSUDP():void {
+                const data_win:os_sock_udp_windows[] = raw.sudp as os_sock_udp_windows[],
                     len:number = data_win.length;
                 let index:number = 0,
                     sock:os_sock = null;
@@ -419,14 +422,13 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                             "local-port": data_win[index].LocalPort,
                             "process": data_win[index].OwningProcess,
                             "remote-address": "",
-                            "remote-port": 0,
-                            "type": "udp"
+                            "remote-port": 0
                         };
-                        sockets.push(sock);
+                        udp.push(sock);
                         index = index + 1;
                     } while (index < len);
                 }
-                completed("socU");
+                completed("sudp");
             },
             user: function utilities_os_builderUser():void {
                 const data_win:os_user_windows[] = raw.user as os_user_windows[],
@@ -758,23 +760,48 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     parent: "name"
                 }
             },
-            sock: {
+            stcp: {
                 dict: false,
                 lists: {
-                    new: sockets,
-                    old: vars.os.sock.data
+                    new: tcp,
+                    old: vars.os.stcp.data
                 },
                 messages: {
                     child: null,
                     no_child: null,
                     parent: {
-                        new: function utilities_os_differenceSock_messagesParentNew(item:object):string {
+                        new: function utilities_os_differenceTCP_messagesParentNew(item:object):string {
                             const sock:os_sock = item as os_sock;
-                            return `New socket with local address ${sock["local-address"]} and port ${sock["local-port"]} came online.`;
+                            return `New TCP socket with local address ${sock["local-address"]} and port ${sock["local-port"]} came online.`;
                         },
-                        old: function utilities_os_differenceSock_messagesParentOld(item:object):string {
+                        old: function utilities_os_differenceTCP_messagesParentOld(item:object):string {
                             const sock:os_sock = item as os_sock;
-                            return `Socket with local address ${sock["local-address"]} with port ${sock["local-port"]} is no longer available.`;
+                            return `TCP Socket with local address ${sock["local-address"]} with port ${sock["local-port"]} is no longer available.`;
+                        }
+                    }
+                },
+                properties: {
+                    child: null,
+                    parent: "local-address"
+                }
+            },
+            sudp: {
+                dict: false,
+                lists: {
+                    new: udp,
+                    old: vars.os.sudp.data
+                },
+                messages: {
+                    child: null,
+                    no_child: null,
+                    parent: {
+                        new: function utilities_os_differenceUDP_messagesParentNew(item:object):string {
+                            const sock:os_sock = item as os_sock;
+                            return `New UDP socket with local address ${sock["local-address"]} and port ${sock["local-port"]} came online.`;
+                        },
+                        old: function utilities_os_differenceUDP_messagesParentOld(item:object):string {
+                            const sock:os_sock = item as os_sock;
+                            return `UDP Socket with local address ${sock["local-address"]} with port ${sock["local-port"]} is no longer available.`;
                         }
                     }
                 },
@@ -885,7 +912,11 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         data: [],
                         time: 0
                     },
-                    sock: {
+                    stcp: {
+                        data: [],
+                        time: 0,
+                    },
+                    sudp: {
                         data: [],
                         time: 0
                     },
@@ -947,8 +978,12 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     data: services,
                     time: now
                 };
-                output.sock = {
-                    data: sockets,
+                output.stcp = {
+                    data: tcp,
+                    time: now
+                };
+                output.sudp = {
+                    data: udp,
                     time: now
                 };
                 output.user = {
@@ -960,7 +995,8 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 vars.os.intr = output.intr;
                 vars.os.proc = output.proc;
                 vars.os.serv = output.serv;
-                vars.os.sock = output.sock;
+                vars.os.stcp = output.stcp;
+                vars.os.sudp = output.sudp;
                 vars.os.user = output.user;
                 callback({
                     data: output,
@@ -1017,14 +1053,23 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     data: vars.os.serv,
                     service: "dashboard-os-serv"
                 });
-            } else if (type_os === "sock" && complete.socT === true && complete.socU === true) {
-                vars.os.sock = {
-                    data: sockets,
+            } else if (type_os === "stcp" && complete.stcp === true && complete.sudp === true) {
+                vars.os.stcp = {
+                    data: tcp,
                     time: now
                 };
                 callback({
-                    data: vars.os.sock,
-                    service: "dashboard-os-sock"
+                    data: vars.os.stcp,
+                    service: "dashboard-os-stcp"
+                });
+            } else if (type_os === "sudp" && complete.stcp === true && complete.sudp === true) {
+                vars.os.sudp = {
+                    data: udp,
+                    time: now
+                };
+                callback({
+                    data: vars.os.sudp,
+                    service: "dashboard-os-sudp"
                 });
             } else if (type_os === "user") {
                 if (win32 === true) {
@@ -1061,7 +1106,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     temp:string = output.stdout.trim().replace(/\x1B\[33;1mWARNING: Resulting JSON is truncated as serialization has exceeded the set depth of \d.\x1B\[0m\s+/, ""),
                     parseTry = function utilities_os_spawning_close_parseTry():boolean {
                         if (win32 === false) {
-                            if ((type === "proc" || type === "socT" || type === "user")) {
+                            if ((type === "proc" || type === "stcp" || type === "user")) {
                                 raw[type] = temp.replace(/\n\s+/, "\n").split("\n");
                                 return true;
                             }
@@ -1115,13 +1160,13 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
         type_os = "all";
         if (win32 === true) {
             spawning("part");
-            spawning("socU");
+            spawning("sudp");
             spawning("volu");
         }
         spawning("disk");
         spawning("proc");
         spawning("serv");
-        spawning("socT");
+        spawning("stcp");
         if (win32 === false) {
             // for windows spawning("user") is called from builder.proc
             spawning("user");
@@ -1140,11 +1185,17 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
         spawning("proc");
     } else if (type_os === "serv") {
         spawning("serv");
-    } else if (type_os === "sock") {
+    } else if (type_os === "stcp") {
+        complete.sudp = true;
+        spawning("stcp");
+    } else if (type_os === "sudp") {
         if (win32 === true) {
-            spawning("socU");
+            complete.stcp = true;
+            spawning("sudp");
+        } else {
+            complete.sudp = true;
+            spawning("stcp");
         }
-        spawning("socT");
     } else if (type_os === "user") {
         if (win32 === true) {
             // for windows spawning("user") is called from builder.proc
