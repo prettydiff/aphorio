@@ -310,8 +310,10 @@ const ui = function ui():void {
                 do {
                     index = index - 1;
                     table_key = [table_keys[index].slice(0, table_keys[index].lastIndexOf("-")), table_keys[index].slice(table_keys[index].lastIndexOf("-") + 1)];
-                    table = document.getElementById(table_key[0]).getElementsByTagName("table")[Number(table_key[1])];
-                    if (table !== undefined) {
+                    table = (document.getElementById(table_key[0]) === null)
+                        ? null
+                        : document.getElementById(table_key[0]).getElementsByTagName("table")[Number(table_key[1])];
+                    if (table !== undefined && table !== null) {
                         table.setAttribute("data-column", String(dashboard.global.state.tables[table_keys[index]].col));
                         table.getElementsByTagName("thead")[0].getElementsByTagName("th")[dashboard.global.state.tables[table_keys[index]].col].getElementsByTagName("button")[0].setAttribute("data-dir", String(dashboard.global.state.tables[table_keys[index]].dir));
                     }
