@@ -1,5 +1,5 @@
 
-// cspell: words Perc, serv
+// cspell: words Perc, serv, stcp, sudp
 
 interface core_compose {
     containers: store_compose;
@@ -158,7 +158,8 @@ interface core_server_os {
         versions: store_string;
     };
     serv: services_os_serv;
-    sock: services_os_sock;
+    stcp: services_os_sock;
+    sudp: services_os_sock;
     time: number;
     user: services_os_user;
     user_account: {
@@ -245,19 +246,22 @@ interface core_vars {
             "dns-query": boolean;
             "file-system": boolean;
             "hash": boolean;
-            "http-test": boolean;
             "interfaces": boolean;
             "os-machine": boolean;
             "ports-application": boolean;
             "processes": boolean;
             "servers-web": boolean;
             "services": boolean;
-            "sockets-application": boolean;
-            "sockets-os": boolean;
+            "sockets-application-tcp": boolean;
+            "sockets-application-udp": boolean;
+            "sockets-os-tcp": boolean;
+            "sockets-os-udp": boolean;
             "statistics": boolean;
             "terminal": boolean;
+            "test-http": boolean;
+            "test-websocket": boolean;
+            "udp-socket": boolean;
             "users": boolean;
-            "websocket-test": boolean;
         };
         file: boolean;
         hash: string;
@@ -331,20 +335,6 @@ interface core_vars_path {
     servers: string;
 }
 
-interface dns_callback {
-    "0": (err:node_error, records:type_dns_records) => void;
-    "1": (err:node_error, records:type_dns_records) => void;
-    "10": (err:node_error, records:type_dns_records) => void;
-    "2": (err:node_error, records:type_dns_records) => void;
-    "3": (err:node_error, records:type_dns_records) => void;
-    "4": (err:node_error, records:type_dns_records) => void;
-    "5": (err:node_error, records:type_dns_records) => void;
-    "6": (err:node_error, records:type_dns_records) => void;
-    "7": (err:node_error, records:type_dns_records) => void;
-    "8": (err:node_error, records:type_dns_records) => void;
-    "9": (err:node_error, records:type_dns_records) => void;
-}
-
 interface external_ports {
     list: type_external_port[];
     time: number;
@@ -376,8 +366,9 @@ interface os_service {
 }
 
 interface server {
+    certs: transmit_tlsCerts;
     config: services_server;
-    sockets: Array<services_socket_application_item>;
+    sockets: Array<services_socket_application_tcp>;
     status: server_ports;
 }
 

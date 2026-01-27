@@ -1,5 +1,5 @@
 
-// cspell: words opencontainers, serv
+// cspell: words opencontainers, serv, TLSA
 
 interface services_action_compose {
     action: type_dashboard_action;
@@ -51,6 +51,21 @@ interface services_dns_reverse {
     reverse: true;
 }
 
+interface services_dns_callback {
+    "0": (err:node_error, records:type_dns_records) => void;
+    "1": (err:node_error, records:type_dns_records) => void;
+    "10": (err:node_error, records:type_dns_records) => void;
+    "11": (err:node_error, records:type_dns_records) => void;
+    "2": (err:node_error, records:type_dns_records) => void;
+    "3": (err:node_error, records:type_dns_records) => void;
+    "4": (err:node_error, records:type_dns_records) => void;
+    "5": (err:node_error, records:type_dns_records) => void;
+    "6": (err:node_error, records:type_dns_records) => void;
+    "7": (err:node_error, records:type_dns_records) => void;
+    "8": (err:node_error, records:type_dns_records) => void;
+    "9": (err:node_error, records:type_dns_records) => void;
+}
+
 interface services_dns_output {
     [key:string]: {
         "A"?: type_dns_records;
@@ -64,6 +79,7 @@ interface services_dns_output {
         "PTR"?: type_dns_records;
         "SOA"?: type_dns_records;
         "SRV"?: type_dns_records;
+        "TLSA"?: type_dns_records;
         "TXT"?: type_dns_records;
     };
 }
@@ -180,6 +196,7 @@ interface services_server {
     };
     single_socket?: boolean;
     temporary?: boolean;
+    upgrade: boolean;
 }
 
 interface services_server_method {
@@ -188,11 +205,12 @@ interface services_server_method {
 }
 
 interface services_socket_application {
-    list: Array<services_socket_application_item>;
+    tcp: Array<services_socket_application_tcp>;
     time: number;
+    udp: Array<services_udp_socket>;
 }
 
-interface services_socket_application_item {
+interface services_socket_application_tcp {
     address: transmit_addresses_socket;
     encrypted: boolean;
     hash: string;
@@ -200,6 +218,7 @@ interface services_socket_application_item {
     role: "client" | "server";
     server_id: string;
     server_name: string;
+    time: number;
     type: string;
     userAgent: string;
 }
@@ -263,6 +282,23 @@ interface services_testBrowser {
     test: test_browserItem;
 }
 
+interface services_udp_socket {
+    address_local: string;
+    address_remote: string;
+    handler: (message:Buffer) => void;
+    id: string;
+    multicast_group: string;
+    multicast_interface: string;
+    multicast_membership: string;
+    multicast_source: string;
+    multicast_type: "membership" | "none" | "source";
+    port_local: number;
+    port_remote: number;
+    role: "client" | "server";
+    time: number;
+    type: "ipv4" | "ipv6";
+}
+
 interface services_websocket_handshake {
     encryption: boolean;
     message: string[];
@@ -283,10 +319,4 @@ interface services_youtubeDownload {
     address: string;
     options: string;
     type: type_youtubeDownload;
-}
-
-interface services_youtubeStatus {
-    pid: number;
-    status: string;
-    time: string;
 }

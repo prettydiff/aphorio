@@ -31,7 +31,7 @@ const websocket_test:websocket_test = {
         return null;
     },
     handler_client: function services_websocketTest_handlerClient(socket_test:websocket_client, resultBuffer:Buffer, frame:websocket_frame):void {
-        // from - websocket-test socket
+        // from - test-websocket socket
         // to   - dashboard socket
         const decoder:node_stringDecoder_StringDecoder = new node.stringDecoder.StringDecoder("utf8"),
             result:string = decoder.end(resultBuffer),
@@ -98,7 +98,7 @@ const websocket_test:websocket_test = {
                     secure: data.encryption,
                     server: vars.environment.dashboard_id,
                     timeout: 0,
-                    type: "websocket-test"
+                    type: "test-websocket"
                 };
 
             // get the host value
@@ -155,7 +155,7 @@ const websocket_test:websocket_test = {
     },
     message: function services_websocketTest_message(socket_data:socket_data, transmit:transmit_socket):void {
         // from - dashboard socket
-        // to   - websocket-test socket
+        // to   - test-websocket socket
         const data:services_websocket_message = socket_data.data as services_websocket_message,
             socket_dashboard:websocket_client = transmit.socket as websocket_client,
             body:Buffer = Buffer.from(data.message),

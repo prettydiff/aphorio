@@ -31,39 +31,45 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
         dirCallback = function services_fileSystem_dirCallback(list:core_directory_list):void {
             if (list.length === 0) {
                 complete();
-            } else if (list[0][1] === "directory") {
+            } else if (data.search !== null || list[0][1] === "directory") {
                 const local:type_directory_item[] = [],
-                    len:number = list.length - 1;
-                let index:number = 1;
-                if (len > 1) {
-                    do {
-                        if (list[index][2] === 0) {
-                            local.push(list[index]);
-                        }
-                        index = index + 1;
-                    } while (index < len);
-                }
-                local.sort(function services_fileSystem_dirCallback_sort(a:type_directory_item, b:type_directory_item):-1|0|1 {
-                    if (a[1] < b[1]) {
-                        return -1;
-                    }
-                    if (a[1] > b[1]) {
-                        return 1;
-                    }
-                    if (a[1] === b[1]) {
-                        if ((vars.path.sep === "/" && a[0] < b[0]) || (vars.path.sep === "\\" && a[0].toLowerCase() < b[0].toLowerCase())) {
+                    len:number = list.length - 1,
+                    sort = function services_fileSystem_dirCallback_sort(a:type_directory_item, b:type_directory_item):-1|0|1 {
+                        if (a[1] < b[1]) {
                             return -1;
                         }
-                        if ((vars.path.sep === "/" && a[0] > b[0]) || (vars.path.sep === "\\" && a[0].toLowerCase() > b[0].toLowerCase())) {
+                        if (a[1] > b[1]) {
                             return 1;
                         }
+                        if (a[1] === b[1]) {
+                            if ((vars.path.sep === "/" && a[0] < b[0]) || (vars.path.sep === "\\" && a[0].toLowerCase() < b[0].toLowerCase())) {
+                                return -1;
+                            }
+                            if ((vars.path.sep === "/" && a[0] > b[0]) || (vars.path.sep === "\\" && a[0].toLowerCase() > b[0].toLowerCase())) {
+                                return 1;
+                            }
+                        }
+                        return 0;
+                    };
+                let index:number = 1;
+                if (data.search === null) {
+                    if (len > 1) {
+                        do {
+                            if (list[index][2] === 0) {
+                                local.push(list[index]);
+                            }
+                            index = index + 1;
+                        } while (index < len);
                     }
-                    return 0;
-                });
-                if (list[0][0] !== "\\") {
-                    local.splice(0, 0, list[0]);
+                    local.sort(sort);
+                    if (list[0][0] !== "\\") {
+                        local.splice(0, 0, list[0]);
+                    }
+                    service.dirs = local;
+                } else {
+                    list.sort(sort);
+                    service.dirs = list;
                 }
-                service.dirs = local;
                 service.failures = list.failures;
                 service.parent = list.parent;
                 complete();
@@ -146,17 +152,11 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             exclusions: [],
             parent: true,
             path: data.address,
-            relative: (data.search === null),
-            search: (data.search === null)
-                ? ""
-                : data.search,
+            relative: false,
+            search: data.search,
             symbolic: true
         };
-    if (data.search === null) {
-        directory(config_parent);
-    } else {
-        dirCallback(null);
-    }
+    directory(config_parent);
 };
 
 export default fileSystem;

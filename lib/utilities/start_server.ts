@@ -17,7 +17,7 @@ import test_index from "../test/index.ts";
 import universal from "../core/universal.ts";
 import vars from "../core/vars.ts";
 
-// cspell: words serv
+// cspell: words serv, stcp, sudp
 
 const start_server = function utilities_startServer(process_path:string, testing:boolean):void {
     const prerequisite_tasks:core_start_tasks = {
@@ -100,19 +100,21 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 section("dns-query", "DNS Query");
                                 section("file-system", "File System");
                                 section("hash", "Hash / Base64");
-                                section("http-test", "HTTP Test");
                                 section("interfaces", "Interfaces");
                                 section("os-machine", "OS/Machine");
                                 section("ports-application", "App Ports");
                                 section("processes", "Processes");
                                 section("servers-web", "Web Servers");
                                 section("services", "Services");
-                                section("sockets-application", "App Sockets");
-                                section("sockets-os", "OS Sockets");
+                                section("sockets-application-tcp", "App TCP Sockets");
+                                section("sockets-application-udp", "App UDP Sockets");
+                                section("sockets-os-tcp", "OS TCP Sockets");
+                                section("sockets-os-udp", "OS UDP Sockets");
                                 section("statistics", "Statistics");
                                 section("terminal", "Terminal");
+                                section("test-http", "HTTP Test");
+                                section("test-websocket", "WebSocket Test");
                                 section("users", "Users");
-                                section("websocket-test", "WebSocket Test");
                                 parent();
                                 vars.environment.dashboard_page = flags.html;
                             }
@@ -410,16 +412,29 @@ const start_server = function utilities_startServer(process_path:string, testing
                     }
                 }
             },
-            os_sock: {
-                label: "Gathers a list of known network sockets.",
+            os_stcp: {
+                label: "Gathers a list of known network TCP sockets.",
                 task: function utilities_startServer_taskOSSock():void {
-                    if (vars.environment.features["sockets-os"] === true) {
+                    if (vars.environment.features["sockets-os-tcp"] === true) {
                         const callback = function utilities_startServer_taskOSSock_callback():void {
-                            complete_tasks("os_sock");
+                            complete_tasks("os_stcp");
                         };
-                        os_lists("sock", callback);
+                        os_lists("stcp", callback);
                     } else {
-                        complete_tasks("os_sock");
+                        complete_tasks("os_stcp");
+                    }
+                }
+            },
+            os_sudp: {
+                label: "Gathers a list of known network UDP sockets.",
+                task: function utilities_startServer_taskOSSock():void {
+                    if (vars.environment.features["sockets-os-udp"] === true) {
+                        const callback = function utilities_startServer_taskOSSock_callback():void {
+                            complete_tasks("os_sudp");
+                        };
+                        os_lists("sudp", callback);
+                    } else {
+                        complete_tasks("os_sudp");
                     }
                 }
             },
@@ -476,6 +491,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 if (vars.environment.features["servers-web"] === true || config.servers[keys_srv[index_srv]].id === config.dashboard_id) {
                                     index_int = keys_int.length;
                                     server = {
+                                        certs: null,
                                         config: config.servers[keys_srv[index_srv]],
                                         sockets: [],
                                         status: {
@@ -640,7 +656,8 @@ const start_server = function utilities_startServer(process_path:string, testing
                         }
                     },
                     single_socket: false,
-                    temporary: false
+                    temporary: false,
+                    upgrade: true
                 },
                 start = function utilities_startServer_readComplete_start():void {
                     const servers:string[] = Object.keys(vars.servers),

@@ -4,7 +4,7 @@ const test_listLocalBrowserHTTP:test_list = [
     {
         delay: {
             node: [
-                ["getElementById", "http-test", null],
+                ["getElementById", "test-http", null],
                 ["getElementsByTagName", "h2", 0]
             ],
             qualifier: "greater",

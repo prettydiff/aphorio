@@ -1,7 +1,7 @@
 
 import vars from "../core/vars.ts";
 
-// cspell: words blockdevices, fsavail, fssize, fsused, fstype, mountpoint, partflags, pwsh, serv, volu
+// cspell: words blockdevices, fsavail, fssize, fsused, fstype, mountpoint, partflags, pwsh, serv, stcp, sudp, volu
 
 const test_listLocalCommands = function test_listLocalCommands():test_list {
     const win32:boolean = (process.platform === "win32"),
@@ -413,7 +413,7 @@ const test_listLocalCommands = function test_listLocalCommands():test_list {
             },
             // os.socT
             {
-                command: vars.commands.socT,
+                command: vars.commands.stcp,
                 name: "Command os.socT",
                 shell: shell,
                 type: "command",
@@ -488,7 +488,7 @@ const test_listLocalCommands = function test_listLocalCommands():test_list {
             // os.socU
             (win32 === true)
                 ? {
-                    command: vars.commands.socU,
+                    command: vars.commands.sudp,
                     name: "Command os.socU",
                     shell: shell,
                     type: "command",

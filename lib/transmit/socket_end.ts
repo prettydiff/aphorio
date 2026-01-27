@@ -17,7 +17,7 @@ const socket_end = function transmit_socketEnd(error:node_error):void {
                 ? new Error()
                 : error,
             message: `Socket type ${socket.type} with id ${socket.hash} from ${address_local} to ${address_remote} ended.`,
-            section: "sockets-application",
+            section: "sockets-application-tcp",
             status: "error",
             time: Date.now()
         };

@@ -4,7 +4,7 @@ import Chart from "chart.js/auto";
 // @ts-expect-error - TypeScript claims xterm has no default export, but this is how the documentation says to use it.
 import Terminal from "@xterm/xterm";
 
-// cspell: words bootable, PGID, PUID, serv
+// cspell: words bootable, PGID, PUID, serv, stcp, sudp, TLSA
 
 const ui = function ui():void {
     const dashboard:dashboard = {
@@ -119,9 +119,9 @@ const ui = function ui():void {
                                 "dashboard-hash": (dashboard.sections["hash"] === undefined)
                                     ? null
                                     : dashboard.sections["hash"].receive,
-                                "dashboard-http": (dashboard.sections["http-test"] === undefined)
+                                "dashboard-http": (dashboard.sections["test-http"] === undefined)
                                     ? null
-                                    : dashboard.sections["http-test"].receive,
+                                    : dashboard.sections["test-http"].receive,
                                 "dashboard-log": (dashboard.sections["application-logs"] === undefined)
                                     ? null
                                     : dashboard.sections["application-logs"].receive,
@@ -143,9 +143,12 @@ const ui = function ui():void {
                                 "dashboard-os-serv": (dashboard.sections["services"] === undefined)
                                     ? null
                                     : dashboard.sections["services"].receive,
-                                "dashboard-os-sock": (dashboard.sections["sockets-os"] === undefined)
+                                "dashboard-os-stcp": (dashboard.sections["sockets-os-tcp"] === undefined)
                                     ? null
-                                    : dashboard.sections["sockets-os"].receive,
+                                    : dashboard.sections["sockets-os-tcp"].receive,
+                                "dashboard-os-sudp": (dashboard.sections["sockets-os-udp"] === undefined)
+                                    ? null
+                                    : dashboard.sections["sockets-os-udp"].receive,
                                 "dashboard-os-user": (dashboard.sections["users"] === undefined)
                                     ? null
                                     : dashboard.sections["users"].receive,
@@ -154,19 +157,24 @@ const ui = function ui():void {
                                         ? null
                                         : dashboard.sections["ports-application"].receive
                                     : dashboard.sections["servers-web"].receive,
-                                "dashboard-socket-application": (dashboard.sections["sockets-application"] === undefined)
-                                    ? null
-                                    : dashboard.sections["sockets-application"].receive,
-                                "dashboard-status-clock": dashboard.utility.clock,
+                                "dashboard-socket-application": (dashboard.sections["sockets-application-tcp"] === undefined)
+                                    ? (dashboard.sections["sockets-application-udp"] === undefined)
+                                        ? null
+                                        : dashboard.sections["sockets-application-udp"].receive
+                                    : dashboard.sections["sockets-application-tcp"].receive,
                                 "dashboard-statistics-data": (dashboard.sections["statistics"] === undefined)
                                     ? null
                                     : dashboard.sections["statistics"].receive,
-                                "dashboard-websocket-message": (dashboard.sections["websocket-test"] === undefined)
+                                "dashboard-status-clock": dashboard.utility.clock,
+                                "dashboard-udp-status": (dashboard.sections["udp-socket"] === undefined)
                                     ? null
-                                    : dashboard.sections["websocket-test"].transmit.message_receive,
-                                "dashboard-websocket-status": (dashboard.sections["websocket-test"] === undefined)
+                                    : dashboard.sections["udp-socket"].receive,
+                                "dashboard-websocket-message": (dashboard.sections["test-websocket"] === undefined)
                                     ? null
-                                    : dashboard.sections["websocket-test"].transmit.status
+                                    : dashboard.sections["test-websocket"].transmit.message_receive,
+                                "dashboard-websocket-status": (dashboard.sections["test-websocket"] === undefined)
+                                    ? null
+                                    : dashboard.sections["test-websocket"].transmit.status
                             };
                         if (message_item.service === "dashboard-os-all") {
                             const data:core_server_os = message_item.data as core_server_os;
@@ -197,8 +205,8 @@ const ui = function ui():void {
                             if (dashboard.sections["services"] !== undefined) {
                                 dashboard.tables.populate(dashboard.sections["services"], data.serv);
                             }
-                            if (dashboard.sections["sockets-os"] !== undefined) {
-                                dashboard.tables.populate(dashboard.sections["sockets-os"], data.sock);
+                            if (dashboard.sections["sockets-os-tcp"] !== undefined) {
+                                dashboard.tables.populate(dashboard.sections["sockets-os-tcp"], data.stcp);
                             }
                             if (dashboard.sections["users"] !== undefined) {
                                 dashboard.tables.populate(dashboard.sections["users"], data.user);
@@ -256,13 +264,13 @@ const ui = function ui():void {
                                 service: "dashboard-log"
                             });
                         }
+                        init("application-logs");
                         init("compose-containers");
                         dashboard.tables.init(dashboard.sections["devices"]);
                         init("disks");
                         init("dns-query");
                         init("file-system");
                         init("hash");
-                        init("http-test");
                         init("interfaces");
                         init("os-machine");
                         dashboard.tables.init(dashboard.sections["ports-application"]);
@@ -273,11 +281,16 @@ const ui = function ui():void {
                             dashboard.sections["ports-application"].receive();
                         }
                         dashboard.tables.init(dashboard.sections["services"]);
-                        dashboard.tables.init(dashboard.sections["sockets-application"]);
-                        dashboard.tables.init(dashboard.sections["sockets-os"]);
+                        dashboard.tables.init(dashboard.sections["sockets-application-tcp"]);
+                        dashboard.tables.init(dashboard.sections["sockets-application-udp"]);
+                        dashboard.tables.init(dashboard.sections["sockets-os-tcp"]);
+                        dashboard.tables.init(dashboard.sections["sockets-os-udp"]);
+                        init("statistics");
                         init("terminal");
+                        init("test-http");
+                        init("test-websocket");
+                        init("udp-socket");
                         dashboard.tables.init(dashboard.sections["users"]);
-                        init("websocket-test");
                         dashboard.utility.nodes.main.style.display = "block";
                         dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
                         version.textContent = `version ${dashboard.global.payload.version}`;
@@ -297,8 +310,10 @@ const ui = function ui():void {
                 do {
                     index = index - 1;
                     table_key = [table_keys[index].slice(0, table_keys[index].lastIndexOf("-")), table_keys[index].slice(table_keys[index].lastIndexOf("-") + 1)];
-                    table = document.getElementById(table_key[0]).getElementsByTagName("table")[Number(table_key[1])];
-                    if (table !== undefined) {
+                    table = (document.getElementById(table_key[0]) === null)
+                        ? null
+                        : document.getElementById(table_key[0]).getElementsByTagName("table")[Number(table_key[1])];
+                    if (table !== undefined && table !== null) {
                         table.setAttribute("data-column", String(dashboard.global.state.tables[table_keys[index]].col));
                         table.getElementsByTagName("thead")[0].getElementsByTagName("th")[dashboard.global.state.tables[table_keys[index]].col].getElementsByTagName("button")[0].setAttribute("data-dir", String(dashboard.global.state.tables[table_keys[index]].dir));
                     }
@@ -355,11 +370,11 @@ const ui = function ui():void {
             // handle page resize
             window.onresize = dashboard.utility.resize;
             // @ts-expect-error - I am not extending the global window object type for this troubleshooting helper
-            window.show_payload = function dashboard_execute_showPayload():void {
-                // eslint-disable-next-line no-console
-                console.log(JSON.stringify(dashboard.global.payload).length);
-                // eslint-disable-next-line no-console
-                console.log(dashboard.global.payload);
+            window.show_payload = function dashboard_execute_showPayload():[string, transmit_dashboard] {
+                return [
+                    JSON.stringify(dashboard.global.payload).length.commas(),
+                    dashboard.global.payload
+                ];
             };
         },
         global: {
@@ -404,8 +419,15 @@ const ui = function ui():void {
         sections: {
             // application-logs start
             "application-logs": {
-                events: null,
-                init: null,
+                events: {
+                    resize: function dashboard_sections_applicationLog_resize():void {
+                        const output_height:number = window.innerHeight - 50;
+                        dashboard.sections["application-logs"].nodes.list.style.height = `${output_height / 10}em`;
+                    }
+                },
+                init: function dashboard_sections_applicationLog_init():void {
+                    dashboard.sections["application-logs"].events.resize();
+                },
                 nodes: {
                     list: document.getElementById("application-logs").getElementsByTagName("ul")[0]
                 },
@@ -437,7 +459,7 @@ const ui = function ui():void {
                         }
                     }
                     li.appendChild(p);
-                    if (dashboard.sections["application-logs"].nodes.list.childNodes.length > 100) {
+                    if (dashboard.sections["application-logs"].nodes.list.childNodes.length > dashboard.global.payload.logs_max) {
                         dashboard.sections["application-logs"].nodes.list.removeChild(dashboard.sections["application-logs"].nodes.list.lastChild);
                     }
                     dashboard.sections["application-logs"].nodes.list.insertBefore(li, dashboard.sections["application-logs"].nodes.list.firstChild);
@@ -1140,7 +1162,7 @@ const ui = function ui():void {
                                     if (types[index_types] === "SOA" && Array.isArray(result[hosts[index_hosts]].SOA) === false) {
                                         object(result[hosts[index_hosts]].SOA as node_dns_soaRecord, true);
                                     // array of objects
-                                    } else if ((types[index_types] === "CAA" || types[index_types] === "MX" || types[index_types] === "NAPTR" || types[index_types] === "SRV")) {
+                                    } else if ((types[index_types] === "CAA" || types[index_types] === "MX" || types[index_types] === "NAPTR" || types[index_types] === "SRV" || types[index_types] === "TLSA")) {
                                         record_object = result[hosts[index_hosts]][types[index_types]] as node_dns_soaRecord[];
                                         len_object = record_object.length;
                                         if (len_object < 1) {
@@ -1224,6 +1246,10 @@ const ui = function ui():void {
                         if (event.key.toLowerCase() === "enter") {
                             dashboard.sections["file-system"].events.send(event);
                         }
+                    },
+                    resize: function dashboard_sections_fileSystem_resize():void {
+                        const outer_height:number = (window.innerHeight - 490) / 10;
+                        dashboard.sections["file-system"].nodes.output.style.maxHeight = `${outer_height}em`;
                     },
                     send: function dashboard_sections_fileSystem_send(event:FocusEvent|KeyboardEvent):void {
                         const target:HTMLElement = (event === null)
@@ -1462,6 +1488,7 @@ const ui = function ui():void {
                     dashboard.sections["file-system"].media.other = document.createElement("p");
                     dashboard.sections["file-system"].media.other.textContent = "File is likely a binary format that cannot be previewed in a web browser.";
                     dashboard.sections["file-system"].media.pdf = document.createElement("iframe");
+                    dashboard.sections["file-system"].events.resize();
                 },
                 media: {
                     audio: null,
@@ -1492,7 +1519,9 @@ const ui = function ui():void {
                         summary:store_number = {
                             "block_device": 0,
                             "character_device": 0,
-                            "directory": -2,
+                            "directory": (fs.search === null)
+                                ? -2
+                                : 0,
                             "fifo_pipe": 0,
                             "file": 0,
                             "socket": 0,
@@ -1515,11 +1544,14 @@ const ui = function ui():void {
                             const item:type_directory_item = (index < 0)
                                     ? fs.parent
                                     : fs.dirs[index],
+                                seed:string = (fs.search === null)
+                                    ? fs.dirs[0][0]
+                                    : fs.parent[0],
                                 name:string = (index < 0)
                                     ? ".."
                                     : (index === 0 && fs.search === null && fs.address !== "\\")
                                         ? "."
-                                        : item[0],
+                                        : item[0].replace(seed.replace(/(\\|\/)\s*$/, "") + fs.sep, ""),
                                 name_raw:string = (index < 1)
                                     ? ((/^\w:(\\)?$/).test(fs.address) === true)
                                         ? "\\"
@@ -1605,7 +1637,7 @@ const ui = function ui():void {
                         dashboard.sections["file-system"].nodes.output.style.display = "none";
                     } else {
                         dashboard.sections["file-system"].nodes.output.style.display = "block";
-                        if (fs.parent !== null) {
+                        if (fs.parent !== null && fs.search === null) {
                             record(-1);
                         }
                         if (len > 0) {
@@ -1620,7 +1652,9 @@ const ui = function ui():void {
                     } else if (fs.dirs[0][1] === "directory" || fs.search !== null) {
                         const li:HTMLCollectionOf<HTMLElement> = dashboard.sections["file-system"].nodes.summary.getElementsByTagName("li");
                         li[0].getElementsByTagName("strong")[0].textContent = size.commas();
-                        li[1].getElementsByTagName("strong")[0].textContent = (fs.dirs.length - 1).commas();
+                        li[1].getElementsByTagName("strong")[0].textContent = (fs.search === null)
+                            ? (fs.dirs.length - 1).commas()
+                            : (fs.dirs.length).commas();
                         li[2].getElementsByTagName("strong")[0].textContent = summary.block_device.commas();
                         li[3].getElementsByTagName("strong")[0].textContent = summary.character_device.commas();
                         li[4].getElementsByTagName("strong")[0].textContent = summary.directory.commas();
@@ -1846,89 +1880,6 @@ const ui = function ui():void {
                 tools: null
             },
             // hash end
-            // http-test start
-            "http-test": {
-                events: {
-                    request: function dashboard_sections_http_request():void {
-                        const encryption:boolean = dashboard.sections["http-test"].nodes.encryption.checked,
-                            timeout:number = Number(dashboard.sections["http-test"].nodes.timeout.value),
-                            data:services_http_test = {
-                                body: "",
-                                encryption: encryption,
-                                headers: dashboard.sections["http-test"].nodes.request.value,
-                                stats: null,
-                                timeout: (isNaN(timeout) === true || timeout < 0)
-                                    ? 0
-                                    : Math.floor(timeout),
-                                uri: ""
-                            },
-                            strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["http-test"].nodes.stats.getElementsByTagName("strong");
-                        dashboard.utility.setState();
-                        dashboard.utility.message_send(data, "dashboard-http");
-                        dashboard.sections["http-test"].nodes.responseBody.value = "";
-                        dashboard.sections["http-test"].nodes.responseHeaders.value = "";
-                        dashboard.sections["http-test"].nodes.responseURI.value = "";
-                        strong[0].textContent = "";
-                        strong[1].textContent = "";
-                        strong[2].textContent = "";
-                        strong[3].textContent = "";
-                        strong[4].textContent = "";
-                        strong[5].textContent = "";
-                        strong[6].textContent = "";
-                        strong[7].textContent = "";
-                    }
-                },
-                init: function dashboard_sections_http_init():void {
-                    // populate a default HTTP test value
-                    dashboard.sections["http-test"].nodes.request.value = (dashboard.global.state.http === null || dashboard.global.state.http === undefined || typeof dashboard.global.state.http.request !== "string" || dashboard.global.state.http.request === "")
-                        ? dashboard.global.payload.http_request
-                        : dashboard.global.state.http.request;
-                    dashboard.sections["http-test"].nodes.http_request.onclick = dashboard.sections["http-test"].events.request;
-                    dashboard.sections["http-test"].nodes.responseBody.value = "";
-                    dashboard.sections["http-test"].nodes.responseHeaders.value = "";
-                    dashboard.sections["http-test"].nodes.responseURI.value = "";
-                    if (dashboard.global.state.http !== null && dashboard.global.state.http !== undefined && dashboard.global.state.http.encryption === true) {
-                        document.getElementById("http-test").getElementsByTagName("input")[1].checked =  true;
-                    } else {
-                        document.getElementById("http-test").getElementsByTagName("input")[0].checked =  true;
-                    }
-                },
-                nodes: {
-                    encryption: document.getElementById("http-test").getElementsByTagName("input")[1],
-                    http_request: document.getElementById("http-test").getElementsByClassName("send_request")[0] as HTMLButtonElement,
-                    request: document.getElementById("http-test").getElementsByTagName("textarea")[0],
-                    responseBody: document.getElementById("http-test").getElementsByTagName("textarea")[3],
-                    responseHeaders: document.getElementById("http-test").getElementsByTagName("textarea")[2],
-                    responseURI: document.getElementById("http-test").getElementsByTagName("textarea")[1],
-                    stats: document.getElementById("http-test").getElementsByClassName("summary-stats")[0] as HTMLElement,
-                    timeout: document.getElementById("http-test").getElementsByTagName("input")[2]
-                },
-                receive: function dashboard_sections_http_receive(data_item:socket_data):void {
-                    const data:services_http_test = data_item.data as services_http_test,
-                        strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["http-test"].nodes.stats.getElementsByTagName("strong");
-                    dashboard.sections["http-test"].nodes.responseBody.value = data.body;
-                    dashboard.sections["http-test"].nodes.responseHeaders.value = data.headers;
-                    dashboard.sections["http-test"].nodes.responseURI.value = data.uri;
-                    // round trip time
-                    strong[0].textContent = `${data.stats.time} seconds`;
-                    // response header size
-                    strong[1].textContent = data.stats.response.size_header.bytesLong();
-                    // response body size
-                    strong[2].textContent = data.stats.response.size_body.bytesLong();
-                    // chunked?
-                    strong[3].textContent = String(data.stats.chunks.chunked);
-                    // chunk count
-                    strong[4].textContent = data.stats.chunks.count.commas();
-                    // request header size
-                    strong[5].textContent = data.stats.request.size_header.bytesLong();
-                    // request body size
-                    strong[6].textContent = data.stats.request.size_body.bytesLong();
-                    // URI length
-                    strong[7].textContent = `${JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length.commas()} characters`;
-                },
-                tools: null
-            },
-            // http-test end
             // interfaces start
             "interfaces": {
                 events: null,
@@ -2582,7 +2533,7 @@ const ui = function ui():void {
                                     }
                                 }
                             },
-                            rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary"];
+                            rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
                         let serverData:services_server = null,
                             failures:number = 0;
                         ul.textContent = "";
@@ -2685,6 +2636,12 @@ const ui = function ui():void {
                         } else {
                             populate(false, "Optional property 'temporary' expects a boolean type value.");
                         }
+                        // upgrade
+                        if (typeof serverData.upgrade === "boolean") {
+                            populate(true, "Property 'upgrade' has boolean type value.");
+                        } else {
+                            populate(false, "Property 'temporary' expects a boolean type value.");
+                        }
                         // parent properties
                         key_test({
                             name: null,
@@ -2708,43 +2665,26 @@ const ui = function ui():void {
                 },
                 receive: function dashboard_sections_serversWeb_receive(socket_data:socket_data):void {
                     const list:string[] = Object.keys(socket_data.data),
-                        list_old:HTMLElement = dashboard.sections["servers-web"].nodes.list,
-                        list_new:HTMLElement = document.createElement("ul"),
+                        list_node:HTMLElement = dashboard.sections["servers-web"].nodes.list,
                         total:number = list.length;
-                    let index:number = 0,
-                        indexSocket:number = 0,
-                        totalSocket:number = 0;
+                    let index:number = 0;
                     dashboard.global.payload.servers = socket_data.data as store_servers;
                     dashboard.sections["servers-web"].nodes.service_new.onclick = dashboard.shared_services.create;
-                    list_new.setAttribute("class", list_old.getAttribute("class"));
                     list.sort(function dashboard_sections_serversWeb_receive_sort(a:string, b:string):-1|1 {
                         if (a < b) {
                             return -1;
                         }
                         return 1;
                     });
+                    list_node.textContent = "";
                     if (total > 0) {
                         do {
                             if (dashboard.global.payload.servers[list[index]].config !== undefined) {
-                                list_new.appendChild(dashboard.shared_services.title(dashboard.global.payload.servers[list[index]].config.id, "server"));
-                                totalSocket = dashboard.global.payload.servers[list[index]].sockets.length;
-                                if (dashboard.sections["sockets-application"] !== undefined && totalSocket > 0) {
-                                    indexSocket = 0;
-                                    do {
-                                        dashboard.sections["sockets-application"].receive({
-                                            data: dashboard.global.payload.sockets,
-                                            service: "dashboard-socket-application"
-                                        });
-                                        indexSocket = indexSocket + 1;
-                                    } while (indexSocket < totalSocket);
-                                }
+                                list_node.appendChild(dashboard.shared_services.title(dashboard.global.payload.servers[list[index]].config.id, "server"));
                             }
                             index = index + 1;
                         } while (index < total);
                     }
-                    list_old.parentNode.insertBefore(list_new, list_old);
-                    list_old.parentNode.removeChild(list_old);
-                    dashboard.sections["servers-web"].nodes.list = list_new;
                     if (dashboard.sections["ports-application"] !== undefined) {
                         dashboard.sections["ports-application"].receive();
                     }
@@ -2820,85 +2760,175 @@ const ui = function ui():void {
                 sort_name: ["name", "status", "description"]
             },
             // services end
-            // sockets-application start
-            "sockets-application": {
-                dataName: "sockets_application",
+            // sockets-application-tcp start
+            "sockets-application-tcp": {
+                dataName: "sockets-application-tcp",
                 nodes: {
-                    caseSensitive: document.getElementById("sockets-application").getElementsByTagName("input")[1],
-                    count: document.getElementById("sockets-application").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-                    filter_column: document.getElementById("sockets-application").getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("sockets-application").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
-                    filter_value: document.getElementById("sockets-application").getElementsByTagName("input")[0],
-                    list: document.getElementById("sockets-application").getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("sockets-application").getElementsByTagName("button")[0],
-                    update_text: document.getElementById("sockets-application").getElementsByTagName("time")[0]
+                    caseSensitive: document.getElementById("sockets-application-tcp").getElementsByTagName("input")[1],
+                    count: document.getElementById("sockets-application-tcp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("sockets-application-tcp").getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("sockets-application-tcp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("sockets-application-tcp").getElementsByTagName("input")[0],
+                    list: document.getElementById("sockets-application-tcp").getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("sockets-application-tcp").getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets-application-tcp").getElementsByTagName("time")[0]
                 },
                 receive: function dashboard_sections_socketsApplication_receive(socket_data:socket_data):void {
                     let tr:HTMLElement = null,
                         index:number = 0;
                     const config:services_socket_application = socket_data.data as services_socket_application,
-                        len:number = config.list.length,
-                        tbody:HTMLElement = dashboard.sections["sockets-application"].nodes.list,
+                        len:number = config.tcp.length,
+                        tbody:HTMLElement = dashboard.sections["sockets-application-tcp"].nodes.list,
                         table:HTMLElement = tbody.parentNode,
-                        cell = function dashboard_sections_socketsApplication_receive_cell(text:string, classy:string):void {
+                        cell = function dashboard_sections_socketsApplication_receive_cell(text:string, classy:string, raw:number):void {
                             const td:HTMLElement = document.createElement("td");
                             td.textContent = text;
                             if (classy !== null) {
                                 td.setAttribute("class", classy);
                                 td.setAttribute("title", text);
                             }
+                            if (raw !== null) {
+                                td.setAttribute("data-raw", String(raw));
+                            }
                             tr.appendChild(td);
-                        };
+                        },
+                        start:bigint = BigInt(config.time * 1e6);
                     tbody.textContent = "";
                     do {
                         tr = document.createElement("tr");
-                        cell(config.list[index].server_id, "server_id");
-                        cell(config.list[index].server_name, null);
-                        cell(config.list[index].hash, null);
-                        cell(config.list[index].type, null);
-                        cell(config.list[index].role, null);
-                        cell((config.list[index].proxy === null) ? "" : config.list[index].proxy, null);
-                        cell(String(config.list[index].encrypted), null);
-                        cell(config.list[index].address.local.address, null);
-                        cell(String(config.list[index].address.local.port), null);
-                        cell(config.list[index].address.remote.address, null);
-                        cell(String(config.list[index].address.remote.port), null);
-                        cell(config.list[index].userAgent, null);
+                        cell(config.tcp[index].server_id, "server_id", null);
+                        cell(config.tcp[index].server_name, null, null);
+                        cell(config.tcp[index].hash, null, null);
+                        cell(config.tcp[index].type, null, null);
+                        cell(config.tcp[index].role, null, null);
+                        cell((config.tcp[index].proxy === null) ? "" : config.tcp[index].proxy, null, null);
+                        cell(String(config.tcp[index].encrypted), null, null);
+                        cell(config.tcp[index].address.local.address, null, null);
+                        cell(String(config.tcp[index].address.local.port), null, null);
+                        cell(config.tcp[index].address.remote.address, null, null);
+                        cell(String(config.tcp[index].address.remote.port), null, null);
+                        cell(config.tcp[index].userAgent, null, null);
+                        cell(start.time(BigInt(config.tcp[index].time * 1e6)), null, config.tcp[index].time);
                         tbody.appendChild(tr);
                         index = index + 1;
                     } while (index < len);
-                    dashboard.sections["sockets-application"].nodes.count.textContent = tbody.getElementsByTagName("tr").length.commas();
-                    dashboard.sections["sockets-application"].nodes.update_text.textContent = config.time.dateTime(true, dashboard.global.payload.timeZone_offset);
-                    dashboard.tables.filter(null, dashboard.sections["sockets-application"].nodes.filter_value);
+                    dashboard.sections["sockets-application-tcp"].nodes.count.textContent = tbody.getElementsByTagName("tr").length.commas();
+                    dashboard.sections["sockets-application-tcp"].nodes.update_text.textContent = config.time.dateTime(true, dashboard.global.payload.timeZone_offset);
+                    dashboard.tables.filter(null, dashboard.sections["sockets-application-tcp"].nodes.filter_value);
                     dashboard.tables.sort(null, table, Number(table.dataset.column));
+                    if (dashboard.sections["sockets-application-udp"] !== undefined) {
+                        dashboard.sections["sockets-application-tcp"].sort_name[0] = "loaded";
+                        if (dashboard.sections["sockets-application-udp"].sort_name[0] === "") {
+                            dashboard.sections["sockets-application-udp"].receive(socket_data);
+                        } else {
+                            dashboard.sections["sockets-application-tcp"].sort_name[0] = "";
+                            dashboard.sections["sockets-application-udp"].sort_name[0] = "";
+                        }
+                    }
                 },
                 row: null,
-                sort_name: ["server", "type", "role", "name"],
+                sort_name: [""],
                 tools: {
                     update: function dashboard_sections_socketsApplication_update():void {
                         dashboard.utility.message_send(null, "dashboard-socket-application");
                     }
                 }
             },
-            // sockets-application end
-            // sockets-os start
-            "sockets-os": {
-                dataName: "sock",
+            // sockets-application-tcp end
+            // sockets-application-udp start
+            "sockets-application-udp": {
+                dataName: "sockets-application-udp",
                 nodes: {
-                    caseSensitive: document.getElementById("sockets-os").getElementsByTagName("input")[1],
-                    count: document.getElementById("sockets-os").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-                    filter_column: document.getElementById("sockets-os").getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("sockets-os").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
-                    filter_value: document.getElementById("sockets-os").getElementsByTagName("input")[0],
-                    list: document.getElementById("sockets-os").getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("sockets-os").getElementsByTagName("button")[0],
-                    update_text: document.getElementById("sockets-os").getElementsByTagName("time")[0]
+                    caseSensitive: document.getElementById("sockets-application-udp").getElementsByTagName("input")[1],
+                    count: document.getElementById("sockets-application-udp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("sockets-application-udp").getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("sockets-application-udp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("sockets-application-udp").getElementsByTagName("input")[0],
+                    list: document.getElementById("sockets-application-udp").getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("sockets-application-udp").getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets-application-udp").getElementsByTagName("time")[0]
+                },
+                receive: function dashboard_sections_socketsApplication_receive(socket_data:socket_data):void {
+                    let tr:HTMLElement = null,
+                        index:number = 0;
+                    const config:services_socket_application = socket_data.data as services_socket_application,
+                        len:number = config.udp.length,
+                        tbody:HTMLElement = dashboard.sections["sockets-application-udp"].nodes.list,
+                        table:HTMLElement = tbody.parentNode,
+                        cell = function dashboard_sections_socketsApplication_receive_cell(text:string, classy:string, raw:number):void {
+                            const td:HTMLElement = document.createElement("td");
+                            td.textContent = text;
+                            if (classy !== null) {
+                                td.setAttribute("class", classy);
+                                td.setAttribute("title", text);
+                            }
+                            if (raw !== null) {
+                                td.setAttribute("data-raw", String(raw));
+                            }
+                            tr.appendChild(td);
+                        },
+                        start:bigint = BigInt(config.time * 1e6);
+                    tbody.textContent = "";
+                    if (len > 0) {
+                        do {
+                            tr = document.createElement("tr");
+                            cell(config.udp[index].id, "server_id", null);
+                            cell(config.udp[index].address_local, null, null);
+                            cell(String(config.udp[index].port_local), null, null);
+                            cell(config.udp[index].address_remote, null, null);
+                            cell(String(config.udp[index].port_remote), null, null);
+                            cell(config.udp[index].role, null, null);
+                            cell(config.udp[index].multicast_group, null, null);
+                            cell(config.udp[index].multicast_interface, null, null);
+                            cell(config.udp[index].multicast_membership, null, null);
+                            cell(config.udp[index].multicast_source, null, null);
+                            cell(start.time(BigInt(config.udp[index].time * 1e6)), null, config.udp[index].time);
+                            tbody.appendChild(tr);
+                            index = index + 1;
+                        } while (index < len);
+                        dashboard.tables.sort(null, table, Number(table.dataset.column));
+                        dashboard.tables.filter(null, dashboard.sections["sockets-application-udp"].nodes.filter_value);
+                    } else {
+                        dashboard.sections["sockets-application-udp"].nodes.filter_count.textContent = "0";
+                    }
+                    dashboard.sections["sockets-application-udp"].nodes.count.textContent = tbody.getElementsByTagName("tr").length.commas();
+                    dashboard.sections["sockets-application-udp"].nodes.update_text.textContent = config.time.dateTime(true, dashboard.global.payload.timeZone_offset);
+                    if (dashboard.sections["sockets-application-tcp"] !== undefined) {
+                        dashboard.sections["sockets-application-udp"].sort_name[0] = "loaded";
+                        if (dashboard.sections["sockets-application-tcp"].sort_name[0] === "") {
+                            dashboard.sections["sockets-application-tcp"].receive(socket_data);
+                        } else {
+                            dashboard.sections["sockets-application-tcp"].sort_name[0] = "";
+                            dashboard.sections["sockets-application-udp"].sort_name[0] = "";
+                        }
+                    }
+                },
+                row: null,
+                sort_name: [""],
+                tools: {
+                    update: function dashboard_sections_socketsApplication_update():void {
+                        dashboard.utility.message_send(null, "dashboard-socket-application");
+                    }
+                }
+            },
+            // sockets-application-udp end
+            // sockets-os-tcp start
+            "sockets-os-tcp": {
+                dataName: "stcp",
+                nodes: {
+                    caseSensitive: document.getElementById("sockets-os-tcp").getElementsByTagName("input")[1],
+                    count: document.getElementById("sockets-os-tcp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("sockets-os-tcp").getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("sockets-os-tcp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("sockets-os-tcp").getElementsByTagName("input")[0],
+                    list: document.getElementById("sockets-os-tcp").getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("sockets-os-tcp").getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets-os-tcp").getElementsByTagName("time")[0]
                 },
                 receive: null,
                 row: function dashboard_sections_socketsOS_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_sock = record_item as os_sock;
                     let index:number = dashboard.global.payload.os.proc.data.length;
-                    dashboard.tables.cell(tr, record.type, null);
                     dashboard.tables.cell(tr, record["local-address"], null);
                     dashboard.tables.cell(tr, String(record["local-port"]), null);
                     dashboard.tables.cell(tr, record["remote-address"], null);
@@ -2918,9 +2948,48 @@ const ui = function ui():void {
                         dashboard.tables.cell(tr, "null", null);
                     }
                 },
-                sort_name: ["type", "local-address", "local-port", "remote-address", "remote-port"]
+                sort_name: ["local-address", "local-port", "remote-address", "remote-port"]
             },
-            // sockets-os end
+            // sockets-os-tcp end
+            // sockets-os-udp start
+            "sockets-os-udp": {
+                dataName: "sudp",
+                nodes: {
+                    caseSensitive: document.getElementById("sockets-os-udp").getElementsByTagName("input")[1],
+                    count: document.getElementById("sockets-os-udp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("sockets-os-udp").getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("sockets-os-udp").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("sockets-os-udp").getElementsByTagName("input")[0],
+                    list: document.getElementById("sockets-os-udp").getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("sockets-os-udp").getElementsByTagName("button")[0],
+                    update_text: document.getElementById("sockets-os-udp").getElementsByTagName("time")[0]
+                },
+                receive: null,
+                row: function dashboard_sections_socketsOS_row(record_item:type_lists, tr:HTMLElement):void {
+                    const record:os_sock = record_item as os_sock;
+                    let index:number = dashboard.global.payload.os.proc.data.length;
+                    dashboard.tables.cell(tr, record["local-address"], null);
+                    dashboard.tables.cell(tr, String(record["local-port"]), null);
+                    dashboard.tables.cell(tr, record["remote-address"], null);
+                    dashboard.tables.cell(tr, String(record["remote-port"]), null);
+                    if (record.process === 0) {
+                        dashboard.tables.cell(tr, "null", null);
+                        dashboard.tables.cell(tr, "null", null);
+                    } else {
+                        dashboard.tables.cell(tr, String(record.process), null);
+                        do {
+                            index = index - 1;
+                            if (dashboard.global.payload.os.proc.data[index] !== undefined && dashboard.global.payload.os.proc.data[index].id === record.process) {
+                                dashboard.tables.cell(tr, dashboard.global.payload.os.proc.data[index].name, null);
+                                return;
+                            }
+                        } while (index > 0);
+                        dashboard.tables.cell(tr, "null", null);
+                    }
+                },
+                sort_name: ["local-address", "local-port", "remote-address", "remote-port"]
+            },
+            // sockets-os-udp end
             // statistics start
             "statistics": {
                 events: {
@@ -3546,57 +3615,111 @@ const ui = function ui():void {
                 }
             },
             // terminal end
-            // users start
-            "users": {
-                dataName: "user",
+            // test-http start
+            "test-http": {
+                events: {
+                    request: function dashboard_sections_http_request():void {
+                        const encryption:boolean = dashboard.sections["test-http"].nodes.encryption.checked,
+                            timeout:number = Number(dashboard.sections["test-http"].nodes.timeout.value),
+                            data:services_http_test = {
+                                body: "",
+                                encryption: encryption,
+                                headers: dashboard.sections["test-http"].nodes.request.value,
+                                stats: null,
+                                timeout: (isNaN(timeout) === true || timeout < 0)
+                                    ? 0
+                                    : Math.floor(timeout),
+                                uri: ""
+                            },
+                            strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["test-http"].nodes.stats.getElementsByTagName("strong");
+                        dashboard.utility.setState();
+                        dashboard.utility.message_send(data, "dashboard-http");
+                        dashboard.sections["test-http"].nodes.responseBody.value = "";
+                        dashboard.sections["test-http"].nodes.responseHeaders.value = "";
+                        dashboard.sections["test-http"].nodes.responseURI.value = "";
+                        strong[0].textContent = "";
+                        strong[1].textContent = "";
+                        strong[2].textContent = "";
+                        strong[3].textContent = "";
+                        strong[4].textContent = "";
+                        strong[5].textContent = "";
+                        strong[6].textContent = "";
+                        strong[7].textContent = "";
+                    }
+                },
+                init: function dashboard_sections_http_init():void {
+                    // populate a default HTTP test value
+                    dashboard.sections["test-http"].nodes.request.value = (dashboard.global.state.http === null || dashboard.global.state.http === undefined || typeof dashboard.global.state.http.request !== "string" || dashboard.global.state.http.request === "")
+                        ? dashboard.global.payload.http_request
+                        : dashboard.global.state.http.request;
+                    dashboard.sections["test-http"].nodes.http_request.onclick = dashboard.sections["test-http"].events.request;
+                    dashboard.sections["test-http"].nodes.responseBody.value = "";
+                    dashboard.sections["test-http"].nodes.responseHeaders.value = "";
+                    dashboard.sections["test-http"].nodes.responseURI.value = "";
+                    if (dashboard.global.state.http !== null && dashboard.global.state.http !== undefined && dashboard.global.state.http.encryption === true) {
+                        document.getElementById("test-http").getElementsByTagName("input")[1].checked =  true;
+                    } else {
+                        document.getElementById("test-http").getElementsByTagName("input")[0].checked =  true;
+                    }
+                },
                 nodes: {
-                    caseSensitive: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
-                    count: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-                    filter_column: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
-                    filter_value: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
-                    list: document.getElementById("users").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                    update_text: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
+                    encryption: document.getElementById("test-http").getElementsByTagName("input")[1],
+                    http_request: document.getElementById("test-http").getElementsByClassName("send_request")[0] as HTMLButtonElement,
+                    request: document.getElementById("test-http").getElementsByTagName("textarea")[0],
+                    responseBody: document.getElementById("test-http").getElementsByTagName("textarea")[3],
+                    responseHeaders: document.getElementById("test-http").getElementsByTagName("textarea")[2],
+                    responseURI: document.getElementById("test-http").getElementsByTagName("textarea")[1],
+                    stats: document.getElementById("test-http").getElementsByClassName("summary-stats")[0] as HTMLElement,
+                    timeout: document.getElementById("test-http").getElementsByTagName("input")[2]
                 },
-                receive: null,
-                row: function dashboard_networkSocketOSRow(record_item:type_lists, tr:HTMLElement):void {
-                    const record:os_user = record_item as os_user,
-                        uid:string = String(record.uid),
-                        proc:string = String(record.proc);
-                    dashboard.tables.cell(tr, record.name, null);
-                    dashboard.tables.cell(tr, uid, uid);
-                    dashboard.tables.cell(tr, (record.lastLogin === 0)
-                        ? "never"
-                        : record.lastLogin.dateTime(true, null), String(record.lastLogin));
-                    dashboard.tables.cell(tr, proc, proc);
-                    dashboard.tables.cell(tr, record.type, null);
+                receive: function dashboard_sections_http_receive(data_item:socket_data):void {
+                    const data:services_http_test = data_item.data as services_http_test,
+                        strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["test-http"].nodes.stats.getElementsByTagName("strong");
+                    dashboard.sections["test-http"].nodes.responseBody.value = data.body;
+                    dashboard.sections["test-http"].nodes.responseHeaders.value = data.headers;
+                    dashboard.sections["test-http"].nodes.responseURI.value = data.uri;
+                    // round trip time
+                    strong[0].textContent = `${data.stats.time} seconds`;
+                    // response header size
+                    strong[1].textContent = data.stats.response.size_header.bytesLong();
+                    // response body size
+                    strong[2].textContent = data.stats.response.size_body.bytesLong();
+                    // chunked?
+                    strong[3].textContent = String(data.stats.chunks.chunked);
+                    // chunk count
+                    strong[4].textContent = data.stats.chunks.count.commas();
+                    // request header size
+                    strong[5].textContent = data.stats.request.size_header.bytesLong();
+                    // request body size
+                    strong[6].textContent = data.stats.request.size_body.bytesLong();
+                    // URI length
+                    strong[7].textContent = `${JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length.commas()} characters`;
                 },
-                sort_name: ["name", "uid", "lastLogin", "proc"]
+                tools: null
             },
-            // users end
-            // websocket-test start
-            "websocket-test": {
+            // test-http end
+            // test-websocket start
+            "test-websocket": {
                 connected: false,
                 events: {
                     handshakeSend: function dashboard_sections_websocketTest_handshakeSend():void {
-                        const timeout:number = Number(dashboard.sections["websocket-test"].nodes.handshake_timeout.value),
+                        const timeout:number = Number(dashboard.sections["test-websocket"].nodes.handshake_timeout.value),
                             payload:services_websocket_handshake = {
-                                encryption: (dashboard.sections["websocket-test"].nodes.handshake_scheme.checked === true),
-                                message: (dashboard.sections["websocket-test"].connected === true)
+                                encryption: (dashboard.sections["test-websocket"].nodes.handshake_scheme.checked === true),
+                                message: (dashboard.sections["test-websocket"].connected === true)
                                     ? ["disconnect"]
-                                    : dashboard.sections["websocket-test"].nodes.handshake.value.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\r\n/g, "\n").split("\n"),
+                                    : dashboard.sections["test-websocket"].nodes.handshake.value.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\r\n/g, "\n").split("\n"),
                                 timeout: (isNaN(timeout) === true)
                                     ? 0
                                     : timeout
                             };
-                        dashboard.sections["websocket-test"].timeout = payload.timeout;
-                        dashboard.sections["websocket-test"].nodes.status.value = "";
+                        dashboard.sections["test-websocket"].timeout = payload.timeout;
+                        dashboard.sections["test-websocket"].nodes.status.value = "";
                         dashboard.utility.message_send(payload, "dashboard-websocket-handshake");
                     },
                     keyup_frame: function dashboard_sections_websocketTest_keyupFrame(event:Event):void {
                         const encodeLength:TextEncoder = new TextEncoder(),
-                            text:string = dashboard.sections["websocket-test"].nodes.message_send_body.value,
+                            text:string = dashboard.sections["test-websocket"].nodes.message_send_body.value,
                             textLength:number = encodeLength.encode(text).length,
                             frame:websocket_frame = {
                                 extended: 0,
@@ -3613,7 +3736,7 @@ const ui = function ui():void {
                         let frame_try:websocket_frame = null;
                         // eslint-disable-next-line no-restricted-syntax
                         try {
-                            frame_try = dashboard.sections["websocket-test"].tools.parse_frame();
+                            frame_try = dashboard.sections["test-websocket"].tools.parse_frame();
                         // eslint-disable-next-line no-empty
                         } catch {}
                         if (frame_try !== null) {
@@ -3655,82 +3778,82 @@ const ui = function ui():void {
                         if (frame.mask === true) {
                             frame.startByte = frame.startByte + 4;
                         }
-                        if ((event === null || event.target === dashboard.sections["websocket-test"].nodes.message_send_frame) && frame.mask === true) {
+                        if ((event === null || event.target === dashboard.sections["test-websocket"].nodes.message_send_frame) && frame.mask === true) {
                             const encodeKey:TextEncoder = new TextEncoder;
                             frame.maskKey = encodeKey.encode(window.btoa(Math.random().toString() + Math.random().toString() + Math.random().toString()).replace(/0\./g, "").slice(0, 32)) as Buffer;
                         }
-                        dashboard.sections["websocket-test"].frameBeautify("send", JSON.stringify(frame));
+                        dashboard.sections["test-websocket"].frameBeautify("send", JSON.stringify(frame));
                     },
                     keyup_message: function dashboard_sections_websocketTest_keyupMessage(event:KeyboardEvent):void {
-                        dashboard.sections["websocket-test"].events.keyup_frame(event);
+                        dashboard.sections["test-websocket"].events.keyup_frame(event);
                     },
                     message_send: function dashboard_sections_websocketTest_messageSend():void {
                         const payload:services_websocket_message = {
-                            frame: dashboard.sections["websocket-test"].tools.parse_frame(),
-                            message: dashboard.sections["websocket-test"].nodes.message_send_body.value
+                            frame: dashboard.sections["test-websocket"].tools.parse_frame(),
+                            message: dashboard.sections["test-websocket"].nodes.message_send_body.value
                         };
                         dashboard.utility.message_send(payload, "dashboard-websocket-message");
-                        dashboard.sections["websocket-test"].events.keyup_frame(null);
+                        dashboard.sections["test-websocket"].events.keyup_frame(null);
                     }
                 },
                 frameBeautify: function dashboard_sections_websocketTest_frameBeautify(target:"receive"|"send", valueItem?:string):void {
                     const value:string = (valueItem === null || valueItem === undefined)
-                        ? dashboard.sections["websocket-test"].nodes[`message_${target}_frame`].value
+                        ? dashboard.sections["test-websocket"].nodes[`message_${target}_frame`].value
                         : valueItem;
-                    dashboard.sections["websocket-test"].nodes[`message_${target}_frame`].value = value
+                    dashboard.sections["test-websocket"].nodes[`message_${target}_frame`].value = value
                         .replace("{", "{\n    ")
                         .replace(/,/g, ",\n    ")
                         .replace(/,?\s*\}/, "\n}")
                         .replace(/:/g, ": ");
                 },
                 init: function dashboard_sections_websocketTest_init():void {
-                    const form:HTMLElement = dashboard.sections["websocket-test"].nodes.handshake_scheme.getAncestor("form", "class"),
+                    const form:HTMLElement = dashboard.sections["test-websocket"].nodes.handshake_scheme.getAncestor("form", "class"),
                         h4:HTMLElement = form.getElementsByTagName("h4")[0],
                         scheme:HTMLElement = form.getElementsByTagName("p")[1],
                         emOpen:HTMLElement = document.createElement("em"),
                         emSecure:HTMLElement = document.createElement("em");
-                    dashboard.sections["websocket-test"].tools.handshake();
-                    dashboard.sections["websocket-test"].nodes.button_handshake.onclick = dashboard.sections["websocket-test"].events.handshakeSend;
-                    dashboard.sections["websocket-test"].nodes.button_send.onclick = dashboard.sections["websocket-test"].events.message_send;
-                    dashboard.sections["websocket-test"].nodes.message_send_body.onkeyup = dashboard.sections["websocket-test"].events.keyup_message;
-                    dashboard.sections["websocket-test"].nodes.message_send_frame.onblur = dashboard.sections["websocket-test"].events.keyup_frame;
-                    dashboard.sections["websocket-test"].nodes.handshake_label.textContent = "";
+                    dashboard.sections["test-websocket"].tools.handshake();
+                    dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
+                    dashboard.sections["test-websocket"].nodes.button_send.onclick = dashboard.sections["test-websocket"].events.message_send;
+                    dashboard.sections["test-websocket"].nodes.message_send_body.onkeyup = dashboard.sections["test-websocket"].events.keyup_message;
+                    dashboard.sections["test-websocket"].nodes.message_send_frame.onblur = dashboard.sections["test-websocket"].events.keyup_frame;
+                    dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "";
                     if (isNaN(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.open) === true) {
-                        dashboard.sections["websocket-test"].nodes.handshake_scheme.checked = true;
+                        dashboard.sections["test-websocket"].nodes.handshake_scheme.checked = true;
                         h4.style.display = "none";
                         scheme.style.display = "none";
                         emSecure.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.secure);
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendText("secure - ");
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendChild(emSecure);
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendText("secure - ");
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
                     } else if (isNaN(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.secure) === true) {
-                        dashboard.sections["websocket-test"].nodes.handshake_scheme.checked = false;
+                        dashboard.sections["test-websocket"].nodes.handshake_scheme.checked = false;
                         h4.style.display = "none";
                         scheme.style.display = "none";
                         emOpen.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.open);
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendText("open - ");
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendChild(emOpen);
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
                     } else {
                         emOpen.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.open);
                         emSecure.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.secure);
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendText("open - ");
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendChild(emOpen);
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendText(", secure - ");
-                        dashboard.sections["websocket-test"].nodes.handshake_label.appendChild(emSecure);
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendText(", secure - ");
+                        dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
                     }
                 },
                 nodes: {
-                    button_handshake: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
-                    button_send: document.getElementById("websocket-test").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
-                    halt_receive: document.getElementById("websocket-test").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
-                    handshake: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                    handshake_label: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByClassName("ports")[0].getElementsByTagName("span")[0],
-                    handshake_scheme: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
-                    handshake_status: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
-                    handshake_timeout: document.getElementById("websocket-test").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
-                    message_receive_body: document.getElementById("websocket-test").getElementsByClassName("form")[3].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
-                    message_receive_frame: document.getElementById("websocket-test").getElementsByClassName("form")[3].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                    message_send_body: document.getElementById("websocket-test").getElementsByClassName("form")[2].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
-                    message_send_frame: document.getElementById("websocket-test").getElementsByClassName("form")[2].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                    button_handshake: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
+                    button_send: document.getElementById("test-websocket").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
+                    halt_receive: document.getElementById("test-websocket").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
+                    handshake: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                    handshake_label: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByClassName("ports")[0].getElementsByTagName("span")[0],
+                    handshake_scheme: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
+                    handshake_status: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                    handshake_timeout: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
+                    message_receive_body: document.getElementById("test-websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                    message_receive_frame: document.getElementById("test-websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
+                    message_send_body: document.getElementById("test-websocket").getElementsByClassName("form")[2].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
+                    message_send_frame: document.getElementById("test-websocket").getElementsByClassName("form")[2].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
                     status: document.getElementById("websocket-status") as HTMLTextAreaElement
                 },
                 receive: null,
@@ -3745,12 +3868,12 @@ const ui = function ui():void {
                         handshakeString.push("Connection: Upgrade");
                         handshakeString.push(`Sec-WebSocket-Key: ${key}`);
                         handshakeString.push(`Origin: ${location.origin}`);
-                        handshakeString.push("Sec-WebSocket-Protocol: websocket-test");
+                        handshakeString.push("Sec-WebSocket-Protocol: test-websocket");
                         handshakeString.push("Sec-WebSocket-Version: 13");
-                        dashboard.sections["websocket-test"].nodes.handshake.value = handshakeString.join("\n");
+                        dashboard.sections["test-websocket"].nodes.handshake.value = handshakeString.join("\n");
                     },
                     parse_frame: function dashboard_sections_websocketTest_parseFrame():websocket_frame {
-                        return JSON.parse(dashboard.sections["websocket-test"].nodes.message_send_frame.value
+                        return JSON.parse(dashboard.sections["test-websocket"].nodes.message_send_frame.value
                             .replace(/",\s+/g, "\",")
                             .replace(/\{\s+/, "{")
                             .replace(/,\s+\}/, "}"));
@@ -3758,53 +3881,222 @@ const ui = function ui():void {
                 },
                 transmit: {
                     message_receive: function dashboard_sections_websocketTest_messageReceive(data_item:socket_data):void {
-                        if ((dashboard.sections["websocket-test"].nodes.halt_receive.checked === true && dashboard.sections["websocket-test"].nodes.message_receive_frame.value !== "") || dashboard.sections["websocket-test"].nodes.halt_receive.checked === false) {
+                        if ((dashboard.sections["test-websocket"].nodes.halt_receive.checked === true && dashboard.sections["test-websocket"].nodes.message_receive_frame.value !== "") || dashboard.sections["test-websocket"].nodes.halt_receive.checked === false) {
                             const data:services_websocket_message = data_item.data as services_websocket_message;
-                            dashboard.sections["websocket-test"].nodes.message_receive_body.value = data.message;
-                            dashboard.sections["websocket-test"].frameBeautify("receive", JSON.stringify(data.frame));
+                            dashboard.sections["test-websocket"].nodes.message_receive_body.value = data.message;
+                            dashboard.sections["test-websocket"].frameBeautify("receive", JSON.stringify(data.frame));
                         }
                     },
                     status: function dashboard_sections_websocketTest_status(data_item:socket_data):void {
                         const data:services_websocket_status = data_item.data as services_websocket_status;
-                        dashboard.sections["websocket-test"].nodes.button_handshake.onclick = dashboard.sections["websocket-test"].events.handshakeSend;
+                        dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
                         if (data.connected === true) {
-                            dashboard.sections["websocket-test"].nodes.button_handshake.textContent = "Disconnect";
-                            dashboard.sections["websocket-test"].nodes.status.setAttribute("class", "connection-online");
-                            dashboard.sections["websocket-test"].nodes.status.lastChild.textContent = "Online";
-                            dashboard.sections["websocket-test"].connected = true;
-                            dashboard.sections["websocket-test"].nodes.message_receive_body.value = "";
-                            dashboard.sections["websocket-test"].nodes.message_receive_frame.value = "";
-                            dashboard.sections["websocket-test"].nodes.button_send.disabled = false;
+                            dashboard.sections["test-websocket"].nodes.button_handshake.textContent = "Disconnect";
+                            dashboard.sections["test-websocket"].nodes.status.setAttribute("class", "connection-online");
+                            dashboard.sections["test-websocket"].nodes.status.lastChild.textContent = "Online";
+                            dashboard.sections["test-websocket"].connected = true;
+                            dashboard.sections["test-websocket"].nodes.message_receive_body.value = "";
+                            dashboard.sections["test-websocket"].nodes.message_receive_frame.value = "";
+                            dashboard.sections["test-websocket"].nodes.button_send.disabled = false;
                         } else {
-                            dashboard.sections["websocket-test"].nodes.button_handshake.textContent = "Connect";
-                            dashboard.sections["websocket-test"].nodes.status.setAttribute("class", "connection-offline");
-                            dashboard.sections["websocket-test"].nodes.status.lastChild.textContent = "Offline";
-                            dashboard.sections["websocket-test"].connected = false;
-                            dashboard.sections["websocket-test"].nodes.button_send.disabled = true;
+                            dashboard.sections["test-websocket"].nodes.button_handshake.textContent = "Connect";
+                            dashboard.sections["test-websocket"].nodes.status.setAttribute("class", "connection-offline");
+                            dashboard.sections["test-websocket"].nodes.status.lastChild.textContent = "Offline";
+                            dashboard.sections["test-websocket"].connected = false;
+                            dashboard.sections["test-websocket"].nodes.button_send.disabled = true;
                         }
                         if (data.error === null) {
                             if (data.connected === true) {
-                                dashboard.sections["websocket-test"].nodes.handshake_status.value = "Connected.";
+                                dashboard.sections["test-websocket"].nodes.handshake_status.value = "Connected.";
                             } else {
-                                dashboard.sections["websocket-test"].nodes.handshake_status.value = "Disconnected.";
+                                dashboard.sections["test-websocket"].nodes.handshake_status.value = "Disconnected.";
                             }
                         } else if (typeof data.error === "string") {
-                            dashboard.sections["websocket-test"].nodes.handshake_status.value = data.error;
+                            dashboard.sections["test-websocket"].nodes.handshake_status.value = data.error;
                         } else {
                             let error:string = JSON.stringify(data.error);
                             if (data.error.code === "ETIMEDOUT") {
-                                dashboard.sections["websocket-test"].nodes.handshake_status.value = `WebSocket handshake exceeded the specified timeout of ${dashboard.sections["websocket-test"].timeout} milliseconds.`;
+                                dashboard.sections["test-websocket"].nodes.handshake_status.value = `WebSocket handshake exceeded the specified timeout of ${dashboard.sections["test-websocket"].timeout} milliseconds.`;
                             } else {
                                 if (typeof data.error !== "string" && data.error.code === "ECONNRESET") {
                                     error = `The server dropped the connection. Ensure the encryption options matches whether the server's port accepts encrypted traffic.\n\n${error}`;
                                 }
-                                dashboard.sections["websocket-test"].nodes.handshake_status.value = error;
+                                dashboard.sections["test-websocket"].nodes.handshake_status.value = error;
                             }
                         }
                     }
                 }
+            },
+            // test-websocket end
+            // udp-socket start
+            "udp-socket": {
+                events: {
+                    create: function dashboard_sections_udpSocket_create():void {
+                        const select:HTMLSelectElement = dashboard.sections["udp-socket"].nodes.multicast_interface.getElementsByTagName("select")[0],
+                            port_local:number = Number(dashboard.sections["udp-socket"].nodes.input_port_local.value.trim()),
+                            port_remote:number = Number(dashboard.sections["udp-socket"].nodes.input_port_remote.value.trim()),
+                            multicast_type:"membership"|"none"|"source" = (dashboard.sections["udp-socket"].nodes.input_multicast_membership.checked === true)
+                                ? "membership"
+                                : (dashboard.sections["udp-socket"].nodes.input_multicast_source.checked === true)
+                                    ? "source"
+                                    : "none",
+                            role:"client"|"server" = (dashboard.sections["udp-socket"].nodes.input_role_client.checked === true)
+                                ? "client"
+                                : "server",
+                            payload:services_udp_socket = {
+                                address_local: (role === "client")
+                                    ? dashboard.sections["udp-socket"].nodes.input_address_client.value
+                                    : dashboard.sections["udp-socket"].nodes.input_address_server.value,
+                                address_remote: null,
+                                handler: null,
+                                id: "",
+                                multicast_group: dashboard.sections["udp-socket"].nodes.multicast_group.getElementsByTagName("input")[0].value,
+                                multicast_interface: select[select.selectedIndex].textContent,
+                                multicast_membership: dashboard.sections["udp-socket"].nodes.multicast_source.getElementsByTagName("input")[0].value,
+                                multicast_source: dashboard.sections["udp-socket"].nodes.multicast_source.getElementsByTagName("input")[0].value,
+                                multicast_type: multicast_type,
+                                port_local: (role === "client" && isNaN(port_remote) === false)
+                                    ? port_remote
+                                    : (role === "server" && isNaN(port_local) === false)
+                                        ? port_local
+                                        : 0,
+                                port_remote: null,
+                                role: role,
+                                time: 0,
+                                type: (dashboard.sections["udp-socket"].nodes.input_type_ipv4.checked === true)
+                                    ? "ipv4"
+                                    : "ipv6"
+                            };
+                        dashboard.utility.message_send(payload, "dashboard-udp-socket");
+                    },
+                    toggle_multicast: function dashboard_sections_udpSocket_toggleMulticast():void {
+                        if (dashboard.sections["udp-socket"].nodes.input_multicast_membership.checked === true) {
+                            dashboard.sections["udp-socket"].nodes.multicast_group.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.multicast_interface.style.display = "block";
+                            dashboard.sections["udp-socket"].nodes.multicast_membership.style.display = "block";
+                            dashboard.sections["udp-socket"].nodes.multicast_source.style.display = "none";
+                        } else if (dashboard.sections["udp-socket"].nodes.input_multicast_none.checked === true) {
+                            dashboard.sections["udp-socket"].nodes.multicast_group.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.multicast_interface.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.multicast_membership.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.multicast_source.style.display = "none";
+                        } else {
+                            dashboard.sections["udp-socket"].nodes.multicast_group.style.display = "block";
+                            dashboard.sections["udp-socket"].nodes.multicast_interface.style.display = "block";
+                            dashboard.sections["udp-socket"].nodes.multicast_membership.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.multicast_source.style.display = "block";
+                        }
+                    },
+                    toggle_role: function dashboard_sections_udpSocket_toggleRole():void {
+                        if (dashboard.sections["udp-socket"].nodes.input_role_client.checked === true) {
+                            dashboard.sections["udp-socket"].nodes.toggle_client.style.display = "block";
+                            dashboard.sections["udp-socket"].nodes.toggle_server.style.display = "none";
+                        } else {
+                            dashboard.sections["udp-socket"].nodes.toggle_client.style.display = "none";
+                            dashboard.sections["udp-socket"].nodes.toggle_server.style.display = "block";
+                        }
+                    },
+                    toggle_type: function dashboard_sections_udpSocket_toggleType():void {
+                        const type:string = (dashboard.sections["udp-socket"].nodes.input_type_ipv4.checked === true)
+                                ? "IPv4"
+                                : "IPv6",
+                            labels:HTMLCollectionOf<HTMLElement> = document.getElementById("udp-socket").getElementsByTagName("label");
+                        let index:number = labels.length,
+                            span:HTMLElement = null;
+                        do {
+                            index = index - 1;
+                            span = labels[index].getElementsByTagName("span")[0];
+                            if (span !== undefined) {
+                                span.textContent = type;
+                            }
+                        } while (index > 0);
+                    }
+                },
+                init: function dashboard_sections_udpSocket_init():void {
+                    const keys:string[] = Object.keys(dashboard.global.payload.os.intr.data),
+                        len:number = keys.length,
+                        nodes:store_elements = dashboard.sections["udp-socket"].nodes,
+                        events:store_function = dashboard.sections["udp-socket"].events;
+                    nodes.button_create.onclick = events.create;
+                    nodes.input_multicast_membership.onclick = events.toggle_multicast;
+                    nodes.input_multicast_none.onclick = events.toggle_multicast;
+                    nodes.input_multicast_source.onclick = events.toggle_multicast;
+                    nodes.input_role_client.onclick = events.toggle_role;
+                    nodes.input_role_server.onclick = events.toggle_role;
+                    nodes.input_type_ipv4.onclick = events.toggle_type;
+                    nodes.input_type_ipv6.onclick = events.toggle_type;
+                    events.toggle_multicast();
+                    events.toggle_role();
+                    events.toggle_type();
+                    if (len > 0) {
+                        let index:number = 0,
+                            option:HTMLElement = null;
+                        do {
+                            option = document.createElement("option");
+                            option.textContent = keys[index];
+                            nodes.interfaces.appendChild(option);
+                            index = index + 1;
+                        } while (index < len);
+                    }
+                },
+                nodes: {
+                    button_create: document.getElementById("udp-socket").getElementsByClassName("form")[1].getElementsByTagName("button")[0],
+                    input_address_client: document.getElementById("udp-socket").getElementsByTagName("input")[12],
+                    input_address_server: document.getElementById("udp-socket").getElementsByTagName("input")[4],
+                    input_multicast_membership: document.getElementById("udp-socket").getElementsByTagName("input")[7],
+                    input_multicast_none: document.getElementById("udp-socket").getElementsByTagName("input")[8],
+                    input_multicast_source: document.getElementById("udp-socket").getElementsByTagName("input")[6],
+                    input_port_local: document.getElementById("udp-socket").getElementsByTagName("input")[5],
+                    input_port_remote: document.getElementById("udp-socket").getElementsByTagName("input")[13],
+                    input_role_client: document.getElementById("udp-socket").getElementsByTagName("input")[0],
+                    input_role_server: document.getElementById("udp-socket").getElementsByTagName("input")[1],
+                    input_type_ipv4: document.getElementById("udp-socket").getElementsByTagName("input")[2],
+                    input_type_ipv6: document.getElementById("udp-socket").getElementsByTagName("input")[3],
+                    interfaces: document.getElementById("udp-socket").getElementsByTagName("select")[0],
+                    multicast_group: document.getElementById("udp-socket").getElementsByClassName("udp-socket-multicast-group")[0] as HTMLElement,
+                    multicast_interface: document.getElementById("udp-socket").getElementsByClassName("udp-socket-multicast-interface")[0] as HTMLElement,
+                    multicast_membership: document.getElementById("udp-socket").getElementsByClassName("udp-socket-multicast-membership")[0] as HTMLElement,
+                    multicast_source: document.getElementById("udp-socket").getElementsByClassName("udp-socket-multicast-source")[0] as HTMLElement,
+                    status: document.getElementById("udp-socket").getElementsByClassName("udp-socket-status")[0] as HTMLElement,
+                    toggle_client: document.getElementById("udp-socket").getElementsByClassName("udp-role-client")[0] as HTMLElement,
+                    toggle_server: document.getElementById("udp-socket").getElementsByClassName("udp-role-server")[0] as HTMLElement
+                },
+                receive: function dashboard_sections_udpSocket_receive(socket_data:socket_data):void {
+                    const data:string[] = socket_data.data as string[];
+                    dashboard.sections["udp-socket"].nodes.status.textContent = data[0];
+                },
+                tools: {}
+            },
+            // udp-socket end
+            // users start
+            "users": {
+                dataName: "user",
+                nodes: {
+                    caseSensitive: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
+                    count: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
+                    list: document.getElementById("users").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
+                    update_text: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
+                },
+                receive: null,
+                row: function dashboard_networkSocketOSRow(record_item:type_lists, tr:HTMLElement):void {
+                    const record:os_user = record_item as os_user,
+                        uid:string = String(record.uid),
+                        proc:string = String(record.proc);
+                    dashboard.tables.cell(tr, record.name, null);
+                    dashboard.tables.cell(tr, uid, uid);
+                    dashboard.tables.cell(tr, (record.lastLogin === 0)
+                        ? "never"
+                        : record.lastLogin.dateTime(true, null), String(record.lastLogin));
+                    dashboard.tables.cell(tr, proc, proc);
+                    dashboard.tables.cell(tr, record.type, null);
+                },
+                sort_name: ["name", "uid", "lastLogin", "proc"]
             }
-            // websocket-test end
+            // users end
         },
         shared_services: {
             // back out of server and docker compose editing
@@ -3969,13 +4261,17 @@ const ui = function ui():void {
                                             ports: {
                                                 open: 0,
                                                 secure: 0
-                                            }
+                                            },
+                                            upgrade: false
                                         }
                                         : dashboard.global.payload.servers[id].config,
                                     output:string[] = [
                                             "{",
                                             `"activate": ${serverData.activate},`
                                         ];
+                                if (typeof serverData.activate !== "boolean") {
+                                    output.push("\"activate\": true,");
+                                }
                                 if (serverData.block_list !== null && serverData.block_list !== undefined) {
                                     output.push("\"block_list\": {");
                                     array(true, "host", serverData.block_list.host);
@@ -4007,11 +4303,11 @@ const ui = function ui():void {
                                     output.push(`    "secure": ${serverData.ports.secure}`);
                                 }
                                 output.push("},");
-                                if (serverData.redirect_domain !== undefined && serverData.redirect_domain !== null) {
-                                    object("redirect_domain");
-                                }
                                 if (serverData.redirect_asset !== undefined && serverData.redirect_asset !== null) {
                                     object("redirect_asset");
+                                }
+                                if (serverData.redirect_domain !== undefined && serverData.redirect_domain !== null) {
+                                    object("redirect_domain");
                                 }
                                 if (serverData.single_socket !== undefined && serverData.single_socket !== null) {
                                     if (serverData.single_socket === true) {
@@ -4022,10 +4318,13 @@ const ui = function ui():void {
                                 }
                                 if (serverData.temporary !== undefined && serverData.temporary !== null) {
                                     if (serverData.temporary === true) {
-                                        output.push("\"temporary\": true");
+                                        output.push("\"temporary\": true,");
                                     } else {
-                                        output.push("\"temporary\": false");
+                                        output.push("\"temporary\": false,");
                                     }
+                                }
+                                if (typeof serverData.upgrade !== "boolean") {
+                                    output.push("\"upgrade\": false");
                                 }
                                 output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
                                 return `${output.join("\n    ")}\n}`;
@@ -4245,8 +4544,10 @@ const ui = function ui():void {
                         "ports-application": dashboard.sections["ports-application"],
                         "processes": dashboard.sections["processes"],
                         "services": dashboard.sections["services"],
-                        "sockets-application": dashboard.sections["sockets-application"],
-                        "sockets-os": dashboard.sections["sockets-os"],
+                        "sockets-application-tcp": dashboard.sections["sockets-application-tcp"],
+                        "sockets-application-udp": dashboard.sections["sockets-application-udp"],
+                        "sockets-os-tcp": dashboard.sections["sockets-os-tcp"],
+                        "sockets-os-udp": dashboard.sections["sockets-os-udp"],
                         "users": dashboard.sections["users"]
                     },
                     module:module_list|section_ports_application|section_sockets_application = module_map[tab_name],
@@ -4347,9 +4648,12 @@ const ui = function ui():void {
                     select(module.nodes.list.parentNode, module.nodes.filter_column);
                     if (module.dataName === "ports_application") {
                         dashboard.tables.filter(null, module.nodes.filter_value);
-                    } else if (module.dataName === "sockets_application") {
+                    } else if (module.dataName === "sockets-application-tcp") {
                         dashboard.tables.filter(null, module.nodes.filter_value);
-                        module.nodes.update_button.onclick = dashboard.sections["sockets-application"].tools.update;
+                        module.nodes.update_button.onclick = dashboard.sections["sockets-application-tcp"].tools.update;
+                    } else if (module.dataName === "sockets-application-udp") {
+                        dashboard.tables.filter(null, module.nodes.filter_value);
+                        module.nodes.update_button.onclick = dashboard.sections["sockets-application-udp"].tools.update;
                     } else {
                         module.nodes.update_button.onclick = dashboard.tables.update;
                         module.nodes.update_button.setAttribute("data-list", module.dataName);
@@ -4539,8 +4843,10 @@ const ui = function ui():void {
                     status.setAttribute("class", "connection-offline");
                     status.getElementsByTagName("strong")[0].textContent = "Offline";
                     lists(dashboard.sections["interfaces"], false);
-                    lists(dashboard.sections["sockets-application"], true);
-                    lists(dashboard.sections["sockets-os"], true);
+                    lists(dashboard.sections["sockets-application-tcp"], true);
+                    lists(dashboard.sections["sockets-application-udp"], true);
+                    lists(dashboard.sections["sockets-os-tcp"], true);
+                    lists(dashboard.sections["sockets-os-udp"], true);
                     lists(dashboard.sections["devices"], true);
                     lists(dashboard.sections["disks"], false);
                     lists(dashboard.sections["processes"], true);
@@ -4629,12 +4935,12 @@ const ui = function ui():void {
                             dashboard.sections["terminal"].socket = null;
                         }
                     }
-                    if (dashboard.sections["websocket-test"] !== undefined) {
-                        dashboard.sections["websocket-test"].nodes.handshake_status.value = "Disconnected.";
-                        dashboard.sections["websocket-test"].nodes.button_handshake.textContent = "Connect";
-                        dashboard.sections["websocket-test"].nodes.status.setAttribute("class", "connection-offline");
-                        dashboard.sections["websocket-test"].nodes.message_receive_body.value = "";
-                        dashboard.sections["websocket-test"].nodes.message_receive_frame.value = "";
+                    if (dashboard.sections["test-websocket"] !== undefined) {
+                        dashboard.sections["test-websocket"].nodes.handshake_status.value = "Disconnected.";
+                        dashboard.sections["test-websocket"].nodes.button_handshake.textContent = "Connect";
+                        dashboard.sections["test-websocket"].nodes.status.setAttribute("class", "connection-offline");
+                        dashboard.sections["test-websocket"].nodes.message_receive_body.value = "";
+                        dashboard.sections["test-websocket"].nodes.message_receive_frame.value = "";
                     }
                     dashboard.utility.nodes.clock.textContent = "00:00:00L (00:00:00Z)";
                     dashboard.utility.nodes.load.textContent = "0.00000 seconds";
@@ -4680,6 +4986,12 @@ const ui = function ui():void {
             },
             // a universal bucket to store all resize event handlers
             resize: function dashboard_utility_resize():void {
+                if (dashboard.sections["application-logs"] !== undefined) {
+                    dashboard.sections["application-logs"].events.resize();
+                }
+                if (dashboard.sections["file-system"] !== undefined) {
+                    dashboard.sections["file-system"].events.resize();
+                }
                 if (dashboard.sections["terminal"] !== undefined && dashboard.sections["terminal"].socket !== null) {
                     dashboard.sections["terminal"].events.resize();
                 }
@@ -4763,17 +5075,6 @@ const ui = function ui():void {
                             dashboard.global.state.hash.source = dashboard.sections["hash"].nodes.source.value;
                         }
                     }
-                    if (dashboard.sections["http-test"] !== undefined) {
-                        if (dashboard.global.state.http === undefined || dashboard.global.state.http === null) {
-                            dashboard.global.state.http = {
-                                encryption: (dashboard.sections["http-test"].nodes.encryption.checked === true),
-                                request: dashboard.sections["http-test"].nodes.request.value
-                            };
-                        } else {
-                            dashboard.global.state.http.encryption = (dashboard.sections["http-test"].nodes.encryption.checked === true);
-                            dashboard.global.state.http.request = dashboard.sections["http-test"].nodes.request.value;
-                        }
-                    }
                     if (dashboard.sections["statistics"] !== undefined) {
                         dashboard.global.state.graph_display = dashboard.sections["statistics"].nodes.graph_display.selectedIndex;
                         dashboard.global.state.graph_type = dashboard.sections["statistics"].nodes.graph_type.selectedIndex;
@@ -4783,11 +5084,24 @@ const ui = function ui():void {
                             dashboard.global.state.terminal = dashboard.sections["terminal"].nodes.select[dashboard.sections["terminal"].nodes.select.selectedIndex].textContent;
                         }
                     }
+                    if (dashboard.sections["test-http"] !== undefined) {
+                        if (dashboard.global.state.http === undefined || dashboard.global.state.http === null) {
+                            dashboard.global.state.http = {
+                                encryption: (dashboard.sections["test-http"].nodes.encryption.checked === true),
+                                request: dashboard.sections["test-http"].nodes.request.value
+                            };
+                        } else {
+                            dashboard.global.state.http.encryption = (dashboard.sections["test-http"].nodes.encryption.checked === true);
+                            dashboard.global.state.http.request = dashboard.sections["test-http"].nodes.request.value;
+                        }
+                    }
                     lists(dashboard.sections["devices"]);
                     lists(dashboard.sections["processes"]);
                     lists(dashboard.sections["services"]);
-                    lists(dashboard.sections["sockets-application"]);
-                    lists(dashboard.sections["sockets-os"]);
+                    lists(dashboard.sections["sockets-application-tcp"]);
+                    lists(dashboard.sections["sockets-application-udp"]);
+                    lists(dashboard.sections["sockets-os-tcp"]);
+                    lists(dashboard.sections["sockets-os-udp"]);
                     lists(dashboard.sections["users"]);
                     localStorage.state = JSON.stringify(dashboard.global.state);
                 }

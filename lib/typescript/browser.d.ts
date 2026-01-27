@@ -1,4 +1,4 @@
-// cspell: words serv
+// cspell: words serv, stcp, sudp
 import Chart from "chart.js/auto";
 import { Terminal } from "@xterm/xterm";
 
@@ -44,7 +44,7 @@ declare global {
         bytesLong: () => string;
         commas: () => string;
         dateTime: (date:boolean, timezone_offset:number) => string;
-        time: () => string;
+        time: (start?:bigint) => string;
     }
 
     interface HTMLAudioElement {
@@ -77,26 +77,29 @@ declare global {
             state: state_store;
         };
         sections: {
-            "application-logs": module_sections;
+            "application-logs": section_applicationLogs;
             "compose-containers": section_compose_containers;
             "devices": section_devices;
             "disks": module_sections;
             "dns-query": section_dns_query;
             "file-system": section_file_system;
             "hash": section_hash;
-            "http-test": section_http_test;
             "interfaces": section_interfaces;
             "os-machine": section_os;
             "ports-application": section_ports_application;
             "processes": section_processes;
             "servers-web": section_servers_web;
             "services": section_services;
-            "sockets-application": section_sockets_application;
-            "sockets-os": section_sockets_os;
+            "sockets-application-tcp": section_sockets_application;
+            "sockets-application-udp": section_sockets_application;
+            "sockets-os-tcp": section_sockets_os;
+            "sockets-os-udp": section_sockets_os;
             "statistics": section_statistics;
             "terminal": section_terminal;
+            "test-http": section_http_test;
+            "test-websocket": section_websocket_test;
+            "udp-socket": section_udpSocket;
             "users": section_users;
-            "websocket-test": section_websocket_test;
         };
         shared_services: {
             cancel: (event:MouseEvent) => void;
@@ -277,6 +280,15 @@ declare global {
         };
     }
 
+    interface section_applicationLogs extends module_sections {
+        events: {
+            resize: () => void;
+        };
+        nodes: {
+            list: HTMLElement;
+        };
+    }
+
     interface section_compose_containers extends module_sections {
         events: {
             cancel_variable: (event:MouseEvent) => void;
@@ -327,6 +339,7 @@ declare global {
         block: boolean;
         events: {
             key: (event:KeyboardEvent) => void;
+            resize: () => void;
             send: (event:FocusEvent|KeyboardEvent) => void;
         };
         media: {
@@ -443,14 +456,14 @@ declare global {
     }
 
     interface section_sockets_application extends module_list {
-        dataName: "sockets_application";
+        dataName: "sockets-application-tcp" | "sockets-application-udp";
         tools: {
             update: () => void;
         };
     }
 
     interface section_sockets_os extends module_list {
-        dataName: "sock";
+        dataName: "stcp" | "sudp";
     }
 
     interface section_statistics extends module_sections {
@@ -514,6 +527,37 @@ declare global {
         };
         rows: number;
         socket: WebSocket;
+    }
+
+    interface section_udpSocket extends module_sections {
+        events: {
+            create: () => void;
+            toggle_multicast: () => void;
+            toggle_role: () => void;
+            toggle_type: () => void;
+        };
+        nodes: {
+            button_create: HTMLElement;
+            input_address_client: HTMLInputElement;
+            input_address_server: HTMLInputElement;
+            input_multicast_membership: HTMLInputElement;
+            input_multicast_none: HTMLInputElement;
+            input_multicast_source: HTMLInputElement;
+            input_port_local: HTMLInputElement;
+            input_port_remote: HTMLInputElement;
+            input_role_client: HTMLInputElement;
+            input_role_server: HTMLInputElement;
+            input_type_ipv4: HTMLInputElement;
+            input_type_ipv6: HTMLInputElement;
+            interfaces: HTMLSelectElement;
+            multicast_group: HTMLElement;
+            multicast_interface: HTMLElement;
+            multicast_membership: HTMLElement;
+            multicast_source: HTMLElement;
+            status: HTMLElement;
+            toggle_client: HTMLElement;
+            toggle_server: HTMLElement;
+        };
     }
 
     interface section_users extends module_list {

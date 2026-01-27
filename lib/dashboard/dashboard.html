@@ -1,7 +1,7 @@
 
 <!doctype html>
 <html lang="en">
-    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, IRSSI, keyrings, jellyfin, journalctl, kurkle, libcap, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, setgid, setuid, uptimeimages, winget -->
+    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, internetwork, IRSSI, keyrings, jellyfin, journalctl, kurkle, libcap, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, setgid, setuid, TLSA, uptimeimages, winget -->
 <head>
 <meta charset="utf-8"/>
 <title>Server Management Dashboard</title>
@@ -30,11 +30,11 @@
         <h2>Navigation</h2>
         <div class="first">
             <h3>Services</h3>
-            <ul><li><button class="nav-focus" data-section="servers-web">Web Servers</button></li><li><button data-section="compose-containers">Docker Compose</button></li><li><button data-section="statistics">Statistics</button></li></ul>
+            <ul><li><button class="nav-focus" data-section="servers-web">Web Servers</button></li><li><button data-section="compose-containers">Docker Compose</button></li><li><button data-section="udp-socket">UDP Socket</button></li><li><button data-section="statistics">Statistics</button></li></ul>
         </div>
         <div>
             <h3>Network</h3>
-            <ul><li><button data-section="interfaces">Interfaces</button></li><li><button data-section="ports-application">App Ports</button></li><li><button data-section="sockets-application">App Sockets</button></li><li><button data-section="sockets-os">OS Sockets</button></li></ul>
+            <ul><li><button data-section="interfaces">Interfaces</button></li><li><button data-section="ports-application">App Ports</button></li><li><button data-section="sockets-application-tcp">App TCP Sockets</button></li><li><button data-section="sockets-application-udp">App UDP Sockets</button></li><li><button data-section="sockets-os-tcp">OS TCP Sockets</button></li><li><button data-section="sockets-os-udp">OS UDP Sockets</button></li></ul>
         </div>
         <div>
             <h3>System</h3>
@@ -42,7 +42,11 @@
         </div>
         <div>
             <h3>Tools</h3>
-            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="http-test">HTTP Test</button></li><li><button data-section="websocket-test">WebSocket Test</button></li><li><button data-section="dns-query">DNS Query</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
+            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="dns-query">DNS Query</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
+        </div>
+        <div>
+            <h3>Network Tests</h3>
+            <ul><li><button data-section="test-http">HTTP Test</button></li><li><button data-section="test-websocket">WebSocket Test</button></li></ul>
         </div>
         <div>
             <h3>Informational</h3>
@@ -53,7 +57,7 @@
     <main>
         <!-- application-logs start -->
         <div class="tab" id="application-logs">
-            <h2>Logs</h2>
+            <h2>Application Logs</h2>
             <p class="tab-description">At this time logs are not saved outside the application, but do persist for the life of the application runtime.</p>
             <ul></ul>
         </div>
@@ -156,6 +160,8 @@
                     <dd>start of authority records</dd>
                     <dt>SRV</dt>
                     <dd>service records</dd>
+                    <dt>TLSA</dt>
+                    <dd>certificate associations</dd>
                     <dt>TXT</dt>
                     <dd>text records</dd>
                 </dl>
@@ -165,7 +171,7 @@
                 <h4>Query Direction</h4>
                 <p><label class="radio">DNS Name Resolve <input checked="checked" name="dns_direction" type="radio" value="resolve"/></label> <label class="radio">Reverse DNS Lookup <input checked="checked" name="dns_direction" type="radio" value="reverse"/></label></p>
                 <p><label>Comma separated list of domains and/or hostname entries <input type="text"/></label></p>
-                <p><label>Comma separated list of record types. Leave blank for all types. Supported types: A, AAAA, CAA, CNAME, MX, NAPTR, NS, PTR, SOA, SRV, TXT <input type="text"/></label></p>
+                <p><label>Comma separated list of record types. Leave blank for all types. Supported types: A, AAAA, CAA, CNAME, MX, NAPTR, NS, PTR, SOA, SRV, TLSA, TXT <input type="text"/></label></p>
                 <p class="buttons"><button>Execute Query</button></p>
             </div>
             <div class="section">
@@ -376,8 +382,8 @@
             </div>
             <div class="table-filters">
                 <h3>Input Controls</h3>
-                <p><label>Absolute file system path address. SMB shares not supported. <input spellcheck="false" type="text"/></label></p>
-                <p><label>Search token. Ignored if empty. Executes on press of 'Enter' key or loss of focus. <input spellcheck="false" type="text"/></label></p>
+                <p><label>Absolute file system path address. <input spellcheck="false" type="text"/></label> <span>SMB shared paths are not supported.</span></p>
+                <p><label>Search token. <input spellcheck="false" type="text"/></label> <span>Executes on press of 'Enter' key or loss of focus. Search values beginning with an exclamation are a negative search. Search values beginning and ending with a forward slash are regular expressions.</span></p>
                 <span class="clear"></span>
             </div>
             <div class="file-list">
@@ -434,24 +440,25 @@
                 </div>
             </div>
             <div class="form">
-                <h3>Function</h3>
+                <h3>Input</h3>
+                <h4>Function</h4>
                 <p>
                     <label class="radio">Generate Hash <input checked="checked" name="hash_function" type="radio" value="false"/></label>
                     <label class="radio">Base64 Encode <input name="hash_function" type="radio" value="true"/></label>
                 </p>
-                <h3>Input Source Type</h3>
+                <h4>Input Source Type</h4>
                 <p>
                     <label class="radio">String <input checked="checked" name="hash_type" type="radio" value="false"/></label>
                     <label class="radio">File <input name="hash_type" type="radio" value="true"/></label>
                 </p>
-                <h3>Hash Output Format</h3>
+                <h4>Hash Output Format</h4>
                 <p>
                     <label class="radio">Hexadecimal <input checked="checked" name="hash_digest" type="radio" value="false"/></label>
                     <label class="radio">Base64 <input name="hash_digest" type="radio" value="true"/></label>
                 </p>
-                <h3>Hash Algorithm</h3>
+                <h4>Hash Algorithm</h4>
                 <p><label>Choose one of all supported hash algorithms <select></select></label></p>
-                <h3>Input Value</h3>
+                <h4>Input Value</h4>
                 <p><label>Input must be a local absolute file system path if input type is <em>file</em>, otherwise provide any text value. <textarea spellcheck="spellcheck"></textarea></label></p>
                 <p class="buttons"><button>Generate Hash</button></p>
             </div>
@@ -598,75 +605,6 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- help end -->
-        <!-- http-test start -->
-        <div class="tab" id="http-test">
-            <h2>HTTP Test</h2>
-            <p class="tab-description">A means to write arbitrary HTTP requests and read the raw response.</p>
-            <div class="definitions">
-                <h3>HTTP Format (RFC 2616) <button class="expand">Expand</button></h3>
-                <div class="definition-body">
-                    <p>HTTP is a text-based application layer transmission protocol defined as <a href="https://datatracker.ietf.org/doc/html/rfc2616">RFC 2616</a>.</p>
-                    <p>The first line of an HTTP request a space separated list of method, resource path (also known as <em>end point</em>), and protocol.
-                        Each following line is separated by a CRLF (x0Dx0A) sequence. This application handles that formatting for you.
-                        The header portion of the request is separated from a body portion by an empty line, which is two or more consecutive sequences of CRLF.
-                        A body portion is optional and only used by certain HTTP methods. All lines after the first and before the body portion are headers.
-                        Each header gets its own line and is a case-insensitive name followed by a colon, zero or more spaces, and a text value.</p>
-                    <p>A <em>host</em> header is required and is generally the second line of the raw request string.
-                        The host value is taken from the domain portion of a web address.
-                        The domain portion of an address includes authentication, domain name, and port.
-                        The authentication portion is optional and rarely used.</p>
-                    <p>The port portion of a domain is optional and rarely included if connecting with plain text HTTP over port 80 or encrypted HTTPS over port 443.
-                        In all other cases the port number is a colon separated suffix to the domain name.
-                        In the case of an IPv6 address the domain name must be inclosed in square braces before specifying the port number, example: <strong>host: [2600:1700:1234:5678::a]:8081</strong>.</p>
-                    <ul>
-                        <li>The method is one of the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods">HTTP request methods</a>. <strong>GET</strong> is the most common.</li>
-                        <li>The end point looks like a Unix absolute file path always starting with a forward slash.</li>
-                        <li>The protocol is HTTP, forward slash, and a version number, such as <em>HTTP/1.1</em>.</li>
-                    </ul>
-                    <p>An HTTP request can be either plain text or a TLS encryption. That distinction is not provided in the HTTP header but is inferred by context.</p>
-                    <p>The default behavior of HTTP version 1.1 is to keep a socket open for multiple sequential request/response round trips. HTTP 1.0 does not have this capability, called <em>keep-alive</em>, and it forbidden in HTTP/2 and HTTP/3.  As a result, in HTTP/1.1, we must have an indicator different than socket termination to determine when a response completes. This following list determines response message completion.</p>
-                    <ul>
-                        <li>The socket closes.</li>
-                        <li>The response header is completed with the <em>"\r\n\r\n</em> empty line sequence and the response contains no body portion.</li>
-                        <li>The response header contains a heading <em>transfer-encoding: chunked</em> and the body terminates with a message chunk containing exactly <em>0\r\n\r\n</em>.</li>
-                        <li>The response header contains a heading <em>content-length</em> with a numeric value and the byte length, not character length, of the body portion only equals that header value.</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="form">
-                <h3>Request</h3>
-                <h4>Scheme</h4>
-                <p><label class="radio">Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
-                <h4>Timeout</h4>
-                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
-                <h4>Raw Request Text</h4>
-                <p><label>Complete raw HTTP request including header <textarea class="test-input" spellcheck="false"></textarea></label></p>
-                <p class="buttons"><button class="send_request">Send Request</button></p>
-            </div>
-            <div class="form">
-                <h3>Response</h3>
-                <div class="http_response">
-                    <p><label>URI <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
-                    <p><label>Response Headers <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
-                    <p class="float-last"><label>Response Body <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
-                    <span class="clear"></span>
-                </div>
-            </div>
-            <div class="summary-stats">
-                <h3>Statistics</h3>
-                <ul>
-                    <li><span>Response Time:</span> <strong></strong></li>
-                    <li><span>Response Header Size:</span> <strong></strong></li>
-                    <li><span>Response Body Size:</span> <strong></strong></li>
-                    <li><span>Response Chunked:</span> <strong></strong></li>
-                    <li><span>Response Chunk Count:</span> <strong></strong></li>
-                    <li><span>Request Header Size:</span> <strong></strong></li>
-                    <li><span>Request Body Size:</span> <strong></strong></li>
-                    <li><span>URI Length:</span> <strong></strong></li>
-                </ul>
-            </div>
-        </div>
-        <!-- http-test end -->
         <!-- interfaces start -->
         <div class="tab" id="interfaces">
             <h2>Network Interfaces</h2>
@@ -910,6 +848,12 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                                 Providing property <em>temporary</em> with value <em>true</em> will create a server that never writes configuration data.
                                 This server will be forever lost once this application closes.
                             </p></dd>
+                            <dt><em>upgrade</em> (boolean)</dt>
+                            <dd><p>
+                                Whether the server should upgrade open sockets to secure sockets when the <em>Upgrade-Insecure-Requests</em> HTTP request header is detected.
+                                This requires the given web server is running both a secure and open web server.
+                                This works by returning a 301 response to the requesting client for the same resource on the secure server's port with scheme HTTPS.
+                            </p></dd>
                         </dl>
                     </div>
                 </div>
@@ -951,19 +895,19 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- services end -->
-        <!-- sockets-application start -->
-        <div class="tab" id="sockets-application">
-            <h2>App Sockets</h2>
-            <p class="tab-description">A list of sockets created by this application. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time. Local address and port are from the perspective of the application server. Remote address and port could represent the local web browser.</p>
+        <!-- sockets-application-tcp start -->
+        <div class="tab" id="sockets-application-tcp">
+            <h2>App TCP Sockets</h2>
+            <p class="tab-description">A list of TCP sockets created by this application. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time. Local address and port are from the perspective of the application server. Remote address and port could represent the local web browser.</p>
             <div class="table-filters">
-                <h4>List Controls</h4>
+                <h3>List Controls</h3>
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
                 <span class="clear"></span>
             </div>
             <div class="section">
-                <h4>Socket List</h4>
+                <h3>TCP Socket List</h3>
                 <div class="table-stats">
                     <p class="update-button"><button>Update List</button></p>
                     <p><span>Total Sockets</span> <em></em></p>
@@ -984,25 +928,26 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <th><button data-dir="1">Remote IP</button></th>
                         <th><button data-dir="1">Remote Port</button></th>
                         <th><button data-dir="1">User Agent</button></th>
+                        <th><button data-dir="1">Age</button></th>
                     </tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
         </div>
-        <!-- sockets-application end -->
-        <!-- sockets-os start -->
-        <div class="tab" id="sockets-os">
-            <h2>OS Sockets</h2>
-            <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
+        <!-- sockets-application-tcp end -->
+        <!-- sockets-application-udp start -->
+        <div class="tab" id="sockets-application-udp">
+            <h2>App UDP Sockets</h2>
+            <p class="tab-description">A list of UDP sockets created by this application.</p>
             <div class="table-filters">
-                <h4>List Controls</h4>
+                <h3>List Controls</h3>
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
                 <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
                 <span class="clear"></span>
             </div>
             <div class="section">
-                <h4>Socket List</h4>
+                <h3>UDP Socket List</h3>
                 <div class="table-stats">
                     <p class="update-button"><button>Update List</button></p>
                     <p><span>Total Sockets</span> <em></em></p>
@@ -1011,7 +956,44 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
                 <table data-column="0">
                     <thead><tr>
-                        <th><button data-dir="1">Type</button></th>
+                            <th><button data-dir="1">Socket ID</button></th>
+                            <th><button data-dir="1">Local IP</button></th>
+                            <th><button data-dir="1">Local Port</button></th>
+                            <th><button data-dir="1">Remote IP</button></th>
+                            <th><button data-dir="1">Remote Port</button></th>
+                            <th><button data-dir="1">Role</button></th>
+                            <th><button data-dir="1">Multicast Group</button></th>
+                            <th><button data-dir="1">Multicast Interface</button></th>
+                            <th><button data-dir="1">Multicast Membership</button></th>
+                            <th><button data-dir="1">Multicast Source</button></th>
+                            <th><button data-dir="1">Age</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <!-- sockets-application-udp end -->
+        <!-- sockets-os-tcp start -->
+        <div class="tab" id="sockets-os-tcp">
+            <h2>OS TCP Sockets</h2>
+            <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
+            <div class="table-filters">
+                <h3>List Controls</h3>
+                <p><label>Column(s) To Filter <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
+            </div>
+            <div class="section">
+                <h3>Socket List</h3>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Sockets</span> <em></em></p>
+                    <p><span>Filtered Sockets</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
+                </div>
+                <table data-column="0">
+                    <thead><tr>
                         <th><button data-dir="1">Local Address</button></th>
                         <th><button data-dir="1">Local Port</button></th>
                         <th><button data-dir="1">Remote Address</button></th>
@@ -1023,15 +1005,48 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
-        <!-- sockets-os end -->
+        <!-- sockets-os-tcp end -->
+        <!-- sockets-os-udp start -->
+        <div class="tab" id="sockets-os-udp">
+            <h2>OS UDP Sockets</h2>
+            <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
+            <div class="table-filters">
+                <h3>List Controls</h3>
+                <p><label>Column(s) To Filter <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
+            </div>
+            <div class="section">
+                <h3>Socket List</h3>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Sockets</span> <em></em></p>
+                    <p><span>Filtered Sockets</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
+                </div>
+                <table data-column="0">
+                    <thead><tr>
+                        <th><button data-dir="1">Local Address</button></th>
+                        <th><button data-dir="1">Local Port</button></th>
+                        <th><button data-dir="1">Remote Address</button></th>
+                        <th><button data-dir="1">Remote Port</button></th>
+                        <th><button data-dir="1">Process ID</button></th>
+                        <th><button data-dir="1">Process Name</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <!-- sockets-os-udp end -->
         <!-- statistics start -->
         <div class="tab" id="statistics">
             <h2>Statistics</h2>
             <p class="tab-description">Providing a real time metrics for supported services.</p>
             <div class="table-filters">
                 <h3>Metric Controls</h3>
-                <p><label>Delay between updates in seconds <input spellcheck="false" type="text"/></label></p>
-                <p><label>Maximum number of data points <input spellcheck="false" type="text"/></label></p>
+                <p><label>Delay between updates in seconds <input spellcheck="false" type="number"/></label></p>
+                <p><label>Maximum number of data points <input spellcheck="false" type="number"/></label></p>
                 <p><label>Graph Type<select>
                     <option value="bar">bar</option>
                     <option value="line">line</option>
@@ -1106,40 +1121,94 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- terminal end -->
-        <!-- users start -->
-        <div class="tab" id="users">
-            <h2>Users</h2>
-            <p class="tab-description">A list of user accounts on the local operating system. Data automatically refreshes at server's midnight time.</p>
-            <div class="table-filters">
-                <h3>List Controls</h3>
-                <p><label>Column(s) To Filter  <select></select></label></p>
-                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
-                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
-                <span class="clear"></span>
-            </div>
-            <div class="section">
-                <h3>User List</h3>
-                <div class="table-stats">
-                    <p class="update-button"><button>Update List</button></p>
-                    <p><span>Total Users</span> <em></em></p>
-                    <p><span>Filtered Users</span> <em></em></p>
-                    <p><span>Last Updated</span> <time></time></p>
+        <!-- test-http start -->
+        <div class="tab" id="test-http">
+            <h2>HTTP Test</h2>
+            <p class="tab-description">A means to write arbitrary HTTP requests and read the raw response.</p>
+            <div class="definitions">
+                <h3>HTTP Format (RFC 2616) <button class="expand">Expand</button></h3>
+                <div class="definition-body">
+                    <p>HTTP is a text-based application layer transmission protocol defined as <a href="https://datatracker.ietf.org/doc/html/rfc2616">RFC 2616</a>.</p>
+                    <p>The first line of an HTTP request a space separated list of method, resource path (also known as <em>end point</em>), and protocol.
+                        Each following line is separated by a CRLF (x0Dx0A) sequence. This application handles that formatting for you.
+                        The header portion of the request is separated from a body portion by an empty line, which is two or more consecutive sequences of CRLF.
+                        A body portion is optional and only used by certain HTTP methods. All lines after the first and before the body portion are headers.
+                        Each header gets its own line and is a case-insensitive name followed by a colon, zero or more spaces, and a text value.</p>
+                    <p>A <em>host</em> header is required and is generally the second line of the raw request string.
+                        The host value is taken from the domain portion of a web address.
+                        The domain portion of an address includes authentication, domain name, and port.
+                        The authentication portion is optional and rarely used.</p>
+                    <p>The port portion of a domain is optional and rarely included if connecting with plain text HTTP over port 80 or encrypted HTTPS over port 443.
+                        In all other cases the port number is a colon separated suffix to the domain name.
+                        In the case of an IPv6 address the domain name must be inclosed in square braces before specifying the port number, example: <strong>host: [2600:1700:1234:5678::a]:8081</strong>.</p>
+                    <ul>
+                        <li>The method is one of the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods">HTTP request methods</a>. <strong>GET</strong> is the most common.</li>
+                        <li>The end point looks like a Unix absolute file path always starting with a forward slash.</li>
+                        <li>The protocol is HTTP, forward slash, and a version number, such as <em>HTTP/1.1</em>.</li>
+                    </ul>
+                    <p>An HTTP request can be either plain text or a TLS encryption. That distinction is not provided in the HTTP header but is inferred by context.</p>
+                    <p>
+                        The default behavior of HTTP version 1.1 is to keep a socket open for multiple sequential request/response round trips. HTTP 1.0 does not have this capability, called <em>keep-alive</em>, and it is forbidden in HTTP/2 and HTTP/3.
+                        As a result, in HTTP/1.1, we must have an indicator different than socket termination to determine when a response completes.
+                        This following list determines response message completion.
+                    </p>
+                    <ul>
+                        <li>The socket closes.</li>
+                        <li>The response header is completed with the <em>"\r\n\r\n</em> empty line sequence and the response contains no body portion.</li>
+                        <li>The response header contains a heading <em>transfer-encoding: chunked</em> and the body terminates with a message chunk containing exactly <em>0\r\n\r\n</em>.</li>
+                        <li>The response header contains a heading <em>content-length</em> with a numeric value and the byte length, not character length, of the body portion only equals that header value.</li>
+                    </ul>
+                    <p>
+                        Ideally HTTP requests should be sent to HTTP servers which then send an HTTP response and same for HTTPS requests to HTTPS servers.
+                        Things become more complex when HTTP responses are sent to HTTPS servers or HTTPS requests are sent to HTTP servers.
+                        All combinations are explained in this list.
+                    </p>
+                    <ul>
+                        <li>Sending an HTTP request to an HTTP server without a <em>Upgrade-Insecure-Requests: 1</em> header should expect a desired HTTP response.</li>
+                        <li>Sending an HTTP request to an HTTP server with a <em>Upgrade-Insecure-Requests: 1</em> header should expect to receive an HTTP 308 redirection response to a related HTTPS server.</li>
+                        <li>Sending a HTTPS request to an HTTP server should expect some form of failure, which could include an unexpected HTTP response or dropping the socket resulting in a socket timeout for the requestor.</li>
+                        <li>It is possible to configure an HTTP server to accept HTTPS requests by checking the first character of the first message on the socket. This application will proxy HTTPS requests to a HTTP server's peer HTTPS server if one is currently running, which silently tunnels HTTPS traffic through the HTTP server. This will appear to the requestor that the HTTP server is actually an HTTPS server while it isn't. This does not violate the cryptography of TLS, but could result in second-order security concerns by setting false expectations upon the server's identity..</li>
+                        <li>Sending an HTTPS request to an HTTPS server will result in a HTTPS response.</li>
+                        <li>Sending an HTTP request to an HTTPS server will result in a dropped socket. Secure servers cannot accept insecure connections.</li>
+                    </ul>
                 </div>
-                <table data-column="0">
-                    <thead><tr>
-                        <th><button data-dir="1">Name</button></th>
-                        <th><button data-dir="1">SID/UID</button></th>
-                        <th><button data-dir="1">Last Login</button></th>
-                        <th><button data-dir="1">Process Count</button></th>
-                        <th><button data-dir="1">Account Type</button></th>
-                    </tr></thead>
-                    <tbody></tbody>
-                </table>
+            </div>
+            <div class="form">
+                <h3>Request</h3>
+                <h4>Scheme</h4>
+                <p><label class="radio">Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
+                <h4>Timeout</h4>
+                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input spellcheck="false" type="number" value="0"/></label></p>
+                <h4>Raw Request Text</h4>
+                <p><label>Complete raw HTTP request including header <textarea class="test-input" spellcheck="false"></textarea></label></p>
+                <p class="buttons"><button class="send_request">Send Request</button></p>
+            </div>
+            <div class="form">
+                <h3>Response</h3>
+                <div class="http_response">
+                    <p><label>URI <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
+                    <p><label>Response Headers <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
+                    <p class="float-last"><label>Response Body <textarea readonly="readonly" spellcheck="false"></textarea></label></p>
+                    <span class="clear"></span>
+                </div>
+            </div>
+            <div class="summary-stats">
+                <h3>Statistics</h3>
+                <ul>
+                    <li><span>Response Time:</span> <strong></strong></li>
+                    <li><span>Response Header Size:</span> <strong></strong></li>
+                    <li><span>Response Body Size:</span> <strong></strong></li>
+                    <li><span>Response Chunked:</span> <strong></strong></li>
+                    <li><span>Response Chunk Count:</span> <strong></strong></li>
+                    <li><span>Request Header Size:</span> <strong></strong></li>
+                    <li><span>Request Body Size:</span> <strong></strong></li>
+                    <li><span>URI Length:</span> <strong></strong></li>
+                </ul>
             </div>
         </div>
-        <!-- users end -->
-        <!-- websocket-test start -->
-        <div class="tab" id="websocket-test">
+        <!-- test-http end -->
+        <!-- test-websocket start -->
+        <div class="tab" id="test-websocket">
             <h2>WebSocket Test</h2>
             <p class="tab-description">A tool to open and experiment with arbitrary WebSocket messaging.</p>
             <div class="definitions">
@@ -1198,7 +1267,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <h4>Scheme</h4>
                 <p><label class="radio">Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label> <em class="block">Ensure ports in the handshake message correspond to the scheme choice.</em></p>
                 <h4>Handshake Timeout</h4>
-                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input type="text" value="0"/></label></p>
+                <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input spellcheck="false" type="number" value="0"/></label></p>
                 <h4>Raw Handshake Message</h4>
                 <div class="http_response">
                     <p><label>Handshake message. <textarea class="test-input" spellcheck="false"></textarea></label></p>
@@ -1240,6 +1309,154 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
             </div>
         </div>
-        <!-- websocket-test end -->
+        <!-- test-websocket end -->
+        <!-- udp-socket start -->
+        <div class="tab" id="udp-socket">
+            <h2>UDP Socket</h2>
+            <p class="tab-description">Creates a UDP socket and binds it to a specified port.</p>
+            <div class="definitions">
+                <h3>UDP Reference Information <button class="expand">Expand</button></h3>
+                <div class="definition-body">
+                    <div class="section">
+                        <h4>Socket Traffic Distribution</h4>
+                        <p>A UDP socket may send traffic to a single socket end point, multiple socket end points, or all sockets on all interfaces.</p>
+                        <dl>
+                            <dt><em>unicast</em></dt>
+                            <dd>A unicast socket sends data to a single socket end point. This is most similar to TCP.</dd>
+                            <dt><em>multicast</em></dt>
+                            <dd>A multicast socket sends data to all socket end points in the socket's given multicast group. Multicast group membership may be designated by a specified IP in the multicast range or by multicast IP and interface identifier.</dd>
+                            <dt><em>broadcast</em></dt>
+                            <dd>A broadcast socket attempts to send data across all interfaces using a given network's broadcast address.</dd>
+                            <dt><em>anycast</em></dt>
+                            <dd>Anycast is a scheme where multiple destinations share a single address and traffic is routed to the first available of those destinations, such as a load balancer.</dd>
+                        </dl>
+                    </div>
+                    <div class="section">
+                        <h4>Multicast Address Ranges</h4>
+                        <p>IPv4 multicast ranges are as follows, per <a href="https://www.iana.org/assignments/multicast-addresses/multicast-addresses.xhtml">IANA definition</a>:</p>
+                        <ul>
+                            <li>
+                                General, Class D - <em>224.0.0.0 - 239.255.255.255</em> (224.0.0.0/4)
+                                <ul>
+                                    <li>Link Local - <em>224.0.0.0 - 224.0.0.255</em> (224.0.0.0/24)</li>
+                                    <li>
+                                        Globally Scoped - <em>224.0.1.0 - 238.255.255.255</em>
+                                        <ul>
+                                            <li>Internetwork Control Block - <em>224.0.1.0 - 224.0.1.255</em> (224.0.1.0/24)</li>
+                                            <li>AD HOC Block 1 - <em>224.0.2.0 - 224.0.255.255</em></li>
+                                            <li>Reserved - <em>224.1.0.0 - 224.1.255.255</em> (224.1.0.0/16)</li>
+                                            <li>SDP/SAP Block - <em>224.2.0.0 = 224.2.255.255</em> (224.2.0.0/16)</li>
+                                            <li>AD HOC Block 2 - <em>224.3.0.0 - 224.4.255.255</em> (224.3.0.0/24, 224.4.0.0/24)</li>
+                                            <li>Reserved - <em>224.5.0.0 - 224.251.255.255</em></li>
+                                            <li>DIS Transient - <em>224.252.0.0 - 224.255.255.255</em> (224.252.0.0/14)</li>
+                                            <li>Reserved - <em>225.0.0.0 - 231.255.255.255</em> (225.0.0.0/8, 226.0.0.0/7, 228.0.0.0/6)</li>
+                                            <li>
+                                                Source Specific Multicast - <em>232.0.0.0 - 232.255.255.255</em> (232.0.0.0/8)
+                                                <ul>
+                                                    <li>Reserved - <em>232.0.0.0</em></li>
+                                                    <li>Reserved to IANA - <em>232.0.0.1 - 232.0.0.255</em></li>
+                                                    <li>Reserved to Local Host - <em>232.0.1.0 - 232.255.255.255</em></li>
+                                                </ul>
+                                            </li>
+                                            <li>GLOP - <em>233.0.0.0 - 233.251.255.255</em></li>
+                                            <li>AD HOC Block 3 - <em>233.252.0.0 - 233.255.255.255</em> (233.252.0.0/14)</li>
+                                            <li>Unicast-Prefix Based Multicast - <em>234.0.0.0 - 234.255.255.255</em></li>
+                                            <li>Reserved Scoped Multicast - <em>235.0.0.0 - 238.255.255.255</em></li>
+                                            <li>Local-Scoped Multicast - <em>239.0.0.0 - 239.255.255.255</em> (239.0.0.0/8)</li>
+                                        </ul>
+                                    </li>
+                                    <li>Private - <em>239.0.0.0 - 239.255.255.255</em> (239.0.0.0/8)</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <p>IPv6 ranges are as follows, per <a href="https://www.iana.org/assignments/ipv6-multicast-addresses/ipv6-multicast-addresses.xhtml">IANA definition</a>. Please note that within the ranges below single address exceptions are noted by IANA.</p>
+                        <ul>
+                            <li>Node-Local Scope Multicast - <em>ff01::1 - ff01:ffff:ffff:ffff:ffff:ffff:ffff:ffff</em></li>
+                            <li>
+                                Link-Local Scope Multicast - <em>ff02::1 - ff02:ffff:ffff:ffff:ffff:ffff:ffff:ffff</em>
+                                <ul><li>Solicited Node Address - <em>ff02:0:0:0:0:1:ff00:0 - ff02:0:0:0:0:1:ffff:ffff</em></li></ul>
+                            </li>
+                            <li>Site-Local Scope Multicast - <em>ff05::1 - ff05::ffff:ffff:ffff:ffff:ffff:ffff:ffff</em></li>
+                            <li>Variable Scope Multicast - <em>ff0X::1 - ff0X::ffff:ffff:ffff:ffff:ffff:ffff:ffff</em>, where X is any accepted digit and address is not already specified</li>
+                            <li>Unicast-Based Multicast, IANA allocation - <em>ff3X::4000 - ff3X:0:0:0:0:0:7fff:ffff</em>, where X is any accepted digit and address is not already specified</li>
+                            <li>Unicase-Based Multicast, dynamic allocation - <em>ff3X::8000 - ff3X:0:0:0:0:0:ffff:ffff</em>, where X is any accepted digit and address is not already specified</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="form">
+                <h3>Create UDP Socket</h3>
+                <h4>Role</h4>
+                <p>
+                    <label class="radio">Connect (Client) <input name="udp-socket-role" type="radio" value="client"/></label>
+                    <label class="radio">Bind (Server) <input checked="checked" name="udp-socket-role" type="radio" value="server"/></label>
+                </p>
+                <h4>Address Type</h4>
+                <p>
+                    <label class="radio">IPv4 <input name="udp-socket-type" type="radio" value="ipv4"/></label>
+                    <label class="radio">IPv6 <input checked="checked" name="udp-socket-type" type="radio" value="ipv6"/></label>
+                </p>
+            </div>
+            <div class="udp-role-server">
+                <h3>Server Side Configurations</h3>
+                <p>For UDP sockets that act as a point of connection, like a server, they must be bound to a local port. These sockets can optionally become multicast and a multicast socket can either be configured against a local IP address identity or more restrictively against a remote IP address identity. Multicast identity is specific to one or all physical network interfaces of the local machine.</p>
+                <p><label>Local <span></span> Address, <em>optional</em> and limits the socket to a single address identity <input spellcheck="false" type="text"/></label></p>
+                <p><label>Local Port, defaults to a random port <input spellcheck="false" type="number"/></label></p>
+                <h4>Multicast Type</h4>
+                <p>
+                    <label class="multicast">Source Specific Multicast <input name="udp-socket-multicast" type="radio" value="source"/></label>
+                    <label class="multicast">Multicast Membership <input name="udp-socket-multicast" type="radio" value="membership"/></label>
+                    <label class="multicast">Not Multicast <input checked="checked" name="udp-socket-multicast" type="radio" value="none"/></label>
+                </p>
+                <p class="udp-socket-multicast-source"><label>Multicast Source <span></span> Address <input spellcheck="false" type="text"/></label></p>
+                <p class="udp-socket-multicast-group"><label>Multicast Group <span></span> Address <input spellcheck="false" type="text"/></label></p>
+                <p class="udp-socket-multicast-membership"><label>Multicast Membership <span></span> Address <input spellcheck="false" type="text"/></label></p>
+                <p class="udp-socket-multicast-interface"><label>Network Interface <select><option>All Interfaces</option></select></label></p>
+            </div>
+            <div class="udp-role-client">
+                <h3>Connecting Side Configurations</h3>
+                <p>A UDP socket that behaves as a client is merely a socket that connects to a remote address/port and all traffic on that socket, sent or received, will be limited to that remote. It will receive a random local port.</p>
+                <p><label>Destination <span></span> Address <input spellcheck="false" type="text"/></label></p>
+                <p><label>Destination Port <input spellcheck="false" type="number"/></label></p>
+            </div>
+            <div class="form">
+                <h3>Socket Creation</h3>
+                <p><button>Create Socket</button></p>
+                <p>Status: <em class="udp-socket-status"></em></p>
+            </div>
+        </div>
+        <!-- udp-socket end-->
+        <!-- users start -->
+        <div class="tab" id="users">
+            <h2>Users</h2>
+            <p class="tab-description">A list of user accounts on the local operating system. Data automatically refreshes at server's midnight time.</p>
+            <div class="table-filters">
+                <h3>List Controls</h3>
+                <p><label>Column(s) To Filter  <select></select></label></p>
+                <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
+                <p><label>Case Sensitive <input checked="checked" type="checkbox"/></label></p>
+                <span class="clear"></span>
+            </div>
+            <div class="section">
+                <h3>User List</h3>
+                <div class="table-stats">
+                    <p class="update-button"><button>Update List</button></p>
+                    <p><span>Total Users</span> <em></em></p>
+                    <p><span>Filtered Users</span> <em></em></p>
+                    <p><span>Last Updated</span> <time></time></p>
+                </div>
+                <table data-column="0">
+                    <thead><tr>
+                        <th><button data-dir="1">Name</button></th>
+                        <th><button data-dir="1">SID/UID</button></th>
+                        <th><button data-dir="1">Last Login</button></th>
+                        <th><button data-dir="1">Process Count</button></th>
+                        <th><button data-dir="1">Account Type</button></th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <!-- users end -->
     </main>
 <script type="module">replace_javascript</script></body></html>

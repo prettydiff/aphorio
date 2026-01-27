@@ -1,6 +1,6 @@
 
 
-/* cspell: words appdata, atupn, cputime, lslogins, pwsh, serv, volu */
+/* cspell: words appdata, atupn, cputime, lslogins, pwsh, serv, stcp, sudp, volu */
 
 const vars:core_vars = {
         // critical shell commands by operating system
@@ -17,8 +17,8 @@ const vars:core_vars = {
                     part: "",
                     proc: "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
                     serv: "systemctl list-units --type=service --all --output json",
-                    socT: "ss -atupn | tail -n +2 | tr -s \" \" \",\"",
-                    socU: "",
+                    stcp: "ss -atupn | tail -n +2 | tr -s \" \" \",\"",
+                    sudp: "",
                     user: "lslogins -o user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
                     volu: ""
 
@@ -34,8 +34,8 @@ const vars:core_vars = {
                     part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
                     proc: "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON -compress -depth 1",
                     serv: "Get-Service | ConvertTo-JSON -compress -depth 2",
-                    socT: "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2",
-                    socU: "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2",
+                    stcp: "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2",
+                    sudp: "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2",
                     user: "Get-LocalUser | ConvertTo-JSON -compress -depth 1",
                     volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
                 }
@@ -76,19 +76,22 @@ const vars:core_vars = {
                 "dns-query": true,
                 "file-system": true,
                 "hash": true,
-                "http-test": true,
                 "interfaces": true,
                 "os-machine": true,
                 "ports-application": true,
                 "processes": true,
                 "servers-web": true,
                 "services": true,
-                "sockets-application": true,
-                "sockets-os": true,
+                "sockets-application-tcp": true,
+                "sockets-application-udp": true,
+                "sockets-os-tcp": true,
+                "sockets-os-udp": true,
                 "statistics": true,
                 "terminal": true,
-                "users": true,
-                "websocket-test": true
+                "test-http": true,
+                "test-websocket": true,
+                "udp-socket": true,
+                "users": true
             },
             // whether linux "file" command is available in the OS system path
             file: false,
@@ -197,7 +200,11 @@ const vars:core_vars = {
                 data: [],
                 time: 0
             },
-            sock: {
+            stcp: {
+                data: [],
+                time: 0
+            },
+            sudp: {
                 data: [],
                 time: 0
             },
@@ -229,8 +236,9 @@ const vars:core_vars = {
         server_meta: {},
         // the list of objects describing sockets connected to this application
         sockets: {
-            list: [],
-            time: 0
+            tcp: [],
+            time: 0,
+            udp: []
         },
         // an information store necessary for calculating this application's portion of the OS performance statistics
         stats: {

@@ -341,6 +341,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             stat(decoded.replace("file-system-", ""));
         } else if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
+                log_len:number = vars.environment.logs.length,
+                logs_max:number = 5000,
                 payload:transmit_dashboard = {
                     compose: (vars.environment.features["compose-containers"] === true)
                         ? vars.compose
@@ -349,19 +351,22 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     hashes: (vars.environment.features["hash"] === true)
                         ? vars.environment.hashes
                         : null,
-                    http_request: (vars.environment.features["http-test"] === true)
+                    http_request: (vars.environment.features["test-http"] === true)
                         ? vars.environment.http_request
                         : null,
                     logs: (vars.environment.features["application-logs"] === true)
-                        ? vars.environment.logs
+                        ? (log_len > logs_max)
+                            ? vars.environment.logs.slice(log_len - logs_max)
+                            : vars.environment.logs
                         : null,
+                    logs_max: logs_max,
                     name: vars.environment.name,
                     os: vars.os,
                     path: vars.path,
                     servers: (vars.environment.features["servers-web"] === true)
                         ? vars.servers
                         : null,
-                    sockets: (vars.environment.features["sockets-application"] === true)
+                    sockets: (vars.environment.features["sockets-application-tcp"] === true || vars.environment.features["sockets-application-udp"] === true)
                         ? vars.sockets
                         : null,
                     stats: (vars.environment.features["statistics"] === true)

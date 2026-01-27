@@ -75,6 +75,9 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
         wsServer.id = id;
         wsServer.on("error", server_error);
         wsServer.on("close", server_error);
+        if (vars.servers[wsServer.id] !== undefined && options !== null) {
+            vars.servers[wsServer.id].certs = options.options;
+        }
 
         // insecure connection listener
         if (options === null) {

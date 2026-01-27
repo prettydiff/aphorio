@@ -29,6 +29,7 @@ interface transmit_dashboard {
     hashes: string[];
     http_request: string;
     logs: config_log[];
+    logs_max: number;
     name: string;
     os: core_server_os;
     path: core_vars_path;
@@ -71,7 +72,6 @@ interface transmit_linux_ip_stats {
     dropped: number;
     errors: number;
     packets: number;
-
 }
 
 interface transmit_receiver {
@@ -87,17 +87,36 @@ interface transmit_socket_messageHandler {
     [key:string]: websocket_message_handler;
 }
 
+interface transmit_tlsCerts {
+    ca: string;
+    cert: string;
+    key: string;
+}
+
 interface transmit_tlsOptions {
     fileFlag: {
         ca: boolean;
         crt: boolean;
         key: boolean;
     };
-    options: {
-        ca: string;
-        cert: string;
-        key: string;
-    };
+    options: transmit_tlsCerts;
+}
+
+interface transmit_udp extends node_dgram_Socket {
+    addresses: transmit_addresses_socket;
+    id: string;
+    multicast_type: "membership" | "none" | "source";
+    role: "client" | "server";
+    time: number;
+    type: "ipv4" | "ipv6";
+}
+
+interface transmit_udp_module {
+    closed: () => void;
+    create: (socket_data:socket_data, callback:(socket:transmit_udp) => void) => void;
+    handler: (socket:transmit_udp, handler:(message:Buffer) => void) => void;
+    list: (item:services_udp_socket, action:"add"|"remove", now:number) => void;
+    send: (socket:transmit_udp, message_item:Array<number>|Buffer|bigint|number|string) => void;
 }
 
 interface websocket_client extends node_tls_TLSSocket {
@@ -117,6 +136,7 @@ interface websocket_client extends node_tls_TLSSocket {
     secure: boolean;
     server: string;
     status: type_socket_status;
+    time: number;
     type: string;
     userAgent: string;
 }

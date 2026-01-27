@@ -121,7 +121,7 @@ const receiver = function transmit_receiver(buf:Buffer):void {
         return;
     }
 
-    if (socket.type === "websocket-test") {
+    if (socket.type === "test-websocket") {
         socket.handler(socket, payload, frame);
     }
     if (frame.opcode === 8) {
@@ -153,7 +153,7 @@ const receiver = function transmit_receiver(buf:Buffer):void {
         // this block may include frame.opcode === 0 - a continuation frame
         socket.frameExtended = frame.extended;
         if (frame.fin === true) {
-            if (socket.type !== "websocket-test") {
+            if (socket.type !== "test-websocket") {
                 socket.handler(socket, segment.subarray(0, socket.frameExtended), frame);
             }
             socket.fragment = segment.subarray(socket.frameExtended);

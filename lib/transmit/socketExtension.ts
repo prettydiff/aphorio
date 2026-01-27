@@ -14,7 +14,8 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         : "open";
     // permit if the socket is not already created
     if (vars.server_meta[config.server].sockets[encryption].includes(config.socket) === false) {
-        const ping = function transmit_socketExtension_ping(ttl:number, callback:(err:node_error, roundtrip:bigint) => void):void {
+        const now:number = Date.now(),
+            ping = function transmit_socketExtension_ping(ttl:number, callback:(err:node_error, roundtrip:bigint) => void):void {
                 const errorObject = function transmit_socketExtension_ping_errorObject(code:string, message:string):node_error {
                         const err:node_error = new Error();
                         err.code = code;
@@ -42,7 +43,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             encryption:"open"|"secure" = (config.socket.secure === true)
                 ? "secure"
                 : "open",
-            socket:services_socket_application_item = {
+            socket:services_socket_application_tcp = {
                 address: config.socket.addresses,
                 encrypted: (config.socket.encrypted === true),
                 hash: config.identifier,
@@ -52,22 +53,24 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 role: config.role,
                 server_id: config.server,
                 server_name: vars.servers[config.server].config.name,
+                time: now,
                 type: config.type,
                 userAgent: config.userAgent
             },
             log_config:config_log = {
                 error: null,
-                message: `Socket ${config.identifier} opened on ${encryption} server ${config.server}.`,
-                section: "sockets-application",
+                message: `Socket ${config.identifier} opened on ${encryption} server ${config.server} (${vars.servers[config.server].config.name}).`,
+                section: "sockets-application-tcp",
                 status: "informational",
-                time: Date.now()
+                time: now
             };
         config.socket.server = config.server;      // identifies which local server the given socket is connected to
         config.socket.hash = config.identifier;    // assigns a unique identifier to the socket based upon the socket's credentials
         config.socket.role = config.role;          // assigns socket creation location
+        config.socket.time = now;                  // socket creation time
         config.socket.type = config.type;          // a classification identifier to functionally identify a common utility of sockets on a given server
         config.socket.userAgent = config.userAgent;// Attempts to describe the socket by originating OS and browser name/version
-        if (config.type === "websocket-test" || config.proxy === null) {
+        if (config.type === "test-websocket" || config.proxy === null) {
             config.socket.handler = (config.handler === message_handler.default)
                 ? (message_handler[config.server] === undefined)
                     ? config.handler

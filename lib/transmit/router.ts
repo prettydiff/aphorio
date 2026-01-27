@@ -10,6 +10,7 @@ import socket_list from "../services/socket_list.ts";
 import statistics from "../services/statistics.ts";
 import terminal from "../services/terminal.ts";
 import test_runner from "../test/runner.ts";
+import udp_socket from "../services/udp_socket.ts";
 import websocket_test from "../services/websocket.ts";
 
 // cspell: words serv
@@ -36,6 +37,7 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-socket-application": socket_list,
             "dashboard-statistics-change": statistics.change,
             "dashboard-terminal-resize": terminal.resize,
+            "dashboard-udp-socket": udp_socket,
             "dashboard-websocket-handshake": websocket_test.handshake,
             "dashboard-websocket-message": websocket_test.message,
             "test-browser": test_runner.receive
