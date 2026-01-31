@@ -3076,7 +3076,26 @@ const ui = function ui():void {
                     });
                 },
                 graph_config: {
-                    colors: ["rgba(204,170,51,1)", "rgba(153,102,0,1)", "rgba(221,102,0,1)", "rgba(182,32,0,1)", "rgba(64,164,21,1)", "rgba(153,53,127,1)", "rgba(27,82,153,1)", "rgba(128,128,128,1)", "rgba(192,192,192,1)"],
+                    colors: [
+                        "rgba(204,170,51,1)",
+                        "rgba(153,102,0,1)",
+                        "rgba(221,102,0,1)",
+                        "rgba(182,32,0,1)",
+                        "rgba(64,164,21,1)",
+                        "rgba(153,53,127,1)",
+                        "rgba(27,82,153,1)",
+                        "rgba(128,128,128,1)",
+                        "rgba(192,192,192,1)",
+                        "rgba(104,170,71,1)",
+                        "rgba(53,102,70,1)",
+                        "rgba(21,102,120,1)",
+                        "rgba(82,32,140,1)",
+                        "rgba(164,164,221,1)",
+                        "rgba(53,53,227,1)",
+                        "rgba(27,182,253,1)",
+                        "rgba(28,78,198,1)",
+                        "rgba(92,92,92,1)"
+                    ],
                     labels: {
                         cpu: "CPU Usage, % and Millisecond Value",
                         disk_in: "Read",
@@ -3151,6 +3170,7 @@ const ui = function ui():void {
                                     };
                                 let index_key:number = 0;
                                 if (len > 0) {
+                                    const len_color:number = dashboard.sections["statistics"].graph_config.colors.length;
                                     index_key = 0;
                                     do {
                                         if (dashboard.global.payload.stats.containers[keys[index_key]] !== undefined && dashboard.global.payload.stats.containers[keys[index_key]] !== null) {
@@ -3171,7 +3191,7 @@ const ui = function ui():void {
                                             });
                                         }
                                         index_key = index_key + 1;
-                                    } while (index_key < len);
+                                    } while (index_key < len && index_key < len_color);
                                     index_key = 0;
                                     do {
                                         names.push((index_key + 1).toString());
