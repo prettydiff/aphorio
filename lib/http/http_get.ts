@@ -401,6 +401,15 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             }
             return;
         }
+        write([
+            "HTTP/1.1 404",
+            "content-type: text/html",
+            `content-length: 0`,
+            "server: prettydiff/aphorio",
+            "accept-ranges: bytes",
+            "",
+            ""
+        ].join("\r\n"));
     } else if (fileFragment === "") {
         // server root html file takes the name of the server, not index.html
         stat(`${path}index.html`);

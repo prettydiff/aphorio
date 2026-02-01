@@ -657,7 +657,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                     },
                     single_socket: false,
                     temporary: false,
-                    upgrade: true
+                    upgrade: false
                 },
                 start = function utilities_startServer_readComplete_start():void {
                     const servers:string[] = Object.keys(vars.servers),

@@ -551,7 +551,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     p::selection,
     span::selection,
     sup::selection,
-    td::selection{background-color:var(--text);color:var(--background)}
+    td::selection{background-color:var(--text);color:var(--black)}
 
     em::selection,
     strong::selection,

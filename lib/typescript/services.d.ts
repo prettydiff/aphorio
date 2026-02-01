@@ -286,7 +286,7 @@ interface services_udp_socket {
     address_local: string;
     address_remote: string;
     handler: (message:Buffer) => void;
-    id: string;
+    hash: string;
     multicast_group: string;
     multicast_interface: string;
     multicast_membership: string;
