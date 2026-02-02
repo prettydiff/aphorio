@@ -104,7 +104,7 @@ interface transmit_tlsOptions {
 
 interface transmit_udp extends node_dgram_Socket {
     addresses: transmit_addresses_socket;
-    id: string;
+    hash: string;
     multicast_type: "membership" | "none" | "source";
     role: "client" | "server";
     time: number;

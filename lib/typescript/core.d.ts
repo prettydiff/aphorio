@@ -322,6 +322,7 @@ interface core_vars {
         total_time_start: bigint;
     };
     text: store_string;
+    udp: Array<transmit_udp>;
 }
 
 interface core_vars_path {

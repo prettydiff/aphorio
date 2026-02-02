@@ -2467,8 +2467,7 @@ const ui = function ui():void {
                                         }
                                         if (indexSupported > 0) {
                                             let upper:string = null,
-                                                key:string = null,
-                                                keys:string[] = null;
+                                                key:string = null;
                                             do {
                                                 indexSupported = indexSupported - 1;
                                                 upper = config.supported[indexSupported].toUpperCase();
@@ -2487,7 +2486,10 @@ const ui = function ui():void {
                                                         } else {
                                                             delete serverData.method[key as "delete"].port;
                                                         }
-                                                        keys = Object.keys(delete serverData.method[key as "delete"]);
+                                                        delete serverData.method[key as "delete"];
+                                                        if (keys.includes("delete") === true) {
+                                                            keys.splice(keys.indexOf("delete"), 1);
+                                                        }
                                                         if (keys.length > 0) {
                                                             populate(false, `Property method.${key} contains unsupported child properties.`);
                                                         }
@@ -2640,7 +2642,7 @@ const ui = function ui():void {
                         if (typeof serverData.upgrade === "boolean") {
                             populate(true, "Property 'upgrade' has boolean type value.");
                         } else {
-                            populate(false, "Property 'temporary' expects a boolean type value.");
+                            populate(false, "Property 'upgrade' expects a boolean type value.");
                         }
                         // parent properties
                         key_test({
@@ -2872,7 +2874,7 @@ const ui = function ui():void {
                     if (len > 0) {
                         do {
                             tr = document.createElement("tr");
-                            cell(config.udp[index].id, "server_id", null);
+                            cell(config.udp[index].hash, "server_id", null);
                             cell(config.udp[index].address_local, null, null);
                             cell(String(config.udp[index].port_local), null, null);
                             cell(config.udp[index].address_remote, null, null);
@@ -3076,7 +3078,26 @@ const ui = function ui():void {
                     });
                 },
                 graph_config: {
-                    colors: ["rgba(204,170,51,1)", "rgba(153,102,0,1)", "rgba(221,102,0,1)", "rgba(182,32,0,1)", "rgba(64,164,21,1)", "rgba(153,53,127,1)", "rgba(27,82,153,1)", "rgba(128,128,128,1)", "rgba(192,192,192,1)"],
+                    colors: [
+                        "rgba(204,170,51,1)",
+                        "rgba(153,102,0,1)",
+                        "rgba(221,102,0,1)",
+                        "rgba(182,32,0,1)",
+                        "rgba(64,164,21,1)",
+                        "rgba(153,53,127,1)",
+                        "rgba(27,82,153,1)",
+                        "rgba(128,128,128,1)",
+                        "rgba(192,192,192,1)",
+                        "rgba(104,170,71,1)",
+                        "rgba(53,102,70,1)",
+                        "rgba(221,72,220,1)",
+                        "rgba(82,32,140,1)",
+                        "rgba(164,164,221,1)",
+                        "rgba(53,53,227,1)",
+                        "rgba(27,182,253,1)",
+                        "rgba(28,18,198,1)",
+                        "rgba(92,92,92,1)"
+                    ],
                     labels: {
                         cpu: "CPU Usage, % and Millisecond Value",
                         disk_in: "Read",
@@ -3151,6 +3172,7 @@ const ui = function ui():void {
                                     };
                                 let index_key:number = 0;
                                 if (len > 0) {
+                                    const len_color:number = dashboard.sections["statistics"].graph_config.colors.length;
                                     index_key = 0;
                                     do {
                                         if (dashboard.global.payload.stats.containers[keys[index_key]] !== undefined && dashboard.global.payload.stats.containers[keys[index_key]] !== null) {
@@ -3171,7 +3193,7 @@ const ui = function ui():void {
                                             });
                                         }
                                         index_key = index_key + 1;
-                                    } while (index_key < len);
+                                    } while (index_key < len && index_key < len_color);
                                     index_key = 0;
                                     do {
                                         names.push((index_key + 1).toString());
@@ -3949,7 +3971,7 @@ const ui = function ui():void {
                                     : dashboard.sections["udp-socket"].nodes.input_address_server.value,
                                 address_remote: null,
                                 handler: null,
-                                id: "",
+                                hash: "",
                                 multicast_group: dashboard.sections["udp-socket"].nodes.multicast_group.getElementsByTagName("input")[0].value,
                                 multicast_interface: select[select.selectedIndex].textContent,
                                 multicast_membership: dashboard.sections["udp-socket"].nodes.multicast_source.getElementsByTagName("input")[0].value,
@@ -4323,7 +4345,9 @@ const ui = function ui():void {
                                         output.push("\"temporary\": false,");
                                     }
                                 }
-                                if (typeof serverData.upgrade !== "boolean") {
+                                if (typeof serverData.upgrade === "boolean") {
+                                    output.push(`"upgrade": ${serverData.upgrade}`);
+                                } else {
                                     output.push("\"upgrade\": false");
                                 }
                                 output[output.length - 1] = output[output.length - 1].replace(/,$/, "");

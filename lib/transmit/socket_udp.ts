@@ -8,11 +8,21 @@ const socket_udp:transmit_udp_module = {
     closed: function transmit_socketUDP_closed():void {
         // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
         const socket:transmit_udp = this;
+        let index:number = vars.udp.length;
+        if (index > 0) {
+            do {
+                index = index - 1;
+                if (vars.udp[index].hash === socket.hash) {
+                    vars.udp.splice(index, 1);
+                    break;
+                }
+            } while (index > 0);
+        }
         socket_udp.list({
             address_local: "",
             address_remote: "",
             handler: null,
-            id: socket.id,
+            hash: socket.hash,
             multicast_interface: "",
             multicast_group: "",
             multicast_membership: "",
@@ -69,8 +79,8 @@ const socket_udp:transmit_udp_module = {
                             data.address_remote = socket.addresses.remote.address;
                             data.port_local = socket.addresses.local.port;
                             data.port_remote = socket.addresses.remote.port;
-                            data.id = hash_output.hash;
-                            socket.id = hash_output.hash;
+                            data.hash = hash_output.hash;
+                            socket.hash = hash_output.hash;
                             data.time = now;
                             socket.time = now;
                             socket.on("close", socket_udp.closed);
@@ -83,8 +93,7 @@ const socket_udp:transmit_udp_module = {
                             if (callback !== null) {
                                 callback(socket);
                             }
-                            // 1. need to pass in handler
-                            // 2. send a status message, if socket_data.service === dashboard-udp-socket
+                            vars.udp.push(socket);
                         },
                         digest: "hex",
                         hash_input_type: "direct",
@@ -158,7 +167,7 @@ const socket_udp:transmit_udp_module = {
             if (index > 0) {
                 do {
                     index = index - 1;
-                    if (vars.sockets.udp[index].id === item.id) {
+                    if (vars.sockets.udp[index].hash === item.hash) {
                         vars.sockets.udp.splice(index, 1);
                         break;
                     }
