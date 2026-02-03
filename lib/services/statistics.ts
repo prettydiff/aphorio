@@ -368,6 +368,7 @@ const statistics:core_statistics = {
                 }
                 vars.stats.containers.application[`net_${type}`].data.push(start);
             },
+            // trim off excess data intervals
             splice = function services_statisticsData_splice(item:number[]|string[], empty_labels:boolean):void {
                 const len:number = item.length;
                 if (empty_labels === true) {
@@ -380,7 +381,18 @@ const statistics:core_statistics = {
                         item.splice(0, len - vars.stats.records);
                     }
                 }
-            };
+            },
+            keys:string[] = Object.keys(vars.stats.containers),
+            dockers:string[] = Object.keys(vars.compose.containers);
+        let key:number = keys.length;
+        if (key > 0) {
+            do {
+                key = key - 1;
+                if (dockers.includes(keys[key]) === false && keys[key] !== "application") {
+                    delete vars.stats.containers[keys[key]];
+                }
+            } while (key > 0);
+        }
         if (vars.stats.containers.application === undefined) {
             empty("application");
         }
