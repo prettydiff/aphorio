@@ -287,7 +287,9 @@ const vars:core_vars = {
             red      : "\u001b[31m",
             underline: "\u001b[4m",
             yellow   : "\u001b[33m"
-        }
+        },
+        // stores UDP sockets
+        udp: []
     };
 
 export default vars;

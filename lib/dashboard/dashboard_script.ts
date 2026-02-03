@@ -2467,8 +2467,7 @@ const ui = function ui():void {
                                         }
                                         if (indexSupported > 0) {
                                             let upper:string = null,
-                                                key:string = null,
-                                                keys:string[] = null;
+                                                key:string = null;
                                             do {
                                                 indexSupported = indexSupported - 1;
                                                 upper = config.supported[indexSupported].toUpperCase();
@@ -2487,7 +2486,10 @@ const ui = function ui():void {
                                                         } else {
                                                             delete serverData.method[key as "delete"].port;
                                                         }
-                                                        keys = Object.keys(delete serverData.method[key as "delete"]);
+                                                        delete serverData.method[key as "delete"];
+                                                        if (keys.includes("delete") === true) {
+                                                            keys.splice(keys.indexOf("delete"), 1);
+                                                        }
                                                         if (keys.length > 0) {
                                                             populate(false, `Property method.${key} contains unsupported child properties.`);
                                                         }
@@ -2640,7 +2642,7 @@ const ui = function ui():void {
                         if (typeof serverData.upgrade === "boolean") {
                             populate(true, "Property 'upgrade' has boolean type value.");
                         } else {
-                            populate(false, "Property 'temporary' expects a boolean type value.");
+                            populate(false, "Property 'upgrade' expects a boolean type value.");
                         }
                         // parent properties
                         key_test({
@@ -2872,7 +2874,7 @@ const ui = function ui():void {
                     if (len > 0) {
                         do {
                             tr = document.createElement("tr");
-                            cell(config.udp[index].id, "server_id", null);
+                            cell(config.udp[index].hash, "server_id", null);
                             cell(config.udp[index].address_local, null, null);
                             cell(String(config.udp[index].port_local), null, null);
                             cell(config.udp[index].address_remote, null, null);
@@ -3088,12 +3090,12 @@ const ui = function ui():void {
                         "rgba(192,192,192,1)",
                         "rgba(104,170,71,1)",
                         "rgba(53,102,70,1)",
-                        "rgba(21,102,120,1)",
+                        "rgba(221,72,220,1)",
                         "rgba(82,32,140,1)",
                         "rgba(164,164,221,1)",
                         "rgba(53,53,227,1)",
                         "rgba(27,182,253,1)",
-                        "rgba(28,78,198,1)",
+                        "rgba(28,18,198,1)",
                         "rgba(92,92,92,1)"
                     ],
                     labels: {
@@ -3993,7 +3995,7 @@ const ui = function ui():void {
                                     : dashboard.sections["udp-socket"].nodes.input_address_server.value,
                                 address_remote: null,
                                 handler: null,
-                                id: "",
+                                hash: "",
                                 multicast_group: dashboard.sections["udp-socket"].nodes.multicast_group.getElementsByTagName("input")[0].value,
                                 multicast_interface: select[select.selectedIndex].textContent,
                                 multicast_membership: dashboard.sections["udp-socket"].nodes.multicast_source.getElementsByTagName("input")[0].value,
@@ -4367,7 +4369,9 @@ const ui = function ui():void {
                                         output.push("\"temporary\": false,");
                                     }
                                 }
-                                if (typeof serverData.upgrade !== "boolean") {
+                                if (typeof serverData.upgrade === "boolean") {
+                                    output.push(`"upgrade": ${serverData.upgrade}`);
+                                } else {
                                     output.push("\"upgrade\": false");
                                 }
                                 output[output.length - 1] = output[output.length - 1].replace(/,$/, "");

@@ -105,22 +105,48 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                     }
                 },
                 redirection = function transmit_connection_handshake_redirection():Buffer {
+                    let proxy_test:boolean = false;
                     const request_path:string = (headerList[0].includes("HTTP") === true)
                             ? headerList[0].replace(/ +/g, " ").replace(/ $/, "").slice(headerList[0].indexOf(" ") + 1, headerList[0].lastIndexOf(" "))
                             : null,
                         keys:string[] = (server.redirect_asset === null || server.redirect_asset === undefined || server.redirect_asset[store.domain] === undefined)
                             ? []
-                            : Object.keys(server.redirect_asset[store.domain]);
+                            : Object.keys(server.redirect_asset[store.domain]),
+                        compare = function transmit_connection_handshake_redirection_compare(path:string, wild:string):boolean {
+                            const destination:string = server.redirect_asset[store.domain][path];
+                            if (path === request_path) {
+                                // literal match
+                                if (wild === null && store.key.charAt(path.length - 1) !== "*") {
+                                    if (proxy_existing(destination) === true) {
+                                        proxy_test = true;
+                                        return true;
+                                    }
+                                    headerList[0] = `${headerList[0].slice(0, headerList[0].indexOf(" "))} ${destination + headerList[0].replace(/ +$/, "").slice(headerList[0].lastIndexOf(" "))}`;
+                                // wildcard match
+                                } else if (wild !== null && path.charAt(store.key.length - 1) === "*" && request_path.indexOf(wild) === 0 && request_path.indexOf(destination) !== 0) {
+                                    if (proxy_existing(destination) === true) {
+                                        proxy_test = true;
+                                        return true;
+                                    }
+                                    headerList[0] = `${headerList[0].slice(0, headerList[0].indexOf(" "))} ${request_path.replace(wild, destination) + headerList[0].replace(/ +$/, "").slice(headerList[0].lastIndexOf(" "))}`;
+                                }
+                                return true;
+                            }
+                            return false;
+                        };
                     let index:number = keys.length;
 
                     if (index > 0) {
                         let matched:boolean = false,
-                            wild:string = "";
+                            compared:boolean = false;
                         // look for exact matches first
                         do {
                             index = index - 1;
-                            if (keys[index] === request_path && store.key.charAt(keys[index].length - 1) !== "*") {
-                                headerList[0] = `${headerList[0].slice(0, headerList[0].indexOf(" "))} ${server.redirect_asset[store.domain][keys[index]] + headerList[0].replace(/ +$/, "").slice(headerList[0].lastIndexOf(" "))}`;
+                            compared = compare(keys[index], null);
+                            if (compared === null) {
+                                return null;
+                            }
+                            if (compared === true) {
                                 matched = true;
                                 break;
                             }
@@ -128,24 +154,31 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
 
                         // look for wildcard matches second
                         index = keys.length;
+                        compared = false;
                         if (matched === false) {
                             do {
                                 index = index - 1;
-                                wild = keys[index].replace(/\*$/, "");
-                                if (keys[index].charAt(store.key.length - 1) === "*" && request_path.indexOf(wild) === 0 && request_path.indexOf(server.redirect_asset[store.domain][keys[index]]) !== 0) {
-                                    headerList[0] = `${headerList[0].slice(0, headerList[0].indexOf(" "))} ${request_path.replace(wild, server.redirect_asset[store.domain][keys[index]]) + headerList[0].replace(/ +$/, "").slice(headerList[0].lastIndexOf(" "))}`;
+                                compared = compare(keys[index], keys[index].replace(/\*$/, ""));
+                                if (compared === null) {
+                                    return null;
+                                }
+                                if (compared === true) {
                                     break;
                                 }
                             } while (index > 0);
                         }
-
-                        return Buffer.from(dataString.replace(headerString, headerList.join("\r\n")));
+                        if (proxy_test === false) {
+                            return Buffer.from(dataString.replace(headerString, headerList.join("\r\n")));
+                        }
                     }
                     return null;
 
                 },
                 local_service = function transmit_connection_handshake_localService():void {
                     const redirect:Buffer = redirection();
+                    if (socket.destroyed === true) {
+                        return;
+                    }
                     data = (redirect === null)
                         ? data
                         : redirect;
@@ -161,7 +194,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                     do {
                                         index = index - 1;
                                         if (keys[index].toLowerCase() === method) {
-                                            create_proxy(server.method[method as "delete"].address, server.method[method as "delete"].port, socket.encrypted);
+                                            proxy_create(server.method[method as "delete"].address, server.method[method as "delete"].port, socket.encrypted);
                                             return;
                                         }
                                     } while (index > 0);
@@ -287,7 +320,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         });
                     }
                 },
-                create_proxy = function transmit_connection_handshake_createProxy(host:string, port:number, encrypted:boolean):void {
+                proxy_create = function transmit_connection_handshake_proxyCreate(host:string, port:number, encrypted:boolean):void {
                     let count:number = 0;
                     const proxy:websocket_client = (encrypted === true)
                             ?  node.tls.connect({
@@ -300,7 +333,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                 port: port
                             }) as websocket_client,
                         now:string = process.hrtime.bigint().toString(),
-                        callback = function transmit_connection_handshake_createProxy_callback():void {
+                        callback = function transmit_connection_handshake_proxyCreate_callback():void {
                             count = count + 1;
                             if (count > 1) {
                                 const redirect:Buffer = redirection();
@@ -317,7 +350,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                         socket.pipe(proxy);
                                     } else {
                                         // internal redirection
-                                        socket.on("data", function transmit_connection_handshake_createProxy_redirect(message_data:Buffer):void {
+                                        socket.on("data", function transmit_connection_handshake_proxyCreate_redirect(message_data:Buffer):void {
                                             proxy.write(message_data);
                                         });
                                     }
@@ -325,7 +358,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                 }
                             }
                         };
-                    proxy.once("ready", function transmit_connection_handshake_createProxy_ready():void {
+                    proxy.once("ready", function transmit_connection_handshake_proxyCreate_ready():void {
                         // requested socket
                         socket_extension({
                             callback: callback,
@@ -359,34 +392,121 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         });
                     });
                 },
+                proxy_existing = function transmit_connection_handshake_proxyExisting(hash:string):boolean {
+                    const loop = function transmit_connection_handshake_proxyExisting_loop():boolean {
+                        let index:number = vars.sockets.tcp.length;
+                        if (index > 0) {
+                            do {
+                                index = index - 1;
+                                if (vars.sockets.tcp[index].hash === hash) {
+                                    if (vars.sockets.tcp[index].proxy === null) {
+                                        let proxy:websocket_client = null;
+                                        const servers:string[] = Object.keys(vars.server_meta),
+                                            list = function transmit_connection_handshake_proxyExisting_loop_list(server:server_meta_item, list_type:"open"|"secure"):boolean {
+                                                let sockets:number = server.sockets[list_type].length;
+                                                do {
+                                                    sockets = sockets - 1;
+                                                    if (server.sockets[list_type][sockets].hash === hash) {
+                                                        if (server.sockets[list_type][sockets].proxy === null) {
+                                                            proxy = server.sockets[list_type][sockets];
+                                                        }
+                                                        return true;
+                                                    }
+                                                } while (sockets > 0);
+                                                return false;
+                                            };
+                                        let server_len:number = servers.length;
+                                        if (server_len > 0) {
+                                            do {
+                                                server_len = server_len - 1;
+                                                if (list(vars.server_meta[servers[server_len]], "secure") === true) {
+                                                    break;
+                                                }
+                                            } while (server_len > 0);
+                                            if (proxy === null && socket.encrypted !== true) {
+                                                do {
+                                                    server_len = server_len - 1;
+                                                    if (list(vars.server_meta[servers[server_len]], "open") === true) {
+                                                        break;
+                                                    }
+                                                } while (server_len > 0);
+                                            }
+                                        }
+                                        if (proxy === null) {
+                                            socket.destroy();
+                                        } else {
+                                            socket.pipe(proxy);
+                                        }
+                                        proxy.proxy = socket;
+                                        socket_extension({
+                                            callback: function transmit_connection_handshake_proxyExisting_loop_callback():void {
+                                                proxy.pipe(socket);
+                                                socket.pipe(proxy);
+                                                proxy.write(data);
+                                            },
+                                            handler: null,
+                                            identifier: `${store.domain}-${process.hrtime.bigint().toString()}`,
+                                            proxy: proxy,
+                                            role: "server",
+                                            server: server_id,
+                                            single_socket: false,
+                                            socket: socket,
+                                            temporary: false,
+                                            timeout: null,
+                                            type: "relay",
+                                            userAgent: store.userAgent
+                                        });
+                                    } else {
+                                        socket.destroy();
+                                    }
+                                    return true;
+                                }
+                            } while (index > 0);
+                        }
+                        return false;
+                    };
+                    if ((/^[0-9a-f]{128}$/).test(hash) === true) {
+                        loop();
+                        return true;
+                    }
+                    return false;
+                },
                 service = function transmit_connection_handshake_service():void {
-                    socket.addresses = address;
-                    // do not proxy primary domain -> endless loop
-                    if (server.domain_local.includes(store.domain) === true || vars.environment.interfaces.includes(store.domain) === true) {
-                        local_service();
-                    } else {
-                        const encrypted:boolean = (
-                                socket.encrypted === true &&
-                                server.redirect_domain !== undefined &&
-                                server.redirect_domain !== null &&
-                                server.redirect_domain[`${store.domain}.secure`] !== undefined
-                            ),
-                            pair:[string, number] = (encrypted === true)
-                                ? server.redirect_domain[`${store.domain}.secure`]
-                                : (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[store.domain] === undefined)
-                                    ? (socket.encrypted === true)
-                                        ? [address.local.address, server.ports.secure]
-                                        : [address.local.address, server.ports.open]
-                                    : server.redirect_domain[store.domain],
-                            host:string = (pair[0] === undefined || pair[0] === null || pair[0] === "")
-                                ? address.local.address
-                                : pair[0],
-                            port:number = (typeof pair[1] === "number")
-                                ? pair[1]
-                                : (socket.encrypted === true)
-                                    ? server.ports.secure
-                                    : server.ports.open;
-                        create_proxy(host, port, encrypted);
+                    const proxy_domain:boolean = (function transmit_connection_handshake_service_proxyHash():boolean {
+                        if (server.redirect_domain !== null && server.redirect_domain !== undefined && server.redirect_domain[store.domain] !== null && server.redirect_domain[store.domain] !== undefined) {
+                            return proxy_existing(server.redirect_domain[store.domain][0]);
+                        }
+                        return false;
+                    }());
+                    if (proxy_domain === false) {
+                        socket.addresses = address;
+                        // do not proxy primary domain -> endless loop
+                        if (server.domain_local.includes(store.domain) === true || vars.environment.interfaces.includes(store.domain) === true) {
+                            local_service();
+                        } else {
+                            const encrypted:boolean = (
+                                    socket.encrypted === true &&
+                                    server.redirect_domain !== undefined &&
+                                    server.redirect_domain !== null &&
+                                    server.redirect_domain[`${store.domain}.secure`] !== undefined
+                                ),
+                                pair:[string, number] = (encrypted === true)
+                                    ? server.redirect_domain[`${store.domain}.secure`]
+                                    : (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[store.domain] === undefined)
+                                        ? (socket.encrypted === true)
+                                            ? [address.local.address, server.ports.secure]
+                                            : [address.local.address, server.ports.open]
+                                        : server.redirect_domain[store.domain],
+                                host:string = (pair[0] === undefined || pair[0] === null || pair[0] === "")
+                                    ? address.local.address
+                                    : pair[0],
+                                port:number = (typeof pair[1] === "number")
+                                    ? pair[1]
+                                    : (socket.encrypted === true)
+                                        ? server.ports.secure
+                                        : server.ports.open;
+                            proxy_create(host, port, encrypted);
+                        }
                     }
                 },
                 upgrade = function transmit_connection_handshake_upgrade():void {
@@ -423,7 +543,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                     // secure socket to open server - proxy socket to secure server
                     socket.addresses = address;
                     socket.encrypted = true;
-                    create_proxy(address.local.address, vars.servers[server_id].status.secure, true);
+                    proxy_create(address.local.address, vars.servers[server_id].status.secure, true);
                 } else {
                     service();
                 }

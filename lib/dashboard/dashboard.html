@@ -30,27 +30,58 @@
         <h2>Navigation</h2>
         <div class="first">
             <h3>Services</h3>
-            <ul><li><button class="nav-focus" data-section="servers-web">Web Servers</button></li><li><button data-section="compose-containers">Docker Compose</button></li><li><button data-section="udp-socket">UDP Socket</button></li><li><button data-section="statistics">Statistics</button></li></ul>
+            <ul>
+                <li><button class="nav-focus" data-section="servers-web">Web Servers</button></li>
+                <li><button data-section="compose-containers">Docker Compose</button></li>
+                <li><button data-section="udp-socket">UDP Socket</button></li>
+                <li><button data-section="statistics">Statistics</button></li>
+            </ul>
         </div>
         <div>
             <h3>Network</h3>
-            <ul><li><button data-section="interfaces">Interfaces</button></li><li><button data-section="ports-application">App Ports</button></li><li><button data-section="sockets-application-tcp">App TCP Sockets</button></li><li><button data-section="sockets-application-udp">App UDP Sockets</button></li><li><button data-section="sockets-os-tcp">OS TCP Sockets</button></li><li><button data-section="sockets-os-udp">OS UDP Sockets</button></li></ul>
+            <ul>
+                <li><button data-section="interfaces">Interfaces</button></li>
+                <li><button data-section="ports-application">App Ports</button></li>
+                <li><button data-section="sockets-application-tcp">App TCP Sockets</button></li>
+                <li><button data-section="sockets-application-udp">App UDP Sockets</button></li>
+                <li><button data-section="sockets-os-tcp">OS TCP Sockets</button></li>
+                <li><button data-section="sockets-os-udp">OS UDP Sockets</button></li>
+            </ul>
         </div>
         <div>
             <h3>System</h3>
-            <ul><li><button data-section="os-machine">OS/Machine</button></li><li><button data-section="devices">Devices</button></li><li><button data-section="disks">Disks</button></li><li><button data-section="processes">Processes</button></li><li><button data-section="services">Services</button></li><li><button data-section="users">Users</button></li></ul>
+            <ul>
+                <li><button data-section="os-machine">OS/Machine</button></li>
+                <li><button data-section="devices">Devices</button></li>
+                <li><button data-section="disks">Disks</button></li>
+                <li><button data-section="processes">Processes</button></li>
+                <li><button data-section="services">Services</button></li>
+                <li><button data-section="users">Users</button></li>
+            </ul>
         </div>
         <div>
             <h3>Tools</h3>
-            <ul><li><button data-section="terminal">Terminal</button></li><li><button data-section="file-system">File System</button></li><li><button data-section="dns-query">DNS Query</button></li><li><button data-section="hash">Hash / Base64</button></li></ul>
+            <ul>
+                <li><button data-section="terminal">Terminal</button></li>
+                <li><button data-section="file-system">File System</button></li>
+                <li><button data-section="dns-query">DNS Query</button></li>
+                <li><button data-section="hash">Hash / Base64</button></li>
+            </ul>
         </div>
         <div>
             <h3>Network Tests</h3>
-            <ul><li><button data-section="test-http">HTTP Test</button></li><li><button data-section="test-websocket">WebSocket Test</button></li></ul>
+            <ul>
+                <li><button data-section="test-http">HTTP Test</button></li>
+                <li><button data-section="test-websocket">WebSocket Test</button></li>
+            </ul>
         </div>
         <div>
             <h3>Informational</h3>
-            <ul><li><button data-section="application-logs">Application Logs</button></li><li><button data-section="faq">FAQ</button></li><li><button data-section="help">Help</button></li></ul>
+            <ul>
+                <li><button data-section="application-logs">Application Logs</button></li>
+                <li><button data-section="faq">FAQ</button></li>
+                <li><button data-section="help">Help</button></li>
+            </ul>
         </div>
         <span class="clear"></span>
     </nav>
@@ -827,6 +858,11 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                             </p><p>
                                 <strong>Please note the terminal slash in the prior examples.</strong>
                                 Without the terminating slash the redirected address becomes <em>/api_services/informational/dashboards/uptimeimages/interface/title.png</em>.
+                            </p><p>
+                                If requests to a given asset of a supported domain should redirect to an existing socket created from this application just supply the socket's id, a 128 hexadecimal: <code>"jellyfin.x": {"/api/": "fe37dd66fa849ca98684160d542538b22c1edb576271d76b319ded4965d90143a0806fe1edf29b82b8740ec177880769629bdd1a0fb7cb97d7640e60c44833d3"}</code>
+                                The socket must merely exist from the current local instance of this application, which may include sockets associated with other web servers, but the socket must not already exist in a proxy relationship.
+                                If the specified socket does not exist or is in a proxy relationship the server will drop the request.
+                                If the given web server is TLS and the specified socket is not TLS the server will drop the request.
                             </p></dd>
                             <dt><em>redirect_domain</em> (object)</dt>
                             <dd><p>
@@ -836,6 +872,11 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                                 If the port number is not a number or 0 the current server's port number will be used.
                             </p><p>
                                 If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003]</code>
+                            </p><p>
+                                If the domain specific traffic should be redirected to an existing socket created from this application just supply the socket's id, a 128 hexadecimal, and the port value will be ignored: <code>"jellyfin.x": ["fe37dd66fa849ca98684160d542538b22c1edb576271d76b319ded4965d90143a0806fe1edf29b82b8740ec177880769629bdd1a0fb7cb97d7640e60c44833d3", 0]</code>
+                                The socket must merely exist from the current local instance of this application, which may include sockets associated with other web servers, but the socket must not already exist in a proxy relationship.
+                                If the specified socket does not exist or is in a proxy relationship the server will drop the request.
+                                If the given web server is TLS and the specified socket is not TLS the server will drop the request.
                             </p></dd>
                             <dt><em>single_socket</em> (boolean)</dt>
                             <dd><p>
