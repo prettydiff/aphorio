@@ -57,6 +57,8 @@ const statistics:core_statistics = {
                 }
                 return output;
             }()),
+            now:number = Date.now(),
+            time:string = now.dateTime(false, 0).replace(/\.\d+/, ""),
             cpu_raw:number = (cpu.system + cpu.user) / 1000,
             cpu_per:number = Math.round((cpu_raw / cpu_total) * 100000) / 100,
             // net function not used for docker containers
@@ -140,29 +142,29 @@ const statistics:core_statistics = {
                                 actual_keys.push(id);
                                 disk = data[index].BlockIO.split(" / ");
                                 net_data = data[index].NetIO.split(" / ");
-                                vars.stats.containers[id].cpu.data.push(cpu_total * (Number(data[index].CPUPerc.replace("%", "")) / 1000));
-                                vars.stats.containers[id].cpu.labels.push(data[index].CPUPerc);
+                                vars.stats.containers[id].cpu.data.push(Number(data[index].CPUPerc.replace("%", "")));
                                 vars.stats.containers[id].disk_in.data.push(disk[0].bytes());
                                 vars.stats.containers[id].disk_out.data.push(disk[1].bytes());
                                 vars.stats.containers[id].mem.data.push(data[index].MemUsage.split(" / ")[0].bytes());
-                                vars.stats.containers[id].mem.labels.push(data[index].MemPerc);
+                                vars.stats.containers[id].mem.data.push(Number(data[index].MemPerc.replace("%", "")));
                                 vars.stats.containers[id].net_in.data.push(net_data[0].bytes());
                                 vars.stats.containers[id].net_out.data.push(net_data[1].bytes());
                                 vars.stats.containers[id].threads.data.push(data[index].PIDs);
-                                splice(vars.stats.containers[id].cpu.data, false);
-                                splice(vars.stats.containers[id].disk_in.data, false);
-                                splice(vars.stats.containers[id].disk_out.data, false);
-                                splice(vars.stats.containers[id].mem.data, false);
-                                splice(vars.stats.containers[id].net_in.data, false);
-                                splice(vars.stats.containers[id].net_out.data, false);
-                                splice(vars.stats.containers[id].threads.data, false);
-                                splice(vars.stats.containers[id].cpu.labels, false);
-                                splice(vars.stats.containers[id].disk_in.labels, true);
-                                splice(vars.stats.containers[id].disk_out.labels, true);
-                                splice(vars.stats.containers[id].mem.labels, false);
-                                splice(vars.stats.containers[id].net_in.labels, true);
-                                splice(vars.stats.containers[id].net_out.labels, true);
-                                splice(vars.stats.containers[id].threads.labels, true);
+                                vars.stats.containers[id].cpu.labels.push(time);
+                                vars.stats.containers[id].disk_in.labels.push(time);
+                                vars.stats.containers[id].disk_out.labels.push(time);
+                                vars.stats.containers[id].mem.labels.push(time);
+                                vars.stats.containers[id].mem.labels.push(time);
+                                vars.stats.containers[id].net_in.labels.push(time);
+                                vars.stats.containers[id].net_out.labels.push(time);
+                                vars.stats.containers[id].threads.labels.push(time);
+                                splice(vars.stats.containers[id].cpu);
+                                splice(vars.stats.containers[id].disk_in);
+                                splice(vars.stats.containers[id].disk_out);
+                                splice(vars.stats.containers[id].mem);
+                                splice(vars.stats.containers[id].net_in);
+                                splice(vars.stats.containers[id].net_out);
+                                splice(vars.stats.containers[id].threads);
                             } while (index > 0);
                         }
                         payload(container_keys, actual_keys);
@@ -172,21 +174,23 @@ const statistics:core_statistics = {
                         const obj:string = `[${output.stdout.replace(/\}\n/g, "},")}]`.replace(/\},\]$/, "}]"),
                             complete = function services_statisticsData_diskComplete_spawnPS_complete(identifier:string, name:"cpu"|"io"|"mem"|"net"|"threads"):void {
                                 flags[identifier][name] =  true;
+                                if (name === "io") {
+                                    vars.stats.containers[identifier].disk_in.labels.push(time);
+                                    vars.stats.containers[identifier].disk_out.labels.push(time);
+                                } else if (name === "net") {
+                                    vars.stats.containers[identifier].net_in.labels.push(time);
+                                    vars.stats.containers[identifier].net_out.labels.push(time);
+                                } else {
+                                    vars.stats.containers[identifier][name].labels.push(time);
+                                }
                                 if (flags[identifier].cpu === true && flags[identifier].io === true && flags[identifier].mem === true && flags[identifier].net === true && flags[identifier].threads === true) {
-                                    splice(vars.stats.containers[identifier].cpu.data, false);
-                                    splice(vars.stats.containers[identifier].disk_in.data, false);
-                                    splice(vars.stats.containers[identifier].disk_out.data, false);
-                                    splice(vars.stats.containers[identifier].mem.data, false);
-                                    splice(vars.stats.containers[identifier].net_in.data, false);
-                                    splice(vars.stats.containers[identifier].net_out.data, false);
-                                    splice(vars.stats.containers[identifier].threads.data, false);
-                                    splice(vars.stats.containers[identifier].cpu.labels, false);
-                                    splice(vars.stats.containers[identifier].disk_in.labels, true);
-                                    splice(vars.stats.containers[identifier].disk_out.labels, true);
-                                    splice(vars.stats.containers[identifier].mem.labels, false);
-                                    splice(vars.stats.containers[identifier].net_in.labels, true);
-                                    splice(vars.stats.containers[identifier].net_out.labels, true);
-                                    splice(vars.stats.containers[identifier].threads.labels, true);
+                                    splice(vars.stats.containers[identifier].cpu);
+                                    splice(vars.stats.containers[identifier].disk_in);
+                                    splice(vars.stats.containers[identifier].disk_out);
+                                    splice(vars.stats.containers[identifier].mem);
+                                    splice(vars.stats.containers[identifier].net_in);
+                                    splice(vars.stats.containers[identifier].net_out);
+                                    splice(vars.stats.containers[identifier].threads);
                                     count = count + 1;
                                     if (count === len) {
                                         payload(container_keys, actual_keys);
@@ -200,58 +204,79 @@ const statistics:core_statistics = {
                                         segment:string = data.slice(data.indexOf(key) + key.length),
                                         value:number = Number(segment.slice(0, segment.indexOf("\n"))) / 1000,
                                         per:number = Math.round((value / cpu_total) * 100000) / 100;
-                                    vars.stats.containers[identifier].cpu.data.push(value);
-                                    vars.stats.containers[identifier].cpu.labels.push(`${(per < 0.01) ? "< 0.01" : per}%`);
+                                    vars.stats.containers[identifier].cpu.data.push((per < 0.01) ? 0.01 : per);
                                 }
                                 complete(identifier, "cpu");
                             },
                             io = function services_statisticsData_diskComplete_spawnPS_io(file:Buffer, location:string, identifier:string):void {
                                 if (vars.stats.containers[identifier] !== undefined && vars.stats.containers[identifier] !== null) {
-                                    const data:string[] = file.toString().split(" ");
+                                    const data:string[] = file.toString().split(" "),
+                                        flags:store_flag = {
+                                            in: false,
+                                            out: false
+                                        },
+                                        finish = function services_statisticsData_diskComplete_spawnPS_io_finish(flag:"in"|"out", value:string):boolean {
+                                            flags[flag] = true;
+                                            vars.stats.containers[identifier][`disk_${flag}`].data.push(Number(value));
+                                            if (flags.in === true && flags.out === true) {
+                                                complete(identifier, "io");
+                                                return true;
+                                            }
+                                            return false;
+                                        };
                                     let index_io:number = data.length;
                                     if (index_io > 0) {
                                         do {
                                             index_io = index_io - 1;
                                             if (data[index_io].indexOf("rbytes=") === 0) {
-                                                vars.stats.containers[identifier].disk_in.data.push(Number(data[index_io].replace("rbytes=", "")));
+                                                if (finish("in", data[index_io].replace("rbytes=", "")) === true) {
+                                                    return;
+                                                }
                                             } else if (data[index_io].indexOf("wbytes=") === 0) {
-                                                vars.stats.containers[identifier].disk_out.data.push(Number(data[index_io].replace("wbytes=", "")));
+                                                if (finish("out", data[index_io].replace("wbytes=", "")) === true) {
+                                                    return;
+                                                }
                                             }
                                         } while (index_io > 0);
                                     }
                                 }
+                                vars.stats.containers[identifier].disk_in.data.push(0);
+                                vars.stats.containers[identifier].disk_out.data.push(0);
                                 complete(identifier, "io");
                             },
                             mem = function services_statisticsData_diskComplete_spawnPS_mem(file:Buffer, location:string, identifier:string):void {
                                 if (vars.stats.containers[identifier] !== undefined && vars.stats.containers[identifier] !== null) {
                                     const value:number = Number(file.toString()),
                                         per:number = Math.round((value / vars.os.machine.memory.total) * 10000) / 100;
-                                    vars.stats.containers[identifier].mem.data.push(value);
-                                    vars.stats.containers[identifier].mem.labels.push(`${(per < 0.01) ? "< 0.01" : per}%`);
+                                    vars.stats.containers[identifier].mem.data.push((per < 0.01) ? 0.01 : per);
                                 }
                                 complete(identifier, "mem");
                             },
                             net = function services_statisticsData_diskComplete_spawnPS_net(output:core_spawn_output):void {
-                                const str:string = output.stdout.trim(),
-                                    data:transmit_linux_ip = (str.charAt(0) === "[" && str.charAt(str.length - 1) === "]")
-                                        ? JSON.parse(str)
-                                        : null;
-                                let index_net:number = (data === null)
-                                        ? 0
-                                        : data.length,
-                                    read:number = 0,
-                                    write:number = 0;
-                                if (vars.stats.containers[output.type] !== undefined && vars.stats.containers[output.type] !== null) {
-                                    if (index_net > 0) {
-                                        do {
-                                            index_net = index_net - 1;
-                                            read = read + data[index_net].stats64.rx.bytes;
-                                            write = write + data[index_net].stats64.tx.bytes;
-                                        } while (index_net > 0);
-                                        vars.stats.containers[output.type].net_in.data.push(read);
-                                        vars.stats.containers[output.type].net_out.data.push(write);
-                                    }
+                                const str:string[] = output.stdout.trim().split("\n"),
+                                    value = function services_statisticsData_diskComplete_spawnPS_net(type:"in"|"out", item:string):void {
+                                        const numb:number = Number(item),
+                                            final:number = (isNaN(numb) === true)
+                                                ? 0
+                                                : numb;
+                                        vars.stats.containers[output.type][`net_${type}`].data.push(final);
+                                    };
+                                let index:number = str.length,
+                                    line:string[] = null;
+                                if (index > 0) {
+                                    do {
+                                        index = index - 1;
+                                        if ((/^\s*eth0/).test(str[index]) === true) {
+                                            line = str[index].trim().replace(/\s+/g, " ").split(" ");
+                                            value("in", line[1]);
+                                            value("out", line[0]);
+                                            complete(output.type, "net");
+                                            return;
+                                        }
+                                    } while (index > 0);
                                 }
+                                vars.stats.containers[output.type].net_in.data.push(0);
+                                vars.stats.containers[output.type].net_out.data.push(0);
                                 complete(output.type, "net");
                             },
                             threads = function services_statisticsData_diskComplete_spawnPS_threads(file:Buffer, location:string, identifier:string):void {
@@ -310,7 +335,7 @@ const statistics:core_statistics = {
                                     no_file: null,
                                     section: "statistics"
                                 });
-                                spawn(`docker exec ${id} ip -json -s link`, net, {
+                                spawn(`docker exec ${id} cat /proc/net/dev`, net, {
                                     type: id
                                 }).execute();
                             } while (index > 0);
@@ -367,46 +392,50 @@ const statistics:core_statistics = {
                     } while (index > 0);
                 }
                 vars.stats.containers.application[`net_${type}`].data.push(start);
+                vars.stats.containers.application[`net_${type}`].labels.push(time);
             },
-            splice = function services_statisticsData_splice(item:number[]|string[], empty_labels:boolean):void {
-                const len:number = item.length;
-                if (empty_labels === true) {
-                    if (len < vars.stats.records) {
-                        const num:number[] = item as number[];
-                        num.push((len + 1));
-                    }
-                } else {
-                    if (len > vars.stats.records) {
-                        item.splice(0, len - vars.stats.records);
-                    }
+            // trim off excess data intervals
+            splice = function services_statisticsData_splice(item:services_statistics_facet):void {
+                const len:number = item.data.length;
+                if (len > vars.stats.records) {
+                    item.data.splice(0, len - vars.stats.records);
+                    item.labels.splice(0, len - vars.stats.records);
                 }
-            };
+            },
+            keys:string[] = Object.keys(vars.stats.containers),
+            dockers:string[] = Object.keys(vars.compose.containers);
+        let key:number = keys.length;
+        if (key > 0) {
+            do {
+                key = key - 1;
+                if (dockers.includes(keys[key]) === false && keys[key] !== "application") {
+                    delete vars.stats.containers[keys[key]];
+                }
+            } while (key > 0);
+        }
         if (vars.stats.containers.application === undefined) {
             empty("application");
         }
-        // gathering total time and then converting microseconds into milliseconds because CPU timing is in milliseconds
-        vars.stats.containers.application.cpu.data.push(cpu_raw);
-        vars.stats.containers.application.cpu.labels.push(`${(cpu_per) < 0.01 ? "< 0.01" : cpu_per}%`);
+        vars.stats.containers.application.cpu.data.push((cpu_per) < 0.01 ? 0.01 : cpu_per);
         vars.stats.containers.application.disk_in.data.push(0);
-        vars.stats.containers.application.mem.data.push(mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss);
-        vars.stats.containers.application.mem.labels.push(`${Math.round(((mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss) / vars.os.machine.memory.total) * 10000) / 100}%`);
+        vars.stats.containers.application.disk_out.data.push(0);
+        vars.stats.containers.application.mem.data.push(Math.round(((mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss) / vars.os.machine.memory.total) * 10000) / 100);
         vars.stats.containers.application.threads.data.push(vars.stats.children);
         net("in");
         net("out");
-        vars.stats.now = Date.now();
-        splice(vars.stats.containers.application.cpu.data, false);
-        splice(vars.stats.containers.application.mem.data, false);
-        splice(vars.stats.containers.application.disk_in.data, false);
-        splice(vars.stats.containers.application.net_in.data, false);
-        splice(vars.stats.containers.application.net_out.data, false);
-        splice(vars.stats.containers.application.threads.data, false);
-        splice(vars.stats.containers.application.cpu.labels, false);
-        splice(vars.stats.containers.application.disk_in.labels, true);
-        splice(vars.stats.containers.application.disk_out.labels, true);
-        splice(vars.stats.containers.application.mem.labels, false);
-        splice(vars.stats.containers.application.net_in.labels, true);
-        splice(vars.stats.containers.application.net_out.labels, true);
-        splice(vars.stats.containers.application.threads.labels, true);
+        vars.stats.containers.application.cpu.labels.push(time);
+        vars.stats.containers.application.disk_in.labels.push(time);
+        vars.stats.containers.application.disk_out.labels.push(time);
+        vars.stats.containers.application.mem.labels.push(time);
+        vars.stats.containers.application.threads.labels.push(time);
+        vars.stats.now = now;
+        splice(vars.stats.containers.application.cpu);
+        splice(vars.stats.containers.application.disk_in);
+        splice(vars.stats.containers.application.disk_out);
+        splice(vars.stats.containers.application.mem);
+        splice(vars.stats.containers.application.net_in);
+        splice(vars.stats.containers.application.net_out);
+        splice(vars.stats.containers.application.threads);
         // directory({
         //     callback: disk,
         //     depth: 0,
@@ -417,8 +446,6 @@ const statistics:core_statistics = {
         //     search: null,
         //     symbolic: true
         // });
-        vars.stats.containers.application.disk_out.data.push(0);
-        splice(vars.stats.containers.application.disk_out.data, false);
         disk_complete();
     }
 };

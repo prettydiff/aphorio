@@ -547,6 +547,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     h4::selection,
     h5::selection,
     h6::selection,
+    label::selection,
     li::selection,
     p::selection,
     span::selection,

@@ -3099,10 +3099,10 @@ const ui = function ui():void {
                         "rgba(92,92,92,1)"
                     ],
                     labels: {
-                        cpu: "CPU Usage, % and Millisecond Value",
+                        cpu: "CPU Usage %, single core",
                         disk_in: "Read",
                         disk_out: "Written",
-                        mem: "Memory Usage, % and Bytes Written",
+                        mem: "Memory Usage %",
                         net_in: "Received",
                         net_out: "Sent",
                         threads: "Process Count"
@@ -3154,34 +3154,19 @@ const ui = function ui():void {
                             keys_len:number = keys_data.length,
                             graph_type:"bar"|"line" = dashboard.sections["statistics"].nodes.graph_type.value as "bar"|"line",
                             dataset = function dashboard_sections_statistics_graphComposite_dataset(type:type_graph_keys):type_graph_datasets {
-                                const output:graph_dataset[] = [],
-                                    names:string[] = [],
-                                    data = function dashboard_sections_statistics_graphComposite_dataset_data(ind:number):number[] {
-                                        if (type === "cpu" || type === "mem") {
-                                            const store:number[] = [],
-                                                base:string[] = dashboard.global.payload.stats.containers[keys[ind]][type].labels,
-                                                len:number = base.length;
-                                            let start:number = 0;
-                                            do {
-                                                store.push(Number(base[start].replace("%", "").replace("< ", "")));
-                                                start = start + 1;
-                                            } while (start < len);
-                                            return store;
-                                        }
-                                        return dashboard.global.payload.stats.containers[keys[ind]][type].data;
-                                    };
+                                const output:graph_dataset[] = [];
                                 let index_key:number = 0;
                                 if (len > 0) {
                                     const len_color:number = dashboard.sections["statistics"].graph_config.colors.length;
                                     index_key = 0;
                                     do {
-                                        if (dashboard.global.payload.stats.containers[keys[index_key]] !== undefined && dashboard.global.payload.stats.containers[keys[index_key]] !== null) {
+                                        if (dashboard.global.payload.stats.containers[keys[index_key]] !== undefined && dashboard.global.payload.stats.containers[keys[index_key]] !== null && dashboard.global.payload.compose.containers[keys[index_key]] !== undefined) {
                                             output.push({
                                                 backgroundColor: dashboard.sections["statistics"].graph_config.colors[index_key].replace(",1)", ",0.1)"),
                                                 borderColor: dashboard.sections["statistics"].graph_config.colors[index_key],
                                                 borderRadius: 4,
                                                 borderWidth: 2,
-                                                data: data(index_key),
+                                                data: dashboard.global.payload.stats.containers[keys[index_key]][type].data,
                                                 fill: true,
                                                 label: (keys[index_key] === "application")
                                                     ? "Aphorio"
@@ -3194,13 +3179,8 @@ const ui = function ui():void {
                                         }
                                         index_key = index_key + 1;
                                     } while (index_key < len && index_key < len_color);
-                                    index_key = 0;
-                                    do {
-                                        names.push((index_key + 1).toString());
-                                        index_key = index_key + 1;
-                                    } while (index_key < output[0].data.length);
                                 }
-                                return [output, names];
+                                return [output, dashboard.global.payload.stats.containers.application[type].labels];
                             },
                             update = function dashboard_sections_statistics_graphComposite_update(type:type_graph_keys, section:HTMLElement):void {
                                 const dataList:type_graph_datasets = dataset(type),
@@ -3302,41 +3282,6 @@ const ui = function ui():void {
                                     }
                                     dashboard.sections["statistics"].graphs[id] = null;
                                 }
-                            },
-                            empty = function dashboard_sections_statistics_graphIndividual_empty(id:string):void {
-                                const sections:HTMLCollectionOf<HTMLElement> = dashboard.sections["statistics"].nodes.graphs.getElementsByTagName("div");
-                                let index:number = sections.length,
-                                    h4:HTMLElement = null,
-                                    p:HTMLElement = null,
-                                    div:HTMLElement = null;
-                                if (index > 0) {
-                                    do {
-                                        index = index - 1;
-                                        if (sections[index].dataset.id === id) {
-                                            h4 = sections[index].getElementsByTagName("h4")[0];
-                                            p = document.createElement("p");
-                                            h4.parentNode.removeChild(h4);
-                                            sections[index].textContent = "";
-                                            sections[index].appendChild(h4);
-                                            p.textContent = `Container ${dashboard.global.payload.compose.containers[id].name} is not running.`;
-                                            sections[index].appendChild(p);
-                                            return;
-                                        }
-                                    } while (index > 0);
-                                }
-                                div = document.createElement("div");
-                                div.setAttribute("class", "section");
-                                div.setAttribute("data-id", id);
-                                h4 = document.createElement("h4");
-                                h4.textContent = (id === "application")
-                                    ? "Aphorio Application"
-                                    : `Container - ${dashboard.global.payload.compose.containers[id].name}`;
-                                p = document.createElement("p");
-                                p.textContent = `Container ${dashboard.global.payload.compose.containers[id].name} is not running.`;
-                                div.appendChild(h4);
-                                div.appendChild(p);
-                                dashboard.sections["statistics"].nodes.graphs.appendChild(div);
-                                destroy(id);
                             },
                             update = function dashboard_sections_statistics_graphIndividual_update(id:string, section:HTMLElement):void {
                                 const modify = function dashboard_sections_statistics_graphIndividual_update_modify(type:type_graph):void {
@@ -3462,7 +3407,65 @@ const ui = function ui():void {
                                 section_div.appendChild(clear);
                                 section_div.setAttribute("data-id", id);
                                 if (new_item === true) {
+                                    const sections:NodeListOf<ChildNode> = dashboard.sections["statistics"].nodes.graphs.childNodes,
+                                        len:number = sections.length;
+                                    let index:number = 0,
+                                        section:HTMLElement = null;
+                                    if (len > 0) {
+                                        do {
+                                            section = sections[index] as HTMLElement;
+                                            if (section.getAttribute("class") === "section empty") {
+                                                dashboard.sections["statistics"].nodes.graphs.insertBefore(section_div, section);
+                                                return;
+                                            }
+                                            index = index + 1;
+                                        } while (index < len);
+                                    }
                                     dashboard.sections["statistics"].nodes.graphs.appendChild(section_div);
+                                }
+                            },
+                            empty = function dashboard_sections_statistics_graphIndividual_empty(id:string):void {
+                                const h4:HTMLElement = document.createElement("h4"),
+                                    p:HTMLElement = document.createElement("p"),
+                                    div:HTMLElement = document.createElement("div"),
+                                    sections:NodeListOf<ChildNode> = dashboard.sections["statistics"].nodes.graphs.childNodes;
+                                let index:number = sections.length,
+                                    section:HTMLElement = null;
+                                if (index > 0) {
+                                    do {
+                                        index = index - 1;
+                                        section = sections[index] as HTMLElement;
+                                        // remove a populated section that is no longer producing data
+                                        if (section.dataset.id === id) {
+                                            return;
+                                        }
+                                    } while (index > 0);
+                                }
+                                div.setAttribute("class", "section empty");
+                                div.setAttribute("data-id", id);
+                                h4.textContent = (id === "application")
+                                    ? "Aphorio Application"
+                                    : `Container - ${dashboard.global.payload.compose.containers[id].name}`;
+                                p.textContent = `Container ${dashboard.global.payload.compose.containers[id].name} is not running.`;
+                                div.appendChild(h4);
+                                div.appendChild(p);
+                                dashboard.sections["statistics"].nodes.graphs.appendChild(div);
+                                destroy(id);
+                            },
+                            remove = function dashboard_sections_statistics_graphIndividual_remove():void {
+                                const sections:NodeListOf<ChildNode> = dashboard.sections["statistics"].nodes.graphs.childNodes;
+                                let index:number = sections.length,
+                                    section:HTMLElement = null;
+                                // see if the section is already present and needs to be removed
+                                if (index > 0) {
+                                    do {
+                                        index = index - 1;
+                                        section = sections[index] as HTMLElement;
+                                        // remove a populated section that is no longer producing data
+                                        if (id_list.includes(section.dataset.id) === false) {
+                                            section.parentNode.removeChild(section);
+                                        }
+                                    } while (index > 0);
                                 }
                             };
                         let index:number = 0;
@@ -3477,6 +3480,7 @@ const ui = function ui():void {
                                 }
                                 index = index + 1;
                             } while (index < id_len);
+                            remove();
                         }
                     }
                 }
