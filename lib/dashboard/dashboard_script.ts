@@ -3099,10 +3099,10 @@ const ui = function ui():void {
                         "rgba(92,92,92,1)"
                     ],
                     labels: {
-                        cpu: "CPU Usage, % and Millisecond Value",
+                        cpu: "CPU Usage %, single core",
                         disk_in: "Read",
                         disk_out: "Written",
-                        mem: "Memory Usage, % and Bytes Written",
+                        mem: "Memory Usage %",
                         net_in: "Received",
                         net_out: "Sent",
                         threads: "Process Count"
@@ -3131,7 +3131,7 @@ const ui = function ui():void {
                 },
                 receive: function dashboard_sections_statistics_receive(data:socket_data):void {
                     const stats:services_statistics_data = data.data as services_statistics_data;
-                    dashboard.global.payload.stats = stats;console.log(stats);
+                    dashboard.global.payload.stats = stats;
                     if (document.activeElement !== dashboard.sections["statistics"].nodes.frequency) {
                         dashboard.sections["statistics"].nodes.frequency.value = (stats.frequency / 1000).toString();
                     }
