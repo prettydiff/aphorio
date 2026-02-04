@@ -255,7 +255,7 @@ const statistics:core_statistics = {
                             net = function services_statisticsData_diskComplete_spawnPS_net(output:core_spawn_output):void {
                                 const str:string[] = output.stdout.trim().split("\n"),
                                     value = function services_statisticsData_diskComplete_spawnPS_net(type:"in"|"out", item:string):void {
-                                        const numb:number = Number(value),
+                                        const numb:number = Number(item),
                                             final:number = (isNaN(numb) === true)
                                                 ? 0
                                                 : numb;
