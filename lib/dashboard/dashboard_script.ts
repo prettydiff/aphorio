@@ -3154,22 +3154,7 @@ const ui = function ui():void {
                             keys_len:number = keys_data.length,
                             graph_type:"bar"|"line" = dashboard.sections["statistics"].nodes.graph_type.value as "bar"|"line",
                             dataset = function dashboard_sections_statistics_graphComposite_dataset(type:type_graph_keys):type_graph_datasets {
-                                const output:graph_dataset[] = [],
-                                    names:string[] = [],
-                                    data = function dashboard_sections_statistics_graphComposite_dataset_data(ind:number):number[] {
-                                        if (type === "cpu" || type === "mem") {
-                                            const store:number[] = [],
-                                                base:string[] = dashboard.global.payload.stats.containers[keys[ind]][type].labels,
-                                                len:number = base.length;
-                                            let start:number = 0;
-                                            do {
-                                                store.push(Number(base[start].replace("%", "").replace("< ", "")));
-                                                start = start + 1;
-                                            } while (start < len);
-                                            return store;
-                                        }
-                                        return dashboard.global.payload.stats.containers[keys[ind]][type].data;
-                                    };
+                                const output:graph_dataset[] = [];
                                 let index_key:number = 0;
                                 if (len > 0) {
                                     const len_color:number = dashboard.sections["statistics"].graph_config.colors.length;
@@ -3181,7 +3166,7 @@ const ui = function ui():void {
                                                 borderColor: dashboard.sections["statistics"].graph_config.colors[index_key],
                                                 borderRadius: 4,
                                                 borderWidth: 2,
-                                                data: data(index_key),
+                                                data: dashboard.global.payload.stats.containers[keys[index_key]][type].data,
                                                 fill: true,
                                                 label: (keys[index_key] === "application")
                                                     ? "Aphorio"
@@ -3194,13 +3179,8 @@ const ui = function ui():void {
                                         }
                                         index_key = index_key + 1;
                                     } while (index_key < len && index_key < len_color);
-                                    index_key = 0;
-                                    do {
-                                        names.push((index_key + 1).toString());
-                                        index_key = index_key + 1;
-                                    } while (index_key < output[0].data.length);
                                 }
-                                return [output, names];
+                                return [output, dashboard.global.payload.stats.containers.application[type].labels];
                             },
                             update = function dashboard_sections_statistics_graphComposite_update(type:type_graph_keys, section:HTMLElement):void {
                                 const dataList:type_graph_datasets = dataset(type),

@@ -210,19 +210,38 @@ const statistics:core_statistics = {
                             },
                             io = function services_statisticsData_diskComplete_spawnPS_io(file:Buffer, location:string, identifier:string):void {
                                 if (vars.stats.containers[identifier] !== undefined && vars.stats.containers[identifier] !== null) {
-                                    const data:string[] = file.toString().split(" ");
+                                    const data:string[] = file.toString().split(" "),
+                                        flags:store_flag = {
+                                            in: false,
+                                            out: false
+                                        },
+                                        finish = function services_statisticsData_diskComplete_spawnPS_io_finish(flag:"in"|"out", value:string):boolean {
+                                            flags[flag] = true;
+                                            vars.stats.containers[identifier][`disk_${flag}`].data.push(Number(value));
+                                            if (flags.in === true && flags.out === true) {
+                                                complete(identifier, "io");
+                                                return true;
+                                            }
+                                            return false;
+                                        };
                                     let index_io:number = data.length;
                                     if (index_io > 0) {
                                         do {
                                             index_io = index_io - 1;
                                             if (data[index_io].indexOf("rbytes=") === 0) {
-                                                vars.stats.containers[identifier].disk_in.data.push(Number(data[index_io].replace("rbytes=", "")));
+                                                if (finish("in", data[index_io].replace("rbytes=", "")) === true) {
+                                                    return;
+                                                }
                                             } else if (data[index_io].indexOf("wbytes=") === 0) {
-                                                vars.stats.containers[identifier].disk_out.data.push(Number(data[index_io].replace("wbytes=", "")));
+                                                if (finish("out", data[index_io].replace("wbytes=", "")) === true) {
+                                                    return;
+                                                }
                                             }
                                         } while (index_io > 0);
                                     }
                                 }
+                                vars.stats.containers[identifier].disk_in.data.push(0);
+                                vars.stats.containers[identifier].disk_out.data.push(0);
                                 complete(identifier, "io");
                             },
                             mem = function services_statisticsData_diskComplete_spawnPS_mem(file:Buffer, location:string, identifier:string):void {
@@ -234,26 +253,30 @@ const statistics:core_statistics = {
                                 complete(identifier, "mem");
                             },
                             net = function services_statisticsData_diskComplete_spawnPS_net(output:core_spawn_output):void {
-                                const str:string = output.stdout.trim(),
-                                    data:transmit_linux_ip = (str.charAt(0) === "[" && str.charAt(str.length - 1) === "]")
-                                        ? JSON.parse(str)
-                                        : null;
-                                let index_net:number = (data === null)
-                                        ? 0
-                                        : data.length,
-                                    read:number = 0,
-                                    write:number = 0;
-                                if (vars.stats.containers[output.type] !== undefined && vars.stats.containers[output.type] !== null) {
-                                    if (index_net > 0) {
-                                        do {
-                                            index_net = index_net - 1;
-                                            read = read + data[index_net].stats64.rx.bytes;
-                                            write = write + data[index_net].stats64.tx.bytes;
-                                        } while (index_net > 0);
-                                        vars.stats.containers[output.type].net_in.data.push(read);
-                                        vars.stats.containers[output.type].net_out.data.push(write);
-                                    }
+                                const str:string[] = output.stdout.trim().split("\n"),
+                                    value = function services_statisticsData_diskComplete_spawnPS_net(type:"in"|"out", item:string):void {
+                                        const numb:number = Number(value),
+                                            final:number = (isNaN(numb) === true)
+                                                ? 0
+                                                : numb;
+                                        vars.stats.containers[output.type][`net_${type}`].data.push(final);
+                                    };
+                                let index:number = str.length,
+                                    line:string[] = null;
+                                if (index > 0) {
+                                    do {
+                                        index = index - 1;
+                                        if ((/^\s*eth0/).test(str[index]) === true) {
+                                            line = str[index].trim().replace(/\s+/g, " ").split(" ");
+                                            value("in", line[1]);
+                                            value("out", line[0]);
+                                            complete(output.type, "net");
+                                            return;
+                                        }
+                                    } while (index > 0);
                                 }
+                                vars.stats.containers[output.type].net_in.data.push(0);
+                                vars.stats.containers[output.type].net_out.data.push(0);
                                 complete(output.type, "net");
                             },
                             threads = function services_statisticsData_diskComplete_spawnPS_threads(file:Buffer, location:string, identifier:string):void {
@@ -312,7 +335,7 @@ const statistics:core_statistics = {
                                     no_file: null,
                                     section: "statistics"
                                 });
-                                spawn(`docker exec ${id} ip -json -s link`, net, {
+                                spawn(`docker exec ${id} cat /proc/net/dev`, net, {
                                     type: id
                                 }).execute();
                             } while (index > 0);
@@ -394,15 +417,21 @@ const statistics:core_statistics = {
             empty("application");
         }
         vars.stats.containers.application.cpu.data.push((cpu_per) < 0.01 ? 0.01 : cpu_per);
+        vars.stats.containers.application.disk_in.data.push(0);
+        vars.stats.containers.application.disk_out.data.push(0);
         vars.stats.containers.application.mem.data.push(Math.round(((mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss) / vars.os.machine.memory.total) * 10000) / 100);
         vars.stats.containers.application.threads.data.push(vars.stats.children);
         net("in");
         net("out");
         vars.stats.containers.application.cpu.labels.push(time);
+        vars.stats.containers.application.disk_in.labels.push(time);
+        vars.stats.containers.application.disk_out.labels.push(time);
         vars.stats.containers.application.mem.labels.push(time);
         vars.stats.containers.application.threads.labels.push(time);
         vars.stats.now = now;
         splice(vars.stats.containers.application.cpu);
+        splice(vars.stats.containers.application.disk_in);
+        splice(vars.stats.containers.application.disk_out);
         splice(vars.stats.containers.application.mem);
         splice(vars.stats.containers.application.net_in);
         splice(vars.stats.containers.application.net_out);
