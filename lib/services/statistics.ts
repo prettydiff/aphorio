@@ -269,7 +269,7 @@ const statistics:core_statistics = {
                                         if ((/^\s*eth0/).test(str[index]) === true) {
                                             line = str[index].trim().replace(/\s+/g, " ").split(" ");
                                             value("in", line[1]);
-                                            value("out", line[0]);
+                                            value("out", line[9]);
                                             complete(output.type, "net");
                                             return;
                                         }
