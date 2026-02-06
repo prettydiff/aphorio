@@ -3160,7 +3160,7 @@ const ui = function ui():void {
                                     const len_color:number = dashboard.sections["statistics"].graph_config.colors.length;
                                     index_key = 0;
                                     do {
-                                        if (dashboard.global.payload.stats.containers[keys[index_key]] !== undefined && dashboard.global.payload.stats.containers[keys[index_key]] !== null && dashboard.global.payload.compose.containers[keys[index_key]] !== undefined) {
+                                        if (dashboard.global.payload.stats.containers[keys[index_key]] !== undefined && dashboard.global.payload.stats.containers[keys[index_key]] !== null && (keys[index_key] === "application" || dashboard.global.payload.compose.containers[keys[index_key]] !== undefined)) {
                                             output.push({
                                                 backgroundColor: dashboard.sections["statistics"].graph_config.colors[index_key].replace(",1)", ",0.1)"),
                                                 borderColor: dashboard.sections["statistics"].graph_config.colors[index_key],
