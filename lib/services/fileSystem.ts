@@ -156,7 +156,14 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             search: data.search,
             symbolic: true
         };
-    directory(config_parent);
+    node.fs.stat(data.address, function services_fileSystem_stat(ers:node_error):void {
+        if (ers === null) {
+            directory(config_parent);
+        } else {
+            service.failures.push(data.address);
+            complete();
+        }
+    });
 };
 
 export default fileSystem;

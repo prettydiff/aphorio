@@ -170,6 +170,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             compose: {
                 label: "Restores the docker compose containers if docker is available.",
                 task: function utilities_startServer_compose():void {
+                    docker.shell_start();
                     if (vars.environment.features["compose-containers"] === true) {
                         docker.list(start_prerequisites);
                     } else {
@@ -291,7 +292,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 complete_tasks("html");
                             }
                         };
-                    if (vars.environment.features.terminal === true) {
+                    if (vars.environment.features["terminal"] === true || vars.environment.features["compose-containers"] === true) {
                         file.read({
                             callback: function utilities_startServer_taskHTML_readXtermCSS(file:Buffer):void {
                                 xterm_css = file.toString();
@@ -316,7 +317,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         xterm_js = "";
                         xterm_css = "";
                     }
-                    if (vars.environment.features.statistics === true) {
+                    if (vars.environment.features["statistics"] === true) {
                         file.read({
                             callback: function utilities_startServer_taskHTML_readChart(file:Buffer):void {
                                 chart_js = file.toString();
@@ -346,7 +347,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             os_devs: {
                 label: "Gathers a list of devices registered with the OS kernel.",
                 task: function utilities_startServer_taskOSDevs():void {
-                    if (vars.environment.features.devices === true) {
+                    if (vars.environment.features["devices"] === true) {
                         const callback = function utilities_startServer_taskOSDevs_callback():void {
                                 complete_tasks("os_devs");
                             };
@@ -359,7 +360,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             os_disk: {
                 label: "Gathers information about disk hardware and partitions.",
                 task: function utilities_startServer_taskOSDisk():void {
-                    if (vars.environment.features.disks === true) {
+                    if (vars.environment.features["disks"] === true) {
                         const callback = function utilities_startServer_taskOSDisk_callback():void {
                                 complete_tasks("os_disk");
                             };
@@ -372,7 +373,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             os_intr: {
                 label: "Gathers information about the state of available network interfaces.",
                 task: function utilities_startServer_taskOSIntr():void {
-                    if (vars.environment.features.interfaces === true) {
+                    if (vars.environment.features["interfaces"] === true) {
                         const callback = function utilities_startServer_taskOSIntr_callback():void {
                             complete_tasks("os_intr");
                         };
@@ -389,7 +390,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         complete_tasks("os_proc");
                     }
                     : function utilities_startServer_taskOSProc():void {
-                        if (vars.environment.features.processes === true) {
+                        if (vars.environment.features["processes"] === true) {
                             const callback = function utilities_startServer_taskOSProc_callback():void {
                                 complete_tasks("os_proc");
                             };
@@ -402,7 +403,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             os_serv: {
                 label: "Gathers a list of known services.",
                 task: function utilities_startServer_taskOSServ():void {
-                    if (vars.environment.features.services === true) {
+                    if (vars.environment.features["services"] === true) {
                         const callback = function utilities_startServer_taskOSServ_callback():void {
                             complete_tasks("os_serv");
                         };
@@ -441,7 +442,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             os_user: {
                 label: "Gathers a list of user accounts.",
                 task: function utilities_startServer_taskOSUser():void {
-                    if (vars.environment.features.users === true) {
+                    if (vars.environment.features["users"] === true) {
                         const callback = function utilities_startServer_taskOSUser_callback():void {
                             complete_tasks("os_user");
                         };
@@ -886,7 +887,7 @@ const start_server = function utilities_startServer(process_path:string, testing
     log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);
 
     // update OS list of available shells
-    if (vars.environment.features.terminal === true) {
+    if (vars.environment.features["terminal"] === true) {
         if (process.platform === "win32") {
             const stats = function utilities_startServer_tasksShell_shellWin(index:number):void {
                 node.fs.stat(vars.environment.terminal[index], function utilities_startServer_tasksShell_shellWin_callback(err:node_error) {

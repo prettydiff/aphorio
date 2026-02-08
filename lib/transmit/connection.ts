@@ -275,7 +275,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                             rows:number = (params[2] === undefined)
                                                 ? null
                                                 : Number(params[2].split("=")[1]),
-                                            term:terminal = {
+                                            term:config_terminal = {
                                                 cols: (Number.isNaN(cols) === true)
                                                     ? 199
                                                     : cols,

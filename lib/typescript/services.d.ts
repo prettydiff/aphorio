@@ -260,7 +260,7 @@ interface services_statistics_item {
 
 interface services_terminal {
     resize: receiver;
-    shell: (socket:websocket_pty, terminal:terminal) => void;
+    shell: (socket:websocket_pty, config:config_terminal) => void;
 }
 
 interface services_terminal_request {
@@ -272,6 +272,7 @@ interface services_terminal_resize {
     hash: string;
     rows: number;
     secure: "open" | "secure";
+    section: type_dashboard_features;
 }
 
 interface services_testBrowser {

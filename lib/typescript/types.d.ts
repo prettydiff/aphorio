@@ -52,6 +52,7 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 //   ---
 // * dashboard-compose             - core_compose                 - docker compose objects and service status
 // * dashboard-compose-container   - services_compose_container   - changes from the user for docker compose objects
+// * dashboard-compose-out         - string[]                     - streams stdout of docker spawn commands to the ui
 // * dashboard-compose-variables   - store_string                 - a key/value list of custom docker compose template variables
 // * dashboard-dns                 - services_dns_output          - data response to a dns query
 // * dashboard-fileSystem          - services_fileSystem          - file system list
@@ -80,9 +81,9 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 // * dashboard-websocket-message   - services_websocket_message   - parses the header of a WebSocket message frame header sufficient to respond to the message on a test socket
 // * dashboard-websocket-status    - services_websocket_status    - sends connection establishment details for a test socket
 // * test-browser                  - services_test_browser        - test automation messaging to the browser
-type type_service = "dashboard-compose-container" | "dashboard-compose-variables" | "dashboard-compose" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-log" | "dashboard-os-all" | "dashboard-os-devs" | "dashboard-os-disk" | "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" |
-    "dashboard-os-serv" | "dashboard-os-stcp" | "dashboard-os-sudp" | "dashboard-os-user" | "dashboard-server" | "dashboard-socket-application" | "dashboard-statistics-change" | "dashboard-statistics-data" | "dashboard-status-clock" | "dashboard-terminal-resize" | "dashboard-udp-socket"| "dashboard-udp-status" | "dashboard-websocket-handshake" |
-    "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
+type type_service = "dashboard-compose-container" | "dashboard-compose-out" | "dashboard-compose-variables" | "dashboard-compose" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-log" | "dashboard-os-all" | "dashboard-os-devs" | "dashboard-os-disk" |
+    "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-stcp" | "dashboard-os-sudp" | "dashboard-os-user" | "dashboard-server" | "dashboard-socket-application" | "dashboard-statistics-change" | "dashboard-statistics-data" | "dashboard-status-clock" | "dashboard-terminal-resize" |
+    "dashboard-udp-socket"| "dashboard-udp-status" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
 
 type type_socket_data = config_log | core_compose | core_server_os | services_action_server | services_compose_container | services_dns_input | services_dns_output | services_dns_reverse | services_fileSystem | services_hash | services_http_test | services_os_disk | services_os_intr | services_socket_application |
     services_statistics_change | services_statistics_data | services_status_clock |services_terminal_resize | services_testBrowser | services_udp_socket | services_websocket_handshake | services_websocket_message | services_websocket_status | store_servers | store_string | string[] | transmit_dashboard | type_list_services;

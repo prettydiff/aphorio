@@ -199,45 +199,58 @@ const statistics:core_statistics = {
                             },
                             cpu = function services_statisticsData_diskComplete_spawnPS_cpu(file:Buffer, location:string, identifier:string):void {
                                 if (vars.stats.containers[identifier] !== undefined && vars.stats.containers[identifier] !== null) {
-                                    const data:string = file.toString(),
-                                        key:string = "system_usec ",
-                                        segment:string = data.slice(data.indexOf(key) + key.length),
-                                        value:number = Number(segment.slice(0, segment.indexOf("\n"))) / 1000,
-                                        per:number = Math.round((value / cpu_total) * 100000) / 100;
-                                    vars.stats.containers[identifier].cpu.data.push((per < 0.01) ? 0.01 : per);
+                                    const data:string = (file === null)
+                                        ? null
+                                        : file.toString();
+                                    if (data === null) {
+                                        vars.stats.containers[identifier].cpu.data.push(0);
+                                    } else {
+                                        const key:string = "system_usec ",
+                                            segment:string = data.slice(data.indexOf(key) + key.length),
+                                            value:number = Number(segment.slice(0, segment.indexOf("\n"))) / 1000,
+                                            per:number = Math.round((value / cpu_total) * 100000) / 100;
+                                        vars.stats.containers[identifier].cpu.data.push((per < 0.01) ? 0.01 : per);
+                                    }
                                 }
                                 complete(identifier, "cpu");
                             },
                             io = function services_statisticsData_diskComplete_spawnPS_io(file:Buffer, location:string, identifier:string):void {
                                 if (vars.stats.containers[identifier] !== undefined && vars.stats.containers[identifier] !== null) {
-                                    const data:string[] = file.toString().split(" "),
-                                        flags:store_flag = {
-                                            in: false,
-                                            out: false
-                                        },
-                                        finish = function services_statisticsData_diskComplete_spawnPS_io_finish(flag:"in"|"out", value:string):boolean {
-                                            flags[flag] = true;
-                                            vars.stats.containers[identifier][`disk_${flag}`].data.push(Number(value));
-                                            if (flags.in === true && flags.out === true) {
-                                                complete(identifier, "io");
-                                                return true;
-                                            }
-                                            return false;
-                                        };
-                                    let index_io:number = data.length;
-                                    if (index_io > 0) {
-                                        do {
-                                            index_io = index_io - 1;
-                                            if (data[index_io].indexOf("rbytes=") === 0) {
-                                                if (finish("in", data[index_io].replace("rbytes=", "")) === true) {
-                                                    return;
+                                    const data:string[] = (file ===  null)
+                                        ? null
+                                        : file.toString().split(" ");
+                                    if (data === null) {
+                                        vars.stats.containers[identifier].disk_in.data.push(0);
+                                        vars.stats.containers[identifier].disk_out.data.push(0);
+                                    } else {
+                                        const flags:store_flag = {
+                                                in: false,
+                                                out: false
+                                            },
+                                            finish = function services_statisticsData_diskComplete_spawnPS_io_finish(flag:"in"|"out", value:string):boolean {
+                                                flags[flag] = true;
+                                                vars.stats.containers[identifier][`disk_${flag}`].data.push(Number(value));
+                                                if (flags.in === true && flags.out === true) {
+                                                    complete(identifier, "io");
+                                                    return true;
                                                 }
-                                            } else if (data[index_io].indexOf("wbytes=") === 0) {
-                                                if (finish("out", data[index_io].replace("wbytes=", "")) === true) {
-                                                    return;
+                                                return false;
+                                            };
+                                        let index_io:number = data.length;
+                                        if (index_io > 0) {
+                                            do {
+                                                index_io = index_io - 1;
+                                                if (data[index_io].indexOf("rbytes=") === 0) {
+                                                    if (finish("in", data[index_io].replace("rbytes=", "")) === true) {
+                                                        return;
+                                                    }
+                                                } else if (data[index_io].indexOf("wbytes=") === 0) {
+                                                    if (finish("out", data[index_io].replace("wbytes=", "")) === true) {
+                                                        return;
+                                                    }
                                                 }
-                                            }
-                                        } while (index_io > 0);
+                                            } while (index_io > 0);
+                                        }
                                     }
                                 }
                                 vars.stats.containers[identifier].disk_in.data.push(0);
@@ -246,9 +259,15 @@ const statistics:core_statistics = {
                             },
                             mem = function services_statisticsData_diskComplete_spawnPS_mem(file:Buffer, location:string, identifier:string):void {
                                 if (vars.stats.containers[identifier] !== undefined && vars.stats.containers[identifier] !== null) {
-                                    const value:number = Number(file.toString()),
-                                        per:number = Math.round((value / vars.os.machine.memory.total) * 10000) / 100;
-                                    vars.stats.containers[identifier].mem.data.push((per < 0.01) ? 0.01 : per);
+                                    const value:number = (file === null)
+                                        ? null
+                                        : Number(file.toString());
+                                    if (file === null) {
+                                        vars.stats.containers[identifier].mem.data.push(0);
+                                    } else {
+                                        const per:number = Math.round((value / vars.os.machine.memory.total) * 10000) / 100;
+                                        vars.stats.containers[identifier].mem.data.push((per < 0.01) ? 0.01 : per);
+                                    }
                                 }
                                 complete(identifier, "mem");
                             },
@@ -280,8 +299,12 @@ const statistics:core_statistics = {
                                 complete(output.type, "net");
                             },
                             threads = function services_statisticsData_diskComplete_spawnPS_threads(file:Buffer, location:string, identifier:string):void {
-                                if (vars.stats.containers[identifier] !== undefined && vars.stats.containers[identifier] !== null) {
-                                    vars.stats.containers[identifier].threads.data.push(Number(file.toString()));
+                                if (file === null) {
+                                    vars.stats.containers[identifier].threads.data.push(0);
+                                } else {
+                                    if (vars.stats.containers[identifier] !== undefined && vars.stats.containers[identifier] !== null) {
+                                        vars.stats.containers[identifier].threads.data.push(Number(file.toString()));
+                                    }
                                 }
                                 complete(identifier, "threads");
                             },

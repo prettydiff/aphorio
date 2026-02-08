@@ -28,13 +28,13 @@ const terminal:services_terminal = {
             pty.resize(Math.floor(data.cols), Math.floor(data.rows));
         }
     },
-    shell: function services_terminalShell(socket:websocket_pty, terminal:terminal):void {
-        const pty:pty = spawn(terminal.shell, [], {
-                cols: terminal.cols,
+    shell: function services_terminalShell(socket:websocket_pty, config:config_terminal):void {
+        const pty:pty = spawn(config.shell, [], {
+                cols: config.cols,
                 cwd: vars.path.project,
                 env: process.env,
                 name: socket.server,
-                rows: terminal.rows
+                rows: config.rows
             }),
             close = function services_terminalShell_close():void {
                 pty.kill();
