@@ -616,6 +616,8 @@ const ui = function ui():void {
                             li.appendText("Compose file contents field contains a value.");
                             li.setAttribute("class", "pass-true");
                         }
+                        ul.appendChild(li);
+                        li = document.createElement("li");
                         if (name === undefined || name === "") {
                             valid = false;
                             li.appendText("Compose file must contain a 'container_name' property.");
