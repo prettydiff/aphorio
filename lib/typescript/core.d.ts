@@ -79,7 +79,10 @@ interface core_directory_list extends Array<type_directory_item> {
 interface core_docker {
     commands: core_compose_commands;
     list: (callback:() => void) => void;
-    receive: (socket_data:socket_data, transmit:transmit_socket) => void;
+    receive: receiver;
+    resize: receiver;
+    shell: pty;
+    shell_start: () => void;
     variables: (variables:store_string, socket:websocket_client) => void;
 }
 
@@ -481,12 +484,6 @@ interface store_test_list {
 interface string_detect {
     confidence: number;
     encoding: string;
-}
-
-interface terminal {
-    cols: number;
-    rows: number;
-    shell: string;
 }
 
 interface windows_drives {

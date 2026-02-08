@@ -43,9 +43,7 @@ const ui = function ui():void {
                     } while (index > 0);
                     document.getElementById(dashboard.global.section).style.display = "block";
                     dashboard.global.state.nav = dashboard.global.section;
-                    if (dashboard.sections["terminal"] !== undefined) {
-                        dashboard.sections["terminal"].events.resize();
-                    }
+                    dashboard.utility.resize();
                     dashboard.utility.setState();
                     target.setAttribute("class", "nav-focus");
                 },
@@ -81,6 +79,9 @@ const ui = function ui():void {
                 button:HTMLElement = null,
                 table_key:string[] = null,
                 table:HTMLElement = null;
+            document.onclick = function dashboard_execute_documentClick():void {
+                dashboard.global.click = true;
+            };
             dashboard.socket = core({
                 close: function dashboard_execute_socketClose():void {
                     const status:HTMLElement = document.getElementById("connection-status");
@@ -110,6 +111,9 @@ const ui = function ui():void {
                                 "dashboard-compose": (dashboard.sections["compose-containers"] === undefined)
                                     ? null
                                     : dashboard.sections["compose-containers"].receive,
+                                "dashboard-compose-out": (dashboard.sections["compose-containers"] === undefined)
+                                    ? null
+                                    : dashboard.sections["compose-containers"].status_out,
                                 "dashboard-dns": (dashboard.sections["dns-query"] === undefined)
                                     ? null
                                     : dashboard.sections["dns-query"].receive,
@@ -378,6 +382,7 @@ const ui = function ui():void {
             };
         },
         global: {
+            click: false,
             loaded: false,
             payload: null,
             section: "servers-web",
@@ -469,6 +474,7 @@ const ui = function ui():void {
             // application-logs end
             // compose-containers start
             "compose-containers": {
+                cols: 0,
                 events: {
                     cancel_variable: function dashboard_sections_composeContainers_cancelVariable(event:MouseEvent):void {
                         const target:HTMLElement = event.target as HTMLElement,
@@ -562,6 +568,14 @@ const ui = function ui():void {
                             edit.parentNode.getElementsByTagName("button")[0].click();
                         } else {
                             dashboard.shared_services.cancel(event);
+                        }
+                    },
+                    resize: null,
+                    selection: function dashboard_sections_composeContainers_selection():void {
+                        if (dashboard.global.click === true) {
+                            navigator.clipboard.write([
+                                new ClipboardItem({["text/plain"]: dashboard.sections["compose-containers"].shell.getSelection()})
+                            ]);
                         }
                     },
                     update: function dashboard_sections_composeContainers_update():void {
@@ -676,6 +690,34 @@ const ui = function ui():void {
                     }
                 },
                 init: function dashboard_sections_composeContainers_init():void {
+                    const shell = function dashboard_sections_composeContainers_init_shell():void {
+                        if (typeof Terminal === "undefined") {
+                            setTimeout(dashboard_sections_composeContainers_init_shell, 200);
+                        } else {
+                            dashboard.sections["compose-containers"].shell = new Terminal({
+                                cols: dashboard.sections["compose-containers"].cols,
+                                cursorBlink: true,
+                                cursorStyle: "underline",
+                                disableStdin: false,
+                                readonly: true,
+                                rows: dashboard.sections["compose-containers"].rows,
+                                theme: {
+                                    background: "#222",
+                                    selectionBackground: "#444"
+                                }
+                            });
+                            dashboard.sections["compose-containers"].shell.open(dashboard.sections["compose-containers"].nodes.shell);
+                            if (typeof navigator.clipboard !== "undefined") {
+                                dashboard.sections["compose-containers"].shell.onSelectionChange(dashboard.sections["compose-containers"].events.selection);
+                            }
+                        }
+                    };
+                    shell();
+                    dashboard.shared_services.shellResize({
+                        node: dashboard.sections["compose-containers"].nodes.shell,
+                        section: "compose-containers",
+                        shell: dashboard.sections["compose-containers"].shell
+                    });
                     if (dashboard.global.payload.compose.status === "") {
                         dashboard.sections["compose-containers"].nodes.new_container.onclick = dashboard.shared_services.create;
                         dashboard.sections["compose-containers"].nodes.new_variable.onclick = dashboard.sections["compose-containers"].events.edit_variable;
@@ -696,10 +738,13 @@ const ui = function ui():void {
                 },
                 nodes: {
                     body: document.getElementById("compose-containers").getElementsByClassName("compose-body")[0] as HTMLElement,
+                    cols: document.getElementById("compose-containers").getElementsByClassName("section")[2].getElementsByTagName("em")[0] as HTMLElement,
                     list: document.getElementById("compose-containers").getElementsByClassName("compose-container-list")[0] as HTMLElement,
                     list_variables: document.getElementById("compose-containers").getElementsByClassName("compose-variable-list")[0] as HTMLElement,
                     new_container: document.getElementById("compose-containers").getElementsByClassName("compose-container-new")[0] as HTMLButtonElement,
                     new_variable: document.getElementById("compose-containers").getElementsByClassName("compose-variable-new")[0] as HTMLButtonElement,
+                    rows: document.getElementById("compose-containers").getElementsByClassName("section")[2].getElementsByTagName("em")[1] as HTMLElement,
+                    shell: document.getElementById("compose-containers").getElementsByClassName("terminal-output")[0] as HTMLElement,
                     status: document.getElementById("compose-containers").getElementsByClassName("status")[0] as HTMLElement,
                     update_button: document.getElementById("compose-containers").getElementsByClassName("update-button")[0].getElementsByTagName("button")[0],
                     update_containers: document.getElementById("compose-containers").getElementsByClassName("section")[0].getElementsByTagName("em")[0],
@@ -777,6 +822,12 @@ const ui = function ui():void {
                     if (dashboard.sections["ports-application"] !== undefined) {
                         dashboard.sections["ports-application"].receive();
                     }
+                },
+                rows: 0,
+                shell: null,
+                status_out: function dashboard_sections_composeContainers_statusOut(socket_data:socket_data):void {
+                    const status:string[] = socket_data.data as string[];
+                    dashboard.sections["compose-containers"].shell.write(status[0]);
                 },
                 tools: {
                     descriptions: function dashboard_sections_composeContainers_description(id:boolean|string):HTMLElement {
@@ -3506,64 +3557,27 @@ const ui = function ui():void {
                         dashboard.sections["terminal"].socket.onmessage = dashboard.sections["terminal"].events.data;
                         dashboard.sections["terminal"].info = JSON.parse(event.data);
                         dashboard.sections["terminal"].nodes.output.setAttribute("data-info", event.data);
+                        setTimeout(function dasbhoard_sections_terminal_firstData_delay():void {
+                            dashboard.sections["terminal"].item.clear();
+                        }, 50);
                     },
                     input: function dashboard_sections_terminal_input(input:terminal_input):void {
                         if (dashboard.sections["terminal"].socket.readyState === 1) {
                             dashboard.sections["terminal"].socket.send(input.key);
                         }
                     },
-                    resize: function dashboard_sections_terminal_resize():void {
-                        if (dashboard.global.state.nav === "terminal") {
-                            const char_height:number = (dashboard.sections["terminal"].item === null)
-                                    ? 17
-                                    : (document.getElementById("terminal").getElementsByClassName("xterm-rows")[0] === undefined)
-                                        ? 17
-                                        : Number(document.getElementById("terminal").getElementsByClassName("xterm-rows")[0].getElementsByTagName("div")[0].style.height.replace("px", "")),
-                                char_width:number = 9,
-                                output_height:number = window.innerHeight - 110,
-                                output_width:number = dashboard.sections["terminal"].nodes.output.clientWidth,
-                                cols:number = Math.floor(output_width / char_width),
-                                rows:number = Math.floor(output_height / char_height);
-                            if (output_width < 1) {
-                                setTimeout(dashboard_sections_terminal_resize, 10);
-                            } else if (dashboard.sections["terminal"].cols !== cols || dashboard.sections["terminal"].rows !== rows) {
-                                dashboard.sections["terminal"].cols = cols;
-                                dashboard.sections["terminal"].rows = rows;
-                                dashboard.sections["terminal"].nodes.output.style.height = `${output_height / 10}em`;
-                                dashboard.sections["terminal"].nodes.output.setAttribute("data-size", JSON.stringify({
-                                    col: dashboard.sections["terminal"].cols,
-                                    row: dashboard.sections["terminal"].rows
-                                }));
-                                dashboard.sections["terminal"].nodes.cols.textContent = cols.toString();
-                                dashboard.sections["terminal"].nodes.rows.textContent = rows.toString();
-                                if (dashboard.sections["terminal"].item !== null) {
-                                    dashboard.sections["terminal"].item.resize(dashboard.sections["terminal"].cols, dashboard.sections["terminal"].rows);
-                                }
-                                if (dashboard.sections["terminal"].info !== null) {
-                                    dashboard.utility.message_send({
-                                        cols: dashboard.sections["terminal"].cols,
-                                        hash: dashboard.sections["terminal"].info.socket_hash,
-                                        rows: dashboard.sections["terminal"].rows,
-                                        secure: (location.protocol === "http:")
-                                            ? "open"
-                                            : "secure"
-                                    } as services_terminal_resize, "dashboard-terminal-resize");
-                                }
-                            }
-                        }
-                    },
+                    resize: null,
                     selection: function dashboard_sections_terminal_selection():void {
-                        navigator.clipboard.write([
-                            new ClipboardItem({["text/plain"]: dashboard.sections["terminal"].item.getSelection()})
-                        ]);
+                        if (dashboard.global.click === true) {
+                            navigator.clipboard.write([
+                                new ClipboardItem({["text/plain"]: dashboard.sections["terminal"].item.getSelection()})
+                            ]);
+                        }
                     }
                 },
                 id: null,
                 info: null,
                 init: function dashboard_sections_terminal_init():void {
-                    if (document.getElementById("terminal") === null) {
-                        return;
-                    }
                     const len:number = dashboard.global.payload.terminal.length;
                     let option:HTMLElement = null,
                         index:number = 0;
@@ -3589,7 +3603,11 @@ const ui = function ui():void {
                     } else {
                         dashboard.sections["terminal"].tools.shell();
                     }
-                    dashboard.sections["terminal"].events.resize();
+                    dashboard.shared_services.shellResize({
+                        node: dashboard.sections["terminal"].nodes.output,
+                        section: "terminal",
+                        shell: dashboard.sections["terminal"].item
+                    });
                 },
                 item: null,
                 nodes: {
@@ -4511,6 +4529,60 @@ const ui = function ui():void {
                 textArea.readOnly = false;
                 textArea.focus();
             },
+            shellResize: function dashboard_sharedServices_shellResize(config:config_resize):void {
+                dashboard.sections[config.section as "terminal"].events.resize = function dashboard_shareServices_shellResize_instance():void {
+                    if (dashboard.global.state.nav === config.section) {
+                        const char_height:number = (config.shell === null)
+                                ? 17
+                                : (document.getElementById(config.section).getElementsByClassName("xterm-rows")[0] === undefined)
+                                    ? 17
+                                    : Number(document.getElementById(config.section).getElementsByClassName("xterm-rows")[0].getElementsByTagName("div")[0].style.height.replace("px", "")),
+                            char_width:number = 9,
+                            output_height:number = window.innerHeight - 110,
+                            output_width:number = config.node.clientWidth,
+                            cols:number = Math.floor(output_width / char_width),
+                            rows:number = (config.section === "terminal")
+                                ? Math.floor(output_height / char_height)
+                                : 10,
+                            node_col:HTMLElement = dashboard.sections[config.section as "terminal"].nodes.cols,
+                            node_row:HTMLElement = dashboard.sections[config.section as "terminal"].nodes.rows;
+                        if (output_width < 1) {
+                            setTimeout(function dashboard_sharedServices_shellResize_instance_recurse():void {
+                                dashboard_sharedServices_shellResize(config);
+                            }, 10);
+                        } else if (dashboard.sections[config.section as "terminal"].cols !== cols || dashboard.sections[config.section as "terminal"].rows !== rows) {
+                            dashboard.sections[config.section as "terminal"].cols = cols;
+                            dashboard.sections[config.section as "terminal"].rows = rows;
+                            if (config.section === "terminal") {
+                                config.node.style.height = `${output_height / 10}em`;
+                            }
+                            config.node.setAttribute("data-size", JSON.stringify({
+                                col: cols,
+                                row: rows
+                            }));
+                            node_col.textContent = cols.toString();
+                            node_row.textContent = rows.toString();
+                            if (config.shell !== null) {
+                                config.shell.resize(cols, rows);
+                            }
+                            if ((config.section === "terminal" && dashboard.sections["terminal"].info !== null) || config.section !== "terminal") {
+                                dashboard.utility.message_send({
+                                    cols: cols,
+                                    hash: (config.section === "terminal")
+                                        ? dashboard.sections["terminal"].info.socket_hash
+                                        : "",
+                                    rows: rows,
+                                    secure: (location.protocol === "http:")
+                                        ? "open"
+                                        : "secure",
+                                    section: config.section
+                                } as services_terminal_resize, "dashboard-terminal-resize");
+                            }
+                        }
+                    }
+                };
+                dashboard.sections[config.section as "terminal"].events.resize();
+            },
             // expands server and docker compose sections
             title: function dashboard_sharedServices_title(id:string, type:type_dashboard_list):HTMLElement {
                 const li:HTMLElement = document.createElement("li"),
@@ -5017,10 +5089,13 @@ const ui = function ui():void {
                 if (dashboard.sections["application-logs"] !== undefined) {
                     dashboard.sections["application-logs"].events.resize();
                 }
+                if (dashboard.sections["compose-containers"] !== undefined && dashboard.sections["compose-containers"].events.resize !== null) {
+                    dashboard.sections["compose-containers"].events.resize();
+                }
                 if (dashboard.sections["file-system"] !== undefined) {
                     dashboard.sections["file-system"].events.resize();
                 }
-                if (dashboard.sections["terminal"] !== undefined && dashboard.sections["terminal"].socket !== null) {
+                if (dashboard.sections["terminal"] !== undefined && dashboard.sections["terminal"].events.resize !== null && dashboard.sections["terminal"].socket !== null) {
                     dashboard.sections["terminal"].events.resize();
                 }
             },

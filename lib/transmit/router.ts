@@ -42,7 +42,14 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-websocket-message": websocket_test.message,
             "test-browser": test_runner.receive
         };
-    if (actions[services] !== undefined) {
+    if (services === "dashboard-terminal-resize") {
+        const data:services_terminal_resize = socketData.data as services_terminal_resize;
+        if (data.section === "compose-containers") {
+            docker.resize(socketData, transmit);
+        } else {
+            terminal.resize(socketData, transmit);
+        }
+    } else if (actions[services] !== undefined) {
         actions[services](socketData, transmit);
     }
 };

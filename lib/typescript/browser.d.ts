@@ -71,6 +71,7 @@ declare global {
     interface dashboard {
         execute: () => void;
         global: {
+            click: boolean;
             loaded: boolean;
             payload: transmit_dashboard;
             section: type_dashboard_sections;
@@ -107,6 +108,7 @@ declare global {
             create: (event:MouseEvent) => void;
             details: (event:MouseEvent) => void;
             edit: (event:MouseEvent) => void;
+            shellResize: (config:config_resize) => void;
             title: (name_server:string, type:type_dashboard_list) => HTMLElement;
         };
         socket: socket_object;
@@ -290,27 +292,36 @@ declare global {
     }
 
     interface section_compose_containers extends module_sections {
+        cols: number;
         events: {
             cancel_variable: (event:MouseEvent) => void;
             edit_variable: () => void;
             message_container: (event:MouseEvent) => void;
             message_variable: (event:MouseEvent) => void;
+            resize: () => void;
+            selection: () => void;
             update: () => void;
             validate_containers: (event:FocusEvent|KeyboardEvent) => void;
             validate_variables: (event:FocusEvent|KeyboardEvent) => void;
         };
         nodes: {
             body: HTMLElement;
+            cols: HTMLElement;
             list: HTMLElement;
             list_variables: HTMLElement;
             new_container: HTMLButtonElement;
             new_variable: HTMLButtonElement;
+            rows: HTMLElement;
+            shell: HTMLElement;
             status: HTMLElement;
             update_button: HTMLButtonElement;
             update_containers: HTMLElement;
             update_time: HTMLElement;
             update_variables: HTMLElement;
         };
+        rows: number;
+        shell: Terminal;
+        status_out: (socket_data:socket_data) => void;
     }
 
     interface section_devices extends module_list {

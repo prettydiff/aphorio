@@ -1,10 +1,13 @@
 
+import broadcast from "../transmit/broadcast.ts";
 import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import send from "../transmit/send.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
+
+import { spawn as spawn_shell } from "@lydell/node-pty";
 
 // cspell: words opencontainers
 
@@ -234,16 +237,43 @@ const docker:core_docker = {
                     ? `${vars.path.compose + name}.yml`
                     : data.location,
                 compose_location:string = `${vars.commands.compose} --ansi never --env-file "${vars.path.compose}.env" -f ${location}`,
-                command:string = compose_location + docker.commands[data.action];
-            if (data.action === "activate" || data.action === "deactivate") {
-                spawn(command, function services_docker_receive_spawn():void {
-                    docker.list(function services_docker_receive_spawn_list():void {
+                command:string = compose_location + docker.commands[data.action],
+                running:boolean = (vars.compose.containers[data.id] === null || vars.compose.containers[data.id] === undefined)
+                    ? false
+                    : (vars.compose.containers[data.id].state === "running"),
+                lister = function services_docker_receive_lister():void {
+                    docker.list(function services_docker_receive_lister_list():void {
                         send({
                             data: vars.compose,
                             service: "dashboard-compose"
                         }, socket, 3);
                     });
-                }).execute();
+                },
+                execute = function services_docker_receive_execute():void {
+                    docker.shell.write(`${command}\r\n`);
+                    docker.shell.write("command complete");
+                    if (data.action === "destroy") {
+                        file.remove({
+                            callback: null,
+                            exclusions: [],
+                            location: data.location,
+                            section: "compose-containers"
+                        });
+                    } else if (data.action === "modify") {
+                        file.write({
+                            callback: function services_docker_receive_spawn_write():void {
+                                if (running === true) {
+                                    spawn(compose_location + docker.commands.activate, lister).execute();
+                                }
+                            },
+                            contents: data.compose,
+                            location: data.location,
+                            section: "compose-containers"
+                        });
+                    }
+                };
+            if (data.action === "activate" || data.action === "deactivate" || data.action === "destroy" || data.action === "modify") {
+                execute();
             } else if (data.action === "add") {
                 if (name === null || name === "") {
                     log.application({
@@ -256,68 +286,57 @@ const docker:core_docker = {
                 } else {
                     file.write({
                         callback: function services_docker_receive_add():void {
-                            spawn(command, function services_docker_receive_add_spawn():void {
-                                docker.list(function services_docker_receive_add_spawn_list():void {
-                                    send({
-                                        data: vars.compose,
-                                        service: "dashboard-compose"
-                                    }, socket, 3);
-                                });
-                            }).execute();
+                            execute();
                         },
                         contents: data.compose,
                         location: location,
                         section: "compose-containers"
                     });
                 }
-            } else if (data.action === "destroy") {
-                spawn(command, function services_docker_receive_destroy():void {
-                    file.remove({
-                        callback: function services_docker_receive_destroy_remove():void {
-                            docker.list(function services_docker_receive_destroy_remove_list():void {
-                                send({
-                                    data: vars.compose,
-                                    service: "dashboard-compose"
-                                }, socket, 3);
-                            });
-                        },
-                        exclusions: [],
-                        location: data.location,
-                        section: "compose-containers"
-                    });
-                });
-            } else if (data.action === "modify") {
-                const running:boolean = (vars.compose.containers[data.id].state === "running"),
-                    list = function services_docker_receive_modifyList():void {
-                        docker.list(function services_docker_receive_modifyList_callback():void {
-                            send({
+            } else if (data.action === "update") {
+                lister();
+            }
+        }
+    },
+    resize: function services_docker_resize(socket_data:socket_data):void {
+        const data:services_terminal_resize = socket_data.data as services_terminal_resize;
+        if (docker.shell !== null && Number.isNaN(data.cols) === false && Number.isNaN(data.rows) === false && data.cols > 0 && data.rows > 0) {
+            docker.shell.resize(Math.floor(data.cols), Math.floor(data.rows));
+        }
+    },
+    shell: null,
+    shell_start: function services_docker_shell():void {
+        if (vars.os.process.admin === true) {
+            const shell:string = (process.env.SHELL === undefined)
+                    ? vars.environment.terminal[0]
+                    : process.env.SHELL,
+                close = function services_docker_shell_close():void {
+                    docker.shell.kill();
+                },
+                out = function services_docker_shell_out(output:string):void {
+                    if ((/command complete$/).test(output) === true) {
+                        docker.shell.write("\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008");
+                        docker.list(function services_docker_shell_out_list():void {
+                            broadcast(vars.environment.dashboard_id, "dashboard", {
                                 data: vars.compose,
                                 service: "dashboard-compose"
-                            }, socket, 3);
+                            });
                         });
-                    };
-                spawn(command, function services_docker_receive_modify():void {
-                    file.write({
-                        callback: function services_docker_receive_modify_write():void {
-                            if (running === true) {
-                                spawn(compose_location + docker.commands.activate, list).execute();
-                            } else {
-                                list();
-                            }
-                        },
-                        contents: data.compose,
-                        location: data.location,
-                        section: "compose-containers"
+                    }
+                    broadcast(vars.environment.dashboard_id, "dashboard", {
+                        data: [output],
+                        service: "dashboard-compose-out"
                     });
-                });
-            } else if (data.action === "update") {
-                docker.list(function services_docker_receive_update():void {
-                    send({
-                        data: vars.compose,
-                        service: "dashboard-compose"
-                    }, socket, 3);
-                });
-            }
+                };
+            docker.shell = spawn_shell(shell, [], {
+                cols: 80,
+                cwd: vars.path.project,
+                env: process.env,
+                name: "compose-containers",
+                rows: 10
+            });
+            docker.shell.onData(out);
+            docker.shell.onExit(close);
         }
     },
     variables: function services_docker_variables(variables:store_string, socket:websocket_client):void {

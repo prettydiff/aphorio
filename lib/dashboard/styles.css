@@ -261,13 +261,6 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         .graphs .section div{border-color:var(--border_input);border-style:solid;border-width:0.1em};
         .graphs[data-type="composite"] .section div{height:40em}
     }
-    #terminal {
-        .dimensions{float:right;margin:-2em 0 0 0}
-        .terminal-output{width:100%}
-        .xterm{border-color:var(--border_input);overflow:hidden}
-        .xterm-rows{font-size:vars(--font-size)}
-        .xterm-viewport{overflow:hidden}
-    }
     #test-websocket p.float-last{margin:0;width:calc(80% - 2em)}
     /* end id selectors */
 
@@ -458,6 +451,15 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     #servers-web .edit-summary li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
     #compose-containers .edit-summary,
     #servers-web .edit-summary{margin:0;padding:0}
+
+    #compose-containers,
+    #terminal{
+        .dimensions{float:right;margin:-3em 0 0 0}
+        .terminal-output{width:100%}
+        .xterm{border-color:var(--border_input);overflow:hidden}
+        .xterm-rows{font-size:vars(--font-size)}
+        .xterm-viewport{overflow:hidden}
+    }
 
     #servers label span.details-redundant,
     label span.text{background:transparent;border-style:none;display:inline-block;font-size:1em;font-weight:bold;line-height:2.5;width:auto}
