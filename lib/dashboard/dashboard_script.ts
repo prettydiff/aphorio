@@ -3441,7 +3441,9 @@ const ui = function ui():void {
                                     clear:HTMLElement = document.createElement("span"),
                                     name_literal:string = (id === "application")
                                         ? "Aphorio"
-                                        : dashboard.global.payload.compose.containers[id].name,
+                                        : (dashboard.global.payload.compose.containers[id] === null || dashboard.global.payload.compose.containers[id] === undefined)
+                                            ? id
+                                            : dashboard.global.payload.compose.containers[id].name,
                                     name:string = (id === "application")
                                         ? `Application - ${name_literal}`
                                         : `Container - ${name_literal}`;
@@ -3498,8 +3500,12 @@ const ui = function ui():void {
                                 div.setAttribute("data-id", id);
                                 h4.textContent = (id === "application")
                                     ? "Aphorio Application"
-                                    : `Container - ${dashboard.global.payload.compose.containers[id].name}`;
-                                p.textContent = `Container ${dashboard.global.payload.compose.containers[id].name} is not running.`;
+                                    : `Container - ${(dashboard.global.payload.compose.containers[id] === null || dashboard.global.payload.compose.containers[id] === undefined)
+                                        ? id
+                                        : dashboard.global.payload.compose.containers[id].name}`;
+                                p.textContent = `Container ${(dashboard.global.payload.compose.containers[id] === null || dashboard.global.payload.compose.containers[id] === undefined)
+                                    ? id
+                                    : dashboard.global.payload.compose.containers[id].name} is not running.`;
                                 div.appendChild(h4);
                                 div.appendChild(p);
                                 dashboard.sections["statistics"].nodes.graphs.appendChild(div);
@@ -4595,7 +4601,9 @@ const ui = function ui():void {
                         ? `new_${type}`
                         : (type === "server")
                             ? dashboard.global.payload.servers[id].config.name
-                            : dashboard.global.payload.compose.containers[id].name;
+                            : (dashboard.global.payload.compose.containers[id] === null || dashboard.global.payload.compose.containers[id] === undefined)
+                                ? id
+                                : dashboard.global.payload.compose.containers[id].name;
                 if (id === undefined) {
                     expand.appendText(name);
                 } else {
