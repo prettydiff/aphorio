@@ -2,6 +2,7 @@
 import certificate from "./certificate.ts";
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
+import ports_application from "./ports_application.ts";
 import server from "../transmit/server.ts";
 import vars from "../core/vars.ts";
 
@@ -37,6 +38,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 const actionText:string = (data.action.charAt(data.action.length - 1) === "e")
                     ? `${data.action}d`
                     : `${data.action}ed`;
+                ports_application();
                 if (callback !== null) {
                     // 5. call the callback
                     callback();

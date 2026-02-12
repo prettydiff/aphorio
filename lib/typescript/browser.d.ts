@@ -428,19 +428,8 @@ declare global {
         nodes_os: module_os_nodes;
     }
 
-    interface section_ports_application extends module_sections {
+    interface section_ports_application extends module_list {
         dataName: "ports_application";
-        nodes: {
-            caseSensitive: HTMLInputElement;
-            count: HTMLElement;
-            filter_column: HTMLSelectElement;
-            filter_count: HTMLElement;
-            filter_value: HTMLInputElement;
-            list: HTMLElement;
-            update_button: HTMLElement;
-            update_text: HTMLElement;
-        };
-        receive: () => void;
     }
 
     interface section_processes extends module_list {

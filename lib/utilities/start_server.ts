@@ -8,6 +8,7 @@ import file from "./file.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import os_lists from "./os_lists.ts";
+import ports_application from "../services/ports_application.ts";
 import server from "../transmit/server.ts";
 import server_create from "../services/server_create.ts";
 import spawn from "../core/spawn.ts";
@@ -812,6 +813,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         } while (index < len);
                                     }
                                     log.shell(logs, true);
+                                    ports_application();
                                 }
                             }
                         };

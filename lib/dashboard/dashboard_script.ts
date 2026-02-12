@@ -156,6 +156,9 @@ const ui = function ui():void {
                                 "dashboard-os-user": (dashboard.sections["users"] === undefined)
                                     ? null
                                     : dashboard.sections["users"].receive,
+                                "dashboard-ports-application": (dashboard.sections["ports-application"] === undefined)
+                                    ? null
+                                    : dashboard.sections["ports-application"].receive,
                                 "dashboard-server": (dashboard.sections["servers-web"] === undefined)
                                     ? (dashboard.sections["ports-application"] === undefined)
                                         ? null
@@ -279,11 +282,7 @@ const ui = function ui():void {
                         init("os-machine");
                         dashboard.tables.init(dashboard.sections["ports-application"]);
                         dashboard.tables.init(dashboard.sections["processes"]);
-                        if (dashboard.sections["servers-web"] !== undefined) {
-                            dashboard.sections["servers-web"].init();
-                        } else if (dashboard.sections["ports-application"] !== undefined) {
-                            dashboard.sections["ports-application"].receive();
-                        }
+                        init("servers-web");
                         dashboard.tables.init(dashboard.sections["services"]);
                         dashboard.tables.init(dashboard.sections["sockets-application-tcp"]);
                         dashboard.tables.init(dashboard.sections["sockets-application-udp"]);
@@ -821,9 +820,6 @@ const ui = function ui():void {
                     dashboard.sections["compose-containers"].nodes.update_containers.textContent = len_containers.toString();
                     dashboard.sections["compose-containers"].nodes.update_variables.textContent = len_variables.toString();
                     dashboard.sections["compose-containers"].nodes.update_time.textContent = data.time.dateTime(true, dashboard.global.payload.timeZone_offset);
-                    if (dashboard.sections["ports-application"] !== undefined) {
-                        dashboard.sections["ports-application"].receive();
-                    }
                 },
                 rows: 0,
                 shell: null,
@@ -2205,8 +2201,6 @@ const ui = function ui():void {
             // ports-application start
             "ports-application": {
                 dataName: "ports_application",
-                events: null,
-                init: null,
                 nodes: {
                     caseSensitive: document.getElementById("ports-application").getElementsByTagName("input")[1],
                     count: document.getElementById("ports-application").getElementsByTagName("em")[0],
@@ -2217,71 +2211,20 @@ const ui = function ui():void {
                     update_button: document.getElementById("ports-application").getElementsByTagName("button")[0],
                     update_text: document.getElementById("ports-application").getElementsByTagName("time")[0]
                 },
-                receive: function dashboard_sections_portsApplication_receive():void {
-                    const data:[number, "tcp"|"udp", "container"|"server", string, string][] = [],
-                        keys_container:string[] = Object.keys(dashboard.global.payload.compose.containers),
-                        keys_servers:string[] = Object.keys(dashboard.global.payload.servers);
-                    let index_item:number = keys_container.length,
-                        index_ports:number = 0,
-                        container:core_compose_container = null,
-                        server:server = null,
-                        tr:HTMLElement = null;
-
-                    // from containers
-                    if (index_item > 0) {
-                        do {
-                            index_item = index_item - 1;
-                            container = dashboard.global.payload.compose.containers[keys_container[index_item]];
-                            index_ports = container.ports.length;
-                            if (index_ports > 0) {
-                                do {
-                                    index_ports = index_ports - 1;
-                                    data.push([container.ports[index_ports][0], container.ports[index_ports][1], "container", container.name, keys_container[index_item]]);
-                                } while (index_ports > 0);
-                            }
-                        } while (index_item > 0);
-                    }
-
-                    // from servers
-                    index_item = keys_servers.length;
-                    if (index_item > 0) {
-                        do {
-                            index_item = index_item - 1;
-                            server = dashboard.global.payload.servers[keys_servers[index_item]];
-                            if (server.config.encryption === "both") {
-                                data.push([server.status.open, "tcp", "server", server.config.name, keys_servers[index_item]]);
-                                data.push([server.status.secure, "tcp", "server", server.config.name, keys_servers[index_item]]);
-                            } else {
-                                data.push([server.status[server.config.encryption], "tcp", "server", server.config.name, keys_servers[index_item]]);
-                            }
-                        } while (index_item > 0);
-                    }
-                    data.sort(function dashboard_sections_portsApplication_receive_sort(a:[number, "tcp"|"udp", "container"|"server", string, string], b:[number, "tcp"|"udp", "container"|"server", string, string]):-1|1 {
-                        if (a[0] < b[0] || (a[0] === b[0] && a[1] < b[1])) {
-                            return -1;
-                        }
-                        return 1;
-                    });
-                    index_ports = data.length;
-                    index_item = 0;
-                    dashboard.sections["ports-application"].nodes.list.textContent = "";
-                    if (index_ports > 0) {
-                        do {
-                            tr = document.createElement("tr");
-                            dashboard.tables.cell(tr, data[index_item][0].toString(), null);
-                            dashboard.tables.cell(tr, data[index_item][1], null);
-                            dashboard.tables.cell(tr, data[index_item][2], null);
-                            dashboard.tables.cell(tr, data[index_item][3], null);
-                            dashboard.tables.cell(tr, data[index_item][4], null);
-                            tr.setAttribute("class", (index_item % 2 === 0) ? "even" : "odd");
-                            dashboard.sections["ports-application"].nodes.list.appendChild(tr);
-                            index_item = index_item + 1;
-                        } while (index_item < index_ports);
-                    }
-                    dashboard.sections["ports-application"].nodes.count.textContent = index_ports.toString();
-                    dashboard.sections["ports-application"].nodes.update_text.textContent = Date.now().dateTime(true, dashboard.global.payload.timeZone_offset);
+                receive: function dashboard_sections_portsApplication_receive(socket_data:socket_data):void {
+                    const data:services_ports_application = socket_data.data as services_ports_application;
+                    dashboard.global.payload.ports_application = data;
+                    dashboard.tables.populate(dashboard.sections["ports-application"], data);
                 },
-                tools: null
+                row: function dashboard_sections_portsApplication_row(record_item:type_lists, tr:HTMLElement):void {
+                    const record:services_ports_application_item = record_item as services_ports_application_item
+                    dashboard.tables.cell(tr, record.port.toString(), null);
+                    dashboard.tables.cell(tr, record.type, null);
+                    dashboard.tables.cell(tr, record.service, null);
+                    dashboard.tables.cell(tr, record.service_name, null);
+                    dashboard.tables.cell(tr, record.hash, null);
+                },
+                sort_name: ["port", "type", "service", "name", "id"]
             },
             // ports-application end
             // processes start
@@ -2740,9 +2683,6 @@ const ui = function ui():void {
                             index = index + 1;
                         } while (index < total);
                     }
-                    if (dashboard.sections["ports-application"] !== undefined) {
-                        dashboard.sections["ports-application"].receive();
-                    }
                 },
                 tools: {
                     activePorts: function dashboard_sections_serversWeb_activePorts(id:boolean|string):HTMLElement {
@@ -2983,7 +2923,7 @@ const ui = function ui():void {
                 receive: null,
                 row: function dashboard_sections_socketsOS_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_sock = record_item as os_sock;
-                    let index:number = dashboard.global.payload.os.proc.data.length;
+                    let index:number = dashboard.global.payload.ports_application.data.length;
                     dashboard.tables.cell(tr, record["local-address"], null);
                     dashboard.tables.cell(tr, String(record["local-port"]), null);
                     dashboard.tables.cell(tr, record["remote-address"], null);
@@ -2993,6 +2933,14 @@ const ui = function ui():void {
                         dashboard.tables.cell(tr, "null", null);
                     } else {
                         dashboard.tables.cell(tr, String(record.process), null);
+                        do {
+                            index = index - 1;
+                            if (dashboard.global.payload.ports_application.data[index].port === record["local-port"] && dashboard.global.payload.ports_application.data[index].type === "tcp") {
+                                dashboard.tables.cell(tr, `${dashboard.global.payload.ports_application.data[index].service_name} (${dashboard.global.payload.ports_application.data[index].service})`, null);
+                                return;
+                            }
+                        } while (index > 0);
+                        index = dashboard.global.payload.os.proc.data.length;
                         do {
                             index = index - 1;
                             if (dashboard.global.payload.os.proc.data[index] !== undefined && dashboard.global.payload.os.proc.data[index].id === record.process) {
@@ -3022,7 +2970,7 @@ const ui = function ui():void {
                 receive: null,
                 row: function dashboard_sections_socketsOS_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_sock = record_item as os_sock;
-                    let index:number = dashboard.global.payload.os.proc.data.length;
+                    let index:number = dashboard.global.payload.ports_application.data.length;
                     dashboard.tables.cell(tr, record["local-address"], null);
                     dashboard.tables.cell(tr, String(record["local-port"]), null);
                     dashboard.tables.cell(tr, record["remote-address"], null);
@@ -3032,6 +2980,14 @@ const ui = function ui():void {
                         dashboard.tables.cell(tr, "null", null);
                     } else {
                         dashboard.tables.cell(tr, String(record.process), null);
+                        do {
+                            index = index - 1;
+                            if (dashboard.global.payload.ports_application.data[index].port === record["local-port"] && dashboard.global.payload.ports_application.data[index].type === "udp") {
+                                dashboard.tables.cell(tr, `${dashboard.global.payload.ports_application.data[index].service_name} (${dashboard.global.payload.ports_application.data[index].service})`, null);
+                                return;
+                            }
+                        } while (index > 0);
+                        index = dashboard.global.payload.os.proc.data.length;
                         do {
                             index = index - 1;
                             if (dashboard.global.payload.os.proc.data[index] !== undefined && dashboard.global.payload.os.proc.data[index].id === record.process) {
@@ -3565,7 +3521,7 @@ const ui = function ui():void {
                         dashboard.sections["terminal"].socket.onmessage = dashboard.sections["terminal"].events.data;
                         dashboard.sections["terminal"].info = JSON.parse(event.data);
                         dashboard.sections["terminal"].nodes.output.setAttribute("data-info", event.data);
-                        setTimeout(function dasbhoard_sections_terminal_firstData_delay():void {
+                        setTimeout(function dashboard_sections_terminal_firstData_delay():void {
                             dashboard.sections["terminal"].item.clear();
                         }, 50);
                     },
@@ -4757,7 +4713,9 @@ const ui = function ui():void {
                     module.nodes.filter_value.onkeyup = dashboard.tables.filter;
                     select(module.nodes.list.parentNode, module.nodes.filter_column);
                     if (module.dataName === "ports_application") {
-                        dashboard.tables.filter(null, module.nodes.filter_value);
+                        dashboard.tables.populate(module, dashboard.global.payload.ports_application);
+                        module.nodes.update_button.onclick = dashboard.tables.update;
+                        module.nodes.update_button.setAttribute("data-list", module.dataName);
                     } else if (module.dataName === "sockets-application-tcp") {
                         dashboard.tables.filter(null, module.nodes.filter_value);
                         module.nodes.update_button.onclick = dashboard.sections["sockets-application-tcp"].tools.update;
@@ -4914,7 +4872,11 @@ const ui = function ui():void {
             // request updated table data
             update: function dashboard_tables_update(event:MouseEvent):void {
                 const target:string = event.target.dataset.list;
-                dashboard.utility.message_send(null, `dashboard-os-${target}` as type_service);
+                if (target === "ports_application") {
+                    dashboard.utility.message_send(null, "dashboard-ports-application");
+                } else {
+                    dashboard.utility.message_send(null, `dashboard-os-${target}` as type_service);
+                }
             }
         },
         utility: {

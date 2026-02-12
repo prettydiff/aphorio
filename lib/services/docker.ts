@@ -3,6 +3,7 @@ import broadcast from "../transmit/broadcast.ts";
 import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
+import ports_application from "./ports_application.ts";
 import send from "../transmit/send.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
@@ -25,6 +26,7 @@ const docker:core_docker = {
         const complete = function services_docker_list_complete(message:string):void {
                 vars.compose.status = message;
                 vars.compose.time = now;
+                ports_application();
                 callback();
             },
             now:number = Date.now();

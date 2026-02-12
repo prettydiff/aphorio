@@ -6,7 +6,7 @@ type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentE
 type type_certKey = "ca" | "crt" | "key";
 type type_dashboard_action = type_halt_action | "activate" | "add" | "update";
 type type_dashboard_list = "container" | "server";
-type type_dashboard_init = "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "os-machine" | "ports-application" | "servers-web" | "statistics" | "terminal" | "test-http" | "test-websocket" | "udp-socket";
+type type_dashboard_init = "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "os-machine" | "servers-web" | "statistics" | "terminal" | "test-http" | "test-websocket" | "udp-socket";
 type type_dashboard_features = type_dashboard_init | type_dashboard_tables;
 type type_dashboard_sections = type_dashboard_features | "faq" | "help";
 type type_dashboard_status = "error" | "informational";
@@ -35,8 +35,8 @@ type type_halt_action = "deactivate" | "destroy" | "modify";
 type type_hash_input = "direct" | "file";
 type type_http_method = "connect" | "get" | "head" | "options" | "trace";
 type type_keys = "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "Backspace" | "c" | "Delete" | "Enter" | "v";
-type type_list_services = services_os_devs|services_os_proc|services_os_serv|services_os_sock|services_os_user;
-type type_lists = os_devs | os_proc | os_serv | os_sock | os_user;
+type type_list_services = services_os_devs | services_os_proc | services_os_serv | services_os_sock | services_os_user | services_ports_application;
+type type_lists = os_devs | os_proc | os_serv | os_sock | os_user | services_ports_application_item;
 
 type type_os_key = type_os_list_names_base | "disk" | "part" | "stcp" | "sudp" | "volu";
 type type_os_list_names = type_os_list_names_base | "stcp" | "sudp";
@@ -69,6 +69,7 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 // * dashboard-os-stcp             - services_os_sockets          - only the tcp socket information of dashboard-os-all
 // * dashboard-os-sudp             - services_os_sockets          - only the udp socket information of dashboard-os-all
 // * dashboard-os-user             - services_os_user             - only the user list information of dashboard-os-all
+// * dashboard-ports-application   - services_ports_application   - a list of port information and associated processes managed from this application
 // * dashboard-server              - store_servers                - configuration details and port status for all servers
 // * dashboard-socket-application  - services_socket_application  - status updates about sockets created by this application
 // * dashboard-status-clock        - services_status_clock        - current server clock time as epoch number
@@ -82,10 +83,10 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 // * dashboard-websocket-status    - services_websocket_status    - sends connection establishment details for a test socket
 // * test-browser                  - services_test_browser        - test automation messaging to the browser
 type type_service = "dashboard-compose-container" | "dashboard-compose-out" | "dashboard-compose-variables" | "dashboard-compose" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-log" | "dashboard-os-all" | "dashboard-os-devs" | "dashboard-os-disk" |
-    "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-stcp" | "dashboard-os-sudp" | "dashboard-os-user" | "dashboard-server" | "dashboard-socket-application" | "dashboard-statistics-change" | "dashboard-statistics-data" | "dashboard-status-clock" | "dashboard-terminal-resize" |
-    "dashboard-udp-socket"| "dashboard-udp-status" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
+    "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-stcp" | "dashboard-os-sudp" | "dashboard-os-user" | "dashboard-ports-application" | "dashboard-server" | "dashboard-socket-application" | "dashboard-statistics-change" | "dashboard-statistics-data" | "dashboard-status-clock" |
+    "dashboard-terminal-resize" | "dashboard-udp-socket"| "dashboard-udp-status" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
 
-type type_socket_data = config_log | core_compose | core_server_os | services_action_server | services_compose_container | services_dns_input | services_dns_output | services_dns_reverse | services_fileSystem | services_hash | services_http_test | services_os_disk | services_os_intr | services_socket_application |
+type type_socket_data = config_log | core_compose | core_server_os | services_action_server | services_compose_container | services_dns_input | services_dns_output | services_dns_reverse | services_fileSystem | services_hash | services_http_test | services_os_disk | services_os_intr | services_ports_application | services_socket_application |
     services_statistics_change | services_statistics_data | services_status_clock |services_terminal_resize | services_testBrowser | services_udp_socket | services_websocket_handshake | services_websocket_message | services_websocket_status | store_servers | store_string | string[] | transmit_dashboard | type_list_services;
 
 type type_socket_status = "closed" | "end" | "open" | "pending";
