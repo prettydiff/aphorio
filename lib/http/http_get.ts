@@ -337,9 +337,11 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
     if (server_id === vars.environment.dashboard_id) {
-        if (decoded.indexOf("file-system-") === 0) {
-            stat(decoded.replace("file-system-", ""));
-        } else if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
+        if (decoded.indexOf("file-system-") > -1) {
+            stat(decoded.slice(decoded.indexOf("file-system-") + 12));
+            return;
+        }
+        if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
                 log_len:number = vars.environment.logs.length,
                 logs_max:number = 5000,
@@ -363,6 +365,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     name: vars.environment.name,
                     os: vars.os,
                     path: vars.path,
+                    ports_application: vars.ports_application,
                     servers: (vars.environment.features["servers-web"] === true)
                         ? vars.servers
                         : null,
@@ -404,7 +407,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         write([
             "HTTP/1.1 404",
             "content-type: text/html",
-            `content-length: 0`,
+            "content-length: 0",
             "server: prettydiff/aphorio",
             "accept-ranges: bytes",
             "",

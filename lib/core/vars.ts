@@ -230,6 +230,11 @@ const vars:core_vars = {
             sep: "/",
             servers: ""
         },
+        // stores the port information for containers and services managed by this application
+        ports_application: {
+            data: [],
+            time: 0
+        },
         // objects describing web servers and contains objects describing their sockets
         servers: {},
         // the actual web server objects and their actual socket objects

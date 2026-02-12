@@ -33,6 +33,7 @@ interface transmit_dashboard {
     name: string;
     os: core_server_os;
     path: core_vars_path;
+    ports_application: services_ports_application;
     servers: store_servers;
     sockets: services_socket_application;
     stats: services_statistics_data;

@@ -170,6 +170,20 @@ interface services_os_user {
     time: number;
 }
 
+interface services_ports_application {
+    data: services_ports_application_item[];
+    time: number;
+}
+
+interface services_ports_application_item {
+    hash: string;
+    port: number;
+    service: "container" | "server";
+    service_name: string;
+    type: "tcp" | "udp";
+
+}
+
 interface services_server {
     activate: boolean;
     block_list?: {
@@ -271,8 +285,8 @@ interface services_terminal_resize {
     cols: number;
     hash: string;
     rows: number;
-    secure: "open" | "secure";
     section: type_dashboard_features;
+    secure: "open" | "secure";
 }
 
 interface services_testBrowser {

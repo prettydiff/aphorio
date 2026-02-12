@@ -3,6 +3,7 @@ import certificate from "./certificate.ts";
 import file from "../utilities/file.ts";
 import hash from "../core/hash.ts";
 import log from "../core/log.ts";
+import ports_application from "./ports_application.ts";
 import server from "../transmit/server.ts";
 import vars from "../core/vars.ts";
 
@@ -34,6 +35,7 @@ const server_create = function services_serverCreate(data:services_action_server
                         const serverCallback = function services_serverCreate_complete_serverCallback():void {
                                 server_count = server_count + 1;
                                 if ((server_count > 1 && config.encryption === "both") || config.encryption !== "both") {
+                                    ports_application();
                                     // 6. call the callback
                                     if (callback !== null) {
                                         callback();

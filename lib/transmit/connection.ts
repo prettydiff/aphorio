@@ -105,7 +105,6 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                     }
                 },
                 redirection = function transmit_connection_handshake_redirection():Buffer {
-                    let proxy_test:boolean = false;
                     const request_path:string = (headerList[0].includes("HTTP") === true)
                             ? headerList[0].replace(/ +/g, " ").replace(/ $/, "").slice(headerList[0].indexOf(" ") + 1, headerList[0].lastIndexOf(" "))
                             : null,
@@ -134,7 +133,8 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                             }
                             return false;
                         };
-                    let index:number = keys.length;
+                    let proxy_test:boolean = false,
+                        index:number = keys.length;
 
                     if (index > 0) {
                         let matched:boolean = false,
@@ -400,7 +400,6 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                 index = index - 1;
                                 if (vars.sockets.tcp[index].hash === hash) {
                                     if (vars.sockets.tcp[index].proxy === null) {
-                                        let proxy:websocket_client = null;
                                         const servers:string[] = Object.keys(vars.server_meta),
                                             list = function transmit_connection_handshake_proxyExisting_loop_list(server:server_meta_item, list_type:"open"|"secure"):boolean {
                                                 let sockets:number = server.sockets[list_type].length;
@@ -415,7 +414,8 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                                 } while (sockets > 0);
                                                 return false;
                                             };
-                                        let server_len:number = servers.length;
+                                        let proxy:websocket_client = null,
+                                            server_len:number = servers.length;
                                         if (server_len > 0) {
                                             do {
                                                 server_len = server_len - 1;

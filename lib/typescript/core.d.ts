@@ -287,6 +287,7 @@ interface core_vars {
     };
     os: core_server_os;
     path: core_vars_path;
+    ports_application: services_ports_application;
     server_meta: server_meta;
     servers: store_servers;
     sockets: services_socket_application;

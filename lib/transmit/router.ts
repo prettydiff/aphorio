@@ -5,6 +5,7 @@ import fileSystem from "../services/fileSystem.ts";
 import hash from "../services/hash.ts";
 import http_request from "../http/http_requestTest.ts";
 import os from "../services/os.ts";
+import ports_application from "../services/ports_application.ts";
 import servers from "../services/server.ts";
 import socket_list from "../services/socket_list.ts";
 import statistics from "../services/statistics.ts";
@@ -33,6 +34,7 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-os-serv": os,
             "dashboard-os-sock": os,
             "dashboard-os-user": os,
+            "dashboard-ports-application": ports_application,
             "dashboard-server": servers,
             "dashboard-socket-application": socket_list,
             "dashboard-statistics-change": statistics.change,
