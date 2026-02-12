@@ -241,7 +241,10 @@ const directory = function utilities_directory(args:config_directory):void {
                                                     add_item([name, "directory", parent, dir.length, stat_obj, ""]);
                                                     if (args.path !== "\\" || dir_len - 1 < args.depth) {
                                                         dir.forEach(function utilities_directory_statWrap_stat_populate_readdir_each(value:string):void {
-                                                            utilities_directory_statWrap(path + sep + value, false, output.length - 1);
+                                                            const pathy:string = (path === "/")
+                                                                ? ""
+                                                                : path;
+                                                            utilities_directory_statWrap(pathy + sep + value, false, output.length - 1);
                                                         });
                                                     }
                                                 }
