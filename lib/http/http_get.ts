@@ -231,18 +231,25 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                         end:number = (ranges[1] === "" || ranges[1] === undefined)
                                             ? Math.min(start + (1024 * 1024), size)
                                             : Number(ranges[1].split("/")[0]),
-                                        stream:node_fs_ReadStream = node.fs.createReadStream(input, {
+                                        empty:boolean = (end - start === 0);
+                                    if (empty === true) {
+                                        headerText[0] = "HTTP/1.1 200";
+                                        headerText[2] = "content-length: 0";
+                                        socket.write(headerText.join("\r\n"));
+                                    } else {
+                                        const stream:node_fs_ReadStream = node.fs.createReadStream(input, {
                                             end: end,
                                             start: start
                                         });
-                                    headerText[0] = status;
-                                    headerText[2] = `content-length: ${end - start}`;
-                                    headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
-                                    socket.write(headerText.join("\r\n"));
-                                    stream.pipe(socket);
-                                    stream.on("close", function http_get_statTest_fileItem_close():void {
-                                        socket.destroySoon();
-                                    });
+                                        headerText[0] = status;
+                                        headerText[2] = `content-length: ${end - start}`;
+                                        headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
+                                        socket.write(headerText.join("\r\n"));
+                                        stream.pipe(socket);
+                                        stream.on("close", function http_get_statTest_fileItem_close():void {
+                                            socket.destroySoon();
+                                        });
+                                    }
                                 } else {
                                     const stream:node_fs_ReadStream = node.fs.createReadStream(input);
                                     headerText[0] = status;

@@ -8,7 +8,9 @@ const socket_list = function services_socketList(extension?:() => void):void {
         len:number = keys.length,
         tcp:services_socket_application_tcp[] = [],
         socket_health = function services_socketList_socketHealth(server_id:string, encryption:"open"|"secure"):void {
-            const destroy = function services_socketList_socketHealth_destroy(socket:websocket_client, index:number):void {
+            const destroy = function services_socketList_socketHealth_destroy(socket:websocket_client):void {
+                const server_id:string = socket.server;
+                let index:number = vars.server_meta[server_id].sockets[encryption].length;
                 socket.status = "end";
                 socket.off("close", socket_end);
                 socket.off("end", socket_end);
@@ -16,60 +18,41 @@ const socket_list = function services_socketList(extension?:() => void):void {
                 socket.destroy();
                 vars.stats.net_in = vars.stats.net_in + socket.bytesRead;
                 vars.stats.net_out = vars.stats.net_out + socket.bytesWritten;
-                vars.server_meta[server_id].sockets[encryption].splice(index, 1);
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        if (vars.server_meta[server_id].sockets[encryption][index].hash === socket.hash) {
+                            vars.server_meta[server_id].sockets[encryption].splice(index, 1);
+                            break;
+                        }
+                    } while (index > 0);
+                }
+                index = vars.servers[server_id].sockets.length;
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        if (vars.servers[server_id].sockets[index].hash === socket.hash) {
+                            vars.servers[server_id].sockets.splice(index, 1);
+                            break;
+                        }
+                    } while (index > 0);
+                }
             };
             let index_list:number = (vars.server_meta[server_id].sockets[encryption] === undefined)
                     ? 0
                     : vars.server_meta[server_id].sockets[encryption].length,
-                index_server:number = 0,
                 socket_item:websocket_client = null;
             if (index_list > 0) {
                 do {
                     index_list = index_list - 1;
                     // find the actual socket from the socket store
                     socket_item = vars.server_meta[server_id].sockets[encryption][index_list];
-                    if (socket_item.destroyed === true || socket_item.closed === true) {
-
-                        // remove the socket config
-                        index_server = vars.servers[server_id].sockets.length;
-                        if (index_server > 0) {
-                            do {
-                                index_server = index_server - 1;
-                                if (
-                                    // remove the dead socket's configuration
-                                    vars.servers[server_id].sockets[index_server].hash === socket_item.hash ||
-                                    // kill any child test-websocket sockets if the corresponding dashboard socket ends
-                                    (vars.test.testing === true && socket_item.type === "dashboard" && vars.servers[server_id].sockets[index_server].hash === `websocketTest-${socket_item.hash}`) ||
-                                    // kill the socket's proxy, if any
-                                    (socket_item.proxy !== null && socket_item.proxy !== undefined && vars.servers[server_id].sockets[index_server].hash === socket_item.proxy.hash)
-                                ) {
-                                    vars.servers[server_id].sockets.splice(index_server, 1);
-                                }
-                            } while (index_server > 0);
+                    if (socket_item !== undefined && (socket_item.destroyed === true || socket_item.closed === true)) {
+                        if (socket_item.proxy !== null) {
+                            socket_item.unpipe(socket_item.proxy);
+                            destroy(socket_item.proxy);
                         }
-
-                        destroy(socket_item, index_list);
-
-                        if (
-                            (vars.test.testing === true && socket_item.type === "dashboard") ||
-                            (socket_item.proxy !== null && socket_item.proxy !== undefined)
-                        ) {
-                            index_server = vars.server_meta[server_id].sockets[encryption].length;
-                            if (index_server > 0) {
-                                do {
-                                    index_server = index_server - 1;
-                                    if (
-                                        vars.server_meta[server_id].sockets[encryption][index_server].hash === `websocketTest-${socket_item.hash}` ||
-                                        vars.server_meta[server_id].sockets[encryption][index_server] === socket_item.proxy
-                                    ) {
-                                        destroy(vars.server_meta[server_id].sockets[encryption][index_server], index_server);
-                                        if (index_server < index_list) {
-                                            index_list = index_list - 1;
-                                        }
-                                    }
-                                } while (index_server > 0);
-                            }
-                        }
+                        destroy(socket_item);
                     }
                 } while (index_list > 0);
             }

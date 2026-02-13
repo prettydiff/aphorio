@@ -66,6 +66,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             };
         config.socket.server = config.server;      // identifies which local server the given socket is connected to
         config.socket.hash = config.identifier;    // assigns a unique identifier to the socket based upon the socket's credentials
+        config.socket.proxy = config.proxy;        // assigns the relationship between a socket and its proxy, if any
         config.socket.role = config.role;          // assigns socket creation location
         config.socket.time = now;                  // socket creation time
         config.socket.type = config.type;          // a classification identifier to functionally identify a common utility of sockets on a given server
