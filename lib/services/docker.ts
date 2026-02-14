@@ -74,7 +74,9 @@ const docker:core_docker = {
                                 license: "",
                                 name: list[ind].Names,
                                 location: location,
-                                ports: ports(list[ind]),
+                                ports: (list[ind].Ports === "")
+                                    ? null
+                                    : ports(list[ind]),
                                 state: list[ind].State,
                                 status: list[ind].Status,
                                 version: ""

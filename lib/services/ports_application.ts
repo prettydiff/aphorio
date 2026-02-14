@@ -20,7 +20,9 @@ const ports_application = function services_portsApplication():void {
         do {
             index_item = index_item - 1;
             container = vars.compose.containers[keys_container[index_item]];
-            index_ports = container.ports.length;
+            index_ports = (container.ports === null)
+                ? 0
+                : container.ports.length;
             if (index_ports > 0) {
                 do {
                     index_ports = index_ports - 1;
