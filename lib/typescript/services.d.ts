@@ -100,6 +100,7 @@ interface services_hash {
     base64: boolean;
     digest: "base64" | "hex";
     size: number;
+    time: number;
     type: type_hash_input;
     value: string;
 }

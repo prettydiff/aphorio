@@ -4,7 +4,7 @@ import { Terminal } from "@xterm/xterm";
 
 declare global {
     interface BigInt {
-        time:(start:bigint) => string;
+        time:(start?:bigint) => string;
     }
 
     interface Document {
@@ -393,6 +393,7 @@ declare global {
             size: HTMLElement;
             source: HTMLTextAreaElement;
             string: HTMLInputElement;
+            time: HTMLElement;
             type: HTMLInputElement;
         };
     }

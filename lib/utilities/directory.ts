@@ -2,7 +2,7 @@
 import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
 
-// cspell: words convertto
+// cspell: words convertto, pathy
 
 const directory = function utilities_directory(args:config_directory):void {
     // arguments:
