@@ -1845,6 +1845,7 @@ const ui = function ui():void {
                                     ? "base64"
                                     : "hex",
                                 size: 0,
+                                time: null,
                                 type: (dashboard.sections["hash"].nodes.type.checked === true)
                                     ? "file"
                                     : "direct",
@@ -1919,12 +1920,14 @@ const ui = function ui():void {
                     size: document.getElementById("hash").getElementsByClassName("form")[1].getElementsByTagName("strong")[0],
                     source: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0],
                     string: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[2],
+                    time: document.getElementById("hash").getElementsByClassName("form")[1].getElementsByTagName("strong")[1],
                     type: document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input")[3]
                 },
                 receive: function dashboard_sections_hash_receive(data_item:socket_data):void {
                     const data:services_hash = data_item.data as services_hash;
                     dashboard.sections["hash"].nodes.output.value = data.value;
                     dashboard.sections["hash"].nodes.size.textContent = data.size.commas();
+                    dashboard.sections["hash"].nodes.time.textContent = data.time.time();
                 },
                 tools: null
             },
@@ -2217,7 +2220,7 @@ const ui = function ui():void {
                     dashboard.tables.populate(dashboard.sections["ports-application"], data);
                 },
                 row: function dashboard_sections_portsApplication_row(record_item:type_lists, tr:HTMLElement):void {
-                    const record:services_ports_application_item = record_item as services_ports_application_item
+                    const record:services_ports_application_item = record_item as services_ports_application_item;
                     dashboard.tables.cell(tr, record.port.toString(), null);
                     dashboard.tables.cell(tr, record.type, null);
                     dashboard.tables.cell(tr, record.service, null);

@@ -792,7 +792,9 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         index = 0;
                                         do {
                                             ports = vars.compose.containers[keys[index]].ports;
-                                            len_ports = ports.length;
+                                            len_ports = (ports === null)
+                                                ? 0
+                                                : ports.length;
                                             if (len_ports > 0) {
                                                 longest[2] = 0;
                                                 ports.sort(sort);

@@ -130,8 +130,8 @@ const receiver = function transmit_receiver(buf:Buffer):void {
         data[1] = (data[1] > 127)
             ? data[1] - 128
             : data[1];
-        const payload:Buffer = Buffer.concat([data.subarray(0, 2), unmask(data.subarray(2))]);
-        socket.write(payload);
+        const message:Buffer = Buffer.concat([data.subarray(0, 2), unmask(data.subarray(2))]);
+        socket.write(message);
         socket.destroy();
     } else if (frame.opcode === 9) {
         // respond to "ping" as "pong"
