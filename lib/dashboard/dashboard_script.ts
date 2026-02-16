@@ -835,7 +835,9 @@ const ui = function ui():void {
                             portList:HTMLElement = document.createElement("ul"),
                             container:core_compose_container = dashboard.global.payload.compose.containers[id as string],
                             ports:type_docker_ports = container.ports,
-                            len:number = ports.length,
+                            len:number = (ports === null)
+                                ? 0
+                                : ports.length,
                             ul:HTMLElement = document.createElement("ul"),
                             properties = function dashboard_sections_composeContainers_description_properties(name:string, value:string):void {
                                 const li:HTMLElement = document.createElement("li"),
