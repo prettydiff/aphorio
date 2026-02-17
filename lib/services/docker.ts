@@ -65,30 +65,38 @@ const docker:core_docker = {
                         file_callback = function services_docker_list_child_fileCallback(file:Buffer, location:string, identifier:string):void {
                             const ind:number = Number(identifier),
                                 id:string = list[ind].ID;
-                            vars.compose.containers[id] = {
-                                compose: file.toString(),
-                                created: new Date(list[ind].CreatedAt).valueOf(),
-                                description: "",
-                                id: id,
-                                image: list[ind].Image,
-                                license: "",
-                                name: list[ind].Names,
-                                location: location,
-                                ports: (list[ind].Ports === "")
-                                    ? null
-                                    : ports(list[ind]),
-                                state: list[ind].State,
-                                status: list[ind].Status,
-                                version: ""
-                            };
-                            if (vars.compose.containers[location] !== undefined) {
-                                delete vars.compose.containers[location];
-                            }
-                            addresses.push(location);
                             total = total + 1;
-                            spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.description"}}'`, description, {type: identifier}).execute();
-                            spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.licenses"}}'`, license, {type: identifier}).execute();
-                            spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.version"}}'`, version, {type: identifier}).execute();
+                            if (file === null) {
+                                delete vars.compose.containers[id];
+                                delete vars.compose.containers[location];
+                                complete_ps();
+                            } else {
+                                if (vars.compose.containers[location] !== undefined) {
+                                    delete vars.compose.containers[location];
+                                }
+                                vars.compose.containers[id] = {
+                                    compose: (file === null)
+                                        ? null
+                                        : file.toString(),
+                                    created: new Date(list[ind].CreatedAt).valueOf(),
+                                    description: "",
+                                    id: id,
+                                    image: list[ind].Image,
+                                    license: "",
+                                    name: list[ind].Names,
+                                    location: location,
+                                    ports: (file === null || list[ind].Ports === "")
+                                        ? null
+                                        : ports(list[ind]),
+                                    state: list[ind].State,
+                                    status: list[ind].Status,
+                                    version: ""
+                                };
+                                addresses.push(location);
+                                spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.description"}}'`, description, {type: identifier}).execute();
+                                spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.licenses"}}'`, license, {type: identifier}).execute();
+                                spawn(`docker inspect ${list[ind].ID} -f '{{index .Config.Labels "org.opencontainers.image.version"}}'`, version, {type: identifier}).execute();
+                            }
                         },
                         ports = function services_docker_list_child_ports(properties:core_compose_properties):type_docker_ports {
                             const items:string[] = properties.Ports.replace(/, /g, ",").split(","),
