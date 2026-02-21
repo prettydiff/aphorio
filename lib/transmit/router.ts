@@ -14,7 +14,7 @@ import test_runner from "../test/runner.ts";
 import udp_socket from "../services/udp_socket.ts";
 import websocket_test from "../services/websocket.ts";
 
-// cspell: words serv
+// cspell: words serv, stcp, sudp
 
 const router = function transmit_router(socketData:socket_data, transmit:transmit_socket):void {
     const services:type_service = socketData.service,
@@ -33,6 +33,8 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-os-proc": os,
             "dashboard-os-serv": os,
             "dashboard-os-sock": os,
+            "dashboard-os-stcp": os,
+            "dashboard-os-sudp": os,
             "dashboard-os-user": os,
             "dashboard-ports-application": ports_application,
             "dashboard-server": servers,

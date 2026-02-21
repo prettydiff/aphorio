@@ -1327,7 +1327,7 @@ const ui = function ui():void {
                             };
                         if (dashboard.sections["file-system"].block === false) {
                             dashboard.sections["file-system"].block = true;
-                            dashboard.sections["file-system"].time = BigInt(Math.round(performance.now() * 1e6));
+                            dashboard.utility.performance_set("file-system");
                             dashboard.sections["file-system"].nodes.status.textContent = "Fetching\u2026";
                             dashboard.utility.message_send(payload, "dashboard-fileSystem");
                         }
@@ -1666,7 +1666,7 @@ const ui = function ui():void {
                         };
                     let index_record:number = 0,
                         size:number = 0;
-                    dashboard.sections["file-system"].nodes.status.textContent = `Fetched in ${BigInt(Math.round(performance.now() * 1e6)).time(dashboard.sections["file-system"].time).replace(/000$/, "")} time.`;
+                    dashboard.sections["file-system"].nodes.status.textContent = `Fetched in ${dashboard.utility.performance_get("file-system")} time.`;
                     dashboard.sections["file-system"].nodes.path.value = fs.address;
                     dashboard.sections["file-system"].nodes.search.value = (fs.search === null)
                         ? ""
@@ -1847,13 +1847,13 @@ const ui = function ui():void {
                                     ? "base64"
                                     : "hex",
                                 size: 0,
-                                time: null,
                                 type: (dashboard.sections["hash"].nodes.type.checked === true)
                                     ? "file"
                                     : "direct",
                                 value: dashboard.sections["hash"].nodes.source.value
                             };
                         dashboard.sections["hash"].nodes.output.value = "";
+                        dashboard.utility.performance_set("hash");
                         dashboard.utility.setState();
                         dashboard.utility.message_send(service, "dashboard-hash");
                     },
@@ -1929,8 +1929,9 @@ const ui = function ui():void {
                     const data:services_hash = data_item.data as services_hash;
                     dashboard.sections["hash"].nodes.output.value = data.value;
                     dashboard.sections["hash"].nodes.size.textContent = data.size.commas();
-                    dashboard.sections["hash"].nodes.time.textContent = data.time.time();
+                    dashboard.sections["hash"].nodes.time.textContent = dashboard.utility.performance_get("hash");
                 },
+                time: 0n,
                 tools: null
             },
             // hash end
@@ -2773,61 +2774,24 @@ const ui = function ui():void {
                     update_button: document.getElementById("sockets-application-tcp").getElementsByTagName("button")[0],
                     update_text: document.getElementById("sockets-application-tcp").getElementsByTagName("time")[0]
                 },
-                receive: function dashboard_sections_socketsApplication_receive(socket_data:socket_data):void {
-                    let tr:HTMLElement = null,
-                        index:number = 0;
-                    const config:services_socket_application = socket_data.data as services_socket_application,
-                        len:number = config.tcp.length,
-                        tbody:HTMLElement = dashboard.sections["sockets-application-tcp"].nodes.list,
-                        table:HTMLElement = tbody.parentNode,
-                        cell = function dashboard_sections_socketsApplication_receive_cell(text:string, classy:string, raw:number):void {
-                            const td:HTMLElement = document.createElement("td");
-                            td.textContent = text;
-                            if (classy !== null) {
-                                td.setAttribute("class", classy);
-                                td.setAttribute("title", text);
-                            }
-                            if (raw !== null) {
-                                td.setAttribute("data-raw", String(raw));
-                            }
-                            tr.appendChild(td);
-                        },
-                        start:bigint = BigInt(config.time * 1e6);
-                    tbody.textContent = "";
-                    do {
-                        tr = document.createElement("tr");
-                        cell(config.tcp[index].server_id, "server_id", null);
-                        cell(config.tcp[index].server_name, null, null);
-                        cell(config.tcp[index].hash, null, null);
-                        cell(config.tcp[index].type, null, null);
-                        cell(config.tcp[index].role, null, null);
-                        cell((config.tcp[index].proxy === null) ? "" : config.tcp[index].proxy, null, null);
-                        cell(String(config.tcp[index].encrypted), null, null);
-                        cell(config.tcp[index].address.local.address, null, null);
-                        cell(String(config.tcp[index].address.local.port), null, null);
-                        cell(config.tcp[index].address.remote.address, null, null);
-                        cell(String(config.tcp[index].address.remote.port), null, null);
-                        cell(config.tcp[index].userAgent, null, null);
-                        cell(start.time(BigInt(config.tcp[index].time * 1e6)), null, config.tcp[index].time);
-                        tbody.appendChild(tr);
-                        index = index + 1;
-                    } while (index < len);
-                    dashboard.sections["sockets-application-tcp"].nodes.count.textContent = tbody.getElementsByTagName("tr").length.commas();
-                    dashboard.sections["sockets-application-tcp"].nodes.update_text.textContent = config.time.dateTime(true, dashboard.global.payload.timeZone_offset);
-                    dashboard.tables.filter(null, dashboard.sections["sockets-application-tcp"].nodes.filter_value);
-                    dashboard.tables.sort(null, table, Number(table.dataset.column));
-                    if (dashboard.sections["sockets-application-udp"] !== undefined) {
-                        dashboard.sections["sockets-application-tcp"].sort_name[0] = "loaded";
-                        if (dashboard.sections["sockets-application-udp"].sort_name[0] === "") {
-                            dashboard.sections["sockets-application-udp"].receive(socket_data);
-                        } else {
-                            dashboard.sections["sockets-application-tcp"].sort_name[0] = "";
-                            dashboard.sections["sockets-application-udp"].sort_name[0] = "";
-                        }
-                    }
+                receive: null,
+                row: function dashboard_sections_socketsApplicationTCP_row(record_item:type_lists, tr:HTMLElement):void {
+                    const record:services_socket_application_tcp = record_item as services_socket_application_tcp;
+                    dashboard.tables.cell(tr, record["server_id"], null);
+                    dashboard.tables.cell(tr, record["server_name"], null);
+                    dashboard.tables.cell(tr, record["hash"], null);
+                    dashboard.tables.cell(tr, record["type"], null);
+                    dashboard.tables.cell(tr, record["role"], null);
+                    dashboard.tables.cell(tr, record["proxy"], null);
+                    dashboard.tables.cell(tr, String(record["encrypted"]), null);
+                    dashboard.tables.cell(tr, record["address"].local.address, null);
+                    dashboard.tables.cell(tr, String(record["address"].local.port), null);
+                    dashboard.tables.cell(tr, record["address"].remote.address, null);
+                    dashboard.tables.cell(tr, String(record["address"].remote.port), null);
+                    dashboard.tables.cell(tr, record["userAgent"], null);
+                    dashboard.tables.cell(tr, BigInt(Date.now() * 1e6).time(BigInt(record["time"] * 1e6)), String(record["time"]));
                 },
-                row: null,
-                sort_name: [""],
+                sort_name: ["server_id", "server_name", "hash", "type", "role", "proxy", "encrypted", "address-local-address", "address-local-port", "address-remote-address", "address-remote-port", "userAgent", "time"],
                 tools: {
                     update: function dashboard_sections_socketsApplication_update():void {
                         dashboard.utility.message_send(null, "dashboard-socket-application");
@@ -2848,63 +2812,22 @@ const ui = function ui():void {
                     update_button: document.getElementById("sockets-application-udp").getElementsByTagName("button")[0],
                     update_text: document.getElementById("sockets-application-udp").getElementsByTagName("time")[0]
                 },
-                receive: function dashboard_sections_socketsApplication_receive(socket_data:socket_data):void {
-                    let tr:HTMLElement = null,
-                        index:number = 0;
-                    const config:services_socket_application = socket_data.data as services_socket_application,
-                        len:number = config.udp.length,
-                        tbody:HTMLElement = dashboard.sections["sockets-application-udp"].nodes.list,
-                        table:HTMLElement = tbody.parentNode,
-                        cell = function dashboard_sections_socketsApplication_receive_cell(text:string, classy:string, raw:number):void {
-                            const td:HTMLElement = document.createElement("td");
-                            td.textContent = text;
-                            if (classy !== null) {
-                                td.setAttribute("class", classy);
-                                td.setAttribute("title", text);
-                            }
-                            if (raw !== null) {
-                                td.setAttribute("data-raw", String(raw));
-                            }
-                            tr.appendChild(td);
-                        },
-                        start:bigint = BigInt(config.time * 1e6);
-                    tbody.textContent = "";
-                    if (len > 0) {
-                        do {
-                            tr = document.createElement("tr");
-                            cell(config.udp[index].hash, "server_id", null);
-                            cell(config.udp[index].address_local, null, null);
-                            cell(String(config.udp[index].port_local), null, null);
-                            cell(config.udp[index].address_remote, null, null);
-                            cell(String(config.udp[index].port_remote), null, null);
-                            cell(config.udp[index].role, null, null);
-                            cell(config.udp[index].multicast_group, null, null);
-                            cell(config.udp[index].multicast_interface, null, null);
-                            cell(config.udp[index].multicast_membership, null, null);
-                            cell(config.udp[index].multicast_source, null, null);
-                            cell(start.time(BigInt(config.udp[index].time * 1e6)), null, config.udp[index].time);
-                            tbody.appendChild(tr);
-                            index = index + 1;
-                        } while (index < len);
-                        dashboard.tables.sort(null, table, Number(table.dataset.column));
-                        dashboard.tables.filter(null, dashboard.sections["sockets-application-udp"].nodes.filter_value);
-                    } else {
-                        dashboard.sections["sockets-application-udp"].nodes.filter_count.textContent = "0";
-                    }
-                    dashboard.sections["sockets-application-udp"].nodes.count.textContent = tbody.getElementsByTagName("tr").length.commas();
-                    dashboard.sections["sockets-application-udp"].nodes.update_text.textContent = config.time.dateTime(true, dashboard.global.payload.timeZone_offset);
-                    if (dashboard.sections["sockets-application-tcp"] !== undefined) {
-                        dashboard.sections["sockets-application-udp"].sort_name[0] = "loaded";
-                        if (dashboard.sections["sockets-application-tcp"].sort_name[0] === "") {
-                            dashboard.sections["sockets-application-tcp"].receive(socket_data);
-                        } else {
-                            dashboard.sections["sockets-application-tcp"].sort_name[0] = "";
-                            dashboard.sections["sockets-application-udp"].sort_name[0] = "";
-                        }
-                    }
+                receive: null,
+                row: function dashboard_sections_socketsApplicationTCP_row(record_item:type_lists, tr:HTMLElement):void {
+                    const record:services_udp_socket = record_item as services_udp_socket;
+                    dashboard.tables.cell(tr, record["hash"], null);
+                    dashboard.tables.cell(tr, record["address_local"], null);
+                    dashboard.tables.cell(tr, String(record["port_local"]), null);
+                    dashboard.tables.cell(tr, record["address_remote"], null);
+                    dashboard.tables.cell(tr, String(record["port_remote"]), null);
+                    dashboard.tables.cell(tr, record["role"], null);
+                    dashboard.tables.cell(tr, record["multicast_group"], null);
+                    dashboard.tables.cell(tr, record["multicast_interface"], null);
+                    dashboard.tables.cell(tr, record["multicast_membership"], null);
+                    dashboard.tables.cell(tr, record["multicast_source"], null);
+                    dashboard.tables.cell(tr, BigInt(Date.now() * 1e6).time(BigInt(record["time"] * 1e6)), String(record["time"]));
                 },
-                row: null,
-                sort_name: [""],
+                sort_name: ["hash", "address_local", "port_local", "address_remote", "port_remote", "role", "multicast_group", "multicast_interface", "multicast_membership", "multicast_source", "time"],
                 tools: {
                     update: function dashboard_sections_socketsApplication_update():void {
                         dashboard.utility.message_send(null, "dashboard-socket-application");
@@ -4716,11 +4639,12 @@ const ui = function ui():void {
                     module.nodes.caseSensitive.onclick = dashboard.utility.setState;
                     module.nodes.filter_value.onblur = dashboard.tables.filter;
                     module.nodes.filter_value.onkeyup = dashboard.tables.filter;
+                    module.receive = dashboard.tables.receive;
                     select(module.nodes.list.parentNode, module.nodes.filter_column);
                     if (module.dataName === "ports_application") {
-                        dashboard.tables.populate(module, dashboard.global.payload.ports_application);
                         module.nodes.update_button.onclick = dashboard.tables.update;
                         module.nodes.update_button.setAttribute("data-list", module.dataName);
+                        dashboard.tables.populate(module, dashboard.global.payload.ports_application);
                     } else if (module.dataName === "sockets-application-tcp") {
                         dashboard.tables.filter(null, module.nodes.filter_value);
                         module.nodes.update_button.onclick = dashboard.sections["sockets-application-tcp"].tools.update;
@@ -4769,6 +4693,33 @@ const ui = function ui():void {
                     dashboard.tables.filter(null, module.nodes.filter_value);
                     // @ts-expect-error - cannot infer a module from a union of modules by a type name from a union of type names
                     dashboard.global.payload.os[module.dataName] = item;
+                }
+            },
+            // populate data from update requests
+            receive: function dashboard_table_receive(socket_data:socket_data):void {
+                const service:type_service = socket_data.service,
+                    map:store_string = {
+                        "dashboard-ports-application": "ports-application",
+                        "dashboard-os-devs": "devices",
+                        "dashboard-os-proc": "processes",
+                        "dashboard-os-serv": "services",
+                        "dashboard-os-user": "users",
+                        "dashboard-os-stcp": "sockets-os-tcp",
+                        "dashboard-os-sudp": "sockets-os-udp"
+                    },
+                    module:module_list = dashboard.sections[map[service] as type_dashboard_tables];
+                if (service === "dashboard-socket-application") {
+                    const sockets:services_socket_application = socket_data.data as services_socket_application;
+                    dashboard.tables.populate(dashboard.sections["sockets-application-tcp"], {
+                        data: sockets.tcp,
+                        time: sockets.time
+                    });
+                    dashboard.tables.populate(dashboard.sections["sockets-application-udp"], {
+                        data: sockets.udp,
+                        time: sockets.time
+                    });
+                } else if (module !== undefined) {
+                    dashboard.tables.populate(module, socket_data.data as type_list_services);
                 }
             },
             // sort data from html tables
@@ -5060,6 +5011,12 @@ const ui = function ui():void {
                 clock: document.getElementById("clock").getElementsByTagName("time")[0],
                 load: document.getElementsByClassName("title")[0].getElementsByTagName("time")[0],
                 main: document.getElementsByTagName("main")[0]
+            },
+            performance_get: function dashboard_utility_performance(section:type_dashboard_sections):string {
+                return BigInt(Math.round(performance.now() * 1e6)).time(dashboard.sections[section as "file-system"].time).replace(/000$/, "");
+            },
+            performance_set: function dashboard_utility_performance(section:type_dashboard_sections):void {
+                dashboard.sections[section as "file-system"].time = BigInt(Math.round(performance.now() * 1e6));
             },
             // a universal bucket to store all resize event handlers
             resize: function dashboard_utility_resize():void {

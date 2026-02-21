@@ -117,6 +117,7 @@ declare global {
             filter: (event:Event, target?:HTMLInputElement) => void;
             init: (module:module_list|section_ports_application|section_sockets_application) => void;
             populate: (module:module_list, item:type_list_services) => void;
+            receive: (socket_data:socket_data) => void;
             sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
             update: (event:MouseEvent) => void;
         };
@@ -129,6 +130,8 @@ declare global {
                 load: HTMLElement;
                 main: HTMLElement;
             };
+            performance_get: (section:type_dashboard_sections) => string;
+            performance_set: (section:type_dashboard_sections) => void;
             resize: () => void;
             setState: () => void;
         };
@@ -396,6 +399,7 @@ declare global {
             time: HTMLElement;
             type: HTMLInputElement;
         };
+        time: bigint;
     }
 
     interface section_http_test extends module_sections {
