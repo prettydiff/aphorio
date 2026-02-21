@@ -100,7 +100,6 @@ interface services_hash {
     base64: boolean;
     digest: "base64" | "hex";
     size: number;
-    time: number;
     type: type_hash_input;
     value: string;
 }
@@ -220,9 +219,14 @@ interface services_server_method {
 }
 
 interface services_socket_application {
-    tcp: Array<services_socket_application_tcp>;
+    tcp: services_socket_application_tcp[];
     time: number;
-    udp: Array<services_udp_socket>;
+    udp: services_udp_socket[];
+}
+
+interface services_socket_application_list {
+    data: services_socket_application_tcp[] | services_udp_socket[];
+    time: number;
 }
 
 interface services_socket_application_tcp {

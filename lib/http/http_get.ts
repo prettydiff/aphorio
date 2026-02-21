@@ -372,7 +372,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     name: vars.environment.name,
                     os: vars.os,
                     path: vars.path,
-                    ports_application: vars.ports_application,
+                    "ports-application": vars.ports_application,
                     servers: (vars.environment.features["servers-web"] === true)
                         ? vars.servers
                         : null,

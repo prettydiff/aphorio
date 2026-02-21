@@ -81,7 +81,7 @@ declare global {
             "application-logs": section_applicationLogs;
             "compose-containers": section_compose_containers;
             "devices": section_devices;
-            "disks": module_sections;
+            "disks": section_disks;
             "dns-query": section_dns_query;
             "file-system": section_file_system;
             "hash": section_hash;
@@ -117,6 +117,7 @@ declare global {
             filter: (event:Event, target?:HTMLInputElement) => void;
             init: (module:module_list|section_ports_application|section_sockets_application) => void;
             populate: (module:module_list, item:type_list_services) => void;
+            receive: (socket_data:socket_data) => void;
             sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
             update: (event:MouseEvent) => void;
         };
@@ -129,6 +130,8 @@ declare global {
                 load: HTMLElement;
                 main: HTMLElement;
             };
+            performance_get: (section:type_dashboard_sections) => string;
+            performance_set: (section:type_dashboard_sections) => void;
             resize: () => void;
             setState: () => void;
         };
@@ -192,11 +195,13 @@ declare global {
             filter_value: HTMLInputElement;
             list: HTMLElement;
             update_button: HTMLButtonElement;
+            update_duration: HTMLElement;
             update_text: HTMLElement;
         };
         receive: (socket_data:socket_data) => void;
         row: (record:type_lists, tr:HTMLElement) => void;
         sort_name: string[];
+        time: bigint;
     }
 
     interface module_os_nodes {
@@ -238,6 +243,7 @@ declare global {
             uptime: HTMLElement;
         };
         update_button: HTMLButtonElement;
+        update_duration: HTMLElement;
         update_text: HTMLElement;
         user: {
             gid: HTMLElement;
@@ -328,6 +334,13 @@ declare global {
         dataName: "devs";
     }
 
+    interface section_disks extends module_sections {
+        events: {
+            update: () => void;
+        };
+        time: bigint;
+    }
+
     interface section_dns_query extends module_sections {
         events: {
             directionEvent: (event:MouseEvent) => void;
@@ -396,6 +409,7 @@ declare global {
             time: HTMLElement;
             type: HTMLInputElement;
         };
+        time: bigint;
     }
 
     interface section_http_test extends module_sections {
@@ -415,22 +429,31 @@ declare global {
     }
 
     interface section_interfaces extends module_sections {
+        events: {
+            update: () => void;
+        };
         init: () => void;
         nodes: {
             count: HTMLElement;
             list: HTMLElement;
             update_button: HTMLButtonElement;
+            update_duration: HTMLElement;
             update_text: HTMLElement;
         };
         receive: (socket_data:socket_data) => void;
+        time: bigint;
     }
 
     interface section_os extends module_sections {
+        events: {
+            update: () => void;
+        };
         nodes_os: module_os_nodes;
+        time: bigint;
     }
 
     interface section_ports_application extends module_list {
-        dataName: "ports_application";
+        dataName: "ports-application";
     }
 
     interface section_processes extends module_list {
@@ -458,9 +481,6 @@ declare global {
 
     interface section_sockets_application extends module_list {
         dataName: "sockets-application-tcp" | "sockets-application-udp";
-        tools: {
-            update: () => void;
-        };
     }
 
     interface section_sockets_os extends module_list {
