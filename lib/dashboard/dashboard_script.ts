@@ -710,24 +710,26 @@ const ui = function ui():void {
                 },
                 init: function dashboard_sections_composeContainers_init():void {
                     const shell = function dashboard_sections_composeContainers_init_shell():void {
-                        if (typeof Terminal === "undefined") {
-                            setTimeout(dashboard_sections_composeContainers_init_shell, 200);
-                        } else {
-                            dashboard.sections["compose-containers"].shell = new Terminal({
-                                cols: dashboard.sections["compose-containers"].cols,
-                                cursorBlink: true,
-                                cursorStyle: "underline",
-                                disableStdin: false,
-                                readonly: true,
-                                rows: dashboard.sections["compose-containers"].rows,
-                                theme: {
-                                    background: "#222",
-                                    selectionBackground: "#444"
+                        if (dashboard.sections["compose-containers"].shell === null) {
+                            if (typeof Terminal === "undefined") {
+                                setTimeout(dashboard_sections_composeContainers_init_shell, 200);
+                            } else {
+                                dashboard.sections["compose-containers"].shell = new Terminal({
+                                    cols: dashboard.sections["compose-containers"].cols,
+                                    cursorBlink: true,
+                                    cursorStyle: "underline",
+                                    disableStdin: false,
+                                    readonly: true,
+                                    rows: dashboard.sections["compose-containers"].rows,
+                                    theme: {
+                                        background: "#222",
+                                        selectionBackground: "#444"
+                                    }
+                                });
+                                dashboard.sections["compose-containers"].shell.open(dashboard.sections["compose-containers"].nodes.shell);
+                                if (typeof navigator.clipboard !== "undefined") {
+                                    dashboard.sections["compose-containers"].shell.onSelectionChange(dashboard.sections["compose-containers"].events.selection);
                                 }
-                            });
-                            dashboard.sections["compose-containers"].shell.open(dashboard.sections["compose-containers"].nodes.shell);
-                            if (typeof navigator.clipboard !== "undefined") {
-                                dashboard.sections["compose-containers"].shell.onSelectionChange(dashboard.sections["compose-containers"].events.selection);
                             }
                         }
                     };
