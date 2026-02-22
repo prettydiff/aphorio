@@ -710,24 +710,26 @@ const ui = function ui():void {
                 },
                 init: function dashboard_sections_composeContainers_init():void {
                     const shell = function dashboard_sections_composeContainers_init_shell():void {
-                        if (typeof Terminal === "undefined") {
-                            setTimeout(dashboard_sections_composeContainers_init_shell, 200);
-                        } else {
-                            dashboard.sections["compose-containers"].shell = new Terminal({
-                                cols: dashboard.sections["compose-containers"].cols,
-                                cursorBlink: true,
-                                cursorStyle: "underline",
-                                disableStdin: false,
-                                readonly: true,
-                                rows: dashboard.sections["compose-containers"].rows,
-                                theme: {
-                                    background: "#222",
-                                    selectionBackground: "#444"
+                        if (dashboard.sections["compose-containers"].shell === null) {
+                            if (typeof Terminal === "undefined") {
+                                setTimeout(dashboard_sections_composeContainers_init_shell, 200);
+                            } else {
+                                dashboard.sections["compose-containers"].shell = new Terminal({
+                                    cols: dashboard.sections["compose-containers"].cols,
+                                    cursorBlink: true,
+                                    cursorStyle: "underline",
+                                    disableStdin: false,
+                                    readonly: true,
+                                    rows: dashboard.sections["compose-containers"].rows,
+                                    theme: {
+                                        background: "#222",
+                                        selectionBackground: "#444"
+                                    }
+                                });
+                                dashboard.sections["compose-containers"].shell.open(dashboard.sections["compose-containers"].nodes.shell);
+                                if (typeof navigator.clipboard !== "undefined") {
+                                    dashboard.sections["compose-containers"].shell.onSelectionChange(dashboard.sections["compose-containers"].events.selection);
                                 }
-                            });
-                            dashboard.sections["compose-containers"].shell.open(dashboard.sections["compose-containers"].nodes.shell);
-                            if (typeof navigator.clipboard !== "undefined") {
-                                dashboard.sections["compose-containers"].shell.onSelectionChange(dashboard.sections["compose-containers"].events.selection);
                             }
                         }
                     };
@@ -2269,7 +2271,7 @@ const ui = function ui():void {
                     dashboard.tables.cell(tr, record.type, null);
                     dashboard.tables.cell(tr, record.service, null);
                     dashboard.tables.cell(tr, record.service_name, null);
-                    dashboard.tables.cell(tr, record.hash, null);
+                    dashboard.tables.cell(tr, record.hash, "id");
                 },
                 sort_name: ["port", "type", "service", "name", "id"],
                 time: 0n
@@ -2824,7 +2826,7 @@ const ui = function ui():void {
                 receive: null,
                 row: function dashboard_sections_socketsApplicationTCP_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:services_socket_application_tcp = record_item as services_socket_application_tcp;
-                    dashboard.tables.cell(tr, record["server_id"], null);
+                    dashboard.tables.cell(tr, record["server_id"], "id");
                     dashboard.tables.cell(tr, record["server_name"], null);
                     dashboard.tables.cell(tr, record["hash"], null);
                     dashboard.tables.cell(tr, record["type"], null);
@@ -4560,7 +4562,10 @@ const ui = function ui():void {
                 td.textContent = text;
                 if (raw !== null) {
                     td.setAttribute("class", "right");
-                    if (raw !== text) {
+                    if (raw === "id") {
+                        td.setAttribute("class", "server_id");
+                        td.setAttribute("title", text);
+                    } else if (raw !== text) {
                         td.setAttribute("data-raw", raw);
                     }
                 }

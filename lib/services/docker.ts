@@ -204,17 +204,23 @@ const docker:core_docker = {
                         },
                         description = function services_docker_listCallback_child_description(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
-                            vars.compose.containers[id].description = out.stdout.trim();
+                            if (vars.compose.containers[id] !== undefined) {
+                                vars.compose.containers[id].description = out.stdout.trim();
+                            }
                             complete_meta(id);
                         },
                         license = function services_docker_listCallback_child_license(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
-                            vars.compose.containers[id].license = out.stdout.trim();
+                            if (vars.compose.containers[id] !== undefined) {
+                                vars.compose.containers[id].license = out.stdout.trim();
+                            }
                             complete_meta(id);
                         },
                         version = function services_docker_listCallback_child_version(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
-                            vars.compose.containers[id].version = out.stdout.trim();
+                            if (vars.compose.containers[id] !== undefined) {
+                                vars.compose.containers[id].version = out.stdout.trim();
+                            }
                             complete_meta(id);
                         };
                     let index:number = 0,
