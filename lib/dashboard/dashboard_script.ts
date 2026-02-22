@@ -2271,7 +2271,7 @@ const ui = function ui():void {
                     dashboard.tables.cell(tr, record.type, null);
                     dashboard.tables.cell(tr, record.service, null);
                     dashboard.tables.cell(tr, record.service_name, null);
-                    dashboard.tables.cell(tr, record.hash, null);
+                    dashboard.tables.cell(tr, record.hash, "id");
                 },
                 sort_name: ["port", "type", "service", "name", "id"],
                 time: 0n
@@ -2826,7 +2826,7 @@ const ui = function ui():void {
                 receive: null,
                 row: function dashboard_sections_socketsApplicationTCP_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:services_socket_application_tcp = record_item as services_socket_application_tcp;
-                    dashboard.tables.cell(tr, record["server_id"], null);
+                    dashboard.tables.cell(tr, record["server_id"], "id");
                     dashboard.tables.cell(tr, record["server_name"], null);
                     dashboard.tables.cell(tr, record["hash"], null);
                     dashboard.tables.cell(tr, record["type"], null);
@@ -4562,7 +4562,10 @@ const ui = function ui():void {
                 td.textContent = text;
                 if (raw !== null) {
                     td.setAttribute("class", "right");
-                    if (raw !== text) {
+                    if (raw === "id") {
+                        td.setAttribute("class", "server_id");
+                        td.setAttribute("title", text);
+                    } else if (raw !== text) {
                         td.setAttribute("data-raw", raw);
                     }
                 }
