@@ -70,6 +70,19 @@ const ui = function ui():void {
                         target.textContent = "Expand";
                     }
                 },
+                forbidden = function dashboard_execute_forbidden():HTMLElement {
+                    // eslint-disable-next-line
+                    new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
+                    return document.createElement("div");
+                },
+                forbiddenList = function common_disallowed_forbiddenList():NodeListOf<HTMLElement> {
+                    // eslint-disable-next-line
+                    const list:any = [document.createElement("div")];
+                    // eslint-disable-next-line
+                    new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
+                    // eslint-disable-next-line
+                    return list;
+                },
                 th:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("th"),
                 expand:HTMLCollectionOf<HTMLButtonElement> = document.getElementsByClassName("expand") as HTMLCollectionOf<HTMLButtonElement>,
                 table_keys:string[] = (dashboard.global.state.tables === undefined || dashboard.global.state.tables === null)
@@ -397,6 +410,32 @@ const ui = function ui():void {
                     dashboard.global.payload
                 ];
             };
+
+            // Disabling popular but slow conventions. Enhancements to the project must consider performance and scale
+            delete Element.prototype.innerHTML;
+            // Element.prototype.addEventListener = forbidden;
+            Element.prototype.querySelector    = forbidden;
+            Element.prototype.querySelectorAll = forbiddenList;
+            Element.prototype.closest          = forbidden;
+            document.write                     = forbidden;
+            document.querySelector             = forbidden;
+            document.querySelectorAll          = forbiddenList;
+            window.history.back                = forbidden;
+            window.history.forward             = forbidden;
+            window.history.go                  = forbidden;
+            window.history.pushState           = forbidden;
+            window.history.replaceState        = forbidden;
+
+
+            // Prevent third party authors from overriding these performance measures
+            // eslint-disable-next-line
+            Object.freeze(document.write);
+            // eslint-disable-next-line
+            Object.freeze(document.querySelector);
+            // eslint-disable-next-line
+            Object.freeze(document.querySelectorAll);
+            Object.freeze(Element.prototype);
+            Object.freeze(Document);
         },
         global: {
             click: false,
