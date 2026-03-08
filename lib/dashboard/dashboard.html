@@ -1295,6 +1295,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                             <dt>rsv1</dt> <dd>A boolean value representing an optional bit flag that can be set for custom application preferences. This is not used by web browsers.</dd>
                             <dt>rsv2</dt> <dd>Same as rsv1.</dd>
                             <dt>rsv3</dt> <dd>Same as rsv1.</dd>
+                            <dt>size_buffer</dt> <dd>Size of a buffer used to build a message body from a single data frame that may be further subdivided due to TLS or other concerns. This information is only used for troubleshooting socket health.</dd>
+                            <dt>size_fragment</dt> <dd>Size of a buffer received from a socket during a single data event. This information is only used for troubleshooting socket health.</dd>
                             <dt>startByte</dt> <dd>A number value only used internally by this application to indicate frame header length, and thus start position of the frame content body.</dd>
                         </dl>
                         <p>For frame content lengths of less than 126 bytes their lengths are literally represented in the <em>len</em> property of the frame header and then <em>extended</em> property receives a value of 0.

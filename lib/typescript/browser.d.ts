@@ -553,19 +553,20 @@ declare global {
     interface section_udpSocket extends module_sections {
         events: {
             create: () => void;
+            setState: () => void;
             toggle_multicast: () => void;
             toggle_role: () => void;
             toggle_type: () => void;
         };
         nodes: {
             button_create: HTMLElement;
-            input_address_client: HTMLInputElement;
-            input_address_server: HTMLInputElement;
+            input_address_destination: HTMLInputElement;
+            input_address_source: HTMLInputElement;
             input_multicast_membership: HTMLInputElement;
             input_multicast_none: HTMLInputElement;
             input_multicast_source: HTMLInputElement;
-            input_port_local: HTMLInputElement;
-            input_port_remote: HTMLInputElement;
+            input_port_destination: HTMLInputElement;
+            input_port_source: HTMLInputElement;
             input_role_client: HTMLInputElement;
             input_role_server: HTMLInputElement;
             input_type_ipv4: HTMLInputElement;
@@ -661,6 +662,24 @@ declare global {
             };
         };
         terminal: string;
+        test_websocket: {
+            request_timeout: string;
+            send_frame: string;
+            send_message: string;
+        };
+        udp_socket: {
+            address_destination: string;
+            address_source: string;
+            interfaces: string;
+            multicast_group: string;
+            multicast_membership: string;
+            multicast_source: string;
+            port_destination: string;
+            port_source: string;
+            toggle_multicast: "membership" | "none" | "source";
+            toggle_role: "bind" | "connect";
+            toggle_type: "ipv4" | "ipv6";
+        };
     }
 
     interface table_os_item {

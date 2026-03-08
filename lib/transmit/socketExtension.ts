@@ -79,9 +79,9 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 : config.handler;   // assigns an event handler to process incoming messages
             if (config.type !== "http") {
                 config.socket.on("data", receiver);
-                config.socket.fragment = Buffer.from([]); // storehouse of complete data frames, which will comprise a frame header and payload body that may be fragmented
-                config.socket.frame = Buffer.from([]);    // stores pieces of frames, which can be divided due to TLS decoding or header separation from some browsers
-                config.socket.frameExtended = 0;          // stores the payload size of a given message payload as derived from the extended size bytes of a frame header
+                config.socket.buffer = Buffer.from([]);   // stores a growing payload
+                config.socket.fragments = [];             // stores completed frame payloads, which may be fragments of a larger message
+                config.socket.frame = null;               // stores last received data frame header
                 config.socket.ping = ping;                // provides a means to insert a ping control frame and measure the round trip time of the returned pong frame
                 config.socket.pong = {};                  // stores termination times and callbacks for pong handling
                 config.socket.queue = [];                 // stores messages for transmit, because websocket protocol cannot intermix messages

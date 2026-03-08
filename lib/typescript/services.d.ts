@@ -303,8 +303,8 @@ interface services_testBrowser {
 }
 
 interface services_udp_socket {
-    address_local: string;
-    address_remote: string;
+    address_destination: string;
+    address_source: string;
     handler: (message:Buffer) => void;
     hash: string;
     multicast_group: string;
@@ -312,8 +312,8 @@ interface services_udp_socket {
     multicast_membership: string;
     multicast_source: string;
     multicast_type: "membership" | "none" | "source";
-    port_local: number;
-    port_remote: number;
+    port_destination: number;
+    port_source: number;
     role: "client" | "server";
     time: number;
     type: "ipv4" | "ipv6";

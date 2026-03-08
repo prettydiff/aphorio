@@ -41,7 +41,7 @@ const database = function database():database {
                             len:number = keys.length;
                         let index:number = 0;
                         if (len > table.meta.count_column) {
-                            return [false, "Submitted object record contains more properites than the table has columns."]
+                            return [false, "Submitted object record contains more properties than the table has columns."]
                         }
                         if (len > 0) {
                             if (obj[keys[index]] !== null && obj[keys[index]] !== table.meta.schema_array[index][1]) {
@@ -83,7 +83,7 @@ const database = function database():database {
                             let index:number = 0;
                             do {
                                 if (arr[index] === null || table.meta.schema_object[arr[index][0]][1] === arr[index][1]) {
-                                    record[table.meta.schema_object[arr[index][0]][0]] = 
+                                    //record[table.meta.schema_object[arr[index][0]][0]] = 
                                 }
                             } while (index < len);
                         }
