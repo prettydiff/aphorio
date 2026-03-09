@@ -17,6 +17,7 @@ const database = function database():database {
                     ? (schema as table_schema_array).length
                     : 0,
                 record_create = function database_tableCreate_recordCreate(data:record_object|type_record_array):[boolean, string] {
+                    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const table:table = this,
                         array_test_record:boolean = Array.isArray(data),
                         now:number = Date.now(),
@@ -26,30 +27,34 @@ const database = function database():database {
                             len:number = arr.length;
                         let index:number = 0;
                         if (len > table.meta.count_column) {
-                            return [false, "Submitted array record contains more indexes than the table has columns."]
+                            return [false, "Submitted array record contains more indexes than the table has columns."];
                         }
                         if (len > 0) {
-                            if (arr[index] !== null && typeof arr[index] !== table.meta.schema_array[index][1]) {
-                                return [false, `Table ${table.meta.name} expects type ${table.meta.schema_array[index][1]} on column ${index} (${table.meta.schema_array[index][0]}) but received value ${arr[index]} of type ${typeof arr[index]}.`];
-                            }
-                            record.push(arr[index]);
-                            index = index + 1;
-                        } while (index < len);
+                            do {
+                                if (arr[index] !== null && typeof arr[index] !== table.meta.schema_array[index][1]) {
+                                    return [false, `Table ${table.meta.name} expects type ${table.meta.schema_array[index][1]} on column ${index} (${table.meta.schema_array[index][0]}) but received value ${arr[index]} of type ${typeof arr[index]}.`];
+                                }
+                                record.push(arr[index]);
+                                index = index + 1;
+                            } while (index < len);
+                        }
                     } else if (data !== null && data !== undefined) {
                         const obj:record_object = data as record_object,
                             keys:string[] = Object.keys(obj),
                             len:number = keys.length;
                         let index:number = 0;
                         if (len > table.meta.count_column) {
-                            return [false, "Submitted object record contains more properties than the table has columns."]
+                            return [false, "Submitted object record contains more properties than the table has columns."];
                         }
                         if (len > 0) {
-                            if (obj[keys[index]] !== null && obj[keys[index]] !== table.meta.schema_array[index][1]) {
-                                return [false, `Table ${table.meta.name} expects type ${table.meta.schema_array[index][1]} on column ${table.meta.schema_object[keys[index]][0]} (${table.meta.schema_object[keys[index]][1]}) but received value ${obj[keys[index]]} of type ${typeof obj[keys[index]]}.`];
-                            }
-                            record.push([keys[index], obj[keys[index]]]);
-                            index = index + 1;
-                        } while (index < len);
+                            do {
+                                if (obj[keys[index]] !== null && obj[keys[index]] !== table.meta.schema_array[index][1]) {
+                                    return [false, `Table ${table.meta.name} expects type ${table.meta.schema_array[index][1]} on column ${table.meta.schema_object[keys[index]][0]} (${table.meta.schema_object[keys[index]][1]}) but received value ${obj[keys[index]]} of type ${typeof obj[keys[index]]}.`];
+                                }
+                                record.push([keys[index], obj[keys[index]]]);
+                                index = index + 1;
+                            } while (index < len);
+                        }
                     }
                     record.push(table.meta.index);
                     record.push(now);
@@ -60,6 +65,7 @@ const database = function database():database {
                     return [true, "Record matches schema and added to table."];
                 },
                 record_delete = function database_tableCreate_recordDelete(id:bigint):type_record_primitive {
+                    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const table:table = this,
                         record:type_record_primitive = table.records[String(id)];
                     if (record === undefined) {
@@ -70,6 +76,7 @@ const database = function database():database {
                     return record;
                 },
                 record_modify = function database_tableCreate_recordModify(id:bigint, data:record_object|table_schema_array):void {
+                    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const table:table = this,
                         record:type_record_primitive = table.records[String(id)],
                         array_test_record:boolean = Array.isArray(data);
@@ -142,12 +149,15 @@ const database = function database():database {
             };
         },
         table_delete = function database_tableDelete(name:string):void {
+            // eslint-disable-next-line no-restricted-syntax
             delete this.store[name];
         },
         table_get = function database_tableGet(name:string):table {
+            // eslint-disable-next-line no-restricted-syntax
             return this.store[name];
         },
         table_list = function database_tableList():table_stats {
+                    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
             const db:database = this,
                 keys:string[] = Object.keys(db.store).sort(),
                 len:number = keys.length,

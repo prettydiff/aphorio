@@ -1,12 +1,12 @@
 
 interface database {
+    store: {
+        [key:string]: table;
+    };
     table_create: (name:string, schema:[string, type_table_schema][]) => void;
     table_delete: (name:string) => void;
     table_get: (name:string) => table;
     table_list: () => table_stats;
-    store: {
-        [key:string]: table;
-    };
 }
 
 interface record_object {
@@ -56,7 +56,7 @@ interface table_stats {
     };
 }
 
-type comparator = "is" | "greater" | "lesser" | "not";
+type comparator = "greater" | "is" | "lesser" | "not";
 type table_schema_array = type_record_item[];
 type type_record_array = type_record_primitive[];
 type type_record_item = [string, type_table_schema];

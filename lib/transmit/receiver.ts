@@ -93,6 +93,7 @@ const receiver = function transmit_receiver(buf:Buffer):void {
             // store frame on socket for frames further subdivided, but just reference from local frame variable
             frame = socket.frame;
             if (socket.buffer.length < socket.frame.extended + socket.frame.startByte) {
+                overflow = false;
                 return null;
             }
             fin = socket.frame.fin;
@@ -102,11 +103,15 @@ const receiver = function transmit_receiver(buf:Buffer):void {
                 ? null
                 : frame_reader(socket.buffer);
             overflow = (socket.frame !== null);
+            if (overflow === true) {
+                socket.frame.size_buffer = socket.buffer.length;
+                socket.frame.size_fragment = 0;
+            }
             if (fin === true) {
                 const output:Buffer = Buffer.concat(socket.fragments);
                 socket.fragments = [];
                 return output;
-            }if(socket.type==="test-websocket"){console.log(socket.buffer.length);console.log(frame);}
+            }
             return null;
         },
         evaluation = function transmit_receiver_evaluation():void {

@@ -80,7 +80,6 @@ const ui = function ui():void {
                     const list:any = [document.createElement("div")];
                     // eslint-disable-next-line
                     new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
-                    // eslint-disable-next-line
                     return list;
                 },
                 th:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("th"),
@@ -428,11 +427,8 @@ const ui = function ui():void {
 
 
             // Prevent third party authors from overriding these performance measures
-            // eslint-disable-next-line
             Object.freeze(document.write);
-            // eslint-disable-next-line
             Object.freeze(document.querySelector);
-            // eslint-disable-next-line
             Object.freeze(document.querySelectorAll);
             Object.freeze(Element.prototype);
             Object.freeze(Document);
@@ -4112,21 +4108,21 @@ const ui = function ui():void {
                         };
                     } else {
                         if (dashboard.global.state.udp_socket.toggle_multicast === "membership") {
-                            (nodes.input_multicast_membership as HTMLInputElement).checked === true;
+                            (nodes.input_multicast_membership as HTMLInputElement).checked = true;
                         } else if (dashboard.global.state.udp_socket.toggle_multicast === "source") {
-                            (nodes.input_multicast_source as HTMLInputElement).checked === true;
+                            (nodes.input_multicast_source as HTMLInputElement).checked = true;
                         } else {
-                            (nodes.input_multicast_none as HTMLInputElement).checked === true;
+                            (nodes.input_multicast_none as HTMLInputElement).checked = true;
                         }
                         if (dashboard.global.state.udp_socket.toggle_role === "connect") {
-                            (nodes.input_role_client as HTMLInputElement).checked === true;
+                            (nodes.input_role_client as HTMLInputElement).checked = true;
                         } else {
-                            (nodes.input_role_server as HTMLInputElement).checked === true;
+                            (nodes.input_role_server as HTMLInputElement).checked = true;
                         }
                         if (dashboard.global.state.udp_socket.toggle_type === "ipv4") {
-                            (nodes.input_type_ipv4 as HTMLInputElement).checked === true;
+                            (nodes.input_type_ipv4 as HTMLInputElement).checked = true;
                         } else {
-                            (nodes.input_type_ipv6 as HTMLInputElement).checked === true;
+                            (nodes.input_type_ipv6 as HTMLInputElement).checked = true;
                         }
                         (nodes.input_address_destination as HTMLInputElement).value = dashboard.global.state.udp_socket.address_destination;
                         (nodes.input_address_source as HTMLInputElement).value = dashboard.global.state.udp_socket.address_source;
