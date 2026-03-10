@@ -81,6 +81,21 @@ const receiver = function transmit_receiver(buf:Buffer):void {
             // 2. Header Separation     - Firefox sends frame headers separated from frame bodies.
             // 3. Node Concatenation    - If Node.js receives message frames too quickly the various binary buffers are concatenated into a single deliverable to the processing application.
             // 4. TLS Max Packet Size   - TLS forces a maximum payload size of 65536 bytes.
+            //
+            // Segmentation Order:
+            // 1. Messages frames must not be inter-spliced with frames from other messages, except for control frames
+            // 2. Messages can be divided into a base frame and 0 or more continuation frames.  Browsers appear to segment messages into a maximum frame size of 65536.
+            // 3. Frames can be further divided to contend with network constraints and TLS.  TLS appears to send a maximum data size of 16384 bytes.
+            //
+            // Processing Order:
+            // 1. Assume the traffic on the socket is always formatted for WebSockets, so the first bytes must be a frame header of 2-14 bytes.
+            // 2. Evaluate if the frame is opcode greater than 7, which is a control frame.  Maximum size of control frames is 2 byte frame header + 4 byte mask key + 125 byte body = 131 bytes.
+            // 3. Otherwise evaluate as data frame and store in a buffer on the socket.
+            // 4. Check buffer size that it is as large as current frame header plus frame body.
+            // 5. If buffer is smaller than current frame it is incomplete, so stop processing the data to await further data.
+            // 6. Otherwise process the frame body and send to data handler.
+            // 7. Check if there is data remaining in the buffer and if so recursively process the buffer.
+
             let fin:boolean = false;
             if (socket.frame === null) {
                 socket.frame = frame_reader(buf);
