@@ -58,9 +58,9 @@ const receiver = function transmit_receiver(buf:Buffer):void {
                 size_buffer: (input.length > startByte)
                     ? input.length - startByte
                     : 0,
-                size_fragment: (buf !== null && buf !== undefined)
-                    ? buf.length
-                    : 0,
+                size_fragment: (recursion === true)
+                    ? 0
+                    : buf.length,
                 startByte: startByte
             };
         },
@@ -75,74 +75,61 @@ const receiver = function transmit_receiver(buf:Buffer):void {
             }
             return input;
         },
-        body = function transmit_receiver_body():Buffer {
-            // Payload processing must contend with these 4 constraints:
-            // 1. Message Fragmentation - RFC6455 allows messages to be fragmented from a single transmission into multiple transmission frames independently sent and received.
-            // 2. Header Separation     - Firefox sends frame headers separated from frame bodies.
-            // 3. Node Concatenation    - If Node.js receives message frames too quickly the various binary buffers are concatenated into a single deliverable to the processing application.
-            // 4. TLS Max Packet Size   - TLS forces a maximum payload size of 65536 bytes.
-            //
-            // Segmentation Order:
-            // 1. Messages frames must not be inter-spliced with frames from other messages, except for control frames
-            // 2. Messages can be divided into a base frame and 0 or more continuation frames.  Browsers appear to segment messages into a maximum frame size of 65536.
-            // 3. Frames can be further divided to contend with network constraints and TLS.  TLS appears to send a maximum data size of 16384 bytes.
-            //
-            // Processing Order:
-            // 1. Assume the traffic on the socket is always formatted for WebSockets, so the first bytes must be a frame header of 2-14 bytes.
-            // 2. Evaluate if the frame is opcode greater than 7, which is a control frame.  Maximum size of control frames is 2 byte frame header + 4 byte mask key + 125 byte body = 131 bytes.
-            // 3. Otherwise evaluate as data frame and store in a buffer on the socket.
-            // 4. Check buffer size that it is as large as current frame header plus frame body.
-            // 5. If buffer is smaller than current frame it is incomplete, so stop processing the data to await further data.
-            // 6. Otherwise process the frame body and send to data handler.
-            // 7. Check if there is data remaining in the buffer and if so recursively process the buffer.
-
-            let fin:boolean = false;
-            if (socket.frame === null) {
-                socket.frame = frame_reader(buf);
-                if (overflow === false) {
-                    socket.buffer = buf;
-                }
-            } else if (overflow === false) {
-                socket.buffer = Buffer.concat([socket.buffer, buf]);
-            }
-            // store frame on socket for frames further subdivided, but just reference from local frame variable
-            frame = socket.frame;
-            if (socket.buffer.length < socket.frame.extended + socket.frame.startByte) {
-                overflow = false;
-                return null;
-            }
-            fin = socket.frame.fin;
-            socket.fragments.push(unmask(socket.buffer.subarray(socket.frame.startByte, socket.frame.startByte + socket.frame.extended), socket.frame.maskKey));
-            socket.buffer = socket.buffer.subarray(socket.frame.startByte + socket.frame.extended);
-            socket.frame = (socket.buffer.length < 2)
-                ? null
-                : frame_reader(socket.buffer);
-            overflow = (socket.frame !== null);
-            if (overflow === true) {
-                socket.frame.size_buffer = socket.buffer.length;
-                socket.frame.size_fragment = 0;
-            }
-            if (fin === true) {
-                const output:Buffer = Buffer.concat(socket.fragments);
-                socket.fragments = [];
-                return output;
-            }
-            return null;
-        },
         evaluation = function transmit_receiver_evaluation():void {
-            let payload:Buffer = null;
-            if (buf.length < 128) {
-                // do not store control frames on the socket, because control frames can be inter-spliced with data frames.
-                frame = frame_reader(buf);
-                // control frame
-                if (frame.fin === true && frame.opcode > 7 && frame.extended < 126) {
-                    payload = unmask(buf.subarray(frame.startByte), frame.maskKey);
-                } else {
-                    payload = body();
+            let frame:websocket_frame = null;
+            const payload:Buffer = (function transmit_receiver_evaluation_payload():Buffer {
+                // Payload processing must contend with these 4 constraints:
+                // 1. Message Fragmentation - RFC6455 allows messages to be fragmented from a single transmission into multiple transmission frames independently sent and received.
+                // 2. Header Separation     - Firefox sends frame headers separated from frame bodies.
+                // 3. Node Concatenation    - If Node.js receives message frames too quickly the various binary buffers are concatenated into a single deliverable to the processing application.
+                // 4. TLS Max Packet Size   - TLS forces a maximum payload size of 65536 bytes.
+                //
+                // Segmentation Order:
+                // 1. Messages frames must not be inter-spliced with frames from other messages, except for control frames
+                // 2. Messages can be divided into a base frame and 0 or more continuation frames.  Browsers appear to segment messages into a maximum frame size of 65536 unencrypted or 16384 under TLS.
+                // 3. Frames can be further divided to contend with network constraints and traffic congestion.
+                // 4. Multiple frames can be joined into a single buffer from a single data event.
+
+                // 1. add the latest data to any existing buffer of socket data
+                // 2. evaluate the frame header
+                if (recursion === false) {
+                    socket.buffer = Buffer.concat([socket.buffer, buf]);
+                    if (socket.frame === null) {
+                        socket.frame = frame_reader(socket.buffer);
+                    }
                 }
-            } else {
-                payload = body();
-            }
+
+                // 3. if the current buffer is smaller than the frame size exit
+                if (socket.buffer.length < socket.frame.extended + socket.frame.startByte) {
+                    recursion = false;
+                    return null;
+                }
+
+                // 4. if the buffer is large enough for a complete frame then add the unmasked frame payload to a "fragments" list and clear that data from the buffer
+                socket.fragments.push(unmask(socket.buffer.subarray(socket.frame.startByte, socket.frame.startByte + socket.frame.extended), socket.frame.maskKey));
+                socket.buffer = socket.buffer.subarray(socket.frame.startByte + socket.frame.extended);
+                frame = socket.frame;
+
+                // 5. evaluate the next frame header from the remaining buffer data, if any
+                socket.frame = (socket.buffer.length < 2)
+                    ? null
+                    : frame_reader(socket.buffer);
+
+                // 6. if the next frame header is not null then set the recursion flag
+                recursion = (socket.frame !== null);
+                if (recursion === true) {
+                    socket.frame.size_buffer = socket.buffer.length;
+                    socket.frame.size_fragment = 0;
+                }
+
+                // 7. if the the current frame header has the fin bit then build the payload from the "fragments" array and clear that array
+                if (frame.fin === true) {
+                    const output:Buffer = Buffer.concat(socket.fragments);
+                    socket.fragments = [];
+                    return output;
+                }
+                return null;
+            }());
 
             if (payload === null) {
                 return;
@@ -179,12 +166,11 @@ const receiver = function transmit_receiver(buf:Buffer):void {
                 }
             }
         };
-    let frame:websocket_frame = null,
-        overflow:boolean = false;
+    let recursion:boolean = false;
     do {
         evaluation();
     // @ts-expect-error the value is assigned from a child function
-    } while (overflow === true);
+    } while (recursion === true);
 };
 
 export default receiver;
