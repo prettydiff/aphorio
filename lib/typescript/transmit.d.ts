@@ -122,9 +122,9 @@ interface transmit_udp_module {
 
 interface websocket_client extends node_tls_TLSSocket {
     addresses: transmit_addresses_socket;
-    fragment: Buffer;
-    frame: Buffer;
-    frameExtended: number;
+    buffer: Buffer;
+    fragments: Buffer[];
+    frame: websocket_frame;
     handler: websocket_message_handler;
     hash: string;
     ping: (ttl:number, callback:(err:node_error, roundtrip:bigint) => void) => void;
@@ -160,6 +160,8 @@ interface websocket_frame {
     rsv1: boolean;
     rsv2: boolean;
     rsv3: boolean;
+    size_buffer: number;
+    size_fragment: number;
     startByte: number;
 }
 

@@ -19,8 +19,8 @@ const socket_udp:transmit_udp_module = {
             } while (index > 0);
         }
         socket_udp.list({
-            address_local: "",
-            address_remote: "",
+            address_destination: "",
+            address_source: "",
             handler: null,
             hash: socket.hash,
             multicast_interface: "",
@@ -28,8 +28,8 @@ const socket_udp:transmit_udp_module = {
             multicast_membership: "",
             multicast_source: "",
             multicast_type: "none",
-            port_local: null,
-            port_remote: null,
+            port_destination: null,
+            port_source: null,
             role: null,
             time: 0,
             type: null
@@ -37,11 +37,11 @@ const socket_udp:transmit_udp_module = {
     },
     create: function transmit_socketUDP_create(socket_data:socket_data, callback:(socket:transmit_udp) => void):void {
         const data:services_udp_socket = socket_data.data as services_udp_socket,
-            port:number = (isNaN(data.port_local) === true || data.port_local > 65535 || data.port_local < 1)
+            port:number = (isNaN(data.port_source) === true || data.port_source > 65535 || data.port_source < 1)
                 ? 0
-                : Math.floor(data.port_local),
-            address:string = ((data.type === "ipv4" && node.net.isIPv4(data.address_local) === true) || (data.type === "ipv6" && node.net.isIPv6(data.address_local) === true))
-                ? data.address_local
+                : Math.floor(data.port_source),
+            address:string = ((data.type === "ipv4" && node.net.isIPv4(data.address_source) === true) || (data.type === "ipv6" && node.net.isIPv6(data.address_source) === true))
+                ? data.address_source
                 : null,
             dgram:node_dgram_Socket = node.dgram.createSocket({
                 recvBufferSize: 1024 * 64,
@@ -75,10 +75,10 @@ const socket_udp:transmit_udp_module = {
                                         : remote.port
                                 }
                             };
-                            data.address_local = socket.addresses.local.address;
-                            data.address_remote = socket.addresses.remote.address;
-                            data.port_local = socket.addresses.local.port;
-                            data.port_remote = socket.addresses.remote.port;
+                            data.address_source = socket.addresses.local.address;
+                            data.address_destination = socket.addresses.remote.address;
+                            data.port_source = socket.addresses.local.port;
+                            data.port_destination = socket.addresses.remote.port;
                             data.hash = hash_output.hash;
                             socket.hash = hash_output.hash;
                             data.time = now;

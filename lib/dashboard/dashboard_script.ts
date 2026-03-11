@@ -70,6 +70,18 @@ const ui = function ui():void {
                         target.textContent = "Expand";
                     }
                 },
+                forbidden = function dashboard_execute_forbidden():HTMLElement {
+                    // eslint-disable-next-line
+                    new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
+                    return document.createElement("div");
+                },
+                forbiddenList = function common_disallowed_forbiddenList():NodeListOf<HTMLElement> {
+                    // eslint-disable-next-line
+                    const list:any = [document.createElement("div")];
+                    // eslint-disable-next-line
+                    new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
+                    return list;
+                },
                 th:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("th"),
                 expand:HTMLCollectionOf<HTMLButtonElement> = document.getElementsByClassName("expand") as HTMLCollectionOf<HTMLButtonElement>,
                 table_keys:string[] = (dashboard.global.state.tables === undefined || dashboard.global.state.tables === null)
@@ -397,6 +409,29 @@ const ui = function ui():void {
                     dashboard.global.payload
                 ];
             };
+
+            // Disabling popular but slow conventions. Enhancements to the project must consider performance and scale
+            delete Element.prototype.innerHTML;
+            // Element.prototype.addEventListener = forbidden;
+            Element.prototype.querySelector    = forbidden;
+            Element.prototype.querySelectorAll = forbiddenList;
+            Element.prototype.closest          = forbidden;
+            document.write                     = forbidden;
+            document.querySelector             = forbidden;
+            document.querySelectorAll          = forbiddenList;
+            window.history.back                = forbidden;
+            window.history.forward             = forbidden;
+            window.history.go                  = forbidden;
+            window.history.pushState           = forbidden;
+            window.history.replaceState        = forbidden;
+
+
+            // Prevent third party authors from overriding these performance measures
+            Object.freeze(document.write);
+            Object.freeze(document.querySelector);
+            Object.freeze(document.querySelectorAll);
+            Object.freeze(Element.prototype);
+            Object.freeze(Document);
         },
         global: {
             click: false,
@@ -432,7 +467,25 @@ const ui = function ui():void {
                             nav: "servers-web",
                             table_os: {},
                             tables: {},
-                            terminal: ""
+                            terminal: "",
+                            test_websocket: {
+                                request_timeout: "0",
+                                send_frame: "",
+                                send_message: ""
+                            },
+                            udp_socket: {
+                                address_destination: "",
+                                address_source: "",
+                                interface: "",
+                                multicast_group: "",
+                                multicast_membership: "",
+                                multicast_source: "",
+                                port_destination: "",
+                                port_source: "",
+                                toggle_multicast: "none",
+                                toggle_role: "connect",
+                                toggle_type: "ipv6"
+                            }
                         }
                         : JSON.parse(local);
                 return item;
@@ -1916,6 +1969,14 @@ const ui = function ui():void {
                         index = index + 1;
                     } while (index < len);
                     if (dashboard.global.state.hash === undefined || dashboard.global.state.hash === null) {
+                        dashboard.global.state.hash = {
+                            algorithm: "sha3-512",
+                            digest: "hex",
+                            hashFunction: "hash",
+                            source: "",
+                            type: "string"
+                        };
+                    } else {
                         if (dashboard.global.state.hash.hashFunction === "hash") {
                             dashboard.sections["hash"].nodes.hash.checked = true;
                         } else {
@@ -1931,9 +1992,7 @@ const ui = function ui():void {
                         } else {
                             dashboard.sections["hash"].nodes.digest.checked = true;
                         }
-                        dashboard.sections["hash"].nodes.source.value = (typeof dashboard.global.state.hash.source !== "string")
-                            ? ""
-                            : dashboard.global.state.hash.source;
+                        dashboard.sections["hash"].nodes.source.value = dashboard.global.state.hash.source;
                     }
                     dashboard.sections["hash"].nodes.button.onclick = dashboard.sections["hash"].events.request;
                     dashboard.sections["hash"].nodes.base64.onclick = dashboard.sections["hash"].events.toggle_mode;
@@ -2862,10 +2921,10 @@ const ui = function ui():void {
                 row: function dashboard_sections_socketsApplicationTCP_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:services_udp_socket = record_item as services_udp_socket;
                     dashboard.tables.cell(tr, record["hash"], null);
-                    dashboard.tables.cell(tr, record["address_local"], null);
-                    dashboard.tables.cell(tr, String(record["port_local"]), null);
-                    dashboard.tables.cell(tr, record["address_remote"], null);
-                    dashboard.tables.cell(tr, String(record["port_remote"]), null);
+                    dashboard.tables.cell(tr, record["address_source"], null);
+                    dashboard.tables.cell(tr, String(record["port_source"]), null);
+                    dashboard.tables.cell(tr, record["address_destination"], null);
+                    dashboard.tables.cell(tr, String(record["port_destination"]), null);
                     dashboard.tables.cell(tr, record["role"], null);
                     dashboard.tables.cell(tr, record["multicast_group"], null);
                     dashboard.tables.cell(tr, record["multicast_interface"], null);
@@ -2873,7 +2932,7 @@ const ui = function ui():void {
                     dashboard.tables.cell(tr, record["multicast_source"], null);
                     dashboard.tables.cell(tr, BigInt(Date.now() * 1e6).time(BigInt(record["time"] * 1e6)), String(record["time"]));
                 },
-                sort_name: ["hash", "address_local", "port_local", "address_remote", "port_remote", "role", "multicast_group", "multicast_interface", "multicast_membership", "multicast_source", "time"],
+                sort_name: ["hash", "address_source", "port_source", "address_destination", "port_destination", "role", "multicast_group", "multicast_interface", "multicast_membership", "multicast_source", "time"],
                 time: 0n
             },
             // sockets-application-udp end
@@ -3698,6 +3757,7 @@ const ui = function ui():void {
                         dashboard.sections["test-websocket"].timeout = payload.timeout;
                         dashboard.sections["test-websocket"].nodes.status.value = "";
                         dashboard.utility.message_send(payload, "dashboard-websocket-handshake");
+                        dashboard.utility.setState();
                     },
                     keyup_frame: function dashboard_sections_websocketTest_keyupFrame(event:Event):void {
                         const encodeLength:TextEncoder = new TextEncoder(),
@@ -3713,6 +3773,8 @@ const ui = function ui():void {
                                 rsv1: false,
                                 rsv2: false,
                                 rsv3: false,
+                                size_buffer: 0,
+                                size_fragment: 0,
                                 startByte: 0
                             };
                         let frame_try:websocket_frame = null;
@@ -3765,6 +3827,7 @@ const ui = function ui():void {
                             frame.maskKey = encodeKey.encode(window.btoa(Math.random().toString() + Math.random().toString() + Math.random().toString()).replace(/0\./g, "").slice(0, 32)) as Buffer;
                         }
                         dashboard.sections["test-websocket"].frameBeautify("send", JSON.stringify(frame));
+                        dashboard.utility.setState();
                     },
                     keyup_message: function dashboard_sections_websocketTest_keyupMessage(event:KeyboardEvent):void {
                         dashboard.sections["test-websocket"].events.keyup_frame(event);
@@ -3800,6 +3863,7 @@ const ui = function ui():void {
                     dashboard.sections["test-websocket"].nodes.message_send_body.onkeyup = dashboard.sections["test-websocket"].events.keyup_message;
                     dashboard.sections["test-websocket"].nodes.message_send_frame.onblur = dashboard.sections["test-websocket"].events.keyup_frame;
                     dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "";
+                    // server socket status messaging
                     if (isNaN(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.open) === true) {
                         dashboard.sections["test-websocket"].nodes.handshake_scheme.checked = true;
                         h4.style.display = "none";
@@ -3821,6 +3885,17 @@ const ui = function ui():void {
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendText(", secure - ");
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
+                    }
+                    if (dashboard.global.state.test_websocket === null || dashboard.global.state.test_websocket === undefined) {
+                        dashboard.global.state.test_websocket = {
+                            request_timeout: "0",
+                            send_frame: "",
+                            send_message: ""
+                        };
+                    } else {
+                        dashboard.sections["test-websocket"].nodes.handshake_timeout.value = dashboard.global.state.test_websocket.request_timeout;
+                        dashboard.sections["test-websocket"].nodes.message_send_frame.value = dashboard.global.state.test_websocket.send_frame;
+                        dashboard.sections["test-websocket"].nodes.message_send_body.value = dashboard.global.state.test_websocket.send_message;
                     }
                 },
                 nodes: {
@@ -3871,7 +3946,6 @@ const ui = function ui():void {
                     },
                     status: function dashboard_sections_websocketTest_status(data_item:socket_data):void {
                         const data:services_websocket_status = data_item.data as services_websocket_status;
-                        dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
                         if (data.connected === true) {
                             dashboard.sections["test-websocket"].nodes.button_handshake.textContent = "Disconnect";
                             dashboard.sections["test-websocket"].nodes.status.setAttribute("class", "connection-online");
@@ -3915,8 +3989,8 @@ const ui = function ui():void {
                 events: {
                     create: function dashboard_sections_udpSocket_create():void {
                         const select:HTMLSelectElement = dashboard.sections["udp-socket"].nodes.multicast_interface.getElementsByTagName("select")[0],
-                            port_local:number = Number(dashboard.sections["udp-socket"].nodes.input_port_local.value.trim()),
-                            port_remote:number = Number(dashboard.sections["udp-socket"].nodes.input_port_remote.value.trim()),
+                            port_destination:number = Number(dashboard.sections["udp-socket"].nodes.input_port_destination.value.trim()),
+                            port_source:number = Number(dashboard.sections["udp-socket"].nodes.input_port_source.value.trim()),
                             multicast_type:"membership"|"none"|"source" = (dashboard.sections["udp-socket"].nodes.input_multicast_membership.checked === true)
                                 ? "membership"
                                 : (dashboard.sections["udp-socket"].nodes.input_multicast_source.checked === true)
@@ -3926,10 +4000,10 @@ const ui = function ui():void {
                                 ? "client"
                                 : "server",
                             payload:services_udp_socket = {
-                                address_local: (role === "client")
-                                    ? dashboard.sections["udp-socket"].nodes.input_address_client.value
-                                    : dashboard.sections["udp-socket"].nodes.input_address_server.value,
-                                address_remote: null,
+                                address_source: (role === "client")
+                                    ? dashboard.sections["udp-socket"].nodes.input_address_destination.value
+                                    : dashboard.sections["udp-socket"].nodes.input_address_source.value,
+                                address_destination: null,
                                 handler: null,
                                 hash: "",
                                 multicast_group: dashboard.sections["udp-socket"].nodes.multicast_group.getElementsByTagName("input")[0].value,
@@ -3937,12 +4011,12 @@ const ui = function ui():void {
                                 multicast_membership: dashboard.sections["udp-socket"].nodes.multicast_source.getElementsByTagName("input")[0].value,
                                 multicast_source: dashboard.sections["udp-socket"].nodes.multicast_source.getElementsByTagName("input")[0].value,
                                 multicast_type: multicast_type,
-                                port_local: (role === "client" && isNaN(port_remote) === false)
-                                    ? port_remote
-                                    : (role === "server" && isNaN(port_local) === false)
-                                        ? port_local
+                                port_source: (role === "client" && isNaN(port_destination) === false)
+                                    ? port_destination
+                                    : (role === "server" && isNaN(port_source) === false)
+                                        ? port_source
                                         : 0,
-                                port_remote: null,
+                                port_destination: null,
                                 role: role,
                                 time: 0,
                                 type: (dashboard.sections["udp-socket"].nodes.input_type_ipv4.checked === true)
@@ -3950,6 +4024,9 @@ const ui = function ui():void {
                                     : "ipv6"
                             };
                         dashboard.utility.message_send(payload, "dashboard-udp-socket");
+                    },
+                    setState: function dashboard_sections_udpSocket_setState():void {
+                        dashboard.utility.setState();
                     },
                     toggle_multicast: function dashboard_sections_udpSocket_toggleMulticast():void {
                         if (dashboard.sections["udp-socket"].nodes.input_multicast_membership.checked === true) {
@@ -3968,6 +4045,7 @@ const ui = function ui():void {
                             dashboard.sections["udp-socket"].nodes.multicast_membership.style.display = "none";
                             dashboard.sections["udp-socket"].nodes.multicast_source.style.display = "block";
                         }
+                        dashboard.utility.setState();
                     },
                     toggle_role: function dashboard_sections_udpSocket_toggleRole():void {
                         if (dashboard.sections["udp-socket"].nodes.input_role_client.checked === true) {
@@ -3977,6 +4055,7 @@ const ui = function ui():void {
                             dashboard.sections["udp-socket"].nodes.toggle_client.style.display = "none";
                             dashboard.sections["udp-socket"].nodes.toggle_server.style.display = "block";
                         }
+                        dashboard.utility.setState();
                     },
                     toggle_type: function dashboard_sections_udpSocket_toggleType():void {
                         const type:string = (dashboard.sections["udp-socket"].nodes.input_type_ipv4.checked === true)
@@ -3992,6 +4071,7 @@ const ui = function ui():void {
                                 span.textContent = type;
                             }
                         } while (index > 0);
+                        dashboard.utility.setState();
                     }
                 },
                 init: function dashboard_sections_udpSocket_init():void {
@@ -3999,6 +4079,59 @@ const ui = function ui():void {
                         len:number = keys.length,
                         nodes:store_elements = dashboard.sections["udp-socket"].nodes,
                         events:store_function = dashboard.sections["udp-socket"].events;
+                    if (len > 0) {
+                        let index:number = 0,
+                            option:HTMLElement = null;
+                        do {
+                            option = document.createElement("option");
+                            option.textContent = keys[index];
+                            if (dashboard.global.state.udp_socket !== null && dashboard.global.state.udp_socket !== undefined && keys[index] === dashboard.global.state.udp_socket.interfaces) {
+                                (nodes.interfaces as HTMLSelectElement).selectedIndex = index;
+                            }
+                            nodes.interfaces.appendChild(option);
+                            index = index + 1;
+                        } while (index < len);
+                    }
+                    if (dashboard.global.state.udp_socket === null || dashboard.global.state.udp_socket === undefined) {
+                        dashboard.global.state.udp_socket = {
+                            address_destination: "",
+                            address_source: "",
+                            interfaces: "",
+                            multicast_group: "",
+                            multicast_membership: "",
+                            multicast_source: "",
+                            port_destination: "",
+                            port_source: "",
+                            toggle_multicast: "none",
+                            toggle_role: "connect",
+                            toggle_type: "ipv6"
+                        };
+                    } else {
+                        if (dashboard.global.state.udp_socket.toggle_multicast === "membership") {
+                            (nodes.input_multicast_membership as HTMLInputElement).checked = true;
+                        } else if (dashboard.global.state.udp_socket.toggle_multicast === "source") {
+                            (nodes.input_multicast_source as HTMLInputElement).checked = true;
+                        } else {
+                            (nodes.input_multicast_none as HTMLInputElement).checked = true;
+                        }
+                        if (dashboard.global.state.udp_socket.toggle_role === "connect") {
+                            (nodes.input_role_client as HTMLInputElement).checked = true;
+                        } else {
+                            (nodes.input_role_server as HTMLInputElement).checked = true;
+                        }
+                        if (dashboard.global.state.udp_socket.toggle_type === "ipv4") {
+                            (nodes.input_type_ipv4 as HTMLInputElement).checked = true;
+                        } else {
+                            (nodes.input_type_ipv6 as HTMLInputElement).checked = true;
+                        }
+                        (nodes.input_address_destination as HTMLInputElement).value = dashboard.global.state.udp_socket.address_destination;
+                        (nodes.input_address_source as HTMLInputElement).value = dashboard.global.state.udp_socket.address_source;
+                        (nodes.input_port_destination as HTMLInputElement).value = dashboard.global.state.udp_socket.port_destination;
+                        (nodes.input_port_source as HTMLInputElement).value = dashboard.global.state.udp_socket.port_source;
+                        nodes.multicast_group.getElementsByTagName("input")[0].value = dashboard.global.state.udp_socket.multicast_group;
+                        nodes.multicast_membership.getElementsByTagName("input")[0].value = dashboard.global.state.udp_socket.multicast_membership;
+                        nodes.multicast_source.getElementsByTagName("input")[0].value = dashboard.global.state.udp_socket.multicast_source;
+                    }
                     nodes.button_create.onclick = events.create;
                     nodes.input_multicast_membership.onclick = events.toggle_multicast;
                     nodes.input_multicast_none.onclick = events.toggle_multicast;
@@ -4007,29 +4140,27 @@ const ui = function ui():void {
                     nodes.input_role_server.onclick = events.toggle_role;
                     nodes.input_type_ipv4.onclick = events.toggle_type;
                     nodes.input_type_ipv6.onclick = events.toggle_type;
+                    nodes.input_address_destination.onblur = events.setState;
+                    nodes.input_address_source.onblur = events.setState;
+                    nodes.input_port_destination.onblur = events.setState;
+                    nodes.input_port_source.onblur = events.setState;
+                    nodes.interfaces.onchange = events.setState;
+                    nodes.multicast_group.getElementsByTagName("input")[0].onblur = events.setState;
+                    nodes.multicast_membership.getElementsByTagName("input")[0].onblur = events.setState;
+                    nodes.multicast_source.getElementsByTagName("input")[0].onblur = events.setState;
                     events.toggle_multicast();
                     events.toggle_role();
                     events.toggle_type();
-                    if (len > 0) {
-                        let index:number = 0,
-                            option:HTMLElement = null;
-                        do {
-                            option = document.createElement("option");
-                            option.textContent = keys[index];
-                            nodes.interfaces.appendChild(option);
-                            index = index + 1;
-                        } while (index < len);
-                    }
                 },
                 nodes: {
                     button_create: document.getElementById("udp-socket").getElementsByClassName("form")[1].getElementsByTagName("button")[0],
-                    input_address_client: document.getElementById("udp-socket").getElementsByTagName("input")[12],
-                    input_address_server: document.getElementById("udp-socket").getElementsByTagName("input")[4],
+                    input_address_destination: document.getElementById("udp-socket").getElementsByTagName("input")[12],
+                    input_address_source: document.getElementById("udp-socket").getElementsByTagName("input")[4],
                     input_multicast_membership: document.getElementById("udp-socket").getElementsByTagName("input")[7],
                     input_multicast_none: document.getElementById("udp-socket").getElementsByTagName("input")[8],
                     input_multicast_source: document.getElementById("udp-socket").getElementsByTagName("input")[6],
-                    input_port_local: document.getElementById("udp-socket").getElementsByTagName("input")[5],
-                    input_port_remote: document.getElementById("udp-socket").getElementsByTagName("input")[13],
+                    input_port_destination: document.getElementById("udp-socket").getElementsByTagName("input")[13],
+                    input_port_source: document.getElementById("udp-socket").getElementsByTagName("input")[5],
                     input_role_client: document.getElementById("udp-socket").getElementsByTagName("input")[0],
                     input_role_server: document.getElementById("udp-socket").getElementsByTagName("input")[1],
                     input_type_ipv4: document.getElementById("udp-socket").getElementsByTagName("input")[2],
@@ -5125,25 +5256,22 @@ const ui = function ui():void {
             // gathers state artifacts and saves state data
             setState: function dashboard_utility_setState():void {
                 if (dashboard.socket.connected === true) {
-                    const hashInput:HTMLCollectionOf<HTMLInputElement> = (document.getElementById("hash") === null)
-                            ? null
-                            : document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input"),
-                        lists = function dashboard_utility_setState_lists(module:module_list):void {
-                            if (module !== undefined) {
-                                const type:string = module.dataName;
-                                if (dashboard.global.state.table_os[type] === null || dashboard.global.state.table_os[type] === undefined) {
-                                    dashboard.global.state.table_os[type] = {
-                                        filter_column: module.nodes.filter_column.selectedIndex,
-                                        filter_sensitive: module.nodes.caseSensitive.checked,
-                                        filter_value: module.nodes.filter_value.value
-                                    };
-                                } else {
-                                    dashboard.global.state.table_os[type].filter_column = module.nodes.filter_column.selectedIndex;
-                                    dashboard.global.state.table_os[type].filter_sensitive = module.nodes.caseSensitive.checked;
-                                    dashboard.global.state.table_os[type].filter_value = module.nodes.filter_value.value;
-                                }
+                    const lists = function dashboard_utility_setState_lists(module:module_list):void {
+                        if (module !== undefined) {
+                            const type:string = module.dataName;
+                            if (dashboard.global.state.table_os[type] === null || dashboard.global.state.table_os[type] === undefined) {
+                                dashboard.global.state.table_os[type] = {
+                                    filter_column: module.nodes.filter_column.selectedIndex,
+                                    filter_sensitive: module.nodes.caseSensitive.checked,
+                                    filter_value: module.nodes.filter_value.value
+                                };
+                            } else {
+                                dashboard.global.state.table_os[type].filter_column = module.nodes.filter_column.selectedIndex;
+                                dashboard.global.state.table_os[type].filter_sensitive = module.nodes.caseSensitive.checked;
+                                dashboard.global.state.table_os[type].filter_value = module.nodes.filter_value.value;
                             }
-                        };
+                        }
+                    };
                     if (dashboard.sections["dns-query"] !== undefined) {
                         if (dashboard.global.state.dns === undefined || dashboard.global.state.dns === null) {
                             dashboard.global.state.dns = {
@@ -5169,6 +5297,7 @@ const ui = function ui():void {
                         }
                     }
                     if (dashboard.sections["hash"] !== undefined) {
+                        const hashInput:HTMLCollectionOf<HTMLInputElement> = document.getElementById("hash").getElementsByClassName("form")[0].getElementsByTagName("input");
                         if (dashboard.global.state.hash === undefined || dashboard.global.state.hash === null) {
                             dashboard.global.state.hash = {
                                 algorithm: (dashboard.sections["hash"].nodes.algorithm[dashboard.sections["hash"].nodes.algorithm.selectedIndex] === undefined)
@@ -5219,6 +5348,38 @@ const ui = function ui():void {
                         } else {
                             dashboard.global.state.http.encryption = (dashboard.sections["test-http"].nodes.encryption.checked === true);
                             dashboard.global.state.http.request = dashboard.sections["test-http"].nodes.request.value;
+                        }
+                    }
+                    if (dashboard.sections["test-websocket"] !== undefined) {
+                        dashboard.global.state.test_websocket.request_timeout = dashboard.sections["test-websocket"].nodes.handshake_timeout.value;
+                        dashboard.global.state.test_websocket.send_frame = dashboard.sections["test-websocket"].nodes.message_send_frame.value;
+                        dashboard.global.state.test_websocket.send_message = dashboard.sections["test-websocket"].nodes.message_send_body.value;
+                    }
+                    if (dashboard.sections["udp-socket"] !== undefined) {
+                        dashboard.global.state.udp_socket.address_destination = dashboard.sections["udp-socket"].nodes.input_address_destination.value;
+                        dashboard.global.state.udp_socket.address_source = dashboard.sections["udp-socket"].nodes.input_address_source.value;
+                        dashboard.global.state.udp_socket.interfaces = dashboard.sections["udp-socket"].nodes.interfaces[dashboard.sections["udp-socket"].nodes.interfaces.selectedIndex].textContent;
+                        dashboard.global.state.udp_socket.multicast_group = dashboard.sections["udp-socket"].nodes.multicast_group.getElementsByTagName("input")[0].value;
+                        dashboard.global.state.udp_socket.multicast_membership = dashboard.sections["udp-socket"].nodes.multicast_membership.getElementsByTagName("input")[0].value;
+                        dashboard.global.state.udp_socket.multicast_source = dashboard.sections["udp-socket"].nodes.multicast_source.getElementsByTagName("input")[0].value;
+                        dashboard.global.state.udp_socket.port_destination = dashboard.sections["udp-socket"].nodes.input_port_destination.value;
+                        dashboard.global.state.udp_socket.port_source = dashboard.sections["udp-socket"].nodes.input_port_source.value;
+                        if (dashboard.sections["udp-socket"].nodes.input_multicast_membership.checked === true) {
+                            dashboard.global.state.udp_socket.toggle_multicast = "membership";
+                        } else if (dashboard.sections["udp-socket"].nodes.input_multicast_source.checked === true) {
+                            dashboard.global.state.udp_socket.toggle_multicast = "source";
+                        } else {
+                            dashboard.global.state.udp_socket.toggle_multicast = "none";
+                        }
+                        if (dashboard.sections["udp-socket"].nodes.input_role_client.checked === true) {
+                            dashboard.global.state.udp_socket.toggle_role = "connect";
+                        } else {
+                            dashboard.global.state.udp_socket.toggle_role = "bind";
+                        }
+                        if (dashboard.sections["udp-socket"].nodes.input_type_ipv4.checked === true) {
+                            dashboard.global.state.udp_socket.toggle_type = "ipv4";
+                        } else {
+                            dashboard.global.state.udp_socket.toggle_type = "ipv6";
                         }
                     }
                     lists(dashboard.sections["devices"]);
