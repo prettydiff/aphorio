@@ -55,12 +55,8 @@ const receiver = function transmit_receiver(buf:Buffer):void {
                 rsv1: (bits0.charAt(1) === "1"),
                 rsv2: (bits0.charAt(2) === "1"),
                 rsv3: (bits0.charAt(3) === "1"),
-                size_buffer: (input.length > startByte)
-                    ? input.length - startByte
-                    : 0,
-                size_fragment: (recursion === true)
-                    ? 0
-                    : buf.length,
+                size_buffer: socket.buffer.length,
+                size_fragment: 0,
                 startByte: startByte
             };
         },
@@ -90,42 +86,57 @@ const receiver = function transmit_receiver(buf:Buffer):void {
                 // 3. Frames can be further divided to contend with network constraints and traffic congestion.
                 // 4. Multiple frames can be joined into a single buffer from a single data event.
 
-                // 1. add the latest data to any existing buffer of socket data
-                // 2. evaluate the frame header
+                let fragment:Buffer = null;
                 if (recursion === false) {
+                    // 1. add the latest data to the existing buffer of socket data
                     socket.buffer = Buffer.concat([socket.buffer, buf]);
+
+                    // 2. evaluate the frame header if one is not stored
                     if (socket.frame === null) {
                         socket.frame = frame_reader(socket.buffer);
+                        socket.frame.size_fragment = buf.length;
                     }
                 }
 
-                // 3. if the current buffer is smaller than the frame size exit
+                // 3. exit when the current buffer is smaller than the frame size
                 if (socket.buffer.length < socket.frame.extended + socket.frame.startByte) {
                     recursion = false;
                     return null;
                 }
 
-                // 4. if the buffer is large enough for a complete frame then add the unmasked frame payload to a "fragments" list and clear that data from the buffer
-                socket.fragments.push(unmask(socket.buffer.subarray(socket.frame.startByte, socket.frame.startByte + socket.frame.extended), socket.frame.maskKey));
-                socket.buffer = socket.buffer.subarray(socket.frame.startByte + socket.frame.extended);
+                // 4. externalize the current frame data
                 frame = socket.frame;
 
-                // 5. evaluate the next frame header from the remaining buffer data, if any
+                // 5. unmask the complete frame
+                fragment = unmask(socket.buffer.subarray(frame.startByte, frame.startByte + frame.extended), frame.maskKey);
+
+                // 6. if the frame is a data frame add it to the list of message fragments.
+                // data messages can comprise multiple frames that must come in order without intermixing
+                // control messages are single frames and can be intermixed between frames of a single data message
+                if (frame.opcode < 8) {
+                    socket.fragments.push(fragment);
+                }
+
+                // 7. remove the frame data from the socket's buffer
+                socket.buffer = socket.buffer.subarray(frame.startByte + frame.extended);
+
+                // 8. evaluate the next frame header from the remaining buffer data, if any, to determine needs for recursion
                 socket.frame = (socket.buffer.length < 2)
                     ? null
                     : frame_reader(socket.buffer);
-
-                // 6. if the next frame header is not null then set the recursion flag
                 recursion = (socket.frame !== null);
                 if (recursion === true) {
-                    socket.frame.size_buffer = socket.buffer.length;
                     socket.frame.size_fragment = 0;
                 }
 
-                // 7. if the the current frame header has the fin bit then build the payload from the "fragments" array and clear that array
+                // 9. if the the current frame header has the fin bit then build the payload from the "fragments" array and clear that array
                 if (frame.fin === true) {
-                    const output:Buffer = Buffer.concat(socket.fragments);
-                    socket.fragments = [];
+                    const output:Buffer = (frame.opcode < 8)
+                        ? Buffer.concat(socket.fragments)
+                        : fragment;
+                    if (frame.opcode < 8) {
+                        socket.fragments = [];
+                    }
                     return output;
                 }
                 return null;
@@ -144,7 +155,7 @@ const receiver = function transmit_receiver(buf:Buffer):void {
                     payload[1] = (frame.mask === true)
                         ? payload[1] - 128
                         : payload[1];
-                    socket.write(payload);
+                    send(payload, socket, 8);
                     socket.destroySoon();
                 } else if (frame.opcode === 9) {
                     // respond to "ping" as "pong"
