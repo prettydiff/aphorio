@@ -1,9 +1,9 @@
 
 interface database {
+    record_validate: type_record_validate;
     store: {
         [key:string]: table;
     };
-    record_validate: type_record_validate;
     table_create: (name:string, schema:[string, type_table_schema][]) => void;
     table_delete: (name:string) => void;
     table_get: (name:string) => table;

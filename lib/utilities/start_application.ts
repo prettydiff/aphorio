@@ -9,8 +9,8 @@ import log from "../core/log.ts";
 import node from "../core/node.ts";
 import os_lists from "./os_lists.ts";
 import ports_application from "../services/ports_application.ts";
-import server from "../transmit/server.ts";
-import server_create from "../services/server_create.ts";
+import server_create from "../server/server_create.ts";
+import server_start from "../server/server_start.ts";
 import spawn from "../core/spawn.ts";
 import statistics from "../services/statistics.ts";
 import test_browser from "../dashboard/test_browser.ts";
@@ -20,13 +20,13 @@ import vars from "../core/vars.ts";
 
 // cspell: words serv, stcp, sudp
 
-const start_server = function utilities_startServer(process_path:string, testing:boolean):void {
+const start_application = function utilities_startApplication(process_path:string, testing:boolean):void {
     const prerequisite_tasks:core_start_tasks = {
             // prerequisite tasks will execute serially in the order presented
             admin: {
                 label: "Determines if the application is run with administrative privileges.",
-                task: function utilities_startServer_admin():void {
-                    spawn(vars.commands.admin_check, function utilities_startServer_admin_callback(output:core_spawn_output):void {
+                task: function utilities_startApplication_admin():void {
+                    spawn(vars.commands.admin_check, function utilities_startApplication_admin_callback(output:core_spawn_output):void {
                         const std:string = output.stdout.replace(/\s+/g, "");
                         if (std === "0" || std === "true") {
                             vars.os.process.admin = true;
@@ -41,15 +41,15 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             features: {
                 label: "Reading the features.json file and remove parts of the application.",
-                task: function utilities_startServer_features():void {
+                task: function utilities_startApplication_features():void {
                     const flags:store_string = {
                             feature: null,
                             html: null
                         },
-                        ready = function utilities_startServer_features_ready():void {
+                        ready = function utilities_startApplication_features_ready():void {
                             if (typeof flags.feature === "string" && typeof flags.html === "string") {
                                 const feature_list:store_flag = JSON.parse(flags.feature),
-                                    section = function utilities_startServer_features_ready_section(section_name:type_dashboard_features, label:string):void {
+                                    section = function utilities_startApplication_features_ready_section(section_name:type_dashboard_features, label:string):void {
                                         if (feature_list[section_name] !== true) {
                                             const end_html:number = flags.html.indexOf(`<!-- ${section_name} end -->`),
                                                 start_html:number = flags.html.indexOf(`<!-- ${section_name} start -->`),
@@ -69,7 +69,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                             vars.environment.features[section_name] = true;
                                         }
                                     },
-                                    parent = function utilities_startServer_features_ready_parent():void {
+                                    parent = function utilities_startApplication_features_ready_parent():void {
                                         const nav_end:number = flags.html.indexOf("</nav>"),
                                             empty:number = flags.html.slice(nav_start, nav_end).indexOf("<ul></ul>");
                                         let start:number = empty + nav_start,
@@ -82,7 +82,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                                 start = start - 1;
                                             } while (flags.html.slice(start, start + 4) !== "<div");
                                             flags.html = flags.html.slice(0, start) + flags.html.slice(end);
-                                            utilities_startServer_features_ready_parent();
+                                            utilities_startApplication_features_ready_parent();
                                         } else {
                                             if (vars.environment.features["servers-web"] === false) {
                                                 flags.html = flags.html.replace("<button", "<button class=\"nav-focus\"");
@@ -120,11 +120,11 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 vars.environment.dashboard_page = flags.html;
                             }
                         },
-                        callback_html = function utilities_startServer_features_callbackHTML(html_file:Buffer):void {
+                        callback_html = function utilities_startApplication_features_callbackHTML(html_file:Buffer):void {
                             flags.html = html_file.toString();
                             ready();
                         },
-                        callback_feature = function utilities_startServer_features_callbackFeature(feature_file:Buffer):void {
+                        callback_feature = function utilities_startApplication_features_callbackFeature(feature_file:Buffer):void {
                             flags.feature = feature_file.toString();
                             ready();
                         };
@@ -144,17 +144,17 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             os_main: {
                 label: "Gathers basic operating system and machine data.",
-                task: function utilities_startServer_taskOSMain():void {
-                    const osDelay = function utilities_startServer_taskOSMain_osDelay():void {
-                            os_lists("all", function utilities_startServer_taskOSMain_osDelay_callback(payload:socket_data):void {
+                task: function utilities_startApplication_taskOSMain():void {
+                    const osDelay = function utilities_startApplication_taskOSMain_osDelay():void {
+                            os_lists("all", function utilities_startApplication_taskOSMain_osDelay_callback(payload:socket_data):void {
                                 broadcast(vars.environment.dashboard_id, "dashboard", payload);
                             });
                             osDaily();
                         },
-                        osDaily = function utilities_startServer_taskOSMain_osDaily():void {
+                        osDaily = function utilities_startApplication_taskOSMain_osDaily():void {
                             setTimeout(osDelay, 86399975);
                         },
-                        midnight:number = (function utilities_startServer_taskOSMain_midnight():number {
+                        midnight:number = (function utilities_startApplication_taskOSMain_midnight():number {
                             const date:Date = new Date(),
                                 hours:number = date.getHours(),
                                 minutes:number = date.getMinutes(),
@@ -170,7 +170,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             compose: {
                 label: "Restores the docker compose containers if docker is available.",
-                task: function utilities_startServer_compose():void {
+                task: function utilities_startApplication_compose():void {
                     docker.shell_start();
                     if (vars.environment.features["compose-containers"] === true) {
                         docker.list(start_prerequisites);
@@ -183,7 +183,7 @@ const start_server = function utilities_startServer(process_path:string, testing
         tasks:core_start_tasks = {
             cgroup: {
                 label: "Find Linux cgroup address for gathering precision docker performance metrics.",
-                task: function utilities_startServer_cgroup():void {
+                task: function utilities_startApplication_cgroup():void {
                     if (vars.environment.features["compose-containers"] === true && vars.compose.status === "" && vars.os.process.admin === true) {
                         const addresses:string[] = [
                                 "/sys/fs/cgroup/system.slice/",
@@ -191,13 +191,13 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 "/sys/fs/cgroup/memory/system.slice/",
                                 "/sys/fs/cgroup/memory/docker/"
                             ],
-                            no_file = function utilities_startServer_cgroup_noFile():void {
+                            no_file = function utilities_startApplication_cgroup_noFile():void {
                                 index = index + 1;
                                 if (index < 4) {
                                     file.stat({
                                         callback: stat_callback,
                                         location: addresses[index],
-                                        no_file: utilities_startServer_cgroup_noFile,
+                                        no_file: utilities_startApplication_cgroup_noFile,
                                         section: "startup"
                                     });
                                 } else {
@@ -205,7 +205,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                     complete_tasks("cgroup");
                                 }
                             },
-                            stat_callback = function utilities_startServer_cgroup_statCallback(stats:node_fs_BigIntStats, location:string):void {
+                            stat_callback = function utilities_startApplication_cgroup_statCallback(stats:node_fs_BigIntStats, location:string):void {
                                 vars.path.cgroup = location;
                                 complete_tasks("cgroup");
                             };
@@ -219,14 +219,14 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             file: {
                 label: "Unix 'file' command discovered.",
-                task: function utilities_startServer_file():void {
+                task: function utilities_startApplication_file():void {
                     if (vars.environment.features["file-system"] === true) {
                         if (process.platform === "win32") {
                             vars.commands.file = `${vars.path.process}node_modules${vars.path.sep}file${vars.path.sep}bin${vars.path.sep}file.exe -bi `;
                             complete_tasks("file");
                             return;
                         }
-                        spawn("file --help", function utilities_startServer_file_spawn(output:core_spawn_output):void {
+                        spawn("file --help", function utilities_startApplication_file_spawn(output:core_spawn_output):void {
                             if (output.stdout.indexOf("Usage: file [OPTION...] [FILE...]") === 0) {
                                 vars.commands.file = "file -bi ";
                             }
@@ -239,10 +239,10 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             git: {
                 label: "Get the latest update time and hash.",
-                task: function utilities_startServer_tasksGit():void {
-                    const gitStat = function utilities_startServer_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
+                task: function utilities_startApplication_tasksGit():void {
+                    const gitStat = function utilities_startApplication_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
                         if (error === null && stat !== null) {
-                            const spawn_item:core_spawn = spawn("git show -s --format=%H,%ct HEAD", function utilities_startServer_tasksGit_gitStat_close(output:core_spawn_output):void {
+                            const spawn_item:core_spawn = spawn("git show -s --format=%H,%ct HEAD", function utilities_startApplication_tasksGit_gitStat_close(output:core_spawn_output):void {
                                 const str:string[] = output.stdout.split(",");
                                 vars.environment.date_commit = Number(str[1]) * 1000;
                                 vars.environment.hash = str[0];
@@ -261,7 +261,7 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             html: {
                 label: "Read's the dashboard's HTML file for dynamic modification.",
-                task: function utilities_startServer_taskHTML():void {
+                task: function utilities_startApplication_taskHTML():void {
                     let chart_js:string = null,
                         xterm_js:string = null,
                         xterm_css:string = null;
@@ -271,7 +271,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             xterm_css: false,
                             xterm_js: false
                         },
-                        complete = function utilities_startServer_taskHTML_complete(key:string):void {
+                        complete = function utilities_startApplication_taskHTML_complete(key:string):void {
                             flags[key] = true;
                             if (flags.chart === true && flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
                                 const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
@@ -295,7 +295,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         };
                     if (vars.environment.features["terminal"] === true || vars.environment.features["compose-containers"] === true) {
                         file.read({
-                            callback: function utilities_startServer_taskHTML_readXtermCSS(file:Buffer):void {
+                            callback: function utilities_startApplication_taskHTML_readXtermCSS(file:Buffer):void {
                                 xterm_css = file.toString();
                                 complete("xterm_css");
                             },
@@ -304,7 +304,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                             section: "startup"
                         });
                         file.read({
-                            callback: function utilities_startServer_taskHTML_readXtermJS(file:Buffer):void {
+                            callback: function utilities_startApplication_taskHTML_readXtermJS(file:Buffer):void {
                                 xterm_js = file.toString();
                                 complete("xterm_js");
                             },
@@ -320,7 +320,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                     }
                     if (vars.environment.features["statistics"] === true) {
                         file.read({
-                            callback: function utilities_startServer_taskHTML_readChart(file:Buffer):void {
+                            callback: function utilities_startApplication_taskHTML_readChart(file:Buffer):void {
                                 chart_js = file.toString();
                                 complete("chart");
                             },
@@ -333,7 +333,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                         chart_js = "";
                     }
                     file.read({
-                        callback: function utilities_startServer_taskCSS_readCSS(fileContents:Buffer):void {
+                        callback: function utilities_startApplication_taskCSS_readCSS(fileContents:Buffer):void {
                             const css:string = fileContents.toString();
                             vars.css.complete = css.slice(css.indexOf(":root"));
                             vars.css.basic = vars.css.complete.slice(0, css.indexOf("/* end basic html */"));
@@ -347,9 +347,9 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             os_devs: {
                 label: "Gathers a list of devices registered with the OS kernel.",
-                task: function utilities_startServer_taskOSDevs():void {
+                task: function utilities_startApplication_taskOSDevs():void {
                     if (vars.environment.features["devices"] === true) {
-                        const callback = function utilities_startServer_taskOSDevs_callback():void {
+                        const callback = function utilities_startApplication_taskOSDevs_callback():void {
                                 complete_tasks("os_devs");
                             };
                         os_lists("devs", callback);
@@ -360,9 +360,9 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             os_disk: {
                 label: "Gathers information about disk hardware and partitions.",
-                task: function utilities_startServer_taskOSDisk():void {
+                task: function utilities_startApplication_taskOSDisk():void {
                     if (vars.environment.features["disks"] === true) {
-                        const callback = function utilities_startServer_taskOSDisk_callback():void {
+                        const callback = function utilities_startApplication_taskOSDisk_callback():void {
                                 complete_tasks("os_disk");
                             };
                         os_lists("disk", callback);
@@ -373,9 +373,9 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             os_intr: {
                 label: "Gathers information about the state of available network interfaces.",
-                task: function utilities_startServer_taskOSIntr():void {
+                task: function utilities_startApplication_taskOSIntr():void {
                     if (vars.environment.features["interfaces"] === true) {
-                        const callback = function utilities_startServer_taskOSIntr_callback():void {
+                        const callback = function utilities_startApplication_taskOSIntr_callback():void {
                             complete_tasks("os_intr");
                         };
                         os_lists("intr", callback);
@@ -387,12 +387,12 @@ const start_server = function utilities_startServer(process_path:string, testing
             os_proc: {
                 label: "Gathers a list of running processes.",
                 task: (process.platform === "win32")
-                    ? function utilities_startServer_taskOSProcWindows():void {
+                    ? function utilities_startApplication_taskOSProcWindows():void {
                         complete_tasks("os_proc");
                     }
-                    : function utilities_startServer_taskOSProc():void {
+                    : function utilities_startApplication_taskOSProc():void {
                         if (vars.environment.features["processes"] === true) {
-                            const callback = function utilities_startServer_taskOSProc_callback():void {
+                            const callback = function utilities_startApplication_taskOSProc_callback():void {
                                 complete_tasks("os_proc");
                             };
                             os_lists("proc", callback);
@@ -403,9 +403,9 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             os_serv: {
                 label: "Gathers a list of known services.",
-                task: function utilities_startServer_taskOSServ():void {
+                task: function utilities_startApplication_taskOSServ():void {
                     if (vars.environment.features["services"] === true) {
-                        const callback = function utilities_startServer_taskOSServ_callback():void {
+                        const callback = function utilities_startApplication_taskOSServ_callback():void {
                             complete_tasks("os_serv");
                         };
                         os_lists("serv", callback);
@@ -416,9 +416,9 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             os_stcp: {
                 label: "Gathers a list of known network TCP sockets.",
-                task: function utilities_startServer_taskOSSock():void {
+                task: function utilities_startApplication_taskOSSock():void {
                     if (vars.environment.features["sockets-os-tcp"] === true) {
-                        const callback = function utilities_startServer_taskOSSock_callback():void {
+                        const callback = function utilities_startApplication_taskOSSock_callback():void {
                             complete_tasks("os_stcp");
                         };
                         os_lists("stcp", callback);
@@ -429,9 +429,9 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             os_sudp: {
                 label: "Gathers a list of known network UDP sockets.",
-                task: function utilities_startServer_taskOSSock():void {
+                task: function utilities_startApplication_taskOSSock():void {
                     if (vars.environment.features["sockets-os-udp"] === true) {
-                        const callback = function utilities_startServer_taskOSSock_callback():void {
+                        const callback = function utilities_startApplication_taskOSSock_callback():void {
                             complete_tasks("os_sudp");
                         };
                         os_lists("sudp", callback);
@@ -442,9 +442,9 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             os_user: {
                 label: "Gathers a list of user accounts.",
-                task: function utilities_startServer_taskOSUser():void {
+                task: function utilities_startApplication_taskOSUser():void {
                     if (vars.environment.features["users"] === true) {
-                        const callback = function utilities_startServer_taskOSUser_callback():void {
+                        const callback = function utilities_startApplication_taskOSUser_callback():void {
                             complete_tasks("os_user");
                         };
                         os_lists("user", callback);
@@ -455,15 +455,15 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             servers: {
                 label: "Reads the servers.json file to dynamically standup and populate configured web servers.",
-                task: function utilities_startServer_taskServers():void {
-                    const callback = function utilities_startServer_taskServers_callback(fileContents:Buffer):void {
+                task: function utilities_startApplication_taskServers():void {
+                    const callback = function utilities_startApplication_taskServers_callback(fileContents:Buffer):void {
                         const configStr:string = (fileContents === null)
                                 ? ""
                                 : fileContents.toString(),
                             config:core_servers_file = (configStr === "" || (/^\s*\{/).test(configStr) === false || (/\}\s*$/).test(configStr) === false)
                                 ? null
                                 : JSON.parse(configStr) as core_servers_file,
-                            includes = function utilities_startServer_taskServers_callback_includes(input:string):void {
+                            includes = function utilities_startApplication_taskServers_callback_includes(input:string):void {
                                 if (vars.environment.interfaces.includes(input) === false && input.toLowerCase().indexOf("fe80") !== 0) {
                                     vars.environment.interfaces.push(input);
                                 }
@@ -548,21 +548,21 @@ const start_server = function utilities_startServer(process_path:string, testing
             },
             test_browser: {
                 label: "Finds a designed web browser for test automation if supplied as a terminal argument.",
-                task: function utilities_startServer_taskTestBrowser():void {
+                task: function utilities_startApplication_taskTestBrowser():void {
                     test_stat("test_browser");
                 }
             },
             test_list: {
                 label: null,
-                task: function utilities_startServer_taskTestList():void {
+                task: function utilities_startApplication_taskTestList():void {
                     test_stat("test_list");
                 }
             },
             version: {
                 label: "Get application version number from package.json file.",
-                task: function utilities_startServer_version():void {
+                task: function utilities_startApplication_version():void {
                     file.read({
-                        callback: function utilities_startServer_version_callback(file_contents:Buffer):void {
+                        callback: function utilities_startApplication_version_callback(file_contents:Buffer):void {
                             vars.environment.version = JSON.parse(file_contents.toString()).version;
                             complete_tasks("version");
                         },
@@ -573,18 +573,18 @@ const start_server = function utilities_startServer(process_path:string, testing
                 }
             }
         },
-        test_stat = function utilities_startServer_testStat(property:"test_browser"|"test_list"):void {
+        test_stat = function utilities_startApplication_testStat(property:"test_browser"|"test_list"):void {
             if (testing === false) {
                 tasks[property].label = "Ignored unless executing tests.";
                 complete_tasks(property);
             } else {
-                const get_value = function utilities_startServer_testStat_getValue(arg:"browser"|"list"):void {
+                const get_value = function utilities_startApplication_testStat_getValue(arg:"browser"|"list"):void {
                     let address:string = vars.options[arg];
                     const address_length:number = address.length,
                         stat_address:string = (property === "test_list")
                             ? `${process_path}lib${vars.path.sep}test${vars.path.sep + address.replace(/^\.?(\/|\\)/, "")}`
                             : address,
-                        stat_browser = function utilities_startServer_testStat_stat(err:node_error, details:node_fs_Stats):void {
+                        stat_browser = function utilities_startApplication_testStat_stat(err:node_error, details:node_fs_Stats):void {
                             if (err === null && details !== null && details !== undefined) {
                                 if (arg === "browser" && vars.test.browser_args.length > 0) {
                                     tasks.test_browser.label = `Testing file found for ${arg}: ${vars.text.green + address.replace(/\\\\/g, "\\")} ${vars.test.browser_args.join(" ")} ${vars.text.none}`;
@@ -598,7 +598,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                 vars.test.test_browser = address;
                                 complete_tasks("test_browser");
                             } else if (property === "test_list") {
-                                import(address).then(function utilities_startServer_testStat_getValue_list(mod:object):void {
+                                import(address).then(function utilities_startApplication_testStat_getValue_list(mod:object):void {
                                     // @ts-expect-error - the Module type definition is not aware of the children exported upon a given module object.
                                     vars.test.list = mod.default;
                                     complete_tasks("test_list");
@@ -625,13 +625,13 @@ const start_server = function utilities_startServer(process_path:string, testing
                 tasks.browser_stat.label = "No option supplied beginning with 'browser:'";
             }
         },
-        log_task = function utilities_startServer_logTask(list:"prerequisite"|"task", flag:type_start_pre_tasks | type_start_primary_tasks):void {
+        log_task = function utilities_startApplication_logTask(list:"prerequisite"|"task", flag:type_start_pre_tasks | type_start_primary_tasks):void {
             const label:string = (list === "task")
                 ? tasks[flag].label
                 : prerequisite_tasks[flag].label;
             log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.environment.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${label}`]);
         },
-        complete_tasks = function utilities_startServer_completeTasks(flag:type_start_primary_tasks):void {
+        complete_tasks = function utilities_startApplication_completeTasks(flag:type_start_primary_tasks):void {
             log_task("task", flag);
             // to troubleshoot which tasks do not run, in test mode servers task is not executed
             // delete task_definitions[flag];console.log(Object.keys(task_definitions));
@@ -661,12 +661,12 @@ const start_server = function utilities_startServer(process_path:string, testing
                     temporary: false,
                     upgrade: false
                 },
-                start = function utilities_startServer_readComplete_start():void {
+                start = function utilities_startApplication_readComplete_start():void {
                     const servers:string[] = Object.keys(vars.servers),
                         total:number = (testing === true)
                             ? 1
                             : servers.length,
-                        callback = function utilities_startServer_readComplete_start_serverCallback():void {
+                        callback = function utilities_startApplication_readComplete_start_serverCallback():void {
                             count = count + 1;
                             if (count === total) {
                                 const time:number = Number(process.hrtime.bigint() - vars.environment.start_time),
@@ -678,7 +678,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         "",
                                         "Web Server Ports:",
                                     ],
-                                    pad = function utilities_startServer_readComplete_start_serverCallback_pad(str:string, num:number, dir:"left"|"right"):string {
+                                    pad = function utilities_startApplication_readComplete_start_serverCallback_pad(str:string, num:number, dir:"left"|"right"):string {
                                         let item:number = longest[num] - str.length;
                                         if (item > 0) {
                                             do {
@@ -692,7 +692,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                         }
                                         return str;
                                     },
-                                    logItem = function utilities_startServer_readComplete_start_serverCallback_logItem(name:string, encryption:"open"|"secure"|"tcp"|"udp", value:string):void {
+                                    logItem = function utilities_startApplication_readComplete_start_serverCallback_logItem(name:string, encryption:"open"|"secure"|"tcp"|"udp", value:string):void {
                                         const conflict:boolean = (value.indexOf(vars.text.angry) === 0),
                                             str:string = `${vars.text.angry}*${vars.text.none} ${pad(name, 0, "right")} - ${pad(encryption, 1, "right")} - ${value}`;
                                         if (conflict === true) {
@@ -741,7 +741,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                                     test_index();
                                 } else {
                                     const keys:string[] = Object.keys(vars.compose.containers),
-                                        sort = function utilities_startServer_readCompete_start_serverCallback_sort(a:[number, "tcp"|"udp"], b:[number, "tcp"|"udp"]):-1|1 {
+                                        sort = function utilities_startApplication_readCompete_start_serverCallback_sort(a:[number, "tcp"|"udp"], b:[number, "tcp"|"udp"]):-1|1 {
                                             if (a[0] < b[0] || (a[0] === b[0] && a[1] < b[1])) {
                                                 return -1;
                                             }
@@ -823,10 +823,10 @@ const start_server = function utilities_startServer(process_path:string, testing
                         index:number = 0;
 
                     if (testing === true) {
-                        server(vars.servers[vars.environment.dashboard_id].config.id, callback);
+                        server_start(vars.servers[vars.environment.dashboard_id].config.id, callback);
                     } else {
                         do {
-                            server(vars.servers[servers[index]].config.id, callback);
+                            server_start(vars.servers[servers[index]].config.id, callback);
                             index = index + 1;
                         } while (index < total);
                     }
@@ -844,7 +844,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                 }
             }
         },
-        start_tasks = function utilities_startServer_startTasks():void {
+        start_tasks = function utilities_startApplication_startTasks():void {
             do {
                 index_tasks = index_tasks - 1;
                 if (testing === false || (keys_tasks[index_tasks] !== "servers" && testing === true)) {
@@ -852,7 +852,7 @@ const start_server = function utilities_startServer(process_path:string, testing
                 }
             } while (index_tasks > 0);
         },
-        start_prerequisites = function utilities_startServer_startPrerequisites():void {
+        start_prerequisites = function utilities_startApplication_startPrerequisites():void {
             index_prerequisites = index_prerequisites + 1;
             if (index_prerequisites > 0) {
                 log_task("prerequisite", keys_prerequisites[index_prerequisites - 1]);
@@ -893,13 +893,13 @@ const start_server = function utilities_startServer(process_path:string, testing
     // update OS list of available shells
     if (vars.environment.features["terminal"] === true) {
         if (process.platform === "win32") {
-            const stats = function utilities_startServer_tasksShell_shellWin(index:number):void {
-                node.fs.stat(vars.environment.terminal[index], function utilities_startServer_tasksShell_shellWin_callback(err:node_error) {
+            const stats = function utilities_startApplication_tasksShell_shellWin(index:number):void {
+                node.fs.stat(vars.environment.terminal[index], function utilities_startApplication_tasksShell_shellWin_callback(err:node_error) {
                     if (err !== null) {
                         vars.environment.terminal.splice(index, 1);
                     }
                     if (index > 0) {
-                        utilities_startServer_tasksShell_shellWin(index - 1);
+                        utilities_startApplication_tasksShell_shellWin(index - 1);
                     } else {
                         start_prerequisites();
                     }
@@ -908,12 +908,12 @@ const start_server = function utilities_startServer(process_path:string, testing
             stats(vars.environment.terminal.length - 1);
         } else {
             file.stat({
-                callback: function utilities_startServer_tasksShell_shellStat(stat:node_fs_BigIntStats):void {
+                callback: function utilities_startApplication_tasksShell_shellStat(stat:node_fs_BigIntStats):void {
                     if (stat === null) {
                         vars.environment.terminal.push("/bin/sh");
                     } else {
                         file.read({
-                            callback: function utilities_startServer_tasksShell_shellStat_shellRead(contents:Buffer):void {
+                            callback: function utilities_startApplication_tasksShell_shellStat_shellRead(contents:Buffer):void {
                                 const lines:string[] = contents.toString().split("\n"),
                                     len:number = lines.length;
                                 let index:number = 1;
@@ -946,4 +946,4 @@ const start_server = function utilities_startServer(process_path:string, testing
     }
 };
 
-export default start_server;
+export default start_application;

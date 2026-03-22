@@ -1,10 +1,10 @@
 
-import certificate from "./certificate.ts";
+import certificate from "../services/certificate.ts";
 import file from "../utilities/file.ts";
 import hash from "../core/hash.ts";
 import log from "../core/log.ts";
-import ports_application from "./ports_application.ts";
-import server from "../transmit/server.ts";
+import ports_application from "../services/ports_application.ts";
+import server_start from "./server_start.ts";
 import vars from "../core/vars.ts";
 
 // 1. add server to the vars.servers object
@@ -45,7 +45,7 @@ const server_create = function services_serverCreate(data:services_action_server
                             // 5. launch servers
                             certCallback = function services_serverCreate_complete_certificate():void {
                                 if (config.activate === true && config.id !== vars.environment.dashboard_id) {
-                                    server(data.server.id, serverCallback);
+                                    server_start(data.server.id, serverCallback);
                                 } else if (callback !== null) {
                                     callback();
                                 }

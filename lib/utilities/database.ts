@@ -46,35 +46,37 @@ const database = function database():database {
                 }
                 return complete(arr);
             }
-            const obj:record_object = record as record_object,
-                keys:string[] = Object.keys(obj),
-                len:number = keys.length,
-                arr:record_array = [];
-            let index:number = 0;
-            if (len > table.meta.count_column) {
-                return [null, "Submitted object record contains more properties than the table has columns."];
+            {
+                const obj:record_object = record as record_object,
+                    keys:string[] = Object.keys(obj),
+                    len:number = keys.length,
+                    arr:record_array = [];
+                let index:number = 0;
+                if (len > table.meta.count_column) {
+                    return [null, "Submitted object record contains more properties than the table has columns."];
+                }
+                if (len === 0) {
+                    return [null, "Submitted object record contains no properties"];
+                }
+                do {
+                    if (table.meta.schema_object[keys[index]] === null || table.meta.schema_object[keys[index]] === undefined) {
+                        return [null, `Table ${table.meta.name} does not have a column named ${keys[index]}`];
+                    }
+                    if (typeof obj[keys[index]] !== table.meta.schema_object[keys[index]][1]) {
+                        return [null, `Table ${table.meta.name} expects type ${table.meta.schema_object[keys[index]][1]} on column ${table.meta.schema_object[keys[index]][0]} but received value ${obj[keys[index]]} of type ${typeof obj[keys[index]]}.`];
+                    }
+                    arr[table.meta.schema_object[keys[index]][0]] = obj[keys[index]];
+                    index = index + 1;
+                } while (index < len);
+                index = 0;
+                do {
+                    if (arr[index] === undefined) {
+                        arr[index] = null;
+                    }
+                    index = index + 1;
+                } while (index < table.meta.count_column);
+                return complete(arr);
             }
-            if (len === 0) {
-                return [null, "Submitted object record contains no properties"];
-            }
-            do {
-                if (table.meta.schema_object[keys[index]] === null || table.meta.schema_object[keys[index]] === undefined) {
-                    return [null, `Table ${table.meta.name} does not have a column named ${keys[index]}`];
-                }
-                if (typeof obj[keys[index]] !== table.meta.schema_object[keys[index]][1]) {
-                    return [null, `Table ${table.meta.name} expects type ${table.meta.schema_object[keys[index]][1]} on column ${table.meta.schema_object[keys[index]][0]} but received value ${obj[keys[index]]} of type ${typeof obj[keys[index]]}.`];
-                }
-                arr[table.meta.schema_object[keys[index]][0]] = obj[keys[index]];
-                index = index + 1;
-            } while (index < len);
-            index = 0;
-            do {
-                if (arr[index] === undefined) {
-                    arr[index] = null;
-                }
-                index = index + 1;
-            } while (index < table.meta.count_column);
-            return complete(arr);
         },
         table_create = function database_tableCreate(name:string, schema:table_schema_array|table_schema_object):void {
             const now:number = Date.now(),

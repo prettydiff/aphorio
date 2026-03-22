@@ -5,7 +5,7 @@ import http from "../http/index.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import message_handler from "./messageHandler.ts";
-import server_halt from "../services/server_halt.ts";
+import server_halt from "../server/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
 import terminal from "../services/terminal.ts";
 import vars from "../core/vars.ts";

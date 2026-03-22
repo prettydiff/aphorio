@@ -1,9 +1,9 @@
 
-import certificate from "./certificate.ts";
+import certificate from "../services/certificate.ts";
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
-import ports_application from "./ports_application.ts";
-import server from "../transmit/server.ts";
+import ports_application from "../services/ports_application.ts";
+import server_start from "./server_start.ts";
 import vars from "../core/vars.ts";
 
 // 1. turn off active servers and delete their corresponding objects
@@ -55,7 +55,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 const activate = function servers_serverHalt_activate():void {
                         if (vars.servers[id].config.activate === true) {
                             // 4. Reactivate the server(s) if its given "activate" property has a true boolean value
-                            server(data.server.id, function servers_serverHalt_complete_server():void {
+                            server_start(data.server.id, function servers_serverHalt_complete_serverStart():void {
                                 complete();
                             });
                         } else {
@@ -79,7 +79,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                     // 3b. Issue new certificates for modified secure server
                     certificate({
                         callback: function services_serverHalt_certificate():void {
-                            server(data.server.id, function services_serverHalt_certificate_restartComplete():void {
+                            server_start(data.server.id, function services_serverHalt_certificate_serverStart():void {
                                 activate();
                             });
                         },

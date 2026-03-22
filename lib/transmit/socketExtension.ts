@@ -3,7 +3,7 @@ import log from "../core/log.ts";
 import message_handler from "./messageHandler.ts";
 import receiver from "./receiver.ts";
 import send from "./send.ts";
-import server_halt from "../services/server_halt.ts";
+import server_halt from "../server/server_halt.ts";
 import socket_end from "./socket_end.ts";
 import socket_list_build from "./socket_list_build.ts";
 import vars from "../core/vars.ts";

@@ -1,8 +1,8 @@
 
 import broadcast from "../transmit/broadcast.ts";
-import server from "../transmit/server.ts";
 import server_create from "./server_create.ts";
 import server_halt from "./server_halt.ts";
+import server_start from "./server_start.ts";
 import vars from "../core/vars.ts";
 
 const servers = function services_server(socketData:socket_data):void {
@@ -15,7 +15,7 @@ const servers = function services_server(socketData:socket_data):void {
                 });
             };
         if (data.action === "activate") {
-            server(data.server.id, callback);
+            server_start(data.server.id, callback);
         } else if (data.action === "add") {
             server_create(data, callback, (data.server.id === vars.environment.dashboard_id));
         } else {

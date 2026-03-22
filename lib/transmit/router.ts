@@ -6,7 +6,7 @@ import hash from "../services/hash.ts";
 import http_request from "../http/http_requestTest.ts";
 import os from "../services/os.ts";
 import ports_application from "../services/ports_application.ts";
-import servers from "../services/server.ts";
+import servers from "../server/index.ts";
 import socket_list from "../services/socket_list.ts";
 import statistics from "../services/statistics.ts";
 import terminal from "../services/terminal.ts";
