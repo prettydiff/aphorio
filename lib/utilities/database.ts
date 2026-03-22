@@ -1,6 +1,81 @@
 
 const database = function database():database {
-    const table_create = function database_tableCreate(name:string, schema:table_schema_array|table_schema_object):void {
+    const record_validate = function database_recordValidate(table:table, record:record_object|type_record_array, existing:record_array):[record_array, string] {
+            const now:number = Date.now(),
+                complete = function database_recordValidate_complete(input:record_array):[record_array, string] {
+                    if (existing === null) {
+                        input[input.length - 3] = table.meta.index;
+                        input[input.length - 2] = now;
+                        input.id = table.meta.index;
+                        table.meta.count_record = table.meta.count_record + 1n;
+                        table.meta.index = table.meta.index + 1n;
+                    } else {
+                        input[input.length - 3] = existing.id;
+                        input[input.length - 2] = existing[table.meta.count_column - 2];
+                        input.id = existing.id;
+                    }
+                    input[input.length - 1] = now;
+                    table.records[input.id.toString()] = input;
+                    return [input, null];
+                };
+            if (table === null || table === undefined) {
+                return [null, "Table submitted to record_validate is null or undefined."];
+            }
+            if (Array.isArray(record) === true) {
+                const arr:record_array = record,
+                    len:number = arr.length;
+                let index:number = 0;
+                if (len > table.meta.count_column) {
+                    return [null, "Submitted object record contains more properties than the table has columns."];
+                }
+                if (len === 0) {
+                    return [null, "Submitted object record contains no properties"];
+                }
+                do {
+                    if (arr[index] !== null && typeof arr[index] !== table.meta.schema_array[index][1]) {
+                        return [null, `Table ${table.meta.name} expects type ${table.meta.schema_array[index][1]} on column ${table.meta.schema_array[index][0]} but received value ${arr[index]} of type ${typeof arr[index]}.`];
+                    }
+                    index = index + 1;
+                } while (index < len);
+                if (len < table.meta.count_column) {
+                    do {
+                        arr.push(null);
+                        index = index + 1;
+                    } while (index < table.meta.count_column);
+                }
+                return complete(arr);
+            }
+            const obj:record_object = record as record_object,
+                keys:string[] = Object.keys(obj),
+                len:number = keys.length,
+                arr:record_array = [];
+            let index:number = 0;
+            if (len > table.meta.count_column) {
+                return [null, "Submitted object record contains more properties than the table has columns."];
+            }
+            if (len === 0) {
+                return [null, "Submitted object record contains no properties"];
+            }
+            do {
+                if (table.meta.schema_object[keys[index]] === null || table.meta.schema_object[keys[index]] === undefined) {
+                    return [null, `Table ${table.meta.name} does not have a column named ${keys[index]}`];
+                }
+                if (typeof obj[keys[index]] !== table.meta.schema_object[keys[index]][1]) {
+                    return [null, `Table ${table.meta.name} expects type ${table.meta.schema_object[keys[index]][1]} on column ${table.meta.schema_object[keys[index]][0]} but received value ${obj[keys[index]]} of type ${typeof obj[keys[index]]}.`];
+                }
+                arr[table.meta.schema_object[keys[index]][0]] = obj[keys[index]];
+                index = index + 1;
+            } while (index < len);
+            index = 0;
+            do {
+                if (arr[index] === undefined) {
+                    arr[index] = null;
+                }
+                index = index + 1;
+            } while (index < table.meta.count_column);
+            return complete(arr);
+        },
+        table_create = function database_tableCreate(name:string, schema:table_schema_array|table_schema_object):void {
             const now:number = Date.now(),
                 meta:table_meta = {
                     count_column: 0,
@@ -19,82 +94,42 @@ const database = function database():database {
                 record_create = function database_tableCreate_recordCreate(data:record_object|type_record_array):[boolean, string] {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const table:table = this,
-                        array_test_record:boolean = Array.isArray(data),
-                        now:number = Date.now(),
-                        record:type_record_array = [];
-                    if (array_test_record === true) {
-                        const arr:type_record_array = data as type_record_array,
-                            len:number = arr.length;
-                        let index:number = 0;
-                        if (len > table.meta.count_column) {
-                            return [false, "Submitted array record contains more indexes than the table has columns."];
-                        }
-                        if (len > 0) {
-                            do {
-                                if (arr[index] !== null && typeof arr[index] !== table.meta.schema_array[index][1]) {
-                                    return [false, `Table ${table.meta.name} expects type ${table.meta.schema_array[index][1]} on column ${index} (${table.meta.schema_array[index][0]}) but received value ${arr[index]} of type ${typeof arr[index]}.`];
-                                }
-                                record.push(arr[index]);
-                                index = index + 1;
-                            } while (index < len);
-                        }
-                    } else if (data !== null && data !== undefined) {
-                        const obj:record_object = data as record_object,
-                            keys:string[] = Object.keys(obj),
-                            len:number = keys.length;
-                        let index:number = 0;
-                        if (len > table.meta.count_column) {
-                            return [false, "Submitted object record contains more properties than the table has columns."];
-                        }
-                        if (len > 0) {
-                            do {
-                                if (obj[keys[index]] !== null && obj[keys[index]] !== table.meta.schema_array[index][1]) {
-                                    return [false, `Table ${table.meta.name} expects type ${table.meta.schema_array[index][1]} on column ${table.meta.schema_object[keys[index]][0]} (${table.meta.schema_object[keys[index]][1]}) but received value ${obj[keys[index]]} of type ${typeof obj[keys[index]]}.`];
-                                }
-                                record.push([keys[index], obj[keys[index]]]);
-                                index = index + 1;
-                            } while (index < len);
-                        }
+                        validate:[record_array, string] = table.record_validate(table, data, null);
+                    if (validate[0] === null) {
+                        return [false, validate[1]];
                     }
-                    record.push(table.meta.index);
-                    record.push(now);
-                    record.push(now);
-                    table.records[String(table.meta.index)] = record;
-                    table.meta.count_record = table.meta.count_record + 1n;
-                    table.meta.index = table.meta.index + 1n;
                     return [true, "Record matches schema and added to table."];
                 },
-                record_delete = function database_tableCreate_recordDelete(id:bigint):type_record_primitive {
+                record_delete = function database_tableCreate_recordDelete(id:bigint):record_array {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const table:table = this,
-                        record:type_record_primitive = table.records[String(id)];
-                    if (record === undefined) {
-                        return null;
+                        record_output:type_record_array = [],
+                        record_store:type_record_array = table.records[id.toString()];
+                    let index:number = 0;
+                    if (record_store === undefined) {
+                        return [false, `No record in table ${table.meta.name} of id ${id}.`];
                     }
-                    delete table.records[id.toString()];
+                    do {
+                        record_output.push(record_store[index]);
+                        index = index + 1;
+                    } while (index < table.meta.count_column);
+                    table.records[id.toString()] = null;
                     table.meta.count_record = table.meta.count_record - 1n;
-                    return record;
+                    return record_output;
                 },
-                record_modify = function database_tableCreate_recordModify(id:bigint, data:record_object|table_schema_array):void {
+                record_modify = function database_tableCreate_recordModify(id:bigint, data:record_object|type_record_array):[boolean, string] {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const table:table = this,
-                        record:type_record_primitive = table.records[String(id)],
-                        array_test_record:boolean = Array.isArray(data);
-                    if (record === undefined) {
-                        return;
+                        existing:record_array = table.records[id.toString()];
+                    if (existing === null || existing === undefined) {
+                        return [false, `Record ${id} of table ${table.meta.name} is ${String(existing)}.`];
                     }
-                    if (array_test_record === true) {
-                        const arr:table_schema_array = data as table_schema_array,
-                            len:number = arr.length;
-                        if (len > 0) {
-                            let index:number = 0;
-                            do {
-                                if (arr[index] === null || table.meta.schema_object[arr[index][0]][1] === arr[index][1]) {
-                                    //record[table.meta.schema_object[arr[index][0]][0]] = 
-                                }
-                            } while (index < len);
+                    {
+                        const validate:[record_array, string] = table.record_validate(table, data, existing);
+                        if (validate[0] === null) {
+                            return [false, validate[1]];
                         }
-
+                        return [true, `Record ${id} of table ${table.meta.name} is modified.`];
                     }
                 },
                 search = function database_tableCreate_search(query:type_table_query_array|type_table_query_array[]):void {
@@ -144,6 +179,7 @@ const database = function database():database {
                 record_create: record_create,
                 record_delete: record_delete,
                 record_modify: record_modify,
+                record_validate: database.record_validate,
                 records: {},
                 search: search
             };
@@ -179,6 +215,7 @@ const database = function database():database {
             return output;
         },
         database:database = {
+            record_validate: record_validate,
             table_create: table_create,
             table_delete: table_delete,
             table_get: table_get,

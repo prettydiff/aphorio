@@ -3,10 +3,15 @@ interface database {
     store: {
         [key:string]: table;
     };
+    record_validate: type_record_validate;
     table_create: (name:string, schema:[string, type_table_schema][]) => void;
     table_delete: (name:string) => void;
     table_get: (name:string) => table;
     table_list: () => table_stats;
+}
+
+interface record_array extends type_record_array {
+    id?: bigint;
 }
 
 interface record_object {
@@ -20,8 +25,9 @@ interface record_store {
 interface table {
     meta: table_meta;
     record_create: (record:record_object|type_record_array) => [boolean, string];
-    record_delete: (id:bigint) => type_record_primitive;
-    record_modify: (id:bigint, data:record_object|table_schema_array) => void;
+    record_delete: (id:bigint) => record_array;
+    record_modify: (id:bigint, data:record_object|type_record_array) => [boolean, string];
+    record_validate: type_record_validate;
     records: record_store;
     search: (query:type_table_query_array|type_table_query_array[]) => void;
 }
@@ -58,8 +64,9 @@ interface table_stats {
 
 type comparator = "greater" | "is" | "lesser" | "not";
 type table_schema_array = type_record_item[];
-type type_record_array = type_record_primitive[];
+type type_record_array = Array<type_record_primitive>;
 type type_record_item = [string, type_table_schema];
-type type_record_primitive = bigint | boolean | number | object | string;
+type type_record_primitive = bigint | boolean | number | string;
+type type_record_validate = (table:table, record:record_object|type_record_array, existing:record_array) => [record_array, string];
 type type_table_query_array = [number|string, comparator, type_record_primitive];
-type type_table_schema = "bigint" | "boolean" | "number" | "object" | "string";
+type type_table_schema = "bigint" | "boolean" | "number" | "string";
