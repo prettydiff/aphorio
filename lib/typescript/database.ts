@@ -11,7 +11,7 @@ interface database {
 }
 
 interface record_array extends type_record_array {
-    id?: bigint;
+    id?: string;
 }
 
 interface record_object {
@@ -23,10 +23,11 @@ interface record_store {
 }
 
 interface table {
+    keys: string[];
     meta: table_meta;
     record_create: (record:record_object|type_record_array) => [boolean, string];
-    record_delete: (id:bigint) => record_array;
-    record_modify: (id:bigint, data:record_object|type_record_array) => [boolean, string];
+    record_delete: (id:string) => record_array;
+    record_modify: (id:string, data:record_object|type_record_array) => [boolean, string];
     record_validate: type_record_validate;
     records: record_store;
     search: (query:type_table_query_array|type_table_query_array[]) => void;

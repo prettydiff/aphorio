@@ -4,9 +4,10 @@ const database = function database():database {
             const now:number = Date.now(),
                 complete = function database_recordValidate_complete(input:record_array):[record_array, string] {
                     if (existing === null) {
+                        table.keys.push(String(table.meta.index));
                         input[input.length - 3] = table.meta.index;
                         input[input.length - 2] = now;
-                        input.id = table.meta.index;
+                        input.id = String(table.meta.index);
                         table.meta.count_record = table.meta.count_record + 1n;
                         table.meta.index = table.meta.index + 1n;
                     } else {
@@ -15,7 +16,7 @@ const database = function database():database {
                         input.id = existing.id;
                     }
                     input[input.length - 1] = now;
-                    table.records[input.id.toString()] = input;
+                    table.records[input.id] = input;
                     return [input, null];
                 };
             if (table === null || table === undefined) {
@@ -100,11 +101,11 @@ const database = function database():database {
                     }
                     return [true, "Record matches schema and added to table."];
                 },
-                record_delete = function database_tableCreate_recordDelete(id:bigint):record_array {
+                record_delete = function database_tableCreate_recordDelete(id:string):record_array {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const table:table = this,
                         record_output:type_record_array = [],
-                        record_store:type_record_array = table.records[id.toString()];
+                        record_store:type_record_array = table.records[id];
                     let index:number = 0;
                     if (record_store === undefined) {
                         return [false, `No record in table ${table.meta.name} of id ${id}.`];
@@ -113,14 +114,14 @@ const database = function database():database {
                         record_output.push(record_store[index]);
                         index = index + 1;
                     } while (index < table.meta.count_column);
-                    table.records[id.toString()] = null;
+                    table.records[id] = null;
                     table.meta.count_record = table.meta.count_record - 1n;
                     return record_output;
                 },
-                record_modify = function database_tableCreate_recordModify(id:bigint, data:record_object|type_record_array):[boolean, string] {
+                record_modify = function database_tableCreate_recordModify(id:string, data:record_object|type_record_array):[boolean, string] {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const table:table = this,
-                        existing:record_array = table.records[id.toString()];
+                        existing:record_array = table.records[id];
                     if (existing === null || existing === undefined) {
                         return [false, `Record ${id} of table ${table.meta.name} is ${String(existing)}.`];
                     }
@@ -167,14 +168,15 @@ const database = function database():database {
                     } while (index < len);
                 }
             }
-            meta.schema_array.push(["index", "bigint"]);
+            meta.schema_array.push(["index", "string"]);
             meta.schema_array.push(["record_created", "number"]);
             meta.schema_array.push(["record_modified", "number"]);
-            meta.schema_object["index"] = [count + 1, "bigint"];
+            meta.schema_object["index"] = [count + 1, "string"];
             meta.schema_object["record_created"] = [count + 2, "number"];
             meta.schema_object["record_modified"] = [index + 3, "number"];
             meta.count_column = count + 3;
             database.store[name] = {
+                keys: [],
                 meta: meta,
                 record_create: record_create,
                 record_delete: record_delete,
