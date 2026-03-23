@@ -145,36 +145,31 @@ const receiver = function transmit_receiver(buf:Buffer):void {
             if (payload === null) {
                 return;
             }
-
-            if (socket.type === "test-websocket") {
-                socket.handler(socket, payload, frame);
-            } else {
-                if (frame.opcode === 8) {
-                    // socket close
-                    payload[0] = 136;
-                    payload[1] = (frame.mask === true)
-                        ? payload[1] - 128
-                        : payload[1];
-                    send(payload, socket, 8);
-                    socket.destroySoon();
-                } else if (frame.opcode === 9) {
-                    // respond to "ping" as "pong"
-                    send(payload, socket, 10);
-                } else if (frame.opcode === 10) {
-                    // pong
-                    const payloadString:string = payload.toString(),
-                        pong:websocket_pong = socket.pong[payloadString],
-                        time:bigint = process.hrtime.bigint();
-                    if (pong !== undefined) {
-                        if (time < pong.start + pong.ttl) {
-                            clearTimeout(pong.timeOut);
-                            pong.callback(null, time - pong.start);
-                        }
-                        delete socket.pong[payloadString];
+            if (frame.opcode === 8) {
+                // socket close
+                payload[0] = 136;
+                payload[1] = (frame.mask === true)
+                    ? payload[1] - 128
+                    : payload[1];
+                send(payload, socket, 8);
+                socket.destroySoon();
+            } else if (frame.opcode === 9) {
+                // respond to "ping" as "pong"
+                send(payload, socket, 10);
+            } else if (frame.opcode === 10) {
+                // pong
+                const payloadString:string = payload.toString(),
+                    pong:websocket_pong = socket.pong[payloadString],
+                    time:bigint = process.hrtime.bigint();
+                if (pong !== undefined) {
+                    if (time < pong.start + pong.ttl) {
+                        clearTimeout(pong.timeOut);
+                        pong.callback(null, time - pong.start);
                     }
-                } else {
-                    socket.handler(socket, payload, frame);
+                    delete socket.pong[payloadString];
                 }
+            } else {
+                socket.handler(socket, payload, frame);
             }
         };
     let recursion:boolean = false;
