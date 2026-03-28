@@ -350,7 +350,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         }
         if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
-                log_len:number = vars.environment.logs.length,
                 logs_max:number = 5000,
                 payload:transmit_dashboard = {
                     compose: (vars.environment.features["compose-containers"] === true)
@@ -364,9 +363,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         ? vars.environment.http_request
                         : null,
                     logs: (vars.environment.features["application-logs"] === true)
-                        ? (log_len > logs_max)
-                            ? vars.environment.logs.slice(log_len - logs_max)
-                            : vars.environment.logs
+                        ? vars.database.store["logs"].get_quantity_object<config_log>(logs_max, "end") as config_log[]
                         : null,
                     logs_max: logs_max,
                     name: vars.environment.name,

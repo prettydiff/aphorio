@@ -54,8 +54,7 @@ const server_create = function services_serverCreate(data:services_action_server
                             error: null,
                             message: `Server named ${config.name} created.`,
                             section: "servers-web",
-                            status: "informational",
-                            time: Date.now()
+                            status: "informational"
                         });
                         // 4. create server's certificates
                         if (config.encryption === "open") {
@@ -167,8 +166,7 @@ const server_create = function services_serverCreate(data:services_action_server
                         error: new Error(),
                         message: `Server named ${config.name} already exists.  Called on library server_create.`,
                         section: "servers-web",
-                        status: "error",
-                        time: Date.now()
+                        status: "error"
                     });
                     return;
                 }

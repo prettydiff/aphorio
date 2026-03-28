@@ -555,10 +555,9 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
     TLS_socket.on("error", function transmit_connection_handshake_error(error:node_error):void{
         log.application({
             error: error,
-            message: "Socket connection error.",
+            message: `Socket connection error at web server ${vars.servers[server_id].config.name} (${server_id}).`,
             section: "servers-web",
-            status: "error",
-            time: Date.now()
+            status: "error"
         });
     });
     TLS_socket.once("data", handshake);

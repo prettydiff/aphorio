@@ -25,8 +25,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
             error: new Error(),
             message: `Server named ${data.server.name} with id ${data.server.id} does not exist.  Called on library server_halt.`,
             section: "servers-web",
-            status: "error",
-            time: Date.now()
+            status: "error"
         });
     } else {
         const single_socket:boolean = vars.servers[id].config.single_socket,
@@ -47,8 +46,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                     error: null,
                     message: `Server named ${data.server.name} ${actionText}.`,
                     section: "servers-web",
-                    status: "informational",
-                    time: Date.now()
+                    status: "informational"
                 });
             },
             write_callback = function services_serverHalt_writeCallback():void {

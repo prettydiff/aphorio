@@ -39,8 +39,7 @@ const file:file = {
                         error: errorInstance,
                         message: `Error making directory ${config.location}`,
                         section: config.section,
-                        status: "error",
-                        time: Date.now()
+                        status: "error"
                     });
                     return;
                 }
@@ -57,8 +56,7 @@ const file:file = {
                     error: new Error(`Destination directory, '${vars.text.cyan + config.location + vars.text.none}', is a ${type}.`),
                     message: `Destination for mkdir, ${config.location}, already exists.`,
                     section: config.section,
-                    status: "error",
-                    time: Date.now()
+                    status: "error"
                 });
                 return;
             },
@@ -79,8 +77,7 @@ const file:file = {
                                     error: errB,
                                     message: `Error making directory ${config.location}`,
                                     section: config.section,
-                                    status: "error",
-                                    time: Date.now()
+                                    status: "error"
                                 });
                             }
                         });
@@ -118,8 +115,7 @@ const file:file = {
                     error: err,
                     message: `Error reading file: ${config.location}`,
                     section: config.section,
-                    status: "error",
-                    time: Date.now()
+                    status: "error"
                 });
                 if (config.callback !== null) {
                     config.callback(null, config.location, config.identifier);
@@ -154,8 +150,7 @@ const file:file = {
                                     error: er,
                                     message: `Error removing file system artifact ${item[0]}`,
                                     section: config.section,
-                                    status: "error",
-                                    time: Date.now()
+                                    status: "error"
                                 });
                                 return;
                             }
@@ -242,8 +237,7 @@ const file:file = {
                     error: ers,
                     message: `Error reading file: ${config.location}`,
                     section: config.section,
-                    status: "error",
-                    time: Date.now()
+                    status: "error"
                 });
                 if (config.callback !== null) {
                     config.callback(null, config.location, config.identifier);
@@ -262,8 +256,7 @@ const file:file = {
                     error: erw,
                     message: `Error writing file: ${config.location}`,
                     section: config.section,
-                    status: "error",
-                    time: Date.now()
+                    status: "error"
                 });
                 if (config.callback !== null) {
                     config.callback(config.location, config.identifier);

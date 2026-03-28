@@ -39,8 +39,7 @@ const docker:core_docker = {
                         error: null,
                         message: vars.compose.status,
                         section: "compose-containers",
-                        status: "error",
-                        time: now
+                        status: "error"
                     });
                     complete((str === "")
                         ? "Format error on docker compose process list."
@@ -298,8 +297,7 @@ const docker:core_docker = {
                         error: null,
                         message: "Attempted to add a docker container without a 'container_name' field.",
                         section: "compose-containers",
-                        status: "error",
-                        time: Date.now()
+                        status: "error"
                     });
                 } else {
                     file.write({

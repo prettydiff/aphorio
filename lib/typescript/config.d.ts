@@ -93,10 +93,12 @@ declare global {
 
     interface config_log {
         error: node_childProcess_ExecException | node_error | TypeError;
+        index?: string;
         message: string;
+        record_created?: number;
+        record_modified?: number;
         section: type_dashboard_sections | "dashboard" | "startup";
         status: type_dashboard_status;
-        time: number;
     }
 
     interface config_os_comparison {

@@ -61,8 +61,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 error: null,
                 message: `Socket ${config.identifier} opened on ${encryption} server ${config.server} (${vars.servers[config.server].config.name}).`,
                 section: "sockets-application-tcp",
-                status: "informational",
-                time: now
+                status: "informational"
             };
         config.socket.server = config.server;      // identifies which local server the given socket is connected to
         config.socket.hash = config.identifier;    // assigns a unique identifier to the socket based upon the socket's credentials

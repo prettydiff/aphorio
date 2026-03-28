@@ -44,8 +44,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                 section: (config.type === "test-websocket")
                     ? "test-websocket"
                     : "sockets-application-tcp",
-                status: "error",
-                time: Date.now()
+                status: "error"
             });
             if (config.type === "test-websocket") {
                 config.callback(null, null, errorMessage);

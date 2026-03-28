@@ -30,8 +30,7 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
                 error: err,
                 message: `Error executing docker command: ${command}`,
                 section: "servers-web",
-                status: "error",
-                time: Date.now()
+                status: "error"
             });
             if (options !== undefined && options !== null && options.error !== undefined && options.error !== null) {
                 options.error(err);

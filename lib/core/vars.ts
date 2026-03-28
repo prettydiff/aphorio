@@ -60,6 +60,7 @@ const vars:core_vars = {
             // more complete css for the dashboard
             complete: ""
         },
+        database: null,
         environment: {
             // the web server id that is the dashboard's web server
             dashboard_id: "",
@@ -108,8 +109,6 @@ const vars:core_vars = {
                 "::1",
                 "[::1]"
             ],
-            // a store of objects representing a log entry
-            logs: [],
             // this application's name
             name: "aphorio",
             // the earliest recorded time this application starts

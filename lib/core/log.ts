@@ -5,11 +5,13 @@ import vars from "./vars.ts";
 const log:log = {
     application: function utilities_logApplication(config:config_log):void {
         if (vars.environment.features["application-logs"] === true) {
-            vars.environment.logs.push(config);
-            broadcast(vars.environment.dashboard_id, "dashboard", {
-                data: config,
-                service: "dashboard-log"
-            });
+            const write:config_log = vars.database.store["logs"].record_create_object<config_log>([config.error, config.message, config.section, config.status])[0];
+            if (write !== null) {
+                broadcast(vars.environment.dashboard_id, "dashboard", {
+                    data: write,
+                    service: "dashboard-log"
+                });
+            }
         }
     },
     shell: function utilities_logShell(input:string[], summary?:boolean):void {

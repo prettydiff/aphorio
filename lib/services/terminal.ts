@@ -44,8 +44,7 @@ const terminal:services_terminal = {
                     error: err,
                     message: "Socket for dashboard terminal failed with error.",
                     section: "terminal",
-                    status: "error",
-                    time: Date.now()
+                    status: "error"
                 };
                 log.application(config);
                 close();

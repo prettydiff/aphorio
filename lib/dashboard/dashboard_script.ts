@@ -98,13 +98,15 @@ const ui = function ui():void {
                 close: function dashboard_execute_socketClose():void {
                     const status:HTMLElement = document.getElementById("connection-status");
                     if (dashboard.sections["application-logs"] !== undefined && status !== null && status.getAttribute("class") === "connection-online") {
+                        const now:number = Date.now();
                         dashboard.sections["application-logs"].receive({
                             data: {
                                 error: null,
                                 message: "Dashboard browser connection offline.",
+                                record_created: now,
+                                record_modified: now,
                                 section: "dashboard",
-                                status: "informational",
-                                time: Date.now()
+                                status: "informational"
                             },
                             service: "dashboard-log"
                         });
@@ -280,6 +282,7 @@ const ui = function ui():void {
                         dashboard.global.loaded = true;
                         if (dashboard.sections["application-logs"] !== undefined) {
                             // populate log data
+                            const now:number = Date.now();
                             let index:number = dashboard.global.payload.logs.length;
                             if (index > 0) {
                                 do {
@@ -294,9 +297,10 @@ const ui = function ui():void {
                                 data: {
                                     error: null,
                                     message: "Dashboard browser connection online.",
+                                    record_created: now,
+                                    record_modified: now,
                                     section: "dashboard",
-                                    status: "informational",
-                                    time: Date.now()
+                                    status: "informational"
                                 },
                                 service: "dashboard-log"
                             });
@@ -512,7 +516,7 @@ const ui = function ui():void {
                         timeElement:HTMLElement = document.createElement("time"),
                         strong:HTMLElement = document.createElement("strong"),
                         code:HTMLElement = document.createElement("code"),
-                        time:string = `[${item.time.dateTime(true, null)}]`,
+                        time:string = `[${item.record_created.dateTime(true, null)}]`,
                         p:HTMLElement = document.createElement("p");
                     timeElement.appendText(time);
                     strong.textContent = item.section;

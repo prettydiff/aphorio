@@ -540,8 +540,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                             ? config.messages.no_child(item_old, list_old[index_old] as string)
                                             : config.messages.no_child(item_old),
                                         section: "os-machine",
-                                        status: "informational",
-                                        time: Date.now()
+                                        status: "informational"
                                     });
                                 }
                             }
@@ -558,8 +557,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                 ? config.messages[type].old(item_old, list_old[index_old] as string)
                                 : config.messages[type].old(item_old),
                             section: "os-machine",
-                            status: "informational",
-                            time: Date.now()
+                            status: "informational"
                         });
                     }
                 } while (index_old > 0);
@@ -605,8 +603,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                 ? config.messages[type].new(item_new, list_new[index_new] as string)
                                 : config.messages[type].new(item_new),
                             section: mapping[type_os] as type_dashboard_sections,
-                            status: "informational",
-                            time: Date.now()
+                            status: "informational"
                         });
                     }
                 } while (index_new > 0);
@@ -1125,8 +1122,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                 error: e as node_error,
                                 message: `Error parsing operating system data of type ${type}.`,
                                 section: "os-machine",
-                                status: "error",
-                                time: Date.now()
+                                status: "error"
                             });
                             spawn_complete(type, completed);
                             return false;
@@ -1146,8 +1142,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         error: err,
                         message: `Child process failure on gathering OS information from command: ${vars.commands[type]}`,
                         section: "os-machine",
-                        status: "error",
-                        time: Date.now()
+                        status: "error"
                     });
                     spawn_complete(type, completed);
                 },

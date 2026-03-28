@@ -19,8 +19,7 @@ const hash = function utilities_hash(config:config_hash):void {
                 error: err,
                 message: output,
                 section: config.section,
-                status: "error",
-                time: Date.now()
+                status: "error"
             });
         };
         node.fs.stat(config.source, function utilities_hash_statCallback(ers:node_error, stat:node_fs_Stats):void {

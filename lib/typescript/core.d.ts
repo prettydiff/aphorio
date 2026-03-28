@@ -237,6 +237,7 @@ interface core_vars {
         basic: string;
         complete: string;
     };
+    database: database;
     environment: {
         dashboard_id: string;
         dashboard_page: string;
@@ -271,7 +272,6 @@ interface core_vars {
         hashes: string[];
         http_request: string;
         interfaces: string[];
-        logs: config_log[];
         name: string;
         start_time: bigint;
         terminal: string[];

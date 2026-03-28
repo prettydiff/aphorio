@@ -3,6 +3,7 @@ import broadcast from "../transmit/broadcast.ts";
 import clock from "../services/clock.ts";
 import core from "../browser/core.ts";
 import dashboard_script from "../dashboard/dashboard_script.ts";
+import database from "./database.ts";
 import docker from "../services/docker.ts";
 import file from "./file.ts";
 import log from "../core/log.ts";
@@ -666,6 +667,7 @@ const start_application = function utilities_startApplication(process_path:strin
                         total:number = (testing === true)
                             ? 1
                             : servers.length,
+                        db:database = database(),
                         callback = function utilities_startApplication_readComplete_start_serverCallback():void {
                             count = count + 1;
                             if (count === total) {
@@ -821,6 +823,9 @@ const start_application = function utilities_startApplication(process_path:strin
                         };
                     let count:number = 0,
                         index:number = 0;
+                    
+                    db.table_create("logs", [["error", "object"], ["message", "string"], ["section", "string"], ["status", "string"]], false);
+                    vars.database = db;
 
                     if (testing === true) {
                         server_start(vars.servers[vars.environment.dashboard_id].config.id, callback);

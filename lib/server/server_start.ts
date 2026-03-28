@@ -39,10 +39,9 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                 vars.servers[serverItem.id].status[secure] = address.port;
                 log.application({
                     error: null,
-                    message: `Server ${serverItem.id} - ${secure} came online at port ${address.port}.`,
+                    message: `Server ${vars.servers[serverItem.id].config.name} (${serverItem.id}) - ${secure} came online at port ${address.port}.`,
                     section: "servers-web",
-                    status: "informational",
-                    time: Date.now()
+                    status: "informational"
                 });
                 broadcast(vars.environment.dashboard_id, "dashboard", {
                     data: vars.servers,
@@ -63,8 +62,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                     error: ser,
                     message: message,
                     section: "servers-web",
-                    status: "error",
-                    time: Date.now()
+                    status: "error"
                 });
                 complete(serverItem.id);
             };
@@ -151,8 +149,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                             error: new Error(),
                             message: `Required certificate files are missing for server ${vars.servers[id].config.name}.`,
                             section: "servers-web",
-                            status: "error",
-                            time: Date.now()
+                            status: "error"
                         });
                     }
                     if (vars.servers[id].config.single_socket === true || vars.servers[id].config.temporary === true) {
