@@ -135,6 +135,11 @@ interface services_http_test {
     uri: string;
 }
 
+interface services_log {
+    log: config_log;
+    total: number;
+}
+
 interface services_os_devs {
     data: os_devs[];
     time: number;

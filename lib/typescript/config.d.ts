@@ -94,6 +94,7 @@ declare global {
     interface config_log {
         error: node_childProcess_ExecException | node_error | TypeError;
         message: string;
+        origin: string;
         section: type_dashboard_sections | "dashboard" | "startup";
         status: type_dashboard_status;
         time: number;

@@ -23,7 +23,8 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
     if (vars.servers[id] === undefined) {
         log.application({
             error: new Error(),
-            message: `Server named ${data.server.name} with id ${data.server.id} does not exist.  Called on library server_halt.`,
+            message: "Server does not exist.  Called on library server_halt.",
+            origin: id,
             section: "servers-web",
             status: "error",
             time: Date.now()
@@ -45,7 +46,8 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 }
                 log.application({
                     error: null,
-                    message: `Server named ${data.server.name} ${actionText}.`,
+                    message: `Server ${actionText}.`,
+                    origin: id,
                     section: "servers-web",
                     status: "informational",
                     time: Date.now()

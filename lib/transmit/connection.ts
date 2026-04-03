@@ -252,7 +252,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                             "Connection: Upgrade",
                                             `Sec-WebSocket-Accept: ${hashOutput.hash}`,
                                             "Access-Control-Allow-Origin: *",
-                                            "Server: prettydiff/aphorio"
+                                            `Server: prettydiff/${vars.environment.name}`
                                         ];
                                     if (store.nonce !== null) {
                                         headers.push(store.nonce);
@@ -556,6 +556,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
         log.application({
             error: error,
             message: "Socket connection error.",
+            origin: server.id,
             section: "servers-web",
             status: "error",
             time: Date.now()

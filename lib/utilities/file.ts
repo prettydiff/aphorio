@@ -38,6 +38,7 @@ const file:file = {
                     log.application({
                         error: errorInstance,
                         message: `Error making directory ${config.location}`,
+                        origin: "utilities/file.ts",
                         section: config.section,
                         status: "error",
                         time: Date.now()
@@ -56,6 +57,7 @@ const file:file = {
                 log.application({
                     error: new Error(`Destination directory, '${vars.text.cyan + config.location + vars.text.none}', is a ${type}.`),
                     message: `Destination for mkdir, ${config.location}, already exists.`,
+                    origin: "utilities/file.ts",
                     section: config.section,
                     status: "error",
                     time: Date.now()
@@ -78,6 +80,7 @@ const file:file = {
                                 log.application({
                                     error: errB,
                                     message: `Error making directory ${config.location}`,
+                                    origin: "utilities/file.ts",
                                     section: config.section,
                                     status: "error",
                                     time: Date.now()
@@ -117,6 +120,7 @@ const file:file = {
                 log.application({
                     error: err,
                     message: `Error reading file: ${config.location}`,
+                    origin: "utilities/file.ts",
                     section: config.section,
                     status: "error",
                     time: Date.now()
@@ -153,6 +157,7 @@ const file:file = {
                                 log.application({
                                     error: er,
                                     message: `Error removing file system artifact ${item[0]}`,
+                                    origin: "utilities/file.ts",
                                     section: config.section,
                                     status: "error",
                                     time: Date.now()
@@ -241,6 +246,7 @@ const file:file = {
                 log.application({
                     error: ers,
                     message: `Error reading file: ${config.location}`,
+                    origin: "utilities/file.ts",
                     section: config.section,
                     status: "error",
                     time: Date.now()
@@ -261,6 +267,7 @@ const file:file = {
                 log.application({
                     error: erw,
                     message: `Error writing file: ${config.location}`,
+                    origin: "utilities/file.ts",
                     section: config.section,
                     status: "error",
                     time: Date.now()

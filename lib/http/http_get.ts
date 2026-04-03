@@ -202,7 +202,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                 "",
                                 `content-type: ${type}`,
                                 "",
-                                "server: prettydiff/aphorio",
+                                `server: prettydiff/${vars.environment.name}`,
                                 "accept-ranges: bytes",
                                 "",
                                 ""
@@ -350,8 +350,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         }
         if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
-                log_len:number = vars.environment.logs.length,
-                logs_max:number = 5000,
                 payload:transmit_dashboard = {
                     compose: (vars.environment.features["compose-containers"] === true)
                         ? vars.compose
@@ -364,11 +362,14 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         ? vars.environment.http_request
                         : null,
                     logs: (vars.environment.features["application-logs"] === true)
-                        ? (log_len > logs_max)
-                            ? vars.environment.logs.slice(log_len - logs_max)
-                            : vars.environment.logs
+                        ? {
+                            entries: (vars.environment.logs.total > vars.environment.logs.max)
+                                ? vars.environment.logs.entries.slice(vars.environment.logs.total - vars.environment.logs.max)
+                                : vars.environment.logs.entries,
+                            max: vars.environment.logs.max,
+                            total: vars.environment.logs.total
+                        }
                         : null,
-                    logs_max: logs_max,
                     name: vars.environment.name,
                     os: vars.os,
                     path: vars.path,
@@ -399,7 +400,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     "HTTP/1.1 200",
                     "content-type: text/html",
                     `content-length: ${Buffer.byteLength(dashboard)}`,
-                    "server: prettydiff/aphorio",
+                    `server: prettydiff/${vars.environment.name}`,
                     "accept-ranges: bytes",
                     "",
                     ""
@@ -415,7 +416,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             "HTTP/1.1 404",
             "content-type: text/html",
             "content-length: 0",
-            "server: prettydiff/aphorio",
+            `server: prettydiff/${vars.environment.name}`,
             "accept-ranges: bytes",
             "",
             ""

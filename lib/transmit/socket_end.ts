@@ -1,7 +1,6 @@
 
-import broadcast from "./broadcast.ts";
+import log from "../core/log.ts";
 import socket_list from "../services/socket_list.ts";
-import vars from "../core/vars.ts";
 
 const socket_end = function transmit_socketEnd(error:node_error):void {
     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
@@ -17,15 +16,13 @@ const socket_end = function transmit_socketEnd(error:node_error):void {
                 ? new Error()
                 : error,
             message: `Socket type ${socket.type} with id ${socket.hash} from ${address_local} to ${address_remote} ended.`,
+            origin: socket.server,
             section: "sockets-application-tcp",
             status: "error",
             time: Date.now()
         };
 
-    broadcast(vars.environment.dashboard_id, "dashboard", {
-        data: payload_log,
-        service: "dashboard-log"
-    });
+    log.application(payload_log);
     socket_list();
 };
 

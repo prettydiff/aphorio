@@ -271,7 +271,11 @@ interface core_vars {
         hashes: string[];
         http_request: string;
         interfaces: string[];
-        logs: config_log[];
+        logs: {
+            entries: config_log[];
+            max: number;
+            total: number;
+        };
         name: string;
         start_time: bigint;
         terminal: string[];

@@ -18,6 +18,7 @@ const hash = function utilities_hash(config:config_hash):void {
             log.application({
                 error: err,
                 message: output,
+                origin: "core/hash.ts",
                 section: config.section,
                 status: "error",
                 time: Date.now()

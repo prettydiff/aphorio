@@ -52,7 +52,8 @@ const server_create = function services_serverCreate(data:services_action_server
                             };
                         log.application({
                             error: null,
-                            message: `Server named ${config.name} created.`,
+                            message: "Server created.",
+                            origin: output.hash,
                             section: "servers-web",
                             status: "informational",
                             time: Date.now()
@@ -165,7 +166,8 @@ const server_create = function services_serverCreate(data:services_action_server
                 } else {
                     log.application({
                         error: new Error(),
-                        message: `Server named ${config.name} already exists.  Called on library server_create.`,
+                        message: "Server already exists.  Called on library server_create.",
+                        origin: output.hash,
                         section: "servers-web",
                         status: "error",
                         time: Date.now()

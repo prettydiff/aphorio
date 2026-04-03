@@ -28,8 +28,11 @@ interface transmit_dashboard {
     dashboard_id: string;
     hashes: string[];
     http_request: string;
-    logs: config_log[];
-    logs_max: number;
+    logs: {
+        entries: config_log[];
+        max: number;
+        total: number;
+    };
     name: string;
     os: core_server_os;
     path: core_vars_path;

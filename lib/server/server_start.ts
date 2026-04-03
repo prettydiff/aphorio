@@ -39,7 +39,8 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                 vars.servers[serverItem.id].status[secure] = address.port;
                 log.application({
                     error: null,
-                    message: `Server ${serverItem.id} - ${secure} came online at port ${address.port}.`,
+                    message: `${secure.capitalize()} server came online at port ${address.port}.`,
+                    origin: id,
                     section: "servers-web",
                     status: "informational",
                     time: Date.now()
@@ -57,11 +58,12 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                         ? "secure"
                         : "open",
                     message:string = (ser !== null && ser !== undefined && ser.code === "EADDRINUSE")
-                        ? `Port conflict on port ${vars.servers[serverItem.id].config.ports[secure]} of ${secure} server named ${serverItem.id}.`
-                        : `Server ${serverItem.id} - ${secure} went offline.  Was listening on port ${vars.servers[serverItem.id].config.ports[secure]}.`;
+                        ? `Port conflict on port ${vars.servers[serverItem.id].config.ports[secure]} of ${secure} server.`
+                        : `${secure.capitalize()} went offline.  Was listening on port ${vars.servers[serverItem.id].config.ports[secure]}.`;
                 log.application({
                     error: ser,
                     message: message,
+                    origin: id,
                     section: "servers-web",
                     status: "error",
                     time: Date.now()
@@ -149,7 +151,8 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                     if (https.options.ca === "" || https.options.cert === "" || https.options.key === "") {
                         log.application({
                             error: new Error(),
-                            message: `Required certificate files are missing for server ${vars.servers[id].config.name}.`,
+                            message: "Required certificate files are missing for server.",
+                            origin: id,
                             section: "servers-web",
                             status: "error",
                             time: Date.now()

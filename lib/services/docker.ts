@@ -38,6 +38,7 @@ const docker:core_docker = {
                     log.application({
                         error: null,
                         message: vars.compose.status,
+                        origin: "services/docker.ts",
                         section: "compose-containers",
                         status: "error",
                         time: now
@@ -297,6 +298,7 @@ const docker:core_docker = {
                     log.application({
                         error: null,
                         message: "Attempted to add a docker container without a 'container_name' field.",
+                        origin: data.id,
                         section: "compose-containers",
                         status: "error",
                         time: Date.now()

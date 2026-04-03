@@ -58,7 +58,7 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 // * dashboard-fileSystem          - services_fileSystem          - file system list
 // * dashboard-hash                - services_hash                - hash and base64 computational output
 // * dashboard-http                - services_http_test           - response messaging for an HTTP test request
-// * dashboard-log                 - config_log                   - a log entry
+// * dashboard-log                 - services_log                 - a log entry
 // * dashboard-os-all              - services_os_all              - all the information regarding machine, application, process, and more
 // * dashboard-os-devs             - services_os_devs             - only the device portion of dashboard-os-all
 // * dashboard-os-disk             - services_os_disk             - only the disk portion of dashboard-os-all
@@ -86,7 +86,7 @@ type type_service = "dashboard-compose-container" | "dashboard-compose-out" | "d
     "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-stcp" | "dashboard-os-sudp" | "dashboard-os-user" | "dashboard-ports-application" | "dashboard-server" | "dashboard-socket-application" | "dashboard-statistics-change" | "dashboard-statistics-data" | "dashboard-status-clock" |
     "dashboard-terminal-resize" | "dashboard-udp-socket"| "dashboard-udp-status" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
 
-type type_socket_data = config_log | core_compose | core_server_os | services_action_server | services_compose_container | services_dns_input | services_dns_output | services_dns_reverse | services_fileSystem | services_hash | services_http_test | services_os_disk | services_os_intr | services_ports_application | services_socket_application |
+type type_socket_data = config_log | core_compose | core_server_os | services_action_server | services_compose_container | services_dns_input | services_dns_output | services_dns_reverse | services_fileSystem | services_hash | services_http_test | services_log | services_os_disk | services_os_intr | services_ports_application | services_socket_application |
     services_statistics_change | services_statistics_data | services_status_clock |services_terminal_resize | services_testBrowser | services_udp_socket | services_websocket_handshake | services_websocket_message | services_websocket_status | store_servers | store_string | string[] | transmit_dashboard | type_list_services;
 
 type type_socket_status = "closed" | "end" | "open" | "pending";

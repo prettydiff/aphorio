@@ -539,6 +539,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                         message: (config.dict === true)
                                             ? config.messages.no_child(item_old, list_old[index_old] as string)
                                             : config.messages.no_child(item_old),
+                                        origin: "utilities/os_lists.ts",
                                         section: "os-machine",
                                         status: "informational",
                                         time: Date.now()
@@ -557,6 +558,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                             message: (config.dict === true)
                                 ? config.messages[type].old(item_old, list_old[index_old] as string)
                                 : config.messages[type].old(item_old),
+                            origin: "utilities/os_lists.ts",
                             section: "os-machine",
                             status: "informational",
                             time: Date.now()
@@ -604,6 +606,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                             message: (config.dict === true)
                                 ? config.messages[type].new(item_new, list_new[index_new] as string)
                                 : config.messages[type].new(item_new),
+                            origin: "utilities/os_lists.ts",
                             section: mapping[type_os] as type_dashboard_sections,
                             status: "informational",
                             time: Date.now()
@@ -1124,6 +1127,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                             log.application({
                                 error: e as node_error,
                                 message: `Error parsing operating system data of type ${type}.`,
+                                origin: "utilities/os_lists.ts",
                                 section: "os-machine",
                                 status: "error",
                                 time: Date.now()
@@ -1145,6 +1149,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     log.application({
                         error: err,
                         message: `Child process failure on gathering OS information from command: ${vars.commands[type]}`,
+                        origin: "utilities/os_lists.ts",
                         section: "os-machine",
                         status: "error",
                         time: Date.now()

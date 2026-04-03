@@ -11,18 +11,14 @@ const ui = function ui():void {
         execute: function dashboard_execute():void {
             // eslint-disable-next-line max-params
             window.onerror = function dashboard_execute_windowError(message:Event|string, source:string, lineno:number, colno:number, error:Error):void {
-                if (dashboard.sections["application-logs"] !== undefined) {
-                    dashboard.sections["application-logs"].receive({
-                        data: {
-                            error: error,
-                            message: `JavaScript UI error in browser on line ${lineno} and column ${colno} in ${source}. ${message.toString()}`,
-                            section: "dashboard",
-                            status: "error",
-                            time: Date.now()
-                        },
-                        service: "dashboard-log"
-                    });
-                }
+                dashboard.utility.message_send({
+                    error: error,
+                    message: `JavaScript UI error in browser on line ${lineno} and column ${colno} in ${source}. ${message.toString()}`,
+                    origin: "web browser",
+                    section: "dashboard",
+                    status: "error",
+                    time: Date.now()
+                }, "dashboard-log");
             };
             const navButtons:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("nav")[0].getElementsByTagName("button"),
                 navigation = function dashboard_execute_navigation(event:MouseEvent):void {
@@ -96,19 +92,21 @@ const ui = function ui():void {
             };
             dashboard.socket = core({
                 close: function dashboard_execute_socketClose():void {
-                    const status:HTMLElement = document.getElementById("connection-status");
-                    if (dashboard.sections["application-logs"] !== undefined && status !== null && status.getAttribute("class") === "connection-online") {
-                        dashboard.sections["application-logs"].receive({
-                            data: {
-                                error: null,
-                                message: "Dashboard browser connection offline.",
-                                section: "dashboard",
-                                status: "informational",
-                                time: Date.now()
-                            },
-                            service: "dashboard-log"
-                        });
-                    }
+                    const log_entry:services_log = {
+                        log: {
+                            error: null,
+                            message: "Dashboard browser connection offline.",
+                            origin: "web browser",
+                            section: "dashboard",
+                            status: "informational",
+                            time: Date.now()
+                        },
+                        total: null
+                    };
+                    dashboard.sections["application-logs"].receive({
+                        data: log_entry,
+                        service: "dashboard-log"
+                    });
                     dashboard.socket.connected = false;
                     dashboard.utility.baseline();
                     setTimeout(function dashboard_execute_socketClose_delay():void {
@@ -280,26 +278,19 @@ const ui = function ui():void {
                         dashboard.global.loaded = true;
                         if (dashboard.sections["application-logs"] !== undefined) {
                             // populate log data
-                            let index:number = dashboard.global.payload.logs.length;
+                            let index:number = dashboard.global.payload.logs.entries.length;
                             if (index > 0) {
                                 do {
                                     index = index - 1;
                                     dashboard.sections["application-logs"].receive({
-                                        data: dashboard.global.payload.logs[index],
+                                        data: {
+                                            log: dashboard.global.payload.logs.entries[index],
+                                            total: dashboard.global.payload.logs.total
+                                        },
                                         service: "dashboard-log"
                                     });
                                 } while (index > 0);
                             }
-                            dashboard.sections["application-logs"].receive({
-                                data: {
-                                    error: null,
-                                    message: "Dashboard browser connection online.",
-                                    section: "dashboard",
-                                    status: "informational",
-                                    time: Date.now()
-                                },
-                                service: "dashboard-log"
-                            });
                         }
                         init("application-logs");
                         init("compose-containers");
@@ -504,40 +495,49 @@ const ui = function ui():void {
                     dashboard.sections["application-logs"].events.resize();
                 },
                 nodes: {
-                    list: document.getElementById("application-logs").getElementsByTagName("ul")[0]
+                    count: document.getElementById("application-logs").getElementsByClassName("logs-count")[0] as HTMLElement,
+                    list: document.getElementById("application-logs").getElementsByTagName("ul")[0],
+                    total: document.getElementById("application-logs").getElementsByClassName("logs-total")[0] as HTMLElement
                 },
                 receive: function dashboard_sections_applicationLog_receive(socket_data:socket_data):void {
-                    const item:config_log = socket_data.data as config_log,
+                    const item:services_log = socket_data.data as services_log,
                         li:HTMLElement = document.createElement("li"),
                         timeElement:HTMLElement = document.createElement("time"),
                         strong:HTMLElement = document.createElement("strong"),
                         code:HTMLElement = document.createElement("code"),
-                        time:string = `[${item.time.dateTime(true, null)}]`,
-                        p:HTMLElement = document.createElement("p");
+                        time:string = `[${item.log.time.dateTime(true, null)}]`,
+                        p:HTMLElement = document.createElement("p"),
+                        span:HTMLElement = document.createElement("span"),
+                        len:number = dashboard.sections["application-logs"].nodes.list.childNodes.length;
                     timeElement.appendText(time);
-                    strong.textContent = item.section;
-                    p.textContent = item.message;
+                    strong.textContent = item.log.section;
+                    span.textContent = item.log.message;
+                    p.textContent = ((item.log.section === "servers-web" || item.log.section === "sockets-application-tcp" || item.log.section === "sockets-application-udp") && (/\.ts$/).test(item.log.origin) === false)
+                        ? `(${dashboard.global.payload.servers[item.log.origin].config.name}) ${item.log.origin}`
+                        : (item.log.section === "compose-containers" && (/\.ts$/).test(item.log.origin) === false)
+                            ? `(${dashboard.global.payload.compose.containers[item.log.origin].name}) ${item.log.origin}`
+                            : item.log.origin;
                     li.appendChild(timeElement);
                     li.appendChild(strong);
-                    if (item.status === "error" && item.error !== null) {
-                        const str:string = JSON.stringify(item.error);
-                        if (str === "{}") {
-                            if (item.error.stack !== undefined) {
-                                code.textContent = item.error.stack;
-                                p.appendChild(code);
-                                p.style.display = "block";
-                            }
-                        } else if (str !== "" && str !== null) {
+                    li.appendChild(span);
+                    if (item.log.status === "error" && item.log.error !== null) {
+                        const str:string = JSON.stringify(item.log.error);
+                        if (str !== "" && str !== "{}" && str !== null) {
                             code.textContent = str;
                             p.appendChild(code);
-                            p.style.display = "block";
                         }
                     }
                     li.appendChild(p);
-                    if (dashboard.sections["application-logs"].nodes.list.childNodes.length > dashboard.global.payload.logs_max) {
+                    if (len > dashboard.global.payload.logs.max) {
                         dashboard.sections["application-logs"].nodes.list.removeChild(dashboard.sections["application-logs"].nodes.list.lastChild);
+                        dashboard.sections["application-logs"].nodes.count.textContent = String(len);
+                    } else {
+                        dashboard.sections["application-logs"].nodes.count.textContent = String(len + 1);
                     }
                     dashboard.sections["application-logs"].nodes.list.insertBefore(li, dashboard.sections["application-logs"].nodes.list.firstChild);
+                    if (item.total !== null && item.total > 0) {
+                        dashboard.sections["application-logs"].nodes.total.textContent = String(item.total);
+                    }
                 },
                 tools: null
             },

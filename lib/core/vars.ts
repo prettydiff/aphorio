@@ -109,7 +109,11 @@ const vars:core_vars = {
                 "[::1]"
             ],
             // a store of objects representing a log entry
-            logs: [],
+            logs: {
+                entries: [],
+                max: 5000,
+                total: 0
+            },
             // this application's name
             name: "aphorio",
             // the earliest recorded time this application starts
