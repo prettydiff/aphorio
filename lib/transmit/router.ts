@@ -37,7 +37,7 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-os-sudp": os,
             "dashboard-os-user": os,
             "dashboard-ports-application": ports_application,
-            "dashboard-server": servers,
+            "dashboard-server-action": servers,
             "dashboard-socket-application": socket_list,
             "dashboard-statistics-change": statistics.change,
             "dashboard-terminal-resize": terminal.resize,

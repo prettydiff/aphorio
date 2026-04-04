@@ -11,9 +11,9 @@ const certificate = function services_certificate(config:config_certificate):voi
         cert = function services_certificate_cert():void {
             let index:number = 0;
             const commands:string[] = [],
-                domain:string = (vars.servers[config.id].config.domain_local.length < 1)
+                domain:string = (vars.data.servers[config.id].domain_local.length < 1)
                     ? "localhost"
-                    : vars.servers[config.id].config.domain_local[0],
+                    : vars.data.servers[config.id].domain_local[0],
                 crypto = function services_certificate_cert_crypto():void {
                     spawn(commands[index], function services_certificate_cert_crypto_child():void {
                         index = index + 1;
@@ -27,9 +27,9 @@ const certificate = function services_certificate(config:config_certificate):voi
                     }).execute();
                 },
                 cert_extensions:string = (function services_certificate_cert_extensions():string {
-                    const server:services_server = (vars.servers[config.id] === undefined)
+                    const server:services_server = (vars.data.servers[config.id] === undefined)
                             ? null
-                            : vars.servers[config.id].config,
+                            : vars.data.servers[config.id],
                         output:string[] = [
                             `[ ca ]
         basicConstraints       = CA:false

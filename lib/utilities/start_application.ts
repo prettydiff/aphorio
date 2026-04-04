@@ -477,7 +477,7 @@ const start_application = function utilities_startApplication(process_path:strin
                             index_srv:number = (config === null)
                                 ? 0
                                 : keys_srv.length,
-                            server:server = null,
+                            server:services_server = null,
                             sub:number = 0;
                         if (config !== null) {
                             vars.environment.dashboard_id = config.dashboard_id;
@@ -492,39 +492,31 @@ const start_application = function utilities_startApplication(process_path:strin
                                 index_srv = index_srv - 1;
                                 if (vars.environment.features["servers-web"] === true || config.servers[keys_srv[index_srv]].id === config.dashboard_id) {
                                     index_int = keys_int.length;
-                                    server = {
-                                        certs: null,
-                                        config: config.servers[keys_srv[index_srv]],
-                                        sockets: [],
-                                        status: {
-                                            open: 0,
-                                            secure: 0
-                                        }
-                                    };
-                                    if (server.config.ports === null || server.config.ports === undefined) {
-                                        server.config.ports = {
+                                    server = config.servers[keys_srv[index_srv]];
+                                    if (server.ports === null || server.ports === undefined) {
+                                        server.ports = {
                                             open: 0,
                                             secure: 0
                                         };
                                     } else {
-                                        if (typeof server.config.ports.open !== "number") {
-                                            server.config.ports.open = 0;
+                                        if (typeof server.ports.open !== "number") {
+                                            server.ports.open = 0;
                                         }
-                                        if (typeof server.config.ports.secure !== "number") {
-                                            server.config.ports.secure = 0;
+                                        if (typeof server.ports.secure !== "number") {
+                                            server.ports.secure = 0;
                                         }
                                     }
-                                    if (server.config.block_list === undefined || server.config.block_list === null) {
-                                        server.config.block_list = {
+                                    if (server.block_list === undefined || server.block_list === null) {
+                                        server.block_list = {
                                             host: [],
                                             ip: [],
                                             referrer: []
                                         };
                                     }
-                                    if (Array.isArray(server.config.domain_local) === false) {
-                                        server.config.domain_local = [];
+                                    if (Array.isArray(server.domain_local) === false) {
+                                        server.domain_local = [];
                                     }
-                                    vars.servers[server.config.id] = server;
+                                    vars.data.servers[server.id] = server;
                                 }
                             } while (index_srv > 0);
                         }
@@ -662,7 +654,7 @@ const start_application = function utilities_startApplication(process_path:strin
                     upgrade: false
                 },
                 start = function utilities_startApplication_readComplete_start():void {
-                    const servers:string[] = Object.keys(vars.servers),
+                    const servers:string[] = Object.keys(vars.data.servers),
                         total:number = (testing === true)
                             ? 1
                             : servers.length,
@@ -713,26 +705,26 @@ const start_application = function utilities_startApplication(process_path:strin
                                 servers.sort();
                                 // get string column width
                                 do {
-                                    name = vars.servers[servers[index]].config.name;
+                                    name = vars.data.servers[servers[index]].name;
                                     if (name.length > longest[0]) {
                                         longest[0] = name.length;
                                     }
-                                    if (vars.servers[servers[index]].config.encryption === "both") {
-                                        if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest[2]) {
-                                            longest[2] = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                    if (vars.data.servers[servers[index]].encryption === "both") {
+                                        if (vars.data.servers[servers[index]].ports["secure"].toString().length > longest[2]) {
+                                            longest[2] = vars.data.servers[servers[index]].ports["secure"].toString().length;
                                         }
-                                        if (vars.servers[servers[index]].config.ports["open"].toString().length > longest[2]) {
-                                            longest[3] = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                        if (vars.data.servers[servers[index]].ports["open"].toString().length > longest[2]) {
+                                            longest[3] = vars.data.servers[servers[index]].ports["secure"].toString().length;
                                         }
                                         longest[1] = 6;
-                                    } else if (vars.servers[servers[index]].config.encryption === "secure") {
-                                        if (vars.servers[servers[index]].config.ports["secure"].toString().length > longest[2]) {
-                                            longest[2] = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                    } else if (vars.data.servers[servers[index]].encryption === "secure") {
+                                        if (vars.data.servers[servers[index]].ports["secure"].toString().length > longest[2]) {
+                                            longest[2] = vars.data.servers[servers[index]].ports["secure"].toString().length;
                                         }
                                         longest[1] = 6;
                                     } else {
-                                        if (vars.servers[servers[index]].config.ports["open"].toString().length > longest[2]) {
-                                            longest[2] = vars.servers[servers[index]].config.ports["secure"].toString().length;
+                                        if (vars.data.servers[servers[index]].ports["open"].toString().length > longest[2]) {
+                                            longest[2] = vars.data.servers[servers[index]].ports["secure"].toString().length;
                                         }
                                     }
                                     index = index + 1;
@@ -740,7 +732,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 if (testing === true) {
                                     test_index();
                                 } else {
-                                    const keys:string[] = Object.keys(vars.compose.containers),
+                                    const keys:string[] = Object.keys(vars.data.containers),
                                         sort = function utilities_startApplication_readCompete_start_serverCallback_sort(a:[number, "tcp"|"udp"], b:[number, "tcp"|"udp"]):-1|1 {
                                             if (a[0] < b[0] || (a[0] === b[0] && a[1] < b[1])) {
                                                 return -1;
@@ -750,24 +742,24 @@ const start_application = function utilities_startApplication(process_path:strin
                                     // from servers
                                     index = 0;
                                     do {
-                                        if (vars.servers[servers[index]].config.encryption === "both") {
-                                            logItem(vars.servers[servers[index]].config.name, "open", (vars.servers[servers[index]].status.open === 0)
-                                                ? vars.text.angry + vars.servers[servers[index]].config.ports.open + vars.text.none
-                                                : vars.text.green + vars.servers[servers[index]].status.open + vars.text.none
+                                        if (vars.data.servers[servers[index]].encryption === "both") {
+                                            logItem(vars.data.servers[servers[index]].name, "open", (vars.data_meta.server_ports[servers[index]].open === 0)
+                                                ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
+                                                : vars.text.green + vars.data_meta.server_ports[servers[index]].open + vars.text.none
                                             );
-                                            logItem(vars.servers[servers[index]].config.name, "secure", (vars.servers[servers[index]].status.secure === 0)
-                                                ? vars.text.angry + vars.servers[servers[index]].config.ports.secure + vars.text.none
-                                                : vars.text.green + vars.servers[servers[index]].status.secure + vars.text.none
+                                            logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_meta.server_ports[servers[index]].secure === 0)
+                                                ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
+                                                : vars.text.green + vars.data_meta.server_ports[servers[index]].secure + vars.text.none
                                             );
-                                        } else if (vars.servers[servers[index]].config.encryption === "open") {
-                                            logItem(vars.servers[servers[index]].config.name, "open", (vars.servers[servers[index]].status.open === 0)
-                                                ? vars.text.angry + vars.servers[servers[index]].config.ports.open + vars.text.none
-                                                : vars.text.green + vars.servers[servers[index]].status.open + vars.text.none
+                                        } else if (vars.data.servers[servers[index]].encryption === "open") {
+                                            logItem(vars.data.servers[servers[index]].name, "open", (vars.data_meta.server_ports[servers[index]].open === 0)
+                                                ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
+                                                : vars.text.green + vars.data_meta.server_ports[servers[index]].open + vars.text.none
                                             );
-                                        } else if (vars.servers[servers[index]].config.encryption === "secure") {
-                                            logItem(vars.servers[servers[index]].config.name, "secure", (vars.servers[servers[index]].status.secure === 0)
-                                                ? vars.text.angry + vars.servers[servers[index]].config.ports.secure + vars.text.none
-                                                : vars.text.green + vars.servers[servers[index]].status.secure + vars.text.none
+                                        } else if (vars.data.servers[servers[index]].encryption === "secure") {
+                                            logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_meta.server_ports[servers[index]].secure === 0)
+                                                ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
+                                                : vars.text.green + vars.data_meta.server_ports[servers[index]].secure + vars.text.none
                                             );
                                         }
                                         index = index + 1;
@@ -784,14 +776,14 @@ const start_application = function utilities_startApplication(process_path:strin
                                         logs.push("");
                                         logs.push("Container Ports:");
                                         do {
-                                            if (vars.compose.containers[keys[index]].name.length > longest[0]) {
-                                                longest[0] = vars.compose.containers[keys[index]].name.length;
+                                            if (vars.data.containers[keys[index]].name.length > longest[0]) {
+                                                longest[0] = vars.data.containers[keys[index]].name.length;
                                             }
                                             index = index + 1;
                                         } while (index < len);
                                         index = 0;
                                         do {
-                                            ports = vars.compose.containers[keys[index]].ports;
+                                            ports = vars.data.containers[keys[index]].ports;
                                             len_ports = (ports === null)
                                                 ? 0
                                                 : ports.length;
@@ -807,7 +799,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                                 } while (index_ports < len_ports);
                                                 index_ports = 0;
                                                 do {
-                                                    logItem(vars.compose.containers[keys[index]].name, ports[index_ports][1], vars.text.green + pad(ports[index_ports][0].toString(), 2, "left") + vars.text.none);
+                                                    logItem(vars.data.containers[keys[index]].name, ports[index_ports][1], vars.text.green + pad(ports[index_ports][0].toString(), 2, "left") + vars.text.none);
                                                     index_ports = index_ports + 1;
                                                 } while (index_ports < len_ports);
                                             }
@@ -823,10 +815,10 @@ const start_application = function utilities_startApplication(process_path:strin
                         index:number = 0;
 
                     if (testing === true) {
-                        server_start(vars.servers[vars.environment.dashboard_id].config.id, callback);
+                        server_start(vars.data.servers[vars.environment.dashboard_id].id, callback);
                     } else {
                         do {
-                            server_start(vars.servers[servers[index]].config.id, callback);
+                            server_start(vars.data.servers[servers[index]].id, callback);
                             index = index + 1;
                         } while (index < total);
                     }
@@ -834,7 +826,7 @@ const start_application = function utilities_startApplication(process_path:strin
                 };
                 clock();
                 statistics.data();
-                if (testing === true || vars.servers[vars.environment.dashboard_id] === undefined) {
+                if (testing === true || vars.data.servers[vars.environment.dashboard_id] === undefined) {
                     server_create({
                         action: "add",
                         server: default_server

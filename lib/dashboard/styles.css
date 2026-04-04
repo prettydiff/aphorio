@@ -220,7 +220,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         code{border-style:none;color:var(--fail_bright);margin:0 2em;padding:0}
         li{
             border-style:none;font-size:var(--font-size);font-family:monospace;list-style:none;margin:0.5em 0 0;padding:0;white-space:pre;
-            & span{display:inline-block;margin:0 0 0 1em}
+            & span{color:var(--text_input);display:inline-block;margin:0 0 0 1em}
             & p{color:var(--border_color);margin:0}
         }
         time{color:var(--text_cyan);display:inline-block;margin:0 1em 0 0}

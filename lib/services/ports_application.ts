@@ -4,22 +4,22 @@ import vars from "../core/vars.ts";
 
 const ports_application = function services_portsApplication():void {
     const list:services_ports_application_item[] = [],
-        keys_container:string[] = Object.keys(vars.compose.containers),
-        keys_servers:string[] = Object.keys(vars.servers),
+        keys_container:string[] = Object.keys(vars.data.containers),
+        keys_servers:string[] = Object.keys(vars.data.servers),
         payload:services_ports_application = {
             data: null,
             time: Date.now()
         };
     let index_item:number = keys_container.length,
         index_ports:number = 0,
-        server:server = null,
+        server:services_server = null,
         container:core_compose_container = null;
 
     // from containers
     if (index_item > 0) {
         do {
             index_item = index_item - 1;
-            container = vars.compose.containers[keys_container[index_item]];
+            container = vars.data.containers[keys_container[index_item]];
             index_ports = (container.ports === null)
                 ? 0
                 : container.ports.length;
@@ -43,28 +43,28 @@ const ports_application = function services_portsApplication():void {
     if (index_item > 0) {
         do {
             index_item = index_item - 1;
-            server = vars.servers[keys_servers[index_item]];
-            if (server.config.encryption === "both") {
+            server = vars.data.servers[keys_servers[index_item]];
+            if (server.encryption === "both") {
                 list.push({
                     hash: keys_servers[index_item],
-                    port: server.status.open,
+                    port: vars.data_meta.server_ports[keys_servers[index_item]].open,
                     service: "server",
-                    service_name: server.config.name,
+                    service_name: server.name,
                     type: "tcp"
                 });
                 list.push({
                     hash: keys_servers[index_item],
-                    port: server.status.secure,
+                    port: vars.data_meta.server_ports[keys_servers[index_item]].secure,
                     service: "server",
-                    service_name: server.config.name,
+                    service_name: server.name,
                     type: "tcp"
                 });
             } else {
                 list.push({
                     hash: keys_servers[index_item],
-                    port: server.status[server.config.encryption],
+                    port: vars.data_meta.server_ports[keys_servers[index_item]][server.encryption],
                     service: "server",
-                    service_name: server.config.name,
+                    service_name: server.name,
                     type: "tcp"
                 });
             }
@@ -80,7 +80,8 @@ const ports_application = function services_portsApplication():void {
 
     payload.data = list;
 
-    vars.ports_application = payload;
+    vars.data.ports_application = payload.data;
+    vars.data_meta.ports_application = payload.time;
     broadcast(vars.environment.dashboard_id, "dashboard", {
         data: payload,
         service: "dashboard-ports-application"

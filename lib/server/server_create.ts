@@ -7,14 +7,14 @@ import ports_application from "../services/ports_application.ts";
 import server_start from "./server_start.ts";
 import vars from "../core/vars.ts";
 
-// 1. add server to the vars.servers object
+// 1. add server to the vars.data.servers object
 // 2. add server to servers.json file
 // 3. create server's directory structure
 // 4. create server's certificates
 // 5. launch servers
 // 6. call the callback
 
-const server_create = function services_serverCreate(data:services_action_server, callback:() => void, dashboard:boolean):void {
+const server_create = function services_serverCreate(data:services_server_action, callback:() => void, dashboard:boolean):void {
     hash({
         algorithm: "sha3-512",
         callback: function services_serverCreate_hashCallback(output:hash_output):void {
@@ -85,7 +85,7 @@ const server_create = function services_serverCreate(data:services_action_server
                     });
                 },
                 write = function services_serverCreate_write():void {
-                    const keys:string[] = Object.keys(vars.servers),
+                    const keys:string[] = Object.keys(vars.data.servers),
                         total:number = keys.length,
                         config:core_servers_file = {
                             "compose-variables": vars.compose.variables,
@@ -98,7 +98,7 @@ const server_create = function services_serverCreate(data:services_action_server
                         };
                     let index:number = 0;
                     do {
-                        config.servers[keys[index]] = vars.servers[keys[index]].config;
+                        config.servers[keys[index]] = vars.data.servers[keys[index]];
                         index = index + 1;
                     } while (index < total);
                     file.write({
@@ -110,10 +110,10 @@ const server_create = function services_serverCreate(data:services_action_server
                         section: "servers-web"
                     });
                 };
-            if (vars.servers[output.hash] === undefined) {
-                // 1. add server to the vars.servers object
+            if (vars.data.servers[output.hash] === undefined) {
+                // 1. add server to the vars.data.servers object
                 config.id = output.hash;
-                if (vars.servers[config.id] === undefined) {
+                if (vars.data.servers[config.id] === undefined) {
                     if (dashboard === true) {
                         vars.environment.dashboard_id = output.hash;
                     }
@@ -148,14 +148,11 @@ const server_create = function services_serverCreate(data:services_action_server
                             };
                         }
                     }
-                    vars.servers[config.id] = {
-                        certs: null,
-                        config: config,
-                        sockets: [],
-                        status: {
-                            open: 0,
-                            secure: 0
-                        }
+                    vars.data.servers[config.id] = config;
+                    vars.data_meta.server_certs[config.id] = null;
+                    vars.data_meta.server_ports[config.id] = {
+                        open: 0,
+                        secure: 0
                     };
                     // 2. add server to servers.json file
                     if (config.single_socket === true || config.temporary === true) {

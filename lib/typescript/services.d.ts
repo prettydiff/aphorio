@@ -6,9 +6,11 @@ interface services_action_compose {
     compose: string;
 }
 
-interface services_action_server {
-    action: type_dashboard_action;
-    server: services_server;
+interface services_compose {
+    containers: store_compose;
+    status: string;
+    time: number;
+    variables: store_string;
 }
 
 interface services_compose_container {
@@ -206,7 +208,7 @@ interface services_server {
         put?: services_server_method;
     };
     name: string;
-    ports: server_ports;
+    ports: core_server_ports;
     redirect_asset?: {
         [key:string]: store_string;
     };
@@ -218,9 +220,21 @@ interface services_server {
     upgrade: boolean;
 }
 
+interface services_server_action {
+    action: type_dashboard_action;
+    server: services_server;
+}
+
 interface services_server_method {
     address: string;
     port: number;
+}
+
+interface services_server_update {
+    ports_used: {
+        [key:string]: core_server_ports;
+    };
+    servers: store_servers;
 }
 
 interface services_socket_application {

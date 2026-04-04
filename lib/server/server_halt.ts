@@ -15,12 +15,12 @@ import vars from "../core/vars.ts";
 // 7. remove server from the servers.json file
 // 8. call the callback
 
-const server_halt = function services_serverHalt(data:services_action_server, callback:() => void):void {
+const server_halt = function services_serverHalt(data:services_server_action, callback:() => void):void {
     const id:string = data.server.id;
     if (id === "" || (data.action === "destroy" && id === vars.environment.dashboard_id)) {
         return;
     } 
-    if (vars.servers[id] === undefined) {
+    if (vars.data.servers[id] === undefined) {
         log.application({
             error: new Error(),
             message: "Server does not exist.  Called on library server_halt.",
@@ -30,11 +30,11 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
             time: Date.now()
         });
     } else {
-        const single_socket:boolean = vars.servers[id].config.single_socket,
-            temporary:boolean = vars.servers[id].config.temporary,
+        const single_socket:boolean = vars.data.servers[id].single_socket,
+            temporary:boolean = vars.data.servers[id].temporary,
             path_config:string = `${vars.path.project}servers.json`,
             path_name:string = vars.path.servers + id + vars.path.sep,
-            encryption:type_encryption = vars.servers[id].config.encryption,
+            encryption:type_encryption = vars.data.servers[id].encryption,
             complete = function services_serverHalt_complete():void {
                 const actionText:string = (data.action.charAt(data.action.length - 1) === "e")
                     ? `${data.action}d`
@@ -55,7 +55,7 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
             },
             write_callback = function services_serverHalt_writeCallback():void {
                 const activate = function servers_serverHalt_activate():void {
-                        if (vars.servers[id].config.activate === true) {
+                        if (vars.data.servers[id].activate === true) {
                             // 4. Reactivate the server(s) if its given "activate" property has a true boolean value
                             server_start(data.server.id, function servers_serverHalt_complete_serverStart():void {
                                 complete();
@@ -73,11 +73,11 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                         location: path_name,
                         section: "servers-web"
                     };
-                    delete vars.servers[id];
+                    delete vars.data.servers[id];
                     // 3a. Remove the web server's assets from the file system
                     file.remove(file_remove);
                 } else if (data.action === "modify" && (encryption === "both" || encryption === "secure")) {
-                    vars.servers[id].config = data.server;
+                    vars.data.servers[id] = data.server;
                     // 3b. Issue new certificates for modified secure server
                     certificate({
                         callback: function services_serverHalt_certificate():void {
@@ -132,11 +132,11 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 let index:number = 0,
                     keys:string[] = [],
                     total:number = 0;
-                keys = Object.keys(vars.servers);
+                keys = Object.keys(vars.data.servers);
                 total = keys.length;
                 if (total > 0) {
                     do {
-                        config.servers[keys[index]] = vars.servers[keys[index]].config;
+                        config.servers[keys[index]] = vars.data.servers[keys[index]];
                         index = index + 1;
                     } while (index < total);
                 }
@@ -148,18 +148,14 @@ const server_halt = function services_serverHalt(data:services_action_server, ca
                 });
             };
             if (data.action === "modify") {
-                vars.servers[id] = {
-                    certs: vars.servers[id].certs,
-                    config: data.server,
-                    sockets: [],
-                    status: {
-                        open: 0,
-                        secure: 0
-                    }
+                vars.data.servers[id] = data.server;
+                vars.data_meta.server_ports[id] = {
+                    open: 0,
+                    secure: 0
                 };
                 modify_file();
             } else {
-                delete vars.servers[id];
+                delete vars.data.servers[id];
                 delete vars.server_meta[id];
                 file.remove({
                     callback: modify_file,

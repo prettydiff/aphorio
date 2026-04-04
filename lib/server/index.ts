@@ -6,12 +6,16 @@ import server_start from "./server_start.ts";
 import vars from "../core/vars.ts";
 
 const servers = function services_server(socketData:socket_data):void {
-    if (socketData.service === "dashboard-server") {
-        const data:services_action_server = socketData.data as services_action_server,
+    if (socketData.service === "dashboard-server-action") {
+        const data:services_server_action = socketData.data as services_server_action,
             callback = function services_server_callback():void {
+                const payload:services_server_update = {
+                    ports_used: vars.data_meta.server_ports,
+                    servers: vars.data.servers
+                };
                 broadcast(vars.environment.dashboard_id, "dashboard", {
-                    data: vars.servers,
-                    service: "dashboard-server"
+                    data: payload,
+                    service: "dashboard-server-update"
                 });
             };
         if (data.action === "activate") {

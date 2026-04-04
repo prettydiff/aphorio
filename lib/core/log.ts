@@ -5,7 +5,7 @@ import vars from "./vars.ts";
 const log:log = {
     application: function utilities_logApplication(config:config_log):void {
         if (vars.environment.features["application-logs"] === true) {
-            vars.environment.logs.entries.push(config);
+            vars.data.logs.push(config);
             vars.environment.logs.total = vars.environment.logs.total + 1;
             broadcast(vars.environment.dashboard_id, "dashboard", {
                 data: {

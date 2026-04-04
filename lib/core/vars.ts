@@ -44,8 +44,6 @@ const vars:core_vars = {
         }()),
         // properties related to docker and docker compose
         compose: {
-            // docker image details and compose files
-            containers: {},
             // whether the application believes docker and docker compose are executing as an OS service
             status: null,
             // time of last update
@@ -59,6 +57,26 @@ const vars:core_vars = {
             basic: "",
             // more complete css for the dashboard
             complete: ""
+        },
+        data: {
+            // docker image details and compose files
+            containers: {},
+            // log entries
+            logs: [],
+            // stores the port information for containers and services managed by this application
+            ports_application: [],
+            // objects describing web servers and contains objects describing their sockets
+            servers: {},
+            // the list of tcp socket data, services_socket_application_tcp[]
+            sockets_tcp: [],
+            // the list of udp socket data, services_udp_socket[]
+            sockets_udp: []
+        },
+        data_meta: {
+            ports_application: 0,
+            server_certs: {},
+            server_ports: {},
+            sockets: 0
         },
         environment: {
             // the web server id that is the dashboard's web server
@@ -110,7 +128,6 @@ const vars:core_vars = {
             ],
             // a store of objects representing a log entry
             logs: {
-                entries: [],
                 max: 5000,
                 total: 0
             },
@@ -234,21 +251,8 @@ const vars:core_vars = {
             sep: "/",
             servers: ""
         },
-        // stores the port information for containers and services managed by this application
-        ports_application: {
-            data: [],
-            time: 0
-        },
-        // objects describing web servers and contains objects describing their sockets
-        servers: {},
         // the actual web server objects and their actual socket objects
         server_meta: {},
-        // the list of objects describing sockets connected to this application
-        sockets: {
-            tcp: [],
-            time: 0,
-            udp: []
-        },
         // an information store necessary for calculating this application's portion of the OS performance statistics
         stats: {
             children: 1,

@@ -53,7 +53,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             if (config.template === true) {
                 const name:string = (server_id === vars.environment.dashboard_id)
                         ? `${vars.environment.name.capitalize()} Dashboard`
-                        : vars.servers[server_id].config.name,
+                        : vars.data.servers[server_id].name,
                     templateText:string[] = [
                         "<!doctype html>",
                         "<html lang=\"en\">",
@@ -352,7 +352,12 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             const list:string = headerList.join("\n"),
                 payload:transmit_dashboard = {
                     compose: (vars.environment.features["compose-containers"] === true)
-                        ? vars.compose
+                        ? {
+                            containers: vars.data.containers,
+                            status: vars.compose.status,
+                            time: vars.compose.time,
+                            variables: vars.compose.variables
+                        }
                         : null,
                     dashboard_id: vars.environment.dashboard_id,
                     hashes: (vars.environment.features["hash"] === true)
@@ -364,8 +369,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     logs: (vars.environment.features["application-logs"] === true)
                         ? {
                             entries: (vars.environment.logs.total > vars.environment.logs.max)
-                                ? vars.environment.logs.entries.slice(vars.environment.logs.total - vars.environment.logs.max)
-                                : vars.environment.logs.entries,
+                                ? vars.data.logs.slice(vars.environment.logs.total - vars.environment.logs.max)
+                                : vars.data.logs,
                             max: vars.environment.logs.max,
                             total: vars.environment.logs.total
                         }
@@ -373,12 +378,22 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     name: vars.environment.name,
                     os: vars.os,
                     path: vars.path,
-                    "ports-application": vars.ports_application,
+                    "ports-application": {
+                        data: vars.data.ports_application,
+                        time: vars.data_meta.ports_application
+                    },
+                    server_ports: (vars.environment.features["servers-web"] === true)
+                        ? vars.data_meta.server_ports
+                        : null,
                     servers: (vars.environment.features["servers-web"] === true)
-                        ? vars.servers
+                        ? vars.data.servers
                         : null,
                     sockets: (vars.environment.features["sockets-application-tcp"] === true || vars.environment.features["sockets-application-udp"] === true)
-                        ? vars.sockets
+                        ? {
+                            tcp: vars.data.sockets_tcp,
+                            time: vars.data_meta.sockets,
+                            udp: vars.data.sockets_udp
+                        }
                         : null,
                     stats: (vars.environment.features["statistics"] === true)
                         ? {

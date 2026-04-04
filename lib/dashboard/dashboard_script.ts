@@ -170,9 +170,7 @@ const ui = function ui():void {
                                     ? null
                                     : dashboard.tables.receive,
                                 "dashboard-server": (dashboard.sections["servers-web"] === undefined)
-                                    ? (dashboard.sections["ports-application"] === undefined)
-                                        ? null
-                                        : dashboard.sections["ports-application"].receive
+                                    ? null
                                     : dashboard.sections["servers-web"].receive,
                                 "dashboard-socket-application": (dashboard.sections["sockets-application-tcp"] === undefined)
                                     ? (dashboard.sections["sockets-application-udp"] === undefined)
@@ -513,7 +511,7 @@ const ui = function ui():void {
                     strong.textContent = item.log.section;
                     span.textContent = item.log.message;
                     p.textContent = ((item.log.section === "servers-web" || item.log.section === "sockets-application-tcp" || item.log.section === "sockets-application-udp") && (/\.ts$/).test(item.log.origin) === false)
-                        ? `(${dashboard.global.payload.servers[item.log.origin].config.name}) ${item.log.origin}`
+                        ? `(${dashboard.global.payload.servers[item.log.origin].name}) ${item.log.origin}`
                         : (item.log.section === "compose-containers" && (/\.ts$/).test(item.log.origin) === false)
                             ? `(${dashboard.global.payload.compose.containers[item.log.origin].name}) ${item.log.origin}`
                             : item.log.origin;
@@ -826,7 +824,7 @@ const ui = function ui():void {
                     update_variables: document.getElementById("compose-containers").getElementsByClassName("section")[0].getElementsByTagName("em")[1]
                 },
                 receive: function dashboard_sections_composeContainers_receive(socket_data:socket_data):void {
-                    const data:core_compose = socket_data.data as core_compose,
+                    const data:services_compose = socket_data.data as services_compose,
                         list:string[] = (data.containers === null)
                             ? []
                             : Object.keys(data.containers).sort(function dashboard_sections_composeContainers_receive_keys(a:string, b:string):-1|1 {
@@ -2393,15 +2391,15 @@ const ui = function ui():void {
                                 const textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
                                     config:services_server = JSON.parse(textArea.value);
                                 if (dashboard.global.payload.servers[config.id] !== undefined) {
-                                    dashboard.global.payload.servers[config.id].config.encryption = config.encryption;
+                                    dashboard.global.payload.servers[config.id].encryption = config.encryption;
                                 }
                                 return config;
                             }()),
-                            data:services_action_server = {
+                            data:services_server_action = {
                                 action: action,
                                 server: configuration
                             };
-                        dashboard.utility.message_send(data, "dashboard-server");
+                        dashboard.utility.message_send(data, "dashboard-server-action");
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
                         } else {
@@ -2453,7 +2451,7 @@ const ui = function ui():void {
                                         : "s";
                                     save.disabled = true;
                                     populate(false, `The server configuration contains ${failures} violation${plural}.`);
-                                } else if (id !== null && id !== undefined && order(serverData) === order(dashboard.global.payload.servers[id].config)) {
+                                } else if (id !== null && id !== undefined && order(serverData) === order(dashboard.global.payload.servers[id])) {
                                     save.disabled = true;
                                     populate(false, "The server configuration is valid, but not modified.");
                                 } else {
@@ -2763,9 +2761,13 @@ const ui = function ui():void {
                     }
                 },
                 init: function dashboard_sections_serversWeb_init():void {
+                    const payload:services_server_update = {
+                        ports_used: dashboard.global.payload.server_ports,
+                        servers: dashboard.global.payload.servers
+                    };
                     dashboard.sections["servers-web"].receive({
-                        data: dashboard.global.payload.servers,
-                        service: "dashboard-server"
+                        data: payload,
+                        service: "dashboard-server-update"
                     });
                 },
                 nodes: {
@@ -2773,11 +2775,13 @@ const ui = function ui():void {
                     service_new: document.getElementById("servers-web").getElementsByClassName("server-new")[0] as HTMLButtonElement
                 },
                 receive: function dashboard_sections_serversWeb_receive(socket_data:socket_data):void {
-                    const list:string[] = Object.keys(socket_data.data),
+                    const data:services_server_update = socket_data.data as services_server_update,
+                        list:string[] = Object.keys(data.servers),
                         list_node:HTMLElement = dashboard.sections["servers-web"].nodes.list,
                         total:number = list.length;
                     let index:number = 0;
-                    dashboard.global.payload.servers = socket_data.data as store_servers;
+                    dashboard.global.payload.servers = data.servers;
+                    dashboard.global.payload.server_ports = data.ports_used;
                     dashboard.sections["servers-web"].nodes.service_new.onclick = dashboard.shared_services.create;
                     list.sort(function dashboard_sections_serversWeb_receive_sort(a:string, b:string):-1|1 {
                         if (a < b) {
@@ -2788,8 +2792,8 @@ const ui = function ui():void {
                     list_node.textContent = "";
                     if (total > 0) {
                         do {
-                            if (dashboard.global.payload.servers[list[index]].config !== undefined) {
-                                list_node.appendChild(dashboard.shared_services.title(dashboard.global.payload.servers[list[index]].config.id, "server"));
+                            if (dashboard.global.payload.servers[list[index]] !== undefined) {
+                                list_node.appendChild(dashboard.shared_services.title(dashboard.global.payload.servers[list[index]].id, "server"));
                             }
                             index = index + 1;
                         } while (index < total);
@@ -2800,8 +2804,8 @@ const ui = function ui():void {
                         const div:HTMLElement = document.createElement("div"),
                             h5:HTMLElement = document.createElement("h5"),
                             portList:HTMLElement = document.createElement("ul"),
-                            encryption:type_encryption = dashboard.global.payload.servers[id as string].config.encryption,
-                            ports:server_ports = dashboard.global.payload.servers[id as string].status;
+                            encryption:type_encryption = dashboard.global.payload.servers[id as string].encryption,
+                            ports:core_server_ports = dashboard.global.payload.server_ports[id as string];
                         let portItem:HTMLElement = document.createElement("li");
                         h5.appendText("Active Ports");
                         div.appendChild(h5);
@@ -3108,9 +3112,13 @@ const ui = function ui():void {
                     dashboard.sections["statistics"].nodes.records.onkeyup = dashboard.sections["statistics"].events.definitions;
                     dashboard.sections["statistics"].nodes.records.value = dashboard.global.payload.stats.records.toString();
                     if (dashboard.sections["servers-web"] !== undefined) {
+                        const payload:services_server_update = {
+                            ports_used: dashboard.global.payload.server_ports,
+                            servers: dashboard.global.payload.servers
+                        };
                         dashboard.sections["servers-web"].receive({
-                            data: dashboard.global.payload.servers,
-                            service: "dashboard-server"
+                            data: payload,
+                            service: "dashboard-server-update"
                         });
                     }
                     Chart.defaults.color = "#ccc";
@@ -3864,23 +3872,23 @@ const ui = function ui():void {
                     dashboard.sections["test-websocket"].nodes.message_send_frame.onblur = dashboard.sections["test-websocket"].events.keyup_frame;
                     dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "";
                     // server socket status messaging
-                    if (isNaN(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.open) === true) {
+                    if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open) === true) {
                         dashboard.sections["test-websocket"].nodes.handshake_scheme.checked = true;
                         h4.style.display = "none";
                         scheme.style.display = "none";
-                        emSecure.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.secure);
+                        emSecure.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure);
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendText("secure - ");
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
-                    } else if (isNaN(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.secure) === true) {
+                    } else if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure) === true) {
                         dashboard.sections["test-websocket"].nodes.handshake_scheme.checked = false;
                         h4.style.display = "none";
                         scheme.style.display = "none";
-                        emOpen.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.open);
+                        emOpen.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open);
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
                     } else {
-                        emOpen.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.open);
-                        emSecure.textContent = String(dashboard.global.payload.servers[dashboard.global.payload.dashboard_id].status.secure);
+                        emOpen.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open);
+                        emSecure.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure);
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendText(", secure - ");
@@ -4235,11 +4243,11 @@ const ui = function ui():void {
                     }
                     return ["red", "offline"];
                 }
-                if (dashboard.global.payload.servers[id].config.activate === false) {
+                if (dashboard.global.payload.servers[id].activate === false) {
                     return [null, "deactivated"];
                 }
-                const encryption:type_encryption = dashboard.global.payload.servers[id].config.encryption,
-                    ports:server_ports = dashboard.global.payload.servers[id].status;
+                const encryption:type_encryption = dashboard.global.payload.servers[id].encryption,
+                    ports:core_server_ports = dashboard.global.payload.server_ports[id];
                 if (encryption === "both") {
                     if (ports.open === 0 && ports.secure === 0) {
                         return ["red", "offline"];
@@ -4379,7 +4387,7 @@ const ui = function ui():void {
                                             },
                                             upgrade: false
                                         }
-                                        : dashboard.global.payload.servers[id].config,
+                                        : dashboard.global.payload.servers[id],
                                     output:string[] = [
                                             "{",
                                             `"activate": ${serverData.activate},`
@@ -4663,7 +4671,7 @@ const ui = function ui():void {
                     name:string = (id === undefined)
                         ? `new_${type}`
                         : (type === "server")
-                            ? dashboard.global.payload.servers[id].config.name
+                            ? dashboard.global.payload.servers[id].name
                             : (dashboard.global.payload.compose.containers[id] === null || dashboard.global.payload.compose.containers[id] === undefined)
                                 ? id
                                 : dashboard.global.payload.compose.containers[id].name;

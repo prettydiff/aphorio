@@ -70,7 +70,8 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 // * dashboard-os-sudp             - services_os_sockets          - only the udp socket information of dashboard-os-all
 // * dashboard-os-user             - services_os_user             - only the user list information of dashboard-os-all
 // * dashboard-ports-application   - services_ports_application   - a list of port information and associated processes managed from this application
-// * dashboard-server              - store_servers                - configuration details and port status for all servers
+// * dashboard-server-action       - services_server_action       - provides a user initiated action to execute against servers
+// * dashboard-server-update       - services_server_update       - configuration details and port status for all servers
 // * dashboard-socket-application  - services_socket_application  - status updates about sockets created by this application
 // * dashboard-status-clock        - services_status_clock        - current server clock time as epoch number
 // * dashboard-statistics-change   - services_statistics-change   - modifies control information respective to service statistical data collection
@@ -82,12 +83,12 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 // * dashboard-websocket-message   - services_websocket_message   - parses the header of a WebSocket message frame header sufficient to respond to the message on a test socket
 // * dashboard-websocket-status    - services_websocket_status    - sends connection establishment details for a test socket
 // * test-browser                  - services_test_browser        - test automation messaging to the browser
-type type_service = "dashboard-compose-container" | "dashboard-compose-out" | "dashboard-compose-variables" | "dashboard-compose" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-log" | "dashboard-os-all" | "dashboard-os-devs" | "dashboard-os-disk" |
-    "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-stcp" | "dashboard-os-sudp" | "dashboard-os-user" | "dashboard-ports-application" | "dashboard-server" | "dashboard-socket-application" | "dashboard-statistics-change" | "dashboard-statistics-data" | "dashboard-status-clock" |
+type type_service = "dashboard-compose-container" | "dashboard-compose-out" | "dashboard-compose-variables" | "dashboard-compose" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-log" | "dashboard-os-all" | "dashboard-os-devs" | "dashboard-os-disk" | "dashboard-os-intr" | "dashboard-os-main" |
+    "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-stcp" | "dashboard-os-sudp" | "dashboard-os-user" | "dashboard-ports-application" | "dashboard-server-action" | "dashboard-server-update" | "dashboard-socket-application" | "dashboard-statistics-change" | "dashboard-statistics-data" | "dashboard-status-clock" |
     "dashboard-terminal-resize" | "dashboard-udp-socket"| "dashboard-udp-status" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
 
-type type_socket_data = config_log | core_compose | core_server_os | services_action_server | services_compose_container | services_dns_input | services_dns_output | services_dns_reverse | services_fileSystem | services_hash | services_http_test | services_log | services_os_disk | services_os_intr | services_ports_application | services_socket_application |
-    services_statistics_change | services_statistics_data | services_status_clock |services_terminal_resize | services_testBrowser | services_udp_socket | services_websocket_handshake | services_websocket_message | services_websocket_status | store_servers | store_string | string[] | transmit_dashboard | type_list_services;
+type type_socket_data = config_log | core_server_os | services_compose | services_compose_container | services_dns_input | services_dns_output | services_dns_reverse | services_fileSystem | services_hash | services_http_test | services_log | services_os_disk | services_os_intr | services_ports_application | services_server_action | services_server_update |
+    services_socket_application | services_statistics_change | services_statistics_data | services_status_clock |services_terminal_resize | services_testBrowser | services_udp_socket | services_websocket_handshake | services_websocket_message | services_websocket_status | store_servers | store_string | string[] | transmit_dashboard | type_list_services;
 
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_start_pre_tasks = "admin" | "compose" | "os_main";
@@ -99,5 +100,5 @@ type type_youtubeDownload = "audio-file" | "audio-playlist" | "video-file" | "vi
 
 type http_action = (headerList:string[], socket:websocket_client, payload:Buffer) => void;
 type receiver = (socketData:socket_data, transmit:transmit_socket) => void;
-type type_server_action = (data:services_action_server, callback:() => void, halt?:type_halt_action) => void;
+type type_server_action = (data:services_server_action, callback:() => void, halt?:type_halt_action) => void;
 type websocket_message_handler = (socket:websocket_client, resultBuffer:Buffer, frame:websocket_frame) => void;

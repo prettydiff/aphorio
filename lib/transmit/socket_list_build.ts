@@ -4,7 +4,7 @@ import socket_end from "../transmit/socket_end.ts";
 import vars from "../core/vars.ts";
 
 const socket_list = function services_socketList(extension?:() => void):void {
-    const keys:string[] = Object.keys(vars.servers),
+    const keys:string[] = Object.keys(vars.data.servers),
         len:number = keys.length,
         tcp:services_socket_application_tcp[] = [],
         socket_health = function services_socketList_socketHealth(server_id:string, encryption:"open"|"secure"):void {
@@ -27,12 +27,12 @@ const socket_list = function services_socketList(extension?:() => void):void {
                         }
                     } while (index > 0);
                 }
-                index = vars.servers[server_id].sockets.length;
+                index = vars.data.sockets_tcp.length;
                 if (index > 0) {
                     do {
                         index = index - 1;
-                        if (vars.servers[server_id].sockets[index].hash === socket.hash) {
-                            vars.servers[server_id].sockets.splice(index, 1);
+                        if (vars.data.sockets_tcp[index].hash === socket.hash) {
+                            vars.data.sockets_tcp.splice(index, 1);
                             break;
                         }
                     } while (index > 0);
@@ -74,21 +74,25 @@ const socket_list = function services_socketList(extension?:() => void):void {
     // iterate through the servers
     index_servers = 0;
     do {
-        len_socket = vars.servers[keys[index_servers]].sockets.length;
+        len_socket = vars.data.sockets_tcp.length;
         index_sockets = 0;
         // iterate through the sockets on each server
         if (len_socket > 0) {
             do {
-                tcp.push(vars.servers[keys[index_servers]].sockets[index_sockets]);
+                tcp.push(vars.data.sockets_tcp[index_sockets]);
                 index_sockets = index_sockets + 1;
             } while (index_sockets < len_socket);
         }
         index_servers = index_servers + 1;
     } while (index_servers < len);
-    vars.sockets.time = Date.now();
-    vars.sockets.tcp = tcp;
+    vars.data_meta.sockets = Date.now();
+    vars.data.sockets_tcp = tcp;
     broadcast(vars.environment.dashboard_id, "dashboard", {
-        data: vars.sockets,
+        data: {
+            tcp: vars.data.sockets_tcp,
+            time: vars.data_meta.sockets,
+            udp: vars.data.sockets_udp
+        },
         service: "dashboard-socket-application"
     });
 };

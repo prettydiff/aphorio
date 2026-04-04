@@ -11,7 +11,7 @@ const statistics:core_statistics = {
     change: function services_statisticsChange(data:socket_data):void {
         const update:services_statistics_change = data.data as services_statistics_change,
             list:store_server_config = {},
-            keys:string[] = Object.keys(vars.servers),
+            keys:string[] = Object.keys(vars.data.servers),
             len:number = keys.length,
             file_data:core_servers_file = {
                 "compose-variables": vars.compose.variables,
@@ -25,7 +25,7 @@ const statistics:core_statistics = {
         let index:number = 0;
         if (len > 0) {
             do {
-                list[keys[index]] = vars.servers[keys[index]].config;
+                list[keys[index]] = vars.data.servers[keys[index]];
                 index = index + 1;
             } while (index < len);
         }
@@ -41,7 +41,7 @@ const statistics:core_statistics = {
     },
     data: function services_statisticsData():void {
         const start_time:bigint = process.hrtime.bigint(),
-            container_keys:string[] = Object.keys(vars.compose.containers),
+            container_keys:string[] = Object.keys(vars.data.containers),
             container_len:number = container_keys.length,
             cpu:os_node_cpuUsage = process.cpuUsage(),
             mem:os_node_memoryUsage = process.memoryUsage(),
@@ -125,7 +125,7 @@ const statistics:core_statistics = {
                 } else if (vars.path.cgroup === null) {
                     spawn("docker stats --no-stream --no-trunc --format json", function services_statisticsData_diskComplete_spawnStats(output:core_spawn_output):void {
                         const obj:string = `[${output.stdout.replace(/\}\n/g, "},")}]`.replace(/\},\]$/, "}]"),
-                            data:core_docker_status = JSON.parse(obj),
+                            data:core_docker_status[] = JSON.parse(obj),
                             len:number = data.length,
                             actual_keys:string[] = [];
                         let index:number = len,
@@ -309,7 +309,7 @@ const statistics:core_statistics = {
                                 complete(identifier, "threads");
                             },
                             flags:store_store_flag = {},
-                            data:core_docker_status = JSON.parse(obj),
+                            data:core_docker_status[] = JSON.parse(obj),
                             len:number = data.length,
                             actual_keys:string[] = [];
                         let count:number = 0,
@@ -405,7 +405,7 @@ const statistics:core_statistics = {
                 if (index > 0) {
                     do {
                         index = index - 1;
-                        encryption = vars.servers[keys[index]].config.encryption;
+                        encryption = vars.data.servers[keys[index]].encryption;
                         if (encryption === "both") {
                             sockets(vars.server_meta[keys[index]].sockets.open);
                             sockets(vars.server_meta[keys[index]].sockets.secure);
@@ -426,7 +426,7 @@ const statistics:core_statistics = {
                 }
             },
             keys:string[] = Object.keys(vars.stats.containers),
-            dockers:string[] = Object.keys(vars.compose.containers);
+            dockers:string[] = Object.keys(vars.data.containers);
         let key:number = keys.length;
         if (key > 0) {
             do {

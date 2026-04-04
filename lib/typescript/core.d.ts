@@ -1,13 +1,6 @@
 
 // cspell: words Perc, serv, stcp, sudp
 
-interface core_compose {
-    containers: store_compose;
-    status: string;
-    time: number;
-    variables: store_string;
-}
-
 interface core_compose_commands {
     activate: string;
     add: string;
@@ -86,7 +79,7 @@ interface core_docker {
     variables: (variables:store_string, socket:websocket_client) => void;
 }
 
-interface core_docker_status_item {
+interface core_docker_status {
     BlockIO: string;
     Container: string;
     CPUPerc: string;
@@ -97,7 +90,6 @@ interface core_docker_status_item {
     NetIO: string;
     PIDs: number;
 }
-type core_docker_status = Array<core_docker_status_item>;
 
 interface core_server_child_input {
     encryption: boolean;
@@ -112,6 +104,30 @@ interface core_server_child_output {
     id: string;
     pid: number;
     port: number;
+}
+
+interface core_server_content {
+    [key:string]: (property:type_server_property, parent:HTMLElement) => void;
+}
+
+interface core_server_instance extends node_net_Server {
+    id?: string;
+    secure?: boolean;
+}
+
+interface server_meta {
+    [key:string]: core_server_meta_item;
+}
+
+interface core_server_meta_item {
+    server: {
+        open: core_server_instance;
+        secure: core_server_instance;
+    };
+    sockets: {
+        open: websocket_client[];
+        secure: websocket_client[];
+    };
 }
 
 interface core_server_os {
@@ -170,6 +186,11 @@ interface core_server_os {
         homedir: string;
         uid: number;
     };
+}
+
+interface core_server_ports {
+    open?: number;
+    secure?: number;
 }
 
 interface core_servers_file {
@@ -232,10 +253,32 @@ interface core_universal {
 
 interface core_vars {
     commands: os_vars;
-    compose: core_compose;
+    compose: {
+        status: string;
+        time: number;
+        variables: store_string;
+    };
     css: {
         basic: string;
         complete: string;
+    };
+    data: {
+        containers: store_compose;
+        logs: config_log[];
+        ports_application: services_ports_application_item[];
+        servers: store_servers;
+        sockets_tcp: services_socket_application_tcp[];
+        sockets_udp: services_udp_socket[];
+    };
+    data_meta: {
+        ports_application: number;
+        server_certs: {
+            [key:string]: transmit_tlsCerts;
+        };
+        server_ports: {
+            [key:string]: core_server_ports;
+        };
+        sockets: number;
     };
     environment: {
         dashboard_id: string;
@@ -272,7 +315,6 @@ interface core_vars {
         http_request: string;
         interfaces: string[];
         logs: {
-            entries: config_log[];
             max: number;
             total: number;
         };
@@ -291,10 +333,7 @@ interface core_vars {
     };
     os: core_server_os;
     path: core_vars_path;
-    ports_application: services_ports_application;
     server_meta: server_meta;
-    servers: store_servers;
-    sockets: services_socket_application;
     stats: {
         children: number;
         containers: {
@@ -374,42 +413,6 @@ interface os_service {
     restart: (name:string) => void;
 }
 
-interface server {
-    certs: transmit_tlsCerts;
-    config: services_server;
-    sockets: Array<services_socket_application_tcp>;
-    status: server_ports;
-}
-
-interface server_content {
-    [key:string]: (property:type_server_property, parent:HTMLElement) => void;
-}
-
-interface server_instance extends node_net_Server {
-    id?: string;
-    secure?: boolean;
-}
-
-interface server_meta {
-    [key:string]: server_meta_item;
-}
-
-interface server_meta_item {
-    server: {
-        open: server_instance;
-        secure: server_instance;
-    };
-    sockets: {
-        open: websocket_client[];
-        secure: websocket_client[];
-    };
-}
-
-interface server_ports {
-    open?: number;
-    secure?: number;
-}
-
 interface store_arrays {
     [key:string]: Array<object>;
 }
@@ -455,7 +458,7 @@ interface store_os_difference {
 }
 
 interface store_ports {
-    [key:string]: server_ports;
+    [key:string]: core_server_ports;
 }
 
 interface store_server_config {
@@ -463,7 +466,7 @@ interface store_server_config {
 }
 
 interface store_servers {
-    [key:string]: server;
+    [key:string]: services_server;
 }
 
 interface store_sockets {

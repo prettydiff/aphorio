@@ -52,7 +52,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     : config.socket.proxy.hash,
                 role: config.role,
                 server_id: config.server,
-                server_name: vars.servers[config.server].config.name,
+                server_name: vars.data.servers[config.server].name,
                 time: now,
                 type: config.type,
                 userAgent: config.userAgent
@@ -94,7 +94,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     const socket:websocket_client = this;
                     server_halt({
                         action: "destroy",
-                        server: vars.servers[socket.server].config
+                        server: vars.data.servers[socket.server]
                     }, null);
                 };
                 config.socket.on("close", death);
@@ -114,7 +114,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             config.callback(config.socket, config.timeout);
         }
         vars.server_meta[config.server].sockets[encryption].push(config.socket);
-        vars.servers[config.server].sockets.push(socket);
+        vars.data.sockets_tcp.push(socket);
         socket_list_build();
         log.application(log_config);
     }

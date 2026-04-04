@@ -16,7 +16,7 @@ import websocket_test from "../services/websocket.ts";
 const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):void {
     // eslint-disable-next-line no-restricted-syntax
     const server_id:string = this.id,
-        server:services_server = vars.servers[server_id].config,
+        server:services_server = vars.data.servers[server_id],
         handshake = function transmit_connection_handshake(data:Buffer):void {
             const flags:store_flag = {
                     dashboard_http: false,
@@ -98,7 +98,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         ua[0] = store.userAgent.slice(store.userAgent.indexOf("(") + 1, store.userAgent.indexOf(")"));
                         ua = ua[0].split(";");
                         store.userAgent = `${ua[0]}, ${ua[1]}, ${store.userAgent.slice(store.userAgent.lastIndexOf(")") + 2)}`;
-                    } else if ((/^upgrade-insecure-requests:\s*1$/).test(lower) === true && socket.encrypted !== true && server.upgrade === true && vars.servers[server_id].status.secure > 0) {
+                    } else if ((/^upgrade-insecure-requests:\s*1$/).test(lower) === true && socket.encrypted !== true && server.upgrade === true && vars.data_meta.server_ports[server_id].secure > 0) {
                         flags.upgrade = true;
                     } else if (lower === "dashboard-http: true") {
                         flags.dashboard_http = true;
@@ -216,7 +216,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                             const this_socket:websocket_client = this;
                                             server_halt({
                                                 action: "destroy",
-                                                server: vars.servers[this_socket.server].config
+                                                server: vars.data.servers[this_socket.server]
                                             }, null);
                                         };
                                         socket.on("close", terminate);
@@ -394,14 +394,14 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                 },
                 proxy_existing = function transmit_connection_handshake_proxyExisting(hash:string):boolean {
                     const loop = function transmit_connection_handshake_proxyExisting_loop():boolean {
-                        let index:number = vars.sockets.tcp.length;
+                        let index:number = vars.data.sockets_tcp.length;
                         if (index > 0) {
                             do {
                                 index = index - 1;
-                                if (vars.sockets.tcp[index].hash === hash) {
-                                    if (vars.sockets.tcp[index].proxy === null) {
+                                if (vars.data.sockets_tcp[index].hash === hash) {
+                                    if (vars.data.sockets_tcp[index].proxy === null) {
                                         const servers:string[] = Object.keys(vars.server_meta),
-                                            list = function transmit_connection_handshake_proxyExisting_loop_list(server:server_meta_item, list_type:"open"|"secure"):boolean {
+                                            list = function transmit_connection_handshake_proxyExisting_loop_list(server:core_server_meta_item, list_type:"open"|"secure"):boolean {
                                                 let sockets:number = server.sockets[list_type].length;
                                                 do {
                                                     sockets = sockets - 1;
@@ -484,6 +484,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         if (server.domain_local.includes(store.domain) === true || vars.environment.interfaces.includes(store.domain) === true) {
                             local_service();
                         } else {
+                            // redirect TLS connections to open servers instead to secure server peer if one is active
                             const encrypted:boolean = (
                                     socket.encrypted === true &&
                                     server.redirect_domain !== undefined &&
@@ -505,6 +506,12 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                     : (socket.encrypted === true)
                                         ? server.ports.secure
                                         : server.ports.open;
+                            if (store.domain === "") {
+                                store.domain = (host === "127.0.0.1" || host === "::1" || host === "::" || host === "[::1]")
+                                    ? "localhost"
+                                    : host;
+                            }
+                            store.domain = `tls_socket_redirect-${vars.data.servers[server_id].name}`;
                             proxy_create(host, port, encrypted);
                         }
                     }
@@ -515,7 +522,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         resource:string = resource_second.replace(/\/$/, "");
                     socket.write([
                         "HTTP/1.1 308",
-                        `location: https://${store.domain + resource}:${vars.servers[server_id].status.secure}`,
+                        `location: https://${store.domain + resource}:${vars.data_meta.server_ports[server_id].secure}`,
                         "content-length: 5",
                         "",
                         "moved",
@@ -539,11 +546,12 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                     // * must be http request with header 'upgrade-insecure-requests: 1'
                     // * requests from the dashboard http test tool are ignored
                     upgrade();
-                } else if (data[0] === 22 && socket.encrypted !== true && vars.servers[server_id].status.secure > 0 && flags.dashboard_http === false) {
-                    // secure socket to open server - proxy socket to secure server
+                } else if (data[0] === 22 && socket.encrypted !== true && vars.data_meta.server_ports[server_id].secure > 0 && flags.dashboard_http === false) {
+                    // open socket to secure server - proxy socket to secure server
                     socket.addresses = address;
                     socket.encrypted = true;
-                    proxy_create(address.local.address, vars.servers[server_id].status.secure, true);
+                    store.domain = `open_socket_tunnel-${vars.data.servers[server_id].name}`;
+                    proxy_create(address.local.address, vars.data_meta.server_ports[server_id].secure, true);
                 } else {
                     service();
                 }
