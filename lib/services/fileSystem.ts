@@ -121,9 +121,9 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
         },
         readCallback = function services_fileSystem_readCallback(err:node_error, fileContents:Buffer):void {
             if (err === null) {
-                const detect:string_detect[] = detectAll(fileContents),
+                const detect:core_string_detect[] = detectAll(fileContents),
                     decoder:node_stringDecoder_StringDecoder = new node.stringDecoder.StringDecoder("utf8");
-                detect.sort(function services_fileSystem_readCallback_sort(a:string_detect, b:string_detect):-1|1 {
+                detect.sort(function services_fileSystem_readCallback_sort(a:core_string_detect, b:core_string_detect):-1|1 {
                     if (a.confidence > b.confidence) {
                         return -1;
                     }

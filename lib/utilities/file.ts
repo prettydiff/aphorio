@@ -11,7 +11,7 @@ import vars from "../core/vars.ts";
 // * stat - stat a file system item
 // * write - write a file
 
-const file:file = {
+const file:core_module_file = {
     mkdir: function utilities_fileDir(config:config_file_mkdir):void {
         let ind:number = 0;
         const dirs:string[] = config.location.split(vars.path.sep),

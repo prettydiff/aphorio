@@ -2,7 +2,7 @@
 import broadcast from "../transmit/broadcast.ts";
 import vars from "./vars.ts";
 
-const log:log = {
+const log:core_module_log = {
     application: function utilities_logApplication(config:config_log):void {
         if (vars.environment.features["application-logs"] === true) {
             vars.data.logs.push(config);

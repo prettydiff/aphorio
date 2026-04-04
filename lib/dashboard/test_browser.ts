@@ -433,7 +433,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                                     format = format[method](prop.slice(prop.indexOf("(") + 1, prop.lastIndexOf(")")));
                                 } else if (format !== null) {
                                     // @ts-expect-error - dynamically infers a property on a static object
-                                    format = (format as Array<string>)[prop as number];
+                                    format = (format as string[])[prop as number];
                                 }
                             }
                             if (format === null || format === undefined) {

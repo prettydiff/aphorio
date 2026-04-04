@@ -1,6 +1,7 @@
 
 import log from "../core/log.ts";
 import socket_list from "../services/socket_list.ts";
+import vars from "../core/vars.ts";
 
 const socket_end = function transmit_socketEnd(error:node_error):void {
     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
@@ -20,7 +21,21 @@ const socket_end = function transmit_socketEnd(error:node_error):void {
             section: "sockets-application-tcp",
             status: "error",
             time: Date.now()
-        };
+        },
+        encryption:"open"|"secure" = (socket.encrypted === true)
+            ? "secure"
+            : "open";
+    let index:number = vars.server_meta[socket.server].sockets[encryption].length;
+
+    if (index > 0) {
+        do {
+            index = index - 1;
+            if (vars.server_meta[socket.server].sockets[encryption][index].hash === socket.hash) {
+                vars.server_meta[socket.server].sockets[encryption].splice(index, 1);
+                break;
+            }
+        } while (index > 0);
+    }
 
     log.application(payload_log);
     socket_list();

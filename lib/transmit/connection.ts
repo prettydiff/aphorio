@@ -244,7 +244,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                     // websocket
                     } else {
                         // local domain websocket support
-                        const callback = function transmit_connection_handshake_hash(hashOutput:hash_output):void {
+                        const callback = function transmit_connection_handshake_hash(hashOutput:core_hash_output):void {
                             const client_respond = function transmit_connection_handshake_hash_clientRespond():void {
                                     const headers:string[] = [
                                             "HTTP/1.1 101 Switching Protocols",

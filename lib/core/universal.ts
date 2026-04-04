@@ -1,5 +1,5 @@
 
-const utilities:core_universal = {
+const utilities:core_module_universal = {
     bytes: function core_universalBytes():number {
         // eslint-disable-next-line no-restricted-syntax
         const input:string = this.toLowerCase(),

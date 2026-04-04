@@ -54,7 +54,7 @@ const socket_udp:transmit_udp_module = {
                 const now:number = Date.now(),
                     config_hash:config_hash = {
                         algorithm: "sha3-512",
-                        callback: function transmit_socketUDP_create_status_hash(hash_output:hash_output):void {
+                        callback: function transmit_socketUDP_create_status_hash(hash_output:core_hash_output):void {
                             const local:node_net_AddressInfo = socket.address(),
                                 remote:node_net_AddressInfo = (socket.role === "client")
                                     ? socket.remoteAddress()

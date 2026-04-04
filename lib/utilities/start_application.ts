@@ -242,7 +242,7 @@ const start_application = function utilities_startApplication(process_path:strin
                 task: function utilities_startApplication_tasksGit():void {
                     const gitStat = function utilities_startApplication_tasksGit_gitStat(error:node_error, stat:node_fs_Stats):void {
                         if (error === null && stat !== null) {
-                            const spawn_item:core_spawn = spawn("git show -s --format=%H,%ct HEAD", function utilities_startApplication_tasksGit_gitStat_close(output:core_spawn_output):void {
+                            const spawn_item:core_module_spawn = spawn("git show -s --format=%H,%ct HEAD", function utilities_startApplication_tasksGit_gitStat_close(output:core_spawn_output):void {
                                 const str:string[] = output.stdout.split(",");
                                 vars.environment.date_commit = Number(str[1]) * 1000;
                                 vars.environment.hash = str[0];

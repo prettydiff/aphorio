@@ -7,7 +7,7 @@ import vars from "../core/vars.ts";
 
 // cspell: words CPUPerc, MemPerc, pids, rbytes, usec, wbytes
 
-const statistics:core_statistics = {
+const statistics:core_module_statistics = {
     change: function services_statisticsChange(data:socket_data):void {
         const update:services_statistics_change = data.data as services_statistics_change,
             list:store_server_config = {},

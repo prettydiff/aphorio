@@ -107,7 +107,7 @@ interface os_node_cpu_item {
         user: number;
     };
 }
-type os_node_cpu = Array<os_node_cpu_item>;
+type os_node_cpu = os_node_cpu_item[];
 
 interface os_node_cpuUsage {
     system: number;

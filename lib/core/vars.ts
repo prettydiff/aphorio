@@ -73,9 +73,13 @@ const vars:core_vars = {
             sockets_udp: []
         },
         data_meta: {
+            // time of last port update
             ports_application: 0,
+            // server certificates
             server_certs: {},
+            // actual ports in use by web servers
             server_ports: {},
+            // time of last sockets update
             sockets: 0
         },
         environment: {

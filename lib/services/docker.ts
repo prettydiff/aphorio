@@ -12,7 +12,7 @@ import { spawn as spawn_shell } from "@lydell/node-pty";
 
 // cspell: words opencontainers
 
-const docker:core_docker = {
+const docker:core_module_docker = {
     commands: {
         activate: " up --detach",
         add: " up --detach",

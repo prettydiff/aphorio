@@ -95,8 +95,6 @@ type type_start_pre_tasks = "admin" | "compose" | "os_main";
 type type_start_primary_tasks = "cgroup" | "file"| "git" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_stcp" | "os_sudp" | "os_user" | "servers" | "test_browser" | "test_list" | "version";
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";
-type type_youtubeDownload_media = "audio" | "video";
-type type_youtubeDownload = "audio-file" | "audio-playlist" | "video-file" | "video-playlist";
 
 type http_action = (headerList:string[], socket:websocket_client, payload:Buffer) => void;
 type receiver = (socketData:socket_data, transmit:transmit_socket) => void;

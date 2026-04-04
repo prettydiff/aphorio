@@ -10,7 +10,7 @@ interface stat_item extends node_fs_Stats {
     path: string;
     type: type_file;
 }
-type statList = Array<stat_item>;
+type statList = stat_item[];
 
 interface transmit_addresses_socket {
     local: {

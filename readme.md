@@ -2,7 +2,7 @@
 <!-- cspell: words buildx, containerd, dpkg, keyrings, kurkle, winget -->
 
 # Aphorio
-A simple web based dashboard for the following features.
+Like Windows Task Manager, but also works on Linux and displays web servers, docker containers, and more.
 
 * Web Servers
   - Serves and proxies HTTP over WebSockets for both TCP and TLS

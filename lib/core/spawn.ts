@@ -3,8 +3,8 @@ import log from "./log.ts";
 import node from "./node.ts";
 import vars from "./vars.ts";
 
-const spawn = function core_spawn(command:string, callback:(output:core_spawn_output) => void, options?:core_spawn_options):core_spawn {
-    const item:core_spawn = {
+const spawn = function core_spawn(command:string, callback:(output:core_spawn_output) => void, options?:core_spawn_options):core_module_spawn {
+    const item:core_module_spawn = {
         close: function core_spawn_close():void {
             if (callback !== null) {
                 callback({

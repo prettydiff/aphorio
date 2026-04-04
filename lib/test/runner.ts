@@ -251,7 +251,7 @@ const test_runner:test_runner = {
                                         // @ts-expect-error - dynamically infers a property on a static object
                                         format = format[method](prop.slice(prop.indexOf("(") + 1, prop.lastIndexOf(")")));
                                     } else if (format !== null) {
-                                        format = (format as Array<string>)[prop as number];
+                                        format = (format as string[])[prop as number];
                                     }
                                 }
                                 if (format === null || format === undefined) {
@@ -303,7 +303,7 @@ const test_runner:test_runner = {
                     vars.test.counts[vars.test.list.name].tests_failed = vars.test.counts[vars.test.list.name].tests_failed + 1;
                     test_runner.tools.next();
                 },
-                spawn_item:core_spawn = spawn(item.command, spawn_close, {
+                spawn_item:core_module_spawn = spawn(item.command, spawn_close, {
                     error: spawn_error
                 });
             spawn_item.execute();

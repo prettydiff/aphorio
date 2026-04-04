@@ -489,12 +489,12 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             }
         },
         comparison = function utilities_os_comparison(config:config_os_comparison, time:number, type:"child"|"parent"):void {
-            const list_new:Array<object>|string[] = (config.dict === true)
+            const list_new:object[]|string[] = (config.dict === true)
                     ? Object.keys(config.lists.new)
-                    : config.lists.new as Array<object>,
-                list_old:Array<object>|string[] = (config.dict === true)
+                    : config.lists.new as object[],
+                list_old:object[]|string[] = (config.dict === true)
                     ? Object.keys(config.lists.old)
-                    : config.lists.old as Array<object>;
+                    : config.lists.old as object[];
             let index_old:number = list_old.length,
                 index_new:number = 0,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -696,7 +696,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         }
                     },
                     no_child: function utilities_os_differenceIntr_messagesNoChild(item:object, name:string):string {
-                        const intr:Array<node_os_NetworkInterfaceInfo> = item as Array<node_os_NetworkInterfaceInfo>;
+                        const intr:node_os_NetworkInterfaceInfo[] = item as node_os_NetworkInterfaceInfo[];
                         return `Network interface ${name} had ${intr.length} addresses assigned but now has none.`;
                     },
                     parent: {

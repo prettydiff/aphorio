@@ -69,16 +69,6 @@ interface core_directory_list extends Array<type_directory_item> {
     parent?: type_directory_item;
 }
 
-interface core_docker {
-    commands: core_compose_commands;
-    list: (callback:() => void) => void;
-    receive: receiver;
-    resize: receiver;
-    shell: pty;
-    shell_start: () => void;
-    variables: (variables:store_string, socket:websocket_client) => void;
-}
-
 interface core_docker_status {
     BlockIO: string;
     Container: string;
@@ -89,6 +79,67 @@ interface core_docker_status {
     Name: string;
     NetIO: string;
     PIDs: number;
+}
+
+interface core_external_ports {
+    list: type_external_port[];
+    time: number;
+}
+
+interface core_hash_output {
+    filePath: string;
+    hash: string;
+    size: number;
+}
+
+interface core_module_docker {
+    commands: core_compose_commands;
+    list: (callback:() => void) => void;
+    receive: receiver;
+    resize: receiver;
+    shell: pty;
+    shell_start: () => void;
+    variables: (variables:store_string, socket:websocket_client) => void;
+}
+
+interface core_module_file {
+    mkdir: (config:config_file_mkdir) => void;
+    read: (config:config_file_read) => void;
+    remove: (config:config_file_remove) => void;
+    stat: (config:config_file_stat) => void;
+    write: (config:config_file_write) => void;
+}
+
+interface core_module_log {
+    application: (config:config_log) => void;
+    shell: (input:string[], summary?:boolean) => void;
+}
+
+interface core_module_spawn {
+    close: () => void;
+    command: string;
+    data_stderr: (buf:Buffer) => void;
+    data_stdout: (buf:Buffer) => void;
+    error: (err:node_childProcess_ExecException) => void;
+    execute: () => void;
+    spawn: node_childProcess_ChildProcess;
+    stderr: string[];
+    stdout: string[];
+    type: string;
+}
+
+interface core_module_statistics {
+    change: (data:socket_data) => void;
+    data: () => void;
+}
+
+interface core_module_universal {
+    bytes: () => number;
+    bytes_big: () => bigint;
+    capitalize: () => string;
+    commas: () => string;
+    dateTime: (date:boolean, timeZone_offset:number) => string;
+    time: () => string;
 }
 
 interface core_server_child_input {
@@ -203,19 +254,6 @@ interface core_servers_file {
     };
 }
 
-interface core_spawn {
-    close: () => void;
-    command: string;
-    data_stderr: (buf:Buffer) => void;
-    data_stdout: (buf:Buffer) => void;
-    error: (err:node_childProcess_ExecException) => void;
-    execute: () => void;
-    spawn: node_childProcess_ChildProcess;
-    stderr: string[];
-    stdout: string[];
-    type: string;
-}
-
 interface core_spawn_options {
     cwd?: string;
     env?: store_string;
@@ -237,18 +275,9 @@ interface core_start_tasks {
     };
 }
 
-interface core_statistics {
-    change: (data:socket_data) => void;
-    data: () => void;
-}
-
-interface core_universal {
-    bytes: () => number;
-    bytes_big: () => bigint;
-    capitalize: () => string;
-    commas: () => string;
-    dateTime: (date:boolean, timeZone_offset:number) => string;
-    time: () => string;
+interface core_string_detect {
+    confidence: number;
+    encoding: string;
 }
 
 interface core_vars {
@@ -271,13 +300,17 @@ interface core_vars {
         sockets_udp: services_udp_socket[];
     };
     data_meta: {
+        // time of last port update
         ports_application: number;
+        // server certificates
         server_certs: {
             [key:string]: transmit_tlsCerts;
         };
+        // actual ports in use by web servers
         server_ports: {
             [key:string]: core_server_ports;
         };
+        // time of last sockets update
         sockets: number;
     };
     environment: {
@@ -348,7 +381,7 @@ interface core_vars {
     };
     test: {
         browser_args: string[];
-        browser_child: core_spawn;
+        browser_child: core_module_spawn;
         browser_start: boolean;
         counts: {
             [key:string]: test_counts;
@@ -369,7 +402,7 @@ interface core_vars {
         total_time_start: bigint;
     };
     text: store_string;
-    udp: Array<transmit_udp>;
+    udp: transmit_udp[];
 }
 
 interface core_vars_path {
@@ -383,118 +416,7 @@ interface core_vars_path {
     servers: string;
 }
 
-interface external_ports {
-    list: type_external_port[];
-    time: number;
-}
-
-interface file {
-    mkdir: (config:config_file_mkdir) => void;
-    read: (config:config_file_read) => void;
-    remove: (config:config_file_remove) => void;
-    stat: (config:config_file_stat) => void;
-    write: (config:config_file_write) => void;
-}
-
-interface hash_output {
-    filePath: string;
-    hash: string;
-    size: number;
-}
-
-interface log {
-    application: (config:config_log) => void;
-    shell: (input:string[], summary?:boolean) => void;
-}
-
-interface os_service {
-    create: (command:string, name:string) => void;
-    delete: (name:string) => void;
-    restart: (name:string) => void;
-}
-
-interface store_arrays {
-    [key:string]: Array<object>;
-}
-
-interface store_bigint {
-    [key:string]: bigint;
-}
-
-interface store_children {
-    [key:string]: node_childProcess_ChildProcess;
-}
-
-interface store_children_os {
-    [key:string]: core_spawn;
-}
-
-interface store_compose {
-    [key:string]: core_compose_container;
-}
-
-interface store_elements {
-    [key:string]: HTMLElement;
-}
-
-interface store_flag {
-    [key:string]: boolean;
-}
-
-interface store_function {
-    [key:string]: () => void;
-}
-
-interface store_module_map {
-    [key:string]: module_list | section_ports_application | section_sockets_application;
-}
-
-interface store_number {
-    [key:string]: number;
-}
-
-interface store_os_difference {
-    [key:string]: config_os_comparison;
-}
-
-interface store_ports {
-    [key:string]: core_server_ports;
-}
-
-interface store_server_config {
-    [key:string]: services_server;
-}
-
-interface store_servers {
-    [key:string]: services_server;
-}
-
-interface store_sockets {
-    [key:string]: websocket_client[];
-}
-
-interface store_store_flag {
-    [key:string]: store_flag;
-}
-
-interface store_string {
-    [key:string]: string;
-}
-
-interface store_string_list {
-    [key:string]: string[];
-}
-
-interface store_test_list {
-    [key:string]: test_list;
-}
-
-interface string_detect {
-    confidence: number;
-    encoding: string;
-}
-
-interface windows_drives {
+interface core_windows_drives {
     DriveLetter: string;
     Size: number;
     SizeRemaining: number;

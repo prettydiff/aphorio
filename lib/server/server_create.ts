@@ -17,7 +17,7 @@ import vars from "../core/vars.ts";
 const server_create = function services_serverCreate(data:services_server_action, callback:() => void, dashboard:boolean):void {
     hash({
         algorithm: "sha3-512",
-        callback: function services_serverCreate_hashCallback(output:hash_output):void {
+        callback: function services_serverCreate_hashCallback(output:core_hash_output):void {
             let count:number = 0;
             const config:services_server = data.server,
                 path_config:string = `${vars.path.project}servers.json`,

@@ -353,9 +353,3 @@ interface services_websocket_status {
     connected: boolean;
     error: node_error | string;
 }
-
-interface services_youtubeDownload {
-    address: string;
-    options: string;
-    type: type_youtubeDownload;
-}
