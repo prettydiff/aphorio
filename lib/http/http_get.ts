@@ -53,7 +53,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             if (config.template === true) {
                 const name:string = (server_id === vars.environment.dashboard_id)
                         ? `${vars.environment.name.capitalize()} Dashboard`
-                        : vars.servers[server_id].config.name,
+                        : vars.data.servers[server_id].name,
                     templateText:string[] = [
                         "<!doctype html>",
                         "<html lang=\"en\">",
@@ -202,7 +202,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                 "",
                                 `content-type: ${type}`,
                                 "",
-                                "server: prettydiff/aphorio",
+                                `server: prettydiff/${vars.environment.name}`,
                                 "accept-ranges: bytes",
                                 "",
                                 ""
@@ -350,11 +350,14 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         }
         if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
-                log_len:number = vars.environment.logs.length,
-                logs_max:number = 5000,
                 payload:transmit_dashboard = {
                     compose: (vars.environment.features["compose-containers"] === true)
-                        ? vars.compose
+                        ? {
+                            containers: vars.data.containers,
+                            status: vars.compose.status,
+                            time: vars.compose.time,
+                            variables: vars.compose.variables
+                        }
                         : null,
                     dashboard_id: vars.environment.dashboard_id,
                     hashes: (vars.environment.features["hash"] === true)
@@ -364,20 +367,33 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         ? vars.environment.http_request
                         : null,
                     logs: (vars.environment.features["application-logs"] === true)
-                        ? (log_len > logs_max)
-                            ? vars.environment.logs.slice(log_len - logs_max)
-                            : vars.environment.logs
+                        ? {
+                            entries: (vars.environment.logs.total > vars.environment.logs.max)
+                                ? vars.data.logs.slice(vars.environment.logs.total - vars.environment.logs.max)
+                                : vars.data.logs,
+                            max: vars.environment.logs.max,
+                            total: vars.environment.logs.total
+                        }
                         : null,
-                    logs_max: logs_max,
                     name: vars.environment.name,
                     os: vars.os,
                     path: vars.path,
-                    "ports-application": vars.ports_application,
+                    "ports-application": {
+                        data: vars.data.ports_application,
+                        time: vars.data_meta.ports_application
+                    },
+                    server_ports: (vars.environment.features["servers-web"] === true)
+                        ? vars.data_meta.server_ports
+                        : null,
                     servers: (vars.environment.features["servers-web"] === true)
-                        ? vars.servers
+                        ? vars.data.servers
                         : null,
                     sockets: (vars.environment.features["sockets-application-tcp"] === true || vars.environment.features["sockets-application-udp"] === true)
-                        ? vars.sockets
+                        ? {
+                            tcp: vars.data.sockets_tcp,
+                            time: vars.data_meta.sockets,
+                            udp: vars.data.sockets_udp
+                        }
                         : null,
                     stats: (vars.environment.features["statistics"] === true)
                         ? {
@@ -399,7 +415,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     "HTTP/1.1 200",
                     "content-type: text/html",
                     `content-length: ${Buffer.byteLength(dashboard)}`,
-                    "server: prettydiff/aphorio",
+                    `server: prettydiff/${vars.environment.name}`,
                     "accept-ranges: bytes",
                     "",
                     ""
@@ -415,7 +431,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             "HTTP/1.1 404",
             "content-type: text/html",
             "content-length: 0",
-            "server: prettydiff/aphorio",
+            `server: prettydiff/${vars.environment.name}`,
             "accept-ranges: bytes",
             "",
             ""

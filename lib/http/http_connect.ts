@@ -1,5 +1,6 @@
 
 import create_socket from "../transmit/create_socket.ts";
+import vars from "../core/vars.ts";
 
 // cspell: words prettydiff
 
@@ -17,7 +18,7 @@ const http_connect:http_action = function http_connect(headerList:string[], sock
     if (isNaN(port) === true) {
         const headers:string[] = [
             "HTTP/1.1 400",
-            "server: prettydiff/aphorio",
+            `server: prettydiff/${vars.environment.name}`,
             "content-type: application/json",
             "content-length: ",
             "",

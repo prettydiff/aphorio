@@ -12,7 +12,7 @@ import { spawn as spawn_shell } from "@lydell/node-pty";
 
 // cspell: words opencontainers
 
-const docker:core_docker = {
+const docker:core_module_docker = {
     commands: {
         activate: " up --detach",
         add: " up --detach",
@@ -38,6 +38,7 @@ const docker:core_docker = {
                     log.application({
                         error: null,
                         message: vars.compose.status,
+                        origin: "services/docker.ts",
                         section: "compose-containers",
                         status: "error",
                         time: now
@@ -67,14 +68,14 @@ const docker:core_docker = {
                                 id:string = list[ind].ID;
                             total = total + 1;
                             if (file === null) {
-                                delete vars.compose.containers[id];
-                                delete vars.compose.containers[location];
+                                delete vars.data.containers[id];
+                                delete vars.data.containers[location];
                                 complete_ps();
                             } else {
-                                if (vars.compose.containers[location] !== undefined) {
-                                    delete vars.compose.containers[location];
+                                if (vars.data.containers[location] !== undefined) {
+                                    delete vars.data.containers[location];
                                 }
-                                vars.compose.containers[id] = {
+                                vars.data.containers[id] = {
                                     compose: (file === null)
                                         ? null
                                         : file.toString(),
@@ -145,7 +146,7 @@ const docker:core_docker = {
                         },
                         complete_ps = function services_docker_list_child_completePS():void {
                             const read = function services_docker_list_child_completePS_read(file:Buffer, location:string):void {
-                                    vars.compose.containers[location] = {
+                                    vars.data.containers[location] = {
                                         compose: file.toString(),
                                         created: 0,
                                         description: "",
@@ -204,22 +205,22 @@ const docker:core_docker = {
                         },
                         description = function services_docker_listCallback_child_description(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
-                            if (vars.compose.containers[id] !== undefined) {
-                                vars.compose.containers[id].description = out.stdout.trim();
+                            if (vars.data.containers[id] !== undefined) {
+                                vars.data.containers[id].description = out.stdout.trim();
                             }
                             complete_meta(id);
                         },
                         license = function services_docker_listCallback_child_license(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
-                            if (vars.compose.containers[id] !== undefined) {
-                                vars.compose.containers[id].license = out.stdout.trim();
+                            if (vars.data.containers[id] !== undefined) {
+                                vars.data.containers[id].license = out.stdout.trim();
                             }
                             complete_meta(id);
                         },
                         version = function services_docker_listCallback_child_version(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
-                            if (vars.compose.containers[id] !== undefined) {
-                                vars.compose.containers[id].version = out.stdout.trim();
+                            if (vars.data.containers[id] !== undefined) {
+                                vars.data.containers[id].version = out.stdout.trim();
                             }
                             complete_meta(id);
                         };
@@ -235,7 +236,7 @@ const docker:core_docker = {
                     }
                 }
             };
-            vars.compose.containers = {};
+            vars.data.containers = {};
             spawn(`docker ${docker.commands.list}`, child).execute();
         } else {
             complete("Application must be executed with administrative privilege for Docker support.");
@@ -256,13 +257,18 @@ const docker:core_docker = {
                     : data.location,
                 compose_location:string = `${vars.commands.compose} --ansi never --env-file "${vars.path.compose}.env" -f ${location}`,
                 command:string = compose_location + docker.commands[data.action],
-                running:boolean = (vars.compose.containers[data.id] === null || vars.compose.containers[data.id] === undefined)
+                running:boolean = (vars.data.containers[data.id] === null || vars.data.containers[data.id] === undefined)
                     ? false
-                    : (vars.compose.containers[data.id].state === "running"),
+                    : (vars.data.containers[data.id].state === "running"),
                 lister = function services_docker_receive_lister():void {
                     docker.list(function services_docker_receive_lister_list():void {
                         send({
-                            data: vars.compose,
+                            data: {
+                                containers: vars.data.containers,
+                                status: vars.compose.status,
+                                time: vars.compose.time,
+                                variables: vars.compose.variables
+                            },
                             service: "dashboard-compose"
                         }, socket, 3);
                     });
@@ -297,6 +303,7 @@ const docker:core_docker = {
                     log.application({
                         error: null,
                         message: "Attempted to add a docker container without a 'container_name' field.",
+                        origin: data.id,
                         section: "compose-containers",
                         status: "error",
                         time: Date.now()
@@ -336,7 +343,12 @@ const docker:core_docker = {
                         docker.shell.write("\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008");
                         docker.list(function services_docker_shell_out_list():void {
                             broadcast(vars.environment.dashboard_id, "dashboard", {
-                                data: vars.compose,
+                                data: {
+                                    containers: vars.data.containers,
+                                    status: vars.compose.status,
+                                    time: vars.compose.time,
+                                    variables: vars.compose.variables
+                                },
                                 service: "dashboard-compose"
                             });
                         });
@@ -373,7 +385,12 @@ const docker:core_docker = {
                 vars.compose.variables = variables;
                 docker.list(function services_docker_variables_callback_list():void {
                     send({
-                        data: vars.compose,
+                        data: {
+                            containers: vars.data.containers,
+                            status: vars.compose.status,
+                            time: vars.compose.time,
+                            variables: vars.compose.variables
+                        },
                         service: "dashboard-compose"
                     }, socket, 3);
                 });

@@ -43,6 +43,7 @@ const terminal:services_terminal = {
                 const config:config_log = {
                     error: err,
                     message: "Socket for dashboard terminal failed with error.",
+                    origin: "services/terminal.ts",
                     section: "terminal",
                     status: "error",
                     time: Date.now()

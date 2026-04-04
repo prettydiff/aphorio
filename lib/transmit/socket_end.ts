@@ -1,5 +1,5 @@
 
-import broadcast from "./broadcast.ts";
+import log from "../core/log.ts";
 import socket_list from "../services/socket_list.ts";
 import vars from "../core/vars.ts";
 
@@ -17,15 +17,27 @@ const socket_end = function transmit_socketEnd(error:node_error):void {
                 ? new Error()
                 : error,
             message: `Socket type ${socket.type} with id ${socket.hash} from ${address_local} to ${address_remote} ended.`,
+            origin: socket.server,
             section: "sockets-application-tcp",
             status: "error",
             time: Date.now()
-        };
+        },
+        encryption:"open"|"secure" = (socket.encrypted === true)
+            ? "secure"
+            : "open";
+    let index:number = vars.server_meta[socket.server].sockets[encryption].length;
 
-    broadcast(vars.environment.dashboard_id, "dashboard", {
-        data: payload_log,
-        service: "dashboard-log"
-    });
+    if (index > 0) {
+        do {
+            index = index - 1;
+            if (vars.server_meta[socket.server].sockets[encryption][index].hash === socket.hash) {
+                vars.server_meta[socket.server].sockets[encryption].splice(index, 1);
+                break;
+            }
+        } while (index > 0);
+    }
+
+    log.application(payload_log);
     socket_list();
 };
 

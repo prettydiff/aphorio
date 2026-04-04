@@ -54,7 +54,7 @@ const socket_udp:transmit_udp_module = {
                 const now:number = Date.now(),
                     config_hash:config_hash = {
                         algorithm: "sha3-512",
-                        callback: function transmit_socketUDP_create_status_hash(hash_output:hash_output):void {
+                        callback: function transmit_socketUDP_create_status_hash(hash_output:core_hash_output):void {
                             const local:node_net_AddressInfo = socket.address(),
                                 remote:node_net_AddressInfo = (socket.role === "client")
                                     ? socket.remoteAddress()
@@ -161,22 +161,26 @@ const socket_udp:transmit_udp_module = {
     },
     list: function transmit_socketUDP_list(item:services_udp_socket, action:"add"|"remove", now:number):void {
         if (action === "add") {
-            vars.sockets.udp.push(item);
+            vars.data.sockets_udp.push(item);
         } else {
-            let index:number = vars.sockets.udp.length;
+            let index:number = vars.data.sockets_udp.length;
             if (index > 0) {
                 do {
                     index = index - 1;
-                    if (vars.sockets.udp[index].hash === item.hash) {
-                        vars.sockets.udp.splice(index, 1);
+                    if (vars.data.sockets_udp[index].hash === item.hash) {
+                        vars.data.sockets_udp.splice(index, 1);
                         break;
                     }
                 } while (index > 0);
             }
         }
-        vars.sockets.time = now;
+        vars.data_meta.sockets = now;
         broadcast(vars.environment.dashboard_id, "dashboard", {
-            data: vars.sockets,
+            data: {
+                tcp: vars.data.sockets_tcp,
+                time: vars.data_meta.sockets,
+                udp: vars.data.sockets_udp
+            },
             service: "dashboard-socket-application"
         });
     },

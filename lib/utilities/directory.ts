@@ -297,7 +297,7 @@ const directory = function utilities_directory(args:config_directory):void {
         }
         if (args.path === "\\") {
             spawn("get-volume | convertto-json", function utilities_directory_windows(out:core_spawn_output):void {
-                const drives:windows_drives[] = JSON.parse(out.stdout);
+                const drives:core_windows_drives[] = JSON.parse(out.stdout);
                 let index:number = drives.length;
                 output.push(["\\", "directory", 0, index, {
                     atimeMs: 0,

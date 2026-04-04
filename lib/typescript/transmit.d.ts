@@ -10,7 +10,7 @@ interface stat_item extends node_fs_Stats {
     path: string;
     type: type_file;
 }
-type statList = Array<stat_item>;
+type statList = stat_item[];
 
 interface transmit_addresses_socket {
     local: {
@@ -24,16 +24,22 @@ interface transmit_addresses_socket {
 }
 
 interface transmit_dashboard {
-    compose: core_compose;
+    compose: services_compose;
     dashboard_id: string;
     hashes: string[];
     http_request: string;
-    logs: config_log[];
-    logs_max: number;
+    logs: {
+        entries: config_log[];
+        max: number;
+        total: number;
+    };
     name: string;
     os: core_server_os;
     path: core_vars_path;
     "ports-application": services_ports_application;
+    server_ports: {
+        [key:string]: core_server_ports;
+    }; 
     servers: store_servers;
     sockets: services_socket_application;
     stats: services_statistics_data;

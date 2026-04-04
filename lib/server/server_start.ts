@@ -1,6 +1,6 @@
 
-import broadcast from "./broadcast.ts";
-import connection from "./connection.ts";
+import broadcast from "../transmit/broadcast.ts";
+import connection from "../transmit/connection.ts";
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
@@ -8,10 +8,10 @@ import vars from "../core/vars.ts";
 
 // cspell: words untrapped
 
-const server = function transmit_server(id:string, callback:(name:string) => void):void {
+const server_start = function transmit_serverStart(id:string, callback:(name:string) => void):void {
     let count:number = 0;
-    const start = function transmit_server_start(options:transmit_tlsOptions):void {
-        const wsServer:server_instance = (options === null)
+    const open = function transmit_serverStart_open(options:transmit_tlsOptions):void {
+        const wsServer:core_server_instance = (options === null)
                 // options are of type TlsOptions
                 ? node.net.createServer()
                 : node.tls.createServer({
@@ -22,46 +22,57 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
             secureType:"open"|"secure" = (options === null)
                 ? "open"
                 : "secure",
-            complete = function transmit_server_start_complete(id:string):void {
+            complete = function transmit_serverStart_open_complete(id:string):void {
                 count = count + 1;
-                if (callback !== null && callback !== undefined && ((vars.servers[id].config.encryption === "both" && count > 1) || vars.servers[id].config.encryption !== "both")) {
+                if (callback !== null && callback !== undefined && ((vars.data.servers[id].encryption === "both" && count > 1) || vars.data.servers[id].encryption !== "both")) {
                     callback(id);
                 }
             },
-            listenerCallback = function transmit_server_start_listenerCallback():void {
+            listenerCallback = function transmit_serverStart_open_listenerCallback():void {
                 // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                const serverItem:server_instance = this,
+                const serverItem:core_server_instance = this,
                     address:node_net_AddressInfo = serverItem.address() as node_net_AddressInfo,
                     secure:"open"|"secure" = (serverItem.secure === true)
                         ? "secure"
                         : "open";
                 vars.server_meta[serverItem.id].server[secure] = serverItem;
-                vars.servers[serverItem.id].status[secure] = address.port;
+                if (vars.data_meta.server_ports[serverItem.id] === undefined) {
+                    vars.data_meta.server_ports[serverItem.id] = {
+                        open: 0,
+                        secure: 0
+                    };
+                }
+                vars.data_meta.server_ports[serverItem.id][secure] = address.port;
                 log.application({
                     error: null,
-                    message: `Server ${serverItem.id} - ${secure} came online at port ${address.port}.`,
+                    message: `${secure.capitalize()} server came online at port ${address.port}.`,
+                    origin: id,
                     section: "servers-web",
                     status: "informational",
                     time: Date.now()
                 });
                 broadcast(vars.environment.dashboard_id, "dashboard", {
-                    data: vars.servers,
-                    service: "dashboard-server"
+                    data: {
+                        ports_used: vars.data_meta.server_ports,
+                        servers: vars.data.servers
+                    },
+                    service: "dashboard-server-update"
                 });
                 complete(serverItem.id);
             },
-            server_error = function transmit_server_start_serverError(ser:node_error):void {
+            server_error = function transmit_serverStart_open_serverError(ser:node_error):void {
                 // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                const serverItem:server_instance = this,
+                const serverItem:core_server_instance = this,
                     secure:"open"|"secure" = (serverItem.secure === true)
                         ? "secure"
                         : "open",
                     message:string = (ser !== null && ser !== undefined && ser.code === "EADDRINUSE")
-                        ? `Port conflict on port ${vars.servers[serverItem.id].config.ports[secure]} of ${secure} server named ${serverItem.id}.`
-                        : `Server ${serverItem.id} - ${secure} went offline.  Was listening on port ${vars.servers[serverItem.id].config.ports[secure]}.`;
+                        ? `Port conflict on port ${vars.data.servers[serverItem.id].ports[secure]} of ${secure} server.`
+                        : `${secure.capitalize()} went offline.  Was listening on port ${vars.data.servers[serverItem.id].ports[secure]}.`;
                 log.application({
                     error: ser,
                     message: message,
+                    origin: id,
                     section: "servers-web",
                     status: "error",
                     time: Date.now()
@@ -75,8 +86,8 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
         wsServer.id = id;
         wsServer.on("error", server_error);
         wsServer.on("close", server_error);
-        if (vars.servers[wsServer.id] !== undefined && options !== null) {
-            vars.servers[wsServer.id].certs = options.options;
+        if (vars.data.servers[wsServer.id] !== undefined && options !== null) {
+            vars.data_meta.server_certs[wsServer.id] = options.options;
         }
 
         // insecure connection listener
@@ -86,13 +97,13 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
 
         // secure connection listener
         wsServer.listen({
-            port: vars.servers[id].config.ports[secureType]
+            port: vars.data.servers[id].ports[secureType]
         }, listenerCallback);
     };
 
     // create default structures
-    if (Array.isArray(vars.servers[id].config.domain_local) === false) {
-        vars.servers[id].config.domain_local = [];
+    if (Array.isArray(vars.data.servers[id].domain_local) === false) {
+        vars.data.servers[id].domain_local = [];
     }
     if (vars.server_meta[id] === undefined) {
         vars.server_meta[id] = {
@@ -107,18 +118,18 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
         };
     }
 
-    if (vars.servers[id].config.encryption === "open") {
-        if (vars.servers[id].config.single_socket === true || vars.servers[id].config.temporary === true) {
+    if (vars.data.servers[id].encryption === "open") {
+        if (vars.data.servers[id].single_socket === true || vars.data.servers[id].temporary === true) {
             file.remove({
-                callback: function transmit_server_readCerts_starterOpen():void {
-                    start(null);
+                callback: function transmit_serverStart_readCerts_starterOpen():void {
+                    open(null);
                 },
                 exclusions: null,
                 location: vars.path.servers + id,
                 section: "servers-web"
             });
         } else {
-            start(null);
+            open(null);
         }
     } else {
         // for TLS must read the cert chain first
@@ -139,23 +150,24 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
             },
             certCheck = function utilities_readCerts_certCheck():void {
                 if (https.fileFlag.ca === true && https.fileFlag.crt === true && https.fileFlag.key === true) {
-                    const starter = function transmit_server_readCerts_starterSecure():void {
-                        if (vars.servers[id].config.encryption === "both") {
+                    const starter = function transmit_serverStart_readCerts_starterSecure():void {
+                        if (vars.data.servers[id].encryption === "both") {
                             // starts server without TLS certs for non-TLS server
-                            start(null);
+                            open(null);
                         }
-                        start(https);
+                        open(https);
                     };
                     if (https.options.ca === "" || https.options.cert === "" || https.options.key === "") {
                         log.application({
                             error: new Error(),
-                            message: `Required certificate files are missing for server ${vars.servers[id].config.name}.`,
+                            message: "Required certificate files are missing for server.",
+                            origin: id,
                             section: "servers-web",
                             status: "error",
                             time: Date.now()
                         });
                     }
-                    if (vars.servers[id].config.single_socket === true || vars.servers[id].config.temporary === true) {
+                    if (vars.data.servers[id].single_socket === true || vars.data.servers[id].temporary === true) {
                         file.remove({
                             callback: starter,
                             exclusions: null,
@@ -167,11 +179,11 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
                     }
                 }
             },
-            certRead = function transmit_server_certRead(certType:type_certKey):void {
+            certRead = function transmit_serverStart_certRead(certType:type_certKey):void {
                 const location:string = (certType === "ca")
                     ? `${certLocation + caName}.crt`
                     : `${certLocation + certName}.${certType}`;
-                node.fs.readFile(location, "utf8", function transmit_server_certRead_readFile(fileError:node_error, fileData:string):void {
+                node.fs.readFile(location, "utf8", function transmit_serverStart_certRead_readFile(fileError:node_error, fileData:string):void {
                     https.fileFlag[certType] = true;
                     if (fileError === null) {
                         if (certType === "crt") {
@@ -183,11 +195,11 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
                     certCheck();
                 });
             },
-            certStat = function transmit_server_certStat(certType:type_certKey):void {
+            certStat = function transmit_serverStart_certStat(certType:type_certKey):void {
                 const location:string = (certType === "ca")
                     ? `${certLocation + caName}.crt`
                     : `${certLocation + certName}.${certType}`;
-                node.fs.stat(location, function transmit_server_certStat_stat(statError:node_error):void {
+                node.fs.stat(location, function transmit_serverStart_certStat_stat(statError:node_error):void {
                     if (statError === null) {
                         certRead(certType);
                     } else {
@@ -203,4 +215,4 @@ const server = function transmit_server(id:string, callback:(name:string) => voi
     }
 };
 
-export default server;
+export default server_start;

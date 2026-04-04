@@ -74,7 +74,7 @@ declare global {
 
     interface config_hash {
         algorithm: string;
-        callback: (hashOutput:hash_output) => void;
+        callback: (hashOutput:core_hash_output) => void;
         digest: "base64-output" | "base64" | "hex";
         hash_input_type: type_hash_input;
         section: type_dashboard_sections;
@@ -94,6 +94,7 @@ declare global {
     interface config_log {
         error: node_childProcess_ExecException | node_error | TypeError;
         message: string;
+        origin: string;
         section: type_dashboard_sections | "dashboard" | "startup";
         status: type_dashboard_status;
         time: number;
@@ -102,8 +103,8 @@ declare global {
     interface config_os_comparison {
         dict: boolean;
         lists: {
-            new: Array<object> | object;
-            old: Array<object> | object;
+            new: object[] | object;
+            old: object[] | object;
         };
         messages: {
             child: {

@@ -8,7 +8,7 @@ const hashService = function services_hash(socket_data:socket_data, transmit:tra
         return;
     }
     const data:services_hash = socket_data.data as services_hash,
-        callback = function hashService_callback(output:hash_output):void {
+        callback = function hashService_callback(output:core_hash_output):void {
             data.size = output.size;
             data.value = output.hash;
             send({

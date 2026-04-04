@@ -293,7 +293,9 @@ declare global {
             resize: () => void;
         };
         nodes: {
+            count: HTMLElement;
             list: HTMLElement;
+            total: HTMLElement;
         };
     }
 

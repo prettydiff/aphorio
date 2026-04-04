@@ -2,7 +2,7 @@
 import log from "./core/log.ts";
 import node from "./core/node.ts";
 import screenshots from "./utilities/screenshots.ts";
-import start_server from "./utilities/start_server.ts";
+import start_application from "./utilities/start_application.ts";
 import vars from "./core/vars.ts";
 
 vars.path.sep = node.path.sep;
@@ -56,8 +56,6 @@ vars.path.sep = node.path.sep;
         screenshots();
     } else if (process.argv.includes("test") === true || process.argv.includes("--test") === true) {
         vars.test.testing = true;
-        start_server(process_path, true);
-    } else {
-        start_server(process_path, false);
     }
+    start_application(process_path, vars.test.testing);
 }

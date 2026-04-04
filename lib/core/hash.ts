@@ -3,7 +3,7 @@ import log from "./log.ts";
 import node from "./node.ts";
 
 const hash = function utilities_hash(config:config_hash):void {
-    const hashOutput:hash_output = {
+    const hashOutput:core_hash_output = {
         filePath: (config.hash_input_type === "file" && typeof config.source === "string")
             ? config.source
             : "",
@@ -18,6 +18,7 @@ const hash = function utilities_hash(config:config_hash):void {
             log.application({
                 error: err,
                 message: output,
+                origin: "core/hash.ts",
                 section: config.section,
                 status: "error",
                 time: Date.now()

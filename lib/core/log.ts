@@ -2,12 +2,16 @@
 import broadcast from "../transmit/broadcast.ts";
 import vars from "./vars.ts";
 
-const log:log = {
+const log:core_module_log = {
     application: function utilities_logApplication(config:config_log):void {
         if (vars.environment.features["application-logs"] === true) {
-            vars.environment.logs.push(config);
+            vars.data.logs.push(config);
+            vars.environment.logs.total = vars.environment.logs.total + 1;
             broadcast(vars.environment.dashboard_id, "dashboard", {
-                data: config,
+                data: {
+                    log: config,
+                    total: vars.environment.logs.total
+                },
                 service: "dashboard-log"
             });
         }
