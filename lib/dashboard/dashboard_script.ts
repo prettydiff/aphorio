@@ -1583,10 +1583,12 @@ const ui = function ui():void {
                                         : event.target as HTMLElement,
                                     player:HTMLElement = target.getAncestor("div", "tag"),
                                     buffer:HTMLElement = player.getElementsByClassName("buffer")[0] as HTMLElement;
-                                buffer.textContent = (typeof event === "string")
-                                    ? event
-                                    : JSON.stringify(event);
-                                buffer.style.display = "block";
+                                if (buffer !== undefined) {
+                                    buffer.textContent = (typeof event === "string")
+                                        ? event
+                                        : JSON.stringify(event);
+                                    buffer.style.display = "block";
+                                }
                                 
                             };
                             if (name === "video") {
@@ -2890,7 +2892,8 @@ const ui = function ui():void {
                 },
                 receive: null,
                 row: function dashboard_sections_socketsApplicationTCP_row(record_item:type_lists, tr:HTMLElement):void {
-                    const record:services_socket_application_tcp = record_item as services_socket_application_tcp;
+                    const record:services_socket_application_tcp = record_item as services_socket_application_tcp,
+                        now:number = Date.now();
                     dashboard.tables.cell(tr, record["server_id"], "id");
                     dashboard.tables.cell(tr, record["server_name"], null);
                     dashboard.tables.cell(tr, record["hash"], null);
@@ -2903,7 +2906,7 @@ const ui = function ui():void {
                     dashboard.tables.cell(tr, record["address"].remote.address, null);
                     dashboard.tables.cell(tr, String(record["address"].remote.port), null);
                     dashboard.tables.cell(tr, record["userAgent"], null);
-                    dashboard.tables.cell(tr, BigInt(Date.now() * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
+                    dashboard.tables.cell(tr, BigInt(now * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
                 },
                 sort_name: ["server_id", "server_name", "hash", "type", "role", "proxy", "encrypted", "address-local-address", "address-local-port", "address-remote-address", "address-remote-port", "userAgent", "time"],
                 time: 0n
