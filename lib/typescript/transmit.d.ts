@@ -118,14 +118,6 @@ interface transmit_udp extends node_dgram_Socket {
     type: "ipv4" | "ipv6";
 }
 
-interface transmit_udp_module {
-    closed: () => void;
-    create: (socket_data:socket_data, callback:(socket:transmit_udp) => void) => void;
-    handler: (socket:transmit_udp, handler:(message:Buffer) => void) => void;
-    list: (item:services_udp_socket, action:"add"|"remove", now:number) => void;
-    send: (socket:transmit_udp, message_item:Array<number>|Buffer|bigint|number|string) => void;
-}
-
 interface websocket_client extends node_tls_TLSSocket {
     addresses: transmit_addresses_socket;
     buffer: Buffer;

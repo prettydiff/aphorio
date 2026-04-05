@@ -285,7 +285,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                         .replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`)
                                         .replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
                                 }
-                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time.toString()}};(${script}(${core.toString()}));`;
+                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time_elapsed.toString()}};(${script}(${core.toString()}));`;
                                 vars.environment.dashboard_page = vars.environment.dashboard_page
                                     .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard`)
                                     .replace("replace_javascript", total_script)
@@ -621,7 +621,7 @@ const start_application = function utilities_startApplication(process_path:strin
             const label:string = (list === "task")
                 ? tasks[flag].label
                 : prerequisite_tasks[flag].label;
-            log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time(vars.environment.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${label}`]);
+            log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time_elapsed(vars.environment.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${label}`]);
         },
         complete_tasks = function utilities_startApplication_completeTasks(flag:type_start_primary_tasks):void {
             log_task("task", flag);
@@ -870,10 +870,10 @@ const start_application = function utilities_startApplication(process_path:strin
             .replace(/"/g, "\\\"")}",`)
             .replace(/\(\s*\)/, "(core)");
 
-    BigInt.prototype.time = universal.time;
+    BigInt.prototype.time_elapsed = universal.time_elapsed;
     Number.prototype.commas = universal.commas;
     Number.prototype.dateTime = universal.dateTime;
-    Number.prototype.time = universal.time;
+    Number.prototype.time_elapsed = universal.time_elapsed;
     String.prototype.bytes = universal.bytes;
     String.prototype.bytes_big = universal.bytes_big;
     String.prototype.capitalize = universal.capitalize;

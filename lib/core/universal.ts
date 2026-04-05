@@ -140,7 +140,7 @@ const utilities:core_module_universal = {
         return output.join(" ");
 
     },
-    time: function core_universalTime(start?:bigint):string {
+    time_elapsed: function core_universalTime(start?:bigint):string {
         const elapsed:boolean = (typeof start === "bigint"),
             number:bigint = (elapsed === true)
                 // eslint-disable-next-line no-restricted-syntax
