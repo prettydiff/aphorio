@@ -140,11 +140,11 @@ const utilities:core_module_universal = {
         return output.join(" ");
 
     },
-    time_elapsed: function core_universalTime(start?:bigint):string {
+    time_elapsed: function core_universalTimeElapsed(start?:bigint):string {
         const elapsed:boolean = (typeof start === "bigint"),
             number:bigint = (elapsed === true)
                 // eslint-disable-next-line no-restricted-syntax
-                ? this
+                ? BigInt(this)
                 // eslint-disable-next-line no-restricted-syntax
                 : BigInt(Math.floor(this as number * 1e9)),
             numberString = function core_universalTime_numberString(numb:bigint):string {

@@ -8,7 +8,7 @@ import vars from "../core/vars.ts";
 // cspell: words vipsheader, vipsthumbnail
 
 const screenshots = function screenshots():void {
-    BigInt.prototype.time = universal.time;
+    BigInt.prototype.time_elapsed = universal.time_elapsed;
     String.prototype.capitalize = universal.capitalize;
     const path_vips:string = "C:\\Users\\info\\vips-dev-8.18\\bin\\",
         dir_config:config_directory = {
@@ -160,7 +160,7 @@ td button{padding:0}
                                                         formal_name:string = paths[paths.length - 1].replace(/dashboard_v\d+-\d+-\d+_/, "").replace(/\.png/, "").replace(/_/g, " "),
                                                         section_name:string = formal_name.replace(/ \d+$/, "").capitalize();
                                                     let section_new:boolean = false;
-                                                    log.shell([`[${process.hrtime.bigint().time(vars.environment.start_time)}] Thumbnail written to ${path_thumb}`]);
+                                                    log.shell([`[${process.hrtime.bigint().time_elapsed(vars.environment.start_time)}] Thumbnail written to ${path_thumb}`]);
                                                     if (paths[paths.length - 2] !== section) {
                                                         if (section !== "") {
                                                             html.push("</ul><span class=\"clear\"></span></div></div>");
@@ -223,7 +223,7 @@ td button{padding:0}
                     html.push("</script></body></html>");
                     file.write({
                         callback: function screenshots_directory_increment_write(identifier:string):void {
-                            log.shell([`[${process.hrtime.bigint().time(vars.environment.start_time)}] HTML written to ${identifier}`]);
+                            log.shell([`[${process.hrtime.bigint().time_elapsed(vars.environment.start_time)}] HTML written to ${identifier}`]);
                         },
                         contents: html.join("\n"),
                         identifier: `${vars.path.project}screenshots${vars.path.sep}index.html`,

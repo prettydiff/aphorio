@@ -22,7 +22,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         list:test_counts = vars.test.counts[name],
         exit:boolean = (vars.options["no-exit"] === false);
     summary.push(`${vars.text.underline}Testing complete for list ${vars.text.cyan + name + vars.text.none}`);
-    summary.push(`    ${vars.text.angry}*${vars.text.none} List time                : ${vars.text.cyan + list.time_end.time(list.time_start) + vars.text.none}`);
+    summary.push(`    ${vars.text.angry}*${vars.text.none} List time                : ${vars.text.cyan + list.time_end.time_elapsed(list.time_start) + vars.text.none}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} List tests               : ${pad_right(18, list.tests_total.commas())}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} List assertions          : ${pad_right(18, list.assertions.commas())}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} List skipped tests       : ${pad_right(18, list.tests_skipped.commas())}`);
@@ -38,7 +38,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         summary.push("___________________________________________________");
         summary.push("");
         summary.push(`${vars.text.underline}Totals from all test lists${vars.text.none}`);
-        summary.push(`    ${vars.text.angry}*${vars.text.none} Total time               : ${vars.text.cyan + vars.test.total_time_end.time(vars.test.total_time_start) + vars.text.none}`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} Total time               : ${vars.text.cyan + vars.test.total_time_end.time_elapsed(vars.test.total_time_start) + vars.text.none}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total lists              : ${pad_right(18, vars.test.total_lists.commas())}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total tests              : ${pad_right(18, vars.test.total_tests.commas())}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total assertions         : ${pad_right(18, vars.test.total_assertions.commas())}`);

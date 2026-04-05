@@ -201,7 +201,7 @@ declare global {
         receive: (socket_data:socket_data) => void;
         row: (record:type_lists, tr:HTMLElement) => void;
         sort_name: string[];
-        time: bigint;
+        time: number;
     }
 
     interface module_os_nodes {
@@ -340,7 +340,7 @@ declare global {
         events: {
             update: () => void;
         };
-        time: bigint;
+        time: number;
     }
 
     interface section_dns_query extends module_sections {
@@ -385,7 +385,7 @@ declare global {
             status: HTMLElement;
             summary: HTMLElement;
         };
-        time: bigint;
+        time: number;
         tools: {
             media_time: (input:boolean|number|string) => string;
         };
@@ -411,7 +411,7 @@ declare global {
             time: HTMLElement;
             type: HTMLInputElement;
         };
-        time: bigint;
+        time: number;
     }
 
     interface section_http_test extends module_sections {
@@ -443,7 +443,7 @@ declare global {
             update_text: HTMLElement;
         };
         receive: (socket_data:socket_data) => void;
-        time: bigint;
+        time: number;
     }
 
     interface section_os extends module_sections {
@@ -451,7 +451,7 @@ declare global {
             update: () => void;
         };
         nodes_os: module_os_nodes;
-        time: bigint;
+        time: number;
     }
 
     interface section_ports_application extends module_list {

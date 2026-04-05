@@ -465,7 +465,7 @@ const test_runner:test_runner = {
             }
         },
         time: function test_runner_toolsTime():string {
-            return `${vars.text.cyan}${process.hrtime.bigint().time(vars.test.counts[vars.test.list.name].time_start)}${vars.text.none}`;
+            return `${vars.text.cyan}${process.hrtime.bigint().time_elapsed(vars.test.counts[vars.test.list.name].time_start)}${vars.text.none}`;
         }
     }
 };
