@@ -425,12 +425,12 @@ const core = function core(config:config_core):socket_object {
             Element.prototype.removeClass            = removeClass;
             Element.prototype.removeHighlight        = removeHighlight;
 
-            BigInt.prototype.time                    = universal.time;
+            BigInt.prototype.time_elapsed            = universal.time_elapsed;
             Number.prototype.bytes                   = bytes;
             Number.prototype.bytesLong               = bytesLong;
             Number.prototype.commas                  = universal.commas;
             Number.prototype.dateTime                = universal.dateTime;
-            Number.prototype.time                    = universal.time;
+            Number.prototype.time_elapsed            = universal.time_elapsed;
 
             String.prototype.capitalize              = universal.capitalize;
         };

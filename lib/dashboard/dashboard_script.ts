@@ -1583,7 +1583,9 @@ const ui = function ui():void {
                                         : event.target as HTMLElement,
                                     player:HTMLElement = target.getAncestor("div", "tag"),
                                     buffer:HTMLElement = player.getElementsByClassName("buffer")[0] as HTMLElement;
-                                buffer.textContent = JSON.stringify(event);
+                                buffer.textContent = (typeof event === "string")
+                                    ? event
+                                    : JSON.stringify(event);
                                 buffer.style.display = "block";
                                 
                             };
