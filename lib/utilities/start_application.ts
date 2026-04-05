@@ -285,7 +285,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                         .replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`)
                                         .replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
                                 }
-                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time:${universal.time_elapsed.toString()}};(${script}(${core.toString()}));`;
+                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time_elapsed:${universal.time_elapsed.toString()}};(${script}(${core.toString()}));`;
                                 vars.environment.dashboard_page = vars.environment.dashboard_page
                                     .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard`)
                                     .replace("replace_javascript", total_script)
