@@ -37,6 +37,17 @@ const socket_end = function transmit_socketEnd(error:node_error):void {
         } while (index > 0);
     }
 
+    index = vars.data.sockets_tcp.length;
+    if (index > 0) {
+        do {
+            index = index - 1;
+            if (vars.data.sockets_tcp[index].hash === socket.hash) {
+                vars.data.sockets_tcp.splice(index, 1);
+                break;
+            }
+        } while (index > 0);
+    }
+
     log.application(payload_log);
     socket_list();
 };
