@@ -4,7 +4,7 @@ import { Terminal } from "@xterm/xterm";
 
 declare global {
     interface BigInt {
-        time:(start?:bigint) => string;
+        time_elapsed:(start?:bigint) => string;
     }
 
     interface Document {
@@ -44,7 +44,7 @@ declare global {
         bytesLong: () => string;
         commas: () => string;
         dateTime: (date:boolean, timezone_offset:number) => string;
-        time: (start?:bigint) => string;
+        time_elapsed: (start?:bigint) => string;
     }
 
     interface HTMLAudioElement {

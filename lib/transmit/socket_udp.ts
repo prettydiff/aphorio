@@ -1,10 +1,10 @@
 
-import broadcast from "./broadcast.ts";
 import hash from "../core/hash.ts";
 import node from "../core/node.ts";
+import socket_list_build from "./socket_list_build.ts";
 import vars from "../core/vars.ts";
 
-const socket_udp:transmit_udp_module = {
+const socket_udp:core_module_udp = {
     closed: function transmit_socketUDP_closed():void {
         // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
         const socket:transmit_udp = this;
@@ -18,22 +18,7 @@ const socket_udp:transmit_udp_module = {
                 }
             } while (index > 0);
         }
-        socket_udp.list({
-            address_destination: "",
-            address_source: "",
-            handler: null,
-            hash: socket.hash,
-            multicast_interface: "",
-            multicast_group: "",
-            multicast_membership: "",
-            multicast_source: "",
-            multicast_type: "none",
-            port_destination: null,
-            port_source: null,
-            role: null,
-            time: 0,
-            type: null
-        }, "remove", Date.now());
+        socket_list_build();
     },
     create: function transmit_socketUDP_create(socket_data:socket_data, callback:(socket:transmit_udp) => void):void {
         const data:services_udp_socket = socket_data.data as services_udp_socket,
@@ -89,7 +74,7 @@ const socket_udp:transmit_udp_module = {
                                 socket.on("message", data.handler);
                                 data.handler = null;
                             }
-                            socket_udp.list(data, "add", now);
+                            vars.data.sockets_udp.push(data);
                             if (callback !== null) {
                                 callback(socket);
                             }
@@ -158,31 +143,6 @@ const socket_udp:transmit_udp_module = {
         if (handler !== null) {
             socket.on("message", handler);
         }
-    },
-    list: function transmit_socketUDP_list(item:services_udp_socket, action:"add"|"remove", now:number):void {
-        if (action === "add") {
-            vars.data.sockets_udp.push(item);
-        } else {
-            let index:number = vars.data.sockets_udp.length;
-            if (index > 0) {
-                do {
-                    index = index - 1;
-                    if (vars.data.sockets_udp[index].hash === item.hash) {
-                        vars.data.sockets_udp.splice(index, 1);
-                        break;
-                    }
-                } while (index > 0);
-            }
-        }
-        vars.data_meta.sockets = now;
-        broadcast(vars.environment.dashboard_id, "dashboard", {
-            data: {
-                tcp: vars.data.sockets_tcp,
-                time: vars.data_meta.sockets,
-                udp: vars.data.sockets_udp
-            },
-            service: "dashboard-socket-application"
-        });
     },
     send: function transmit_socketUDP_send(socket:transmit_udp, message_item:Array<number>|Buffer|bigint|number|string):void {
         const message:Buffer = (Buffer.isBuffer(message_item) === true)

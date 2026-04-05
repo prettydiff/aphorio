@@ -133,13 +133,20 @@ interface core_module_statistics {
     data: () => void;
 }
 
+interface core_module_udp {
+    closed: () => void;
+    create: (socket_data:socket_data, callback:(socket:transmit_udp) => void) => void;
+    handler: (socket:transmit_udp, handler:(message:Buffer) => void) => void;
+    send: (socket:transmit_udp, message_item:Array<number>|Buffer|bigint|number|string) => void;
+}
+
 interface core_module_universal {
     bytes: () => number;
     bytes_big: () => bigint;
     capitalize: () => string;
     commas: () => string;
     dateTime: (date:boolean, timeZone_offset:number) => string;
-    time: () => string;
+    time_elapsed: () => string;
 }
 
 interface core_server_child_input {

@@ -2142,17 +2142,17 @@ const ui = function ui():void {
                     dashboard.sections["os-machine"].nodes_os.os.platform.textContent = dashboard.global.payload.os.os.platform;
                     dashboard.sections["os-machine"].nodes_os.os.release.textContent = dashboard.global.payload.os.os.release;
                     dashboard.sections["os-machine"].nodes_os.os.type.textContent = dashboard.global.payload.os.os.type;
-                    dashboard.sections["os-machine"].nodes_os.os.uptime.textContent = dashboard.global.payload.os.os.uptime.time();
+                    dashboard.sections["os-machine"].nodes_os.os.uptime.textContent = dashboard.global.payload.os.os.uptime.time_elapsed();
                     dashboard.sections["os-machine"].nodes_os.process.admin.textContent = dashboard.global.payload.os.process.admin.toString();
                     dashboard.sections["os-machine"].nodes_os.process.arch.textContent = dashboard.global.payload.os.process.arch;
                     dashboard.sections["os-machine"].nodes_os.process.argv.textContent = JSON.stringify(dashboard.global.payload.os.process.argv);
-                    dashboard.sections["os-machine"].nodes_os.process.cpuSystem.textContent = dashboard.global.payload.os.process.cpuSystem.time();
-                    dashboard.sections["os-machine"].nodes_os.process.cpuUser.textContent = dashboard.global.payload.os.process.cpuUser.time();
+                    dashboard.sections["os-machine"].nodes_os.process.cpuSystem.textContent = dashboard.global.payload.os.process.cpuSystem.time_elapsed();
+                    dashboard.sections["os-machine"].nodes_os.process.cpuUser.textContent = dashboard.global.payload.os.process.cpuUser.time_elapsed();
                     dashboard.sections["os-machine"].nodes_os.process.cwd.textContent = dashboard.global.payload.os.process.cwd;
                     dashboard.sections["os-machine"].nodes_os.process.platform.textContent = dashboard.global.payload.os.process.platform;
                     dashboard.sections["os-machine"].nodes_os.process.pid.textContent = String(dashboard.global.payload.os.process.pid);
                     dashboard.sections["os-machine"].nodes_os.process.ppid.textContent = String(dashboard.global.payload.os.process.ppid);
-                    dashboard.sections["os-machine"].nodes_os.process.uptime.textContent = dashboard.global.payload.os.process.uptime.time();
+                    dashboard.sections["os-machine"].nodes_os.process.uptime.textContent = dashboard.global.payload.os.process.uptime.time_elapsed();
                     dashboard.sections["os-machine"].nodes_os.process.memoryProcess.textContent = `${dashboard.global.payload.os.process.memory.rss.bytesLong()}, ${((dashboard.global.payload.os.process.memory.rss / dashboard.global.payload.os.machine.memory.total) * 100).toFixed(2)}%`;
                     dashboard.sections["os-machine"].nodes_os.process.memoryV8.textContent = dashboard.global.payload.os.process.memory.V8.bytesLong();
                     dashboard.sections["os-machine"].nodes_os.process.memoryExternal.textContent = dashboard.global.payload.os.process.memory.external.bytesLong();
@@ -2293,11 +2293,11 @@ const ui = function ui():void {
                     dashboard.sections["os-machine"].nodes_os.memory.free.textContent = `${dashboard.global.payload.os.machine.memory.free.bytesLong()}, ${((dashboard.global.payload.os.machine.memory.free / dashboard.global.payload.os.machine.memory.total) * 100).toFixed(2)}%`;
                     dashboard.sections["os-machine"].nodes_os.memory.used.textContent = `${(dashboard.global.payload.os.machine.memory.total - dashboard.global.payload.os.machine.memory.free).bytesLong()}, ${(((dashboard.global.payload.os.machine.memory.total - dashboard.global.payload.os.machine.memory.free) / dashboard.global.payload.os.machine.memory.total) * 100).toFixed(2)}%`;
                     dashboard.sections["os-machine"].nodes_os.memory.total.textContent = `${dashboard.global.payload.os.machine.memory.total.bytesLong()}, 100%`;
-                    dashboard.sections["os-machine"].nodes_os.os.uptime.textContent = dashboard.global.payload.os.os.uptime.time();
+                    dashboard.sections["os-machine"].nodes_os.os.uptime.textContent = dashboard.global.payload.os.os.uptime.time_elapsed();
                     dashboard.sections["os-machine"].nodes_os.process.admin.textContent = dashboard.global.payload.os.process.admin.toString();
-                    dashboard.sections["os-machine"].nodes_os.process.cpuSystem.textContent = dashboard.global.payload.os.process.cpuSystem.time();
-                    dashboard.sections["os-machine"].nodes_os.process.cpuUser.textContent = dashboard.global.payload.os.process.cpuUser.time();
-                    dashboard.sections["os-machine"].nodes_os.process.uptime.textContent = dashboard.global.payload.os.process.uptime.time();
+                    dashboard.sections["os-machine"].nodes_os.process.cpuSystem.textContent = dashboard.global.payload.os.process.cpuSystem.time_elapsed();
+                    dashboard.sections["os-machine"].nodes_os.process.cpuUser.textContent = dashboard.global.payload.os.process.cpuUser.time_elapsed();
+                    dashboard.sections["os-machine"].nodes_os.process.uptime.textContent = dashboard.global.payload.os.process.uptime.time_elapsed();
                     dashboard.sections["os-machine"].nodes_os.process.memoryProcess.textContent = `${dashboard.global.payload.os.process.memory.rss.bytesLong()}, ${((dashboard.global.payload.os.process.memory.rss / dashboard.global.payload.os.machine.memory.total) * 100).toFixed(2)}%`;
                     dashboard.sections["os-machine"].nodes_os.process.memoryV8.textContent = dashboard.global.payload.os.process.memory.V8.bytesLong();
                     dashboard.sections["os-machine"].nodes_os.process.memoryExternal.textContent = dashboard.global.payload.os.process.memory.external.bytesLong();
@@ -2352,8 +2352,8 @@ const ui = function ui():void {
                 row: function dashboard_sections_processes_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_proc = record_item as os_proc,
                         timeValue:string = (record.time === null)
-                            ? (0).time()
-                            : record.time.time(),
+                            ? (0).time_elapsed()
+                            : record.time.time_elapsed(),
                         time:string = (dashboard.global.payload.os.process.platform === "win32")
                             ? timeValue.replace(/000$/, "")
                             : timeValue.replace(/\.0+$/, ""),
@@ -2901,7 +2901,7 @@ const ui = function ui():void {
                     dashboard.tables.cell(tr, record["address"].remote.address, null);
                     dashboard.tables.cell(tr, String(record["address"].remote.port), null);
                     dashboard.tables.cell(tr, record["userAgent"], null);
-                    dashboard.tables.cell(tr, BigInt(Date.now() * 1e6).time(BigInt(record["time"] * 1e6)), String(record["time"]));
+                    dashboard.tables.cell(tr, BigInt(Date.now() * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
                 },
                 sort_name: ["server_id", "server_name", "hash", "type", "role", "proxy", "encrypted", "address-local-address", "address-local-port", "address-remote-address", "address-remote-port", "userAgent", "time"],
                 time: 0n
@@ -2934,7 +2934,7 @@ const ui = function ui():void {
                     dashboard.tables.cell(tr, record["multicast_interface"], null);
                     dashboard.tables.cell(tr, record["multicast_membership"], null);
                     dashboard.tables.cell(tr, record["multicast_source"], null);
-                    dashboard.tables.cell(tr, BigInt(Date.now() * 1e6).time(BigInt(record["time"] * 1e6)), String(record["time"]));
+                    dashboard.tables.cell(tr, BigInt(Date.now() * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
                 },
                 sort_name: ["hash", "address_source", "port_source", "address_destination", "port_destination", "role", "multicast_group", "multicast_interface", "multicast_membership", "multicast_source", "time"],
                 time: 0n
@@ -3189,7 +3189,7 @@ const ui = function ui():void {
                         dashboard.sections["statistics"].nodes.records.value = stats.records.toString();
                     }
                     dashboard.sections["statistics"].nodes.update.textContent = stats.now.dateTime(true, dashboard.global.payload.timeZone_offset);
-                    dashboard.sections["statistics"].nodes.duration.textContent = (stats.duration / 1e9).time();
+                    dashboard.sections["statistics"].nodes.duration.textContent = (stats.duration / 1e9).time_elapsed();
                     if (dashboard.sections["statistics"].nodes.graph_display.value === "individual") {
                         dashboard.sections["statistics"].tools.graph_individual(false);
                     } else if (dashboard.sections["statistics"].nodes.graph_display.value === "composite") {
@@ -5241,7 +5241,7 @@ const ui = function ui():void {
                 main: document.getElementsByTagName("main")[0]
             },
             performance_get: function dashboard_utility_performance(section:type_dashboard_sections):string {
-                return BigInt(Math.round(performance.now() * 1e6)).time(dashboard.sections[section as "file-system"].time).replace(/000$/, "");
+                return BigInt(Math.round(performance.now() * 1e6)).time_elapsed(dashboard.sections[section as "file-system"].time).replace(/000$/, "");
             },
             performance_set: function dashboard_utility_performance(section:type_dashboard_sections):void {
                 dashboard.sections[section as "file-system"].time = BigInt(Math.round(performance.now() * 1e6));

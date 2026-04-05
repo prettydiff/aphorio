@@ -1,92 +1,9 @@
 
 import broadcast from "../transmit/broadcast.ts";
-import socket_end from "../transmit/socket_end.ts";
 import vars from "../core/vars.ts";
 
-const socket_list = function services_socketList(extension?:() => void):void {
-    const keys:string[] = Object.keys(vars.data.servers),
-        len:number = keys.length,
-        tcp:services_socket_application_tcp[] = [],
-        socket_health = function services_socketList_socketHealth(server_id:string, encryption:"open"|"secure"):void {
-            const destroy = function services_socketList_socketHealth_destroy(socket:websocket_client):void {
-                const server_id:string = socket.server;
-                let index:number = vars.server_meta[server_id].sockets[encryption].length;
-                socket.status = "end";
-                socket.off("close", socket_end);
-                socket.off("end", socket_end);
-                socket.off("error", socket_end);
-                socket.destroy();
-                vars.stats.net_in = vars.stats.net_in + socket.bytesRead;
-                vars.stats.net_out = vars.stats.net_out + socket.bytesWritten;
-                if (index > 0) {
-                    do {
-                        index = index - 1;
-                        if (vars.server_meta[server_id].sockets[encryption][index].hash === socket.hash) {
-                            vars.server_meta[server_id].sockets[encryption].splice(index, 1);
-                            break;
-                        }
-                    } while (index > 0);
-                }
-                index = vars.data.sockets_tcp.length;
-                if (index > 0) {
-                    do {
-                        index = index - 1;
-                        if (vars.data.sockets_tcp[index].hash === socket.hash) {
-                            vars.data.sockets_tcp.splice(index, 1);
-                            break;
-                        }
-                    } while (index > 0);
-                }
-            };
-            let index_list:number = (vars.server_meta[server_id].sockets[encryption] === undefined)
-                    ? 0
-                    : vars.server_meta[server_id].sockets[encryption].length,
-                socket_item:websocket_client = null;
-            if (index_list > 0) {
-                do {
-                    index_list = index_list - 1;
-                    // find the actual socket from the socket store
-                    socket_item = vars.server_meta[server_id].sockets[encryption][index_list];
-                    if (socket_item !== undefined && (socket_item.destroyed === true || socket_item.closed === true)) {
-                        if (socket_item.proxy !== null) {
-                            socket_item.unpipe(socket_item.proxy);
-                            destroy(socket_item.proxy);
-                        }
-                        destroy(socket_item);
-                    }
-                } while (index_list > 0);
-            }
-        };
-    let index_servers:number = 0,
-        index_sockets:number = 0,
-        len_socket:number = 0;
-    if (typeof extension === "function") {
-        extension();
-    }
-
-    // check the health of stored sockets
-    do {
-        socket_health(keys[index_servers], "open");
-        socket_health(keys[index_servers], "secure");
-        index_servers = index_servers + 1;
-    } while (index_servers < len);
-
-    // iterate through the servers
-    index_servers = 0;
-    do {
-        len_socket = vars.data.sockets_tcp.length;
-        index_sockets = 0;
-        // iterate through the sockets on each server
-        if (len_socket > 0) {
-            do {
-                tcp.push(vars.data.sockets_tcp[index_sockets]);
-                index_sockets = index_sockets + 1;
-            } while (index_sockets < len_socket);
-        }
-        index_servers = index_servers + 1;
-    } while (index_servers < len);
+const socket_list = function services_socketList():void {
     vars.data_meta.sockets = Date.now();
-    vars.data.sockets_tcp = tcp;
     broadcast(vars.environment.dashboard_id, "dashboard", {
         data: {
             tcp: vars.data.sockets_tcp,

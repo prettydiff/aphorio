@@ -1,6 +1,6 @@
 
 import log from "../core/log.ts";
-import socket_list from "../services/socket_list.ts";
+import socket_list_build from "../transmit/socket_list_build.ts";
 import vars from "../core/vars.ts";
 
 const socket_end = function transmit_socketEnd(error:node_error):void {
@@ -13,9 +13,7 @@ const socket_end = function transmit_socketEnd(error:node_error):void {
             ? `[${socket.addresses.remote.address}]:${socket.addresses.remote.port}`
             : `${socket.addresses.remote.address}:${socket.addresses.remote.port}`,
         payload_log:config_log = {
-            error: (typeof error === "boolean")
-                ? new Error()
-                : error,
+            error: error,
             message: `Socket type ${socket.type} with id ${socket.hash} from ${address_local} to ${address_remote} ended.`,
             origin: socket.server,
             section: "sockets-application-tcp",
@@ -27,6 +25,7 @@ const socket_end = function transmit_socketEnd(error:node_error):void {
             : "open";
     let index:number = vars.server_meta[socket.server].sockets[encryption].length;
 
+    // remove actual socket object from storage
     if (index > 0) {
         do {
             index = index - 1;
@@ -37,6 +36,7 @@ const socket_end = function transmit_socketEnd(error:node_error):void {
         } while (index > 0);
     }
 
+    // remove socket data
     index = vars.data.sockets_tcp.length;
     if (index > 0) {
         do {
@@ -49,7 +49,7 @@ const socket_end = function transmit_socketEnd(error:node_error):void {
     }
 
     log.application(payload_log);
-    socket_list();
+    socket_list_build();
 };
 
 export default socket_end;
