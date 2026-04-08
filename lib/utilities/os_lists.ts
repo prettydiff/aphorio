@@ -139,20 +139,63 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         : parts.length,
                     vLen:number = (volumes === null)
                         ? 0
-                        : volumes.length;
+                        : volumes.length,
+                    linux_partitions = function utilities_os_builderDisk_linuxPartitions(source:os_disk_posix|os_disk_posix_partition, container:os_disk_partition[], diskName:string):void {
+                        const child_len = (source.children === undefined || source.children === null)
+                            ? 0
+                            : source.children.length;
+                        let child:os_disk_posix_partition = null,
+                            pIndex:number = 0;
+                        if (child_len > 0) {
+                            let part:os_disk_partition = null;
+                            do {
+                                child = source.children[pIndex];
+                                part = {
+                                    active: (child.mountpoint !== null),
+                                    bootable: (child.partflags === "0x80"),
+                                    children: [],
+                                    diskId: disk.id,
+                                    diskName: diskName,
+                                    file_system: child.fstype,
+                                    hidden: (child.mountpoint !== null && child.mountpoint.charAt(0) !== "/"),
+                                    id: child.uuid,
+                                    path: child.path,
+                                    read_only: child.ro,
+                                    size_free: (child.fsavail === null)
+                                        ? 0
+                                        : child.fsavail,
+                                    size_free_percent: (child.fsavail === null || child.fsavail === 0 || child.fssize === null || child.fssize === 0)
+                                        ? 0
+                                        : Math.round((child.fsavail / child.fssize) * 100),
+                                    size_total: (child.fssize === null)
+                                        ? 0
+                                        : child.fssize,
+                                    size_used: (child.fsused === null)
+                                        ? 0
+                                        : child.fsused,
+                                    size_used_percent: (child.fsused === null || child.fsused === 0 || child.fssize === null || child.fssize === 0)
+                                        ? 0
+                                        : Math.round((child.fsused / child.fssize) * 100),
+                                    type: (child.type === "part")
+                                        ? child.parttypename
+                                        : child.type
+                                };
+                                container.push(part);
+                                utilities_os_builderDisk_linuxPartitions(child, part.children, diskName);
+                                pIndex = pIndex + 1;
+                            } while (pIndex < child_len);
+                        }
+                    };
                 let index:number = 0,
-                    pIndex:number = 0,
                     vIndex:number = 0,
                     id:string = "",
                     vol:string = "",
-                    part:os_disk_partition = null,
-                    disk:os_disk = null,
-                    child:os_disk_posix_partition = null,
-                    child_len:number = 0;
+                    disk:os_disk = null;
                 if (len > 0 && ((win32 === true && pLen > 0 && vLen > 0) || win32 === false)) {
+                    let pIndex:number = 0;
                     do {
-                        pIndex = 0;
                         if (win32 === true) {
+                            let part:os_disk_partition = null;
                             disk = {
                                 bus: data_win[index].BusType,
                                 guid: data_win[index].Guid,
@@ -168,6 +211,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                     part = {
                                         active: parts[pIndex].IsActive,
                                         bootable: parts[pIndex].IsBoot,
+                                        children: [],
                                         diskId: id,
                                         diskName: data_win[index].FriendlyName,
                                         file_system: null,
@@ -218,45 +262,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                 serial: data_posix[index].serial,
                                 size_disk: data_posix[index].size
                             };
-                            child_len = (data_posix[index].children === undefined || data_posix[index].children === null)
-                                ? 0
-                                : data_posix[index].children.length;
-                            if (child_len > 0) {
-                                do {
-                                    child = data_posix[index].children[pIndex];
-                                    part = {
-                                        active: (child.mountpoint !== null),
-                                        bootable: (child.partflags === "0x80"),
-                                        diskId: disk.id,
-                                        diskName: data_posix[index].model,
-                                        file_system: child.fstype,
-                                        hidden: (child.mountpoint !== null && child.mountpoint.charAt(0) !== "/"),
-                                        id: child.uuid,
-                                        path: child.path,
-                                        read_only: child.ro,
-                                        size_free: (child.fsavail === null)
-                                            ? 0
-                                            : child.fsavail,
-                                        size_free_percent: (child.fsavail === null || child.fsavail === 0 || child.fssize === null || child.fssize === 0)
-                                            ? 0
-                                            : Math.round((child.fsavail / child.fssize) * 100),
-                                        size_total: (child.fssize === null)
-                                            ? 0
-                                            : child.fssize,
-                                        size_used: (child.fsused === null)
-                                            ? 0
-                                            : child.fsused,
-                                        size_used_percent: (child.fsused === null || child.fsused === 0 || child.fssize === null || child.fssize === 0)
-                                            ? 0
-                                            : Math.round((child.fsused / child.fssize) * 100),
-                                        type: (child.type === "part")
-                                            ? child.parttypename
-                                            : child.type
-                                    };
-                                    disk.partitions.push(part);
-                                    pIndex = pIndex + 1;
-                                } while (pIndex < child_len);
-                            }
+                            linux_partitions(data_posix[index], disk.partitions, data_posix[index].model);
                         }
                         disks.push(disk);
                         index = index + 1;
