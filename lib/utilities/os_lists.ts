@@ -206,7 +206,9 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                 size_disk: data_win[index].Size
                             };
                             do {
-                                id = parts[pIndex].UniqueId.split("}")[1];
+                                id = (parts[pIndex] === undefined || parts[pIndex] === null)
+                                    ? ""
+                                    : parts[pIndex].UniqueId.split("}")[1];
                                 if (id === disk.id) {
                                     part = {
                                         active: parts[pIndex].IsActive,

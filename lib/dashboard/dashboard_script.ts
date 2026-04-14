@@ -117,7 +117,7 @@ const ui = function ui():void {
                     if (typeof event.data === "string") {
                         const message_item:socket_data = JSON.parse(event.data),
                             service_map:map_messages = {
-                                // "test-browser": testBrowser,
+                                "test-browser": null,
                                 "dashboard-compose": (dashboard.sections["compose-containers"] === undefined)
                                     ? null
                                     : dashboard.sections["compose-containers"].receive,
@@ -2963,7 +2963,7 @@ const ui = function ui():void {
                     update_text: document.getElementById("sockets-os-tcp").getElementsByTagName("time")[0]
                 },
                 receive: null,
-                row: function dashboard_sections_socketsOS_row(record_item:type_lists, tr:HTMLElement):void {
+                row: function dashboard_sections_socketsOS_TCP_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_sock = record_item as os_sock;
                     let index:number = dashboard.global.payload["ports-application"].data.length;
                     dashboard.tables.cell(tr, record["local-address"], null);
@@ -2973,7 +2973,7 @@ const ui = function ui():void {
                     if (record.process === 0) {
                         dashboard.tables.cell(tr, "null", null);
                         dashboard.tables.cell(tr, "null", null);
-                    } else {
+                    } else if (index > 0) {
                         dashboard.tables.cell(tr, String(record.process), null);
                         do {
                             index = index - 1;
@@ -3012,7 +3012,7 @@ const ui = function ui():void {
                     update_text: document.getElementById("sockets-os-udp").getElementsByTagName("time")[0]
                 },
                 receive: null,
-                row: function dashboard_sections_socketsOS_row(record_item:type_lists, tr:HTMLElement):void {
+                row: function dashboard_sections_socketsOS_UDP_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_sock = record_item as os_sock;
                     let index:number = dashboard.global.payload["ports-application"].data.length;
                     dashboard.tables.cell(tr, record["local-address"], null);
@@ -3022,7 +3022,7 @@ const ui = function ui():void {
                     if (record.process === 0) {
                         dashboard.tables.cell(tr, "null", null);
                         dashboard.tables.cell(tr, "null", null);
-                    } else {
+                    } else if (index > 0) {
                         dashboard.tables.cell(tr, String(record.process), null);
                         do {
                             index = index - 1;

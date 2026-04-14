@@ -13,7 +13,6 @@ vars.path.sep = node.path.sep;
         arg:string = null;
 
     if (vars.commands === undefined) {
-
         log.shell([`Operating system type ${process.platform} is not yet supported.`]);
         process.exit(1);
     }
