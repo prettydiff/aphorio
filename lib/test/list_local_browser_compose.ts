@@ -6,7 +6,7 @@ const test_listLocalBrowserCompose = function test_listLocalBrowserCompose():tes
         {
             delay: {
                 node: [
-                    ["getElementById", "compose", null],
+                    ["getElementById", "compose-containers", null],
                     ["getElementsByTagName", "h2", 0]
                 ],
                 qualifier: "greater",
@@ -36,7 +36,7 @@ const test_listLocalBrowserCompose = function test_listLocalBrowserCompose():tes
             type: "dom",
             unit: [{
                 node: [
-                    ["getElementById", "compose", null],
+                    ["getElementById", "compose-containers", null],
                     ["getElementsByTagName", "p", 1]
                 ],
                 qualifier: "is",

@@ -30,6 +30,7 @@ interface os_disk {
 interface os_disk_partition {
     active: boolean;
     bootable: boolean;
+    children: os_disk_partition[];
     diskId: string;
     diskName: string;
     file_system: string;
@@ -55,6 +56,7 @@ interface os_disk_posix {
 }
 
 interface os_disk_posix_partition {
+    children: os_disk_posix_partition[];
     fsavail: number;
     fsroots: string[];
     fssize: number;

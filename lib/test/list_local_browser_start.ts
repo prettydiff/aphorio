@@ -21,10 +21,10 @@ const test_listLocalBrowserStart:test_list = [
                 node: [
                     ["getElementsByTagName", "h1", 0]
                 ],
-                qualifier: "is",
+                qualifier: "begins",
                 target: ["textContent"],
                 type: "property",
-                value: "Server Management Dashboard"
+                value: `${vars.environment.name.charAt(0).toUpperCase() + vars.environment.name.slice(1, vars.environment.name.length)} Dashboard`
             },
             {
                 node: [
@@ -44,7 +44,7 @@ const test_listLocalBrowserStart:test_list = [
                 qualifier: "is",
                 target: ["data-section"],
                 type: "attribute",
-                value: "servers"
+                value: "servers-web"
             },
             {
                 node: [
@@ -58,7 +58,7 @@ const test_listLocalBrowserStart:test_list = [
             },
             {
                 node: [
-                    ["getElementById", "servers", null],
+                    ["getElementById", "servers-web", null],
                     ["getElementsByTagName", "h2", 0]
                 ],
                 qualifier: "greater",

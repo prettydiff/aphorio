@@ -275,15 +275,15 @@ const start_application = function utilities_startApplication(process_path:strin
                             flags[key] = true;
                             if (flags.chart === true && flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
                                 const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
-                                    chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, "");
+                                    chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, ""),
+                                    testBrowser:string = (testing === true)
+                                        ? test_browser
+                                            .toString()
+                                            .replace(/\/\/ dashboard\.utility\.message_send\(test, "test-browser"\);\s+return test;/, "dashboard.utility.message_send(test, \"test-browser\");return test;")
+                                        : null;
                                 let total_script:string = null;
                                 if (testing === true) {
-                                    const testBrowser:string = test_browser
-                                        .toString()
-                                        .replace(/\/\/ utility\.message_send\(test, "test-browser"\);\s+return test;/, "utility.message_send(test, \"test-browser\");");
-                                    script = script
-                                        .replace(/,\s+local\s*=/, `,\ntestBrowser = ${testBrowser},\nlocal =`)
-                                        .replace("// \"test-browser\": testBrowser,", "\"test-browser\": testBrowser,");
+                                    script = script.replace("\"test-browser\": null,", `"test-browser": ${testBrowser},`);
                                 }
                                 total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time_elapsed:${universal.time_elapsed.toString()}};(${script}(${core.toString()}));`;
                                 vars.environment.dashboard_page = vars.environment.dashboard_page
@@ -571,7 +571,9 @@ const start_application = function utilities_startApplication(process_path:strin
                 complete_tasks(property);
             } else {
                 const get_value = function utilities_startApplication_testStat_getValue(arg:"browser"|"list"):void {
-                    let address:string = vars.options[arg];
+                    let address:string = (vars.options[arg] === null || vars.options[arg] === undefined)
+                        ? ""
+                        : vars.options[arg];
                     const address_length:number = address.length,
                         stat_address:string = (property === "test_list")
                             ? `${process_path}lib${vars.path.sep}test${vars.path.sep + address.replace(/^\.?(\/|\\)/, "")}`
@@ -614,7 +616,7 @@ const start_application = function utilities_startApplication(process_path:strin
                 };
                 get_value("browser");
                 get_value("list");
-                tasks.browser_stat.label = "No option supplied beginning with 'browser:'";
+                tasks.test_browser.label = "No option supplied beginning with 'browser:'";
             }
         },
         log_task = function utilities_startApplication_logTask(list:"prerequisite"|"task", flag:type_start_pre_tasks | type_start_primary_tasks):void {
@@ -729,6 +731,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                     }
                                     index = index + 1;
                                 } while (index < servers.length);
+                                ports_application();
                                 if (testing === true) {
                                     test_index();
                                 } else {
@@ -807,7 +810,6 @@ const start_application = function utilities_startApplication(process_path:strin
                                         } while (index < len);
                                     }
                                     log.shell(logs, true);
-                                    ports_application();
                                 }
                             }
                         };

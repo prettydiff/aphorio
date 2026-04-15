@@ -88,14 +88,6 @@ interface test_event {
     value?: string;
 }
 
-interface test_item_command {
-    command: string;
-    name: string;
-    shell?: string;
-    type: "command";
-    unit: test_assertion_command[];
-}
-
 interface test_item_dom {
     delay?: test_assertion_dom;
     interaction: test_event[];
@@ -104,7 +96,7 @@ interface test_item_dom {
     unit: test_assertion_dom[];
 }
 
-interface test_list extends Array<test_item_command|test_item_dom> {
+interface test_list extends Array<test_item_dom> {
     name?: string;
 }
 
@@ -114,7 +106,6 @@ interface test_runner {
     };
     count: number;
     execution: {
-        command: () => void;
         dom: () => void;
     };
     list: (list:test_list, callback:(name:string) => void) => void;

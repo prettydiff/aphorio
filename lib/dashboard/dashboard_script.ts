@@ -117,7 +117,7 @@ const ui = function ui():void {
                     if (typeof event.data === "string") {
                         const message_item:socket_data = JSON.parse(event.data),
                             service_map:map_messages = {
-                                // "test-browser": testBrowser,
+                                "test-browser": null,
                                 "dashboard-compose": (dashboard.sections["compose-containers"] === undefined)
                                     ? null
                                     : dashboard.sections["compose-containers"].receive,
@@ -1014,78 +1014,82 @@ const ui = function ui():void {
                                 strong:HTMLElement = (key === "partitions" && len > 0)
                                     ? document.createElement("h6")
                                     : document.createElement("strong"),
-                                span:HTMLElement = document.createElement("span");
+                                span:HTMLElement = document.createElement("span"),
+                                children = function dashboard_sections_disks_receive_dataItem_children(list_data:os_disk_partition[], list_len:number, parent:HTMLElement):void {
+                                    let index_child:number = 0,
+                                        warn_test:boolean = null,
+                                        len_child:number = 0,
+                                        list:HTMLElement = null;
+                                    do {
+                                        list = document.createElement("ul");
+                                        warn_test = (list_data[index_child].size_free_percent < 16 && list_data[index_child].file_system !== null && list_data[index_child].size_total > 0);
+                                        if (warn_test === true) {
+                                            const warn:HTMLElement = document.createElement("strong"),
+                                                p:HTMLElement = document.createElement("p"),
+                                                percent:HTMLElement = document.createElement("strong");
+                                            warn.textContent = "Warning!";
+                                            p.appendChild(warn);
+                                            percent.textContent = `${list_data[index_child].size_free_percent}%`;
+                                            p.appendText(` Disk partition ${String(list_data[index_child].id)} only has `);
+                                            p.appendChild(percent);
+                                            p.appendText(" capacity free.");
+                                            parent.appendChild(p);
+                                            list.setAttribute("class", "os-interface fail-list");
+                                        } else {
+                                            list.setAttribute("class", "os-interface");
+                                        }
+                                        data_item(list, String(list_data[index_child].active), "active");
+                                        data_item(list, String(list_data[index_child].bootable), "bootable");
+                                        data_item(list, String(list_data[index_child].file_system), "file_system");
+                                        data_item(list, String(list_data[index_child].hidden), "hidden");
+                                        data_item(list, String(list_data[index_child].id), "id");
+                                        data_item(list, String(list_data[index_child].path), "path");
+                                        data_item(list, String(list_data[index_child].read_only), "read_only");
+                                        if (list_data[index_child].size_total === 0) {
+                                            data_item(list, "0 bytes (0B)", "size_free");
+                                        } else if (warn_test === false) {
+                                            data_item(list, `${list_data[index_child].size_free.bytesLong()}, ${list_data[index_child].size_free_percent}%`, "size_free");
+                                        } else {
+                                            const sfLi:HTMLElement = document.createElement("li"),
+                                                sfBad:HTMLElement = document.createElement("strong"),
+                                                sfStrong:HTMLElement = document.createElement("strong");
+                                            sfBad.setAttribute("class", "fail");
+                                            sfBad.textContent = `${list_data[index_child].size_free_percent}%`;
+                                            sfStrong.textContent = "Size Free";
+                                            sfLi.appendChild(sfStrong);
+                                            sfLi.appendText(`${list_data[index_child].size_free.bytesLong()}, `);
+                                            sfLi.appendChild(sfBad);
+                                            list.appendChild(sfLi);
+                                        }
+                                        if (list_data[index_child].size_total === 0) {
+                                            data_item(list, `${list_data[index_child].size_used.bytesLong()}`, "size_used");
+                                        } else {
+                                            data_item(list, `${list_data[index_child].size_used.bytesLong()}, ${list_data[index_child].size_used_percent}%`, "size_used");
+                                        }
+                                        if (list_data[index_child].size_total === 0) {
+                                            data_item(list, "0 bytes (0B)", "size_total");
+                                        } else {
+                                            data_item(list, `${list_data[index_child].size_total.bytesLong()}, 100%`, "size_total");
+                                        }
+                                        data_item(list, list_data[index_child].type, "type");
+                                        len_child = list_data[index_child].children.length;
+                                        if (len_child > 0) {
+                                            const li:HTMLElement = document.createElement("li");
+                                            dashboard_sections_disks_receive_dataItem_children(list_data[index_child].children, len_child, li);
+                                            list.appendChild(li);
+                                        }
+                                        parent.appendChild(list);
+                                        index_child = index_child + 1;
+                                    } while (index_child < list_len);
+                                };
                             strong.textContent = key.capitalize().replace(/_\w/, function dashboard_sections_disks_receive_dataItem_cap(input:string):string {
                                 return ` ${input.replace("_", "").capitalize()}`;
                             });
                             li.appendChild(strong);
                             if (key === "partitions" && len > 0) {
-                                let list:HTMLElement = null,
-                                    pIndex:number = 0,
-                                    warn:HTMLElement = null,
-                                    p:HTMLElement = null,
-                                    percent:HTMLElement = null,
-                                    sfLi:HTMLElement = null,
-                                    sfBad:HTMLElement = null,
-                                    sfStrong:HTMLElement = null;
                                 span.textContent = String(len);
                                 li.appendChild(span);
-                                do {
-                                    if (item.data[index].partitions[pIndex] !== undefined) {
-                                        list = document.createElement("ul");
-                                        if (item.data[index].partitions[pIndex].size_free_percent < 16 && item.data[index].partitions[pIndex].file_system !== null && item.data[index].partitions[pIndex].size_total > 0) {
-                                            warn = document.createElement("strong");
-                                            percent = document.createElement("strong");
-                                            p = document.createElement("p");
-                                            warn.textContent = "Warning!";
-                                            p.appendChild(warn);
-                                            percent.textContent = `${item.data[index].partitions[pIndex].size_free_percent}%`;
-                                            p.appendText(` Disk partition ${String(item.data[index].partitions[pIndex].id)} only has `);
-                                            p.appendChild(percent);
-                                            p.appendText(" capacity free.");
-                                            li.appendChild(p);
-                                            list.setAttribute("class", "os-interface fail-list");
-                                        } else {
-                                            list.setAttribute("class", "os-interface");
-                                        }
-                                        data_item(list, String(item.data[index].partitions[pIndex].active), "active");
-                                        data_item(list, String(item.data[index].partitions[pIndex].bootable), "bootable");
-                                        data_item(list, String(item.data[index].partitions[pIndex].file_system), "file_system");
-                                        data_item(list, String(item.data[index].partitions[pIndex].hidden), "hidden");
-                                        data_item(list, String(item.data[index].partitions[pIndex].id), "id");
-                                        data_item(list, String(item.data[index].partitions[pIndex].path), "path");
-                                        data_item(list, String(item.data[index].partitions[pIndex].read_only), "read_only");
-                                        if (item.data[index].partitions[pIndex].size_total === 0) {
-                                            data_item(list, "0 bytes (0B)", "size_free");
-                                        } else if (warn === null) {
-                                            data_item(list, `${item.data[index].partitions[pIndex].size_free.bytesLong()}, ${item.data[index].partitions[pIndex].size_free_percent}%`, "size_free");
-                                        } else {
-                                            sfLi = document.createElement("li");
-                                            sfBad = document.createElement("strong");
-                                            sfStrong = document.createElement("strong");
-                                            sfBad.setAttribute("class", "fail");
-                                            sfBad.textContent = `${item.data[index].partitions[pIndex].size_free_percent}%`;
-                                            sfStrong.textContent = "Size Free";
-                                            sfLi.appendChild(sfStrong);
-                                            sfLi.appendText(`${item.data[index].partitions[pIndex].size_free.bytesLong()}, `);
-                                            sfLi.appendChild(sfBad);
-                                            list.appendChild(sfLi);
-                                        }
-                                        if (item.data[index].partitions[pIndex].size_free === 0 || item.data[index].partitions[pIndex].size_total === 0) {
-                                            data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}`, "size_used");
-                                        } else {
-                                            data_item(list, `${item.data[index].partitions[pIndex].size_used.bytesLong()}, ${item.data[index].partitions[pIndex].size_used_percent}%`, "size_used");
-                                        }
-                                        if (item.data[index].partitions[pIndex].size_total === 0) {
-                                            data_item(list, "0 bytes (0B)", "size_total");
-                                        } else {
-                                            data_item(list, `${item.data[index].partitions[pIndex].size_total.bytesLong()}, 100%`, "size_total");
-                                        }
-                                        data_item(list, item.data[index].partitions[pIndex].type, "type");
-                                        li.appendChild(list);
-                                    }
-                                    pIndex = pIndex + 1;
-                                } while (pIndex < len);
+                                children(item.data[index].partitions, len, li);
                             } else {
                                 if (key === "partitions") {
                                     span.textContent = "none";
@@ -2959,7 +2963,7 @@ const ui = function ui():void {
                     update_text: document.getElementById("sockets-os-tcp").getElementsByTagName("time")[0]
                 },
                 receive: null,
-                row: function dashboard_sections_socketsOS_row(record_item:type_lists, tr:HTMLElement):void {
+                row: function dashboard_sections_socketsOS_TCP_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_sock = record_item as os_sock;
                     let index:number = dashboard.global.payload["ports-application"].data.length;
                     dashboard.tables.cell(tr, record["local-address"], null);
@@ -2969,7 +2973,7 @@ const ui = function ui():void {
                     if (record.process === 0) {
                         dashboard.tables.cell(tr, "null", null);
                         dashboard.tables.cell(tr, "null", null);
-                    } else {
+                    } else if (index > 0) {
                         dashboard.tables.cell(tr, String(record.process), null);
                         do {
                             index = index - 1;
@@ -3008,7 +3012,7 @@ const ui = function ui():void {
                     update_text: document.getElementById("sockets-os-udp").getElementsByTagName("time")[0]
                 },
                 receive: null,
-                row: function dashboard_sections_socketsOS_row(record_item:type_lists, tr:HTMLElement):void {
+                row: function dashboard_sections_socketsOS_UDP_row(record_item:type_lists, tr:HTMLElement):void {
                     const record:os_sock = record_item as os_sock;
                     let index:number = dashboard.global.payload["ports-application"].data.length;
                     dashboard.tables.cell(tr, record["local-address"], null);
@@ -3018,7 +3022,7 @@ const ui = function ui():void {
                     if (record.process === 0) {
                         dashboard.tables.cell(tr, "null", null);
                         dashboard.tables.cell(tr, "null", null);
-                    } else {
+                    } else if (index > 0) {
                         dashboard.tables.cell(tr, String(record.process), null);
                         do {
                             index = index - 1;

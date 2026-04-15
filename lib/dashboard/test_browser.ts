@@ -607,7 +607,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             };
             // eslint-disable-next-line
             console.log(`On browser sending results for test index ${index}`);
-            // utility.message_send(test, "test-browser");
+            // dashboard.utility.message_send(test, "test-browser");
             return test;
         },
 
