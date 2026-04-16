@@ -77,6 +77,10 @@ declare global {
             section: type_dashboard_sections;
             state: state_store;
         };
+        message: {
+            init: () => void;
+            receive: (data:string) => void;
+        };
         sections: {
             "application-logs": section_applicationLogs;
             "compose-containers": section_compose_containers;

@@ -288,8 +288,9 @@ const test_runner:test_runner = {
                     }
                 };
             vars.test.browser_start = true;
-            vars.test.browser_child = spawn(browserCommand(), call_dom);
+            vars.test.browser_child = spawn(browserCommand(), null);
             vars.test.browser_child.execute();
+            call_dom();
         },
         callback: null,
         next: function test_runner_toolsNext():void {

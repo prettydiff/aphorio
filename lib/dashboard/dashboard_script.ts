@@ -115,145 +115,12 @@ const ui = function ui():void {
                 },
                 message: function dashboard_execute_socketMessage(event:websocket_event):void {
                     if (typeof event.data === "string") {
-                        const message_item:socket_data = JSON.parse(event.data),
-                            service_map:map_messages = {
-                                "test-browser": null,
-                                "dashboard-compose": (dashboard.sections["compose-containers"] === undefined)
-                                    ? null
-                                    : dashboard.sections["compose-containers"].receive,
-                                "dashboard-compose-out": (dashboard.sections["compose-containers"] === undefined)
-                                    ? null
-                                    : dashboard.sections["compose-containers"].status_out,
-                                "dashboard-dns": (dashboard.sections["dns-query"] === undefined)
-                                    ? null
-                                    : dashboard.sections["dns-query"].receive,
-                                "dashboard-fileSystem": (dashboard.sections["file-system"] === undefined)
-                                    ? null
-                                    : dashboard.sections["file-system"].receive,
-                                "dashboard-hash": (dashboard.sections["hash"] === undefined)
-                                    ? null
-                                    : dashboard.sections["hash"].receive,
-                                "dashboard-http": (dashboard.sections["test-http"] === undefined)
-                                    ? null
-                                    : dashboard.sections["test-http"].receive,
-                                "dashboard-log": (dashboard.sections["application-logs"] === undefined)
-                                    ? null
-                                    : dashboard.sections["application-logs"].receive,
-                                "dashboard-os-devs": (dashboard.sections["devices"] === undefined)
-                                    ? null
-                                    : dashboard.tables.receive,
-                                "dashboard-os-disk": (dashboard.sections["disks"] === undefined)
-                                    ? null
-                                    : dashboard.sections["disks"].receive,
-                                "dashboard-os-intr": (dashboard.sections["interfaces"] === undefined)
-                                    ? null
-                                    : dashboard.sections["interfaces"].receive,
-                                "dashboard-os-main": (dashboard.sections["os-machine"] === undefined)
-                                    ? null
-                                    : dashboard.sections["os-machine"].receive,
-                                "dashboard-os-proc": (dashboard.sections["processes"] === undefined)
-                                    ? null
-                                    : dashboard.tables.receive,
-                                "dashboard-os-serv": (dashboard.sections["services"] === undefined)
-                                    ? null
-                                    : dashboard.tables.receive,
-                                "dashboard-os-stcp": (dashboard.sections["sockets-os-tcp"] === undefined)
-                                    ? null
-                                    : dashboard.tables.receive,
-                                "dashboard-os-sudp": (dashboard.sections["sockets-os-udp"] === undefined)
-                                    ? null
-                                    : dashboard.tables.receive,
-                                "dashboard-os-user": (dashboard.sections["users"] === undefined)
-                                    ? null
-                                    : dashboard.tables.receive,
-                                "dashboard-ports-application": (dashboard.sections["ports-application"] === undefined)
-                                    ? null
-                                    : dashboard.tables.receive,
-                                "dashboard-server": (dashboard.sections["servers-web"] === undefined)
-                                    ? null
-                                    : dashboard.sections["servers-web"].receive,
-                                "dashboard-socket-application": (dashboard.sections["sockets-application-tcp"] === undefined)
-                                    ? (dashboard.sections["sockets-application-udp"] === undefined)
-                                        ? null
-                                        : dashboard.tables.receive
-                                    : dashboard.tables.receive,
-                                "dashboard-statistics-data": (dashboard.sections["statistics"] === undefined)
-                                    ? null
-                                    : dashboard.sections["statistics"].receive,
-                                "dashboard-status-clock": dashboard.utility.clock,
-                                "dashboard-udp-status": (dashboard.sections["udp-socket"] === undefined)
-                                    ? null
-                                    : dashboard.sections["udp-socket"].receive,
-                                "dashboard-websocket-message": (dashboard.sections["test-websocket"] === undefined)
-                                    ? null
-                                    : dashboard.sections["test-websocket"].transmit.message_receive,
-                                "dashboard-websocket-status": (dashboard.sections["test-websocket"] === undefined)
-                                    ? null
-                                    : dashboard.sections["test-websocket"].transmit.status
-                            };
-                        if (message_item.service === "dashboard-os-all") {
-                            const data:core_server_os = message_item.data as core_server_os;
-                            if (dashboard.sections["devices"] !== undefined) {
-                                dashboard.tables.populate(dashboard.sections["devices"], data.devs);
-                            }
-                            if (dashboard.sections["disks"] !== undefined) {
-                                dashboard.sections["disks"].receive({
-                                    data: data.disk,
-                                    service: "dashboard-os-disk"
-                                });
-                            }
-                            if (dashboard.sections["interfaces"] !== undefined) {
-                                dashboard.sections["interfaces"].receive({
-                                    data: data.intr,
-                                    service: "dashboard-os-intr"
-                                });
-                            }
-                            if (dashboard.sections["os-machine"] !== undefined) {
-                                dashboard.sections["os-machine"].receive({
-                                    data: data,
-                                    service: "dashboard-os-main"
-                                });
-                            }
-                            if (dashboard.sections["processes"] !== undefined) {
-                                dashboard.tables.receive({
-                                    data: data.proc,
-                                    service: "dashboard-os-proc"
-                                });
-                            }
-                            if (dashboard.sections["services"] !== undefined) {
-                                dashboard.tables.receive({
-                                    data: data.serv,
-                                    service: "dashboard-os-serv"
-                                });
-                            }
-                            if (dashboard.sections["sockets-os-tcp"] !== undefined) {
-                                dashboard.tables.receive({
-                                    data: data.stcp,
-                                    service: "dashboard-os-stcp"
-                                });
-                            }
-                            if (dashboard.sections["sockets-os-udp"] !== undefined) {
-                                dashboard.tables.receive({
-                                    data: data.sudp,
-                                    service: "dashboard-os-sudp"
-                                });
-                            }
-                            if (dashboard.sections["users"] !== undefined) {
-                                dashboard.tables.receive({
-                                    data: data.user,
-                                    service: "dashboard-os-user"
-                                });
-                            }
-                        } else if (service_map[message_item.service] !== null) {
-                            service_map[message_item.service](message_item);
-                        }
+                        dashboard.message.receive(event.data);
                     }
                 },
                 open: function dashboard_execute_socketOpen(event:Event):void {
                     const target:WebSocket = event.target as WebSocket,
-                        status:HTMLElement = document.getElementById("connection-status"),
-                        title:HTMLElement = document.getElementsByTagName("h1")[0],
-                        version:HTMLElement = document.createElement("span");
+                        status:HTMLElement = document.getElementById("connection-status");
                     dashboard.socket.connected = true;
                     if (status !== null ) {
                         status.getElementsByTagName("strong")[0].textContent = "Online";
@@ -267,57 +134,7 @@ const ui = function ui():void {
                             dashboard.socket.queueStore.splice(0, 1);
                         } while (dashboard.socket.queueStore.length > 0);
                     }
-                    if (dashboard.global.loaded === false) {
-                        const init = function dashboard_execute_init(section_name:type_dashboard_init):void {
-                            if (dashboard.sections[section_name] !== undefined) {
-                                dashboard.sections[section_name].init();
-                            }
-                        };
-                        dashboard.global.loaded = true;
-                        if (dashboard.sections["application-logs"] !== undefined) {
-                            // populate log data
-                            let index:number = dashboard.global.payload.logs.entries.length;
-                            if (index > 0) {
-                                do {
-                                    index = index - 1;
-                                    dashboard.sections["application-logs"].receive({
-                                        data: {
-                                            log: dashboard.global.payload.logs.entries[index],
-                                            total: dashboard.global.payload.logs.total
-                                        },
-                                        service: "dashboard-log"
-                                    });
-                                } while (index > 0);
-                            }
-                        }
-                        init("application-logs");
-                        init("compose-containers");
-                        dashboard.tables.init(dashboard.sections["devices"]);
-                        init("disks");
-                        init("dns-query");
-                        init("file-system");
-                        init("hash");
-                        init("interfaces");
-                        init("os-machine");
-                        dashboard.tables.init(dashboard.sections["ports-application"]);
-                        dashboard.tables.init(dashboard.sections["processes"]);
-                        init("servers-web");
-                        dashboard.tables.init(dashboard.sections["services"]);
-                        dashboard.tables.init(dashboard.sections["sockets-application-tcp"]);
-                        dashboard.tables.init(dashboard.sections["sockets-application-udp"]);
-                        dashboard.tables.init(dashboard.sections["sockets-os-tcp"]);
-                        dashboard.tables.init(dashboard.sections["sockets-os-udp"]);
-                        init("statistics");
-                        init("terminal");
-                        init("test-http");
-                        init("test-websocket");
-                        init("udp-socket");
-                        dashboard.tables.init(dashboard.sections["users"]);
-                        dashboard.utility.nodes.main.style.display = "block";
-                        dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
-                        version.textContent = `version ${dashboard.global.payload.version}`;
-                        title.appendChild(version);
-                    }
+                    dashboard.message.init();
                 },
                 type: "dashboard"
             });
@@ -480,6 +297,185 @@ const ui = function ui():void {
                 return item;
             }())
         },
+        message: {
+            init: function dashboard_messageInit():void {
+                if (dashboard.global.loaded === false) {
+                    const title:HTMLElement = document.getElementsByTagName("h1")[0],
+                        version:HTMLElement = document.createElement("span"),
+                        init = function dashboard_execute_init(section_name:type_dashboard_features, table:boolean):void {
+                            if (dashboard.sections[section_name] !== undefined) {
+                                if (table === true) {
+                                    dashboard.tables.init(dashboard.sections[section_name as type_dashboard_tables]);
+                                } else {
+                                    dashboard.sections[section_name as type_dashboard_init].init();
+                                }
+                            }
+                        };
+                    dashboard.global.loaded = true;
+                    init("application-logs", false);
+                    init("compose-containers", false);
+                    init("devices", true);
+                    init("disks", false);
+                    init("dns-query", false);
+                    init("file-system", false);
+                    init("hash", false);
+                    init("interfaces", false);
+                    init("os-machine", false);
+                    init("ports-application", true);
+                    init("processes", true);
+                    init("servers-web", false);
+                    init("services", true);
+                    init("sockets-application-tcp", true);
+                    init("sockets-application-udp", true);
+                    init("sockets-os-tcp", true);
+                    init("sockets-os-udp", true);
+                    init("statistics", false);
+                    init("terminal", false);
+                    init("test-http", false);
+                    init("test-websocket", false);
+                    init("udp-socket", false);
+                    init("users", true);
+                    dashboard.utility.nodes.main.style.display = "block";
+                    dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
+                    version.textContent = `version ${dashboard.global.payload.version}`;
+                    title.appendChild(version);
+                }
+            },
+            receive: function dashboard_messageReceive(data:string):void {
+                const message_item:socket_data = JSON.parse(data),
+                    service_map:map_messages = {
+                        "test-browser": null,
+                        "dashboard-compose": (dashboard.sections["compose-containers"] === undefined)
+                            ? null
+                            : dashboard.sections["compose-containers"].receive,
+                        "dashboard-compose-out": (dashboard.sections["compose-containers"] === undefined)
+                            ? null
+                            : dashboard.sections["compose-containers"].status_out,
+                        "dashboard-dns": (dashboard.sections["dns-query"] === undefined)
+                            ? null
+                            : dashboard.sections["dns-query"].receive,
+                        "dashboard-fileSystem": (dashboard.sections["file-system"] === undefined)
+                            ? null
+                            : dashboard.sections["file-system"].receive,
+                        "dashboard-hash": (dashboard.sections["hash"] === undefined)
+                            ? null
+                            : dashboard.sections["hash"].receive,
+                        "dashboard-http": (dashboard.sections["test-http"] === undefined)
+                            ? null
+                            : dashboard.sections["test-http"].receive,
+                        "dashboard-log": (dashboard.sections["application-logs"] === undefined)
+                            ? null
+                            : dashboard.sections["application-logs"].receive,
+                        "dashboard-os-devs": (dashboard.sections["devices"] === undefined)
+                            ? null
+                            : dashboard.tables.receive,
+                        "dashboard-os-disk": (dashboard.sections["disks"] === undefined)
+                            ? null
+                            : dashboard.sections["disks"].receive,
+                        "dashboard-os-intr": (dashboard.sections["interfaces"] === undefined)
+                            ? null
+                            : dashboard.sections["interfaces"].receive,
+                        "dashboard-os-main": (dashboard.sections["os-machine"] === undefined)
+                            ? null
+                            : dashboard.sections["os-machine"].receive,
+                        "dashboard-os-proc": (dashboard.sections["processes"] === undefined)
+                            ? null
+                            : dashboard.tables.receive,
+                        "dashboard-os-serv": (dashboard.sections["services"] === undefined)
+                            ? null
+                            : dashboard.tables.receive,
+                        "dashboard-os-stcp": (dashboard.sections["sockets-os-tcp"] === undefined)
+                            ? null
+                            : dashboard.tables.receive,
+                        "dashboard-os-sudp": (dashboard.sections["sockets-os-udp"] === undefined)
+                            ? null
+                            : dashboard.tables.receive,
+                        "dashboard-os-user": (dashboard.sections["users"] === undefined)
+                            ? null
+                            : dashboard.tables.receive,
+                        "dashboard-ports-application": (dashboard.sections["ports-application"] === undefined)
+                            ? null
+                            : dashboard.tables.receive,
+                        "dashboard-server": (dashboard.sections["servers-web"] === undefined)
+                            ? null
+                            : dashboard.sections["servers-web"].receive,
+                        "dashboard-socket-application": (dashboard.sections["sockets-application-tcp"] === undefined)
+                            ? (dashboard.sections["sockets-application-udp"] === undefined)
+                                ? null
+                                : dashboard.tables.receive
+                            : dashboard.tables.receive,
+                        "dashboard-statistics-data": (dashboard.sections["statistics"] === undefined)
+                            ? null
+                            : dashboard.sections["statistics"].receive,
+                        "dashboard-status-clock": dashboard.utility.clock,
+                        "dashboard-udp-status": (dashboard.sections["udp-socket"] === undefined)
+                            ? null
+                            : dashboard.sections["udp-socket"].receive,
+                        "dashboard-websocket-message": (dashboard.sections["test-websocket"] === undefined)
+                            ? null
+                            : dashboard.sections["test-websocket"].transmit.message_receive,
+                        "dashboard-websocket-status": (dashboard.sections["test-websocket"] === undefined)
+                            ? null
+                            : dashboard.sections["test-websocket"].transmit.status
+                    };
+                if (message_item.service === "dashboard-os-all") {
+                    const data:core_server_os = message_item.data as core_server_os;
+                    if (dashboard.sections["devices"] !== undefined) {
+                        dashboard.tables.populate(dashboard.sections["devices"], data.devs);
+                    }
+                    if (dashboard.sections["disks"] !== undefined) {
+                        dashboard.sections["disks"].receive({
+                            data: data.disk,
+                            service: "dashboard-os-disk"
+                        });
+                    }
+                    if (dashboard.sections["interfaces"] !== undefined) {
+                        dashboard.sections["interfaces"].receive({
+                            data: data.intr,
+                            service: "dashboard-os-intr"
+                        });
+                    }
+                    if (dashboard.sections["os-machine"] !== undefined) {
+                        dashboard.sections["os-machine"].receive({
+                            data: data,
+                            service: "dashboard-os-main"
+                        });
+                    }
+                    if (dashboard.sections["processes"] !== undefined) {
+                        dashboard.tables.receive({
+                            data: data.proc,
+                            service: "dashboard-os-proc"
+                        });
+                    }
+                    if (dashboard.sections["services"] !== undefined) {
+                        dashboard.tables.receive({
+                            data: data.serv,
+                            service: "dashboard-os-serv"
+                        });
+                    }
+                    if (dashboard.sections["sockets-os-tcp"] !== undefined) {
+                        dashboard.tables.receive({
+                            data: data.stcp,
+                            service: "dashboard-os-stcp"
+                        });
+                    }
+                    if (dashboard.sections["sockets-os-udp"] !== undefined) {
+                        dashboard.tables.receive({
+                            data: data.sudp,
+                            service: "dashboard-os-sudp"
+                        });
+                    }
+                    if (dashboard.sections["users"] !== undefined) {
+                        dashboard.tables.receive({
+                            data: data.user,
+                            service: "dashboard-os-user"
+                        });
+                    }
+                } else if (service_map[message_item.service] !== null) {
+                    service_map[message_item.service](message_item);
+                }
+            }
+        },
         sections: {
             // application-logs start
             "application-logs": {
@@ -490,6 +486,20 @@ const ui = function ui():void {
                     }
                 },
                 init: function dashboard_sections_applicationLog_init():void {
+                    // populate log data
+                    let index:number = dashboard.global.payload.logs.entries.length;
+                    if (index > 0) {
+                        do {
+                            index = index - 1;
+                            dashboard.sections["application-logs"].receive({
+                                data: {
+                                    log: dashboard.global.payload.logs.entries[index],
+                                    total: dashboard.global.payload.logs.total
+                                },
+                                service: "dashboard-log"
+                            });
+                        } while (index > 0);
+                    }
                     dashboard.sections["application-logs"].events.resize();
                 },
                 nodes: {
@@ -4805,59 +4815,57 @@ const ui = function ui():void {
             },
             // attaches event listeners to data tables and restores state
             init: function dashboard_tables_init(module:module_list|section_ports_application|section_sockets_application):void {
-                if (module !== undefined) {
-                    const select = function dashboard_tables_init_select(table:HTMLElement, select:HTMLSelectElement):void {
-                            const th:HTMLCollectionOf<HTMLElement> = table.getElementsByTagName("th"),
-                                len:number = th.length;
-                            let index:number = 0,
-                                option:HTMLElement = document.createElement("option");
-                            option.textContent = "All";
-                            select.appendChild(option);
-                            if (len > 0) {
-                                do {
-                                    option = document.createElement("option");
-                                    option.textContent = th[index].getElementsByTagName("button")[0].textContent;
-                                    select.appendChild(option);
-                                    index = index + 1;
-                                } while (index < len);
-                            }
-                        },
-                        data_type:type_list_services = (module.dataName === "ports-application")
-                            ? dashboard.global.payload["ports-application"]
-                                : (module.dataName === "sockets-application-tcp" || module.dataName === "sockets-application-udp")
-                                    ? null
-                                    : dashboard.global.payload.os[module.dataName as type_os_list_names];
-                    if (dashboard.global.state.table_os[module.dataName] === undefined || dashboard.global.state.table_os[module.dataName] === null) {
-                        dashboard.global.state.table_os[module.dataName] = {
-                            filter_column: module.nodes.filter_column.selectedIndex,
-                            filter_sensitive: module.nodes.caseSensitive.checked,
-                            filter_value: module.nodes.filter_value.value
-                        };
-                    } else {
-                        module.nodes.filter_column.selectedIndex = dashboard.global.state.table_os[module.dataName].filter_column;
-                        module.nodes.caseSensitive.checked = dashboard.global.state.table_os[module.dataName].filter_sensitive;
-                        module.nodes.filter_value.value = dashboard.global.state.table_os[module.dataName].filter_value;
-                    }
-                    module.nodes.filter_column.onchange = dashboard.tables.filter;
-                    module.nodes.caseSensitive.onclick = dashboard.utility.setState;
-                    module.nodes.filter_value.onblur = dashboard.tables.filter;
-                    module.nodes.filter_value.onkeyup = dashboard.tables.filter;
-                    module.nodes.update_button.onclick = dashboard.tables.update;
-                    module.nodes.update_button.setAttribute("data-list", module.dataName);
-                    module.receive = dashboard.tables.receive;
-                    select(module.nodes.list.parentNode, module.nodes.filter_column);
-                    if (module.dataName === "sockets-application-tcp" || module.dataName === "sockets-application-udp") {
-                        dashboard.tables.populate(dashboard.sections["sockets-application-tcp"], {
-                            data: dashboard.global.payload.sockets.tcp,
-                            time: dashboard.global.payload.sockets.time
-                        });
-                        dashboard.tables.populate(dashboard.sections["sockets-application-udp"], {
-                            data: dashboard.global.payload.sockets.udp,
-                            time: dashboard.global.payload.sockets.time
-                        });
-                    } else {
-                        dashboard.tables.populate(module, data_type);
-                    }
+                const select = function dashboard_tables_init_select(table:HTMLElement, select:HTMLSelectElement):void {
+                        const th:HTMLCollectionOf<HTMLElement> = table.getElementsByTagName("th"),
+                            len:number = th.length;
+                        let index:number = 0,
+                            option:HTMLElement = document.createElement("option");
+                        option.textContent = "All";
+                        select.appendChild(option);
+                        if (len > 0) {
+                            do {
+                                option = document.createElement("option");
+                                option.textContent = th[index].getElementsByTagName("button")[0].textContent;
+                                select.appendChild(option);
+                                index = index + 1;
+                            } while (index < len);
+                        }
+                    },
+                    data_type:type_list_services = (module.dataName === "ports-application")
+                        ? dashboard.global.payload["ports-application"]
+                            : (module.dataName === "sockets-application-tcp" || module.dataName === "sockets-application-udp")
+                                ? null
+                                : dashboard.global.payload.os[module.dataName as type_os_list_names];
+                if (dashboard.global.state.table_os[module.dataName] === undefined || dashboard.global.state.table_os[module.dataName] === null) {
+                    dashboard.global.state.table_os[module.dataName] = {
+                        filter_column: module.nodes.filter_column.selectedIndex,
+                        filter_sensitive: module.nodes.caseSensitive.checked,
+                        filter_value: module.nodes.filter_value.value
+                    };
+                } else {
+                    module.nodes.filter_column.selectedIndex = dashboard.global.state.table_os[module.dataName].filter_column;
+                    module.nodes.caseSensitive.checked = dashboard.global.state.table_os[module.dataName].filter_sensitive;
+                    module.nodes.filter_value.value = dashboard.global.state.table_os[module.dataName].filter_value;
+                }
+                module.nodes.filter_column.onchange = dashboard.tables.filter;
+                module.nodes.caseSensitive.onclick = dashboard.utility.setState;
+                module.nodes.filter_value.onblur = dashboard.tables.filter;
+                module.nodes.filter_value.onkeyup = dashboard.tables.filter;
+                module.nodes.update_button.onclick = dashboard.tables.update;
+                module.nodes.update_button.setAttribute("data-list", module.dataName);
+                module.receive = dashboard.tables.receive;
+                select(module.nodes.list.parentNode, module.nodes.filter_column);
+                if (module.dataName === "sockets-application-tcp" || module.dataName === "sockets-application-udp") {
+                    dashboard.tables.populate(dashboard.sections["sockets-application-tcp"], {
+                        data: dashboard.global.payload.sockets.tcp,
+                        time: dashboard.global.payload.sockets.time
+                    });
+                    dashboard.tables.populate(dashboard.sections["sockets-application-udp"], {
+                        data: dashboard.global.payload.sockets.udp,
+                        time: dashboard.global.payload.sockets.time
+                    });
+                } else {
+                    dashboard.tables.populate(module, data_type);
                 }
             },
             // populate large data tables
