@@ -160,6 +160,9 @@ const vars:core_vars = {
             "list": null,
             "no-color": false,
             "no-exit": false,
+            "port-open": 0,
+            "port-secure": 0,
+            "stop-on-fail": false,
             "test": false
         },
         // raw OS data

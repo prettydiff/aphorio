@@ -13,7 +13,7 @@ import test_listLocalBrowserInterfaces from "./list_local_browser_interfaces.ts"
 import test_listLocalBrowserOS from "./list_local_browser_os.ts";
 import test_listLocalBrowserProcesses from "./list_local_browser_processes.ts";
 import test_listLocalBrowserServices from "./list_local_browser_services.ts";
-import test_listLocalBrowserSockets from "./list_local_browser_sockets.ts";
+import test_listLocalBrowserSocketsApplicationTCP from "./list_local_browser_sockets_application_tcp.ts";
 import test_listLocalBrowserStart from "./list_local_browser_start.ts";
 import test_listLocalBrowserStorage from "./list_local_browser_storage.ts";
 import test_listLocalBrowserTerminal from "./list_local_browser_terminal.ts";
@@ -28,8 +28,9 @@ const test_index = function test_index():void {
     const list:test_list[] = (vars.test.list === null)
             ? [
                 test_listLocalBrowserStart,
+                test_listLocalBrowserApplicationLogs(),
                 test_listLocalBrowserCompose(),
-                test_listLocalBrowserSockets,
+                test_listLocalBrowserSocketsApplicationTCP,
                 test_listLocalBrowserInterfaces,
                 test_listLocalBrowserOS,
                 test_listLocalBrowserDevices,
@@ -43,7 +44,6 @@ const test_index = function test_index():void {
                 test_listLocalBrowserWebSocket,
                 test_listLocalBrowserDNS,
                 test_listLocalBrowserHash,
-                test_listLocalBrowserApplicationLogs(),
                 test_listLocalBrowserHelp,
                 test_listLocalBrowserFAQ
             ]
@@ -56,12 +56,12 @@ const test_index = function test_index():void {
         len_list:number = list.length,
         callback = function test_index_callback(name:string):void {
             total_lists = total_lists + 1;
-            if (total_lists < len_list) {
-                test_summary(name, false);
-                test_runner.list(list[total_lists], test_index_callback);
-            } else {
+            if (total_lists === len_list || (vars.options["stop-on-fail"] === true && vars.test.counts[name].assertions_fail > 0)) {
                 vars.test.total_time_end = process.hrtime.bigint();
                 test_summary(name, true);
+            } else {
+                test_summary(name, false);
+                test_runner.list(list[total_lists], test_index_callback);
             }
         };
     log.shell(["", `Starting test automation for ${len_list} lists.`, ""]);

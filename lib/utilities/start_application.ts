@@ -643,8 +643,8 @@ const start_application = function utilities_startApplication(process_path:strin
                     id: "",
                     name: "dashboard",
                     ports: {
-                        open: 0,
-                        secure: 0
+                        open: vars.options["port-open"],
+                        secure: vars.options["port-secure"]
                     },
                     redirect_asset: {
                         "localhost": {

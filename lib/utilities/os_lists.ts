@@ -141,7 +141,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         ? 0
                         : volumes.length,
                     linux_partitions = function utilities_os_builderDisk_linuxPartitions(source:os_disk_posix|os_disk_posix_partition, container:os_disk_partition[], diskName:string):void {
-                        const child_len = (source.children === undefined || source.children === null)
+                        const child_len:number = (source.children === undefined || source.children === null)
                             ? 0
                             : source.children.length;
                         let child:os_disk_posix_partition = null,

@@ -10,7 +10,9 @@ vars.path.sep = node.path.sep;
 {
     let process_path:string = "",
         index:number = process.argv.length,
-        arg:string = null;
+        colonIndex:number = null,
+        arg:string = null,
+        value:string = null;
 
     if (vars.commands === undefined) {
         log.shell([`Operating system type ${process.platform} is not yet supported.`]);
@@ -23,10 +25,22 @@ vars.path.sep = node.path.sep;
         } else if (process.argv[index].includes(`${vars.path.sep}lib${vars.path.sep}index.ts`) === true && vars.path.project === "") {
             process_path = process.argv[index].replace(`lib${vars.path.sep}index.ts`, "");
         } else {
-            arg = process.argv[index].toLowerCase().replace(/^--/, "");
+            colonIndex = process.argv[index].indexOf(":");
+            arg = (colonIndex > 0)
+                ? process.argv[index].slice(0, colonIndex).toLowerCase().replace(/^--/, "")
+                : process.argv[index].toLowerCase().replace(/^--/, "");
+            value = (colonIndex > 0)
+                ? process.argv[index].slice(colonIndex + 1)
+                : null;
             if (vars.options[arg as "test"] !== undefined || vars.options[arg.slice(0, arg.indexOf(":")) as "test"] !== undefined) {
-                if (arg.indexOf("browser") === 0 || arg.indexOf("list") === 0) {
-                    vars.options.browser = process.argv[index].slice(process.argv[index].indexOf(":") + 1);
+                if (arg.indexOf("browser") === 0) {
+                    vars.options["browser"] = value;
+                } else if (arg.indexOf("list") === 0) {
+                    vars.options["list"] = value;
+                } else if (arg.indexOf("port-open") === 0 && isNaN(Number(value)) === false) {
+                    vars.options["port-open"] = Number(value);
+                } else if (arg.indexOf("port-secure") === 0 && isNaN(Number(value)) === false) {
+                    vars.options["port-secure"] = Number(value);
                 } else {
                     vars.options[arg as "test"] = true;
                 }

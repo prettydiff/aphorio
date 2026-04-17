@@ -1,6 +1,6 @@
 import vars from "../core/vars.ts";
 
-const test_listLocalBrowserSockets:test_list = [
+const test_listLocalBrowserSocketsApplicationTCP:test_list = [
     {
         delay: {
             node: [
@@ -391,6 +391,6 @@ const test_listLocalBrowserSockets:test_list = [
         unit: null
     }
 ];
-test_listLocalBrowserSockets.name = "Local browser tests - sockets";
+test_listLocalBrowserSocketsApplicationTCP.name = "Local browser tests - sockets";
 
-export default test_listLocalBrowserSockets;
+export default test_listLocalBrowserSocketsApplicationTCP;

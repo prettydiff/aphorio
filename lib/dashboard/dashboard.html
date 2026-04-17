@@ -523,20 +523,21 @@
                 <div class="section">
                     <h4>Options</h4>
                     <p>All options work with or without a double dash prefix, for example both are equally supported: <code class="inline">no-color</code> and <code class="inline">--no-color</code></p>
+                    <h5>Test Specific Options</h5>
+                    <p>Tests can be run using <code class="inline">npm run test</code>.</p>
                     <ul>
                         <li><em>browser:&lt;file_path&gt;</em> - Use this argument to specify a web browser, by file path, to use for testing the dashboard UI.</li>
                         <li><em>list:&lt;file_path&gt;</em> - Use this argument to specify a single test list, by file path, to execute during test mode.</li>
-                        <li><em>no-color</em> - If present this option tells the application to never use ANSI formatting in terminal output.</li>
                         <li><em>no-exit</em> - If present this option tells the application to continue running at the conclusion of test mode, which is helpful to further interact with and debug the dashboard UI.</li>
+                        <li><em>stop-on-fail</em> - Tells the test runner to stop processing further test lists after the first failed assertion.</li>
                         <li><em>test</em> - If present this option instructs the application to execute test automation.</li>
                     </ul>
-                </div>
-                <div class="section">
-                    <h4>Test Automation</h4>
-                    <p>Run the test automation with <code class="inline">npm run test</code></p>
-                    <p>The <em>no-exit</em> option keeps the application running in its last state after the tests complete their evaluations.</p>
-                    <p>The <em>browser:&lt;file path here&gt;</em> option allows specifying a browser by file path for test automation that makes use of a web browser. Spaces in a terminal argument must be escaped, according to the conventions of the given terminal, or the entire option should be quoted.</p>
-                    <p>The <em>list&lt;test name&gt;</em> allows specifying a single test list to execute by test list file name from the project's test directory at <em>/lib/test</em>.</p>
+                    <h5>General Use Options</h5>
+                    <ul>
+                        <li><em>no-color</em> - If present this option tells the application to never use ANSI formatting in terminal output.</li>
+                        <li><em>port-open</em> - Creates an insecure instance of the dashboard server on the specified insecure port, if that port is open.</li>
+                        <li><em>port-secure</em> - Creates a secure instance of the dashboard server on the specified insecure port, if that port is open.</li>
+                    </ul>
                 </div>
                 <div class="section">
                     <h4>Register the application as a POSIX service</h4>

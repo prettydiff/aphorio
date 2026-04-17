@@ -19,7 +19,8 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
                     event: "click",
                     node: [
                         ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "button", 16]
+                        ["getElementsByTagName", "div", 5],
+                        ["getElementsByTagName", "button", 0]
                     ]
                 }
             ],

@@ -369,6 +369,9 @@ interface core_vars {
         "list": string;
         "no-color": boolean;
         "no-exit": boolean;
+        "port-open": number;
+        "port-secure": number;
+        "stop-on-fail": boolean;
         "test": boolean;
     };
     os: core_server_os;
