@@ -296,6 +296,7 @@ const test_runner:test_runner = {
         callback: null,
         next: function test_runner_toolsNext():void {
             vars.test.index = vars.test.index + 1;
+            vars.test.counts[vars.test.list.name].tests_attempted = vars.test.counts[vars.test.list.name].tests_attempted + 1;
             if ((vars.options["stop-on-fail"] === true && vars.test.counts[vars.test.list.name].assertions_fail > 0) || vars.test.index === vars.test.list.length) {
                 const skipped:number = vars.test.list.length - vars.test.index;
                 vars.test.counts[vars.test.list.name].tests_skipped = vars.test.counts[vars.test.list.name].tests_skipped + skipped;
@@ -310,7 +311,6 @@ const test_runner:test_runner = {
                 } else if (vars.test.list[vars.test.index] === undefined) {
                     test_runner_toolsNext();
                 } else {
-                    vars.test.counts[vars.test.list.name].tests_attempted = vars.test.counts[vars.test.list.name].tests_attempted + 1;
                     if (test_runner.execution[vars.test.list[vars.test.index].type] !== undefined) {
                         test_runner.execution[vars.test.list[vars.test.index].type]();
                     }

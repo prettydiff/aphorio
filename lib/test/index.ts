@@ -3,7 +3,8 @@ import log from "../core/log.ts";
 import test_listLocalBrowserApplicationLogs from "./list_local_browser_applicationLogs.ts";
 import test_listLocalBrowserCompose from "./list_local_browser_compose.ts";
 import test_listLocalBrowserDevices from "./list_local_browser_devices.ts";
-import test_listLocalBrowserDNS from "./list_local_browser_dns.ts";
+import test_listLocalBrowserDisks from "./list_local_browser_disks.ts";
+import test_listLocalBrowserDNSQuery from "./list_local_browser_dns-query.ts";
 import test_listLocalBrowserFAQ from "./list_local_browser_faq.ts";
 import test_listLocalBrowserFileSystem from "./list_local_browser_fileSystem.ts";
 import test_listLocalBrowserHash from "./list_local_browser_hash.ts";
@@ -15,7 +16,6 @@ import test_listLocalBrowserProcesses from "./list_local_browser_processes.ts";
 import test_listLocalBrowserServices from "./list_local_browser_services.ts";
 import test_listLocalBrowserSocketsApplicationTCP from "./list_local_browser_sockets_application_tcp.ts";
 import test_listLocalBrowserStart from "./list_local_browser_start.ts";
-import test_listLocalBrowserStorage from "./list_local_browser_storage.ts";
 import test_listLocalBrowserTerminal from "./list_local_browser_terminal.ts";
 import test_listLocalBrowserUsers from "./list_local_browser_users.ts";
 import test_listLocalBrowserWebSocket from "./list_local_browser_webSocket.ts";
@@ -30,22 +30,22 @@ const test_index = function test_index():void {
                 test_listLocalBrowserStart,
                 test_listLocalBrowserApplicationLogs(),
                 test_listLocalBrowserCompose(),
+                test_listLocalBrowserDevices,
+                test_listLocalBrowserDisks,
+                test_listLocalBrowserDNSQuery,
+                test_listLocalBrowserFAQ,
+                test_listLocalBrowserFileSystem,
+                test_listLocalBrowserHash,
+                test_listLocalBrowserHelp,
+                test_listLocalBrowserHTTP,
                 test_listLocalBrowserSocketsApplicationTCP,
                 test_listLocalBrowserInterfaces,
                 test_listLocalBrowserOS,
-                test_listLocalBrowserDevices,
                 test_listLocalBrowserProcesses,
                 test_listLocalBrowserServices,
-                test_listLocalBrowserStorage,
                 test_listLocalBrowserUsers,
                 test_listLocalBrowserTerminal,
-                test_listLocalBrowserFileSystem,
-                test_listLocalBrowserHTTP,
-                test_listLocalBrowserWebSocket,
-                test_listLocalBrowserDNS,
-                test_listLocalBrowserHash,
-                test_listLocalBrowserHelp,
-                test_listLocalBrowserFAQ
+                test_listLocalBrowserWebSocket
             ]
             : [
                 (typeof vars.test.list === "function")

@@ -17,7 +17,8 @@ const test_listLocalBrowserFileSystem:test_list = [
                 event: "click",
                 node: [
                     ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 11]
+                    ["getElementsByTagName", "div", 3],
+                    ["getElementsByTagName", "button", 1]
                 ]
             }
         ],
