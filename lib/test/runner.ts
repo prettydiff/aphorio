@@ -167,12 +167,11 @@ const test_runner:test_runner = {
                     store: vars.test.store,
                     test: vars.test.list[vars.test.index] as test_item_dom
                 },
-                socket:websocket_client = vars.server_meta[vars.environment.dashboard_id].sockets.open[0],
                 payload:socket_data = {
                     data: item_service,
                     service: "test-browser"
                 };
-            send(payload, socket, 3);
+            send(payload, test_runner.socket, 3);
         }
     },
     list: function test_runner_list(list:test_list, callback:(name:string) => void):void {
@@ -268,10 +267,11 @@ const test_runner:test_runner = {
         test_runner.logger(results);
         test_runner.tools.next();
     },
+    socket: null,
     tools: {
         browser_open: function test_runner_toolsBrowser():void {
             const browserCommand = function test_runner_toolsBrowser_browserCommand():string {
-                    const path:string = `http://localhost:${vars.data_meta.server_ports[vars.environment.dashboard_id].open}/?test_browser`;
+                    const path:string = `http://localhost:${vars.data_store.server_ports[vars.environment.dashboard_id].open}/?test_browser`;
                     if (vars.test.test_browser !== "" && vars.test.test_browser !== null) {
                         if (vars.test.browser_args.length > 0) {
                             return `${vars.commands.open} ${vars.test.test_browser} ${path} ${vars.test.browser_args.join(" ")}`;
@@ -281,9 +281,10 @@ const test_runner:test_runner = {
                     return `${vars.commands.open} ${path}`;
                 },
                 call_dom = function test_runner_toolsBrowser_callDom():void {
-                    if (vars.server_meta[vars.environment.dashboard_id].sockets.open[0] === undefined || vars.server_meta[vars.environment.dashboard_id].sockets.open[0].queue === undefined) {
+                    if (vars.data_store.sockets_tcp[vars.environment.dashboard_id].open[0] === undefined || vars.data_store.sockets_tcp[vars.environment.dashboard_id].open[0].queue === undefined) {
                         setTimeout(test_runner_toolsBrowser_callDom, 50);
                     } else {
+                        test_runner.socket = vars.data_store.sockets_tcp[vars.environment.dashboard_id].open[0];
                         test_runner.execution.dom();
                     }
                 };
@@ -295,7 +296,13 @@ const test_runner:test_runner = {
         callback: null,
         next: function test_runner_toolsNext():void {
             vars.test.index = vars.test.index + 1;
-            if (vars.test.index < vars.test.list.length) {
+            if ((vars.options["stop-on-fail"] === true && vars.test.counts[vars.test.list.name].assertions_fail > 0) || vars.test.index === vars.test.list.length) {
+                const skipped:number = vars.test.list.length - vars.test.index;
+                vars.test.counts[vars.test.list.name].tests_skipped = vars.test.counts[vars.test.list.name].tests_skipped + skipped;
+                vars.test.total_tests_skipped = vars.test.total_tests_skipped + skipped;
+                vars.test.counts[vars.test.list.name].time_end = process.hrtime.bigint();
+                test_runner.tools.callback(vars.test.list.name);
+            } else {
                 if (vars.test.list[vars.test.index] === null) {
                     vars.test.counts[vars.test.list.name].tests_skipped = vars.test.counts[vars.test.list.name].tests_skipped + 1;
                     vars.test.total_tests_skipped = vars.test.total_tests_skipped + 1;
@@ -308,9 +315,6 @@ const test_runner:test_runner = {
                         test_runner.execution[vars.test.list[vars.test.index].type]();
                     }
                 }
-            } else {
-                vars.test.counts[vars.test.list.name].time_end = process.hrtime.bigint();
-                test_runner.tools.callback(vars.test.list.name);
             }
         },
         time: function test_runner_toolsTime():string {

@@ -112,6 +112,7 @@ interface test_runner {
     logger: (assertions:test_assert[]) => void;
     logs: string[];
     receive: (socket_data:socket_data) => void;
+    socket: websocket_client;
     tools: {
         browser_open: () => void;
         callback: (name:string) => void;

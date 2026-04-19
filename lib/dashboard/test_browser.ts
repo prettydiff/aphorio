@@ -498,20 +498,20 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         fail = `Bad test. Property '${node[0]}' requires an index value as the third data point of a DOM item: ["${node[0]}", "${node[1]}", ${node[2]}]`;
                     }
                 }
-                if (node[1] === "" || node[1] === null || node[0] === "activeElement" || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
-                    if (fail === "") {
-                        // @ts-expect-error - TypeScript's DOM types do not understand custom extensions to the Document object
-                        element = element[node[0]];
-                    }
-                    str.push(".");
-                    str.push(node[0]);
-                } else if (node[0] === "childNodes" && node[2] !== null) {
+                if (node[0] === "childNodes" && node[2] !== null) {
                     if (fail === "") {
                         element = element.childNodes[node[2]] as HTMLElement;
                     }
                     str.push(".childNodes[");
                     str.push(String(node[2]));
                     str.push("]");
+                } else if (node[1] === "" || node[1] === null || node[0] === "activeElement" || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
+                    if (fail === "") {
+                        // @ts-expect-error - TypeScript's DOM types do not understand custom extensions to the Document object
+                        element = element[node[0]];
+                    }
+                    str.push(".");
+                    str.push(node[0]);
                 } else if (node[2] === null || node[0] === "getElementById") {
                     if (fail === "") {
                         // @ts-expect-error - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods

@@ -30,28 +30,26 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
                 {
                     node: [
                         ["getElementById", "application-logs", null],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "strong", 0]
                     ],
                     qualifier: "is",
-                    target: ["class"],
-                    type: "attribute",
-                    value: (vars.compose === null)
-                        ? "log-error"
-                        : "log-success"
+                    target: ["textContent"],
+                    type: "property",
+                    value: "sockets-application-tcp"
                 },
                 {
                     node: [
                         ["getElementById", "application-logs", null],
-                        ["getElementsByTagName", "li", 0]
+                        ["getElementsByTagName", "li", 0],
+                        ["childNodes", null, 0]
                     ],
-                    qualifier: (vars.compose === null)
+                    qualifier: (vars.environment.compose_status === null)
                         ? "begins"
                         : "is",
-                    target: ["lastChild", "textContent"],
+                    target: ["lowName()"],
                     type: "property",
-                    value: (vars.compose === null)
-                        ? "error during connect:"
-                        : "Server named dashboard created."
+                    value: "time"
                 }
             ]
         }

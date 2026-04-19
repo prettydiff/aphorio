@@ -24,8 +24,8 @@ const docker:core_module_docker = {
     },
     list: function services_docker_list(callback:() => void):void {
         const complete = function services_docker_list_complete(message:string):void {
-                vars.compose.status = message;
-                vars.compose.time = now;
+                vars.environment.compose_status = message;
+                vars.data_meta.compose_time = now;
                 ports_application();
                 callback();
             },
@@ -37,7 +37,7 @@ const docker:core_module_docker = {
                     const str:string = `${output.stderr.replace("error during connect: ", "")}`;
                     log.application({
                         error: null,
-                        message: vars.compose.status,
+                        message: vars.environment.compose_status,
                         origin: "services/docker.ts",
                         section: "compose-containers",
                         status: "error",
@@ -265,9 +265,9 @@ const docker:core_module_docker = {
                         send({
                             data: {
                                 containers: vars.data.containers,
-                                status: vars.compose.status,
-                                time: vars.compose.time,
-                                variables: vars.compose.variables
+                                status: vars.environment.compose_status,
+                                time: vars.data_meta.compose_time,
+                                variables: vars.data.compose_variables
                             },
                             service: "dashboard-compose"
                         }, socket, 3);
@@ -345,9 +345,9 @@ const docker:core_module_docker = {
                             broadcast(vars.environment.dashboard_id, "dashboard", {
                                 data: {
                                     containers: vars.data.containers,
-                                    status: vars.compose.status,
-                                    time: vars.compose.time,
-                                    variables: vars.compose.variables
+                                    status: vars.environment.compose_status,
+                                    time: vars.data_meta.compose_time,
+                                    variables: vars.data.compose_variables
                                 },
                                 service: "dashboard-compose"
                             });
@@ -382,14 +382,14 @@ const docker:core_module_docker = {
         }
         file.write({
             callback: function services_docker_variables_callback():void {
-                vars.compose.variables = variables;
+                vars.data.compose_variables = variables;
                 docker.list(function services_docker_variables_callback_list():void {
                     send({
                         data: {
                             containers: vars.data.containers,
-                            status: vars.compose.status,
-                            time: vars.compose.time,
-                            variables: vars.compose.variables
+                            status: vars.environment.compose_status,
+                            time: vars.data_meta.compose_time,
+                            variables: vars.data.compose_variables
                         },
                         service: "dashboard-compose"
                     }, socket, 3);

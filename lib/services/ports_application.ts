@@ -47,14 +47,14 @@ const ports_application = function services_portsApplication():void {
             if (server.encryption === "both") {
                 list.push({
                     hash: keys_servers[index_item],
-                    port: vars.data_meta.server_ports[keys_servers[index_item]].open,
+                    port: vars.data_store.server_ports[keys_servers[index_item]].open,
                     service: "server",
                     service_name: server.name,
                     type: "tcp"
                 });
                 list.push({
                     hash: keys_servers[index_item],
-                    port: vars.data_meta.server_ports[keys_servers[index_item]].secure,
+                    port: vars.data_store.server_ports[keys_servers[index_item]].secure,
                     service: "server",
                     service_name: server.name,
                     type: "tcp"
@@ -62,7 +62,7 @@ const ports_application = function services_portsApplication():void {
             } else {
                 list.push({
                     hash: keys_servers[index_item],
-                    port: vars.data_meta.server_ports[keys_servers[index_item]][server.encryption],
+                    port: vars.data_store.server_ports[keys_servers[index_item]][server.encryption],
                     service: "server",
                     service_name: server.name,
                     type: "tcp"

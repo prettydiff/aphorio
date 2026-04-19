@@ -173,21 +173,6 @@ interface core_server_instance extends node_net_Server {
     secure?: boolean;
 }
 
-interface server_meta {
-    [key:string]: core_server_meta_item;
-}
-
-interface core_server_meta_item {
-    server: {
-        open: core_server_instance;
-        secure: core_server_instance;
-    };
-    sockets: {
-        open: websocket_client[];
-        secure: websocket_client[];
-    };
-}
-
 interface core_server_os {
     devs: services_os_devs;
     disk: services_os_disk;
@@ -289,16 +274,8 @@ interface core_string_detect {
 
 interface core_vars {
     commands: os_vars;
-    compose: {
-        status: string;
-        time: number;
-        variables: store_string;
-    };
-    css: {
-        basic: string;
-        complete: string;
-    };
     data: {
+        compose_variables: store_string;
         containers: store_compose;
         logs: config_log[];
         ports_application: services_ports_application_item[];
@@ -307,8 +284,20 @@ interface core_vars {
         sockets_udp: services_udp_socket[];
     };
     data_meta: {
+        compose_time: number;
         // time of last port update
         ports_application: number;
+        // time of last sockets update
+        sockets: number;
+    };
+    data_store: {
+        // storage of actual web server objects
+        server: {
+            [key:string]: {
+                open: core_server_instance;
+                secure: core_server_instance;
+            };
+        };
         // server certificates
         server_certs: {
             [key:string]: transmit_tlsCerts;
@@ -317,10 +306,22 @@ interface core_vars {
         server_ports: {
             [key:string]: core_server_ports;
         };
-        // time of last sockets update
-        sockets: number;
+        // storage of application mangaed tcp sockets
+        sockets_tcp: {
+            [key:string]: {
+                open: websocket_client[];
+                secure: websocket_client[];
+            };
+        };
+        // storage of application managed udp sockets
+        sockets_udp: transmit_udp[];
     };
     environment: {
+        compose_status: string;
+        // css for generated web pages and file system display
+        css_basic: string;
+        // css for the dashboard application
+        css_complete: string;
         dashboard_id: string;
         dashboard_page: string;
         date_commit: number;
@@ -376,7 +377,6 @@ interface core_vars {
     };
     os: core_server_os;
     path: core_vars_path;
-    server_meta: server_meta;
     stats: {
         children: number;
         containers: {
@@ -412,7 +412,6 @@ interface core_vars {
         total_time_start: bigint;
     };
     text: store_string;
-    udp: transmit_udp[];
 }
 
 interface core_vars_path {

@@ -42,23 +42,10 @@ const vars:core_vars = {
             };
             return os_vars[process.platform];
         }()),
-        // properties related to docker and docker compose
-        compose: {
-            // whether the application believes docker and docker compose are executing as an OS service
-            status: null,
-            // time of last update
-            time: 0,
-            // docker compose environmental variables
-            variables: {}
-        },
-        // fractions of lib/dashboard/styles.css
-        css: {
-            // less css for system generated web pages on web servers
-            basic: "",
-            // more complete css for the dashboard
-            complete: ""
-        },
+        // primary data store, data for services, in-memory database
         data: {
+            // docker compose environmental variables
+            compose_variables: {},
             // docker image details and compose files
             containers: {},
             // log entries
@@ -72,17 +59,35 @@ const vars:core_vars = {
             // the list of udp socket data, services_udp_socket[]
             sockets_udp: []
         },
+        // additional data store, not an in-memory database
         data_meta: {
+            // time of last update
+            compose_time: 0,
             // time of last port update
             ports_application: 0,
+            // time of last sockets update
+            sockets: 0
+        },
+        // storage of service objects that are not associated with dashboard service messaging
+        data_store: {
+            // the actual web server objects and their actual socket objects
+            server: {},
             // server certificates
             server_certs: {},
             // actual ports in use by web servers
             server_ports: {},
-            // time of last sockets update
-            sockets: 0
+            // storage of application created TCP sockets by server id
+            sockets_tcp: {},
+            // list of application created UDP sockets
+            sockets_udp: []
         },
         environment: {
+            // whether the application believes docker and docker compose are executing as an OS service
+            compose_status: null,
+            // less css for system generated web pages on web servers
+            css_basic: "",
+            // more complete css for the dashboard
+            css_complete: "",
             // the web server id that is the dashboard's web server
             dashboard_id: "",
             // the fully assembled dashboard HTML after dynamic changes during build time with css and JavaScript included
@@ -258,8 +263,6 @@ const vars:core_vars = {
             sep: "/",
             servers: ""
         },
-        // the actual web server objects and their actual socket objects
-        server_meta: {},
         // an information store necessary for calculating this application's portion of the OS performance statistics
         stats: {
             children: 1,
@@ -307,9 +310,7 @@ const vars:core_vars = {
             red      : "\u001b[31m",
             underline: "\u001b[4m",
             yellow   : "\u001b[33m"
-        },
-        // stores UDP sockets
-        udp: []
+        }
     };
 
 export default vars;
