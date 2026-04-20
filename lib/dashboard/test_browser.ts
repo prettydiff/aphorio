@@ -78,15 +78,15 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                     : String(value),
                 s_unit:string = (typeof unit.value === "string")
                     ? `"${unit.value}"`
-                    : String(unit.value);
+                    : String(unit.value),
+                nullable:boolean = (test_nullable === true && value === null);
             if (unit.store === true) {
                 remote.store = value;
             } else if (unit.value === remote.magicString) {
                 unit.value = remote.store as string;
             }
             if (qualifier === "begins") {
-                const nullable:boolean = (test_nullable === true && value === null),
-                    test:boolean = (String(value).indexOf(String(unit.value)) === 0);
+                const test:boolean = (String(value).indexOf(String(unit.value)) === 0);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
@@ -100,8 +100,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "contains") {
-                const nullable:boolean = (unit.nullable === true && value === null),
-                    test:boolean = (String(value).includes(String(unit.value)) === true);
+                const test:boolean = (String(value).includes(String(unit.value)) === true);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
@@ -117,7 +116,6 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             if (qualifier === "ends") {
                 const str_value:string = String(value),
                     str_unit:string = String(unit.value),
-                    nullable:boolean = (unit.nullable === true && value === null),
                     test:boolean = (str_value.indexOf(str_unit) === str_value.length - str_unit.length);
                 return {
                     assessment: (nullable === true)
@@ -132,8 +130,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "greater") {
-                const nullable:boolean = (unit.nullable === true && value === null),
-                    test:boolean = (((typeof value === "bigint" || (typeof value === "string" && (/^\d+n$/).test(String(value)) === true)) && BigInt(value as string) > BigInt(unit.value)) || Number(value) > Number(unit.value));
+                const test:boolean = (((typeof value === "bigint" || (typeof value === "string" && (/^\d+n$/).test(String(value)) === true)) && BigInt(value as string) > BigInt(unit.value)) || Number(value) > Number(unit.value));
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
@@ -147,8 +144,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "is") {
-                const nullable:boolean = (unit.nullable === true && value === null),
-                    test:boolean = (value === unit.value);
+                const test:boolean = (value === unit.value);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
@@ -162,8 +158,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "lesser") {
-                const nullable:boolean = (unit.nullable === true && value === null),
-                    test:boolean = (((typeof value === "bigint" || (typeof value === "string" && (/^\d+n$/).test(String(value)) === true)) && BigInt(value as string) < BigInt(unit.value)) || Number(value) < Number(unit.value));
+                const test:boolean = (((typeof value === "bigint" || (typeof value === "string" && (/^\d+n$/).test(String(value)) === true)) && BigInt(value as string) < BigInt(unit.value)) || Number(value) < Number(unit.value));
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
@@ -177,8 +172,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "not") {
-                const nullable:boolean = (unit.nullable === true && value === null),
-                    test:boolean = (value !== unit.value);
+                const test:boolean = (value !== unit.value);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
@@ -192,14 +186,27 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "not contains") {
-                const nullable:boolean = (unit.nullable === true && value === null),
-                    test:boolean = (String(value).includes(String(unit.value)) === false);
+                const test:boolean = (String(value).includes(String(unit.value)) === false);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test === true)
                             ? ` is ${s_value}, which does not contain ${s_unit}`
                             : ` is ${s_value}, which contains ${s_unit}`,
+                    location: unit.node.nodeString,
+                    pass: (test === true || nullable === true),
+                    store: unit.store,
+                    value: value as string
+                };
+            }
+            if (qualifier === "numeric") {
+                const test:boolean = (typeof value === "number" || typeof value === "bigint" || (typeof value === "string" && (isNaN(Number(value)) === false || (/^\d+n$/).test(value) === true)));
+                return {
+                    assessment: (nullable === true)
+                        ? " is null, which is accepted"
+                        : ((unit.value === false && test === false) || test === true)
+                            ? ` is ${s_value}, which is a numeric value`
+                            : ` is ${s_value}, which is not a numeric value`,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,

@@ -17,7 +17,8 @@ const test_listLocalBrowserHTTP:test_list = [
                 event: "click",
                 node: [
                     ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 12]
+                    ["getElementsByTagName", "div", 4],
+                    ["getElementsByTagName", "button", 0]
                 ]
             }
         ],

@@ -18,7 +18,8 @@ const test_listLocalBrowserInterfaces:test_list = [
                 event: "click",
                 node: [
                     ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 3]
+                    ["getElementsByTagName", "div", 1],
+                    ["getElementsByTagName", "button", 0]
                 ]
             }
         ],

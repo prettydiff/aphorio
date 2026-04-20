@@ -27,7 +27,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
     summary.push(`    ${vars.text.angry}*${vars.text.none} List assertions          : ${pad_right(18, list.assertions.commas())}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} List skipped tests       : ${pad_right(18, list.tests_skipped.commas())}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} List failed tests        : ${vars.text[color] + pad_right(18, list.tests_failed.commas()) + vars.text.none}`);
-    summary.push(`    ${vars.text.angry}*${vars.text.none} List failed assertions   : ${vars.text[color] + pad_right(18, list.assertions_fail.commas()) + vars.text.none}`);console.log(list.tests_attempted);
+    summary.push(`    ${vars.text.angry}*${vars.text.none} List failed assertions   : ${vars.text[color] + pad_right(18, list.assertions_fail.commas()) + vars.text.none}`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage test pass     : ${vars.text[color] + pad_right(17, (((list.tests_attempted - list.tests_failed) / list.tests_attempted) * 100).toFixed(2)) + vars.text.none}%`);
     summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage assertion pass: ${vars.text[color] + pad_right(17, (((list.assertions - list.assertions_fail) / list.assertions) * 100).toFixed(2)) + vars.text.none}%`);
     if (complete === true && vars.test.total_lists > 1) {

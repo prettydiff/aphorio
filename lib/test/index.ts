@@ -38,11 +38,11 @@ const test_index = function test_index():void {
                 test_listLocalBrowserHash,
                 test_listLocalBrowserHelp,
                 test_listLocalBrowserHTTP,
-                test_listLocalBrowserSocketsApplicationTCP,
                 test_listLocalBrowserInterfaces,
                 test_listLocalBrowserOS,
                 test_listLocalBrowserProcesses,
                 test_listLocalBrowserServices,
+                test_listLocalBrowserSocketsApplicationTCP,
                 test_listLocalBrowserUsers,
                 test_listLocalBrowserTerminal,
                 test_listLocalBrowserWebSocket
