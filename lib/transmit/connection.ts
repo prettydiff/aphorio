@@ -402,8 +402,8 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                     if (vars.data.sockets_tcp[index].proxy === null) {
                                         const servers:string[] = Object.keys(vars.data_store.server),
                                             list = function transmit_connection_handshake_proxyExisting_loop_list(id:string, list_type:"open"|"secure"):boolean {
-                                                let sockets:websocket_client[] = vars.data_store.sockets_tcp[id][list_type],
-                                                    count:number = sockets.length;
+                                                const sockets:websocket_client[] = vars.data_store.sockets_tcp[id][list_type];
+                                                let count:number = sockets.length;
                                                 do {
                                                     count = count - 1;
                                                     if (sockets[count].hash === hash) {

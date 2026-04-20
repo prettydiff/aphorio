@@ -1131,7 +1131,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                             raw[type] = (win32 === false && type === "disk")
                                 ? JSON.parse(temp).blockdevices
                                 : JSON.parse(temp);
-                        } catch (e:unknown) {
+                        } catch(e:unknown) {
                             log.application({
                                 error: e as node_error,
                                 message: `Error parsing operating system data of type ${type}.`,

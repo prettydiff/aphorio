@@ -756,7 +756,7 @@ const ui = function ui():void {
                             // eslint-disable-next-line no-restricted-syntax
                             try {
                                 variables = JSON.parse(value);
-                            } catch (e:unknown) {
+                            } catch(e:unknown) {
                                 const error:Error = e as Error;
                                 text(error.message, false);
                                 return;
@@ -2666,7 +2666,7 @@ const ui = function ui():void {
                         // eslint-disable-next-line no-restricted-syntax
                         try {
                             serverData = JSON.parse(value);
-                        } catch (e:unknown) {
+                        } catch(e:unknown) {
                             const error:Error = e as Error;
                             populate(false, error.message);
                             disable();
