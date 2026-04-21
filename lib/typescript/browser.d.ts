@@ -275,6 +275,7 @@ declare global {
         sendTest: (payload:test_assert[], index:number) => services_testBrowser;
         store: HTMLElement | test_primitive;
         stringify: (primitive:test_primitive) => string;
+        suite_name: string;
         test_item: services_testBrowser;
     }
 

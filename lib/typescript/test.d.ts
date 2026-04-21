@@ -24,7 +24,7 @@ interface test_assertion_dom {
     store?: boolean;
     target: string[];
     type: "attribute" | "element" | "property";
-    value: test_primitive;
+    value: test_primitive | test_primitive[];
 }
 
 interface test_browserDOM extends Array<type_browserDOM> {
@@ -116,6 +116,7 @@ interface test_runner {
     tools: {
         browser_open: () => void;
         callback: (name:string) => void;
+        get_value: (value_actual:test_primitive, value_test:test_primitive|test_primitive[]) => test_primitive;
         next: () => void;
         time: () => string;
     };

@@ -77,7 +77,7 @@ const test_listLocalBrowserSocketsApplicationTCP:test_list = [
                 qualifier: "begins",
                 target: ["textContent"],
                 type: "property",
-                value: "browserSocket-"
+                value: ["browserSocket-", "dashboard-term"]
             },
             {
                 node: [
@@ -89,7 +89,7 @@ const test_listLocalBrowserSocketsApplicationTCP:test_list = [
                 qualifier: "is",
                 target: ["textContent"],
                 type: "property",
-                value: "dashboard"
+                value: ["dashboard", "dashboard-terminal"]
             },
             {
                 node: [
@@ -137,7 +137,7 @@ const test_listLocalBrowserSocketsApplicationTCP:test_list = [
                 qualifier: "is",
                 target: ["textContent"],
                 type: "property",
-                value: "127.0.0.1"
+                value: ["127.0.0.1", "::1"] as test_primitive[]
             },
             {
                 node: [
@@ -161,7 +161,7 @@ const test_listLocalBrowserSocketsApplicationTCP:test_list = [
                 qualifier: "is",
                 target: ["textContent"],
                 type: "property",
-                value: "127.0.0.1"
+                value: ["127.0.0.1", "::1"]
             }
         ]
     },

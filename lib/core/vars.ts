@@ -168,7 +168,8 @@ const vars:core_vars = {
             "port-open": 0,
             "port-secure": 0,
             "stop-on-fail": false,
-            "test": false
+            "test": false,
+            "test_verbose": false
         },
         // raw OS data
         os: {

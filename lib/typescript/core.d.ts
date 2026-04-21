@@ -306,7 +306,7 @@ interface core_vars {
         server_ports: {
             [key:string]: core_server_ports;
         };
-        // storage of application mangaed tcp sockets
+        // storage of application managed tcp sockets
         sockets_tcp: {
             [key:string]: {
                 open: websocket_client[];
@@ -374,6 +374,7 @@ interface core_vars {
         "port-secure": number;
         "stop-on-fail": boolean;
         "test": boolean;
+        "test_verbose": boolean;
     };
     os: core_server_os;
     path: core_vars_path;
