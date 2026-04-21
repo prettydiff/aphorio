@@ -18,7 +18,8 @@ const test_listLocalBrowserDevices:test_list = [
                 event: "click",
                 node: [
                     ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 5]
+                    ["getElementsByTagName", "div", 2],
+                    ["getElementsByTagName", "button", 1]
                 ]
             }
         ],
@@ -116,7 +117,7 @@ const test_listLocalBrowserDevices:test_list = [
                 value: "50"
             }
         ],
-        name: "Filter users",
+        name: "Filter devices",
         type: "dom",
         unit: [
             {

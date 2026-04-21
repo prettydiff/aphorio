@@ -35,14 +35,14 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                     secure:"open"|"secure" = (serverItem.secure === true)
                         ? "secure"
                         : "open";
-                vars.server_meta[serverItem.id].server[secure] = serverItem;
-                if (vars.data_meta.server_ports[serverItem.id] === undefined) {
-                    vars.data_meta.server_ports[serverItem.id] = {
+                vars.data_store.server[serverItem.id][secure] = serverItem;
+                if (vars.data_store.server_ports[serverItem.id] === undefined) {
+                    vars.data_store.server_ports[serverItem.id] = {
                         open: 0,
                         secure: 0
                     };
                 }
-                vars.data_meta.server_ports[serverItem.id][secure] = address.port;
+                vars.data_store.server_ports[serverItem.id][secure] = address.port;
                 log.application({
                     error: null,
                     message: `${secure.capitalize()} server came online at port ${address.port}.`,
@@ -53,7 +53,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                 });
                 broadcast(vars.environment.dashboard_id, "dashboard", {
                     data: {
-                        ports_used: vars.data_meta.server_ports,
+                        ports_used: vars.data_store.server_ports,
                         servers: vars.data.servers
                     },
                     service: "dashboard-server-update"
@@ -87,7 +87,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
         wsServer.on("error", server_error);
         wsServer.on("close", server_error);
         if (vars.data.servers[wsServer.id] !== undefined && options !== null) {
-            vars.data_meta.server_certs[wsServer.id] = options.options;
+            vars.data_store.server_certs[wsServer.id] = options.options;
         }
 
         // insecure connection listener
@@ -97,7 +97,9 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
 
         // secure connection listener
         wsServer.listen({
-            port: vars.data.servers[id].ports[secureType]
+            port: (vars.options[`port-${secureType}`] > 0)
+                ? vars.options[`port-${secureType}`]
+                : vars.data.servers[id].ports[secureType]
         }, listenerCallback);
     };
 
@@ -105,16 +107,14 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
     if (Array.isArray(vars.data.servers[id].domain_local) === false) {
         vars.data.servers[id].domain_local = [];
     }
-    if (vars.server_meta[id] === undefined) {
-        vars.server_meta[id] = {
-            server: {
-                open: null,
-                secure: null
-            },
-            sockets: {
-                open: [],
-                secure: []
-            }
+    if (vars.data_store.server[id] === undefined) {
+        vars.data_store.server[id] = {
+            open: null,
+            secure: null
+        };
+        vars.data_store.sockets_tcp[id] = {
+            open: [],
+            secure: []
         };
     }
 

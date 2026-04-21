@@ -7,9 +7,9 @@ const broadcast = function transmit_broadcast(server:string, type:string, messag
             ? null
             : vars.data.servers[server].encryption,
         perServer = function transmit_broadcast_perServer(encryption:"open"|"secure"):void {
-            const list:websocket_client[] = (vars.server_meta[server] === undefined)
+            const list:websocket_client[] = (vars.data_store.sockets_tcp[server] === undefined)
                 ? []
-                : vars.server_meta[server].sockets[encryption];
+                : vars.data_store.sockets_tcp[server][encryption];
             let index:number = list.length;
             if (index > 0) {
                 do {

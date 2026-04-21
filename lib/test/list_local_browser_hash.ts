@@ -17,7 +17,8 @@ const test_listLocalBrowserHash:test_list = [
                 event: "click",
                 node: [
                     ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 15]
+                    ["getElementsByTagName", "div", 3],
+                    ["getElementsByTagName", "button", 3]
                 ]
             }
         ],

@@ -23,14 +23,14 @@ const socket_end = function transmit_socketEnd(error:node_error):void {
         encryption:"open"|"secure" = (socket.encrypted === true)
             ? "secure"
             : "open";
-    let index:number = vars.server_meta[socket.server].sockets[encryption].length;
+    let index:number = vars.data_store.sockets_tcp[socket.server][encryption].length;
 
     // remove actual socket object from storage
     if (index > 0) {
         do {
             index = index - 1;
-            if (vars.server_meta[socket.server].sockets[encryption][index].hash === socket.hash) {
-                vars.server_meta[socket.server].sockets[encryption].splice(index, 1);
+            if (vars.data_store.sockets_tcp[socket.server][encryption][index].hash === socket.hash) {
+                vars.data_store.sockets_tcp[socket.server][encryption].splice(index, 1);
                 break;
             }
         } while (index > 0);

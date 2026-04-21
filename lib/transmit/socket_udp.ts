@@ -8,12 +8,12 @@ const socket_udp:core_module_udp = {
     closed: function transmit_socketUDP_closed():void {
         // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
         const socket:transmit_udp = this;
-        let index:number = vars.udp.length;
+        let index:number = vars.data_store.sockets_udp.length;
         if (index > 0) {
             do {
                 index = index - 1;
-                if (vars.udp[index].hash === socket.hash) {
-                    vars.udp.splice(index, 1);
+                if (vars.data_store.sockets_udp[index].hash === socket.hash) {
+                    vars.data_store.sockets_udp.splice(index, 1);
                     break;
                 }
             } while (index > 0);
@@ -78,7 +78,7 @@ const socket_udp:core_module_udp = {
                             if (callback !== null) {
                                 callback(socket);
                             }
-                            vars.udp.push(socket);
+                            vars.data_store.sockets_udp.push(socket);
                         },
                         digest: "hex",
                         hash_input_type: "direct",

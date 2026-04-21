@@ -24,7 +24,7 @@ interface test_assertion_dom {
     store?: boolean;
     target: string[];
     type: "attribute" | "element" | "property";
-    value: test_primitive;
+    value: test_primitive | test_primitive[];
 }
 
 interface test_browserDOM extends Array<type_browserDOM> {
@@ -112,9 +112,11 @@ interface test_runner {
     logger: (assertions:test_assert[]) => void;
     logs: string[];
     receive: (socket_data:socket_data) => void;
+    socket: websocket_client;
     tools: {
         browser_open: () => void;
         callback: (name:string) => void;
+        get_value: (value_actual:test_primitive, value_test:test_primitive|test_primitive[]) => test_primitive;
         next: () => void;
         time: () => string;
     };
@@ -123,6 +125,6 @@ interface test_runner {
 type test_domMethod = "activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window";
 type test_eventName = "blur" | "click" | "command" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh-interaction" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
 type test_primitive = bigint | boolean | number | string | null | undefined;
-type test_qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not contains" | "not";
+type test_qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not contains" | "not" | "numeric";
 
 // type test_type = "command" | "dom" | "file" | "http" | "websocket"

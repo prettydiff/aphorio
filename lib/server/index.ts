@@ -10,7 +10,7 @@ const servers = function services_server(socketData:socket_data):void {
         const data:services_server_action = socketData.data as services_server_action,
             callback = function services_server_callback():void {
                 const payload:services_server_update = {
-                    ports_used: vars.data_meta.server_ports,
+                    ports_used: vars.data_store.server_ports,
                     servers: vars.data.servers
                 };
                 broadcast(vars.environment.dashboard_id, "dashboard", {

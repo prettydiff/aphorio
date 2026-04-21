@@ -77,6 +77,10 @@ declare global {
             section: type_dashboard_sections;
             state: state_store;
         };
+        message: {
+            init: () => void;
+            receive: (data:string) => void;
+        };
         sections: {
             "application-logs": section_applicationLogs;
             "compose-containers": section_compose_containers;
@@ -271,6 +275,7 @@ declare global {
         sendTest: (payload:test_assert[], index:number) => services_testBrowser;
         store: HTMLElement | test_primitive;
         stringify: (primitive:test_primitive) => string;
+        suite_name: string;
         test_item: services_testBrowser;
     }
 

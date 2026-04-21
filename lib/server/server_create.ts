@@ -88,7 +88,7 @@ const server_create = function services_serverCreate(data:services_server_action
                     const keys:string[] = Object.keys(vars.data.servers),
                         total:number = keys.length,
                         config:core_servers_file = {
-                            "compose-variables": vars.compose.variables,
+                            "compose-variables": vars.data.compose_variables,
                             dashboard_id: vars.environment.dashboard_id,
                             servers: {},
                             stats: {
@@ -149,8 +149,8 @@ const server_create = function services_serverCreate(data:services_server_action
                         }
                     }
                     vars.data.servers[config.id] = config;
-                    vars.data_meta.server_certs[config.id] = null;
-                    vars.data_meta.server_ports[config.id] = {
+                    vars.data_store.server_certs[config.id] = null;
+                    vars.data_store.server_ports[config.id] = {
                         open: 0,
                         secure: 0
                     };

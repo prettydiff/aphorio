@@ -14,7 +14,7 @@ const statistics:core_module_statistics = {
             keys:string[] = Object.keys(vars.data.servers),
             len:number = keys.length,
             file_data:core_servers_file = {
-                "compose-variables": vars.compose.variables,
+                "compose-variables": vars.data.compose_variables,
                 dashboard_id: vars.environment.dashboard_id,
                 servers: {},
                 stats: {
@@ -381,7 +381,7 @@ const statistics:core_module_statistics = {
             //     disk_complete();
             // },
             net = function services_statisticsData_netIO(type:"in"|"out"):void {
-                const keys:string[] = Object.keys(vars.server_meta),
+                const keys:string[] = Object.keys(vars.data_store.sockets_tcp),
                     sockets = function core_status_netIO_sockets(list:websocket_client[]):void {
                         let index_list:number = list.length;
                         if (index_list > 0) {
@@ -407,10 +407,10 @@ const statistics:core_module_statistics = {
                         index = index - 1;
                         encryption = vars.data.servers[keys[index]].encryption;
                         if (encryption === "both") {
-                            sockets(vars.server_meta[keys[index]].sockets.open);
-                            sockets(vars.server_meta[keys[index]].sockets.secure);
+                            sockets(vars.data_store.sockets_tcp[keys[index]].open);
+                            sockets(vars.data_store.sockets_tcp[keys[index]].secure);
                         } else {
-                            sockets(vars.server_meta[keys[index]].sockets[encryption]);
+                            sockets(vars.data_store.sockets_tcp[keys[index]][encryption]);
                         }
                     } while (index > 0);
                 }

@@ -17,7 +17,8 @@ const test_listLocalBrowserWebSocket:test_list = [
                 event: "click",
                 node: [
                     ["getElementsByTagName", "nav", 0],
-                    ["getElementsByTagName", "button", 13]
+                    ["getElementsByTagName", "div", 4],
+                    ["getElementsByTagName", "button", 1]
                 ]
             }
         ],

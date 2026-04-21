@@ -13,7 +13,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         ? "secure"
         : "open";
     // permit if the socket is not already created
-    if (vars.server_meta[config.server].sockets[encryption].includes(config.socket) === false) {
+    if (vars.data_store.sockets_tcp[config.server][encryption].includes(config.socket) === false) {
         const now:number = Date.now(),
             ping = function transmit_socketExtension_ping(ttl:number, callback:(err:node_error, roundtrip:bigint) => void):void {
                 const errorObject = function transmit_socketExtension_ping_errorObject(code:string, message:string):node_error {
@@ -113,7 +113,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         if (config.callback !== null && config.callback !== undefined) {
             config.callback(config.socket, config.timeout);
         }
-        vars.server_meta[config.server].sockets[encryption].push(config.socket);
+        vars.data_store.sockets_tcp[config.server][encryption].push(config.socket);
         vars.data.sockets_tcp.push(socket);
         socket_list_build();
         log.application(log_config);

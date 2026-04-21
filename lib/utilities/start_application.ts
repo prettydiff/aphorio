@@ -184,7 +184,7 @@ const start_application = function utilities_startApplication(process_path:strin
             cgroup: {
                 label: "Find Linux cgroup address for gathering precision docker performance metrics.",
                 task: function utilities_startApplication_cgroup():void {
-                    if (vars.environment.features["compose-containers"] === true && vars.compose.status === "" && vars.os.process.admin === true) {
+                    if (vars.environment.features["compose-containers"] === true && vars.environment.compose_status === "" && vars.os.process.admin === true) {
                         const addresses:string[] = [
                                 "/sys/fs/cgroup/system.slice/",
                                 "/sys/fs/cgroup/docker/",
@@ -289,7 +289,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 vars.environment.dashboard_page = vars.environment.dashboard_page
                                     .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard`)
                                     .replace("replace_javascript", total_script)
-                                    .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.css.complete + xterm_css}</style>`);
+                                    .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.environment.css_complete + xterm_css}</style>`);
                                 complete_tasks("html");
                             }
                         };
@@ -335,8 +335,8 @@ const start_application = function utilities_startApplication(process_path:strin
                     file.read({
                         callback: function utilities_startApplication_taskCSS_readCSS(fileContents:Buffer):void {
                             const css:string = fileContents.toString();
-                            vars.css.complete = css.slice(css.indexOf(":root"));
-                            vars.css.basic = vars.css.complete.slice(0, css.indexOf("/* end basic html */"));
+                            vars.environment.css_complete = css.slice(css.indexOf(":root"));
+                            vars.environment.css_basic = vars.environment.css_complete.slice(0, css.indexOf("/* end basic html */"));
                             complete("css");
                         },
                         location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
@@ -487,7 +487,7 @@ const start_application = function utilities_startApplication(process_path:strin
                             }
                         }
                         if (index_srv > 0) {
-                            vars.compose.variables = config["compose-variables"];
+                            vars.data.compose_variables = config["compose-variables"];
                             do {
                                 index_srv = index_srv - 1;
                                 if (vars.environment.features["servers-web"] === true || config.servers[keys_srv[index_srv]].id === config.dashboard_id) {
@@ -643,8 +643,8 @@ const start_application = function utilities_startApplication(process_path:strin
                     id: "",
                     name: "dashboard",
                     ports: {
-                        open: 0,
-                        secure: 0
+                        open: vars.options["port-open"],
+                        secure: vars.options["port-secure"]
                     },
                     redirect_asset: {
                         "localhost": {
@@ -746,23 +746,23 @@ const start_application = function utilities_startApplication(process_path:strin
                                     index = 0;
                                     do {
                                         if (vars.data.servers[servers[index]].encryption === "both") {
-                                            logItem(vars.data.servers[servers[index]].name, "open", (vars.data_meta.server_ports[servers[index]].open === 0)
+                                            logItem(vars.data.servers[servers[index]].name, "open", (vars.data_store.server_ports[servers[index]].open === 0)
                                                 ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
-                                                : vars.text.green + vars.data_meta.server_ports[servers[index]].open + vars.text.none
+                                                : vars.text.green + vars.data_store.server_ports[servers[index]].open + vars.text.none
                                             );
-                                            logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_meta.server_ports[servers[index]].secure === 0)
+                                            logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_store.server_ports[servers[index]].secure === 0)
                                                 ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
-                                                : vars.text.green + vars.data_meta.server_ports[servers[index]].secure + vars.text.none
+                                                : vars.text.green + vars.data_store.server_ports[servers[index]].secure + vars.text.none
                                             );
                                         } else if (vars.data.servers[servers[index]].encryption === "open") {
-                                            logItem(vars.data.servers[servers[index]].name, "open", (vars.data_meta.server_ports[servers[index]].open === 0)
+                                            logItem(vars.data.servers[servers[index]].name, "open", (vars.data_store.server_ports[servers[index]].open === 0)
                                                 ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
-                                                : vars.text.green + vars.data_meta.server_ports[servers[index]].open + vars.text.none
+                                                : vars.text.green + vars.data_store.server_ports[servers[index]].open + vars.text.none
                                             );
                                         } else if (vars.data.servers[servers[index]].encryption === "secure") {
-                                            logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_meta.server_ports[servers[index]].secure === 0)
+                                            logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_store.server_ports[servers[index]].secure === 0)
                                                 ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
-                                                : vars.text.green + vars.data_meta.server_ports[servers[index]].secure + vars.text.none
+                                                : vars.text.green + vars.data_store.server_ports[servers[index]].secure + vars.text.none
                                             );
                                         }
                                         index = index + 1;

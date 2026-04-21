@@ -109,19 +109,19 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
 
         // 1. Disable the servers and kill their sockets
         if (encryption === "both") {
-            vars.server_meta[id].server.open.close();
-            vars.server_meta[id].server.secure.close();
-            kill_sockets(vars.server_meta[id].sockets.open);
-            kill_sockets(vars.server_meta[id].sockets.secure);
+            vars.data_store.server[id].open.close();
+            vars.data_store.server[id].secure.close();
+            kill_sockets(vars.data_store.sockets_tcp[id].open);
+            kill_sockets(vars.data_store.sockets_tcp[id].secure);
         } else {
-            vars.server_meta[id].server[encryption].close();
-            kill_sockets(vars.server_meta[id].sockets[encryption]);
+            vars.data_store.server[id][encryption].close();
+            kill_sockets(vars.data_store.sockets_tcp[id][encryption]);
         }
         if (data.action === "destroy" || data.action === "modify") {
             const modify_file = function servers_serverHalt_modifyFile():void {
                 // 2. modify the servers.json file
                 const config:core_servers_file = {
-                    "compose-variables": vars.compose.variables,
+                    "compose-variables": vars.data.compose_variables,
                     dashboard_id: vars.environment.dashboard_id,
                     servers: {},
                     stats: {
@@ -149,14 +149,15 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
             };
             if (data.action === "modify") {
                 vars.data.servers[id] = data.server;
-                vars.data_meta.server_ports[id] = {
+                vars.data_store.server_ports[id] = {
                     open: 0,
                     secure: 0
                 };
                 modify_file();
             } else {
                 delete vars.data.servers[id];
-                delete vars.server_meta[id];
+                delete vars.data_store.server[id];
+                delete vars.data_store.sockets_tcp[id];
                 file.remove({
                     callback: modify_file,
                     exclusions: null,

@@ -318,6 +318,7 @@ interface services_testBrowser {
     magicString: string;
     result: test_assert[];
     store: test_primitive;
+    suite_name: string;
     test: test_browserItem;
 }
 

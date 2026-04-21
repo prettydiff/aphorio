@@ -74,7 +74,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         "<meta content=\"application/javascript\" http-equiv=\"content-script-type\"/>",
                         "<meta content=\"#bbbbff\" name=\"msapplication-TileColor\"/>",
                         (config.template === true)
-                            ? `<style type="text/css">${vars.css.basic}</style>`
+                            ? `<style type="text/css">${vars.environment.css_basic}</style>`
                             : "",
                         "<link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,iVBORw0KGgo=\"/>",
                         "</head>",
@@ -354,9 +354,9 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     compose: (vars.environment.features["compose-containers"] === true)
                         ? {
                             containers: vars.data.containers,
-                            status: vars.compose.status,
-                            time: vars.compose.time,
-                            variables: vars.compose.variables
+                            status: vars.environment.compose_status,
+                            time: vars.data_meta.compose_time,
+                            variables: vars.data.compose_variables
                         }
                         : null,
                     dashboard_id: vars.environment.dashboard_id,
@@ -383,7 +383,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         time: vars.data_meta.ports_application
                     },
                     server_ports: (vars.environment.features["servers-web"] === true)
-                        ? vars.data_meta.server_ports
+                        ? vars.data_store.server_ports
                         : null,
                     servers: (vars.environment.features["servers-web"] === true)
                         ? vars.data.servers

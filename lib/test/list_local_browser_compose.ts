@@ -28,7 +28,7 @@ const test_listLocalBrowserCompose = function test_listLocalBrowserCompose():tes
             unit: []
         }
     ];
-    if (vars.compose === null) {
+    if (vars.environment.compose_status === null) {
         list.push({
             delay: null,
             interaction: null,
