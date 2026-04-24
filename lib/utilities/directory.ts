@@ -7,7 +7,7 @@ import spawn from "../core/spawn.ts";
 const directory = function utilities_directory(args:config_directory):void {
     // arguments:
     // * callback - function - the output is passed into the callback as an argument
-    // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
+    // * depth - number - how many directories deep a recursive scan should read, a value less than 1 means full recursion
     // * exclusions - string array - a list of items to exclude
     // * parent - boolean - whether to capture data about the parent directory
     // * path - string - where to start in the local file system
@@ -214,7 +214,7 @@ const directory = function utilities_directory(args:config_directory):void {
                                 name:string = ((/^\w:(\\)?$/).test(path) === true)
                                     ? path_drive
                                     : (args.relative === true)
-                                        ? start_rel + path.slice(path.indexOf(start_rel) + start_rel.length)
+                                        ? path.slice(path.indexOf(start_rel) + start_rel.length + 1)
                                         : path,
                                 dir_len:number = (args.path === "\\")
                                     ? dirs.length + 1

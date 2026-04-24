@@ -14,11 +14,13 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
     const data:services_fileSystem = socket_data.data as services_fileSystem,
         service:services_fileSystem = {
             address: data.address,
+            depth: data.depth,
             dirs: null,
             failures: [],
             file: null,
             mime: "",
             parent: null,
+            path_style: data.path_style,
             search: data.search,
             sep: vars.path.sep
         },
@@ -29,12 +31,11 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             }, transmit.socket as websocket_client, 3);
         },
         dirCallback = function services_fileSystem_dirCallback(list:core_directory_list):void {
-            if (list.length === 0) {
+            const len:number = list.length;
+            if (len === 0) {
                 complete();
             } else if (data.search !== null || list[0][1] === "directory") {
-                const local:type_directory_item[] = [],
-                    len:number = list.length - 1,
-                    sort = function services_fileSystem_dirCallback_sort(a:type_directory_item, b:type_directory_item):-1|0|1 {
+                const sort = function services_fileSystem_dirCallback_sort(a:type_directory_item, b:type_directory_item):-1|0|1 {
                         if (a[1] < b[1]) {
                             return -1;
                         }
@@ -50,22 +51,23 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                             }
                         }
                         return 0;
-                    };
-                let index:number = 1;
-                if (data.search === null) {
-                    if (len > 1) {
-                        do {
-                            if (list[index][2] === 0) {
-                                local.push(list[index]);
-                            }
-                            index = index + 1;
-                        } while (index < len);
-                    }
-                    local.sort(sort);
-                    if (list[0][0] !== "\\") {
-                        local.splice(0, 0, list[0]);
-                    }
-                    service.dirs = local;
+                    },
+                    children:type_directory_item[] = [];
+                if (data.depth > 0) {
+                    const token:string = (data.address.charAt(data.address.length - 1) === vars.path.sep)
+                        ? data.address
+                        : data.address + vars.path.sep;
+                    let index:number = len,
+                        paths:string[] = null;
+                    do {
+                        index = index - 1;
+                        paths = list[index][0].replace(token, "").split(vars.path.sep);
+                        if (paths.length <= data.depth) {
+                            children.push(list[index]);
+                        }
+                    } while (index > 0);
+                    children.sort(sort);
+                    service.dirs = children;
                 } else {
                     list.sort(sort);
                     service.dirs = list;
@@ -146,13 +148,13 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
         },
         config_parent:config_directory = {
             callback: dirCallback,
-            depth: (data.search === null)
-                ? 2
+            depth: (data.depth > 0)
+                ? data.depth + 1
                 : 0,
             exclusions: [],
             parent: true,
             path: data.address,
-            relative: false,
+            relative: (data.path_style === "relative"),
             search: data.search,
             symbolic: true
         };

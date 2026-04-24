@@ -88,11 +88,13 @@ interface services_dns_output {
 
 interface services_fileSystem {
     address: string;
+    depth: number;
     dirs: type_directory_item[];
     failures: string[];
     file: string;
     mime: string;
     parent: type_directory_item;
+    path_style: "absolute" | "relative";
     search: string;
     sep: "/"|"\\";
 }

@@ -371,7 +371,7 @@ declare global {
         events: {
             key: (event:KeyboardEvent) => void;
             resize: () => void;
-            send: (event:FocusEvent|KeyboardEvent) => void;
+            send: () => void;
         };
         media: {
             audio: HTMLElement;
@@ -383,9 +383,11 @@ declare global {
         };
         nodes: {
             content: HTMLElement;
+            depth: HTMLInputElement;
             failures: HTMLElement;
             output: HTMLElement;
             path: HTMLInputElement;
+            path_style: HTMLSelectElement;
             search: HTMLInputElement;
             status: HTMLElement;
             summary: HTMLElement;
