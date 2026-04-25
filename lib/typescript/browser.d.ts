@@ -369,6 +369,7 @@ declare global {
     interface section_file_system extends module_sections {
         block: boolean;
         events: {
+            file_button: (event:MouseEvent) => void;
             key: (event:KeyboardEvent) => void;
             resize: () => void;
             send: () => void;
@@ -644,7 +645,9 @@ declare global {
             types: string;
         };
         fileSystem: {
+            depth: string;
             path: string;
+            path_style: number;
             search: string;
         };
         graph_display: number;

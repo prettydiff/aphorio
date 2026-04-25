@@ -255,7 +255,9 @@ const ui = function ui():void {
                                 types: ""
                             },
                             fileSystem: {
+                                depth: "",
                                 path: "",
+                                path_style: 1,
                                 search: ""
                             },
                             graph_type: 0,
@@ -1388,6 +1390,13 @@ const ui = function ui():void {
             "file-system": {
                 block: false,
                 events: {
+                    file_button: function dashboard_sections_fileSystem_fileButton(event:MouseEvent):void {
+                        const target:HTMLElement = (event.target.lowName() === "button")
+                            ? event.target
+                            : event.target.getAncestor("button", "tag");
+                        dashboard.sections["file-system"].nodes.path.value = target.dataset["raw"];
+                        dashboard.sections["file-system"].events.send();
+                    },
                     key: function dashboard_sections_fileSystem_key(event:KeyboardEvent):void {
                         if (event.key.toLowerCase() === "enter") {
                             dashboard.sections["file-system"].events.send();
@@ -1617,9 +1626,15 @@ const ui = function ui():void {
                     dashboard.sections["file-system"].nodes.path.onkeydown = dashboard.sections["file-system"].events.key;
                     dashboard.sections["file-system"].nodes.path_style.onchange = dashboard.sections["file-system"].events.send;
                     dashboard.sections["file-system"].nodes.search.onkeydown = dashboard.sections["file-system"].events.key;
+                    dashboard.sections["file-system"].nodes.depth.value = (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null || typeof dashboard.global.state.fileSystem.depth !== "string")
+                        ? ""
+                        : dashboard.global.state.fileSystem.depth;
                     dashboard.sections["file-system"].nodes.path.value = (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null || typeof dashboard.global.state.fileSystem.path !== "string" || dashboard.global.state.fileSystem.path === "")
                         ? dashboard.global.payload.path.project.replace(/test(\\|\/)?$/, "")
                         : dashboard.global.state.fileSystem.path;
+                    dashboard.sections["file-system"].nodes.path_style.selectedIndex = (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null || typeof dashboard.global.state.fileSystem.path_style !== "number")
+                        ? 1
+                        : dashboard.global.state.fileSystem.path_style;
                     dashboard.sections["file-system"].nodes.search.value = (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null || typeof dashboard.global.state.fileSystem.search !== "string")
                         ? ""
                         : dashboard.global.state.fileSystem.search;
@@ -1700,7 +1715,7 @@ const ui = function ui():void {
                                     ? ".."
                                     : (index === 0 && fs.search === null && fs.address !== "\\")
                                         ? "."
-                                        : item[0],
+                                        : item[5],
                                 name_raw:string = (index < 1)
                                     ? ((/^\w:(\\)?$/).test(fs.address) === true)
                                         ? "\\"
@@ -1714,20 +1729,20 @@ const ui = function ui():void {
                             summary[item[1]] = summary[item[1]] + 1;
                             size = size + item[4].size;
                             dtg = item[4].mtimeMs.dateTime(true, dashboard.global.payload.timeZone_offset).split(", ");
-                            button = document.createElement("button");
-                            button.setAttribute("data-raw", name_raw);
-                            tr = document.createElement("tr");
                             span = document.createElement("span");
-                            tr.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
-                            td = document.createElement("td");
-                            td.setAttribute("class", "file-name");
-                            button.onclick = dashboard.sections["file-system"].events.send;
                             span.setAttribute("class", "icon");
                             span.appendText(icons[item[1]]);
+                            button = document.createElement("button");
+                            button.onclick = dashboard.sections["file-system"].events.file_button;
+                            button.setAttribute("data-raw", name_raw);
                             button.appendChild(span);
                             button.appendText(` ${name}`);
+                            td = document.createElement("td");
+                            td.setAttribute("class", "file-name");
                             td.appendText(" ");
                             td.appendChild(button);
+                            tr = document.createElement("tr");
+                            tr.setAttribute("class", (index % 2 === 0) ? "even" : "odd");
                             tr.appendChild(td);
 
                             td = document.createElement("td");
@@ -5322,11 +5337,15 @@ const ui = function ui():void {
                     if (dashboard.sections["file-system"] !== undefined) {
                         if (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null) {
                             dashboard.global.state.fileSystem = {
+                                depth: dashboard.sections["file-system"].nodes.depth.value,
                                 path: dashboard.sections["file-system"].nodes.path.value,
+                                path_style: dashboard.sections["file-system"].nodes.path_style.selectedIndex,
                                 search: dashboard.sections["file-system"].nodes.search.value
                             };
                         } else {
+                            dashboard.global.state.fileSystem.depth = dashboard.sections["file-system"].nodes.depth.value;
                             dashboard.global.state.fileSystem.path = dashboard.sections["file-system"].nodes.path.value;
+                            dashboard.global.state.fileSystem.path_style = dashboard.sections["file-system"].nodes.path_style.selectedIndex;
                             dashboard.global.state.fileSystem.search = dashboard.sections["file-system"].nodes.search.value;
                         }
                     }
