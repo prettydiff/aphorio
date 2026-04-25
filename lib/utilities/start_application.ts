@@ -136,7 +136,7 @@ const start_application = function utilities_startApplication(process_path:strin
                     });
                     file.read({
                         callback: callback_feature,
-                        location: `${vars.path.process}features.json`,
+                        location: `${process_path}features.json`,
                         no_file: null,
                         section: "startup"
                     });
