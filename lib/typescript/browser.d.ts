@@ -369,9 +369,10 @@ declare global {
     interface section_file_system extends module_sections {
         block: boolean;
         events: {
+            file_button: (event:MouseEvent) => void;
             key: (event:KeyboardEvent) => void;
             resize: () => void;
-            send: (event:FocusEvent|KeyboardEvent) => void;
+            send: () => void;
         };
         media: {
             audio: HTMLElement;
@@ -383,9 +384,11 @@ declare global {
         };
         nodes: {
             content: HTMLElement;
+            depth: HTMLInputElement;
             failures: HTMLElement;
             output: HTMLElement;
             path: HTMLInputElement;
+            path_style: HTMLSelectElement;
             search: HTMLInputElement;
             status: HTMLElement;
             summary: HTMLElement;
@@ -642,7 +645,9 @@ declare global {
             types: string;
         };
         fileSystem: {
+            depth: string;
             path: string;
+            path_style: number;
             search: string;
         };
         graph_display: number;

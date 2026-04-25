@@ -258,25 +258,31 @@ const file:core_module_file = {
         });
     },
     write: function utilities_fileWrite(config:config_file_write):void {
-        node.fs.writeFile(config.location, config.contents, function utilities_fileWrite_write(erw:node_error):void {
-            if (erw === null) {
-                if (config.callback !== null) {
-                    config.callback(config.location, config.identifier);
-                }
-            } else {
-                log.application({
-                    error: erw,
-                    message: `Error writing file: ${config.location}`,
-                    origin: "utilities/file.ts",
-                    section: config.section,
-                    status: "error",
-                    time: Date.now()
-                });
-                if (config.callback !== null) {
-                    config.callback(config.location, config.identifier);
-                }
+        if (config.location === `${vars.path.project}servers.json` && vars.test.testing === true) {
+            if (config.callback !== null) {
+                config.callback(config.location, config.identifier);
             }
-        });
+        } else {
+            node.fs.writeFile(config.location, config.contents, function utilities_fileWrite_write(erw:node_error):void {
+                if (erw === null) {
+                    if (config.callback !== null) {
+                        config.callback(config.location, config.identifier);
+                    }
+                } else {
+                    log.application({
+                        error: erw,
+                        message: `Error writing file: ${config.location}`,
+                        origin: "utilities/file.ts",
+                        section: config.section,
+                        status: "error",
+                        time: Date.now()
+                    });
+                    if (config.callback !== null) {
+                        config.callback(config.location, config.identifier);
+                    }
+                }
+            });
+        }
     }
 };
 

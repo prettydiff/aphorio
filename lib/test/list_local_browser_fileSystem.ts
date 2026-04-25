@@ -24,7 +24,55 @@ const test_listLocalBrowserFileSystem:test_list = [
         ],
         name: "Navigate to file-system",
         type: "dom",
-        unit: []
+        unit: [
+            {
+                node: [
+                    ["getElementById", "file-system", null],
+                    ["getElementsByClassName", "file-list", 0],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", null]
+                ],
+                qualifier: "greater",
+                target: ["length"],
+                type: "property",
+                value: 15
+            },
+            {
+                node: [
+                    ["getElementById", "file-system", null],
+                    ["getElementsByClassName", "table-filters", 0],
+                    ["getElementsByTagName", "input", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 3
+            },
+            {
+                node: [
+                    ["getElementById", "file-system", null],
+                    ["getElementsByClassName", "table-filters", 0],
+                    ["getElementsByTagName", "select", 0],
+                    ["getElementsByTagName", "option", null]
+                ],
+                qualifier: "is",
+                target: ["length"],
+                type: "property",
+                value: 2
+            },
+            {
+                node: [
+                    ["getElementById", "file-system", null],
+                    ["getElementsByClassName", "file-list", 0],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", null]
+                ],
+                qualifier: "greater",
+                target: ["length"],
+                type: "property",
+                value: 15
+            }
+        ]
     }
 ];
 test_listLocalBrowserFileSystem.name = "Local browser tests - file system";

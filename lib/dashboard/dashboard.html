@@ -421,8 +421,11 @@
             </div>
             <div class="table-filters">
                 <h3>Input Controls</h3>
-                <p><label>Absolute file system path address. <input spellcheck="false" type="text"/></label> <span>SMB shared paths are not supported.</span></p>
-                <p><label>Search token. <input spellcheck="false" type="text"/></label> <span>Executes on press of 'Enter' key or loss of focus. Search values beginning with an exclamation are a negative search. Search values beginning and ending with a forward slash are regular expressions.</span></p>
+                <p class="summary"><em>Executes on press of 'Enter' key or loss of focus. Search values beginning with an exclamation are a negative search. Search values beginning and ending with a forward slash are regular expressions.</em></p>
+                <p><label>Absolute file system path address. <em>SMB shared paths are not supported.</em><input spellcheck="false" type="text"/></label></p>
+                <p><label>Search token. <input spellcheck="false" type="text"/></label></p>
+                <p><label>Depth. The depth of descendant directories to traverse. A value less than 1 provides full recursion.<input spellcheck="false" type="number" value="1"/></label></p>
+                <p><label>Absolute of relative file system paths <select><option>Absolute</option><option selected="selected">Relative</option></select></label></p>
                 <span class="clear"></span>
             </div>
             <div class="file-list">
@@ -435,7 +438,7 @@
                 <h3>Summary of Results</h3>
                 <ul class="file-system-summary-list">
                     <li><span>Displayed Artifact Size:</span> <strong></strong></li>
-                    <li><span>Total Items:</span> <strong></strong></li>
+                    <li><span>Displayed Item Count:</span> <strong></strong></li>
                 </ul>
                 <ul>
                     <li><span>Block Devices:</span> <strong></strong></li>

@@ -7,7 +7,7 @@ import spawn from "../core/spawn.ts";
 const directory = function utilities_directory(args:config_directory):void {
     // arguments:
     // * callback - function - the output is passed into the callback as an argument
-    // * depth - number - how many directories deep a recursive scan should read, 0 = full recursion
+    // * depth - number - how many directories deep a recursive scan should read, a value less than 1 means full recursion
     // * exclusions - string array - a list of items to exclude
     // * parent - boolean - whether to capture data about the parent directory
     // * path - string - where to start in the local file system
@@ -21,7 +21,7 @@ const directory = function utilities_directory(args:config_directory):void {
     // 2. parent index (number)
     // 3. child item count (number)
     // 4. selected properties from fs.Stat plus some link resolution data
-    // 5. write path from the lib/utilities/rename library for file copy
+    // 5. alternate path, such as a relative path
     // * property "failures" is a list of file paths that could not be read or opened
     let dir_start:boolean = false;
     const output:core_directory_list = [],
@@ -150,7 +150,7 @@ const directory = function utilities_directory(args:config_directory):void {
                         mode: 0,
                         mtimeMs: 0,
                         size: 0
-                    }, ""]);
+                    }, "\\"]);
                 } else {
                     const parent_path:string = (function utilities_directory_counter_parentPath():string {
                         const paths:string[] = args.path.split(sep);
@@ -214,7 +214,7 @@ const directory = function utilities_directory(args:config_directory):void {
                                 name:string = ((/^\w:(\\)?$/).test(path) === true)
                                     ? path_drive
                                     : (args.relative === true)
-                                        ? start_rel + path.slice(path.indexOf(start_rel) + start_rel.length)
+                                        ? path.slice(path.indexOf(start_rel) + start_rel.length + 1)
                                         : path,
                                 dir_len:number = (args.path === "\\")
                                     ? dirs.length + 1
@@ -227,18 +227,18 @@ const directory = function utilities_directory(args:config_directory):void {
                                         node.fs.readdir(path_drive, function utilities_directory_statWrap_stat_populate_readdir(err:node_error, dir:string[]):void {
                                             if (err === null) {
                                                 if (dir.length > 0) {
-                                                    dir_store[name] = (path_drive === args.path)
+                                                    dir_store[path] = (path_drive === args.path)
                                                         ? dir.length + 1
                                                         : dir.length;
-                                                    dir_list.push(name);
+                                                    dir_list.push(path);
                                                     if (dir_start === false && output.length < 1) {
                                                         dir_start = true;
                                                     }
                                                 }
                                                 if (parent_item === true) {
-                                                    complete([path_drive, "directory", 0, dir.length, stat_obj, ""]);
+                                                    complete([path_drive, "directory", 0, dir.length, stat_obj, name]);
                                                 } else {
-                                                    add_item([name, "directory", parent, dir.length, stat_obj, ""]);
+                                                    add_item([path, "directory", parent, dir.length, stat_obj, name]);
                                                     if (args.path !== "\\" || dir_len - 1 < args.depth) {
                                                         dir.forEach(function utilities_directory_statWrap_stat_populate_readdir_each(value:string):void {
                                                             const pathy:string = (path === "/")
@@ -253,7 +253,7 @@ const directory = function utilities_directory(args:config_directory):void {
                                             }
                                         });
                                     } else {
-                                        add_item([name, "directory", parent, 0, stat_obj, ""]);
+                                        add_item([path, "directory", parent, 0, stat_obj, name]);
                                     }
                                 } else {
                                     if (type === "symbolic_link") {
@@ -264,9 +264,9 @@ const directory = function utilities_directory(args:config_directory):void {
                                                     if (ert === null) {
                                                         stat_obj.linkType = get_type(link_type);
                                                         if (parent_item === true) {
-                                                            complete([path, "symbolic_link", 0, 0, stat_obj, ""]);
+                                                            complete([path, "symbolic_link", 0, 0, stat_obj, name]);
                                                         } else {
-                                                            add_item([name, "symbolic_link", parent, 0, stat_obj, ""]);
+                                                            add_item([path, "symbolic_link", parent, 0, stat_obj, name]);
                                                         }
                                                     } else {
                                                         fail(ert, real_path, parent);
@@ -277,7 +277,7 @@ const directory = function utilities_directory(args:config_directory):void {
                                             }
                                         });
                                     } else {
-                                        add_item([name, type, parent, 0, stat_obj, ""]);
+                                        add_item([path, type, parent, 0, stat_obj, name]);
                                     }
                                 }
                             }
@@ -307,7 +307,7 @@ const directory = function utilities_directory(args:config_directory):void {
                     mode: 0,
                     mtimeMs: 0,
                     size: 0
-                }, ""]);
+                }, "\\"]);
                 if (index > 0) {
                     do {
                         index = index - 1;
