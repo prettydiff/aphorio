@@ -1627,7 +1627,7 @@ const ui = function ui():void {
                     dashboard.sections["file-system"].nodes.path_style.onchange = dashboard.sections["file-system"].events.send;
                     dashboard.sections["file-system"].nodes.search.onkeydown = dashboard.sections["file-system"].events.key;
                     dashboard.sections["file-system"].nodes.depth.value = (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null || typeof dashboard.global.state.fileSystem.depth !== "string")
-                        ? ""
+                        ? "1"
                         : dashboard.global.state.fileSystem.depth;
                     dashboard.sections["file-system"].nodes.path.value = (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null || typeof dashboard.global.state.fileSystem.path !== "string" || dashboard.global.state.fileSystem.path === "")
                         ? dashboard.global.payload.path.project.replace(/test(\\|\/)?$/, "")
