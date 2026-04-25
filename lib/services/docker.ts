@@ -70,7 +70,7 @@ const docker:core_module_docker = {
                             if (file === null) {
                                 delete vars.data.containers[id];
                                 delete vars.data.containers[location];
-                                complete_ps();
+                                complete_meta(id, false);
                             } else {
                                 if (vars.data.containers[location] !== undefined) {
                                     delete vars.data.containers[location];
@@ -194,9 +194,11 @@ const docker:core_module_docker = {
                                 symbolic: false
                             });
                         },
-                        complete_meta = function services_docker_listCallback_child_completeMeta(id:string):void {
-                            counts[id] = counts[id] + 1;
-                            if (counts[id] === 3) {
+                        complete_meta = function services_docker_listCallback_child_completeMeta(id:string, available:boolean):void {
+                            if (available === true) {
+                                counts[id] = counts[id] + 1;
+                            }
+                            if (counts[id] === 3 || counts[id] === 0) {
                                 count = count + 1;
                                 if (count === total) {
                                     complete_ps();
@@ -208,21 +210,21 @@ const docker:core_module_docker = {
                             if (vars.data.containers[id] !== undefined) {
                                 vars.data.containers[id].description = out.stdout.trim();
                             }
-                            complete_meta(id);
+                            complete_meta(id, true);
                         },
                         license = function services_docker_listCallback_child_license(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
                             if (vars.data.containers[id] !== undefined) {
                                 vars.data.containers[id].license = out.stdout.trim();
                             }
-                            complete_meta(id);
+                            complete_meta(id, true);
                         },
                         version = function services_docker_listCallback_child_version(out:core_spawn_output):void {
                             const id:string = list[Number(out.type)].ID;
                             if (vars.data.containers[id] !== undefined) {
                                 vars.data.containers[id].version = out.stdout.trim();
                             }
-                            complete_meta(id);
+                            complete_meta(id, true);
                         };
                     let index:number = 0,
                         count:number = 0,

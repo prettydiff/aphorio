@@ -52,7 +52,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                         }
                         return 0;
                     },
-                    children:type_directory_item[] = [];
+                    children:type_directory_item[] = [list[0]];
                 if (data.depth > 0) {
                     const token:string = (data.address.charAt(data.address.length - 1) === vars.path.sep)
                         ? data.address
@@ -65,7 +65,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                         if (paths.length <= data.depth) {
                             children.push(list[index]);
                         }
-                    } while (index > 0);
+                    } while (index > 1);
                     children.sort(sort);
                     service.dirs = children;
                 } else {
