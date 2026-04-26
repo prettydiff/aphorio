@@ -385,6 +385,7 @@ declare global {
         nodes: {
             content: HTMLElement;
             depth: HTMLInputElement;
+            directory_size: HTMLSelectElement;
             failures: HTMLElement;
             output: HTMLElement;
             path: HTMLInputElement;
@@ -392,6 +393,7 @@ declare global {
             search: HTMLInputElement;
             status: HTMLElement;
             summary: HTMLElement;
+            tbody: HTMLElement;
         };
         time: number;
         tools: {
@@ -646,6 +648,7 @@ declare global {
         };
         fileSystem: {
             depth: string;
+            directory_size: number;
             path: string;
             path_style: number;
             search: string;

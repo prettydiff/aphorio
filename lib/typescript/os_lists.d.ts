@@ -213,6 +213,7 @@ interface os_vars {
     compose: string;
     compose_empty: string;
     devs: string;
+    directory_size: string;
     disk: string;
     file: string;
     open: string;

@@ -1410,11 +1410,13 @@ const ui = function ui():void {
                         const address:string = dashboard.sections["file-system"].nodes.path.value.replace(/^\s+/, "").replace(/\s+$/, ""),
                             search:string = dashboard.sections["file-system"].nodes.search.value.replace(/^\s+/, "").replace(/\s+$/, ""),
                             depth:number = Number(dashboard.sections["file-system"].nodes.depth.value),
+                            directory_size:boolean = dashboard.sections["file-system"].nodes.directory_size[dashboard.sections["file-system"].nodes.directory_size.selectedIndex].textContent === "true (slow)",
                             payload:services_fileSystem = {
                                 address: address,
                                 depth: (isNaN(depth) === true)
                                     ? 2
                                     : Math.floor(depth),
+                                directory_size: directory_size,
                                 dirs: null,
                                 failures: null,
                                 file: null,
@@ -1427,6 +1429,9 @@ const ui = function ui():void {
                                 sep: null
                             };
                         if (dashboard.sections["file-system"].block === false) {
+                            if (directory_size === true) {
+                                dashboard.sections["file-system"].nodes.tbody.textContent = "";
+                            }
                             dashboard.sections["file-system"].block = true;
                             dashboard.utility.performance_set("file-system");
                             dashboard.sections["file-system"].nodes.status.textContent = "Fetching\u2026";
@@ -1622,13 +1627,17 @@ const ui = function ui():void {
                     dashboard.sections["file-system"].nodes.depth.onblur = dashboard.sections["file-system"].events.send;
                     dashboard.sections["file-system"].nodes.path.onblur = dashboard.sections["file-system"].events.send;
                     dashboard.sections["file-system"].nodes.search.onblur = dashboard.sections["file-system"].events.send;
+                    dashboard.sections["file-system"].nodes.directory_size.onchange = dashboard.sections["file-system"].events.send;
+                    dashboard.sections["file-system"].nodes.path_style.onchange = dashboard.sections["file-system"].events.send;
                     dashboard.sections["file-system"].nodes.depth.onkeydown = dashboard.sections["file-system"].events.key;
                     dashboard.sections["file-system"].nodes.path.onkeydown = dashboard.sections["file-system"].events.key;
-                    dashboard.sections["file-system"].nodes.path_style.onchange = dashboard.sections["file-system"].events.send;
                     dashboard.sections["file-system"].nodes.search.onkeydown = dashboard.sections["file-system"].events.key;
                     dashboard.sections["file-system"].nodes.depth.value = (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null || typeof dashboard.global.state.fileSystem.depth !== "string")
                         ? "1"
                         : dashboard.global.state.fileSystem.depth;
+                    dashboard.sections["file-system"].nodes.directory_size.selectedIndex = (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null || typeof dashboard.global.state.fileSystem.directory_size !== "number")
+                        ? 0
+                        : dashboard.global.state.fileSystem.directory_size;
                     dashboard.sections["file-system"].nodes.path.value = (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null || typeof dashboard.global.state.fileSystem.path !== "string" || dashboard.global.state.fileSystem.path === "")
                         ? dashboard.global.payload.path.project.replace(/test(\\|\/)?$/, "")
                         : dashboard.global.state.fileSystem.path;
@@ -1666,13 +1675,15 @@ const ui = function ui():void {
                 nodes: {
                     content: document.getElementById("file-system").getElementsByClassName("file-system-content")[0] as HTMLElement,
                     depth: document.getElementById("file-system").getElementsByTagName("input")[2],
+                    directory_size: document.getElementById("file-system").getElementsByTagName("select")[1],
                     failures: document.getElementById("file-system").getElementsByClassName("file-system-failures")[0] as HTMLElement,
                     output: document.getElementById("file-system").getElementsByClassName("file-list")[0] as HTMLElement,
                     path: document.getElementById("file-system").getElementsByTagName("input")[0],
                     path_style: document.getElementById("file-system").getElementsByTagName("select")[0],
                     search: document.getElementById("file-system").getElementsByTagName("input")[1],
                     status: document.getElementById("file-system").getElementsByClassName("file-list")[0].getElementsByTagName("em")[0],
-                    summary: document.getElementById("file-system").getElementsByClassName("summary-stats")[0] as HTMLElement
+                    summary: document.getElementById("file-system").getElementsByClassName("summary-stats")[0] as HTMLElement,
+                    tbody: document.getElementById("file-system").getElementsByTagName("tbody")[0]
                 },
                 receive: function dashboard_sections_fileSystem_receive(data_item:socket_data):void {
                     const fs:services_fileSystem = data_item.data as services_fileSystem,
@@ -1694,7 +1705,6 @@ const ui = function ui():void {
                             "socket": 0,
                             "symbolic_link": 0
                         },
-                        tbody:HTMLElement = dashboard.sections["file-system"].nodes.output.getElementsByTagName("tbody")[0],
                         icons:store_string = {
                             "block_device": "\u2580",
                             "character_device": "\u0258",
@@ -1773,7 +1783,7 @@ const ui = function ui():void {
                             td.setAttribute("data-raw", String(item[3]));
                             td.appendText(item[3].commas());
                             tr.appendChild(td);
-                            tbody.appendChild(tr);
+                            dashboard.sections["file-system"].nodes.tbody.appendChild(tr);
                         };
                     let index_record:number = 0,
                         size:number = 0;
@@ -1790,7 +1800,7 @@ const ui = function ui():void {
                     // td[4] = modified time
                     // td[5] = permissions
                     // td[6] = children
-                    tbody.textContent = "";
+                    dashboard.sections["file-system"].nodes.tbody.textContent = "";
                     audio.pause();
                     video.pause();
                     audio.currentTime = 0;
@@ -5338,12 +5348,14 @@ const ui = function ui():void {
                         if (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null) {
                             dashboard.global.state.fileSystem = {
                                 depth: dashboard.sections["file-system"].nodes.depth.value,
+                                directory_size: dashboard.sections["file-system"].nodes.directory_size.selectedIndex,
                                 path: dashboard.sections["file-system"].nodes.path.value,
                                 path_style: dashboard.sections["file-system"].nodes.path_style.selectedIndex,
                                 search: dashboard.sections["file-system"].nodes.search.value
                             };
                         } else {
                             dashboard.global.state.fileSystem.depth = dashboard.sections["file-system"].nodes.depth.value;
+                            dashboard.global.state.fileSystem.directory_size = dashboard.sections["file-system"].nodes.directory_size.selectedIndex;
                             dashboard.global.state.fileSystem.path = dashboard.sections["file-system"].nodes.path.value;
                             dashboard.global.state.fileSystem.path_style = dashboard.sections["file-system"].nodes.path_style.selectedIndex;
                             dashboard.global.state.fileSystem.search = dashboard.sections["file-system"].nodes.search.value;

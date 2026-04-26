@@ -25,6 +25,7 @@ declare global {
     interface config_directory {
         callback: (dir:core_directory_list) => void;
         depth: number;
+        directory_size: boolean;
         exclusions: string[];
         parent: boolean;
         path: string;

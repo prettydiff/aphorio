@@ -15,6 +15,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
         service:services_fileSystem = {
             address: data.address,
             depth: data.depth,
+            directory_size: data.directory_size,
             dirs: null,
             failures: [],
             file: null,
@@ -151,6 +152,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             depth: (data.depth > 0)
                 ? data.depth + 1
                 : 0,
+            directory_size: data.directory_size,
             exclusions: [],
             parent: true,
             path: data.address,

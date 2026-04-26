@@ -89,6 +89,7 @@ interface services_dns_output {
 interface services_fileSystem {
     address: string;
     depth: number;
+    directory_size: boolean;
     dirs: type_directory_item[];
     failures: string[];
     file: string;
