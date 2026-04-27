@@ -24,7 +24,7 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
             item.stdout.push(buf.toString());
         },
         error: function core_spawn_error(err:node_childProcess_ExecException):void {
-            item.spawn.off("close", close);
+            item.spawn.off("close", item.close);
             item.spawn.kill();
             log.application({
                 error: err,
@@ -34,6 +34,10 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
                 status: "error",
                 time: Date.now()
             });
+            if (vars.environment.loading === true) {
+                // eslint-disable-next-line no-console
+                console.log(err);
+            }
             if (options !== undefined && options !== null && options.error !== undefined && options.error !== null) {
                 options.error(err);
             }

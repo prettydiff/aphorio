@@ -77,6 +77,10 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                     status: "error",
                     time: Date.now()
                 });
+                if (vars.environment.loading === true) {
+                    // eslint-disable-next-line no-console
+                    console.log(ser);
+                }
                 complete(serverItem.id);
             };
         // type identification assignment

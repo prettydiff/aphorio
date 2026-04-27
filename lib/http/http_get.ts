@@ -185,6 +185,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                 directory({
                                     callback: callback,
                                     depth: 2,
+                                    directory_size: false,
                                     exclusions: [],
                                     parent: false,
                                     path: input,

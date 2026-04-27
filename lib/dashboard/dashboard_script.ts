@@ -256,6 +256,7 @@ const ui = function ui():void {
                             },
                             fileSystem: {
                                 depth: "",
+                                directory_size: 0,
                                 path: "",
                                 path_style: 1,
                                 search: ""
@@ -1410,7 +1411,7 @@ const ui = function ui():void {
                         const address:string = dashboard.sections["file-system"].nodes.path.value.replace(/^\s+/, "").replace(/\s+$/, ""),
                             search:string = dashboard.sections["file-system"].nodes.search.value.replace(/^\s+/, "").replace(/\s+$/, ""),
                             depth:number = Number(dashboard.sections["file-system"].nodes.depth.value),
-                            directory_size:boolean = dashboard.sections["file-system"].nodes.directory_size[dashboard.sections["file-system"].nodes.directory_size.selectedIndex].textContent === "true (slow)",
+                            directory_size:boolean = dashboard.sections["file-system"].nodes.directory_size[dashboard.sections["file-system"].nodes.directory_size.selectedIndex].textContent === "true (extremely slow)",
                             payload:services_fileSystem = {
                                 address: address,
                                 depth: (isNaN(depth) === true)
@@ -1737,7 +1738,9 @@ const ui = function ui():void {
                                 span:HTMLElement = null,
                                 dtg:string[] = null;
                             summary[item[1]] = summary[item[1]] + 1;
-                            size = size + item[4].size;
+                            if (index > 0) {
+                                size = size + item[4].size;
+                            }
                             dtg = item[4].mtimeMs.dateTime(true, dashboard.global.payload.timeZone_offset).split(", ");
                             span = document.createElement("span");
                             span.setAttribute("class", "icon");
@@ -1823,7 +1826,9 @@ const ui = function ui():void {
                         dashboard.sections["file-system"].nodes.summary.style.display = "none";
                     } else if (fs.dirs[0][1] === "directory" || fs.search !== null) {
                         const li:HTMLCollectionOf<HTMLElement> = dashboard.sections["file-system"].nodes.summary.getElementsByTagName("li");
-                        li[0].getElementsByTagName("strong")[0].textContent = size.commas();
+                        li[0].getElementsByTagName("strong")[0].textContent = (fs.directory_size === true)
+                            ? fs.dirs[0][4].size.commas()
+                            : size.commas();
                         li[1].getElementsByTagName("strong")[0].textContent = (fs.search === null)
                             ? (fs.dirs.length - 1).commas()
                             : (fs.dirs.length).commas();

@@ -355,6 +355,7 @@ interface core_vars {
         hashes: string[];
         http_request: string;
         interfaces: string[];
+        loading: boolean;
         logs: {
             max: number;
             total: number;

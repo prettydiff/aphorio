@@ -220,33 +220,33 @@ const directory = function utilities_directory(args:config_directory):void {
                                 dir_len:number = (args.path === "\\")
                                     ? dirs.length + 1
                                     : dirs.length,
-                                readdir = function utilities_directory_statWrap_stat_populate_readdir():void {
-                                    node.fs.readdir(path_drive, function utilities_directory_statWrap_stat_populate_readdir_dirs(err:node_error, dir:string[]):void {
+                                readdir = function utilities_directory_statWrap_stat_populate_readdir(config:config_directory_readdir):void {
+                                    node.fs.readdir(config.path_drive, function utilities_directory_statWrap_stat_populate_readdir_dirs(err:node_error, dir:string[]):void {
                                         if (err === null) {
                                             if (dir.length > 0) {
-                                                dir_store[path] = (path_drive === args.path)
+                                                dir_store[config.path] = (config.path_drive === args.path)
                                                     ? dir.length + 1
                                                     : dir.length;
-                                                dir_list.push(path);
+                                                dir_list.push(config.path);
                                                 if (dir_start === false && output.length < 1) {
                                                     dir_start = true;
                                                 }
                                             }
-                                            if (parent_item === true) {
-                                                complete([path_drive, "directory", 0, dir.length, stat_obj, name_rel]);
+                                            if (config.parent_item === true) {
+                                                complete([config.path_drive, "directory", 0, dir.length, config.stat_obj, config.name_rel]);
                                             } else {
-                                                add_item([path, "directory", parent_index, dir.length, stat_obj, name_rel]);
+                                                add_item([config.path, "directory", config.parent_index, dir.length, config.stat_obj, config.name_rel]);
                                                 if (args.path !== "\\" || dir_len - 1 < args.depth) {
                                                     dir.forEach(function utilities_directory_statWrap_stat_populate_readdir_dirs_each(value:string):void {
-                                                        const pathy:string = (path === "/")
+                                                        const pathy:string = (config.path === "/")
                                                             ? ""
-                                                            : path;
+                                                            : config.path;
                                                         utilities_directory_statWrap(pathy + sep + value, false, output.length - 1);
                                                     });
                                                 }
                                             }
                                         } else {
-                                            fail(err, path, parent_index);
+                                            fail(err, config.path, config.parent_index);
                                         }
                                     });
                                 };
@@ -255,19 +255,27 @@ const directory = function utilities_directory(args:config_directory):void {
                             } else {
                                 if (type === "directory") {
                                     if (parent_item === true || path_drive === args.path || args.depth < 1 || dir_len < args.depth) {
+                                        const config_readdir:config_directory_readdir = {
+                                            name_rel: name_rel,
+                                            parent_index: parent_index,
+                                            parent_item: parent_item,
+                                            path: path,
+                                            path_drive: path_drive,
+                                            stat_obj: stat_obj
+                                        };
                                         if (args.directory_size === true) {
                                             spawn(vars.commands.directory_size, function utilities_directory_statWrap_stat_populate_size(size_output:core_spawn_output):void {
-                                                stat_obj.size = Number(size_output.stdout.replace(/\D/g, ""));
-                                                readdir();
+                                                config_readdir.stat_obj.size = Number(size_output.stdout.replace(/\D/g, ""));
+                                                readdir(config_readdir);
                                             }, {
                                                 cwd: path,
                                                 shell: (process.platform === "win32")
                                                     ? "powershell"
-                                                    : ""
+                                                    : "bash"
                                             }).execute();
                                         } else {
-                                            stat_obj.size = 0;
-                                            readdir();
+                                            config_readdir.stat_obj.size = 0;
+                                            readdir(config_readdir);
                                         }
                                     } else {
                                         stat_obj.size = 0;

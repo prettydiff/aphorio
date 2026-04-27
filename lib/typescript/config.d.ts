@@ -34,6 +34,15 @@ declare global {
         symbolic: boolean;
     }
 
+    interface config_directory_readdir {
+        name_rel: string;
+        parent_index: number;
+        parent_item: boolean;
+        path: string;
+        path_drive: string;
+        stat_obj: core_directory_data;
+    }
+
     interface config_file_mkdir {
         callback: (location:string, identifier:string) => void;
         identifier?: string;

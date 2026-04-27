@@ -219,6 +219,7 @@ const file:core_module_file = {
             dirConfig:config_directory = {
                 callback: removeItems,
                 depth: 0,
+                directory_size: false,
                 exclusions: [],
                 parent: false,
                 path: config.location,
