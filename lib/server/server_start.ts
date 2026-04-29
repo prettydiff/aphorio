@@ -101,7 +101,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
 
         // secure connection listener
         wsServer.listen({
-            port: (vars.options[`port-${secureType}`] > 0)
+            port: (vars.options[`port-${secureType}`] > 0 && id === vars.environment.dashboard_id)
                 ? vars.options[`port-${secureType}`]
                 : vars.data.servers[id].ports[secureType]
         }, listenerCallback);
