@@ -4293,6 +4293,9 @@ const ui = function ui():void {
                 }
                 const encryption:type_encryption = dashboard.global.payload.servers[id].encryption,
                     ports:core_server_ports = dashboard.global.payload.server_ports[id];
+                if (ports === undefined) {
+                    return ["red", "offline"];
+                }
                 if (encryption === "both") {
                     if (ports.open === 0 && ports.secure === 0) {
                         return ["red", "offline"];

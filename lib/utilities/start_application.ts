@@ -745,25 +745,27 @@ const start_application = function utilities_startApplication(process_path:strin
                                     // from servers
                                     index = 0;
                                     do {
-                                        if (vars.data.servers[servers[index]].encryption === "both") {
-                                            logItem(vars.data.servers[servers[index]].name, "open", (vars.data_store.server_ports[servers[index]].open === 0)
-                                                ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
-                                                : vars.text.green + vars.data_store.server_ports[servers[index]].open + vars.text.none
-                                            );
-                                            logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_store.server_ports[servers[index]].secure === 0)
-                                                ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
-                                                : vars.text.green + vars.data_store.server_ports[servers[index]].secure + vars.text.none
-                                            );
-                                        } else if (vars.data.servers[servers[index]].encryption === "open") {
-                                            logItem(vars.data.servers[servers[index]].name, "open", (vars.data_store.server_ports[servers[index]].open === 0)
-                                                ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
-                                                : vars.text.green + vars.data_store.server_ports[servers[index]].open + vars.text.none
-                                            );
-                                        } else if (vars.data.servers[servers[index]].encryption === "secure") {
-                                            logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_store.server_ports[servers[index]].secure === 0)
-                                                ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
-                                                : vars.text.green + vars.data_store.server_ports[servers[index]].secure + vars.text.none
-                                            );
+                                        if (vars.data_store.server_ports[servers[index]] !== undefined) {
+                                            if (vars.data.servers[servers[index]].encryption === "both") {
+                                                logItem(vars.data.servers[servers[index]].name, "open", (vars.data_store.server_ports[servers[index]].open === 0)
+                                                    ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
+                                                    : vars.text.green + vars.data_store.server_ports[servers[index]].open + vars.text.none
+                                                );
+                                                logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_store.server_ports[servers[index]].secure === 0)
+                                                    ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
+                                                    : vars.text.green + vars.data_store.server_ports[servers[index]].secure + vars.text.none
+                                                );
+                                            } else if (vars.data.servers[servers[index]].encryption === "open") {
+                                                logItem(vars.data.servers[servers[index]].name, "open", (vars.data_store.server_ports[servers[index]].open === 0)
+                                                    ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
+                                                    : vars.text.green + vars.data_store.server_ports[servers[index]].open + vars.text.none
+                                                );
+                                            } else if (vars.data.servers[servers[index]].encryption === "secure") {
+                                                logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_store.server_ports[servers[index]].secure === 0)
+                                                    ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
+                                                    : vars.text.green + vars.data_store.server_ports[servers[index]].secure + vars.text.none
+                                                );
+                                            }
                                         }
                                         index = index + 1;
                                     } while (index < len);
