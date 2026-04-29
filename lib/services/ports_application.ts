@@ -44,29 +44,31 @@ const ports_application = function services_portsApplication():void {
         do {
             index_item = index_item - 1;
             server = vars.data.servers[keys_servers[index_item]];
-            if (server.encryption === "both") {
-                list.push({
-                    hash: keys_servers[index_item],
-                    port: vars.data_store.server_ports[keys_servers[index_item]].open,
-                    service: "server",
-                    service_name: server.name,
-                    type: "tcp"
-                });
-                list.push({
-                    hash: keys_servers[index_item],
-                    port: vars.data_store.server_ports[keys_servers[index_item]].secure,
-                    service: "server",
-                    service_name: server.name,
-                    type: "tcp"
-                });
-            } else {
-                list.push({
-                    hash: keys_servers[index_item],
-                    port: vars.data_store.server_ports[keys_servers[index_item]][server.encryption],
-                    service: "server",
-                    service_name: server.name,
-                    type: "tcp"
-                });
+            if (vars.data_store.server_ports[keys_servers[index_item]] !== undefined) {
+                if (server.encryption === "both") {
+                    list.push({
+                        hash: keys_servers[index_item],
+                        port: vars.data_store.server_ports[keys_servers[index_item]].open,
+                        service: "server",
+                        service_name: server.name,
+                        type: "tcp"
+                    });
+                    list.push({
+                        hash: keys_servers[index_item],
+                        port: vars.data_store.server_ports[keys_servers[index_item]].secure,
+                        service: "server",
+                        service_name: server.name,
+                        type: "tcp"
+                    });
+                } else {
+                    list.push({
+                        hash: keys_servers[index_item],
+                        port: vars.data_store.server_ports[keys_servers[index_item]][server.encryption],
+                        service: "server",
+                        service_name: server.name,
+                        type: "tcp"
+                    });
+                }
             }
         } while (index_item > 0);
     }
