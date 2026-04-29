@@ -1,6 +1,6 @@
 
 
-/* cspell: words appdata, atupn, cputime, lslogins, pwsh, serv, stcp, sudp, volu */
+/* cspell: words atupn, cputime, lslogins, pwsh, serv, stcp, sudp, volu */
 
 const vars:core_vars = {
         // critical shell commands by operating system
@@ -11,6 +11,7 @@ const vars:core_vars = {
                     compose: "docker compose",
                     compose_empty: "",
                     devs: "lspci -v -k",
+                    directory_size: "du --bytes --summarize",
                     disk: "lsblk -Ob --json",
                     file: "",
                     open: "xdg-open",
@@ -28,6 +29,7 @@ const vars:core_vars = {
                     compose: "docker-compose",
                     compose_empty: "",
                     devs: "Get-PNPDevice | ConvertTo-json",
+                    directory_size: "Get-ChildItem -recurse | measure-object -property length -sum | select-object -ExpandProperty sum",
                     disk: "Get-Disk | ConvertTo-JSON -compress -depth 2",
                     file: "",
                     open: "start",
@@ -135,6 +137,8 @@ const vars:core_vars = {
                 "::1",
                 "[::1]"
             ],
+            // whether the application has completed its startup tasks
+            loading: true,
             // a store of objects representing a log entry
             logs: {
                 max: 5000,

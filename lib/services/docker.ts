@@ -186,6 +186,7 @@ const docker:core_module_docker = {
                             directory({
                                 callback: list_callback,
                                 depth: 1,
+                                directory_size: false,
                                 exclusions: [".env"],
                                 parent: false,
                                 path: vars.path.compose,

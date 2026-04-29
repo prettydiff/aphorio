@@ -810,6 +810,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                         } while (index < len);
                                     }
                                     log.shell(logs, true);
+                                    vars.environment.loading = false;
                                 }
                             }
                         };

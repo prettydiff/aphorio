@@ -268,6 +268,7 @@ td button{padding:0}
             }
         },
         depth: 0,
+        directory_size: false,
         exclusions: [],
         parent: false,
         path: `${vars.path.project}screenshots`,

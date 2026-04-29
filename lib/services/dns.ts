@@ -114,6 +114,7 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
             qualified:type_dns_types[] = [];
         let index_types:number = 0,
             len_types:number = 0;
+        qualifiedPush("A");
         qualifiedPush("AAAA");
         qualifiedPush("CAA");
         qualifiedPush("CNAME");

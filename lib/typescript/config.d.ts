@@ -25,12 +25,22 @@ declare global {
     interface config_directory {
         callback: (dir:core_directory_list) => void;
         depth: number;
+        directory_size: boolean;
         exclusions: string[];
         parent: boolean;
         path: string;
         relative: boolean;
         search: string;
         symbolic: boolean;
+    }
+
+    interface config_directory_readdir {
+        name_rel: string;
+        parent_index: number;
+        parent_item: boolean;
+        path: string;
+        path_drive: string;
+        stat_obj: core_directory_data;
     }
 
     interface config_file_mkdir {
