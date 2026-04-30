@@ -34,7 +34,7 @@ const test_index = function test_index():void {
                 test_listLocalBrowserDisks,
                 test_listLocalBrowserDNSQuery,
                 test_listLocalBrowserFAQ,
-                test_listLocalBrowserFileSystem,
+                test_listLocalBrowserFileSystem(),
                 test_listLocalBrowserHash,
                 test_listLocalBrowserHelp,
                 test_listLocalBrowserHTTP,

@@ -372,7 +372,7 @@ declare global {
             file_button: (event:MouseEvent) => void;
             key: (event:KeyboardEvent) => void;
             resize: () => void;
-            send: () => void;
+            send: (event:Event) => void;
         };
         media: {
             audio: HTMLElement;

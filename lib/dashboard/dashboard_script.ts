@@ -255,7 +255,7 @@ const ui = function ui():void {
                                 types: ""
                             },
                             fileSystem: {
-                                depth: "",
+                                depth: "1",
                                 directory_size: 0,
                                 path: "",
                                 path_style: 1,
@@ -1396,18 +1396,18 @@ const ui = function ui():void {
                             ? event.target
                             : event.target.getAncestor("button", "tag");
                         dashboard.sections["file-system"].nodes.path.value = target.dataset["raw"];
-                        dashboard.sections["file-system"].events.send();
+                        dashboard.sections["file-system"].events.send(null);
                     },
                     key: function dashboard_sections_fileSystem_key(event:KeyboardEvent):void {
                         if (event.key.toLowerCase() === "enter") {
-                            dashboard.sections["file-system"].events.send();
+                            dashboard.sections["file-system"].events.send(null);
                         }
                     },
                     resize: function dashboard_sections_fileSystem_resize():void {
                         const outer_height:number = (window.innerHeight - 490) / 10;
                         dashboard.sections["file-system"].nodes.output.style.maxHeight = `${outer_height}em`;
                     },
-                    send: function dashboard_sections_fileSystem_send():void {
+                    send: function dashboard_sections_fileSystem_send(event:Event):void {
                         const address:string = dashboard.sections["file-system"].nodes.path.value.replace(/^\s+/, "").replace(/\s+$/, ""),
                             search:string = dashboard.sections["file-system"].nodes.search.value.replace(/^\s+/, "").replace(/\s+$/, ""),
                             depth:number = Number(dashboard.sections["file-system"].nodes.depth.value),
@@ -1429,6 +1429,10 @@ const ui = function ui():void {
                                     : search,
                                 sep: null
                             };
+                        
+                        if (event !== null && event.target === dashboard.sections["file-system"].nodes.path && dashboard.sections["file-system"].nodes.path.value.charAt(dashboard.sections["file-system"].nodes.path.value.length - 1) === dashboard.global.payload.path.sep) {
+                            dashboard.sections["file-system"].nodes.path.value = dashboard.sections["file-system"].nodes.path.value.slice(0, dashboard.sections["file-system"].nodes.path.value.length - 1);
+                        }
                         if (dashboard.sections["file-system"].block === false) {
                             if (directory_size === true) {
                                 dashboard.sections["file-system"].nodes.tbody.textContent = "";
@@ -1648,7 +1652,10 @@ const ui = function ui():void {
                     dashboard.sections["file-system"].nodes.search.value = (dashboard.global.state.fileSystem === undefined || dashboard.global.state.fileSystem === null || typeof dashboard.global.state.fileSystem.search !== "string")
                         ? ""
                         : dashboard.global.state.fileSystem.search;
-                    dashboard.sections["file-system"].events.send();
+                    if (dashboard.sections["file-system"].nodes.path.value.charAt(dashboard.sections["file-system"].nodes.path.value.length - 1) === dashboard.global.payload.path.sep) {
+                        dashboard.sections["file-system"].nodes.path.value = dashboard.sections["file-system"].nodes.path.value.slice(0, dashboard.sections["file-system"].nodes.path.value.length - 1);
+                    }
+                    dashboard.sections["file-system"].events.send(null);
                     dashboard.sections["file-system"].media.audio = document.createElement("div");
                     dashboard.sections["file-system"].media.image = document.createElement("p");
                     dashboard.sections["file-system"].media.text = document.createElement("p");
