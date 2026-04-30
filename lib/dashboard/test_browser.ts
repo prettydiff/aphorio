@@ -5,7 +5,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         /* Executes the delay test unit if a given test has a delay property */
         delay: function testBrowser_delay(config:test_browserItem):void {
             let a:number = 0;
-            const delay:number = 25,
+            const delay:number = 50,
                 maxTries:number = 200,
                 delayFunction = function testBrowser_delay_timeout():void {
                     const testResult:test_assert = remote.evaluate(config.delay);
@@ -100,15 +100,13 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         }
                         return [(String(value_actual).indexOf(String(value_test)) === 0), value_test as string];
                     }()),
-                    s_unit:string = (typeof test[1] === "string")
-                        ? `"${test[1]}"`
-                        : String(test[1]);
+                    s_unit:string = String(test[1]);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` begins with "${test[1]}"`
-                            : ` begins with "${value_actual.toString().slice(0, String(value_test).length)}", not ${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` begins with\n${test[1]}`
+                            : ` begins with\n${value_actual.toString().slice(0, String(value_test).length)}\nnot\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -132,15 +130,13 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         }
                         return [(str_actual.includes(String(value_test)) === true), value_test as string];
                     }()),
-                    s_unit:string = (typeof test[1] === "string")
-                        ? `"${test[1]}"`
-                        : String(test[1]);
+                    s_unit:string = String(test[1]);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` is ${s_actual}, which contains ${s_unit}`
-                            : ` is ${s_actual}, which does not contain ${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` is\n${s_actual}\nwhich contains\n${s_unit}`
+                            : ` is\n${s_actual}\nwhich does not contain\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -149,7 +145,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             }
             if (qualifier === "ends") {
                 const test:[boolean, string] = (function testBrowser_evaluate_begins():[boolean, string] {
-                        const str_actual:string = String(value_actual);
+                        const str_actual:string = String(value_actual),
+                            str_value:string = String(value_test);
                         if (Array.isArray(value_test) === true) {
                             let index:number = value_test.length;
                             if (index > 0) {
@@ -162,17 +159,15 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                             }
                             return [false, null];
                         }
-                        return [(String(value_actual).indexOf(String(value_test)) === 0), value_test as string];
+                        return [(str_actual.indexOf(str_value) === str_actual.length - str_value.length), str_value];
                     }()),
-                    s_unit:string = (typeof test[1] === "string")
-                        ? `"${test[1]}"`
-                        : String(test[1]);
+                    s_unit:string = String(test[1]);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` is ${s_actual}, which ends with "${test[1]}"`
-                            : ` is ${s_actual}, which does not end with ${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` is\n${s_actual}\nwhich ends with\n${test[1]}`
+                            : ` is\n${s_actual}\nwhich does not end with\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -195,15 +190,13 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         }
                         return [(((typeof value_actual === "bigint" || (typeof value_actual === "string" && (/^\d+n$/).test(String(value_actual)) === true)) && BigInt(value_actual as string) > BigInt(value_test)) || Number(value_actual) > Number(value_test)), value_test as string];
                     }()),
-                    s_unit:string = (typeof test[1] === "string")
-                        ? `"${test[1]}"`
-                        : String(test[1]);
+                    s_unit:string = String(test[1]);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` is ${s_actual}, which is greater than ${s_unit}`
-                            : ` is ${s_actual}, which is not greater than ${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` is\n${s_actual}\nwhich is greater than\n${s_unit}`
+                            : ` is\n${s_actual}\nwhich is not greater than\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -217,15 +210,13 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                             : JSON.stringify(value_test)
                         : value_test,
                     test:boolean = (value_actual === value),
-                    s_unit:string = (typeof value === "string")
-                        ? `"${value}"`
-                        : String(value);
+                    s_unit:string = String(value);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test === true)
-                            ? ` is exactly ${s_actual}`
-                            : ` is ${s_actual}, which is not ${(value === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` is exactly\n${s_actual}`
+                            : ` is\n${s_actual}\nwhich is not\n${(value === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,
@@ -248,15 +239,13 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         }
                         return [(((typeof value_actual === "bigint" || (typeof value_actual === "string" && (/^\d+n$/).test(String(value_actual)) === true)) && BigInt(value_actual as string) < BigInt(value_test)) || Number(value_actual) < Number(value_test)), value_test as string];
                     }()),
-                    s_unit:string = (typeof test[1] === "string")
-                        ? `"${test[1]}"`
-                        : String(test[1]);
+                    s_unit:string = String(test[1]);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` is ${s_actual}, which is lesser than ${s_unit}`
-                            : ` is ${s_actual}, which is not lesser than ${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` is\n${s_actual}\nwhich is lesser than\n${s_unit}`
+                            : ` is\n${s_actual}\nwhich is not lesser than\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -270,15 +259,13 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                             : JSON.stringify(value_test)
                         : value_test,
                     test:boolean = (value_actual !== value),
-                    s_unit:string = (typeof value === "string")
-                        ? `"${value}"`
-                        : String(value);
+                    s_unit:string = String(value);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test === true)
-                            ? ` is ${s_actual}, not ${(value === null) ? JSON.stringify(value_test) : s_unit}`
-                            : ` is exactly ${s_actual}`,
+                            ? ` is\n${s_actual}\nnot\n${(value === null) ? JSON.stringify(value_test) : s_unit}`
+                            : ` is exactly\n${s_actual}`,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,
@@ -302,15 +289,13 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         }
                         return [(str_actual.includes(String(value_test)) === false), value_test as string];
                     }()),
-                    s_unit:string = (typeof test[1] === "string")
-                        ? `"${test[1]}"`
-                        : String(test[1]);
+                    s_unit:string = String(test[1]);
                 return {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` is ${s_actual}, which does not contain ${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`
-                            : ` is ${s_actual}, which contains ${s_unit}`,
+                            ? ` is\n${s_actual}\nwhich does not contain\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`
+                            : ` is\n${s_actual}\nwhich contains\n${s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -323,8 +308,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : ((value_test === false && test === false) || test === true)
-                            ? ` is ${s_actual}, which is a numeric value`
-                            : ` is ${s_actual}, which is not a numeric value`,
+                            ? ` is\n${s_actual}\nwhich is a numeric value`
+                            : ` is\n${s_actual}\nwhich is not a numeric value`,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,

@@ -54,6 +54,39 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                     node: [
                         ["getElementById", "file-system", null],
                         ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["value"],
+                    type: "property",
+                    value: ["webserver", "aphorio"]
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 1]
+                    ],
+                    qualifier: "is",
+                    target: ["value"],
+                    type: "property",
+                    value: ""
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["value"],
+                    type: "property",
+                    value: "1"
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
                         ["getElementsByTagName", "select", 0],
                         ["getElementsByTagName", "option", null]
                     ],
@@ -73,17 +106,6 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                     target: ["length"],
                     type: "property",
                     value: 15
-                },
-                {
-                    node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "table-filters", 0],
-                        ["getElementsByTagName", "input", 0]
-                    ],
-                    qualifier: "ends",
-                    target: ["value"],
-                    type: "property",
-                    value: ["webserver", "aphorio"]
                 },
                 {
                     node: [
@@ -167,6 +189,32 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                     target: ["lastChild", "textContent"],
                     type: "property",
                     value: " .git"
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 2],
+                        ["getElementsByTagName", "td", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "0"
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 3],
+                        ["getElementsByTagName", "td", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "0"
                 }
             ]
         },
@@ -225,6 +273,15 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                         ["getElementsByTagName", "input", 1]
                     ],
                     value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 1]
+                    ],
+                    value: "Enter"
                 }
             ],
             name: "Search for 'index' at depth '1'",
@@ -270,6 +327,15 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                         ["getElementsByTagName", "input", 2]
                     ],
                     value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ],
+                    value: "Enter"
                 }
             ],
             name: "Search for 'index' at depth '2'",
@@ -300,6 +366,381 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                     target: ["lastChild", "textContent"],
                     type: "property",
                     value: ` lib${vars.path.sep}index.ts`
+                }
+            ]
+        },
+        {
+            delay: {
+                node: [
+                    ["getElementById", "file-system", null],
+                    ["getElementsByClassName", "file-list", 0],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", null]
+                ],
+                qualifier: "greater",
+                target: ["length"],
+                type: "property",
+                value: 10
+            },
+            interaction: [
+                {
+                    event: "setValue",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "select", 0]
+                    ],
+                    value: "Absolute"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 1]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 1]
+                    ],
+                    value: ""
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ],
+                    value: "1"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ],
+                    value: "Enter"
+                }
+            ],
+            name: "Display absolute paths, no directory size",
+            type: "dom",
+            unit: [
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 2],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["lastChild", "textContent"],
+                    type: "property",
+                    value: `${vars.path.sep}.git`
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 2],
+                        ["getElementsByTagName", "td", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "0"
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 3],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["lastChild", "textContent"],
+                    type: "property",
+                    value: `${vars.path.sep}bin`
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 3],
+                        ["getElementsByTagName", "td", 2]
+                    ],
+                    qualifier: "is",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "0"
+                }
+            ]
+        },
+        {
+            delay: {
+                node: [
+                    ["getElementById", "file-system", null],
+                    ["getElementsByClassName", "file-list", 0],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 2],
+                    ["getElementsByTagName", "button", 0]
+                ],
+                qualifier: "ends",
+                target: ["lastChild", "textContent"],
+                type: "property",
+                value: `${vars.path.sep}.git`
+            },
+            interaction: [
+                {
+                    event: "setValue",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "select", 1]
+                    ],
+                    value: "true (extremely slow)"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 1]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 1]
+                    ],
+                    value: ""
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ],
+                    value: "1"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ],
+                    value: "Enter"
+                }
+            ],
+            name: "Display absolute paths and directory size",
+            type: "dom",
+            unit: [
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 2],
+                        ["getElementsByTagName", "td", 2]
+                    ],
+                    qualifier: "not",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "0"
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 3],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "ends",
+                    target: ["lastChild", "textContent"],
+                    type: "property",
+                    value: `${vars.path.sep}bin`
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 3],
+                        ["getElementsByTagName", "td", 2]
+                    ],
+                    qualifier: "not",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "0"
+                }
+            ]
+        },
+        {
+            delay: {
+                node: [
+                    ["getElementById", "file-system", null],
+                    ["getElementsByClassName", "file-list", 0],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", 2],
+                    ["getElementsByTagName", "button", 0]
+                ],
+                qualifier: "ends",
+                target: ["lastChild", "textContent"],
+                type: "property",
+                value: " .git"
+            },
+            interaction: [
+                {
+                    event: "setValue",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "select", 0]
+                    ],
+                    value: "Relative"
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 1]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 1]
+                    ],
+                    value: ""
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ],
+                    value: "1"
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 2]
+                    ],
+                    value: "Enter"
+                }
+            ],
+            name: "Display relative paths and directory size",
+            type: "dom",
+            unit: [
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 6],
+                        ["getElementsByTagName", "td", 2]
+                    ],
+                    qualifier: "not",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "0"
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 3],
+                        ["getElementsByTagName", "button", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["lastChild", "textContent"],
+                    type: "property",
+                    value: " bin"
+                },
+                {
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "file-list", 0],
+                        ["getElementsByTagName", "tbody", 0],
+                        ["getElementsByTagName", "tr", 3],
+                        ["getElementsByTagName", "td", 2]
+                    ],
+                    qualifier: "not",
+                    target: ["textContent"],
+                    type: "property",
+                    value: "0"
                 }
             ]
         }

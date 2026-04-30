@@ -14,8 +14,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` begins with "${value_test}"`
-                        : ` begins with "${value_actual.toString().slice(0, String(value_test).length)}", not "${value_test}"`,
+                        ? ` begins with\n"${value_test}"`
+                        : ` begins with\n"${value_actual.toString().slice(0, String(value_test).length)}"\nnot\n"${value_test}"`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -36,8 +36,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is ${s_value}, which contains ${s_unit}`
-                        : ` is ${s_value}, which does not contain ${s_unit}`,
+                        ? ` is\n${s_value}\nwhich contains\n${s_unit}`
+                        : ` is\n${s_value}\nwhich does not contain\n${s_unit}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -54,8 +54,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is "${str_value}", which ends with "${str_unit}"`
-                        :  ` ends with "${str_value.slice(str_value.length - str_unit.length)}", not "${str_unit}"`,
+                        ? ` is\n"${str_value}"\nwhich ends with\n"${str_unit}"`
+                        :  ` ends with\n"${str_value.slice(str_value.length - str_unit.length)}"\nnot\n"${str_unit}"`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -70,8 +70,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is ${value_actual}, which is greater than ${value_test}`
-                        : ` is ${value_actual}, which is not greater than ${value_test}`,
+                        ? ` is\n${value_actual}\nwhich is greater than\n${value_test}`
+                        : ` is\n${value_actual}\nwhich is not greater than\n${value_test}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -92,8 +92,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is exactly ${s_unit}`
-                        : ` is ${s_value}, which is not ${s_unit}`,
+                        ? ` is exactly\n${s_unit}`
+                        : ` is\n${s_value}\nwhich is not\n${s_unit}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -108,8 +108,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is ${value_actual}, which is lesser than ${value_test}`
-                        : ` is ${value_actual}, which is not lesser than ${value_test}`,
+                        ? ` is\n${value_actual}\nwhich is lesser than\n${value_test}`
+                        : ` is\n${value_actual}\nwhich is not lesser than\n${value_test}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -130,8 +130,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is ${s_value}, not ${s_unit}`
-                        : ` is exactly ${s_value}`,
+                        ? ` is\n${s_value}\nnot\n${s_unit}`
+                        : ` is exactly\n${s_value}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -152,8 +152,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is ${s_value}, which does not contain ${s_unit}`
-                        : ` is ${s_value}", which contains "${s_unit}"`,
+                        ? ` is\n${s_value}\nwhich does not contain\n${s_unit}`
+                        : ` is\n${s_value}\nwhich contains\n${s_unit}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -210,7 +210,7 @@ const test_runner:test_runner = {
     },
     logs: [],
     logger: function test_runner_toolsLogger(assertions:test_assert[]):void {
-        const logs:string[] = [""],
+        const logs:string[] = [],
             len:number = assertions.length,
             star:string = `    ${vars.text.angry}*${vars.text.none} `,
             pass:string = `${vars.text.green}Pass${vars.text.none}: `,
@@ -262,7 +262,7 @@ const test_runner:test_runner = {
 
         // test pass/fail line
         if (fail_test === true) {
-            logs[0] = `${test_runner.tools.time()} ${count()} ${fail + vars.test.list[vars.test.index].name}`;
+            logs.splice(0, 0, `${test_runner.tools.time()} ${count()} ${fail + vars.test.list[vars.test.index].name}`);
             log.shell(logs);
             vars.test.total_tests_fail = vars.test.total_tests_fail + 1;
             vars.test.counts[vars.test.list.name].tests_failed = vars.test.counts[vars.test.list.name].tests_failed + 1;
