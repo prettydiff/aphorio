@@ -43,6 +43,7 @@ vars.path.sep = node.path.sep;
                     vars.options["port-secure"] = Number(value);
                 } else {
                     vars.options[arg as "test"] = true;
+                    vars.test.testing = true;
                 }
             }
         }
@@ -64,11 +65,9 @@ vars.path.sep = node.path.sep;
             vars.text[keys[index]] = "";
         } while (index > 0);
     }
-
     if (process.argv.includes("screenshot") === true || process.argv.includes("screenshots") === true) {
         screenshots();
-    } else if (process.argv.includes("test") === true || process.argv.includes("--test") === true) {
-        vars.test.testing = true;
+    } else {
+        start_application(process_path);
     }
-    start_application(process_path, vars.test.testing);
 }

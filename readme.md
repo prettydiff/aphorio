@@ -52,8 +52,8 @@ Please note that for Docker support the `npm run server` command must be execute
 All arguments are supported only on the server command, example: `npm run server test no-color`
 
 #### Test Options
-* `browser:<file_path>` - Provides a custom file path for a web browser executable to test against. The file path value can be quoted, but if not quoted then spaces must be escaped according to the given shells syntax rules. Any arguments following this argument will be passed directly to that web browser.
-* `list:<file_path>` - Allows specifying a single test list to execute starting from the project's test directory at */lib/test*.
+* `browser:<file_path>` - Provides for an absolute file path for a web browser executable to test against. The file path value can be quoted, but if not quoted then spaces must be escaped according to the given shell's syntax rules. Any arguments following this argument will be passed directly to that web browser.
+* `list:<file_name>` - Allows specifying a single test list file name to execute starting from the project's test directory at */lib/test*.
 * `no-exit` - Application remains actively available after completing test automation.
 * `stop-on-fail` - Tells the test runner to stop processing further test lists after the first failed assertion.
 * `test` - If present this option instructs the application to execute test automation.
@@ -62,6 +62,8 @@ All arguments are supported only on the server command, example: `npm run server
 * `no-color` - Eliminates use of ANSI color codes in terminal output.
 * `port-open:<port>` - Creates an insecure instance of the dashboard server on the specified insecure port, if that port is open.
 * `port-secure:<port>` - Creates a secure instance of the dashboard server on the specified insecure port, if that port is open.
+
+Example: `npm run test "browser:C:\Program Files\Mozilla Firefox\firefox.exe" "list:list_local_browser_fileSystem.ts" no-exit no-color`
 
 ## Tested Platforms
 * Debian Linux 13

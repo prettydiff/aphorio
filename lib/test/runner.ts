@@ -283,11 +283,11 @@ const test_runner:test_runner = {
                     const path:string = `http://localhost:${vars.data_store.server_ports[vars.environment.dashboard_id].open}/?test_browser`;
                     if (vars.test.test_browser !== "" && vars.test.test_browser !== null) {
                         if (vars.test.browser_args.length > 0) {
-                            return `${vars.commands.open} ${vars.test.test_browser} ${path} ${vars.test.browser_args.join(" ")}`;
+                            return `${vars.commands.open} "${vars.test.test_browser}" "${path}" ${vars.test.browser_args.join(" ")}`;
                         }
-                        return `${vars.commands.open} ${vars.test.test_browser} ${path}`;
+                        return `${vars.commands.open} "${vars.test.test_browser}" "${path}"`;
                     }
-                    return `${vars.commands.open} ${path}`;
+                    return `${vars.commands.open} "${path}"`;
                 },
                 call_dom = function test_runner_toolsBrowser_callDom():void {
                     if (vars.data_store.sockets_tcp[vars.environment.dashboard_id].open[0] === undefined || vars.data_store.sockets_tcp[vars.environment.dashboard_id].open[0].queue === undefined) {
@@ -298,7 +298,11 @@ const test_runner:test_runner = {
                     }
                 };
             vars.test.browser_start = true;
-            vars.test.browser_child = spawn(browserCommand(), null);
+            vars.test.browser_child = spawn(browserCommand(), null, {
+                shell: (process.platform === "win32")
+                    ? "powershell"
+                    : "bash"
+            });
             vars.test.browser_child.execute();
             call_dom();
         },

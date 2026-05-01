@@ -26,19 +26,61 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
             ],
             name: "Navigate to file-system",
             type: "dom",
-            unit: [
+            unit: []
+        },
+        {
+            delay: {
+                node: [
+                    ["getElementById", "file-system", null],
+                    ["getElementsByClassName", "file-list", 0],
+                    ["getElementsByTagName", "tbody", 0],
+                    ["getElementsByTagName", "tr", null]
+                ],
+                qualifier: "greater",
+                target: ["length"],
+                type: "property",
+                value: 15
+            },
+            interaction: [
                 {
+                    event: "click",
                     node: [
                         ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", null]
-                    ],
-                    qualifier: "greater",
-                    target: ["length"],
-                    type: "property",
-                    value: 15
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ]
                 },
+                {
+                    event: "setValue",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: vars.path.project.replace(`${vars.path.sep}test`, "").replace(/(\\|\/)$/, "")
+                },
+                {
+                    event: "keydown",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["getElementById", "file-system", null],
+                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByTagName", "input", 0]
+                    ],
+                    value: "Enter"
+                }
+            ],
+            name: "Navigate to file-system",
+            type: "dom",
+            unit: [
                 {
                     node: [
                         ["getElementById", "file-system", null],
