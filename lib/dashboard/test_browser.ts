@@ -76,9 +76,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         rawValue[0].highlight();
                     }
                 },
-                s_actual:string = (typeof value_actual === "string")
-                    ? `"${value_actual}"`
-                    : String(value_actual),
+                s_actual:string = String(value_actual),
                 nullable:boolean = (test_nullable === true && value_actual === null);
             if (unit.store === true) {
                 remote.store = value_actual;
@@ -105,8 +103,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` begins with\n${test[1]}`
-                            : ` begins with\n${value_actual.toString().slice(0, String(value_test).length)}\nnot\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` begins with ${typeof value_actual}\n${s_unit}`
+                            : ` begins with ${typeof value_actual}\n${value_actual.toString().slice(0, String(value_test).length)}\nnot ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -135,8 +133,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` is\n${s_actual}\nwhich contains\n${s_unit}`
-                            : ` is\n${s_actual}\nwhich does not contain\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` is ${typeof value_actual}\n${s_actual}\nwhich contains\n${s_unit}`
+                            : ` is ${typeof value_actual}\n${s_actual}\nwhich does not contain ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -166,8 +164,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` is\n${s_actual}\nwhich ends with\n${test[1]}`
-                            : ` is\n${s_actual}\nwhich does not end with\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` is ${typeof value_actual}\n${s_actual}\nwhich ends with\n${test[1]}`
+                            : ` is ${typeof value_actual}\n${s_actual}\nwhich does not end with ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -195,8 +193,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` is\n${s_actual}\nwhich is greater than\n${s_unit}`
-                            : ` is\n${s_actual}\nwhich is not greater than\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` is ${typeof value_actual}\n${s_actual}\nwhich is greater than\n${s_unit}`
+                            : ` is ${typeof value_actual}\n${s_actual}\nwhich is not greater than ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -215,8 +213,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test === true)
-                            ? ` is exactly\n${s_actual}`
-                            : ` is\n${s_actual}\nwhich is not\n${(value === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` is exactly ${typeof value_actual}\n${s_actual}`
+                            : ` is ${typeof value_actual}\n${s_actual}\nwhich is not ${typeof value_test}\n${(value === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,
@@ -244,8 +242,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` is\n${s_actual}\nwhich is lesser than\n${s_unit}`
-                            : ` is\n${s_actual}\nwhich is not lesser than\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                            ? ` is ${typeof value_actual}\n${s_actual}\nwhich is lesser than ${typeof test[1]}\n${s_unit}`
+                            : ` is ${typeof value_actual}\n${s_actual}\nwhich is not lesser than ${typeof test[1]}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -264,8 +262,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test === true)
-                            ? ` is\n${s_actual}\nnot\n${(value === null) ? JSON.stringify(value_test) : s_unit}`
-                            : ` is exactly\n${s_actual}`,
+                            ? ` is ${typeof value_actual}\n${s_actual}\nnot ${typeof value_test}\n${(value === null) ? JSON.stringify(value_test) : s_unit}`
+                            : ` is exactly ${typeof value_actual}\n${s_actual}`,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,
@@ -294,8 +292,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                     assessment: (nullable === true)
                         ? " is null, which is accepted"
                         : (test[0] === true)
-                            ? ` is\n${s_actual}\nwhich does not contain\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`
-                            : ` is\n${s_actual}\nwhich contains\n${s_unit}`,
+                            ? ` is ${typeof value_actual}\n${s_actual}\nwhich does not contain ${typeof test[1]}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`
+                            : ` is ${typeof value_actual}\n${s_actual}\nwhich contains ${typeof test[1]}\n${s_unit}`,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,

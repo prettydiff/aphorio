@@ -33,7 +33,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage test pass     : ${vars.text[color] + pad_right(17, (((list.tests_attempted - list.tests_failed) / list.tests_attempted) * 100).toFixed(2)) + vars.text.none}%`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Percentage assertion pass: ${vars.text[color] + pad_right(17, (((list.assertions - list.assertions_fail) / list.assertions) * 100).toFixed(2)) + vars.text.none}%`);
     }
-    if (complete === true && vars.test.total_lists > 1) {
+    if (complete === true) {
         const total_color:"angry"|"green" = (vars.test.total_assertions_fail === 0)
             ? "green"
             : "angry";
