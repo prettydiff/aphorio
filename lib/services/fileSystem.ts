@@ -53,11 +53,14 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                         }
                         return 0;
                     },
-                    children:type_directory_item[] = [list[0]];
+                    children:type_directory_item[] = [];
                 if (data.depth > 0) {
                     const token:string = (data.address.charAt(data.address.length - 1) === vars.path.sep)
-                        ? data.address
-                        : data.address + vars.path.sep;
+                            ? data.address
+                            : data.address + vars.path.sep,
+                        end:number = (data.search === null)
+                            ? 1
+                            : 0;
                     let index:number = len,
                         paths:string[] = null;
                     do {
@@ -66,7 +69,10 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                         if (paths.length <= data.depth) {
                             children.push(list[index]);
                         }
-                    } while (index > 1);
+                    } while (index > end);
+                    if (data.search === null) {
+                        children.push(list[0]);
+                    }
                     children.sort(sort);
                     service.dirs = children;
                 } else {

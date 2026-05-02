@@ -20,7 +20,7 @@ import vars from "../core/vars.ts";
 
 // cspell: words serv, stcp, sudp
 
-const start_application = function utilities_startApplication(process_path:string, testing:boolean):void {
+const start_application = function utilities_startApplication(process_path:string):void {
     const prerequisite_tasks:core_start_tasks = {
             // prerequisite tasks will execute serially in the order presented
             admin: {
@@ -276,13 +276,13 @@ const start_application = function utilities_startApplication(process_path:strin
                             if (flags.chart === true && flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
                                 const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
                                     chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, ""),
-                                    testBrowser:string = (testing === true)
+                                    testBrowser:string = (vars.test.testing === true)
                                         ? test_browser
                                             .toString()
-                                            .replace(/\/\/ dashboard\.utility\.message_send\(test, "test-browser"\);\s+return test;/, "dashboard.utility.message_send(test, \"test-browser\");return test;")
+                                            .replace(/\/\/ dashboard\.utility\.message_send\(test, "test-browser"\);\s+return test;/, "dashboard.utility.message_send(test,\"test-browser\");return test;")
                                         : null;
                                 let total_script:string = null;
-                                if (testing === true) {
+                                if (vars.test.testing === true) {
                                     script = script.replace("\"test-browser\": null,", `"test-browser": ${testBrowser},`);
                                 }
                                 total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time_elapsed:${universal.time_elapsed.toString()}};(${script}(${core.toString()}));`;
@@ -545,7 +545,7 @@ const start_application = function utilities_startApplication(process_path:strin
                 }
             },
             test_list: {
-                label: null,
+                label: "Runs test automation only against a specified list.",
                 task: function utilities_startApplication_taskTestList():void {
                     test_stat("test_list");
                 }
@@ -558,7 +558,7 @@ const start_application = function utilities_startApplication(process_path:strin
                             vars.environment.version = JSON.parse(file_contents.toString()).version;
                             complete_tasks("version");
                         },
-                        location: `${vars.path.project}package.json`,
+                        location: `${process_path}package.json`,
                         no_file: null,
                         section: "startup"
                     });
@@ -566,18 +566,28 @@ const start_application = function utilities_startApplication(process_path:strin
             }
         },
         test_stat = function utilities_startApplication_testStat(property:"test_browser"|"test_list"):void {
-            if (testing === false) {
-                tasks[property].label = "Ignored unless executing tests.";
-                complete_tasks(property);
-            } else {
-                const get_value = function utilities_startApplication_testStat_getValue(arg:"browser"|"list"):void {
-                    let address:string = (vars.options[arg] === null || vars.options[arg] === undefined)
-                        ? ""
-                        : vars.options[arg];
-                    const address_length:number = address.length,
-                        stat_address:string = (property === "test_list")
-                            ? `${process_path}lib${vars.path.sep}test${vars.path.sep + address.replace(/^\.?(\/|\\)/, "")}`
-                            : address,
+            if (vars.test.testing === true) {
+                const get_value = function utilities_startApplication_testStat_getValue():void {
+                    const arg:"browser"|"list" = property.replace("test_", "") as "browser"|"list",
+                        address:string = (function utilities_startApplication_testStat_getValue_address():string {
+                            let start_address:string = (vars.options[arg] === null)
+                                ? ""
+                                : vars.options[arg];
+                            const address_length:number = start_address.length;
+                            if (vars.options[arg] === null || vars.options[arg] === undefined) {
+                                return "";
+                            }
+                            if ((start_address.charAt(0) === "\"" && start_address.charAt(address_length - 1) === "\"") || (start_address.charAt(0) === "'" && start_address.charAt(address_length - 1) === "'")) {
+                                start_address = `"${start_address.slice(1, address_length - 1)}"`;
+                                if (process.platform === "win32") {
+                                    start_address = start_address.replace(/\\/g, "\"\\\"").replace("\"\\", "\\");
+                                }
+                            }
+                            if (property === "test_list") {
+                                return `${process_path}lib${vars.path.sep}test${vars.path.sep + start_address.replace(/^\.?(\/|\\)/, "")}`;
+                            }
+                            return start_address;
+                        }()),
                         stat_browser = function utilities_startApplication_testStat_stat(err:node_error, details:node_fs_Stats):void {
                             if (err === null && details !== null && details !== undefined) {
                                 if (arg === "browser" && vars.test.browser_args.length > 0) {
@@ -592,31 +602,25 @@ const start_application = function utilities_startApplication(process_path:strin
                                 vars.test.test_browser = address;
                                 complete_tasks("test_browser");
                             } else if (property === "test_list") {
-                                import(address).then(function utilities_startApplication_testStat_getValue_list(mod:object):void {
+                                import(`file://${address.replace(/\\/g, "/")}`).then(function utilities_startApplication_testStat_getValue_list(mod:object):void {
                                     // @ts-expect-error - the Module type definition is not aware of the children exported upon a given module object.
                                     vars.test.list = mod.default;
-                                    complete_tasks("test_list");
+                                    complete_tasks(property);
                                 });
                             }
                         };
                     if (address === "") {
-                        complete_tasks(`test_${arg}`);
+                        complete_tasks(property);
                         return;
                     }
-                    if ((address.charAt(0) === "\"" && address.charAt(address_length - 1) === "\"") || (address.charAt(0) === "'" && address.charAt(address_length - 1) === "'")) {
-                        address = `"${address.slice(1, address_length - 1)}"`;
-                        if (process.platform === "win32") {
-                            address = address.replace(/\\/g, "\"\\\"").replace("\"\\", "\\");
-                        }
-                    }
-                    if (property === "test_list") {
-                        address = `../test/${address.replace(/\\/g, "/").replace(/^\.?\//, "")}`;
-                    }
-                    node.fs.stat(stat_address, stat_browser);
+                    node.fs.stat(address, stat_browser);
                 };
-                get_value("browser");
-                get_value("list");
                 tasks.test_browser.label = "No option supplied beginning with 'browser:'";
+                tasks.test_list.label = "No option supplied beginning with 'list:'";
+                get_value();
+            } else {
+                tasks[property].label = "Ignored unless executing tests.";
+                complete_tasks(property);
             }
         },
         log_task = function utilities_startApplication_logTask(list:"prerequisite"|"task", flag:type_start_pre_tasks | type_start_primary_tasks):void {
@@ -657,7 +661,7 @@ const start_application = function utilities_startApplication(process_path:strin
                 },
                 start = function utilities_startApplication_readComplete_start():void {
                     const servers:string[] = Object.keys(vars.data.servers),
-                        total:number = (testing === true)
+                        total:number = (vars.test.testing === true)
                             ? 1
                             : servers.length,
                         callback = function utilities_startApplication_readComplete_start_serverCallback():void {
@@ -732,7 +736,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                     index = index + 1;
                                 } while (index < servers.length);
                                 ports_application();
-                                if (testing === true) {
+                                if (vars.test.testing === true) {
                                     test_index();
                                 } else {
                                     const keys:string[] = Object.keys(vars.data.containers),
@@ -819,7 +823,7 @@ const start_application = function utilities_startApplication(process_path:strin
                     let count:number = 0,
                         index:number = 0;
 
-                    if (testing === true) {
+                    if (vars.test.testing === true) {
                         server_start(vars.data.servers[vars.environment.dashboard_id].id, callback);
                     } else {
                         do {
@@ -831,7 +835,7 @@ const start_application = function utilities_startApplication(process_path:strin
                 };
                 clock();
                 statistics.data();
-                if (testing === true || vars.data.servers[vars.environment.dashboard_id] === undefined) {
+                if (vars.test.testing === true || vars.data.servers[vars.environment.dashboard_id] === undefined) {
                     server_create({
                         action: "add",
                         server: default_server
@@ -844,7 +848,7 @@ const start_application = function utilities_startApplication(process_path:strin
         start_tasks = function utilities_startApplication_startTasks():void {
             do {
                 index_tasks = index_tasks - 1;
-                if (testing === false || (keys_tasks[index_tasks] !== "servers" && testing === true)) {
+                if (vars.test.testing === false || (keys_tasks[index_tasks] !== "servers" && vars.test.testing === true)) {
                     tasks[keys_tasks[index_tasks]].task();
                 }
             } while (index_tasks > 0);
@@ -862,7 +866,7 @@ const start_application = function utilities_startApplication(process_path:strin
         },
         keys_tasks:type_start_primary_tasks[] = Object.keys(tasks) as type_start_primary_tasks[],
         keys_prerequisites:type_start_pre_tasks[] = Object.keys(prerequisite_tasks) as type_start_pre_tasks[],
-        len_tasks:number = (testing === true)
+        len_tasks:number = (vars.test.testing === true)
             ? keys_tasks.length - 1 // servers task is not run in test mode
             : keys_tasks.length,
         len_prerequisites:number = keys_prerequisites.length;

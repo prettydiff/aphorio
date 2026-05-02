@@ -203,8 +203,8 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                     // unsupported HTTP methods result in socket destruction
                                     socket.destroy();
                                 } else {
-                                    if (method === "get" && server_id === vars.environment.dashboard_id && headerList[0].indexOf("GET / HTTP") === 0) {
-                                        vars.environment.http_request = headerString;
+                                    if (method === "get" && server_id === vars.environment.dashboard_id && (headerList[0].indexOf("GET / HTTP") === 0 || headerList[0].indexOf("GET /?test_browser HTTP") === 0)) {
+                                        vars.environment.http_request = headerString;//.replace(/GET \/\?test_browser HTTP/, "GET / HTTP");
                                     }
                                     http[method](headerList, socket, headerIndex < 1
                                         ? null

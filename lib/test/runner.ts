@@ -14,8 +14,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` begins with "${value_test}"`
-                        : ` begins with "${value_actual.toString().slice(0, String(value_test).length)}", not "${value_test}"`,
+                        ? ` begins with ${typeof value_test}\n${value_test}`
+                        : ` begins with ${typeof value_test}\n${value_actual.toString().slice(0, String(value_test).length)}\nnot ${typeof value_test}\n${value_test}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -23,21 +23,17 @@ const test_runner:test_runner = {
             };
         },
         "contains": function test_runner_execCommand_assertContains(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
-            const s_value:string = (typeof value_actual === "string")
-                    ? `"${value_actual}"`
-                    : String(value_actual),
+            const s_value:string = String(value_actual),
                 value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
-                s_unit:string = (typeof unit.value === "string")
-                    ? `"${value_test}"`
-                    : String(value_test),
+                s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (String(value_actual).includes(String(value_test)) === true);
             return {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is ${s_value}, which contains ${s_unit}`
-                        : ` is ${s_value}, which does not contain ${s_unit}`,
+                        ? ` is ${typeof value_actual}\n${s_value}\nwhich contains\n${s_unit}`
+                        : ` is ${typeof value_actual}\n${s_value}\nwhich does not contain ${typeof value_test}\n${s_unit}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -54,8 +50,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is "${str_value}", which ends with "${str_unit}"`
-                        :  ` ends with "${str_value.slice(str_value.length - str_unit.length)}", not "${str_unit}"`,
+                        ? ` is ${typeof value_actual}\n${str_value}\nwhich ends with ${typeof value_test}\n${str_unit}`
+                        :  ` ends with\n${str_value.slice(str_value.length - str_unit.length)}\nnot ${typeof value_test}\n${str_unit}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -70,8 +66,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is ${value_actual}, which is greater than ${value_test}`
-                        : ` is ${value_actual}, which is not greater than ${value_test}`,
+                        ? ` is ${typeof value_actual}\n${value_actual}\nwhich is greater than\n${value_test}`
+                        : ` is ${typeof value_actual}\n${value_actual}\nwhich is not greater than ${typeof value_test}\n${value_test}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -79,21 +75,17 @@ const test_runner:test_runner = {
             };
         },
         "is": function test_runner_execCommand_assertIs(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
-            const s_value:string = (typeof value_actual === "string")
-                    ? `"${value_actual}"`
-                    : String(value_actual),
+            const s_value:string = String(value_actual),
                 value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
-                s_unit:string = (typeof unit.value === "string")
-                    ? `"${value_test}"`
-                    : String(value_test),
+                s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (value_actual === value_test);
             return {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is exactly ${s_unit}`
-                        : ` is ${s_value}, which is not ${s_unit}`,
+                        ? ` is exactly ${typeof value_test}\n${s_unit}`
+                        : ` is ${typeof value_actual}\n${s_value}\nwhich is not ${typeof value_test}\n${s_unit}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -108,8 +100,8 @@ const test_runner:test_runner = {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is ${value_actual}, which is lesser than ${value_test}`
-                        : ` is ${value_actual}, which is not lesser than ${value_test}`,
+                        ? ` is ${typeof value_actual}\n${value_actual}\nwhich is lesser than ${typeof value_test}\n${value_test}`
+                        : ` is ${typeof value_actual}\n${value_actual}\nwhich is not lesser than ${typeof value_test}\n${value_test}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -117,21 +109,17 @@ const test_runner:test_runner = {
             };
         },
         "not": function test_runner_execCommand_assertBegins(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
-            const s_value:string = (typeof value_actual === "string")
-                    ? `"${value_actual}"`
-                    : String(value_actual),
+            const s_value:string = String(value_actual),
                 value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
-                s_unit:string = (typeof unit.value === "string")
-                    ? `"${value_test}"`
-                    : String(value_test),
+                s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (value_actual !== value_test);
             return {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is ${s_value}, not ${s_unit}`
-                        : ` is exactly ${s_value}`,
+                        ? ` is ${typeof value_actual}\n${s_value}\nnot ${typeof value_test}\n${s_unit}`
+                        : ` is exactly ${typeof value_actual}\n${s_value}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -139,21 +127,17 @@ const test_runner:test_runner = {
             };
         },
         "not contains": function test_runner_execCommand_assertNotContains(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
-            const s_value:string = (typeof value_actual === "string")
-                    ? `"${value_actual}"`
-                    : String(value_actual),
+            const s_value:string = String(value_actual),
                 value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
-                s_unit:string = (typeof unit.value === "string")
-                    ? `"${value_test}"`
-                    : String(value_test),
+                s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (String(value_actual).includes(String(value_test)) === false);
             return {
                 assessment: (nullable === true)
                     ? " is null, which is accepted"
                     : (test === true)
-                        ? ` is ${s_value}, which does not contain ${s_unit}`
-                        : ` is ${s_value}", which contains "${s_unit}"`,
+                        ? ` is ${typeof value_actual}\n${s_value}\nwhich does not contain ${typeof value_test}\n${s_unit}`
+                        : ` is ${typeof value_actual}\n${s_value}\nwhich contains ${typeof value_test}\n${s_unit}`,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -210,7 +194,7 @@ const test_runner:test_runner = {
     },
     logs: [],
     logger: function test_runner_toolsLogger(assertions:test_assert[]):void {
-        const logs:string[] = [""],
+        const logs:string[] = [],
             len:number = assertions.length,
             star:string = `    ${vars.text.angry}*${vars.text.none} `,
             pass:string = `${vars.text.green}Pass${vars.text.none}: `,
@@ -262,7 +246,7 @@ const test_runner:test_runner = {
 
         // test pass/fail line
         if (fail_test === true) {
-            logs[0] = `${test_runner.tools.time()} ${count()} ${fail + vars.test.list[vars.test.index].name}`;
+            logs.splice(0, 0, `${test_runner.tools.time()} ${count()} ${fail + vars.test.list[vars.test.index].name}`);
             log.shell(logs);
             vars.test.total_tests_fail = vars.test.total_tests_fail + 1;
             vars.test.counts[vars.test.list.name].tests_failed = vars.test.counts[vars.test.list.name].tests_failed + 1;
@@ -283,11 +267,11 @@ const test_runner:test_runner = {
                     const path:string = `http://localhost:${vars.data_store.server_ports[vars.environment.dashboard_id].open}/?test_browser`;
                     if (vars.test.test_browser !== "" && vars.test.test_browser !== null) {
                         if (vars.test.browser_args.length > 0) {
-                            return `${vars.commands.open} ${vars.test.test_browser} ${path} ${vars.test.browser_args.join(" ")}`;
+                            return `${vars.commands.open} "${vars.test.test_browser}" "${path}" ${vars.test.browser_args.join(" ")}`;
                         }
-                        return `${vars.commands.open} ${vars.test.test_browser} ${path}`;
+                        return `${vars.commands.open} "${vars.test.test_browser}" "${path}"`;
                     }
-                    return `${vars.commands.open} ${path}`;
+                    return `${vars.commands.open} "${path}"`;
                 },
                 call_dom = function test_runner_toolsBrowser_callDom():void {
                     if (vars.data_store.sockets_tcp[vars.environment.dashboard_id].open[0] === undefined || vars.data_store.sockets_tcp[vars.environment.dashboard_id].open[0].queue === undefined) {
@@ -298,9 +282,13 @@ const test_runner:test_runner = {
                     }
                 };
             vars.test.browser_start = true;
-            vars.test.browser_child = spawn(browserCommand(), null);
+            vars.test.browser_child = spawn(browserCommand(), null, {
+                shell: (process.platform === "win32")
+                    ? "powershell"
+                    : "bash"
+            });
             vars.test.browser_child.execute();
-            call_dom();
+            setTimeout(call_dom, 300);
         },
         callback: null,
         get_value: function test_runner_getValue(value_actual:test_primitive, value_test:test_primitive|test_primitive[]):test_primitive {

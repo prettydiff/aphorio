@@ -105,12 +105,10 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
             },
             qualifiedPush = function dashboard_dnsResolve_qualifiedPush(key:type_dns_types):void {
                 if (types.includes(key) === true) {
-                    const reg:RegExp = new RegExp(key, "g");
                     qualified.push(key);
-                    types.replace(reg, "");
                 }
             },
-            types:string = data.types.replace(/,\s*/g, ",").toUpperCase(),
+            types:string[] = data.types.replace(/\s+/g, "").toUpperCase().split(","),
             qualified:type_dns_types[] = [];
         let index_types:number = 0,
             len_types:number = 0;
@@ -126,9 +124,6 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
         qualifiedPush("SRV");
         qualifiedPush("TLSA");
         qualifiedPush("TXT");
-        if ((/^A$/).test(types) === true || (/,A$/).test(types) === true || (/^A,/).test(types) === true || (/,A,/).test(types) === true) {
-            qualified.push("A");
-        }
         if (qualified.length === 0) {
             qualified.push("A");
             qualified.push("AAAA");

@@ -27,31 +27,29 @@ const test_index = function test_index():void {
     let total_lists:number = 0;
     const list:test_list[] = (vars.test.list === null)
             ? [
-                test_listLocalBrowserStart,
+                test_listLocalBrowserStart(),
                 test_listLocalBrowserApplicationLogs(),
                 test_listLocalBrowserCompose(),
-                test_listLocalBrowserDevices,
-                test_listLocalBrowserDisks,
-                test_listLocalBrowserDNSQuery,
-                test_listLocalBrowserFAQ,
-                test_listLocalBrowserFileSystem,
-                test_listLocalBrowserHash,
-                test_listLocalBrowserHelp,
-                test_listLocalBrowserHTTP,
-                test_listLocalBrowserInterfaces,
-                test_listLocalBrowserOS,
-                test_listLocalBrowserProcesses,
-                test_listLocalBrowserServices,
-                test_listLocalBrowserSocketsApplicationTCP,
-                test_listLocalBrowserUsers,
-                test_listLocalBrowserTerminal,
-                test_listLocalBrowserWebSocket
+                test_listLocalBrowserDevices(),
+                test_listLocalBrowserDisks(),
+                test_listLocalBrowserDNSQuery(),
+                test_listLocalBrowserFAQ(),
+                test_listLocalBrowserFileSystem(),
+                test_listLocalBrowserHash(),
+                test_listLocalBrowserHelp(),
+                test_listLocalBrowserHTTP(),
+                test_listLocalBrowserInterfaces(),
+                test_listLocalBrowserOS(),
+                test_listLocalBrowserProcesses(),
+                test_listLocalBrowserServices(),
+                test_listLocalBrowserSocketsApplicationTCP(),
+                test_listLocalBrowserUsers(),
+                test_listLocalBrowserTerminal(),
+                test_listLocalBrowserWebSocket()
             ]
             : [
-                (typeof vars.test.list === "function")
-                    // @ts-expect-error - a dynamically imported list could be a function that returns the list
-                    ? vars.test.list()
-                    : vars.test.list
+                // @ts-expect-error - a dynamically imported list could be a function that returns the list
+                vars.test.list()
             ],
         len_list:number = list.length,
         callback = function test_index_callback(name:string):void {
@@ -68,5 +66,16 @@ const test_index = function test_index():void {
     vars.test.total_time_start = process.hrtime.bigint();
     test_runner.list(list[total_lists], callback);
 };
+
+// missing these tests
+//
+// UDP Socket
+// Statistics
+// App Ports
+// App UDP Sockets
+// OS TCP Sockets
+// OS UDP Sockets
+// HTTP Test - defect - EADDRNOTAVAIL
+// WebSocket Test - Incomplete
 
 export default test_index;
