@@ -279,6 +279,8 @@ const start_application = function utilities_startApplication(process_path:strin
                                     testBrowser:string = (vars.test.testing === true)
                                         ? test_browser
                                             .toString()
+                                            .replace(/delay\s*=\s*0/, `delay=${vars.options["delay-time"]}`)
+                                            .replace(/maxTries\s*=\s*0/, `maxTries=${vars.options["delay-intervals"]}`)
                                             .replace(/\/\/ dashboard\.utility\.message_send\(test, "test-browser"\);\s+return test;/, "dashboard.utility.message_send(test,\"test-browser\");return test;")
                                         : null;
                                 let total_script:string = null;

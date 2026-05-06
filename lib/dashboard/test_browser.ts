@@ -5,8 +5,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         /* Executes the delay test unit if a given test has a delay property */
         delay: function testBrowser_delay(config:test_browserItem):void {
             let a:number = 0;
-            const delay:number = 50,
-                maxTries:number = 200,
+            const delay:number = 0,
+                maxTries:number = 0,
                 delayFunction = function testBrowser_delay_timeout():void {
                     const testResult:test_assert = remote.evaluate(config.delay);
                     if (testResult.pass === true) {
@@ -18,7 +18,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         return;
                     }
                     a = a + 1;
-                    if (a === maxTries) {
+                    if (maxTries < 1 || a === maxTries) {
                         const element:HTMLElement = remote.node(config.delay.node, config.delay.target[0]),
                             assessment:test_assert = remote.evaluate(config.delay);
                         if (element !== undefined && element !== null && element.nodeType === 1) {
@@ -32,6 +32,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             if (config.delay === undefined || config.delay === null) {
                 remote.report(config.delay, config.unit, remote.index);
+            } else if (delay < 1 || maxTries < 1) {
+                delayFunction();
             } else {
                 setTimeout(delayFunction, delay);
             }

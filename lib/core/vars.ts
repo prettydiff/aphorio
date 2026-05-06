@@ -166,6 +166,8 @@ const vars:core_vars = {
         // command line options for running this application
         options: {
             "browser": null,
+            "delay-intervals": 250,
+            "delay-time": 50,
             "list": null,
             "no-color": false,
             "no-exit": false,
@@ -173,7 +175,7 @@ const vars:core_vars = {
             "port-secure": 0,
             "stop-on-fail": false,
             "test": false,
-            "test_verbose": false
+            "test-verbose": false
         },
         // raw OS data
         os: {

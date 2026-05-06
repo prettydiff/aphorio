@@ -21,7 +21,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
             : "angry",
         list:test_counts = vars.test.counts[name],
         exit:boolean = (vars.options["no-exit"] === false);
-    if (vars.options.test_verbose === true) {
+    if (vars.options["test-verbose"] === true) {
         summary.push("");
         summary.push(`${vars.text.underline}Testing complete for list ${vars.text.cyan + name + vars.text.none}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} List time                : ${vars.text.cyan + list.time_end.time_elapsed(list.time_start) + vars.text.none}`);
@@ -39,6 +39,15 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
             : "angry";
         summary.push("");
         summary.push("___________________________________________________");
+        summary.push("");
+        summary.push(`${vars.text.underline}Test settings${vars.text.none}`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} browser                  : ${vars.options["browser"]}`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} delay-intervals          : ${vars.options["delay-intervals"]}`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} delay-time               : ${vars.options["delay-time"]} milliseconds`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} list                     : ${vars.options["list"]}`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} no-exit                  : ${vars.options["no-exit"]}`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} stop-on-fail             : ${vars.options["stop-on-fail"]}`);
+        summary.push(`    ${vars.text.angry}*${vars.text.none} test-verbose             : ${vars.options["test-verbose"]}`);
         summary.push("");
         summary.push(`${vars.text.underline}Totals from all test lists${vars.text.none}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total time               : ${vars.text.cyan + vars.test.total_time_end.time_elapsed(vars.test.total_time_start) + vars.text.none}`);

@@ -530,17 +530,19 @@
                     <h5>Test Specific Options</h5>
                     <p>Tests can be run using <code class="inline">npm run test</code>.</p>
                     <ul>
-                        <li><em>browser:&lt;file_path&gt;</em> - Use this argument to specify a web browser, by absolute file path, to use for testing the dashboard UI. Spaces must be escaped.</li>
-                        <li><em>list:&lt;file_name&gt;</em> - Use this argument to specify a single test list, by file name, to test against from the project's list of test files.</li>
-                        <li><em>no-exit</em> - If present this option tells the application to continue running at the conclusion of test mode, which is helpful to further interact with and debug the dashboard UI.</li>
+                        <li><em>browser:&lt;file_path&gt;</em> - Specify a web browser, by absolute file path, to use for testing the dashboard UI. Spaces must be escaped.</li>
+                        <li><em>delay-intervals:&lt;number&gt;</em> - A delay test will halt the test runner until the given test evaluates to true by default. The default delay values retry the test 250 times every 50 milliseconds before returning a failed test. This argument allows changing the number of retries.</li>
+                        <li><em>delay-time:&lt;number&gt;</em> - Specifies the time between delay intervals in milliseconds from the default 50 milliseconds.</li>
+                        <li><em>list:&lt;file_name&gt;</em> - Specify a single test list, by file name, to test against from the project's list of test files.</li>
+                        <li><em>no-exit</em> - Tells the application to continue running at the conclusion of tests, which is helpful to further interact with and debug the dashboard UI.</li>
                         <li><em>stop-on-fail</em> - Tells the test runner to stop processing further test lists after the first failed assertion.</li>
-                        <li><em>test</em> - If present this option instructs the application to execute test automation.</li>
+                        <li><em>test</em> - Instructs the application to execute test automation.</li>
                     </ul>
                     <h5>General Use Options</h5>
                     <ul>
                         <li><em>no-color</em> - If present this option tells the application to never use ANSI formatting in terminal output.</li>
-                        <li><em>port-open</em> - Creates an insecure instance of the dashboard server on the specified insecure port, if that port is open.</li>
-                        <li><em>port-secure</em> - Creates a secure instance of the dashboard server on the specified insecure port, if that port is open.</li>
+                        <li><em>port-open&lt;port_number&gt;</em> - Creates an insecure instance of the dashboard server on the specified insecure port, if that port is open.</li>
+                        <li><em>port-secure&lt;port_number&gt;</em> - Creates a secure instance of the dashboard server on the specified insecure port, if that port is open.</li>
                     </ul>
                     <p>Example: <code class="inline">npm run test "browser:C:\Program Files\Mozilla Firefox\firefox.exe" "list:list_local_browser_fileSystem.ts" no-exit no-color</code></p>
                 </div>
