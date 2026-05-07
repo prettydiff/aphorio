@@ -361,6 +361,7 @@ interface core_vars {
             total: number;
         };
         name: string;
+        repository: string;
         start_time: bigint;
         terminal: string[];
         timeZone_offset: number;
@@ -368,6 +369,8 @@ interface core_vars {
     };
     options: {
         "browser": string;
+        "delay-intervals": number;
+        "delay-time": number;
         "list": string;
         "no-color": boolean;
         "no-exit": boolean;
@@ -375,7 +378,7 @@ interface core_vars {
         "port-secure": number;
         "stop-on-fail": boolean;
         "test": boolean;
-        "test_verbose": boolean;
+        "test-verbose": boolean;
     };
     os: core_server_os;
     path: core_vars_path;

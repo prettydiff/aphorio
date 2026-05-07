@@ -539,7 +539,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     input[type=number]{-moz-appearance:textfield;appearance:textfield;margin:0}
     input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 
-    h1 span{font-size:0.35em;font-weight:normal}
+    h1 a{font-size:0.35em;font-weight:normal}
 
     input:disabled,
     select:disabled,

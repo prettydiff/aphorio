@@ -52,16 +52,22 @@ Please note that for Docker support the `npm run server` command must be execute
 All arguments are supported only on the server command, example: `npm run server test no-color`
 
 #### Test Options
-* `browser:<file_path>` - Provides for an absolute file path for a web browser executable to test against. The file path value can be quoted, but if not quoted then spaces must be escaped according to the given shell's syntax rules. Any arguments following this argument will be passed directly to that web browser.
-* `list:<file_name>` - Allows specifying a single test list file name to execute starting from the project's test directory at */lib/test*.
-* `no-exit` - Application remains actively available after completing test automation.
-* `stop-on-fail` - Tells the test runner to stop processing further test lists after the first failed assertion.
-* `test` - If present this option instructs the application to execute test automation.
+* `browser:<file_path>`      - Provides for an absolute file path for a web browser executable to test against.
+                               The file path value can be quoted, but if not quoted then spaces must be escaped according to the given shell's syntax rules.
+                               Any arguments following this argument will be passed directly to that web browser.
+* `delay-intervals:<number>` - A delay test will halt the test runner until the given test evaluates to true by default.
+                               The default delay values retry the test 250 times every 50 milliseconds before returning a failed test.
+                               This argument allows changing the number of retries.
+* `delay-time:<number>`      - Specifies the time between delay intervals in milliseconds from the default 50 milliseconds.
+* `list:<file_name>`         - Specifies a single test list file name to execute starting from the project's test directory at */lib/test*.
+* `no-exit`                  - Application remains actively available after completing test automation.
+* `stop-on-fail`             - Tells the test runner to stop processing further test lists after the first failed assertion.
+* `test`                     - If present this option instructs the application to execute test automation.
 
 #### General Use Options
-* `no-color` - Eliminates use of ANSI color codes in terminal output.
-* `port-open:<port>` - Creates an insecure instance of the dashboard server on the specified insecure port, if that port is open.
-* `port-secure:<port>` - Creates a secure instance of the dashboard server on the specified insecure port, if that port is open.
+* `no-color`                  - Eliminates use of ANSI color codes in terminal output.
+* `port-open:<port_number>`   - Creates an insecure instance of the dashboard server on the specified insecure port, if that port is open.
+* `port-secure:<port_number>` - Creates a secure instance of the dashboard server on the specified insecure port, if that port is open.
 
 Example: `npm run test "browser:C:\Program Files\Mozilla Firefox\firefox.exe" "list:list_local_browser_fileSystem.ts" no-exit no-color`
 

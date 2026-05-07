@@ -53,12 +53,13 @@ const log:core_module_log = {
                     }
                     return `${years} year${plural(years)} ago`;
                 }()),
-                dateString:string = `Updated ${vars.environment.date_commit.dateTime(true, null)} (${difference})`,
+                updated:string = `${vars.environment.date_commit.dateTime(true, null)} (${difference})`,
+                dateString:string = `updated ${vars.text.blue + updated + vars.text.none}`,
                 hash:string = `git log ${vars.text.red + vars.environment.hash + vars.text.none}`,
-                version:string = `Version ${vars.text.blue + vars.text.bold + vars.environment.version + vars.text.none}`,
-                max:number = Math.max(dateString.length, vars.environment.hash.length + 8),
+                version:string = `version ${vars.environment.version}`,
+                max:number = Math.max(updated.length, vars.environment.hash.length),
                 border = function utilities_logShell_border(character:string):string {
-                    let index:number = max;
+                    let index:number = max + 8;
                     const output:string[] = [];
                     do {
                         index = index - 1;
@@ -66,11 +67,12 @@ const log:core_module_log = {
                     } while (index > 0);
                     return output.join("");
                 };
-            logger("");
             logger(border("_"));
-            logger(hash);
+            logger(`sources ${vars.text.red + vars.environment.repository + vars.text.none}`);
+            logger("license AGPLv3");
             logger(dateString);
             logger(version);
+            logger(hash);
             logger(border("\u203e"));
         }
     }

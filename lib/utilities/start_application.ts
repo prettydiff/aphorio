@@ -279,6 +279,8 @@ const start_application = function utilities_startApplication(process_path:strin
                                     testBrowser:string = (vars.test.testing === true)
                                         ? test_browser
                                             .toString()
+                                            .replace(/delay\s*=\s*0/, `delay=${vars.options["delay-time"]}`)
+                                            .replace(/maxTries\s*=\s*0/, `maxTries=${vars.options["delay-intervals"]}`)
                                             .replace(/\/\/ dashboard\.utility\.message_send\(test, "test-browser"\);\s+return test;/, "dashboard.utility.message_send(test,\"test-browser\");return test;")
                                         : null;
                                 let total_script:string = null;
@@ -287,7 +289,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 }
                                 total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time_elapsed:${universal.time_elapsed.toString()}};(${script}(${core.toString()}));`;
                                 vars.environment.dashboard_page = vars.environment.dashboard_page
-                                    .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard`)
+                                    .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard `)
                                     .replace("replace_javascript", total_script)
                                     .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.environment.css_complete + xterm_css}</style>`);
                                 complete_tasks("html");

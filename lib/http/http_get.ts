@@ -383,6 +383,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         data: vars.data.ports_application,
                         time: vars.data_meta.ports_application
                     },
+                    repository: vars.environment.repository,
                     server_ports: (vars.environment.features["servers-web"] === true)
                         ? vars.data_store.server_ports
                         : null,

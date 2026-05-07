@@ -12,8 +12,8 @@ vars.path.sep = node.path.sep;
         index:number = process.argv.length,
         colonIndex:number = null,
         arg:string = null,
-        value:string = null;
-
+        value:string = null,
+        numb:number = null;
     if (vars.commands === undefined) {
         log.shell([`Operating system type ${process.platform} is not yet supported.`]);
         process.exit(1);
@@ -29,18 +29,23 @@ vars.path.sep = node.path.sep;
             arg = (colonIndex > 0)
                 ? process.argv[index].slice(0, colonIndex).toLowerCase().replace(/^--/, "")
                 : process.argv[index].toLowerCase().replace(/^--/, "");
-            value = (colonIndex > 0)
-                ? process.argv[index].slice(colonIndex + 1)
-                : null;
             if (vars.options[arg as "test"] !== undefined || vars.options[arg.slice(0, arg.indexOf(":")) as "test"] !== undefined) {
+                value = (colonIndex > 0)
+                    ? process.argv[index].slice(colonIndex + 1)
+                    : null;
+                numb = Number(value);
                 if (arg.indexOf("browser") === 0) {
                     vars.options["browser"] = value;
+                } else if (arg.indexOf("delay-intervals") === 0 && isNaN(numb) === false) {
+                    vars.options["delay-intervals"] = Math.floor(numb);
+                } else if (arg.indexOf("delay-time") === 0 && isNaN(numb) === false) {
+                    vars.options["delay-time"] = Math.floor(numb);
                 } else if (arg.indexOf("list") === 0) {
                     vars.options["list"] = value;
-                } else if (arg.indexOf("port-open") === 0 && isNaN(Number(value)) === false) {
-                    vars.options["port-open"] = Number(value);
-                } else if (arg.indexOf("port-secure") === 0 && isNaN(Number(value)) === false) {
-                    vars.options["port-secure"] = Number(value);
+                } else if (arg.indexOf("port-open") === 0 && isNaN(numb) === false && numb > 0 && numb < 65536) {
+                    vars.options["port-open"] = Math.floor(numb);
+                } else if (arg.indexOf("port-secure") === 0 && isNaN(numb) === false && numb > 0 && numb < 65536) {
+                    vars.options["port-secure"] = Math.floor(numb);
                 } else {
                     vars.options[arg as "test"] = true;
                     vars.test.testing = true;
