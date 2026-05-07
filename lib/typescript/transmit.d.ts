@@ -37,6 +37,7 @@ interface transmit_dashboard {
     os: core_server_os;
     path: core_vars_path;
     "ports-application": services_ports_application;
+    repository: string;
     server_ports: {
         [key:string]: core_server_ports;
     }; 

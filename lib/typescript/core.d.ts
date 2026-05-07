@@ -361,6 +361,7 @@ interface core_vars {
             total: number;
         };
         name: string;
+        repository: string;
         start_time: bigint;
         terminal: string[];
         timeZone_offset: number;

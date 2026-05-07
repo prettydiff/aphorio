@@ -304,7 +304,7 @@ const ui = function ui():void {
             init: function dashboard_messageInit():void {
                 if (dashboard.global.loaded === false) {
                     const title:HTMLElement = document.getElementsByTagName("h1")[0],
-                        version:HTMLElement = document.createElement("span"),
+                        anchor:HTMLElement = document.createElement("a"),
                         init = function dashboard_execute_init(section_name:type_dashboard_features, table:boolean):void {
                             if (dashboard.sections[section_name] !== undefined) {
                                 if (table === true) {
@@ -340,8 +340,9 @@ const ui = function ui():void {
                     init("users", true);
                     dashboard.utility.nodes.main.style.display = "block";
                     dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
-                    version.textContent = `version ${dashboard.global.payload.version}`;
-                    title.appendChild(version);
+                    anchor.setAttribute("href", dashboard.global.payload.repository);
+                    anchor.textContent = `version ${dashboard.global.payload.version}`;
+                    title.appendChild(anchor);
                 }
             },
             receive: function dashboard_messageReceive(data:string):void {
