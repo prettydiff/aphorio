@@ -16,7 +16,7 @@ const vars:core_vars = {
                     file: "",
                     open: "xdg-open",
                     part: "",
-                    proc: "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
+                    proc: "ps -eo pid,cputime,pcpu,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
                     serv: "systemctl list-units --type=service --all --output json",
                     stcp: "ss -atupn | tail -n +2 | tr -s \" \" \",\"",
                     sudp: "",

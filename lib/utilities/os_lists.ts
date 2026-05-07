@@ -7,6 +7,8 @@ import vars from "../core/vars.ts";
 // cspell: words blockdevices, bootable, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, stcp, sudp, volu
 
 const os = function utilities_os(type_os:type_os_services, callback:(output:socket_data) => void):void {
+    let cpu_max_number:number = null,
+        cpu_max_test:boolean = (process.platform !== "win32");
     const win32:boolean = (process.platform === "win32"),
         shell:string = (win32 === true)
             ? (vars.environment.terminal.includes("C:\\Program Files\\PowerShell\\7\\pwsh.exe") === true)
@@ -281,7 +283,8 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 let index:number = 0,
                     proc:os_proc = null,
                     line:string[] = null,
-                    time:string[] = null;
+                    time:string[] = null,
+                    percent:number = null;
                 if (len > 0) {
                     do {
                         if (win32 === true) {
@@ -289,6 +292,9 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                                 id: data_win[index].Id,
                                 memory: data_win[index].PM,
                                 name: data_win[index].Name,
+                                percent: (data_win[index].CPU === null || cpu_max_number === null)
+                                    ? 0
+                                    : (data_win[index].CPU / cpu_max_number) * 100,
                                 time: (data_win[index].CPU === null)
                                     ? 0
                                     : data_win[index].CPU,
@@ -301,12 +307,16 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         } else {
                             line = data_posix[index].replace(/^,/, "").split(",");
                             time = line[1].split(":");
+                            percent = Number(line[2]);
                             proc = {
                                 id: Number(line[0]),
-                                memory: Number(line[2]),
-                                name: line[4],
+                                memory: Number(line[3]),
+                                name: line[5],
+                                percent: (percent > 99.99 && line[1] === "00:00:00")
+                                    ? 0
+                                    : percent,
                                 time: (Number(time[0]) * 3600) + (Number(time[1]) * 60) + Number(time[2]),
-                                user: line[3]
+                                user: line[4]
                             };
                         }
                         processes.push(proc);
@@ -1102,7 +1112,9 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
         spawning = function utilities_os_spawning(type:type_os_key):void {
             const spawn_complete = function utilities_os_spawnComplete(type:type_os_key, action:(type?:type_os_key) => void):void {
                     flags[type] = true;
-                    if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
+                    if (type === "proc" && cpu_max_test === true) {
+                        builder.proc();
+                    } else if ((type === "disk" || type === "part" || type === "volu") && flags.disk === true && flags.part === true && flags.volu === true) {
                         if (action === completed) {
                             completed("disk");
                         } else {
@@ -1168,6 +1180,20 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 type: type
             });
             spawn_item[type].execute();
+        },
+        cpu_max = function utilities_os_cpuMax():void {
+            spawn("Get-Process | Select-Object -expand cpu | Measure-Object -sum | Select-Object -expand sum", function utilities_os_cpuMax_child(output:core_spawn_output):void {
+                const value:number = Number(output.stdout);
+                if (isNaN(value) === false) {
+                    cpu_max_number = value;
+                }
+                cpu_max_test = true;
+                if (flags.proc === true) {
+                    builder.proc();
+                }
+            }, {
+                shell: "powershell"
+            }).execute();
         };
     if (type_os === "all" || type_os === undefined || type_os === null) {
         type_os = "all";
@@ -1175,6 +1201,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             spawning("part");
             spawning("sudp");
             spawning("volu");
+            cpu_max();
         }
         spawning("disk");
         spawning("proc");
@@ -1195,6 +1222,9 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
     } else if (type_os === "intr") {
         completed("disk");
     } else if (type_os === "proc") {
+        if (win32 === true) {
+            cpu_max();
+        }
         spawning("proc");
     } else if (type_os === "serv") {
         spawning("serv");
@@ -1212,6 +1242,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
     } else if (type_os === "user") {
         if (win32 === true) {
             // for windows spawning("user") is called from builder.proc
+            cpu_max_test = true;
             spawning("proc");
         } else {
             spawning("user");

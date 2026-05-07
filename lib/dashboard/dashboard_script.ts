@@ -2415,7 +2415,8 @@ const ui = function ui():void {
                             : record.memory.commas(),
                         id:string = (record === undefined)
                             ? ""
-                            : String(record.id);
+                            : String(record.id),
+                        percentage:string = `${record.percent.toFixed(2)}%`;
                     if (record !== undefined) {
                         dashboard.tables.cell(tr, record.name, null);
                         dashboard.tables.cell(tr, id, id);
@@ -2425,10 +2426,11 @@ const ui = function ui():void {
                         dashboard.tables.cell(tr, time, (record.time === null)
                             ? "0"
                             : String(record.time));
+                        dashboard.tables.cell(tr, percentage, String(record.percent));
                         dashboard.tables.cell(tr, record.user, null);
                     }
                 },
-                sort_name: ["name", "id", "memory", "time", "user"],
+                sort_name: ["name", "id", "memory", "time", "percentage", "user"],
                 time: 0
             },
             // processes end
@@ -4915,19 +4917,9 @@ const ui = function ui():void {
                         : list.parentNode;
                 if (len > 0) {
                     if (table !== null) {
-                        const sort_index:number = Number(table.dataset.column),
-                            sort_name:string = module.sort_name[sort_index],
-                            sort_direction:-1|1 = Number(table.getElementsByTagName("th")[sort_index].getElementsByTagName("button")[0].dataset.dir) as -1|1;
                         let index:number = 0,
                             row:HTMLElement = null;
                         list.textContent = "";
-                        item.data.sort(function dashboard_tables_populate_sort(a:type_lists,b:type_lists):-1|1 {
-                            // @ts-expect-error - inferring types based upon property names across unrelated objects of dissimilar property name is problematic
-                            if (a[sort_name as "name"|"type"] as string < b[sort_name as "name"|"type"] as string) {
-                                return sort_direction;
-                            }
-                            return (sort_direction * -1) as 1;
-                        });
                         do {
                             row = document.createElement("tr");
                             module.row(item.data[index], row);
@@ -4937,6 +4929,7 @@ const ui = function ui():void {
                         } while (index < len);
                         module.nodes.list = table.getElementsByTagName("tbody")[0];
                         dashboard.tables.filter(null, module.nodes.filter_value);
+                        dashboard.tables.sort(null, module.nodes.list.parentNode, Number(module.nodes.list.parentNode.dataset["column"]));
                     }
                     module.nodes.update_text.textContent = item.time.dateTime(true, dashboard.global.payload.timeZone_offset);
                     module.nodes.count.textContent = String(item.data.length);
@@ -4980,6 +4973,7 @@ const ui = function ui():void {
                     // @ts-expect-error - cannot infer a module from a union of modules by a type name from a union of type names
                     dashboard.global.payload.os[module.dataName] = socket_data.data;
                     dashboard.tables.populate(module, socket_data.data as type_list_services);
+                    dashboard.tables.sort(null, module.nodes.list.parentNode, Number(module.nodes.list.parentNode.dataset["column"]));
                     module.nodes.update_duration.textContent = dashboard.utility.performance_get(table);
                 }
             },
@@ -5005,7 +4999,9 @@ const ui = function ui():void {
                         button:HTMLElement = (event === null)
                             ? th.getElementsByTagName("button")[0]
                             : target,
-                        direction:-1|1 = Number(button.dataset.dir) as -1,
+                        direction:-1|1 = (event === null)
+                            ? Number(button.dataset.dir) as -1
+                            : Number(button.dataset.dir) * -1 as -1,
                         id:string = tableElement.getAncestor("tab", "class").getAttribute("id");
                     let index_th:number = (event === null)
                             ? heading_index
@@ -5015,11 +5011,7 @@ const ui = function ui():void {
                         const tables:HTMLCollectionOf<HTMLElement> = document.getElementById(id).getElementsByTagName("table");
                         let tables_index:number = tables.length;
                         // apply change of direction
-                        if (direction === -1) {
-                            button.setAttribute("data-dir", "1");
-                        } else {
-                            button.setAttribute("data-dir", "-1");
-                        }
+                        button.setAttribute("data-dir", String(direction));
 
                         // find which column to sort by
                         do {
@@ -5256,7 +5248,7 @@ const ui = function ui():void {
                     dashboard.utility.nodes.load.textContent = "0.00000 seconds";
                     dashboard.utility.nodes.main.style.display = "none";
                     dashboard.socket.socket = null;
-                    title.removeChild(title.getElementsByTagName("span")[0]);
+                    title.removeChild(title.getElementsByTagName("a")[0]);
                 }
             },
             // provides server status information

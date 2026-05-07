@@ -128,6 +128,7 @@ interface os_proc {
     id: number;
     memory: number;
     name: string;
+    percent: number;
     time: number;
     user: string;
 }
