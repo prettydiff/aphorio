@@ -122,6 +122,16 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
         write(`Error: Host value does not appear valid: ${host}`, "", true);
         return;
     }
+    if (data.encryption === true && vars.environment.interfaces.includes(host) === true) {
+        let index:number = vars.data.ports_application.length;
+        do {
+            index = index - 1;
+            if (vars.data.ports_application[index].port === port && vars.data.ports_application[index].type === "tcp") {
+                write(`Error: Encrypted connections not allowed to unencrypted servers.`, "", true);
+                return;
+            }
+        } while (index > 0);
+    }
     socket = (data.encryption === true)
         ? node.tls.connect({
             host: host,
@@ -132,7 +142,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
             host: host,
             port: port
         });
-    socket.once("error", function http_request_error(error:node_error):void {console.log(error);
+    socket.once("error", function http_request_error(error:node_error):void {
         if (error.code === "EPROTO" && error.syscall === "write") {
             write(`The EPROTO error is a protocol negotiation error that occurs for one of three reasons:\n1. Remote server is using outdated TLSv1.1 which is not supported by OpenSSL3 used by Node.js since version 17.\n2. There is a defect in this application.\n3. The most likely cause is a defect in Node.js.\n\nKnown domains causing this error:\n* prettydiff.com\n* www.army.mil\n* www.treasury.gov\n\n${JSON.stringify(error)}\n\nscheme: ${(data.encryption === true) ? "https (tls)" : "http"}\nhost: ${host}\nport: ${port}`, "", true);
         } else {
