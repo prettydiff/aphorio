@@ -2956,7 +2956,11 @@ const ui = function ui():void {
                     dashboard.tables.cell(tr, record["address"].remote.address, null);
                     dashboard.tables.cell(tr, String(record["address"].remote.port), null);
                     dashboard.tables.cell(tr, record["userAgent"], null);
-                    dashboard.tables.cell(tr, BigInt(dashboard.sections["sockets-application-tcp"].time * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
+                    if (dashboard.sections["sockets-application-tcp"].time === 0) {
+                        dashboard.tables.cell(tr, BigInt(record["time"] * 1e6).time_elapsed(BigInt(dashboard.global.payload.start_date * 1e6)), String(record["time"]));
+                    } else {
+                        dashboard.tables.cell(tr, BigInt(dashboard.sections["sockets-application-tcp"].time * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
+                    }
                 },
                 sort_name: ["server_id", "server_name", "hash", "type", "role", "proxy", "encrypted", "address-local-address", "address-local-port", "address-remote-address", "address-remote-port", "userAgent", "time"],
                 time: 0
@@ -2989,7 +2993,11 @@ const ui = function ui():void {
                     dashboard.tables.cell(tr, record["multicast_interface"], null);
                     dashboard.tables.cell(tr, record["multicast_membership"], null);
                     dashboard.tables.cell(tr, record["multicast_source"], null);
-                    dashboard.tables.cell(tr, BigInt(dashboard.sections["sockets-application-udp"].time * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
+                    if (dashboard.sections["sockets-application-udp"].time === 0) {
+                        dashboard.tables.cell(tr, BigInt(record["time"] * 1e6).time_elapsed(BigInt(dashboard.global.payload.start_date * 1e6)), String(record["time"]));
+                    } else {
+                        dashboard.tables.cell(tr, BigInt(dashboard.sections["sockets-application-udp"].time * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
+                    }
                 },
                 sort_name: ["hash", "address_source", "port_source", "address_destination", "port_destination", "role", "multicast_group", "multicast_interface", "multicast_membership", "multicast_source", "time"],
                 time: 0
@@ -4895,11 +4903,12 @@ const ui = function ui():void {
                 module.nodes.update_button.setAttribute("data-list", module.dataName);
                 module.receive = dashboard.tables.receive;
                 select(module.nodes.list.parentNode, module.nodes.filter_column);
-                if (module.dataName === "sockets-application-tcp" || module.dataName === "sockets-application-udp") {
+                if (module.dataName === "sockets-application-tcp") {
                     dashboard.tables.populate(dashboard.sections["sockets-application-tcp"], {
                         data: dashboard.global.payload.sockets.tcp,
                         time: dashboard.global.payload.sockets.time
                     });
+                } else if (module.dataName === "sockets-application-udp") {
                     dashboard.tables.populate(dashboard.sections["sockets-application-udp"], {
                         data: dashboard.global.payload.sockets.udp,
                         time: dashboard.global.payload.sockets.time

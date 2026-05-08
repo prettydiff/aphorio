@@ -738,6 +738,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                     index = index + 1;
                                 } while (index < servers.length);
                                 ports_application();
+                                
                                 if (vars.test.testing === true) {
                                     test_index();
                                 } else {

@@ -148,6 +148,8 @@ const vars:core_vars = {
             name: "aphorio",
             // where the source code lives
             repository: "https://github.com/prettydiff/aphorio",
+            // a start date time value for use in the browser
+            start_date: Date.now(),
             // the earliest recorded time this application starts
             start_time: process.hrtime.bigint(),
             // the file system paths of locally available command shells

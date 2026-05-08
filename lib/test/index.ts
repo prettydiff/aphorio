@@ -12,6 +12,8 @@ import test_listLocalBrowserHelp from "./list_local_browser_help.ts";
 import test_listLocalBrowserHTTP from "./list_local_browser_http.ts";
 import test_listLocalBrowserInterfaces from "./list_local_browser_interfaces.ts";
 import test_listLocalBrowserOS from "./list_local_browser_os.ts";
+import test_listLocalBrowserOS_TCPports from "./list_local_browser_osTCPports.ts";
+import test_listLocalBrowserOS_UDPports from "./list_local_browser_osUDPports.ts";
 import test_listLocalBrowserProcesses from "./list_local_browser_processes.ts";
 import test_listLocalBrowserServices from "./list_local_browser_services.ts";
 import test_listLocalBrowserSocketsApplicationTCP from "./list_local_browser_sockets_application_tcp.ts";
@@ -40,6 +42,8 @@ const test_index = function test_index():void {
                 test_listLocalBrowserHTTP(),
                 test_listLocalBrowserInterfaces(),
                 test_listLocalBrowserOS(),
+                test_listLocalBrowserOS_TCPports(),
+                test_listLocalBrowserOS_UDPports(),
                 test_listLocalBrowserProcesses(),
                 test_listLocalBrowserServices(),
                 test_listLocalBrowserSocketsApplicationTCP(),
@@ -73,9 +77,6 @@ const test_index = function test_index():void {
 // Statistics
 // App Ports
 // App UDP Sockets
-// OS TCP Sockets
-// OS UDP Sockets
-// HTTP Test - defect - EADDRNOTAVAIL
 // WebSocket Test - Incomplete
 
 export default test_index;

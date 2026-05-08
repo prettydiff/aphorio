@@ -43,6 +43,7 @@ interface transmit_dashboard {
     }; 
     servers: store_servers;
     sockets: services_socket_application;
+    start_date: number;
     stats: services_statistics_data;
     terminal: string[];
     timeZone_offset: number;
