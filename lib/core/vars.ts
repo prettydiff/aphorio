@@ -1,6 +1,6 @@
 
 
-/* cspell: words atupn, cputime, lslogins, pwsh, serv, stcp, sudp, volu */
+/* cspell: words atupn, cputime, lslogins, pcpu, pwsh, serv, stcp, sudp, volu */
 
 const vars:core_vars = {
         // critical shell commands by operating system
@@ -16,7 +16,7 @@ const vars:core_vars = {
                     file: "",
                     open: "xdg-open",
                     part: "",
-                    proc: "ps -eo pid,cputime,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
+                    proc: "ps -eo pid,cputime,pcpu,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
                     serv: "systemctl list-units --type=service --all --output json",
                     stcp: "ss -atupn | tail -n +2 | tr -s \" \" \",\"",
                     sudp: "",
@@ -148,6 +148,8 @@ const vars:core_vars = {
             name: "aphorio",
             // where the source code lives
             repository: "https://github.com/prettydiff/aphorio",
+            // a start date time value for use in the browser
+            start_date: Date.now(),
             // the earliest recorded time this application starts
             start_time: process.hrtime.bigint(),
             // the file system paths of locally available command shells

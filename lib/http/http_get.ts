@@ -397,6 +397,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             udp: vars.data.sockets_udp
                         }
                         : null,
+                    start_date: vars.environment.start_date,
                     stats: (vars.environment.features["statistics"] === true)
                         ? {
                             containers: vars.stats.containers,

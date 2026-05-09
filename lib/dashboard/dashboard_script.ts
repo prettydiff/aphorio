@@ -120,10 +120,13 @@ const ui = function ui():void {
                 },
                 open: function dashboard_execute_socketOpen(event:Event):void {
                     const target:WebSocket = event.target as WebSocket,
+                        encryption:string = (target.url.indexOf("wss") === 0)
+                            ? "Encrypted"
+                            : "Insecure",
                         status:HTMLElement = document.getElementById("connection-status");
                     dashboard.socket.connected = true;
                     if (status !== null ) {
-                        status.getElementsByTagName("strong")[0].textContent = "Online";
+                        status.getElementsByTagName("strong")[0].textContent = `Online (${encryption})`;
                         status.setAttribute("class", "connection-online");
                     }
                     
@@ -2415,7 +2418,8 @@ const ui = function ui():void {
                             : record.memory.commas(),
                         id:string = (record === undefined)
                             ? ""
-                            : String(record.id);
+                            : String(record.id),
+                        percentage:string = `${record.percent.toFixed(2)}%`;
                     if (record !== undefined) {
                         dashboard.tables.cell(tr, record.name, null);
                         dashboard.tables.cell(tr, id, id);
@@ -2425,10 +2429,11 @@ const ui = function ui():void {
                         dashboard.tables.cell(tr, time, (record.time === null)
                             ? "0"
                             : String(record.time));
+                        dashboard.tables.cell(tr, percentage, String(record.percent));
                         dashboard.tables.cell(tr, record.user, null);
                     }
                 },
-                sort_name: ["name", "id", "memory", "time", "user"],
+                sort_name: ["name", "id", "memory", "time", "percentage", "user"],
                 time: 0
             },
             // processes end
@@ -2954,7 +2959,11 @@ const ui = function ui():void {
                     dashboard.tables.cell(tr, record["address"].remote.address, null);
                     dashboard.tables.cell(tr, String(record["address"].remote.port), null);
                     dashboard.tables.cell(tr, record["userAgent"], null);
-                    dashboard.tables.cell(tr, BigInt(dashboard.sections["sockets-application-tcp"].time * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
+                    if (dashboard.sections["sockets-application-tcp"].time === 0) {
+                        dashboard.tables.cell(tr, BigInt(record["time"] * 1e6).time_elapsed(BigInt(dashboard.global.payload.start_date * 1e6)), String(record["time"]));
+                    } else {
+                        dashboard.tables.cell(tr, BigInt(dashboard.sections["sockets-application-tcp"].time * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
+                    }
                 },
                 sort_name: ["server_id", "server_name", "hash", "type", "role", "proxy", "encrypted", "address-local-address", "address-local-port", "address-remote-address", "address-remote-port", "userAgent", "time"],
                 time: 0
@@ -2987,7 +2996,11 @@ const ui = function ui():void {
                     dashboard.tables.cell(tr, record["multicast_interface"], null);
                     dashboard.tables.cell(tr, record["multicast_membership"], null);
                     dashboard.tables.cell(tr, record["multicast_source"], null);
-                    dashboard.tables.cell(tr, BigInt(dashboard.sections["sockets-application-udp"].time * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
+                    if (dashboard.sections["sockets-application-udp"].time === 0) {
+                        dashboard.tables.cell(tr, BigInt(record["time"] * 1e6).time_elapsed(BigInt(dashboard.global.payload.start_date * 1e6)), String(record["time"]));
+                    } else {
+                        dashboard.tables.cell(tr, BigInt(dashboard.sections["sockets-application-udp"].time * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));
+                    }
                 },
                 sort_name: ["hash", "address_source", "port_source", "address_destination", "port_destination", "role", "multicast_group", "multicast_interface", "multicast_membership", "multicast_source", "time"],
                 time: 0
@@ -3804,10 +3817,28 @@ const ui = function ui():void {
             "test-websocket": {
                 connected: false,
                 events: {
+                    encryption: function dashboard_sections_websocketTest_encryption(event:MouseEvent):void {
+                        const target:HTMLInputElement = (event === null)
+                                ? (dashboard.sections["test-websocket"].nodes.encrypt_true.checked === true)
+                                    ? dashboard.sections["test-websocket"].nodes.encrypt_true
+                                    : dashboard.sections["test-websocket"].nodes.encrypt_false
+                                : event.target as HTMLInputElement,
+                            port_open = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open,
+                            port_secure = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure,
+                            text:string = dashboard.sections["test-websocket"].nodes.handshake.value,
+                            reg:RegExp = new RegExp(`(H|h)ost\\s*:\\s*${location.hostname}:(${port_open}|${port_secure})`);
+                        if (reg.test(text) === true) {
+                            if (target === dashboard.sections["test-websocket"].nodes.encrypt_true) {
+                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_secure}`)
+                            } else {
+                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_open}`)
+                            }
+                        }
+                    },
                     handshakeSend: function dashboard_sections_websocketTest_handshakeSend():void {
                         const timeout:number = Number(dashboard.sections["test-websocket"].nodes.handshake_timeout.value),
                             payload:services_websocket_handshake = {
-                                encryption: (dashboard.sections["test-websocket"].nodes.handshake_scheme.checked === true),
+                                encryption: (dashboard.sections["test-websocket"].nodes.encrypt_true.checked === true),
                                 message: (dashboard.sections["test-websocket"].connected === true)
                                     ? ["disconnect"]
                                     : dashboard.sections["test-websocket"].nodes.handshake.value.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\r\n/g, "\n").split("\n"),
@@ -3887,6 +3918,18 @@ const ui = function ui():void {
                             const encodeKey:TextEncoder = new TextEncoder;
                             frame.maskKey = encodeKey.encode(window.btoa(Math.random().toString() + Math.random().toString() + Math.random().toString()).replace(/0\./g, "").slice(0, 32)) as Buffer;
                         }
+                        if (frame.fin === false) {
+                            dashboard.sections["test-websocket"].nodes.frame_validate.style.display = "block";
+                            dashboard.sections["test-websocket"].nodes.frame_validate.getElementsByTagName("em")[0].textContent = "Warning: Frame fin flag is set to false.";
+                        } else if (frame.mask === true && frame.maskKey === null) {
+                            dashboard.sections["test-websocket"].nodes.frame_validate.style.display = "block";
+                            dashboard.sections["test-websocket"].nodes.frame_validate.getElementsByTagName("em")[0].textContent = "Warning: Frame mask flag is set to true but no mask key is provided.";
+                        } else if ((frame.opcode > 2 && frame.opcode < 8) || frame.opcode > 10) {
+                            dashboard.sections["test-websocket"].nodes.frame_validate.style.display = "block";
+                            dashboard.sections["test-websocket"].nodes.frame_validate.getElementsByTagName("em")[0].textContent = "Warning: Frame opcode value is a valid but non-standard value.";
+                        } else {
+                            dashboard.sections["test-websocket"].nodes.frame_validate.style.display = "none";
+                        }
                         dashboard.sections["test-websocket"].frameBeautify("send", JSON.stringify(frame));
                         dashboard.utility.setState();
                     },
@@ -3913,7 +3956,7 @@ const ui = function ui():void {
                         .replace(/:/g, ": ");
                 },
                 init: function dashboard_sections_websocketTest_init():void {
-                    const form:HTMLElement = dashboard.sections["test-websocket"].nodes.handshake_scheme.getAncestor("form", "class"),
+                    const form:HTMLElement = dashboard.sections["test-websocket"].nodes.encrypt_true.getAncestor("form", "class"),
                         h4:HTMLElement = form.getElementsByTagName("h4")[0],
                         scheme:HTMLElement = form.getElementsByTagName("p")[1],
                         emOpen:HTMLElement = document.createElement("em"),
@@ -3921,19 +3964,21 @@ const ui = function ui():void {
                     dashboard.sections["test-websocket"].tools.handshake();
                     dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
                     dashboard.sections["test-websocket"].nodes.button_send.onclick = dashboard.sections["test-websocket"].events.message_send;
+                    dashboard.sections["test-websocket"].nodes.encrypt_false.onclick = dashboard.sections["test-websocket"].events.encryption;
+                    dashboard.sections["test-websocket"].nodes.encrypt_true.onclick = dashboard.sections["test-websocket"].events.encryption;
                     dashboard.sections["test-websocket"].nodes.message_send_body.onkeyup = dashboard.sections["test-websocket"].events.keyup_message;
                     dashboard.sections["test-websocket"].nodes.message_send_frame.onblur = dashboard.sections["test-websocket"].events.keyup_frame;
                     dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "";
                     // server socket status messaging
                     if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open) === true) {
-                        dashboard.sections["test-websocket"].nodes.handshake_scheme.checked = true;
+                        dashboard.sections["test-websocket"].nodes.encrypt_true.checked = true;
                         h4.style.display = "none";
                         scheme.style.display = "none";
                         emSecure.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure);
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendText("secure - ");
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
                     } else if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure) === true) {
-                        dashboard.sections["test-websocket"].nodes.handshake_scheme.checked = false;
+                        dashboard.sections["test-websocket"].nodes.encrypt_false.checked = true;
                         h4.style.display = "none";
                         scheme.style.display = "none";
                         emOpen.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open);
@@ -3947,6 +3992,9 @@ const ui = function ui():void {
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendText(", secure - ");
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
                     }
+                    dashboard.sections["test-websocket"].nodes.encrypt_false.onclick = dashboard.sections["test-websocket"].events.encryption;
+                    dashboard.sections["test-websocket"].nodes.encrypt_true.onclick = dashboard.sections["test-websocket"].events.encryption;
+                    dashboard.sections["test-websocket"].events.encryption(null);
                     if (dashboard.global.state.test_websocket === null || dashboard.global.state.test_websocket === undefined) {
                         dashboard.global.state.test_websocket = {
                             request_timeout: "0",
@@ -3962,10 +4010,12 @@ const ui = function ui():void {
                 nodes: {
                     button_handshake: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
                     button_send: document.getElementById("test-websocket").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
+                    encrypt_false: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[0] as HTMLInputElement,
+                    encrypt_true: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
+                    frame_validate: document.getElementById("test-websocket").getElementsByClassName("form")[1].getElementsByClassName("form")[0].getElementsByTagName("p")[3],
                     halt_receive: document.getElementById("test-websocket").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
                     handshake: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
                     handshake_label: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByClassName("ports")[0].getElementsByTagName("span")[0],
-                    handshake_scheme: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
                     handshake_status: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
                     handshake_timeout: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
                     message_receive_body: document.getElementById("test-websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
@@ -3995,7 +4045,7 @@ const ui = function ui():void {
                             .replace(/",\s+/g, "\",")
                             .replace(/\{\s+/, "{")
                             .replace(/,\s+\}/, "}"));
-                    },
+                    }
                 },
                 transmit: {
                     message_receive: function dashboard_sections_websocketTest_messageReceive(data_item:socket_data):void {
@@ -4008,9 +4058,12 @@ const ui = function ui():void {
                     status: function dashboard_sections_websocketTest_status(data_item:socket_data):void {
                         const data:services_websocket_status = data_item.data as services_websocket_status;
                         if (data.connected === true) {
+                            const encryption:string = (data.encrypted === true)
+                                ? "Encrypted"
+                                : "Insecure";
                             dashboard.sections["test-websocket"].nodes.button_handshake.textContent = "Disconnect";
                             dashboard.sections["test-websocket"].nodes.status.setAttribute("class", "connection-online");
-                            dashboard.sections["test-websocket"].nodes.status.lastChild.textContent = "Online";
+                            dashboard.sections["test-websocket"].nodes.status.lastChild.textContent = `Online (${encryption})`;
                             dashboard.sections["test-websocket"].connected = true;
                             dashboard.sections["test-websocket"].nodes.message_receive_body.value = "";
                             dashboard.sections["test-websocket"].nodes.message_receive_frame.value = "";
@@ -4893,11 +4946,12 @@ const ui = function ui():void {
                 module.nodes.update_button.setAttribute("data-list", module.dataName);
                 module.receive = dashboard.tables.receive;
                 select(module.nodes.list.parentNode, module.nodes.filter_column);
-                if (module.dataName === "sockets-application-tcp" || module.dataName === "sockets-application-udp") {
+                if (module.dataName === "sockets-application-tcp") {
                     dashboard.tables.populate(dashboard.sections["sockets-application-tcp"], {
                         data: dashboard.global.payload.sockets.tcp,
                         time: dashboard.global.payload.sockets.time
                     });
+                } else if (module.dataName === "sockets-application-udp") {
                     dashboard.tables.populate(dashboard.sections["sockets-application-udp"], {
                         data: dashboard.global.payload.sockets.udp,
                         time: dashboard.global.payload.sockets.time
@@ -4915,19 +4969,9 @@ const ui = function ui():void {
                         : list.parentNode;
                 if (len > 0) {
                     if (table !== null) {
-                        const sort_index:number = Number(table.dataset.column),
-                            sort_name:string = module.sort_name[sort_index],
-                            sort_direction:-1|1 = Number(table.getElementsByTagName("th")[sort_index].getElementsByTagName("button")[0].dataset.dir) as -1|1;
                         let index:number = 0,
                             row:HTMLElement = null;
                         list.textContent = "";
-                        item.data.sort(function dashboard_tables_populate_sort(a:type_lists,b:type_lists):-1|1 {
-                            // @ts-expect-error - inferring types based upon property names across unrelated objects of dissimilar property name is problematic
-                            if (a[sort_name as "name"|"type"] as string < b[sort_name as "name"|"type"] as string) {
-                                return sort_direction;
-                            }
-                            return (sort_direction * -1) as 1;
-                        });
                         do {
                             row = document.createElement("tr");
                             module.row(item.data[index], row);
@@ -4937,6 +4981,7 @@ const ui = function ui():void {
                         } while (index < len);
                         module.nodes.list = table.getElementsByTagName("tbody")[0];
                         dashboard.tables.filter(null, module.nodes.filter_value);
+                        dashboard.tables.sort(null, module.nodes.list.parentNode, Number(module.nodes.list.parentNode.dataset["column"]));
                     }
                     module.nodes.update_text.textContent = item.time.dateTime(true, dashboard.global.payload.timeZone_offset);
                     module.nodes.count.textContent = String(item.data.length);
@@ -4980,6 +5025,7 @@ const ui = function ui():void {
                     // @ts-expect-error - cannot infer a module from a union of modules by a type name from a union of type names
                     dashboard.global.payload.os[module.dataName] = socket_data.data;
                     dashboard.tables.populate(module, socket_data.data as type_list_services);
+                    dashboard.tables.sort(null, module.nodes.list.parentNode, Number(module.nodes.list.parentNode.dataset["column"]));
                     module.nodes.update_duration.textContent = dashboard.utility.performance_get(table);
                 }
             },
@@ -5005,7 +5051,9 @@ const ui = function ui():void {
                         button:HTMLElement = (event === null)
                             ? th.getElementsByTagName("button")[0]
                             : target,
-                        direction:-1|1 = Number(button.dataset.dir) as -1,
+                        direction:-1|1 = (event === null)
+                            ? Number(button.dataset.dir) as -1
+                            : Number(button.dataset.dir) * -1 as -1,
                         id:string = tableElement.getAncestor("tab", "class").getAttribute("id");
                     let index_th:number = (event === null)
                             ? heading_index
@@ -5015,11 +5063,7 @@ const ui = function ui():void {
                         const tables:HTMLCollectionOf<HTMLElement> = document.getElementById(id).getElementsByTagName("table");
                         let tables_index:number = tables.length;
                         // apply change of direction
-                        if (direction === -1) {
-                            button.setAttribute("data-dir", "1");
-                        } else {
-                            button.setAttribute("data-dir", "-1");
-                        }
+                        button.setAttribute("data-dir", String(direction));
 
                         // find which column to sort by
                         do {
@@ -5251,12 +5295,13 @@ const ui = function ui():void {
                         dashboard.sections["test-websocket"].nodes.status.setAttribute("class", "connection-offline");
                         dashboard.sections["test-websocket"].nodes.message_receive_body.value = "";
                         dashboard.sections["test-websocket"].nodes.message_receive_frame.value = "";
+                        dashboard.sections["test-websocket"].nodes.button_send.disabled = true;
                     }
                     dashboard.utility.nodes.clock.textContent = "00:00:00L (00:00:00Z)";
                     dashboard.utility.nodes.load.textContent = "0.00000 seconds";
                     dashboard.utility.nodes.main.style.display = "none";
                     dashboard.socket.socket = null;
-                    title.removeChild(title.getElementsByTagName("span")[0]);
+                    title.removeChild(title.getElementsByTagName("a")[0]);
                 }
             },
             // provides server status information
