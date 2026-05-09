@@ -601,21 +601,22 @@ declare global {
     interface section_websocket_test extends module_sections {
         connected: boolean;
         events: {
+            encryption: (event:MouseEvent) => void;
             handshakeSend: () => void;
             keyup_frame: (event:Event) => void;
             keyup_message: (event:KeyboardEvent) => void;
             message_send: () => void;
         };
-        
         frameBeautify: (target:"receive"|"send", valueItem?:string) => void;
         init: () => void;
         nodes: {
             button_handshake: HTMLButtonElement;
             button_send: HTMLButtonElement;
+            encrypt_false: HTMLInputElement;
+            encrypt_true: HTMLInputElement;
             halt_receive: HTMLInputElement;
             handshake: HTMLTextAreaElement;
             handshake_label: HTMLElement;
-            handshake_scheme: HTMLInputElement;
             handshake_status: HTMLTextAreaElement;
             handshake_timeout: HTMLInputElement;
             message_receive_body: HTMLTextAreaElement;

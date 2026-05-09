@@ -120,10 +120,13 @@ const ui = function ui():void {
                 },
                 open: function dashboard_execute_socketOpen(event:Event):void {
                     const target:WebSocket = event.target as WebSocket,
+                        encryption:string = (target.url.indexOf("wss") === 0)
+                            ? "Encrypted"
+                            : "Insecure",
                         status:HTMLElement = document.getElementById("connection-status");
                     dashboard.socket.connected = true;
                     if (status !== null ) {
-                        status.getElementsByTagName("strong")[0].textContent = "Online";
+                        status.getElementsByTagName("strong")[0].textContent = `Online (${encryption})`;
                         status.setAttribute("class", "connection-online");
                     }
                     
@@ -3814,10 +3817,28 @@ const ui = function ui():void {
             "test-websocket": {
                 connected: false,
                 events: {
+                    encryption: function dashboard_sections_websocketTest_encryption(event:MouseEvent):void {
+                        const target:HTMLInputElement = (event === null)
+                                ? (dashboard.sections["test-websocket"].nodes.encrypt_true.checked === true)
+                                    ? dashboard.sections["test-websocket"].nodes.encrypt_true
+                                    : dashboard.sections["test-websocket"].nodes.encrypt_false
+                                : event.target as HTMLInputElement,
+                            port_open = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open,
+                            port_secure = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure,
+                            text:string = dashboard.sections["test-websocket"].nodes.handshake.value,
+                            reg:RegExp = new RegExp(`(H|h)ost\\s*:\\s*${location.hostname}:(${port_open}|${port_secure})`);
+                        if (reg.test(text) === true) {
+                            if (target === dashboard.sections["test-websocket"].nodes.encrypt_true) {
+                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_secure}`)
+                            } else {
+                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_open}`)
+                            }
+                        }
+                    },
                     handshakeSend: function dashboard_sections_websocketTest_handshakeSend():void {
                         const timeout:number = Number(dashboard.sections["test-websocket"].nodes.handshake_timeout.value),
                             payload:services_websocket_handshake = {
-                                encryption: (dashboard.sections["test-websocket"].nodes.handshake_scheme.checked === true),
+                                encryption: (dashboard.sections["test-websocket"].nodes.encrypt_true.checked === true),
                                 message: (dashboard.sections["test-websocket"].connected === true)
                                     ? ["disconnect"]
                                     : dashboard.sections["test-websocket"].nodes.handshake.value.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\r\n/g, "\n").split("\n"),
@@ -3923,7 +3944,7 @@ const ui = function ui():void {
                         .replace(/:/g, ": ");
                 },
                 init: function dashboard_sections_websocketTest_init():void {
-                    const form:HTMLElement = dashboard.sections["test-websocket"].nodes.handshake_scheme.getAncestor("form", "class"),
+                    const form:HTMLElement = dashboard.sections["test-websocket"].nodes.encrypt_true.getAncestor("form", "class"),
                         h4:HTMLElement = form.getElementsByTagName("h4")[0],
                         scheme:HTMLElement = form.getElementsByTagName("p")[1],
                         emOpen:HTMLElement = document.createElement("em"),
@@ -3931,19 +3952,21 @@ const ui = function ui():void {
                     dashboard.sections["test-websocket"].tools.handshake();
                     dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
                     dashboard.sections["test-websocket"].nodes.button_send.onclick = dashboard.sections["test-websocket"].events.message_send;
+                    dashboard.sections["test-websocket"].nodes.encrypt_false.onclick = dashboard.sections["test-websocket"].events.encryption;
+                    dashboard.sections["test-websocket"].nodes.encrypt_true.onclick = dashboard.sections["test-websocket"].events.encryption;
                     dashboard.sections["test-websocket"].nodes.message_send_body.onkeyup = dashboard.sections["test-websocket"].events.keyup_message;
                     dashboard.sections["test-websocket"].nodes.message_send_frame.onblur = dashboard.sections["test-websocket"].events.keyup_frame;
                     dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "";
                     // server socket status messaging
                     if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open) === true) {
-                        dashboard.sections["test-websocket"].nodes.handshake_scheme.checked = true;
+                        dashboard.sections["test-websocket"].nodes.encrypt_true.checked = true;
                         h4.style.display = "none";
                         scheme.style.display = "none";
                         emSecure.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure);
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendText("secure - ");
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
                     } else if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure) === true) {
-                        dashboard.sections["test-websocket"].nodes.handshake_scheme.checked = false;
+                        dashboard.sections["test-websocket"].nodes.encrypt_false.checked = true;
                         h4.style.display = "none";
                         scheme.style.display = "none";
                         emOpen.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open);
@@ -3957,6 +3980,9 @@ const ui = function ui():void {
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendText(", secure - ");
                         dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
                     }
+                    dashboard.sections["test-websocket"].nodes.encrypt_false.onclick = dashboard.sections["test-websocket"].events.encryption;
+                    dashboard.sections["test-websocket"].nodes.encrypt_true.onclick = dashboard.sections["test-websocket"].events.encryption;
+                    dashboard.sections["test-websocket"].events.encryption(null);
                     if (dashboard.global.state.test_websocket === null || dashboard.global.state.test_websocket === undefined) {
                         dashboard.global.state.test_websocket = {
                             request_timeout: "0",
@@ -3972,10 +3998,11 @@ const ui = function ui():void {
                 nodes: {
                     button_handshake: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("button")[0] as HTMLButtonElement,
                     button_send: document.getElementById("test-websocket").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
+                    encrypt_false: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[0] as HTMLInputElement,
+                    encrypt_true: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
                     halt_receive: document.getElementById("test-websocket").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
                     handshake: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
                     handshake_label: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByClassName("ports")[0].getElementsByTagName("span")[0],
-                    handshake_scheme: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
                     handshake_status: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
                     handshake_timeout: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
                     message_receive_body: document.getElementById("test-websocket").getElementsByClassName("form")[3].getElementsByTagName("textarea")[1] as HTMLTextAreaElement,
@@ -4005,7 +4032,7 @@ const ui = function ui():void {
                             .replace(/",\s+/g, "\",")
                             .replace(/\{\s+/, "{")
                             .replace(/,\s+\}/, "}"));
-                    },
+                    }
                 },
                 transmit: {
                     message_receive: function dashboard_sections_websocketTest_messageReceive(data_item:socket_data):void {
@@ -4018,9 +4045,12 @@ const ui = function ui():void {
                     status: function dashboard_sections_websocketTest_status(data_item:socket_data):void {
                         const data:services_websocket_status = data_item.data as services_websocket_status;
                         if (data.connected === true) {
+                            const encryption:string = (data.encrypted === true)
+                                ? "Encrypted"
+                                : "Insecure";
                             dashboard.sections["test-websocket"].nodes.button_handshake.textContent = "Disconnect";
                             dashboard.sections["test-websocket"].nodes.status.setAttribute("class", "connection-online");
-                            dashboard.sections["test-websocket"].nodes.status.lastChild.textContent = "Online";
+                            dashboard.sections["test-websocket"].nodes.status.lastChild.textContent = `Online (${encryption})`;
                             dashboard.sections["test-websocket"].connected = true;
                             dashboard.sections["test-websocket"].nodes.message_receive_body.value = "";
                             dashboard.sections["test-websocket"].nodes.message_receive_frame.value = "";
@@ -5252,6 +5282,7 @@ const ui = function ui():void {
                         dashboard.sections["test-websocket"].nodes.status.setAttribute("class", "connection-offline");
                         dashboard.sections["test-websocket"].nodes.message_receive_body.value = "";
                         dashboard.sections["test-websocket"].nodes.message_receive_frame.value = "";
+                        dashboard.sections["test-websocket"].nodes.button_send.disabled = true;
                     }
                     dashboard.utility.nodes.clock.textContent = "00:00:00L (00:00:00Z)";
                     dashboard.utility.nodes.load.textContent = "0.00000 seconds";

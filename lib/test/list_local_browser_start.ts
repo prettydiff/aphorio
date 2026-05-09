@@ -12,7 +12,7 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
                 qualifier: "is",
                 target: ["textContent"],
                 type: "property",
-                value: "Online"
+                value: "Online (Insecure)"
             },
             interaction: [],
             name: "Page load",

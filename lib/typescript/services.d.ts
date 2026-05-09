@@ -355,5 +355,6 @@ interface services_websocket_message {
 
 interface services_websocket_status {
     connected: boolean;
+    encrypted: boolean;
     error: node_error | string;
 }

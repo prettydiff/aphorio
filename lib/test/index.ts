@@ -12,11 +12,11 @@ import test_listLocalBrowserHelp from "./list_local_browser_help.ts";
 import test_listLocalBrowserHTTP from "./list_local_browser_http.ts";
 import test_listLocalBrowserInterfaces from "./list_local_browser_interfaces.ts";
 import test_listLocalBrowserOS from "./list_local_browser_os.ts";
-import test_listLocalBrowserOS_TCPports from "./list_local_browser_osTCPports.ts";
-import test_listLocalBrowserOS_UDPports from "./list_local_browser_osUDPports.ts";
 import test_listLocalBrowserProcesses from "./list_local_browser_processes.ts";
 import test_listLocalBrowserServices from "./list_local_browser_services.ts";
 import test_listLocalBrowserSocketsApplicationTCP from "./list_local_browser_sockets_application_tcp.ts";
+import test_listLocalBrowserSocketsOS_TCP from "./list_local_browser_sockets_os_tcp.ts";
+import test_listLocalBrowserSocketsOS_UDP from "./list_local_browser_sockets_os_udp.ts";
 import test_listLocalBrowserStart from "./list_local_browser_start.ts";
 import test_listLocalBrowserTerminal from "./list_local_browser_terminal.ts";
 import test_listLocalBrowserUsers from "./list_local_browser_users.ts";
@@ -42,11 +42,11 @@ const test_index = function test_index():void {
                 test_listLocalBrowserHTTP(),
                 test_listLocalBrowserInterfaces(),
                 test_listLocalBrowserOS(),
-                test_listLocalBrowserOS_TCPports(),
-                test_listLocalBrowserOS_UDPports(),
                 test_listLocalBrowserProcesses(),
                 test_listLocalBrowserServices(),
                 test_listLocalBrowserSocketsApplicationTCP(),
+                test_listLocalBrowserSocketsOS_TCP(),
+                test_listLocalBrowserSocketsOS_UDP(),
                 test_listLocalBrowserUsers(),
                 test_listLocalBrowserTerminal(),
                 test_listLocalBrowserWebSocket()
@@ -75,7 +75,6 @@ const test_index = function test_index():void {
 //
 // UDP Socket
 // Statistics
-// App TCP Ports
 // App UDP Sockets
 // WebSocket Test - Incomplete
 

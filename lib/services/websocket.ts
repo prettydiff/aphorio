@@ -64,6 +64,7 @@ const websocket_test:websocket_test = {
         if (data.message.length === 1 && data.message[0] === "disconnect") {
             const message:services_websocket_status = {
                 connected: false,
+                encrypted: false,
                 error: null
             };
             send({
@@ -77,6 +78,7 @@ const websocket_test:websocket_test = {
             const callback = function services_websocket_handshake_callback(websocket:websocket_client, timeout:bigint, error:node_error):void {
                     const message:services_websocket_status = {
                             connected: (websocket !== null),
+                            encrypted: websocket.encrypted,
                             error: (error === undefined || error === null)
                                 ? `Connected in ${Number(timeout) /1e6} milliseconds.`
                                 : error.message
