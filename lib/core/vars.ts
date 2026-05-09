@@ -1,6 +1,6 @@
 
 
-/* cspell: words atupn, cputime, lslogins, pwsh, serv, stcp, sudp, volu */
+/* cspell: words atupn, cputime, lslogins, pcpu, pwsh, serv, stcp, sudp, volu */
 
 const vars:core_vars = {
         // critical shell commands by operating system

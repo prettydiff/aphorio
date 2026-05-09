@@ -614,6 +614,7 @@ declare global {
             button_send: HTMLButtonElement;
             encrypt_false: HTMLInputElement;
             encrypt_true: HTMLInputElement;
+            frame_validate: HTMLElement;
             halt_receive: HTMLInputElement;
             handshake: HTMLTextAreaElement;
             handshake_label: HTMLElement;

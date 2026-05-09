@@ -3918,6 +3918,18 @@ const ui = function ui():void {
                             const encodeKey:TextEncoder = new TextEncoder;
                             frame.maskKey = encodeKey.encode(window.btoa(Math.random().toString() + Math.random().toString() + Math.random().toString()).replace(/0\./g, "").slice(0, 32)) as Buffer;
                         }
+                        if (frame.fin === false) {
+                            dashboard.sections["test-websocket"].nodes.frame_validate.style.display = "block";
+                            dashboard.sections["test-websocket"].nodes.frame_validate.getElementsByTagName("em")[0].textContent = "Warning: Frame fin flag is set to false.";
+                        } else if (frame.mask === true && frame.maskKey === null) {
+                            dashboard.sections["test-websocket"].nodes.frame_validate.style.display = "block";
+                            dashboard.sections["test-websocket"].nodes.frame_validate.getElementsByTagName("em")[0].textContent = "Warning: Frame mask flag is set to true but no mask key is provided.";
+                        } else if ((frame.opcode > 2 && frame.opcode < 8) || frame.opcode > 10) {
+                            dashboard.sections["test-websocket"].nodes.frame_validate.style.display = "block";
+                            dashboard.sections["test-websocket"].nodes.frame_validate.getElementsByTagName("em")[0].textContent = "Warning: Frame opcode value is a valid but non-standard value.";
+                        } else {
+                            dashboard.sections["test-websocket"].nodes.frame_validate.style.display = "none";
+                        }
                         dashboard.sections["test-websocket"].frameBeautify("send", JSON.stringify(frame));
                         dashboard.utility.setState();
                     },
@@ -4000,6 +4012,7 @@ const ui = function ui():void {
                     button_send: document.getElementById("test-websocket").getElementsByClassName("form")[2].getElementsByTagName("button")[0] as HTMLButtonElement,
                     encrypt_false: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[0] as HTMLInputElement,
                     encrypt_true: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
+                    frame_validate: document.getElementById("test-websocket").getElementsByClassName("form")[1].getElementsByClassName("form")[0].getElementsByTagName("p")[3],
                     halt_receive: document.getElementById("test-websocket").getElementsByClassName("form")[3].getElementsByTagName("input")[0] as HTMLInputElement,
                     handshake: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
                     handshake_label: document.getElementById("test-websocket").getElementsByClassName("form")[0].getElementsByClassName("ports")[0].getElementsByTagName("span")[0],
