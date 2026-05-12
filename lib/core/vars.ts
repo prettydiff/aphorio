@@ -137,6 +137,8 @@ const vars:core_vars = {
                 "::1",
                 "[::1]"
             ],
+            // license name
+            license: "AGPLv3",
             // whether the application has completed its startup tasks
             loading: true,
             // a store of objects representing a log entry

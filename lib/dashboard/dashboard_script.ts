@@ -3823,15 +3823,15 @@ const ui = function ui():void {
                                     ? dashboard.sections["test-websocket"].nodes.encrypt_true
                                     : dashboard.sections["test-websocket"].nodes.encrypt_false
                                 : event.target as HTMLInputElement,
-                            port_open = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open,
-                            port_secure = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure,
+                            port_open:number = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open,
+                            port_secure:number = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure,
                             text:string = dashboard.sections["test-websocket"].nodes.handshake.value,
                             reg:RegExp = new RegExp(`(H|h)ost\\s*:\\s*${location.hostname}:(${port_open}|${port_secure})`);
                         if (reg.test(text) === true) {
                             if (target === dashboard.sections["test-websocket"].nodes.encrypt_true) {
-                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_secure}`)
+                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_secure}`);
                             } else {
-                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_open}`)
+                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_open}`);
                             }
                         }
                     },
