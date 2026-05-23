@@ -33,6 +33,7 @@ const file_list = function fileList():void {
                     if (column === 5) {
                         return Number(record.getElementsByTagName("td")[5].getAttribute("data-raw"));
                     }
+                    return "";
                 };
             let count:number = parentList.length,
                 column:number = 0;

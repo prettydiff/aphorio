@@ -1,6 +1,6 @@
 
 const utilities:core_module_universal = {
-    bytes: function core_universalBytes():number {
+    bytes: function core_universalBytes(this:string):number {
         // eslint-disable-next-line no-restricted-syntax
         const input:string = this.toLowerCase(),
             map:store_number = {
@@ -24,7 +24,7 @@ const utilities:core_module_universal = {
         }
         return numb * map[scale];
     },
-    bytes_big: function core_universalBytes():bigint {
+    bytes_big: function core_universalBytes(this:string):bigint {
         // eslint-disable-next-line no-restricted-syntax
         const input:string = this.toLowerCase(),
             map:store_bigint = {
@@ -48,7 +48,7 @@ const utilities:core_module_universal = {
         }
         return BigInt(numb) * map[scale];
     },
-    capitalize: function core_capitalize():string {
+    capitalize: function core_capitalize(this:string):string {
         // eslint-disable-next-line no-restricted-syntax
         const words:string[] = this.split(" "),
             output:string[] = [];
@@ -57,7 +57,7 @@ const utilities:core_module_universal = {
         });
         return output.join(" ");
     },
-    commas: function core_universalCommas():string {
+    commas: function core_universalCommas(this:number):string {
         // eslint-disable-next-line no-restricted-syntax
         const str:string = String(this),
             period:number = str.indexOf("."),
@@ -74,7 +74,7 @@ const utilities:core_module_universal = {
         } while (a > 3);
         return arr.join("");
     },
-    dateTime: function core_universalDateTime(date:boolean, timeZone_offset:number):string {
+    dateTime: function core_universalDateTime(this:number, date:boolean, timeZone_offset:number):string {
         // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
         const epoch:number = this,
             dateItem:Date = new Date(epoch),
@@ -140,7 +140,7 @@ const utilities:core_module_universal = {
         return output.join(" ");
 
     },
-    time_elapsed: function core_universalTimeElapsed(start?:bigint):string {
+    time_elapsed: function core_universalTimeElapsed(this:number, start?:bigint):string {
         const elapsed:boolean = (typeof start === "bigint"),
             number:bigint = (elapsed === true)
                 // eslint-disable-next-line no-restricted-syntax

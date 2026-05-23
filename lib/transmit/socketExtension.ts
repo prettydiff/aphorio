@@ -89,12 +89,11 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             }
             config.socket.status = "open"; // sets the status flag for the socket
             if (config.single_socket === true) {
-                const death = function transmit_socketExtension_death():void {
-                    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                    const socket:websocket_client = this;
+                const death = function transmit_socketExtension_death(this:websocket_client):void {
                     server_halt({
                         action: "destroy",
-                        server: vars.data.servers[socket.server]
+                        // eslint-disable-next-line no-restricted-syntax
+                        server: vars.data.servers[this.server]
                     }, null);
                 };
                 config.socket.on("close", death);

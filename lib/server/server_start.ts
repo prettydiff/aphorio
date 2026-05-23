@@ -28,7 +28,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                     callback(id);
                 }
             },
-            listenerCallback = function transmit_serverStart_open_listenerCallback():void {
+            listenerCallback = function transmit_serverStart_open_listenerCallback(this:core_server_instance):void {
                 // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                 const serverItem:core_server_instance = this,
                     address:node_net_AddressInfo = serverItem.address() as node_net_AddressInfo,
@@ -60,7 +60,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                 });
                 complete(serverItem.id);
             },
-            server_error = function transmit_serverStart_open_serverError(ser:node_error):void {
+            server_error = function transmit_serverStart_open_serverError(this:core_server_instance, ser:node_error):void {
                 // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                 const serverItem:core_server_instance = this,
                     secure:"open"|"secure" = (serverItem.secure === true)

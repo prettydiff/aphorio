@@ -1,7 +1,7 @@
 
 import send from "./send.ts";
 
-const receiver = function transmit_receiver(buf:Buffer):void {
+const receiver = function transmit_receiver(this:websocket_client, buf:Buffer):void {
     //    RFC 6455, 5.2.  Base Framing Protocol
     //     0                   1                   2                   3
     //     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1

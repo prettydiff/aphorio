@@ -13,11 +13,11 @@ import websocket_test from "../services/websocket.ts";
 
 //cspell: words prettydiff
 
-const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):void {
+const connection = function transmit_connection(this:core_server_instance, TLS_socket:node_tls_TLSSocket):void {
     // eslint-disable-next-line no-restricted-syntax
     const server_id:string = this.id,
         server:services_server = vars.data.servers[server_id],
-        handshake = function transmit_connection_handshake(data:Buffer):void {
+        handshake = function transmit_connection_handshake(this:websocket_client, data:Buffer):void {
             const flags:store_flag = {
                     dashboard_http: false,
                     referer: false,
@@ -211,7 +211,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                         : data.subarray(Buffer.byteLength(headerString))
                                     );
                                     if (server.single_socket === true) {
-                                        const terminate = function transmit_connection_handshake_localService_httpAction_terminate():void {
+                                        const terminate = function transmit_connection_handshake_localService_httpAction_terminate(this:websocket_client):void {
                                             // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                                             const this_socket:websocket_client = this;
                                             server_halt({

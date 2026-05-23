@@ -49,7 +49,7 @@ const core = function core(config:config_core):socket_object {
         dom = function core_dom():void {
             // addClass - adds a new class value to an element's class attribute if not already present
             // * className:string - The name of the class to add.
-            const addClass = function core_dom_addClass(className:string):void {
+            const addClass = function core_dom_addClass(this:HTMLElement, className:string):void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const element:HTMLElement = this,
                         classy:string = element.getAttribute("class"),
@@ -68,7 +68,7 @@ const core = function core(config:config_core):socket_object {
                 // add text to an DOM element
                 // * text: string - The text string to append.
                 // * empty: boolean (optional) - if true all child nodes will be removed before appending the text string.
-                appendText = function core_dom_appendText(text:string, empty?:boolean):void {
+                appendText = function core_dom_appendText(this:HTMLElement, text:string, empty?:boolean):void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const element:HTMLElement = this;
                     if (empty === true) {
@@ -80,7 +80,7 @@ const core = function core(config:config_core):socket_object {
                     }
                 },
                 // bytes - converts a number into something like "501,789,753,344 bytes (467.3GiB), 10%"
-                bytes = function core_dom_bytes(input?:number):string {
+                bytes = function core_dom_bytes(this:number, input?:number):string {
                     if (input === undefined) {
                         // eslint-disable-next-line no-restricted-syntax
                         input = Number(this);
@@ -138,18 +138,25 @@ const core = function core(config:config_core):socket_object {
                     }
                     return output;
                 },
-                // bytes - converts a number into a format like ""
-                bytesLong = function core_dom_bytesLong():string {
+                // bytes - converts a number into a format like "1,000,000 bytes (0.9MiB)"
+                bytesLong = function core_dom_bytesLong(this:number):string {
                     // eslint-disable-next-line no-restricted-syntax
                     const input:number = Number(this);
+                    if (isNaN(input) === true) {
+                        return "0 bytes";
+                    }
+                    // @ts-expect-error Error ('this' context of type 'void' is not assignable to method's 'this' of type 'number') appears incorrect
                     return `${input.commas()} bytes (${bytes(input)})`;
                 },
                 // getAncestor - A method to walk up the DOM towards the documentElement.
                 // * identifier: string - The string value to search for.
                 // * selector: "class", "id", "name" - The part of the element to compare the identifier against.
-                getAncestor = function core_dom_getAncestor(identifier:string, selector:type_selector):HTMLElement {
+                getAncestor = function core_dom_getAncestor(this:Document|HTMLElement, identifier:string, selector:type_selector):HTMLElement {
                     // eslint-disable-next-line no-restricted-syntax
-                    let start:HTMLElement = (this === document) ? document.documentElement : this;
+                    let start:HTMLElement = (this === document)
+                        ? document.documentElement
+                        // eslint-disable-next-line no-restricted-syntax
+                        : this as HTMLElement;
                     const test = function core_dom_getAncestor_test():boolean {
                             if (selector === "class") {
                                 const classy:string = start.getAttribute("class"),
@@ -189,9 +196,12 @@ const core = function core(config:config_core):socket_object {
                 // getElementByAttribute - Search all descendant elements containing a matching attribute with matching value and returns an array of corresponding elements.
                 // * name: string - The name of the attribute to search for.  An empty string means accept every attribute name.
                 // * value: string - The attribute value to search for.  An empty string means accept any attribute value.
-                getElementsByAttribute = function core_dom_getElementsByAttribute(name:string, value:string):HTMLElement[] {
+                getElementsByAttribute = function core_dom_getElementsByAttribute(this:Document|HTMLElement, name:string, value:string):HTMLElement[] {
                     // eslint-disable-next-line no-restricted-syntax
-                    const start:HTMLElement = (this === document) ? document.documentElement : this,
+                    const start:HTMLElement = (this === document)
+                            ? document.documentElement
+                            // eslint-disable-next-line no-restricted-syntax
+                            : this as HTMLElement,
                         attrs:Attr[]    = start.getNodesByType(2) as Attr[],
                         out:HTMLElement[]   = [];
                     if (typeof name !== "string") {
@@ -212,9 +222,12 @@ const core = function core(config:config_core):socket_object {
                 // getElementsByText - Returns an array of descendant elements containing the white space trimmed text.
                 // * textValue: string - The text to match.  The value must exactly match the complete text node value after trimming white space.
                 // * castSensitive: boolean - Whether case sensitivity should apply.
-                getElementsByText = function core_dom_getElementsByText(textValue:string, caseSensitive?:boolean):HTMLElement[] {
+                getElementsByText = function core_dom_getElementsByText(this:Document|HTMLElement, textValue:string, caseSensitive?:boolean):HTMLElement[] {
                     // eslint-disable-next-line no-restricted-syntax
-                    const start:HTMLElement = (this === document) ? document.documentElement : this,
+                    const start:HTMLElement = (this === document)
+                            ? document.documentElement
+                            // eslint-disable-next-line no-restricted-syntax
+                            : this as HTMLElement,
                         texts:Text[]    = start.getNodesByType(3) as Text[],
                         out:HTMLElement[]   = [];
                     if (typeof textValue !== "string") {
@@ -241,7 +254,7 @@ const core = function core(config:config_core):socket_object {
                 // * typeValue: string|number = The value must be a node type name or a node type number (0-12)
                 // - An empty string, "all", or 0 means gather all descendant nodes regardless of type.
                 // - For standard values see: https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
-                getNodesByType = function core_dom_getNodesByType(typeValue:number|string):Node[] {
+                getNodesByType = function core_dom_getNodesByType(this:Document|HTMLElement, typeValue:number|string):Node[] {
                     const valueString:string = (typeof typeValue === "string") ? `${typeValue.toLowerCase().replace("_node", "")}_node` : "",
                         numb:number = (isNaN(Number(typeValue)) === false)
                             ? Math.round(Number(typeValue))
@@ -324,12 +337,12 @@ const core = function core(config:config_core):socket_object {
                 },
                 // highlight - Adds a class name to an element where that class name results in a CSS animated outline and focuses the element
                 // * element: HTMLElement (optional) - A specified element to modify, default is the "this" value executed on an element.
-                highlight = function core_dom_highlight(element?:HTMLElement):void {
+                highlight = function core_dom_highlight(this:Document|HTMLElement, element?:HTMLElement):void {
                     // eslint-disable-next-line no-restricted-syntax
                     const item:HTMLElement = (this === document)
                             ? element
                             // eslint-disable-next-line no-restricted-syntax
-                            : this,
+                            : this as HTMLElement,
                         classy:string = (item === element)
                             ? null
                             : item.getAttribute("class"),
@@ -356,14 +369,14 @@ const core = function core(config:config_core):socket_object {
                     el.focus();
                 },
                 // return a tag's lowercase name.  XML is case sensitive, but HTML returns uppercase tag names
-                lowName = function core_dom_lowName():string {
+                lowName = function core_dom_lowName(this:HTMLElement):string {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const el:HTMLElement = this;
                     return el.tagName.toLowerCase();
                 },
                 // removes a single class name from an element's class attribute value
                 // * className: string - The name of the class to remove.
-                removeClass = function core_dom_removeClass(className:string):void {
+                removeClass = function core_dom_removeClass(this:HTMLElement, className:string):void {
                     // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
                     const element:HTMLElement = this,
                         classy:string = element.getAttribute("class"),
@@ -383,12 +396,12 @@ const core = function core(config:config_core):socket_object {
                 },
                 // removes the "highlight" class name from a given element
                 // * element: HTMLElement (optional) - A specified element to modify, default is the "this" value executed on an element.
-                removeHighlight = function core_dom_removeHighlight(element?:HTMLElement):void {
+                removeHighlight = function core_dom_removeHighlight(this:Document|HTMLElement, element?:HTMLElement):void {
                     // eslint-disable-next-line no-restricted-syntax
                     const item:HTMLElement = (this === document)
                             ? element
                             // eslint-disable-next-line no-restricted-syntax
-                            : this,
+                            : this as HTMLElement,
                         el:HTMLElement = (item === undefined)
                             ? null
                             : (item.nodeName.toLowerCase() === "input")
