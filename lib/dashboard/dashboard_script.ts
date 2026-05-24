@@ -1,7 +1,6 @@
 
 import core from "../browser/core.ts";
 import Chart from "chart.js/auto";
-// @ts-expect-error - TypeScript claims xterm has no default export, but this is how the documentation says to use it.
 import Terminal from "@xterm/xterm";
 
 // cspell: words bootable, PGID, PUID, serv, stcp, sudp, TLSA
@@ -66,16 +65,16 @@ const ui = function ui():void {
                         target.textContent = "Expand";
                     }
                 },
-                forbidden = function dashboard_execute_forbidden():HTMLElement {
-                    // eslint-disable-next-line
-                    new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
+                forbidden = function dashboard_execute_forbidden(this:Element):HTMLElement {
+                    // eslint-disable-next-line no-new
+                    new Error(`Disallowed feature used on: ${(this.nodeName === undefined) ? "window" : this.nodeName}\n The feature is not supported in this application.`);
                     return document.createElement("div");
                 },
-                forbiddenList = function common_disallowed_forbiddenList():NodeListOf<HTMLElement> {
-                    // eslint-disable-next-line
+                forbiddenList = function common_disallowed_forbiddenList(this:Element):NodeListOf<HTMLElement> {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const list:any = [document.createElement("div")];
-                    // eslint-disable-next-line
-                    new Error(`Disallowed feature used on: ${this}\n The feature is not supported in this application.`);
+                    // eslint-disable-next-line no-new
+                    new Error(`Disallowed feature used on: ${(this.nodeName === undefined) ? "window" : this.nodeName}\n The feature is not supported in this application.`);
                     return list;
                 },
                 th:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("th"),
@@ -211,7 +210,6 @@ const ui = function ui():void {
 
             // handle page resize
             window.onresize = dashboard.utility.resize;
-            // @ts-expect-error - I am not extending the global window object type for this troubleshooting helper
             window.show_payload = function dashboard_execute_showPayload():[string, transmit_dashboard] {
                 return [
                     JSON.stringify(dashboard.global.payload).length.commas(),
@@ -404,6 +402,9 @@ const ui = function ui():void {
                             ? null
                             : dashboard.tables.receive,
                         "dashboard-server": (dashboard.sections["servers-web"] === undefined)
+                            ? null
+                            : dashboard.sections["servers-web"].receive,
+                        "dashboard-server-update": (dashboard.sections["servers-web"] === undefined)
                             ? null
                             : dashboard.sections["servers-web"].receive,
                         "dashboard-socket-application": (dashboard.sections["sockets-application-tcp"] === undefined)
@@ -782,6 +783,7 @@ const ui = function ui():void {
                             if (typeof Terminal === "undefined") {
                                 setTimeout(dashboard_sections_composeContainers_init_shell, 200);
                             } else {
+                                // @ts-expect-error - xterm has not updated their types to reflect Terminal is a constructor
                                 dashboard.sections["compose-containers"].shell = new Terminal({
                                     cols: dashboard.sections["compose-containers"].cols,
                                     cursorBlink: true,
@@ -2497,7 +2499,7 @@ const ui = function ui():void {
                                             len:number = keys.length;
                                         let index:number = 0;
                                         do {
-                                            // @ts-expect-error - warns on implied any, but we know that the key values are extract from the same object
+                                            // @ts-expect-error - warns on implied any, but we know that the key values are extracted from the same object
                                             output[keys[index]] = item[keys[index]];
                                             index = index + 1;
                                         } while (index < len);
@@ -2545,8 +2547,8 @@ const ui = function ui():void {
                                     } else if (serverData.domain_local === undefined) {
                                         populate(required, `${requirement} property '${name}' is undefined.`);
                                     }
-                                    return required;
                                 }
+                                return required;
                             },
                             key_test = function dashboard_sections_serversWeb_validate_keyTest(config:config_validate_serverKeys):void {
                                 const requirement_child:string = (config.required_property === true)
@@ -3698,6 +3700,7 @@ const ui = function ui():void {
                             scheme:"ws"|"wss" = (encryption === "open")
                                 ? "ws"
                                 : "wss";
+                        // @ts-expect-error - xterm has not updated their types to reflect Terminal is a constructor
                         dashboard.sections["terminal"].item = new Terminal({
                             cols: dashboard.sections["terminal"].cols,
                             cursorBlink: true,
@@ -3823,15 +3826,15 @@ const ui = function ui():void {
                                     ? dashboard.sections["test-websocket"].nodes.encrypt_true
                                     : dashboard.sections["test-websocket"].nodes.encrypt_false
                                 : event.target as HTMLInputElement,
-                            port_open = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open,
-                            port_secure = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure,
+                            port_open:number = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open,
+                            port_secure:number = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure,
                             text:string = dashboard.sections["test-websocket"].nodes.handshake.value,
                             reg:RegExp = new RegExp(`(H|h)ost\\s*:\\s*${location.hostname}:(${port_open}|${port_secure})`);
                         if (reg.test(text) === true) {
                             if (target === dashboard.sections["test-websocket"].nodes.encrypt_true) {
-                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_secure}`)
+                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_secure}`);
                             } else {
-                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_open}`)
+                                dashboard.sections["test-websocket"].nodes.handshake.value = text.replace(reg, `Host: ${location.hostname}:${port_open}`);
                             }
                         }
                     },
@@ -4378,6 +4381,7 @@ const ui = function ui():void {
                     }
                     return ["green", "online"];
                 }
+                return ["red", "offline"];
             },
             create: function dashboard_shareServices_create(event:MouseEvent):void {
                 const button:HTMLButtonElement = event.target as HTMLButtonElement;
@@ -4658,7 +4662,7 @@ const ui = function ui():void {
                     destroy.onclick = message;
                     activate.appendText("⌁ Activate");
                     activate.setAttribute("class", "server-activate");
-                    if (listItem.getAttribute("class") === "green") {
+                    if (listItem.getAttribute("class") !== "red") {
                         activate.disabled = true;
                     }
                     activate.onclick = message;

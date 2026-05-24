@@ -127,7 +127,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
         do {
             index = index - 1;
             if (vars.data.ports_application[index].port === port && vars.data.ports_application[index].type === "tcp") {
-                write(`Error: Encrypted connections not allowed to unencrypted servers.`, "", true);
+                write("Error: Encrypted connections not allowed to unencrypted servers.", "", true);
                 return;
             }
         } while (index > 0);

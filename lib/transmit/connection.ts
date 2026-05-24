@@ -13,11 +13,10 @@ import websocket_test from "../services/websocket.ts";
 
 //cspell: words prettydiff
 
-const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):void {
-    // eslint-disable-next-line no-restricted-syntax
+const connection = function transmit_connection(this:core_server_instance, TLS_socket:node_tls_TLSSocket):void {
     const server_id:string = this.id,
         server:services_server = vars.data.servers[server_id],
-        handshake = function transmit_connection_handshake(data:Buffer):void {
+        handshake = function transmit_connection_handshake(this:websocket_client, data:Buffer):void {
             const flags:store_flag = {
                     dashboard_http: false,
                     referer: false,
@@ -35,7 +34,7 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                     // user agent string if the originating request comes from a web browser
                     userAgent: ""
                 },
-                // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
                 socket:websocket_client = this,
                 dataString:string = data.toString("utf-8"),
                 headerIndex:number = dataString.replace(/^\s+/, "").indexOf("\r\n\r\n"),
@@ -211,12 +210,10 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                                         : data.subarray(Buffer.byteLength(headerString))
                                     );
                                     if (server.single_socket === true) {
-                                        const terminate = function transmit_connection_handshake_localService_httpAction_terminate():void {
-                                            // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                                            const this_socket:websocket_client = this;
+                                        const terminate = function transmit_connection_handshake_localService_httpAction_terminate(this:websocket_client):void {
                                             server_halt({
                                                 action: "destroy",
-                                                server: vars.data.servers[this_socket.server]
+                                                server: vars.data.servers[this.server]
                                             }, null);
                                         };
                                         socket.on("close", terminate);
@@ -530,17 +527,21 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                         "",
                         ""
                     ].join("\r\n"));
-                },
-                blocked_host:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(store.domain) === true),
-                blocked_ip:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
-                no_domain_redirect:boolean = (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[store.domain] === undefined),
-                domain_local:boolean = server.domain_local.concat(vars.environment.interfaces).includes(store.domain);
+                };
+            let blocked_host:boolean = null,
+                blocked_ip:boolean = null,
+                no_domain_redirect:boolean = null,
+                domain_local:boolean = null;
             headerList.forEach(headerEach);
+            blocked_host = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(store.domain) === true),
+            blocked_ip = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
+            no_domain_redirect = (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[store.domain] === undefined),
+            domain_local = server.domain_local.concat(vars.environment.interfaces).includes(store.domain);
             if (flags.referer === true || blocked_host === true || blocked_ip === true) {
                 socket.destroy();
-            } else if (no_domain_redirect === true && domain_local === true) {
+            } else if (no_domain_redirect === true && domain_local === false) {
                 socket.destroy();
-            } else {
+            } else if (domain_local === true) {
                 if (flags.upgrade === true as boolean && flags.dashboard_http === false) {
                     // open socket to open server - redirect client to secure server, http 301
                     // * server option 'upgrade' must be true
@@ -556,6 +557,8 @@ const connection = function transmit_connection(TLS_socket:node_tls_TLSSocket):v
                 } else {
                     service();
                 }
+            } else {
+                socket.destroy();
             }
         };
     // unhandled errors on sockets are fatal and will crash the application

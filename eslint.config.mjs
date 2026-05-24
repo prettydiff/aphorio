@@ -129,9 +129,6 @@ export default [
                 selector: "ExpressionStatement[expression.callee.property.name='apply'], VariableDeclarator[init.callee.property.name='apply'], ExpressionStatement[expression.callee.property.name='bind'], VariableDeclarator[init.callee.property.name='bind'], ExpressionStatement[expression.callee.property.name='call'], VariableDeclarator[init.callee.property.name='call']",
                 message: "Function methods 'apply', 'bind', and 'call' are not allowed.",
             }, {
-                selector: "ThisExpression, ThisStatement",
-                message: "Use explicit reference names instead of 'this'.",
-            }, {
                 selector: "ClassDeclaration, ClassExpression",
                 message: "No classes. Inheritance imposes unseen complexity upon code extension.",
             }, {

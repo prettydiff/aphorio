@@ -16,9 +16,6 @@ declare global {
         removeHighlight: (element:HTMLElement) => void;
     }
 
-    /**
-     * Extends the DOM's Element interface to include custom methods.
-     */
     interface Element {
         addClass: (className:string) => void;
         appendText: (text:string, empty?:boolean) => void;
@@ -33,18 +30,22 @@ declare global {
         removeHighlight: () => void;
     }
 
-    interface String {
-        bytes: () => number;
-        bytes_big: () => bigint;
-        capitalize: () => string;
-    }
-
     interface Number {
         bytes: (input?:number) => string;
         bytesLong: () => string;
         commas: () => string;
         dateTime: (date:boolean, timezone_offset:number) => string;
         time_elapsed: (start?:bigint) => string;
+    }
+
+    interface String {
+        bytes: () => number;
+        bytes_big: () => bigint;
+        capitalize: () => string;
+    }
+
+    interface Window {
+        show_payload: () => [string, transmit_dashboard];
     }
 
     interface HTMLAudioElement {

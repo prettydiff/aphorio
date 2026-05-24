@@ -192,6 +192,7 @@ const directory = function utilities_directory(args:config_directory):void {
                             if (stat_item.isSymbolicLink() === true) {
                                 return "symbolic_link";
                             }
+                            return "file";
                         },
                         populate = function utilities_directory_statWrap_stat_populate(type:"block_device"|"character_device"|"directory"|"fifo_pipe"|"file"|"socket"|"symbolic_link"):void {
                             const stat_obj:core_directory_data = {

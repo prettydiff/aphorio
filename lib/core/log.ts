@@ -57,7 +57,7 @@ const log:core_module_log = {
                 dateString:string = `updated ${vars.text.blue + updated + vars.text.none}`,
                 hash:string = `git log ${vars.text.red + vars.environment.hash + vars.text.none}`,
                 version:string = `version ${vars.environment.version}`,
-                max:number = Math.max(updated.length, vars.environment.hash.length),
+                max:number = Math.max(updated.length, vars.environment.hash.length, vars.environment.repository.length, vars.environment.version.length, vars.environment.license.length),
                 border = function utilities_logShell_border(character:string):string {
                     let index:number = max + 8;
                     const output:string[] = [];
@@ -69,7 +69,7 @@ const log:core_module_log = {
                 };
             logger(border("_"));
             logger(`sources ${vars.text.red + vars.environment.repository + vars.text.none}`);
-            logger("license AGPLv3");
+            logger(`license ${vars.environment.license}`);
             logger(dateString);
             logger(version);
             logger(hash);

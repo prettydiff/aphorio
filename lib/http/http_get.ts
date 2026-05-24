@@ -39,6 +39,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     if (config.status === 500) {
                         return "500 INTERNAL SERVER ERROR";
                     }
+                    return "400 BAD RESPONSE";
                 }()),
                 bodyText:string = config.content.join(""),
                 headerText:string[] = [

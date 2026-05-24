@@ -118,10 +118,6 @@
                 "message": "Function methods 'apply', 'bind', and 'call' are not allowed."
             },
             {
-                "selector": "ThisExpression, ThisStatement",
-                "message": "Use explicit reference names instead of 'this'."
-            },
-            {
                 "selector": "ClassDeclaration, ClassExpression",
                 "message": "No classes. Inheritance imposes unseen complexity upon code extension."
             },
