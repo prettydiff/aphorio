@@ -66,19 +66,15 @@ const ui = function ui():void {
                     }
                 },
                 forbidden = function dashboard_execute_forbidden(this:Element):HTMLElement {
-                    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                    const element:Element = this;
                     // eslint-disable-next-line no-new
-                    new Error(`Disallowed feature used on: ${(element.nodeName === undefined) ? "window" : element.nodeName}\n The feature is not supported in this application.`);
+                    new Error(`Disallowed feature used on: ${(this.nodeName === undefined) ? "window" : this.nodeName}\n The feature is not supported in this application.`);
                     return document.createElement("div");
                 },
                 forbiddenList = function common_disallowed_forbiddenList(this:Element):NodeListOf<HTMLElement> {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const list:any = [document.createElement("div")],
-                        // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                        element:Element = this;
+                    const list:any = [document.createElement("div")];
                     // eslint-disable-next-line no-new
-                    new Error(`Disallowed feature used on: ${(element.nodeName === undefined) ? "window" : element.nodeName}\n The feature is not supported in this application.`);
+                    new Error(`Disallowed feature used on: ${(this.nodeName === undefined) ? "window" : this.nodeName}\n The feature is not supported in this application.`);
                     return list;
                 },
                 th:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("th"),

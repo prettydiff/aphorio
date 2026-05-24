@@ -92,7 +92,6 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 const death = function transmit_socketExtension_death(this:websocket_client):void {
                     server_halt({
                         action: "destroy",
-                        // eslint-disable-next-line no-restricted-syntax
                         server: vars.data.servers[this.server]
                     }, null);
                 };

@@ -29,7 +29,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                 }
             },
             listenerCallback = function transmit_serverStart_open_listenerCallback(this:core_server_instance):void {
-                // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
                 const serverItem:core_server_instance = this,
                     address:node_net_AddressInfo = serverItem.address() as node_net_AddressInfo,
                     secure:"open"|"secure" = (serverItem.secure === true)
@@ -61,14 +61,12 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                 complete(serverItem.id);
             },
             server_error = function transmit_serverStart_open_serverError(this:core_server_instance, ser:node_error):void {
-                // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                const serverItem:core_server_instance = this,
-                    secure:"open"|"secure" = (serverItem.secure === true)
+                const secure:"open"|"secure" = (this.secure === true)
                         ? "secure"
                         : "open",
                     message:string = (ser !== null && ser !== undefined && ser.code === "EADDRINUSE")
-                        ? `Port conflict on port ${vars.data.servers[serverItem.id].ports[secure]} of ${secure} server.`
-                        : `${secure.capitalize()} went offline.  Was listening on port ${vars.data.servers[serverItem.id].ports[secure]}.`;
+                        ? `Port conflict on port ${vars.data.servers[this.id].ports[secure]} of ${secure} server.`
+                        : `${secure.capitalize()} went offline.  Was listening on port ${vars.data.servers[this.id].ports[secure]}.`;
                 log.application({
                     error: ser,
                     message: message,
@@ -81,7 +79,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                     // eslint-disable-next-line no-console
                     console.log(ser);
                 }
-                complete(serverItem.id);
+                complete(this.id);
             };
         // type identification assignment
         wsServer.secure = (options === null)

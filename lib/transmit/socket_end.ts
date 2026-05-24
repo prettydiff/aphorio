@@ -4,7 +4,7 @@ import socket_list_build from "../transmit/socket_list_build.ts";
 import vars from "../core/vars.ts";
 
 const socket_end = function transmit_socketEnd(this:websocket_client, error:node_error):void {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const socket:websocket_client = this,
         address_local:string = (socket.addresses.local.address.includes(":") === true)
             ? `[${socket.addresses.local.address}]:${socket.addresses.local.port}`

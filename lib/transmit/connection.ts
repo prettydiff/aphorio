@@ -14,7 +14,6 @@ import websocket_test from "../services/websocket.ts";
 //cspell: words prettydiff
 
 const connection = function transmit_connection(this:core_server_instance, TLS_socket:node_tls_TLSSocket):void {
-    // eslint-disable-next-line no-restricted-syntax
     const server_id:string = this.id,
         server:services_server = vars.data.servers[server_id],
         handshake = function transmit_connection_handshake(this:websocket_client, data:Buffer):void {
@@ -35,7 +34,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     // user agent string if the originating request comes from a web browser
                     userAgent: ""
                 },
-                // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
                 socket:websocket_client = this,
                 dataString:string = data.toString("utf-8"),
                 headerIndex:number = dataString.replace(/^\s+/, "").indexOf("\r\n\r\n"),
@@ -212,11 +211,9 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     );
                                     if (server.single_socket === true) {
                                         const terminate = function transmit_connection_handshake_localService_httpAction_terminate(this:websocket_client):void {
-                                            // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                                            const this_socket:websocket_client = this;
                                             server_halt({
                                                 action: "destroy",
-                                                server: vars.data.servers[this_socket.server]
+                                                server: vars.data.servers[this.server]
                                             }, null);
                                         };
                                         socket.on("close", terminate);
