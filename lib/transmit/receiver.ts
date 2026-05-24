@@ -22,7 +22,6 @@ const receiver = function transmit_receiver(this:websocket_client, buf:Buffer):v
     //    |                     Payload Data continued ...                |
     //    +---------------------------------------------------------------+
 
-    // eslint-disable-next-line no-restricted-syntax
     const socket:websocket_client = this as websocket_client,
         frame_reader = function transmit_receiver_frameReader(input:Buffer):websocket_frame {
             const bits0:string = input[0].toString(2).padStart(8, "0"), // bit string - convert byte number (0 - 255) to 8 bits

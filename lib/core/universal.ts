@@ -1,7 +1,6 @@
 
 const utilities:core_module_universal = {
     bytes: function core_universalBytes(this:string):number {
-        // eslint-disable-next-line no-restricted-syntax
         const input:string = this.toLowerCase(),
             map:store_number = {
                 kb: 1000,
@@ -25,7 +24,6 @@ const utilities:core_module_universal = {
         return numb * map[scale];
     },
     bytes_big: function core_universalBytes(this:string):bigint {
-        // eslint-disable-next-line no-restricted-syntax
         const input:string = this.toLowerCase(),
             map:store_bigint = {
                 kb: 1000n,
@@ -49,7 +47,6 @@ const utilities:core_module_universal = {
         return BigInt(numb) * map[scale];
     },
     capitalize: function core_capitalize(this:string):string {
-        // eslint-disable-next-line no-restricted-syntax
         const words:string[] = this.split(" "),
             output:string[] = [];
         words.forEach(function core_capitalize_each(value:string):void {
@@ -58,7 +55,6 @@ const utilities:core_module_universal = {
         return output.join(" ");
     },
     commas: function core_universalCommas(this:number):string {
-        // eslint-disable-next-line no-restricted-syntax
         const str:string = String(this),
             period:number = str.indexOf("."),
             arr:string[] = str.split("");
@@ -75,9 +71,7 @@ const utilities:core_module_universal = {
         return arr.join("");
     },
     dateTime: function core_universalDateTime(this:number, date:boolean, timeZone_offset:number):string {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-        const epoch:number = this,
-            dateItem:Date = new Date(epoch),
+        const dateItem:Date = new Date(this),
             month:number = dateItem.getMonth(),
             output:string[] = [],
             pad = function utilities_dateTime_pad(input:number, milliseconds:boolean):string {
@@ -134,7 +128,7 @@ const utilities:core_module_universal = {
         output.push(`${dateItem.getUTCFullYear()},`);
         output.push(`${hours}:${minutes}:${seconds}.${milliseconds + lima}`);
         if (zulu_test === true) {
-            const zulu:number = epoch + timeZone_offset;
+            const zulu:number = this + timeZone_offset;
             output.push(`(${zulu.dateTime(false, null)}Z)`);
         }
         return output.join(" ");
@@ -143,9 +137,7 @@ const utilities:core_module_universal = {
     time_elapsed: function core_universalTimeElapsed(this:number, start?:bigint):string {
         const elapsed:boolean = (typeof start === "bigint"),
             number:bigint = (elapsed === true)
-                // eslint-disable-next-line no-restricted-syntax
                 ? BigInt(this)
-                // eslint-disable-next-line no-restricted-syntax
                 : BigInt(Math.floor(this as number * 1e9)),
             numberString = function core_universalTime_numberString(numb:bigint):string {
                 const str:string = numb.toString();

@@ -6,13 +6,11 @@ import vars from "../core/vars.ts";
 
 const socket_udp:core_module_udp = {
     closed: function transmit_socketUDP_closed(this:transmit_udp):void {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-        const socket:transmit_udp = this;
         let index:number = vars.data_store.sockets_udp.length;
         if (index > 0) {
             do {
                 index = index - 1;
-                if (vars.data_store.sockets_udp[index].hash === socket.hash) {
+                if (vars.data_store.sockets_udp[index].hash === this.hash) {
                     vars.data_store.sockets_udp.splice(index, 1);
                     break;
                 }
@@ -93,7 +91,7 @@ const socket_udp:core_module_udp = {
                 address: address,
                 port: port
             }, function transmit_socketUDP_create_server(this:transmit_udp):void {
-                // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
                 const socket:transmit_udp = this,
                     multicast:"membership"|"none"|"source" = (data.multicast_type === "membership" && ((data.type === "ipv4" && node.net.isIPv4(data.multicast_membership) === true) || (data.type === "ipv6" && node.net.isIPv6(data.multicast_membership) === true)))
                         ? "membership"
@@ -130,12 +128,10 @@ const socket_udp:core_module_udp = {
             });
         } else {
             dgram.connect(port, address, function transmit_socketUDP_create_client(this:transmit_udp):void {
-                // eslint-disable-next-line @typescript-eslint/no-this-alias, no-restricted-syntax
-                const socket:transmit_udp = this;
-                socket.multicast_type = "none";
-                socket.role = "client";
-                socket.type = data.type;
-                status(socket);
+                this.multicast_type = "none";
+                this.role = "client";
+                this.type = data.type;
+                status(this);
             });
         }
     },
