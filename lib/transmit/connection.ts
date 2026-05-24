@@ -530,17 +530,21 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         "",
                         ""
                     ].join("\r\n"));
-                },
-                blocked_host:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(store.domain) === true),
-                blocked_ip:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
-                no_domain_redirect:boolean = (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[store.domain] === undefined),
-                domain_local:boolean = server.domain_local.concat(vars.environment.interfaces).includes(store.domain);
+                };
+            let blocked_host:boolean = null,
+                blocked_ip:boolean = null,
+                no_domain_redirect:boolean = null,
+                domain_local:boolean = null;
             headerList.forEach(headerEach);
+            blocked_host = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(store.domain) === true),
+            blocked_ip = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
+            no_domain_redirect = (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[store.domain] === undefined),
+            domain_local = server.domain_local.concat(vars.environment.interfaces).includes(store.domain);
             if (flags.referer === true || blocked_host === true || blocked_ip === true) {
                 socket.destroy();
-            } else if (no_domain_redirect === true && domain_local === true) {
+            } else if (no_domain_redirect === true && domain_local === false) {
                 socket.destroy();
-            } else {
+            } else if (domain_local === true) {
                 if (flags.upgrade === true as boolean && flags.dashboard_http === false) {
                     // open socket to open server - redirect client to secure server, http 301
                     // * server option 'upgrade' must be true
@@ -556,6 +560,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 } else {
                     service();
                 }
+            } else {
+                socket.destroy();
             }
         };
     // unhandled errors on sockets are fatal and will crash the application
