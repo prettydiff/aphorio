@@ -408,6 +408,9 @@ const ui = function ui():void {
                         "dashboard-server": (dashboard.sections["servers-web"] === undefined)
                             ? null
                             : dashboard.sections["servers-web"].receive,
+                        "dashboard-server-update": (dashboard.sections["servers-web"] === undefined)
+                            ? null
+                            : dashboard.sections["servers-web"].receive,
                         "dashboard-socket-application": (dashboard.sections["sockets-application-tcp"] === undefined)
                             ? (dashboard.sections["sockets-application-udp"] === undefined)
                                 ? null
@@ -4663,7 +4666,7 @@ const ui = function ui():void {
                     destroy.onclick = message;
                     activate.appendText("⌁ Activate");
                     activate.setAttribute("class", "server-activate");
-                    if (listItem.getAttribute("class") === "green") {
+                    if (listItem.getAttribute("class") !== "red") {
                         activate.disabled = true;
                     }
                     activate.onclick = message;

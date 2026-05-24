@@ -39,7 +39,9 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
                 const actionText:string = (data.action.charAt(data.action.length - 1) === "e")
                     ? `${data.action}d`
                     : `${data.action}ed`;
-                ports_application();
+                if (vars.environment.features["ports-application"] === true) {
+                    ports_application();
+                }
                 if (callback !== null) {
                     // 5. call the callback
                     callback();
@@ -64,10 +66,12 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
                             complete();
                         }
                     };
-                if (data.action === "destroy") {
+                if (data.action === "deactivate") {
+                    complete();
+                } else if (data.action === "destroy") {
                     const  file_remove:config_file_remove = {
                         callback: function services_serverHalt_remove():void {
-                            activate();
+                            complete();
                         },
                         exclusions: [],
                         location: path_name,
@@ -109,14 +113,22 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
 
         // 1. Disable the servers and kill their sockets
         if (encryption === "both") {
-            vars.data_store.server[id].open.close();
-            vars.data_store.server[id].secure.close();
-            kill_sockets(vars.data_store.sockets_tcp[id].open);
-            kill_sockets(vars.data_store.sockets_tcp[id].secure);
+            if (vars.data_store.server[id].open !== null) {
+                vars.data_store.server[id].open.close();
+                vars.data_store.server_ports[id].open = 0;
+                kill_sockets(vars.data_store.sockets_tcp[id].open);
+            }
+            if (vars.data_store.server[id].secure !== null) {
+                vars.data_store.server[id].secure.close();
+                vars.data_store.server_ports[id].secure = 0;
+                kill_sockets(vars.data_store.sockets_tcp[id].secure);
+            }
         } else {
             vars.data_store.server[id][encryption].close();
+            vars.data_store.server_ports[id][encryption] = 0;
             kill_sockets(vars.data_store.sockets_tcp[id][encryption]);
         }
+        delete vars.data_store.server[id];
         if (data.action === "destroy" || data.action === "modify") {
             const modify_file = function servers_serverHalt_modifyFile():void {
                 // 2. modify the servers.json file

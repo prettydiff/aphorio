@@ -404,7 +404,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                             tcp.push(sock);
                         } else {
                             line = data_posix[index].split(",");
-                            if (line.length > 5) {
+                            if (line.length > 6) {
                                 sock = {
                                     "local-address": getAddress(4),
                                     "local-port": getPort(4),
