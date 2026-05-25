@@ -59,7 +59,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         store.domain = host.replace(`:${address.local.port}`, "");
                     }
                     // ensures HTTP requests pushed through the proxy are identified as originating from the proxy
-                    if (server.domain_local.includes(store.domain) === false) {
+                    if (domain_local.includes(store.domain) === false) {
                         arr[arrIndex] = (socket.encrypted === true)
                             ? `Host: ${address.local.address}:${server.ports.secure}`
                             : `Host: ${address.local.address}:${server.ports.open}`;
@@ -479,7 +479,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     if (proxy_domain === false) {
                         socket.addresses = address;
                         // do not proxy primary domain -> endless loop
-                        if (server.domain_local.includes(store.domain) === true || vars.environment.interfaces.includes(store.domain) === true) {
+                        if (domain_local.includes(store.domain) === true || vars.environment.interfaces.includes(store.domain) === true) {
                             local_service();
                         } else {
                             // redirect TLS connections to open servers instead to secure server peer if one is active
@@ -527,38 +527,32 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         "",
                         ""
                     ].join("\r\n"));
-                };
-            let blocked_host:boolean = null,
-                blocked_ip:boolean = null,
-                no_domain_redirect:boolean = null,
-                domain_local:boolean = null;
+                },
+                blocked_host:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(store.domain) === true),
+                blocked_ip:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
+                no_domain_redirect:boolean = (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[store.domain] === undefined),
+                domain_local:string[] = server.domain_local.concat(vars.environment.interfaces);
             headerList.forEach(headerEach);
-            blocked_host = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(store.domain) === true),
-            blocked_ip = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
-            no_domain_redirect = (server.redirect_domain === undefined || server.redirect_domain === null || server.redirect_domain[store.domain] === undefined),
-            domain_local = server.domain_local.concat(vars.environment.interfaces).includes(store.domain);
-            if (flags.referer === true || blocked_host === true || blocked_ip === true) {
+            if (data[0] === 22 && store.domain === "" && socket.encrypted !== true && vars.data_store.server_ports[server_id].secure > 0) {
+                // open socket to secure server - proxy the socket to the secure interface
+                socket.addresses = address;
+                socket.encrypted = true;
+                store.domain = `open_socket_tunnel-${vars.data.servers[server_id].name}`;
+                proxy_create(address.local.address, vars.data_store.server_ports[server_id].secure, true);
+            } else if (flags.referer === true || blocked_host === true || blocked_ip === true) {
                 socket.destroy();
-            } else if (no_domain_redirect === true && domain_local === false) {
+            } else if (no_domain_redirect === true && domain_local.includes(store.domain) === false && socket.proxy === null) {
                 socket.destroy();
-            } else if (domain_local === true) {
+            } else {
                 if (flags.upgrade === true as boolean && flags.dashboard_http === false) {
                     // open socket to open server - redirect client to secure server, http 301
                     // * server option 'upgrade' must be true
                     // * must be http request with header 'upgrade-insecure-requests: 1'
                     // * requests from the dashboard http test tool are ignored
                     upgrade();
-                } else if (data[0] === 22 && socket.encrypted !== true && vars.data_store.server_ports[server_id].secure > 0 && flags.dashboard_http === false) {
-                    // open socket to secure server - proxy socket to secure server
-                    socket.addresses = address;
-                    socket.encrypted = true;
-                    store.domain = `open_socket_tunnel-${vars.data.servers[server_id].name}`;
-                    proxy_create(address.local.address, vars.data_store.server_ports[server_id].secure, true);
                 } else {
                     service();
                 }
-            } else {
-                socket.destroy();
             }
         };
     // unhandled errors on sockets are fatal and will crash the application
