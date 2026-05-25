@@ -1614,9 +1614,9 @@ const ui = function ui():void {
                                 duration.value = dashboard.sections["file-system"].tools.media_time(media.duration);
                             };
                             media_element.onerror = function dashboard_sections_fileSystem_init_media_duration(event:Event|string):void {
-                                const target:HTMLElement = (typeof event === "string")
+                                const target:HTMLAudioElement = (typeof event === "string")
                                         ? null
-                                        : event.target as HTMLElement,
+                                        : event.target as HTMLAudioElement,
                                     player:HTMLElement = target.getAncestor("div", "tag"),
                                     buffer:HTMLElement = player.getElementsByClassName("buffer")[0] as HTMLElement;
                                 if (buffer !== undefined) {
@@ -1625,7 +1625,6 @@ const ui = function ui():void {
                                         : JSON.stringify(event);
                                     buffer.style.display = "block";
                                 }
-                                
                             };
                             if (name === "video") {
                                 const video:HTMLVideoElement = media_element as HTMLVideoElement;
