@@ -164,11 +164,17 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                             } while (index > 0);
                                             return value;
                                         }());
+                                    list.sort(function http_get_stat_statTest_directoryItem_noFile_directory_sort(a:type_directory_item, b:type_directory_item):-1|1 {
+                                        if (a[1] < b[1]) {
+                                            return -1;
+                                        }
+                                        return 1;
+                                    });
                                     do {
                                         if (list[index_item][2] === 0 && list[index_item][0].indexOf(input) !== list[index_item][0].length - input.length) {
-                                            address = `${scheme}://${host + index0[1].replace(/\/$/, "") + vars.path.sep + list[index_item][0]}`;
+                                            address = `${scheme}://${host + index0[1].replace(/\/$/, "") + vars.path.sep + list[index_item][5]}`;
                                             dtg = list[index_item][4].mtimeMs.dateTime(true, null).split(", ");
-                                            content.push(`<tr class="${(index_item % 2 === 0) ? "even" : "odd"}"><td class="file-name"><span class="icon">${icon[list[index_item][1]]}</span> <a href="${address}">${list[index_item][0]}</a></td><td>${list[index_item][1]}</td><td data-raw="${list[index_item][4].size}">${list[index_item][4].size.commas()}</td><td data-raw="${list[index_item][4].mtimeMs}">${dtg[0]}</td><td>${dtg[1]}</td><td>${list[index_item][4].mode === null ? "" : (list[index_item][4].mode & parseInt("777", 8)).toString(8)}</td><td data-raw="${list[index_item][3]}">${list[index_item][3].commas()}</td></tr>`);
+                                            content.push(`<tr class="${(index_item % 2 === 0) ? "even" : "odd"}"><td class="file-name"><span class="icon">${icon[list[index_item][1]]}</span> <a href="${address}">${list[index_item][5]}</a></td><td>${list[index_item][1]}</td><td data-raw="${list[index_item][4].size}">${list[index_item][4].size.commas()}</td><td data-raw="${list[index_item][4].mtimeMs}">${dtg[0]}</td><td>${dtg[1]}</td><td>${list[index_item][4].mode === null ? "" : (list[index_item][4].mode & parseInt("777", 8)).toString(8)}</td><td data-raw="${list[index_item][3]}">${list[index_item][3].commas()}</td></tr>`);
                                         }
                                         index_item = index_item + 1;
                                     } while (index_item < total);
