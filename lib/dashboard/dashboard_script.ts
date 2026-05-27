@@ -890,12 +890,17 @@ const ui = function ui():void {
                         dashboard.global.payload.compose.variables = data.variables;
                         if (len_variables > 0) {
                             let span:HTMLElement = null,
-                                strong:HTMLElement = null;
+                                strong:HTMLElement = null,
+                                strong_list:HTMLCollectionOf<HTMLElement> = null,
+                                longest:number = 0;
                             do {
                                 li = document.createElement("li");
                                 strong = document.createElement("strong");
                                 span = document.createElement("span");
                                 strong.appendText(variables[index]);
+                                if (variables[index].length > longest) {
+                                    longest = variables[index].length;
+                                }
                                 span.appendText(dashboard.global.payload.compose.variables[variables[index]]);
                                 li.appendChild(strong);
                                 li.appendChild(span);
@@ -903,6 +908,12 @@ const ui = function ui():void {
                                 index = index + 1;
                             } while (index < len_variables);
                             list_variables.style.display = "block";
+                            index = 0;
+                            strong_list = list_variables.getElementsByTagName("strong");
+                            do {
+                                strong_list[index].style.width = `${((longest / 1.2) - 3).toFixed(1)}em`;
+                                index = index + 1;
+                            } while (index < len_variables);
                         } else {
                             list_variables.style.display = "none";
                         }
