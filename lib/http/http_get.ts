@@ -251,7 +251,11 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                         });
                                         headerText[0] = status;
                                         headerText[2] = `content-length: ${end - start}`;
-                                        headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
+                                        if (end === size) {
+                                            headerText.splice(2, 0, `content-range: bytes ${start}-${end - 1}/${size}`);
+                                        } else {
+                                            headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
+                                        }
                                         socket.write(headerText.join("\r\n"));
                                         stream.pipe(socket);
                                         stream.on("close", function http_get_statTest_fileItem_close():void {
