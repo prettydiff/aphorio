@@ -52,6 +52,8 @@ const vars:core_vars = {
             containers: {},
             // log entries
             logs: [],
+            // notes from UI notes section
+            notes: "",
             // stores the port information for containers and services managed by this application
             ports_application: [],
             // objects describing web servers and contains objects describing their sockets
@@ -106,6 +108,7 @@ const vars:core_vars = {
                 "file-system": true,
                 "hash": true,
                 "interfaces": true,
+                "notes": true,
                 "os-machine": true,
                 "ports-application": true,
                 "processes": true,

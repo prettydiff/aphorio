@@ -388,6 +388,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         }
                         : null,
                     name: vars.environment.name,
+                    notes: vars.data.notes,
                     os: vars.os,
                     path: vars.path,
                     "ports-application": {

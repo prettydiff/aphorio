@@ -10,7 +10,7 @@ const ui = function ui():void {
         execute: function dashboard_execute():void {
             // eslint-disable-next-line max-params
             window.onerror = function dashboard_execute_windowError(message:Event|string, source:string, lineno:number, colno:number, error:Error):void {
-                dashboard.utility.message_send({
+                dashboard.message.send({
                     error: error,
                     message: `JavaScript UI error in browser on line ${lineno} and column ${colno} in ${source}. ${message.toString()}`,
                     origin: "web browser",
@@ -302,7 +302,7 @@ const ui = function ui():void {
             }())
         },
         message: {
-            init: function dashboard_messageInit():void {
+            init: function dashboard_message_init():void {
                 if (dashboard.global.loaded === false) {
                     const title:HTMLElement = document.getElementsByTagName("h1")[0],
                         anchor:HTMLElement = document.createElement("a"),
@@ -324,6 +324,7 @@ const ui = function ui():void {
                     init("file-system", false);
                     init("hash", false);
                     init("interfaces", false);
+                    init("notes", false);
                     init("os-machine", false);
                     init("ports-application", true);
                     init("processes", true);
@@ -346,7 +347,7 @@ const ui = function ui():void {
                     title.appendChild(anchor);
                 }
             },
-            receive: function dashboard_messageReceive(data:string):void {
+            receive: function dashboard_message_receive(data:string):void {
                 const message_item:socket_data = JSON.parse(data),
                     service_map:map_messages = {
                         "test-browser": null,
@@ -482,7 +483,15 @@ const ui = function ui():void {
                 } else if (service_map[message_item.service] !== null) {
                     service_map[message_item.service](message_item);
                 }
-            }
+            },
+            // send dashboard service messages
+            send: function dashboard_message_send(data:type_socket_data, service:type_service):void {
+                const message:socket_data = {
+                        data: data,
+                        service: service
+                    };
+                dashboard.socket.queue(JSON.stringify(message));
+            },
         },
         sections: {
             // application-logs start
@@ -634,7 +643,7 @@ const ui = function ui():void {
                                     ? ""
                                     : dashboard.global.payload.compose.containers[id].location
                             };
-                        dashboard.utility.message_send(message, "dashboard-compose-container");
+                        dashboard.message.send(message, "dashboard-compose-container");
                         dashboard.sections["compose-containers"].nodes.new_container.disabled = false;
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
@@ -648,7 +657,7 @@ const ui = function ui():void {
                             cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
                             value:string = edit.getElementsByTagName("textarea")[0].value,
                             variables:store_string = JSON.parse(value);
-                        dashboard.utility.message_send(variables, "dashboard-compose-variables");
+                        dashboard.message.send(variables, "dashboard-compose-variables");
                         dashboard.sections["compose-containers"].nodes.new_variable.disabled = false;
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
@@ -671,7 +680,7 @@ const ui = function ui():void {
                             id: "",
                             location: ""
                         };
-                        dashboard.utility.message_send(message, "dashboard-compose-container");
+                        dashboard.message.send(message, "dashboard-compose-container");
                     },
                     validate_containers: function dashboard_sections_composeContainers_validateContainers(event:FocusEvent|KeyboardEvent):void {
                         const target:HTMLElement = event.target,
@@ -1014,7 +1023,7 @@ const ui = function ui():void {
                 events: {
                     update: function dashboard_sections_disks_update():void {
                         dashboard.utility.performance_set("disks");
-                        dashboard.utility.message_send(null, "dashboard-os-disk");
+                        dashboard.message.send(null, "dashboard-os-disk");
                     }
                 },
                 init: function dashboard_sections_disks_init():void {
@@ -1180,7 +1189,7 @@ const ui = function ui():void {
                                     types: types_value
                                 };
                             dashboard.utility.setState();
-                            dashboard.utility.message_send(payload, "dashboard-dns");
+                            dashboard.message.send(payload, "dashboard-dns");
                             dashboard.sections["dns-query"].nodes.output.value = "";
                         }
                     }
@@ -1457,7 +1466,7 @@ const ui = function ui():void {
                             dashboard.sections["file-system"].block = true;
                             dashboard.utility.performance_set("file-system");
                             dashboard.sections["file-system"].nodes.status.textContent = "Fetching\u2026";
-                            dashboard.utility.message_send(payload, "dashboard-fileSystem");
+                            dashboard.message.send(payload, "dashboard-fileSystem");
                         }
                     }
                 },
@@ -2004,7 +2013,7 @@ const ui = function ui():void {
                         dashboard.sections["hash"].nodes.output.value = "";
                         dashboard.utility.performance_set("hash");
                         dashboard.utility.setState();
-                        dashboard.utility.message_send(service, "dashboard-hash");
+                        dashboard.message.send(service, "dashboard-hash");
                     },
                     toggle_mode: function dashboard_sections_hash_toggleMode(event:MouseEvent):void {
                         const target:HTMLElement = (event === null)
@@ -2095,7 +2104,7 @@ const ui = function ui():void {
                 events: {
                     update: function dashboard_sections_interfaces_update():void {
                         dashboard.utility.performance_set("interfaces");
-                        dashboard.utility.message_send(null, "dashboard-os-intr");
+                        dashboard.message.send(null, "dashboard-os-intr");
                     }
                 },
                 init: function dashboard_sections_interfaces_init():void {
@@ -2180,12 +2189,45 @@ const ui = function ui():void {
                 tools: null
             },
             // interfaces end
+            // notes start
+            "notes": {
+                events: {
+                    blur: function dashboard_sections_notes_blur():void {
+                        clearTimeout(dashboard.sections["notes"].timer);
+                        dashboard.sections["notes"].tools.save();
+                    },
+                    key: function dashboard_sections_notes_key():void {
+                        clearTimeout(dashboard.sections["notes"].timer);
+                        dashboard.sections["notes"].timer = setTimeout(dashboard.sections["notes"].tools.save, 5000);
+                    }
+                },
+                init: function dashboard_sections_notes_init():void {
+                    dashboard.sections["notes"].nodes.textarea.value = dashboard.global.payload.notes;
+                    dashboard.sections["notes"].nodes.textarea.onblur = dashboard.sections["notes"].events.blur;
+                    dashboard.sections["notes"].nodes.textarea.onkeyup = dashboard.sections["notes"].events.key;
+                },
+                nodes: {
+                    textarea: document.getElementById("notes").getElementsByTagName("textarea")[0] as HTMLTextAreaElement
+                },
+                receive: null,
+                timer: null,
+                tools: {
+                    save: function dashboard_sections_notes_save():void {
+                        const value:string = dashboard.sections["notes"].nodes.textarea.value,
+                            payload:store_string = {
+                                notes: value
+                            };
+                        dashboard.message.send(payload, "dashboard-notes");
+                    }
+                }
+            },
+            // notes end
             // os-machine start
             "os-machine": {
                 events: {
                     update: function dashboard_sections_osMachine_update():void {
                         dashboard.utility.performance_set("os-machine");
-                        dashboard.utility.message_send(null, "dashboard-os-main");
+                        dashboard.message.send(null, "dashboard-os-main");
                     }
                 },
                 init: function dashboard_sections_osMachine_init():void {
@@ -2469,7 +2511,7 @@ const ui = function ui():void {
                                 action: action,
                                 server: configuration
                             };
-                        dashboard.utility.message_send(data, "dashboard-server-action");
+                        dashboard.message.send(data, "dashboard-server-action");
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
                         } else {
@@ -3167,7 +3209,7 @@ const ui = function ui():void {
                         if (isNaN(frequency) === true || isNaN(records) === true) {
                             return;
                         }
-                        dashboard.utility.message_send({
+                        dashboard.message.send({
                             frequency: (frequency * 1000),
                             records: records
                         }, "dashboard-statistics-change");
@@ -3761,7 +3803,7 @@ const ui = function ui():void {
                             },
                             strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["test-http"].nodes.stats.getElementsByTagName("strong");
                         dashboard.utility.setState();
-                        dashboard.utility.message_send(data, "dashboard-http");
+                        dashboard.message.send(data, "dashboard-http");
                         dashboard.sections["test-http"].nodes.responseBody.value = "";
                         dashboard.sections["test-http"].nodes.responseHeaders.value = "";
                         dashboard.sections["test-http"].nodes.responseURI.value = "";
@@ -3861,7 +3903,7 @@ const ui = function ui():void {
                             };
                         dashboard.sections["test-websocket"].timeout = payload.timeout;
                         dashboard.sections["test-websocket"].nodes.status.value = "";
-                        dashboard.utility.message_send(payload, "dashboard-websocket-handshake");
+                        dashboard.message.send(payload, "dashboard-websocket-handshake");
                         dashboard.utility.setState();
                     },
                     keyup_frame: function dashboard_sections_websocketTest_keyupFrame(event:Event):void {
@@ -3954,7 +3996,7 @@ const ui = function ui():void {
                             frame: dashboard.sections["test-websocket"].tools.parse_frame(),
                             message: dashboard.sections["test-websocket"].nodes.message_send_body.value
                         };
-                        dashboard.utility.message_send(payload, "dashboard-websocket-message");
+                        dashboard.message.send(payload, "dashboard-websocket-message");
                         dashboard.sections["test-websocket"].events.keyup_frame(null);
                     }
                 },
@@ -4150,7 +4192,7 @@ const ui = function ui():void {
                                     ? "ipv4"
                                     : "ipv6"
                             };
-                        dashboard.utility.message_send(payload, "dashboard-udp-socket");
+                        dashboard.message.send(payload, "dashboard-udp-socket");
                     },
                     setState: function dashboard_sections_udpSocket_setState():void {
                         dashboard.utility.setState();
@@ -4768,7 +4810,7 @@ const ui = function ui():void {
                                 config.shell.resize(cols, rows);
                             }
                             if ((config.section === "terminal" && dashboard.sections["terminal"].info !== null) || config.section !== "terminal") {
-                                dashboard.utility.message_send({
+                                dashboard.message.send({
                                     cols: cols,
                                     hash: (config.section === "terminal")
                                         ? dashboard.sections["terminal"].info.socket_hash
@@ -5172,7 +5214,7 @@ const ui = function ui():void {
                     section:type_dashboard_sections = map_section[target] as type_dashboard_sections,
                     service:type_service = map_service[target] as type_service;
                 dashboard.utility.performance_set(section);
-                dashboard.utility.message_send(null, service);
+                dashboard.message.send(null, service);
             }
         },
         utility: {
@@ -5257,6 +5299,9 @@ const ui = function ui():void {
                         dashboard.sections["file-system"].nodes.status.textContent = "";
                         dashboard.sections["file-system"].time = 0;
                     }
+                    if (dashboard.sections["notes"] !== undefined) {
+                        dashboard.sections["notes"].nodes.textarea.value = "";
+                    }
                     if (dashboard.sections["os-machine"] !== undefined) {
                         dashboard.sections["os-machine"].nodes_os.cpu.arch.textContent = "";
                         dashboard.sections["os-machine"].nodes_os.cpu.cores.textContent = "";
@@ -5339,14 +5384,6 @@ const ui = function ui():void {
                     };
                 dashboard.utility.nodes.clock.setAttribute("data-local", String(data.time_local));
                 dashboard.utility.nodes.clock.textContent = `${str(data.time_local)}L (${str(data.time_zulu)}Z)`;
-            },
-            // send dashboard service messages
-            message_send: function dashboard_utility_messageSend(data:type_socket_data, service:type_service):void {
-                const message:socket_data = {
-                        data: data,
-                        service: service
-                    };
-                dashboard.socket.queue(JSON.stringify(message));
             },
             nodes: {
                 clock: document.getElementById("clock").getElementsByTagName("time")[0],
