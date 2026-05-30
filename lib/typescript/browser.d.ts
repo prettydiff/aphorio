@@ -81,6 +81,7 @@ declare global {
         message: {
             init: () => void;
             receive: (data:string) => void;
+            send: (data:type_socket_data, service:type_service) => void;
         };
         sections: {
             "application-logs": section_applicationLogs;
@@ -91,6 +92,7 @@ declare global {
             "file-system": section_file_system;
             "hash": section_hash;
             "interfaces": section_interfaces;
+            "notes": section_notes;
             "os-machine": section_os;
             "ports-application": section_ports_application;
             "processes": section_processes;
@@ -129,7 +131,6 @@ declare global {
         utility: {
             baseline: () => void;
             clock: (data_item:socket_data) => void;
-            message_send: (data:type_socket_data, service:type_service) => void;
             nodes: {
                 clock: HTMLElement;
                 load: HTMLElement;
@@ -455,6 +456,17 @@ declare global {
         };
         receive: (socket_data:socket_data) => void;
         time: number;
+    }
+
+    interface section_notes extends module_sections {
+        events: {
+            blur: () => void;
+            key: () => void;
+        };
+        nodes: {
+            textarea: HTMLTextAreaElement;
+        };
+        timer: ReturnType<typeof setTimeout>;
     }
 
     interface section_os extends module_sections {

@@ -239,6 +239,7 @@ interface core_server_ports {
 interface core_servers_file {
     "compose-variables": store_string;
     dashboard_id: string;
+    notes: string;
     servers: store_server_config;
     stats: {
         frequency: number;
@@ -278,6 +279,7 @@ interface core_vars {
         compose_variables: store_string;
         containers: store_compose;
         logs: config_log[];
+        notes: string;
         ports_application: services_ports_application_item[];
         servers: store_servers;
         sockets_tcp: services_socket_application_tcp[];
@@ -334,6 +336,7 @@ interface core_vars {
             "file-system": boolean;
             "hash": boolean;
             "interfaces": boolean;
+            "notes": boolean;
             "os-machine": boolean;
             "ports-application": boolean;
             "processes": boolean;

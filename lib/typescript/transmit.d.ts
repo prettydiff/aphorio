@@ -34,6 +34,7 @@ interface transmit_dashboard {
         total: number;
     };
     name: string;
+    notes: string;
     os: core_server_os;
     path: core_vars_path;
     "ports-application": services_ports_application;

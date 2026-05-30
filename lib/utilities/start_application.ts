@@ -522,6 +522,9 @@ const start_application = function utilities_startApplication(process_path:strin
                                 }
                             } while (index_srv > 0);
                         }
+                        if (typeof config.notes === "string") {
+                            vars.data.notes = config.notes;
+                        }
                         do {
                             index_int = index_int - 1;
                             sub = interfaces[keys_int[index_int]].length;
