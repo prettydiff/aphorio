@@ -4,11 +4,12 @@ import file from "../utilities/file.ts";
 import hash from "../core/hash.ts";
 import log from "../core/log.ts";
 import ports_application from "../services/ports_application.ts";
+import save from "../utilities/save.ts";
 import server_start from "./server_start.ts";
 import vars from "../core/vars.ts";
 
 // 1. add server to the vars.data.servers object
-// 2. add server to servers.json file
+// 2. save server data
 // 3. create server's directory structure
 // 4. create server's certificates
 // 5. launch servers
@@ -20,7 +21,6 @@ const server_create = function services_serverCreate(data:services_server_action
         callback: function services_serverCreate_hashCallback(output:core_hash_output):void {
             let count:number = 0;
             const config:services_server = data.server,
-                path_config:string = `${vars.path.project}servers.json`,
                 path_name:string = vars.path.servers + output.hash + vars.path.sep,
                 path_assets:string = `${path_name}assets${vars.path.sep}`,
                 path_certs:string = `${path_name}certs${vars.path.sep}`,
@@ -83,32 +83,6 @@ const server_create = function services_serverCreate(data:services_server_action
                         location: location,
                         section: "servers-web"
                     });
-                },
-                write = function services_serverCreate_write():void {
-                    const keys:string[] = Object.keys(vars.data.servers),
-                        total:number = keys.length,
-                        config:core_servers_file = {
-                            "compose-variables": vars.data.compose_variables,
-                            dashboard_id: vars.environment.dashboard_id,
-                            servers: {},
-                            stats: {
-                                frequency: vars.stats.frequency,
-                                records: vars.stats.records
-                            }
-                        };
-                    let index:number = 0;
-                    do {
-                        config.servers[keys[index]] = vars.data.servers[keys[index]];
-                        index = index + 1;
-                    } while (index < total);
-                    file.write({
-                        callback: function services_serverCreate_writeConfig():void {
-                            complete("config");
-                        },
-                        contents: JSON.stringify(config),
-                        location: path_config,
-                        section: "servers-web"
-                    });
                 };
             if (vars.data.servers[output.hash] === undefined) {
                 // 1. add server to the vars.data.servers object
@@ -154,11 +128,13 @@ const server_create = function services_serverCreate(data:services_server_action
                         open: 0,
                         secure: 0
                     };
-                    // 2. add server to servers.json file
+                    // 2. save server data
                     if (config.single_socket === true || config.temporary === true) {
                         complete("config");
                     } else {
-                        write();
+                        save(function services_serverCreate_writeConfig():void {
+                            complete("config");
+                        }, "servers-web");
                     }
                 } else {
                     log.application({

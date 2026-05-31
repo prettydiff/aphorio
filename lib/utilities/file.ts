@@ -259,6 +259,14 @@ const file:core_module_file = {
         });
     },
     write: function utilities_fileWrite(config:config_file_write):void {
+        if (config.location === `${vars.path.project}servers.json`) {
+            const stack:string = new Error().stack;
+            if (stack.includes("lib/utilities/save.ts:13:10") === false) {
+                // eslint-disable-next-line no-console
+                console.error("Changes to servers.json must come from the lib/utilities/save.ts file.");
+                process.exit(1);
+            }
+        }
         node.fs.writeFile(config.location, config.contents, function utilities_fileWrite_write(erw:node_error):void {
             if (erw === null) {
                 if (config.callback !== null) {
