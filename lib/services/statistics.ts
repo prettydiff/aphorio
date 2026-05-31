@@ -2,6 +2,7 @@
 import broadcast from "../transmit/broadcast.ts";
 import file from "../utilities/file.ts";
 import node from "../core/node.ts";
+import save from "../utilities/save.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
@@ -9,35 +10,10 @@ import vars from "../core/vars.ts";
 
 const statistics:core_module_statistics = {
     change: function services_statisticsChange(data:socket_data):void {
-        const update:services_statistics_change = data.data as services_statistics_change,
-            list:store_server_config = {},
-            keys:string[] = Object.keys(vars.data.servers),
-            len:number = keys.length,
-            file_data:core_servers_file = {
-                "compose-variables": vars.data.compose_variables,
-                dashboard_id: vars.environment.dashboard_id,
-                servers: {},
-                stats: {
-                    frequency: update.frequency,
-                    records: update.records
-                }
-            };
-        let index:number = 0;
-        if (len > 0) {
-            do {
-                list[keys[index]] = vars.data.servers[keys[index]];
-                index = index + 1;
-            } while (index < len);
-        }
-        file_data.servers = list;
+        const update:services_statistics_change = data.data as services_statistics_change;
         vars.stats.frequency = update.frequency;
         vars.stats.records = update.records;
-        file.write({
-            callback: null,
-            contents: JSON.stringify(file_data),
-            location: `${vars.path.project}servers.json`,
-            section: "statistics"
-        });
+        save(null, "statistics");
     },
     data: function services_statisticsData():void {
         const start_time:bigint = process.hrtime.bigint(),

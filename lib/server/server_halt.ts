@@ -3,6 +3,7 @@ import certificate from "../services/certificate.ts";
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import ports_application from "../services/ports_application.ts";
+import save from "../utilities/save.ts";
 import server_start from "./server_start.ts";
 import vars from "../core/vars.ts";
 
@@ -12,7 +13,7 @@ import vars from "../core/vars.ts";
 // 4. delete server from vars.server
 // 5. remove server's directory
 // 6. modify the server
-// 7. remove server from the servers.json file
+// 7. remove server data from save file
 // 8. call the callback
 
 const server_halt = function services_serverHalt(data:services_server_action, callback:() => void):void {
@@ -32,7 +33,6 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
     } else {
         const single_socket:boolean = vars.data.servers[id].single_socket,
             temporary:boolean = vars.data.servers[id].temporary,
-            path_config:string = `${vars.path.project}servers.json`,
             path_name:string = vars.path.servers + id + vars.path.sep,
             encryption:type_encryption = vars.data.servers[id].encryption,
             complete = function services_serverHalt_complete():void {
@@ -130,48 +130,21 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
         }
         delete vars.data_store.server[id];
         if (data.action === "destroy" || data.action === "modify") {
-            const modify_file = function servers_serverHalt_modifyFile():void {
-                // 2. modify the servers.json file
-                const config:core_servers_file = {
-                    "compose-variables": vars.data.compose_variables,
-                    dashboard_id: vars.environment.dashboard_id,
-                    servers: {},
-                    stats: {
-                        frequency: vars.stats.frequency,
-                        records: vars.stats.records
-                    }
-                };
-                let index:number = 0,
-                    keys:string[] = [],
-                    total:number = 0;
-                keys = Object.keys(vars.data.servers);
-                total = keys.length;
-                if (total > 0) {
-                    do {
-                        config.servers[keys[index]] = vars.data.servers[keys[index]];
-                        index = index + 1;
-                    } while (index < total);
-                }
-                file.write({
-                    callback: write_callback,
-                    contents: JSON.stringify(config),
-                    location: path_config,
-                    section: "servers-web"
-                });
-            };
             if (data.action === "modify") {
                 vars.data.servers[id] = data.server;
                 vars.data_store.server_ports[id] = {
                     open: 0,
                     secure: 0
                 };
-                modify_file();
+                save(write_callback, "servers-web");
             } else {
                 delete vars.data.servers[id];
                 delete vars.data_store.server[id];
                 delete vars.data_store.sockets_tcp[id];
                 file.remove({
-                    callback: modify_file,
+                    callback: function server_serverHalt_delete():void {
+                        save(write_callback, "servers-web");
+                    },
                     exclusions: null,
                     location: vars.path.servers + id,
                     section: "servers-web"
