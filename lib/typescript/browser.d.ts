@@ -462,6 +462,7 @@ declare global {
         events: {
             blur: () => void;
             key: () => void;
+            resize: () => void;
         };
         nodes: {
             textarea: HTMLTextAreaElement;

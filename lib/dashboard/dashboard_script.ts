@@ -2199,12 +2199,17 @@ const ui = function ui():void {
                     key: function dashboard_sections_notes_key():void {
                         clearTimeout(dashboard.sections["notes"].timer);
                         dashboard.sections["notes"].timer = setTimeout(dashboard.sections["notes"].tools.save, 5000);
+                    },
+                    resize: function dashboard_sections_notes_resize():void {
+                        const outer_height:number = (window.innerHeight - 235) / 10;
+                        dashboard.sections["notes"].nodes.textarea.style.height = `${outer_height}em`;
                     }
                 },
                 init: function dashboard_sections_notes_init():void {
                     dashboard.sections["notes"].nodes.textarea.value = dashboard.global.payload.notes;
                     dashboard.sections["notes"].nodes.textarea.onblur = dashboard.sections["notes"].events.blur;
                     dashboard.sections["notes"].nodes.textarea.onkeyup = dashboard.sections["notes"].events.key;
+                    dashboard.sections["notes"].events.resize();
                 },
                 nodes: {
                     textarea: document.getElementById("notes").getElementsByTagName("textarea")[0] as HTMLTextAreaElement
@@ -5419,6 +5424,9 @@ const ui = function ui():void {
                 }
                 if (dashboard.sections["file-system"] !== undefined) {
                     dashboard.sections["file-system"].events.resize();
+                }
+                if (dashboard.sections["notes"] !== undefined) {
+                    dashboard.sections["notes"].events.resize();
                 }
                 if (dashboard.sections["terminal"] !== undefined && dashboard.sections["terminal"].events.resize !== null && dashboard.sections["terminal"].socket !== null) {
                     dashboard.sections["terminal"].events.resize();
