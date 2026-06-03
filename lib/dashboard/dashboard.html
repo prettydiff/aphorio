@@ -20,11 +20,11 @@
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo="/>
 </head>
 <body id="dashboard">
-    <div class="title">
+    <header class="title">
         <h1>Server Management Dashboard</h1>
         <p><span>Page Load Time:</span><time>0.00000 seconds</time></p>
         <p id="clock"><span>Server Time:</span><time>00:00:00L (00:00:00Z)</time></p>
-    </div>
+    </header>
     <p id="connection-status" class="connection-offline">Dashboard Connection: <strong>Offline</strong></p>
     <nav>
         <h2>Navigation</h2>
@@ -34,7 +34,7 @@
                 <li><button class="nav-focus" data-section="servers-web">Web Servers</button></li>
                 <li><button data-section="compose-containers">Docker Compose</button></li>
                 <li><button data-section="udp-socket">UDP Socket</button></li>
-                <li><button data-section="statistics">Statistics</button></li>
+                <li><button data-section="statistics-resources">Resource Statistics</button></li>
             </ul>
         </div>
         <div>
@@ -1115,9 +1115,9 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- sockets-os-udp end -->
-        <!-- statistics start -->
-        <div class="tab" id="statistics">
-            <h2>Statistics</h2>
+        <!-- statistics-resources start -->
+        <div class="tab" id="statistics-resources">
+            <h2>Resource Statistics</h2>
             <p class="tab-description">Providing a real time metrics for supported services.</p>
             <div class="table-filters">
                 <h3>Metric Controls</h3>
@@ -1140,7 +1140,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <div class="graphs"></div>
             </div>
         </div>
-        <!-- statistics end -->
+        <!-- statistics-resources end -->
         <!-- terminal start -->
         <div class="tab" id="terminal">
             <h2>Terminal</h2>

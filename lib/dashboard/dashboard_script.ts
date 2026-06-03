@@ -334,7 +334,7 @@ const ui = function ui():void {
                     init("sockets-application-udp", true);
                     init("sockets-os-tcp", true);
                     init("sockets-os-udp", true);
-                    init("statistics", false);
+                    init("statistics-resources", false);
                     init("terminal", false);
                     init("test-http", false);
                     init("test-websocket", false);
@@ -413,9 +413,9 @@ const ui = function ui():void {
                                 ? null
                                 : dashboard.tables.receive
                             : dashboard.tables.receive,
-                        "dashboard-statistics-data": (dashboard.sections["statistics"] === undefined)
+                        "dashboard-statistics-data": (dashboard.sections["statistics-resources"] === undefined)
                             ? null
-                            : dashboard.sections["statistics"].receive,
+                            : dashboard.sections["statistics-resources"].receive,
                         "dashboard-status-clock": dashboard.utility.clock,
                         "dashboard-udp-status": (dashboard.sections["udp-socket"] === undefined)
                             ? null
@@ -3163,17 +3163,17 @@ const ui = function ui():void {
                 time: 0
             },
             // sockets-os-udp end
-            // statistics start
-            "statistics": {
+            // statistics-resources start
+            "statistics-resources": {
                 events: {
-                    change_display: function dashboard_sections_statistics_changeDisplay():void {
-                        dashboard.sections["statistics"].graphs = {};
-                        dashboard.sections["statistics"].nodes.graphs.textContent = "";
-                        dashboard.sections["statistics"].nodes.graphs.setAttribute("data-type", dashboard.sections["statistics"].nodes.graph_display.value);
-                        dashboard.sections["statistics"].events.change_type();
+                    change_display: function dashboard_sections_statisticsResources_changeDisplay():void {
+                        dashboard.sections["statistics-resources"].graphs = {};
+                        dashboard.sections["statistics-resources"].nodes.graphs.textContent = "";
+                        dashboard.sections["statistics-resources"].nodes.graphs.setAttribute("data-type", dashboard.sections["statistics-resources"].nodes.graph_display.value);
+                        dashboard.sections["statistics-resources"].events.change_type();
                     },
-                    change_type: function dashboard_sections_statistics_changeType():void {
-                        const keys:string[] = Object.keys(dashboard.sections["statistics"].graphs);
+                    change_type: function dashboard_sections_statisticsResources_changeType():void {
+                        const keys:string[] = Object.keys(dashboard.sections["statistics-resources"].graphs);
                         let index:number = keys.length,
                             keys_graphs:type_graph_keys[],
                             index_graphs:number = 0,
@@ -3181,12 +3181,12 @@ const ui = function ui():void {
                         if (index > 0) {
                             do {
                                 index = index - 1;
-                                keys_graphs = Object.keys(dashboard.sections["statistics"].graphs[keys[index]]) as type_graph_keys[];
+                                keys_graphs = Object.keys(dashboard.sections["statistics-resources"].graphs[keys[index]]) as type_graph_keys[];
                                 index_graphs = keys_graphs.length;
                                 if (index_graphs > 0) {
                                     do {
                                         index_graphs = index_graphs - 1;
-                                        graph = dashboard.sections["statistics"].graphs[keys[index]][keys_graphs[index_graphs]];
+                                        graph = dashboard.sections["statistics-resources"].graphs[keys[index]][keys_graphs[index_graphs]];
                                         if (graph !== null) {
                                             if (graph.canvas !== null && graph.canvas.parentNode !== null) {
                                                 graph.canvas.parentNode.parentNode.removeChild(graph.canvas.parentNode);
@@ -3198,16 +3198,16 @@ const ui = function ui():void {
                             } while (index > 0);
                         }
                         dashboard.utility.setState();
-                        if (dashboard.sections["statistics"].nodes.graph_display.value === "individual") {
-                            dashboard.sections["statistics"].tools.graph_individual(true);
-                        } else if (dashboard.sections["statistics"].nodes.graph_display.value === "composite") {
-                            dashboard.sections["statistics"].tools.graph_composite(true);
+                        if (dashboard.sections["statistics-resources"].nodes.graph_display.value === "individual") {
+                            dashboard.sections["statistics-resources"].tools.graph_individual(true);
+                        } else if (dashboard.sections["statistics-resources"].nodes.graph_display.value === "composite") {
+                            dashboard.sections["statistics-resources"].tools.graph_composite(true);
                         }
                     },
-                    definitions: function dashboard_sections_statistics_definitions(event:FocusEvent|KeyboardEvent):void {
+                    definitions: function dashboard_sections_statisticsResources_definitions(event:FocusEvent|KeyboardEvent):void {
                         const key:KeyboardEvent = event as KeyboardEvent,
-                            frequency:number = Number(dashboard.sections["statistics"].nodes.frequency.value),
-                            records:number = Number(dashboard.sections["statistics"].nodes.records.value);
+                            frequency:number = Number(dashboard.sections["statistics-resources"].nodes.frequency.value),
+                            records:number = Number(dashboard.sections["statistics-resources"].nodes.records.value);
                         if (key.type === "keyup" && key.key !== "Enter") {
                             return;
                         }
@@ -3220,22 +3220,22 @@ const ui = function ui():void {
                         }, "dashboard-statistics-change");
                     },
                 },
-                init: function dashboard_sections_statistics_init():void {
-                    dashboard.sections["statistics"].nodes.frequency.onblur = dashboard["sections"].statistics.events.definitions;
-                    dashboard.sections["statistics"].nodes.frequency.onkeyup = dashboard["sections"].statistics.events.definitions;
-                    dashboard.sections["statistics"].nodes.frequency.value = (dashboard.global.payload.stats.frequency / 1000).toString();
-                    dashboard.sections["statistics"].nodes.graph_display.onchange = dashboard.sections["statistics"].events.change_display;
-                    dashboard.sections["statistics"].nodes.graph_type.onchange = dashboard.sections["statistics"].events.change_type;    
-                    dashboard.sections["statistics"].nodes.graph_display.selectedIndex = (dashboard.global.state.graph_display === null || dashboard.global.state.graph_display === undefined)
+                init: function dashboard_sections_statisticsResources_init():void {
+                    dashboard.sections["statistics-resources"].nodes.frequency.onblur = dashboard.sections["statistics-resources"].events.definitions;
+                    dashboard.sections["statistics-resources"].nodes.frequency.onkeyup = dashboard.sections["statistics-resources"].events.definitions;
+                    dashboard.sections["statistics-resources"].nodes.frequency.value = (dashboard.global.payload.stats.frequency / 1000).toString();
+                    dashboard.sections["statistics-resources"].nodes.graph_display.onchange = dashboard.sections["statistics-resources"].events.change_display;
+                    dashboard.sections["statistics-resources"].nodes.graph_type.onchange = dashboard.sections["statistics-resources"].events.change_type;    
+                    dashboard.sections["statistics-resources"].nodes.graph_display.selectedIndex = (dashboard.global.state.graph_display === null || dashboard.global.state.graph_display === undefined)
                         ? 0
                         : dashboard.global.state.graph_display;
-                    dashboard.sections["statistics"].nodes.graph_type.selectedIndex = (dashboard.global.state.graph_type === null || dashboard.global.state.graph_type === undefined)
+                    dashboard.sections["statistics-resources"].nodes.graph_type.selectedIndex = (dashboard.global.state.graph_type === null || dashboard.global.state.graph_type === undefined)
                         ? 0
                         : dashboard.global.state.graph_type;
-                    dashboard.sections["statistics"].nodes.graphs.setAttribute("data-type", dashboard.sections["statistics"].nodes.graph_display.value);
-                    dashboard.sections["statistics"].nodes.records.onblur = dashboard.sections["statistics"].events.definitions;
-                    dashboard.sections["statistics"].nodes.records.onkeyup = dashboard.sections["statistics"].events.definitions;
-                    dashboard.sections["statistics"].nodes.records.value = dashboard.global.payload.stats.records.toString();
+                    dashboard.sections["statistics-resources"].nodes.graphs.setAttribute("data-type", dashboard.sections["statistics-resources"].nodes.graph_display.value);
+                    dashboard.sections["statistics-resources"].nodes.records.onblur = dashboard.sections["statistics-resources"].events.definitions;
+                    dashboard.sections["statistics-resources"].nodes.records.onkeyup = dashboard.sections["statistics-resources"].events.definitions;
+                    dashboard.sections["statistics-resources"].nodes.records.value = dashboard.global.payload.stats.records.toString();
                     if (dashboard.sections["servers-web"] !== undefined) {
                         const payload:services_server_update = {
                             ports_used: dashboard.global.payload.server_ports,
@@ -3247,7 +3247,7 @@ const ui = function ui():void {
                         });
                     }
                     Chart.defaults.color = "#ccc";
-                    dashboard.sections["statistics"].receive({
+                    dashboard.sections["statistics-resources"].receive({
                         data: dashboard.global.payload.stats,
                         service: "dashboard-statistics-data"
                     });
@@ -3296,49 +3296,49 @@ const ui = function ui():void {
                 },
                 graphs: {},
                 nodes: {
-                    duration: document.getElementById("statistics").getElementsByClassName("section")[0].getElementsByTagName("em")[1],
-                    frequency: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
-                    graph_display: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[1],
-                    graph_type: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
-                    graphs: document.getElementById("statistics").getElementsByClassName("graphs")[0] as HTMLElement,
-                    records: document.getElementById("statistics").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
-                    update: document.getElementById("statistics").getElementsByClassName("section")[0].getElementsByTagName("em")[0]
+                    duration: document.getElementById("statistics-resources").getElementsByClassName("section")[0].getElementsByTagName("em")[1],
+                    frequency: document.getElementById("statistics-resources").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
+                    graph_display: document.getElementById("statistics-resources").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[1],
+                    graph_type: document.getElementById("statistics-resources").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
+                    graphs: document.getElementById("statistics-resources").getElementsByClassName("graphs")[0] as HTMLElement,
+                    records: document.getElementById("statistics-resources").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
+                    update: document.getElementById("statistics-resources").getElementsByClassName("section")[0].getElementsByTagName("em")[0]
                 },
-                receive: function dashboard_sections_statistics_receive(data:socket_data):void {
+                receive: function dashboard_sections_statisticsResources_receive(data:socket_data):void {
                     const stats:services_statistics_data = data.data as services_statistics_data;
                     dashboard.global.payload.stats = stats;
-                    if (document.activeElement !== dashboard.sections["statistics"].nodes.frequency) {
-                        dashboard.sections["statistics"].nodes.frequency.value = (stats.frequency / 1000).toString();
+                    if (document.activeElement !== dashboard.sections["statistics-resources"].nodes.frequency) {
+                        dashboard.sections["statistics-resources"].nodes.frequency.value = (stats.frequency / 1000).toString();
                     }
-                    if (document.activeElement !== dashboard.sections["statistics"].nodes.records) {
-                        dashboard.sections["statistics"].nodes.records.value = stats.records.toString();
+                    if (document.activeElement !== dashboard.sections["statistics-resources"].nodes.records) {
+                        dashboard.sections["statistics-resources"].nodes.records.value = stats.records.toString();
                     }
-                    dashboard.sections["statistics"].nodes.update.textContent = stats.now.dateTime(true, dashboard.global.payload.timeZone_offset);
-                    dashboard.sections["statistics"].nodes.duration.textContent = (stats.duration / 1e9).time_elapsed();
-                    if (dashboard.sections["statistics"].nodes.graph_display.value === "individual") {
-                        dashboard.sections["statistics"].tools.graph_individual(false);
-                    } else if (dashboard.sections["statistics"].nodes.graph_display.value === "composite") {
-                        dashboard.sections["statistics"].tools.graph_composite(false);
+                    dashboard.sections["statistics-resources"].nodes.update.textContent = stats.now.dateTime(true, dashboard.global.payload.timeZone_offset);
+                    dashboard.sections["statistics-resources"].nodes.duration.textContent = (stats.duration / 1e9).time_elapsed();
+                    if (dashboard.sections["statistics-resources"].nodes.graph_display.value === "individual") {
+                        dashboard.sections["statistics-resources"].tools.graph_individual(false);
+                    } else if (dashboard.sections["statistics-resources"].nodes.graph_display.value === "composite") {
+                        dashboard.sections["statistics-resources"].tools.graph_composite(false);
                     }
                 },
                 tools: {
-                    graph_composite: function dashboard_sections_statistics_graphComposite(force_new:boolean|string):void {
+                    graph_composite: function dashboard_sections_statisticsResources_graphComposite(force_new:boolean|string):void {
                         const keys:string[] = Object.keys(dashboard.global.payload.stats.containers),
                             len:number = keys.length,
                             keys_data:type_graph_keys[] = ["cpu", "mem", "net_in", "net_out", "threads", "disk_in", "disk_out"],
                             keys_len:number = keys_data.length,
-                            graph_type:"bar"|"line" = dashboard.sections["statistics"].nodes.graph_type.value as "bar"|"line",
-                            dataset = function dashboard_sections_statistics_graphComposite_dataset(type:type_graph_keys):type_graph_datasets {
+                            graph_type:"bar"|"line" = dashboard.sections["statistics-resources"].nodes.graph_type.value as "bar"|"line",
+                            dataset = function dashboard_sections_statisticsResources_graphComposite_dataset(type:type_graph_keys):type_graph_datasets {
                                 const output:graph_dataset[] = [];
                                 let index_key:number = 0;
                                 if (len > 0) {
-                                    const len_color:number = dashboard.sections["statistics"].graph_config.colors.length;
+                                    const len_color:number = dashboard.sections["statistics-resources"].graph_config.colors.length;
                                     index_key = 0;
                                     do {
                                         if (dashboard.global.payload.stats.containers[keys[index_key]] !== undefined && dashboard.global.payload.stats.containers[keys[index_key]] !== null && (keys[index_key] === "application" || dashboard.global.payload.compose.containers[keys[index_key]] !== undefined)) {
                                             output.push({
-                                                backgroundColor: dashboard.sections["statistics"].graph_config.colors[index_key].replace(",1)", ",0.1)"),
-                                                borderColor: dashboard.sections["statistics"].graph_config.colors[index_key],
+                                                backgroundColor: dashboard.sections["statistics-resources"].graph_config.colors[index_key].replace(",1)", ",0.1)"),
+                                                borderColor: dashboard.sections["statistics-resources"].graph_config.colors[index_key],
                                                 borderRadius: 4,
                                                 borderWidth: 2,
                                                 data: dashboard.global.payload.stats.containers[keys[index_key]][type].data,
@@ -3357,13 +3357,13 @@ const ui = function ui():void {
                                 }
                                 return [output, dashboard.global.payload.stats.containers.application[type].labels];
                             },
-                            update = function dashboard_sections_statistics_graphComposite_update(type:type_graph_keys, section:HTMLElement):void {
+                            update = function dashboard_sections_statisticsResources_graphComposite_update(type:type_graph_keys, section:HTMLElement):void {
                                 const dataList:type_graph_datasets = dataset(type),
                                     graph_item:HTMLCanvasElement = (section === null)
                                         ? null
                                         : document.createElement("canvas"),
                                     graph:Chart = (section === null)
-                                        ? dashboard.sections["statistics"].graphs.composite[type]
+                                        ? dashboard.sections["statistics-resources"].graphs.composite[type]
                                         : new Chart(graph_item, {
                                             data: {
                                                 datasets: dataList[0],
@@ -3383,15 +3383,15 @@ const ui = function ui():void {
                                 } else {
                                     const div:HTMLElement = document.createElement("div");
                                     graph_item.setAttribute("class", "graph");
-                                    dashboard.sections["statistics"].graphs.composite[type] = graph;
+                                    dashboard.sections["statistics-resources"].graphs.composite[type] = graph;
                                     div.appendChild(graph_item);
                                     section.appendChild(div);
                                 }
                             },
-                            create = function dashboard_sections_statistics_graphComposite_create(type:type_graph_keys):void {
+                            create = function dashboard_sections_statisticsResources_graphComposite_create(type:type_graph_keys):void {
                                 let new_item:boolean = false;
-                                const section_div:HTMLElement = (function dashboard_statisticsGraphIndividual_create_div():HTMLElement {
-                                        const sections:HTMLCollectionOf<HTMLElement> = dashboard.sections["statistics"].nodes.graphs.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>;
+                                const section_div:HTMLElement = (function dashboard_statisticsResources_graphComposite_create_div():HTMLElement {
+                                        const sections:HTMLCollectionOf<HTMLElement> = dashboard.sections["statistics-resources"].nodes.graphs.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>;
                                         let index_sections:number = sections.length;
                                         if (index_sections > 0) {
                                             do {
@@ -3409,16 +3409,16 @@ const ui = function ui():void {
 
                                 section_div.setAttribute("class", "section");
                                 section_div.setAttribute("data-id", type);
-                                h4.textContent = dashboard.sections["statistics"].graph_config.title[type];
+                                h4.textContent = dashboard.sections["statistics-resources"].graph_config.title[type];
                                 section_div.appendChild(h4);
                                 update(type, section_div);
                                 if (new_item === true) {
-                                    dashboard.sections["statistics"].nodes.graphs.appendChild(section_div);
+                                    dashboard.sections["statistics-resources"].nodes.graphs.appendChild(section_div);
                                 }
                             };
                         let index:number = 0;
-                        if (dashboard.sections["statistics"].graphs.composite === undefined || dashboard.sections["statistics"].graphs.composite === null) {
-                            dashboard.sections["statistics"].graphs.composite = {
+                        if (dashboard.sections["statistics-resources"].graphs.composite === undefined || dashboard.sections["statistics-resources"].graphs.composite === null) {
+                            dashboard.sections["statistics-resources"].graphs.composite = {
                                 cpu: null,
                                 disk_in: null,
                                 disk_out: null,
@@ -3429,7 +3429,7 @@ const ui = function ui():void {
                             };
                         }
                         do {
-                            if (force_new === true || dashboard.sections["statistics"].graphs.composite[keys_data[index]] === null) {
+                            if (force_new === true || dashboard.sections["statistics-resources"].graphs.composite[keys_data[index]] === null) {
                                 create(keys_data[index]);
                             } else {
                                 update(keys_data[index], null);
@@ -3437,15 +3437,15 @@ const ui = function ui():void {
                             index = index + 1;
                         } while (index < keys_len);
                     },
-                    graph_individual: function dashboard_sections_statistics_graphIndividual(force_new:boolean|string):void {
+                    graph_individual: function dashboard_sections_statisticsResources_graphIndividual(force_new:boolean|string):void {
                         const id_list:string[] = Object.keys(dashboard.global.payload.stats.containers),
                             id_len:number = id_list.length,
-                            graph_type:"bar"|"line" = dashboard.sections["statistics"].nodes.graph_type.value as "bar"|"line",
-                            destroy = function dashboard_sections_statistics_graphIndividual_destroy(id:string):void {
-                                if (dashboard.sections["statistics"].graphs[id] !== null && dashboard.sections["statistics"].graphs[id] !== undefined) {
-                                    const each = function dashboard_sections_statistics_graphIndividual_destroy_each(type:type_graph):void {
-                                        if (dashboard.sections["statistics"].graphs[id][type] !== null && dashboard.sections["statistics"].graphs[id][type] !== undefined) {
-                                            dashboard.sections["statistics"].graphs[id][type].destroy();
+                            graph_type:"bar"|"line" = dashboard.sections["statistics-resources"].nodes.graph_type.value as "bar"|"line",
+                            destroy = function dashboard_sections_statisticsResources_graphIndividual_destroy(id:string):void {
+                                if (dashboard.sections["statistics-resources"].graphs[id] !== null && dashboard.sections["statistics-resources"].graphs[id] !== undefined) {
+                                    const each = function dashboard_sections_statisticsResources_graphIndividual_destroy_each(type:type_graph):void {
+                                        if (dashboard.sections["statistics-resources"].graphs[id][type] !== null && dashboard.sections["statistics-resources"].graphs[id][type] !== undefined) {
+                                            dashboard.sections["statistics-resources"].graphs[id][type].destroy();
                                         }
                                     };
                                     each("cpu");
@@ -3455,15 +3455,15 @@ const ui = function ui():void {
                                     if (id !== "application") {
                                         each("disk");
                                     }
-                                    dashboard.sections["statistics"].graphs[id] = null;
+                                    dashboard.sections["statistics-resources"].graphs[id] = null;
                                 }
                             },
-                            update = function dashboard_sections_statistics_graphIndividual_update(id:string, section:HTMLElement):void {
-                                const modify = function dashboard_sections_statistics_graphIndividual_update_modify(type:type_graph):void {
-                                    const dataList:type_graph_datasets = (function dashboard_sections_statistics_graphIndividual_update_modify_dataset():type_graph_datasets {
+                            update = function dashboard_sections_statisticsResources_graphIndividual_update(id:string, section:HTMLElement):void {
+                                const modify = function dashboard_sections_statisticsResources_graphIndividual_update_modify(type:type_graph):void {
+                                    const dataList:type_graph_datasets = (function dashboard_sections_statisticsResources_graphIndividual_update_modify_dataset():type_graph_datasets {
                                             const dataset0:graph_dataset = {
-                                                    backgroundColor: dashboard.sections["statistics"].graph_config.colors[0].replace(",1)", ",0.1)"),
-                                                    borderColor: dashboard.sections["statistics"].graph_config.colors[0],
+                                                    backgroundColor: dashboard.sections["statistics-resources"].graph_config.colors[0].replace(",1)", ",0.1)"),
+                                                    borderColor: dashboard.sections["statistics-resources"].graph_config.colors[0],
                                                     borderRadius: 4,
                                                     borderWidth: 2,
                                                     data: (type === "cpu" || type === "mem" || type === "threads")
@@ -3471,21 +3471,21 @@ const ui = function ui():void {
                                                         : dashboard.global.payload.stats.containers[id][`${type}_in` as "disk_in"].data,
                                                     fill: true,
                                                     label: (type === "cpu" || type === "mem" || type === "threads")
-                                                        ? dashboard.sections["statistics"].graph_config.labels[type]
-                                                        : dashboard.sections["statistics"].graph_config.labels[`${type}_in` as "disk_in"],
+                                                        ? dashboard.sections["statistics-resources"].graph_config.labels[type]
+                                                        : dashboard.sections["statistics-resources"].graph_config.labels[`${type}_in` as "disk_in"],
                                                     showLine: true,
                                                     tension: 0.2
                                                 },
                                                 dataset1:graph_dataset = (type === "cpu" || type === "mem" || type === "threads")
                                                     ? null
                                                     : {
-                                                        backgroundColor: dashboard.sections["statistics"].graph_config.colors[1].replace(",1)", ",0.1)"),
-                                                        borderColor: dashboard.sections["statistics"].graph_config.colors[1],
+                                                        backgroundColor: dashboard.sections["statistics-resources"].graph_config.colors[1].replace(",1)", ",0.1)"),
+                                                        borderColor: dashboard.sections["statistics-resources"].graph_config.colors[1],
                                                         borderRadius: 4,
                                                         borderWidth: 2,
                                                         data: dashboard.global.payload.stats.containers[id][`${type}_out` as "disk_out"].data,
                                                         fill: true,
-                                                        label: dashboard.sections["statistics"].graph_config.labels[`${type}_out` as "disk_out"],
+                                                        label: dashboard.sections["statistics-resources"].graph_config.labels[`${type}_out` as "disk_out"],
                                                         showLine: true,
                                                         tension: 0.2
                                                     };
@@ -3498,7 +3498,7 @@ const ui = function ui():void {
                                             ? null
                                             : document.createElement("canvas"),
                                         graph:Chart = (section === null)
-                                            ? dashboard.sections["statistics"].graphs[id][type]
+                                            ? dashboard.sections["statistics-resources"].graphs[id][type]
                                             : new Chart(graph_item, {
                                                 data: {
                                                     datasets: dataList[0],
@@ -3515,7 +3515,7 @@ const ui = function ui():void {
                                                                 : (dashboard.global.payload.compose.containers[id] === null || dashboard.global.payload.compose.containers[id] === undefined)
                                                                     ? id
                                                                     : dashboard.global.payload.compose.containers[id].name
-                                                            } - ${dashboard.sections["statistics"].graph_config.title[type]}`
+                                                            } - ${dashboard.sections["statistics-resources"].graph_config.title[type]}`
                                                         }
                                                     },
                                                     responsive: true
@@ -3529,7 +3529,7 @@ const ui = function ui():void {
                                     } else {
                                         const div:HTMLElement = document.createElement("div");
                                         graph_item.setAttribute("class", "graph");
-                                        dashboard.sections["statistics"].graphs[id][type] = graph;
+                                        dashboard.sections["statistics-resources"].graphs[id][type] = graph;
                                         div.appendChild(graph_item);
                                         section.appendChild(div);
                                     }
@@ -3542,10 +3542,10 @@ const ui = function ui():void {
                                     modify("disk");
                                 }
                             },
-                            create = function dashboard_sections_statistics_graphIndividual_create(id:string):void {
+                            create = function dashboard_sections_statisticsResources_graphIndividual_create(id:string):void {
                                 let new_item:boolean = false;
-                                const section_div:HTMLElement = (function dashboard_sections_statistics_graphIndividual_create_sectionDiv():HTMLElement {
-                                        const sections:HTMLCollectionOf<HTMLElement> = dashboard.sections["statistics"].nodes.graphs.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>;
+                                const section_div:HTMLElement = (function dashboard_sections_statisticsResources_graphIndividual_create_sectionDiv():HTMLElement {
+                                        const sections:HTMLCollectionOf<HTMLElement> = dashboard.sections["statistics-resources"].nodes.graphs.getElementsByClassName("section") as HTMLCollectionOf<HTMLElement>;
                                         let index_sections:number = sections.length;
                                         if (index_sections > 0) {
                                             do {
@@ -3569,7 +3569,7 @@ const ui = function ui():void {
                                     name:string = (id === "application")
                                         ? `Application - ${name_literal}`
                                         : `Container - ${name_literal}`;
-                                dashboard.sections["statistics"].graphs[id] = {
+                                dashboard.sections["statistics-resources"].graphs[id] = {
                                     cpu: null,
                                     disk: null,
                                     mem: null,
@@ -3584,7 +3584,7 @@ const ui = function ui():void {
                                 section_div.appendChild(clear);
                                 section_div.setAttribute("data-id", id);
                                 if (new_item === true) {
-                                    const sections:NodeListOf<ChildNode> = dashboard.sections["statistics"].nodes.graphs.childNodes,
+                                    const sections:NodeListOf<ChildNode> = dashboard.sections["statistics-resources"].nodes.graphs.childNodes,
                                         len:number = sections.length;
                                     let index:number = 0,
                                         section:HTMLElement = null;
@@ -3592,20 +3592,20 @@ const ui = function ui():void {
                                         do {
                                             section = sections[index] as HTMLElement;
                                             if (section.getAttribute("class") === "section empty") {
-                                                dashboard.sections["statistics"].nodes.graphs.insertBefore(section_div, section);
+                                                dashboard.sections["statistics-resources"].nodes.graphs.insertBefore(section_div, section);
                                                 return;
                                             }
                                             index = index + 1;
                                         } while (index < len);
                                     }
-                                    dashboard.sections["statistics"].nodes.graphs.appendChild(section_div);
+                                    dashboard.sections["statistics-resources"].nodes.graphs.appendChild(section_div);
                                 }
                             },
-                            empty = function dashboard_sections_statistics_graphIndividual_empty(id:string):void {
+                            empty = function dashboard_sections_statisticsResources_graphIndividual_empty(id:string):void {
                                 const h4:HTMLElement = document.createElement("h4"),
                                     p:HTMLElement = document.createElement("p"),
                                     div:HTMLElement = document.createElement("div"),
-                                    sections:NodeListOf<ChildNode> = dashboard.sections["statistics"].nodes.graphs.childNodes;
+                                    sections:NodeListOf<ChildNode> = dashboard.sections["statistics-resources"].nodes.graphs.childNodes;
                                 let index:number = sections.length,
                                     section:HTMLElement = null;
                                 if (index > 0) {
@@ -3630,11 +3630,11 @@ const ui = function ui():void {
                                     : dashboard.global.payload.compose.containers[id].name} is not running.`;
                                 div.appendChild(h4);
                                 div.appendChild(p);
-                                dashboard.sections["statistics"].nodes.graphs.appendChild(div);
+                                dashboard.sections["statistics-resources"].nodes.graphs.appendChild(div);
                                 destroy(id);
                             },
-                            remove = function dashboard_sections_statistics_graphIndividual_remove():void {
-                                const sections:NodeListOf<ChildNode> = dashboard.sections["statistics"].nodes.graphs.childNodes;
+                            remove = function dashboard_sections_statisticsResources_graphIndividual_remove():void {
+                                const sections:NodeListOf<ChildNode> = dashboard.sections["statistics-resources"].nodes.graphs.childNodes;
                                 let index:number = sections.length,
                                     section:HTMLElement = null;
                                 // see if the section is already present and needs to be removed
@@ -3654,7 +3654,7 @@ const ui = function ui():void {
                             do {
                                 if (dashboard.global.payload.stats.containers[id_list[index]] === null) {
                                     empty(id_list[index]);
-                                } else if (force_new === true || dashboard.sections["statistics"].graphs[id_list[index]] === undefined || dashboard.sections["statistics"].graphs[id_list[index]] === null) {
+                                } else if (force_new === true || dashboard.sections["statistics-resources"].graphs[id_list[index]] === undefined || dashboard.sections["statistics-resources"].graphs[id_list[index]] === null) {
                                     create(id_list[index]);
                                 } else {
                                     update(id_list[index], null);
@@ -3666,7 +3666,7 @@ const ui = function ui():void {
                     }
                 }
             },
-            // statistics end
+            // statistics-resources end
             // terminal start
             "terminal": {
                 // https://xtermjs.org/docs/
@@ -5515,9 +5515,9 @@ const ui = function ui():void {
                             dashboard.global.state.hash.source = dashboard.sections["hash"].nodes.source.value;
                         }
                     }
-                    if (dashboard.sections["statistics"] !== undefined) {
-                        dashboard.global.state.graph_display = dashboard.sections["statistics"].nodes.graph_display.selectedIndex;
-                        dashboard.global.state.graph_type = dashboard.sections["statistics"].nodes.graph_type.selectedIndex;
+                    if (dashboard.sections["statistics-resources"] !== undefined) {
+                        dashboard.global.state.graph_display = dashboard.sections["statistics-resources"].nodes.graph_display.selectedIndex;
+                        dashboard.global.state.graph_type = dashboard.sections["statistics-resources"].nodes.graph_type.selectedIndex;
                     }
                     if (dashboard.sections["terminal"] !== undefined) {
                         if (dashboard.sections["terminal"].nodes.select[dashboard.sections["terminal"].nodes.select.selectedIndex] !== undefined) {

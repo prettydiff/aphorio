@@ -74,7 +74,7 @@ const test_index = function test_index():void {
 // missing these tests
 //
 // UDP Socket
-// Statistics
+// statistics_resources
 // App UDP Sockets
 // WebSocket Test - Incomplete
 

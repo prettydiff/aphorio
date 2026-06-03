@@ -6,7 +6,7 @@ type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentE
 type type_certKey = "ca" | "crt" | "key";
 type type_dashboard_action = type_halt_action | "activate" | "add" | "update";
 type type_dashboard_list = "container" | "server";
-type type_dashboard_init = "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "notes" | "os-machine" | "servers-web" | "statistics" | "terminal" | "test-http" | "test-websocket" | "udp-socket";
+type type_dashboard_init = "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "notes" | "os-machine" | "servers-web" | "statistics-resources" | "terminal" | "test-http" | "test-websocket" | "udp-socket";
 type type_dashboard_features = type_dashboard_init | type_dashboard_tables;
 type type_dashboard_sections = type_dashboard_features | "faq" | "help";
 type type_dashboard_status = "error" | "informational";
@@ -75,8 +75,8 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 // * dashboard-server-update       - services_server_update       - configuration details and port status for all servers
 // * dashboard-socket-application  - services_socket_application  - status updates about sockets created by this application
 // * dashboard-status-clock        - services_status_clock        - current server clock time as epoch number
-// * dashboard-statistics-change   - services_statistics-change   - modifies control information respective to service statistical data collection
-// * dashboard-statistics-data     - services_statistics-data     - resource consumption statistics
+// * dashboard-statistics-change   - services_statistics_change   - modifies control information respective to service statistical data collection
+// * dashboard-statistics-data     - services_statistics_data     - resource consumption statistics
 // * dashboard-terminal-resize     - services_terminal-resize     - resizes the shell such that text is formatted properly with invisible control characters
 // * dashboard-udp-socket          - services_udp_socket          - sends information about the creation of a UDP socket
 // * dashboard-udp-status          - string[]                     - notifies the user a UDP socket is created

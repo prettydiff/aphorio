@@ -9,7 +9,7 @@ import os from "../services/os.ts";
 import ports_application from "../services/ports_application.ts";
 import servers from "../server/index.ts";
 import socket_list from "../services/socket_list.ts";
-import statistics from "../services/statistics.ts";
+import statistics_resources from "../services/statistics_resources.ts";
 import terminal from "../services/terminal.ts";
 import test_runner from "../test/runner.ts";
 import udp_socket from "../services/udp_socket.ts";
@@ -41,7 +41,7 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-ports-application": ports_application,
             "dashboard-server-action": servers,
             "dashboard-socket-application": socket_list,
-            "dashboard-statistics-change": statistics.change,
+            "dashboard-statistics-change": statistics_resources.change,
             "dashboard-terminal-resize": terminal.resize,
             "dashboard-udp-socket": udp_socket,
             "dashboard-websocket-handshake": websocket_test.handshake,

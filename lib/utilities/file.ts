@@ -260,6 +260,7 @@ const file:core_module_file = {
     },
     write: function utilities_fileWrite(config:config_file_write):void {
         if (config.location === `${vars.path.project}servers.json`) {
+            // eslint-disable-next-line no-console
             console.error("Changes to servers.json must come from the lib/utilities/save.ts file.");
             process.exit(1);
         } else if (config.location === `${vars.path.project}servers.json-lib/utilities/save.ts`) {
