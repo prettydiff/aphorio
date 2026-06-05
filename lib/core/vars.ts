@@ -118,7 +118,7 @@ const vars:core_vars = {
                 "sockets-application-udp": true,
                 "sockets-os-tcp": true,
                 "sockets-os-udp": true,
-                "statistics": true,
+                "statistics-resources": true,
                 "terminal": true,
                 "test-http": true,
                 "test-websocket": true,

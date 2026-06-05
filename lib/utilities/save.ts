@@ -13,7 +13,7 @@ const save = function utilities_save(callback:() => void, section:type_dashboard
     file.write({
         callback: callback,
         contents: JSON.stringify(payload),
-        location: `${vars.path.project}servers.json`,
+        location: `${vars.path.project}servers.json-lib/utilities/save.ts`,
         section: section
     });
 };

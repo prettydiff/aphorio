@@ -128,7 +128,7 @@ interface core_module_spawn {
     type: string;
 }
 
-interface core_module_statistics {
+interface core_module_statistics_resources {
     change: (data:socket_data) => void;
     data: () => void;
 }
@@ -346,7 +346,7 @@ interface core_vars {
             "sockets-application-udp": boolean;
             "sockets-os-tcp": boolean;
             "sockets-os-udp": boolean;
-            "statistics": boolean;
+            "statistics-resources": boolean;
             "terminal": boolean;
             "test-http": boolean;
             "test-websocket": boolean;

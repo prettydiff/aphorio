@@ -8,12 +8,12 @@ import vars from "../core/vars.ts";
 
 // cspell: words CPUPerc, MemPerc, pids, rbytes, usec, wbytes
 
-const statistics:core_module_statistics = {
+const statistics:core_module_statistics_resources = {
     change: function services_statisticsChange(data:socket_data):void {
         const update:services_statistics_change = data.data as services_statistics_change;
         vars.stats.frequency = update.frequency;
         vars.stats.records = update.records;
-        save(null, "statistics");
+        save(null, "statistics-resources");
     },
     data: function services_statisticsData():void {
         const start_time:bigint = process.hrtime.bigint(),
@@ -311,28 +311,28 @@ const statistics:core_module_statistics = {
                                     identifier: id,
                                     location: `${vars.path.cgroup}docker-${id}.scope/cpu.stat`,
                                     no_file: null,
-                                    section: "statistics"
+                                    section: "statistics-resources"
                                 });
                                 file.read({
                                     callback: io,
                                     identifier: id,
                                     location: `${vars.path.cgroup}docker-${id}.scope/io.stat`,
                                     no_file: null,
-                                    section: "statistics"
+                                    section: "statistics-resources"
                                 });
                                 file.read({
                                     callback: mem,
                                     identifier: id,
                                     location: `${vars.path.cgroup}docker-${id}.scope/memory.current`,
                                     no_file: null,
-                                    section: "statistics"
+                                    section: "statistics-resources"
                                 });
                                 file.read({
                                     callback: threads,
                                     identifier: id,
                                     location: `${vars.path.cgroup}docker-${id}.scope/pids.current`,
                                     no_file: null,
-                                    section: "statistics"
+                                    section: "statistics-resources"
                                 });
                                 spawn(`docker exec ${id} cat /proc/net/dev`, net, {
                                     type: id

@@ -12,7 +12,7 @@ import ports_application from "../services/ports_application.ts";
 import server_create from "../server/server_create.ts";
 import server_start from "../server/server_start.ts";
 import spawn from "../core/spawn.ts";
-import statistics from "../services/statistics.ts";
+import statistics_resources from "../services/statistics_resources.ts";
 import test_browser from "../dashboard/test_browser.ts";
 import test_index from "../test/index.ts";
 import universal from "../core/universal.ts";
@@ -111,7 +111,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 section("sockets-application-udp", "App UDP Sockets");
                                 section("sockets-os-tcp", "OS TCP Sockets");
                                 section("sockets-os-udp", "OS UDP Sockets");
-                                section("statistics", "Statistics");
+                                section("statistics-resources", "Resource Statistics");
                                 section("terminal", "Terminal");
                                 section("test-http", "HTTP Test");
                                 section("test-websocket", "WebSocket Test");
@@ -320,7 +320,7 @@ const start_application = function utilities_startApplication(process_path:strin
                         xterm_js = "";
                         xterm_css = "";
                     }
-                    if (vars.environment.features["statistics"] === true) {
+                    if (vars.environment.features["statistics-resources"] === true) {
                         file.read({
                             callback: function utilities_startApplication_taskHTML_readChart(file:Buffer):void {
                                 chart_js = file.toString();
@@ -841,7 +841,7 @@ const start_application = function utilities_startApplication(process_path:strin
 
                 };
                 clock();
-                statistics.data();
+                statistics_resources.data();
                 if (vars.test.testing === true || vars.data.servers[vars.environment.dashboard_id] === undefined) {
                     server_create({
                         action: "add",

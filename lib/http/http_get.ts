@@ -410,7 +410,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         }
                         : null,
                     start_date: vars.environment.start_date,
-                    stats: (vars.environment.features["statistics"] === true)
+                    stats: (vars.environment.features["statistics-resources"] === true)
                         ? {
                             containers: vars.stats.containers,
                             duration: vars.stats.duration,

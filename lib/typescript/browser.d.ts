@@ -102,7 +102,7 @@ declare global {
             "sockets-application-udp": section_sockets_application;
             "sockets-os-tcp": section_sockets_os;
             "sockets-os-udp": section_sockets_os;
-            "statistics": section_statistics;
+            "statistics-resources": section_statistics_resources;
             "terminal": section_terminal;
             "test-http": section_http_test;
             "test-websocket": section_websocket_test;
@@ -462,6 +462,7 @@ declare global {
         events: {
             blur: () => void;
             key: () => void;
+            resize: () => void;
         };
         nodes: {
             textarea: HTMLTextAreaElement;
@@ -512,7 +513,7 @@ declare global {
         dataName: "stcp" | "sudp";
     }
 
-    interface section_statistics extends module_sections {
+    interface section_statistics_resources extends module_sections {
         events: {
             change_display: () => void;
             change_type: () => void;
