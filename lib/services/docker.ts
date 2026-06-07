@@ -179,6 +179,8 @@ const docker:core_module_docker = {
                                                     no_file: null,
                                                     section: "compose-containers"
                                                 });
+                                            } else if (count === 0 && index === 0) {
+                                                complete("");
                                             }
                                         } while (index > 0);
                                     }

@@ -21,8 +21,8 @@ import vars from "../core/vars.ts";
 // cspell: words serv, stcp, sudp
 
 const start_application = function utilities_startApplication(process_path:string):void {
+    // prerequisite tasks will execute first in the order presented
     const prerequisite_tasks:core_start_tasks = {
-            // prerequisite tasks will execute serially in the order presented
             admin: {
                 label: "Determines if the application is run with administrative privileges.",
                 task: function utilities_startApplication_admin():void {
@@ -861,24 +861,21 @@ const start_application = function utilities_startApplication(process_path:strin
             } while (index_tasks > 0);
         },
         start_prerequisites = function utilities_startApplication_startPrerequisites():void {
-            index_prerequisites = index_prerequisites + 1;
-            if (index_prerequisites > 0) {
-                log_task("prerequisite", keys_prerequisites[index_prerequisites - 1]);
-            }
-            if (index_prerequisites < len_prerequisites) {
-                prerequisite_tasks[keys_prerequisites[index_prerequisites]].task();
-            } else {
+            if (keys_prerequisites[index_prerequisites] === undefined) {
                 start_tasks();
+            } else {
+                index_prerequisites = index_prerequisites + 1;
+                log_task("prerequisite", keys_prerequisites[index_prerequisites - 1]);
+                prerequisite_tasks[keys_prerequisites[index_prerequisites - 1]].task();
             }
         },
         keys_tasks:type_start_primary_tasks[] = Object.keys(tasks) as type_start_primary_tasks[],
         keys_prerequisites:type_start_pre_tasks[] = Object.keys(prerequisite_tasks) as type_start_pre_tasks[],
         len_tasks:number = (vars.test.testing === true)
             ? keys_tasks.length - 1 // servers task is not run in test mode
-            : keys_tasks.length,
-        len_prerequisites:number = keys_prerequisites.length;
+            : keys_tasks.length;
     let index_tasks:number = keys_tasks.length,
-        index_prerequisites:number = -1,
+        index_prerequisites:number = 0,
         count_task:number = 0,
         script:string = dashboard_script
             .toString()
