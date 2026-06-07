@@ -2236,6 +2236,8 @@ const ui = function ui():void {
                                 }
                             };
                         dashboard.sections["message-inspection"].nodes.service.textContent = "";
+                        dashboard.sections["message-inspection"].nodes.label_in.getElementsByTagName("textarea")[0].value = "";
+                        dashboard.sections["message-inspection"].nodes.label_out.getElementsByTagName("textarea")[0].value = "";
                         if (value === "Web Server") {
                             populate(dashboard.global.payload.servers);
                             dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Messages In ";
@@ -2246,8 +2248,6 @@ const ui = function ui():void {
                             dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Docker Logs ";
                             dashboard.sections["message-inspection"].nodes.label_out.parentNode.style.display = "none";
                         }
-                        dashboard.sections["message-inspection"].nodes.label_in.getElementsByTagName("textarea")[0].value = "";
-                        dashboard.sections["message-inspection"].nodes.label_out.getElementsByTagName("textarea")[0].value = "";
                         dashboard.utility.setState();
                     }
                 },
