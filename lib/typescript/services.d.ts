@@ -146,6 +146,7 @@ interface services_log {
 }
 
 interface services_message_inspection {
+    count: number;
     direction: "in" | "out";
     message: string;
     service: string;

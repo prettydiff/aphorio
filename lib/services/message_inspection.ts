@@ -5,7 +5,12 @@ import vars from "../core/vars.ts";
 
 const message_inspection:core_module_messageInspection = {
     send: function services_messageInspection_send(data:services_message_inspection):void {
-        let index_messages:number = vars.data_store.message_inspection.length;
+        let index_messages:number = vars.data_store.message_inspection.length,
+            len:number = data.message.length;
+        data.count = len;
+        data.message = (len < 5000)
+            ? data.message
+            : data.message.slice(len - 5000);
         if (index_messages > 0) {
             do {
                 index_messages = index_messages - 1;
@@ -40,12 +45,17 @@ const message_inspection:core_module_messageInspection = {
                             type: "message-inspection"
                         }),
                         output = function services_mesageInspection_set_stdout(out:Buffer):void {
-                            const message:services_message_inspection = {
-                                direction: "in",
-                                message: out.toString(),
-                                service: data.service,
-                                type: "docker-container"
-                            };
+                            const str:string = out.toString(),
+                                len:number = str.length,
+                                message:services_message_inspection = {
+                                    count: len,
+                                    direction: "in",
+                                    message: (len < 5000)
+                                        ? str
+                                        : str.slice(len - 5000),
+                                    service: data.service,
+                                    type: "docker-container"
+                                };
                             send({
                                 data: message,
                                 service: "dashboard-message-inspection"

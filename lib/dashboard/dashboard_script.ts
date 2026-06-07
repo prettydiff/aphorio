@@ -2201,6 +2201,7 @@ const ui = function ui():void {
                         const value_service:string = dashboard.sections["message-inspection"].nodes.service[dashboard.sections["message-inspection"].nodes.service.selectedIndex].textContent,
                             value_type:string = dashboard.sections["message-inspection"].nodes.type[dashboard.sections["message-inspection"].nodes.type.selectedIndex].textContent,
                             payload:services_message_inspection = {
+                                count: 0,
                                 direction: "in",
                                 message: "",
                                 service: (value_service === "")
@@ -2214,6 +2215,7 @@ const ui = function ui():void {
                             dashboard.sections["message-inspection"].nodes.label_in.getElementsByTagName("textarea")[0].value = "";
                             dashboard.sections["message-inspection"].nodes.label_out.getElementsByTagName("textarea")[0].value = "";
                         }
+                        dashboard.sections["message-inspection"].nodes.em.textContent = "";
                         dashboard.message.send(payload, "dashboard-message-inspection");
                     },
                     type: function dashboard_sections_messageInspection_type():void {
@@ -2238,14 +2240,15 @@ const ui = function ui():void {
                         dashboard.sections["message-inspection"].nodes.service.textContent = "";
                         dashboard.sections["message-inspection"].nodes.label_in.getElementsByTagName("textarea")[0].value = "";
                         dashboard.sections["message-inspection"].nodes.label_out.getElementsByTagName("textarea")[0].value = "";
+                        dashboard.sections["message-inspection"].nodes.em.textContent = "";
                         if (value === "Web Server") {
                             populate(dashboard.global.payload.servers);
-                            dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Messages In ";
-                            dashboard.sections["message-inspection"].nodes.label_out.firstChild.textContent = "Messages out ";
+                            dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Messages in, last 5000 characters";
+                            dashboard.sections["message-inspection"].nodes.label_out.firstChild.textContent = "Messages out, last 5000 characters ";
                             dashboard.sections["message-inspection"].nodes.label_out.parentNode.style.display = "block";
                         } else {
                             populate(dashboard.global.payload.compose.containers);
-                            dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Docker Logs ";
+                            dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Docker logs, last 5000 characters ";
                             dashboard.sections["message-inspection"].nodes.label_out.parentNode.style.display = "none";
                         }
                         dashboard.utility.setState();
@@ -2260,6 +2263,7 @@ const ui = function ui():void {
                     dashboard.sections["message-inspection"].events.type();
                 },
                 nodes: {
+                    em: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[0].getElementsByTagName("em")[0],
                     label_in: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[0],
                     label_out: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[1],
                     service: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("select")[1] as HTMLSelectElement,
@@ -2273,9 +2277,14 @@ const ui = function ui():void {
                             (data.type === "docker-container" && dashboard.sections["message-inspection"].nodes.type.value === "Docker Container")
                         )
                     ) {
-                        const textarea:HTMLTextAreaElement = dashboard.sections["message-inspection"].nodes[`label_${data.direction}`].getElementsByTagName("textarea")[0];
-                        textarea.value = `${textarea.value}\n\n${data.message}`;
+                        const textarea:HTMLTextAreaElement = dashboard.sections["message-inspection"].nodes[`label_${data.direction}`].getElementsByTagName("textarea")[0],
+                            value:string = textarea.value + data.message,
+                            len:number = value.length;
+                        textarea.value = (len < 5000)
+                            ? value
+                            : value.slice(len - 5000);
                     }
+                    dashboard.sections["message-inspection"].nodes.em.textContent = `(${data.count.commas()} characters total)`;
                 },
                 tools: {}
             },

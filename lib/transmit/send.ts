@@ -35,6 +35,7 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
     }
     if (opcode !== 3 || (opcode === 3 && socketData.service !== "dashboard-message-inspection")) {
         message_inspection.send({
+            count: 0,
             direction: "out",
             message: (typeof body === "string")
                 ? body

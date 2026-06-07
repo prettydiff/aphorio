@@ -465,6 +465,7 @@ declare global {
             type: () => void;
         };
         nodes: {
+            em: HTMLElement;
             label_in: HTMLElement;
             label_out: HTMLElement;
             service: HTMLSelectElement;
