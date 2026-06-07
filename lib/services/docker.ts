@@ -242,7 +242,7 @@ const docker:core_module_docker = {
                 }
             };
             vars.data.containers = {};
-            spawn(`docker ${docker.commands.list}`, child).execute();
+            spawn(`docker ${docker.commands.list}`, child, {type: "docker"}).execute();
         } else {
             complete("Application must be executed with administrative privilege for Docker support.");
         }

@@ -1,4 +1,5 @@
 import send from "../transmit/send.ts";
+import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
 
@@ -29,6 +30,10 @@ const message_inspection:core_module_messageInspection = {
                 index = index - 1;
                 if (vars.data_store.message_inspection[index].socket === socket) {
                     if (data.service === "" || (data.type === "web-server" && vars.data.servers[data.service] === undefined) || (data.type === "docker-container" && vars.data.containers[data.service] === undefined)) {
+                        if (data.type === "docker-container") {
+                            vars.data_store.message_inspection[index].spawn.spawn.stdout.off("data", vars.data_store.message_inspection[index].stdout);
+                            vars.data_store.message_inspection[index].spawn.spawn.stderr.off("data", vars.data_store.message_inspection[index].stdout);
+                        }
                         vars.data_store.message_inspection.splice(index, 1);
                     } else {
                         vars.data_store.message_inspection[index].service = data.service;
@@ -42,14 +47,39 @@ const message_inspection:core_module_messageInspection = {
             (data.type === "web-server" && vars.data.servers[data.service] !== undefined) ||
             (data.type === "docker-container" && vars.data.containers[data.service] !== undefined)
         )) {
-            vars.data_store.message_inspection.push({
+            const payload:core_message_inspection = {
                 service: data.service,
                 socket: socket,
+                spawn: null,
+                stdout: null,
                 type: data.type
-            });
+            };
             if (data.type === "docker-container") {
-
+                const command:string = `docker logs ${data.service} --follow`,
+                    child:core_module_spawn = spawn(command, null, {
+                        stream_stderr: true,
+                        stream_stdout: true,
+                        type: "message-inspection"
+                    }),
+                    output = function services_mesageInspection_set_stdout(out:Buffer):void {
+                        const message:services_message_inspection = {
+                            direction: "in",
+                            message: out.toString(),
+                            service: data.service,
+                            type: "docker-container"
+                        };
+                        send({
+                            data: message,
+                            service: "dashboard-message-inspection"
+                        }, socket, 3);
+                    };
+                child.execute();
+                child.spawn.stdout.on("data", output);
+                child.spawn.stderr.on("data", output);
+                payload.spawn = child;
+                payload.stdout = output;
             }
+            vars.data_store.message_inspection.push(payload);
         }
     }
 };

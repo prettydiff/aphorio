@@ -95,6 +95,8 @@ interface core_hash_output {
 interface core_message_inspection {
     service: string;
     socket: websocket_client;
+    spawn: core_module_spawn;
+    stdout: (out:Buffer) => void;
     type: "" | "docker-container" | "web-server";
 }
 
@@ -134,8 +136,8 @@ interface core_module_spawn {
     error: (err:node_childProcess_ExecException) => void;
     execute: () => void;
     spawn: node_childProcess_ChildProcess;
-    stderr: string[];
-    stdout: string[];
+    store_stderr: string[];
+    store_stdout: string[];
     type: string;
 }
 
@@ -263,6 +265,8 @@ interface core_spawn_options {
     env?: store_string;
     error?: (err:node_childProcess_ExecException) => void;
     shell?: string;
+    stream_stderr?: boolean;
+    stream_stdout?: boolean;
     type?: string;
 }
 
