@@ -92,6 +92,7 @@ declare global {
             "file-system": section_file_system;
             "hash": section_hash;
             "interfaces": section_interfaces;
+            "message-inspection": section_message_text;
             "notes": section_notes;
             "os-machine": section_os;
             "ports-application": section_ports_application;
@@ -458,6 +459,19 @@ declare global {
         time: number;
     }
 
+    interface section_message_text extends module_sections {
+        events: {
+            service: () => void;
+            type: () => void;
+        };
+        nodes: {
+            label_in: HTMLElement;
+            label_out: HTMLElement;
+            service: HTMLSelectElement;
+            type: HTMLSelectElement;
+        };
+    }
+
     interface section_notes extends module_sections {
         events: {
             blur: () => void;
@@ -682,6 +696,7 @@ declare global {
             encryption: boolean;
             request: string;
         };
+        messageInspection: "docker-container" | "servers-web";
         nav: string;
         table_os: {
             [key:string]: table_os_item;

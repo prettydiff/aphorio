@@ -92,6 +92,12 @@ interface core_hash_output {
     size: number;
 }
 
+interface core_message_inspection {
+    service: string;
+    socket: websocket_client;
+    type: "" | "docker-container" | "web-server";
+}
+
 interface core_module_docker {
     commands: core_compose_commands;
     list: (callback:() => void) => void;
@@ -113,6 +119,11 @@ interface core_module_file {
 interface core_module_log {
     application: (config:config_log) => void;
     shell: (input:string[], summary?:boolean) => void;
+}
+
+interface core_module_messageInspection {
+    send: (data:services_message_inspection) => void;
+    set: receiver;
 }
 
 interface core_module_spawn {
@@ -293,6 +304,8 @@ interface core_vars {
         sockets: number;
     };
     data_store: {
+        // list of dashboard UI sockets inspecting web server traffic or docker logs
+        message_inspection: core_message_inspection[];
         // storage of actual web server objects
         server: {
             [key:string]: {
@@ -336,6 +349,7 @@ interface core_vars {
             "file-system": boolean;
             "hash": boolean;
             "interfaces": boolean;
+            "message-inspection": boolean;
             "notes": boolean;
             "os-machine": boolean;
             "ports-application": boolean;

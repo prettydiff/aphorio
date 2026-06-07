@@ -4,6 +4,7 @@ import docker from "../services/docker.ts";
 import fileSystem from "../services/fileSystem.ts";
 import hash from "../services/hash.ts";
 import http_request from "../http/http_requestTest.ts";
+import message_inspection from "../services/message_inspection.ts";
 import notes from "../services/notes.ts";
 import os from "../services/os.ts";
 import ports_application from "../services/ports_application.ts";
@@ -26,6 +27,7 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-fileSystem": fileSystem,
             "dashboard-hash": hash,
             "dashboard-http": http_request,
+            "dashboard-message-inspection": message_inspection.set,
             "dashboard-notes": notes,
             "dashboard-os-all": os,
             "dashboard-os-devs": os,
