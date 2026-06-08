@@ -40,7 +40,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                 error: errorMessage,
                 message: `Error attempting websocket connect from client side on server. ${(config.proxy === null)
                     ? "Socket is not a proxy."
-                    : `Socket is a proxy to ${config.proxy.hash} on server ${config.proxy.server} (${vars.data.servers[config.proxy.server].name}).`}`,
+                    : `Socket is a proxy to ${config.proxy.hash} on server ${config.proxy.server_hash} (${vars.data.servers[config.proxy.server_hash].name}).`}`,
                 origin: config.server,
                 section: (config.type === "test-websocket")
                     ? "test-websocket"

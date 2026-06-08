@@ -37,21 +37,21 @@ const http_connect:http_action = function http_connect(headerList:string[], sock
             direction: "out",
             max_size: 0,
             message: headers.join("\r\n"),
-            service: socket.server,
+            service: socket.server_hash,
             type: "web-server"
         });
     } else {
         create_socket({
             callback: null,
             handler: null,
-            hash: `${socket.server}-connect-${process.hrtime.bigint().toString()}`,
+            hash: `${socket.server_hash}-connect-${process.hrtime.bigint().toString()}`,
             ip: ip,
             port: port,
             headers: [],
             proxy: socket,
             resource: null,
             secure: (socket.encrypted === true),
-            server: socket.server,
+            server: socket.server_hash,
             timeout: null,
             type: "http-proxy"
         });

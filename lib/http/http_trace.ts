@@ -35,7 +35,7 @@ const http_trace = function http_trace(headerList:string[], socket:websocket_cli
         direction: "out",
         max_size: 0,
         message: output.join("\r\n"),
-        service: socket.server,
+        service: socket.server_hash,
         type: "web-server"
     });
 };

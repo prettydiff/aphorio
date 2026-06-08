@@ -17,7 +17,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         method:"GET"|"HEAD" = (index0.indexOf("HEAD") === 0)
             ? "HEAD"
             : "GET",
-        server_id:string = socket.server,
+        server_id:string = socket.server_hash,
         path:string = `${vars.path.servers + server_id + vars.path.sep}assets${vars.path.sep}`,
         resource:string = index0[1],
         asset:string[] = resource.split("/"),
@@ -121,7 +121,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                 direction: "out",
                 max_size: 0,
                 message: payload.toString(),
-                service: socket.server,
+                service: socket.server_hash,
                 type: "web-server"
             });
         },

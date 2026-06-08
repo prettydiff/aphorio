@@ -305,7 +305,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                         const terminate = function transmit_connection_handshake_localService_httpAction_terminate(this:websocket_client):void {
                                             server_halt({
                                                 action: "destroy",
-                                                server: vars.data.servers[this.server]
+                                                server: vars.data.servers[this.server_hash]
                                             }, null);
                                         };
                                         socket.on("close", terminate);
@@ -500,7 +500,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 direction: "in",
                 max_size: 0,
                 message: dataString,
-                service: socket.server,
+                service: socket.server.id,
                 type: "web-server"
             });
 

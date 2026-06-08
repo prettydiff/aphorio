@@ -43,7 +43,7 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
                 : (Buffer.isBuffer(body) === true)
                     ? body.toString()
                     : JSON.stringify(body),
-            service: socketItem.server,
+            service: socketItem.server_hash,
             type: "web-server"
         });
     }
