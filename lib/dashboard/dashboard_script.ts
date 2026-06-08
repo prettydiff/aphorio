@@ -2244,12 +2244,12 @@ const ui = function ui():void {
                         dashboard.sections["message-inspection"].nodes.em.textContent = "";
                         if (value === "Web Server") {
                             populate(dashboard.global.payload.servers);
-                            dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Messages in, last 5000 characters";
-                            dashboard.sections["message-inspection"].nodes.label_out.firstChild.textContent = "Messages out, last 5000 characters ";
+                            dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Messages in" ;
+                            dashboard.sections["message-inspection"].nodes.label_out.firstChild.textContent = "Messages out ";
                             dashboard.sections["message-inspection"].nodes.label_out.parentNode.style.display = "block";
                         } else {
                             populate(dashboard.global.payload.compose.containers);
-                            dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Docker logs, last 5000 characters ";
+                            dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Docker logs ";
                             dashboard.sections["message-inspection"].nodes.label_out.parentNode.style.display = "none";
                         }
                         dashboard.utility.setState();
@@ -2279,13 +2279,14 @@ const ui = function ui():void {
                         )
                     ) {
                         const textarea:HTMLTextAreaElement = dashboard.sections["message-inspection"].nodes[`label_${data.direction}`].getElementsByTagName("textarea")[0],
-                            value:string = textarea.value + data.message,
-                            len:number = value.length;
-                        textarea.value = (len < data.max_size)
-                            ? value
-                            : value.slice(len - data.max_size);
+                            value_total:string = textarea.value + data.message,
+                            len:number = value_total.length,
+                            value:string = (len < data.max_size)
+                                ? value_total
+                                : value_total.slice(len - data.max_size);
+                        textarea.value = value;
+                        dashboard.sections["message-inspection"].nodes.em.textContent = `(${data.count.commas()} characters updated, ${value.length} characteers total)`;
                     }
-                    dashboard.sections["message-inspection"].nodes.em.textContent = `(${data.count.commas()} characters total)`;
                 },
                 tools: {}
             },
