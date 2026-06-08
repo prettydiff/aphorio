@@ -1,4 +1,5 @@
 
+import message_inspection from "../services/message_inspection.ts";
 
 const send = function transmit_send(body:Buffer|socket_data|string, socketItem:websocket_client, opcode:number):void {
     const writeFrame = function transmit_send_writeFrame():void {
@@ -31,6 +32,20 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
         : Buffer.from(stringBody);
     if (socketItem === undefined || socketItem === null) {
         return;
+    }
+    if (opcode !== 3 || (opcode === 3 && socketData.service !== "dashboard-message-inspection")) {
+        message_inspection.send({
+            count: 0,
+            direction: "out",
+            max_size: 0,
+            message: (typeof body === "string")
+                ? body
+                : (Buffer.isBuffer(body) === true)
+                    ? body.toString()
+                    : JSON.stringify(body),
+            service: socketItem.server,
+            type: "web-server"
+        });
     }
     // OPCODES
     // ## Messages

@@ -1,4 +1,6 @@
 
+import message_inspection from "../services/message_inspection.ts";
+import node from "../core/node.ts";
 import send from "./send.ts";
 
 const receiver = function transmit_receiver(this:websocket_client, buf:Buffer):void {
@@ -169,6 +171,14 @@ const receiver = function transmit_receiver(this:websocket_client, buf:Buffer):v
                 }
             } else {
                 socket.handler(socket, payload, frame);
+                message_inspection.send({
+                    count: 0,
+                    direction: "in",
+                    max_size: 0,
+                    message: new node.stringDecoder.StringDecoder("utf8").end(payload),
+                    service: socket.server,
+                    type: "web-server"
+                });
             }
         };
     let recursion:boolean = false;

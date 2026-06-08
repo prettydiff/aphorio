@@ -8,8 +8,8 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
         close: function core_spawn_close():void {
             if (callback !== null) {
                 callback({
-                    stderr: item.stderr.join(""),
-                    stdout: item.stdout.join(""),
+                    stderr: item.store_stderr.join(""),
+                    stdout: item.store_stdout.join(""),
                     type: item.type
                 });
             }
@@ -18,10 +18,10 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
         },
         command: command,
         data_stderr: function core_spawn_stderr(buf:Buffer):void {
-            item.stderr.push(buf.toString());
+            item.store_stderr.push(buf.toString());
         },
         data_stdout: function core_spawn_stdout(buf:Buffer):void {
-            item.stdout.push(buf.toString());
+            item.store_stdout.push(buf.toString());
         },
         error: function core_spawn_error(err:node_childProcess_ExecException):void {
             item.spawn.off("close", item.close);
@@ -53,8 +53,12 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
                 windowsHide: true
             });
             spawn.on("close", item.close);
-            spawn.stderr.on("data", item.data_stderr);
-            spawn.stdout.on("data", item.data_stdout);
+            if (options === undefined || (options !== undefined && options.stream_stderr !== true)) {
+                spawn.stderr.on("data", item.data_stderr);
+            }
+            if (options === undefined || (options !== undefined && options.stream_stdout !== true)) {
+                spawn.stdout.on("data", item.data_stdout);
+            }
             spawn.on("error", item.error
             );
             if (options !== undefined && options !== null && typeof options.type === "string") {
@@ -64,8 +68,8 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
             vars.stats.children = vars.stats.children + 1;
         },
         spawn: null,
-        stderr: [],
-        stdout: [],
+        store_stderr: [],
+        store_stdout: [],
         type: ""
     };
     return item;

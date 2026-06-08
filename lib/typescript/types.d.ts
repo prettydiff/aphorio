@@ -6,7 +6,7 @@ type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentE
 type type_certKey = "ca" | "crt" | "key";
 type type_dashboard_action = type_halt_action | "activate" | "add" | "update";
 type type_dashboard_list = "container" | "server";
-type type_dashboard_init = "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "notes" | "os-machine" | "servers-web" | "statistics-resources" | "terminal" | "test-http" | "test-websocket" | "udp-socket";
+type type_dashboard_init = "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "message-inspection" | "notes" | "os-machine" | "servers-web" | "statistics-resources" | "terminal" | "test-http" | "test-websocket" | "udp-socket";
 type type_dashboard_features = type_dashboard_init | type_dashboard_tables;
 type type_dashboard_sections = type_dashboard_features | "faq" | "help";
 type type_dashboard_status = "error" | "informational";
@@ -59,6 +59,7 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 // * dashboard-hash                - services_hash                - hash and base64 computational output
 // * dashboard-http                - services_http_test           - response messaging for an HTTP test request
 // * dashboard-log                 - services_log                 - a log entry
+// * dashboard-message-inspection  - services_message_inspection  - view data passing to/from a web server or docker logs for a named container
 // * dashboard-notes               - store_string                 - sends an updated notes value from UI for storage
 // * dashboard-os-all              - services_os_all              - all the information regarding machine, application, process, and more
 // * dashboard-os-devs             - services_os_devs             - only the device portion of dashboard-os-all
@@ -84,12 +85,13 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 // * dashboard-websocket-message   - services_websocket_message   - parses the header of a WebSocket message frame header sufficient to respond to the message on a test socket
 // * dashboard-websocket-status    - services_websocket_status    - sends connection establishment details for a test socket
 // * test-browser                  - services_test_browser        - test automation messaging to the browser
-type type_service = "dashboard-compose-container" | "dashboard-compose-out" | "dashboard-compose-variables" | "dashboard-compose" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-log" | "dashboard-notes" | "dashboard-os-all" | "dashboard-os-devs" | "dashboard-os-disk" | "dashboard-os-intr" | "dashboard-os-main" |
-    "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-stcp" | "dashboard-os-sudp" | "dashboard-os-user" | "dashboard-ports-application" | "dashboard-server-action" | "dashboard-server-update" | "dashboard-socket-application" | "dashboard-statistics-change" | "dashboard-statistics-data" | "dashboard-status-clock" | "dashboard-terminal-resize" |
-    "dashboard-udp-socket"| "dashboard-udp-status" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
+type type_service = "dashboard-compose-container" | "dashboard-compose-out" | "dashboard-compose-variables" | "dashboard-compose" | "dashboard-dns" | "dashboard-fileSystem" | "dashboard-hash" | "dashboard-http" | "dashboard-log" | "dashboard-message-inspection" | "dashboard-notes" | "dashboard-os-all" | "dashboard-os-devs" | "dashboard-os-disk" |
+    "dashboard-os-intr" | "dashboard-os-main" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-stcp" | "dashboard-os-sudp" | "dashboard-os-user" | "dashboard-ports-application" | "dashboard-server-action" | "dashboard-server-update" | "dashboard-socket-application" | "dashboard-statistics-change" | "dashboard-statistics-data" |
+    "dashboard-status-clock" | "dashboard-terminal-resize" | "dashboard-udp-socket"| "dashboard-udp-status" | "dashboard-websocket-handshake" | "dashboard-websocket-message" | "dashboard-websocket-status" | "test-browser";
 
-type type_socket_data = config_log | core_server_os | services_compose | services_compose_container | services_dns_input | services_dns_output | services_dns_reverse | services_fileSystem | services_hash | services_http_test | services_log | services_os_disk | services_os_intr | services_ports_application | services_server_action | services_server_update |
-    services_socket_application | services_statistics_change | services_statistics_data | services_status_clock |services_terminal_resize | services_testBrowser | services_udp_socket | services_websocket_handshake | services_websocket_message | services_websocket_status | store_servers | store_string | string[] | transmit_dashboard | type_list_services;
+type type_socket_data = config_log | core_server_os | services_compose | services_compose_container | services_dns_input | services_dns_output | services_dns_reverse | services_fileSystem | services_hash | services_http_test | services_log | services_message_inspection | services_os_disk | services_os_intr | services_ports_application |
+    services_server_action | services_server_update | services_socket_application | services_statistics_change | services_statistics_data | services_status_clock |services_terminal_resize | services_testBrowser | services_udp_socket | services_websocket_handshake | services_websocket_message | services_websocket_status | store_servers |
+    store_string | string[] | transmit_dashboard | type_list_services;
 
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_start_pre_tasks = "admin" | "compose" | "os_main";

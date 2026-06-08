@@ -274,6 +274,7 @@ const ui = function ui():void {
                                 encryption: true,
                                 request: ""
                             },
+                            messageInspection: "servers-web",
                             nav: "servers-web",
                             table_os: {},
                             tables: {},
@@ -324,6 +325,7 @@ const ui = function ui():void {
                     init("file-system", false);
                     init("hash", false);
                     init("interfaces", false);
+                    init("message-inspection", false);
                     init("notes", false);
                     init("os-machine", false);
                     init("ports-application", true);
@@ -372,6 +374,9 @@ const ui = function ui():void {
                         "dashboard-log": (dashboard.sections["application-logs"] === undefined)
                             ? null
                             : dashboard.sections["application-logs"].receive,
+                        "dashboard-message-inspection": (dashboard.sections["message-inspection"] === undefined)
+                            ? null
+                            : dashboard.sections["message-inspection"].receive,
                         "dashboard-os-devs": (dashboard.sections["devices"] === undefined)
                             ? null
                             : dashboard.tables.receive,
@@ -2189,6 +2194,105 @@ const ui = function ui():void {
                 tools: null
             },
             // interfaces end
+            // message-inspection start
+            "message-inspection": {
+                events: {
+                    service: function dashboard_sections_messageInspection_service():void {
+                        const value_service:string = dashboard.sections["message-inspection"].nodes.service[dashboard.sections["message-inspection"].nodes.service.selectedIndex].textContent,
+                            value_type:string = dashboard.sections["message-inspection"].nodes.type[dashboard.sections["message-inspection"].nodes.type.selectedIndex].textContent,
+                            payload:services_message_inspection = {
+                                count: 0,
+                                direction: "in",
+                                max_size: 0,
+                                message: "",
+                                service: (value_service === "")
+                                    ? ""
+                                    : value_service.split(" - ")[1],
+                                type: (value_type === "Web Server")
+                                    ? "web-server"
+                                    : "docker-container"
+                            };
+                        if (value_service !== "") {
+                            dashboard.sections["message-inspection"].nodes.label_in.getElementsByTagName("textarea")[0].value = "";
+                            dashboard.sections["message-inspection"].nodes.label_out.getElementsByTagName("textarea")[0].value = "";
+                        }
+                        dashboard.sections["message-inspection"].nodes.em.textContent = "";
+                        dashboard.message.send(payload, "dashboard-message-inspection");
+                    },
+                    type: function dashboard_sections_messageInspection_type():void {
+                        const value:string = dashboard.sections["message-inspection"].nodes.type[dashboard.sections["message-inspection"].nodes.type.selectedIndex].textContent,
+                            populate = function dashboard_sections_messageInspection_type_populate(list:store_compose|store_servers, type:"docker-container"|"web-server"):void {
+                                const keys:string[] = Object.keys(list),
+                                    len:number = keys.length;
+                                let option:HTMLElement = document.createElement("option"),
+                                    index:number = 0;
+                                option.textContent = "";
+                                dashboard.sections["message-inspection"].nodes.service.appendChild(option);
+                                if (len > 0) {
+                                    keys.sort();
+                                    do {
+                                        if (type === "web-server" || (type === "docker-container" && (list[keys[index]] as core_compose_container).state === "running")) {
+                                            option = document.createElement("option");
+                                            option.textContent = `${list[keys[index]].name} - ${keys[index]}`;
+                                            dashboard.sections["message-inspection"].nodes.service.appendChild(option);
+                                        }
+                                        index = index + 1;
+                                    } while (index < len);
+                                }
+                            };
+                        dashboard.sections["message-inspection"].nodes.service.textContent = "";
+                        dashboard.sections["message-inspection"].nodes.label_in.getElementsByTagName("textarea")[0].value = "";
+                        dashboard.sections["message-inspection"].nodes.label_out.getElementsByTagName("textarea")[0].value = "";
+                        dashboard.sections["message-inspection"].nodes.em.textContent = "";
+                        if (value === "Web Server") {
+                            populate(dashboard.global.payload.servers, "web-server");
+                            dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Messages in" ;
+                            dashboard.sections["message-inspection"].nodes.label_out.firstChild.textContent = "Messages out ";
+                            dashboard.sections["message-inspection"].nodes.label_out.parentNode.style.display = "block";
+                        } else {
+                            populate(dashboard.global.payload.compose.containers, "docker-container");
+                            dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Docker logs ";
+                            dashboard.sections["message-inspection"].nodes.label_out.parentNode.style.display = "none";
+                        }
+                        dashboard.utility.setState();
+                    }
+                },
+                init: function dashboard_section_messageInspection():void {
+                    if (dashboard.global.state.messageInspection === "docker-container") {
+                        dashboard.sections["message-inspection"].nodes.type.selectedIndex = 1;
+                    }
+                    dashboard.sections["message-inspection"].nodes.service.onchange = dashboard.sections["message-inspection"].events.service;
+                    dashboard.sections["message-inspection"].nodes.type.onchange = dashboard.sections["message-inspection"].events.type;
+                    dashboard.sections["message-inspection"].events.type();
+                },
+                nodes: {
+                    em: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[0].getElementsByTagName("em")[0],
+                    label_in: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[0],
+                    label_out: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[1],
+                    service: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("select")[1] as HTMLSelectElement,
+                    type: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("select")[0] as HTMLSelectElement
+                },
+                receive: function dashboard_services_messageInspection_receive(socket_data:socket_data):void {
+                    const data:services_message_inspection = socket_data.data as services_message_inspection;
+                    if (
+                        data.service === dashboard.sections["message-inspection"].nodes.service.value.split(" - ")[1] && (
+                            (data.type === "web-server" && dashboard.sections["message-inspection"].nodes.type.value === "Web Server") ||
+                            (data.type === "docker-container" && dashboard.sections["message-inspection"].nodes.type.value === "Docker Container")
+                        )
+                    ) {
+                        const textarea:HTMLTextAreaElement = dashboard.sections["message-inspection"].nodes[`label_${data.direction}`].getElementsByTagName("textarea")[0],
+                            value_total:string = textarea.value + data.message,
+                            len:number = value_total.length,
+                            value:string = (len < data.max_size)
+                                ? value_total
+                                : value_total.slice(len - data.max_size);
+                        textarea.value = value;
+                        dashboard.sections["message-inspection"].nodes.em.textContent = `(${data.count.commas()} characters updated, ${value.length.commas()} characteers total)`;
+                    }
+                },
+                tools: {}
+            },
+            // message-inspection end
             // notes start
             "notes": {
                 events: {
@@ -2397,8 +2501,8 @@ const ui = function ui():void {
                         };
                     return nodeList;
                 }()),
-                receive: function dashboard_sections_osMachine_receive(data_item:socket_data):void {
-                    const data:core_server_os = data_item.data as core_server_os;
+                receive: function dashboard_sections_osMachine_receive(socket_data:socket_data):void {
+                    const data:core_server_os = socket_data.data as core_server_os;
                     dashboard.sections["os-machine"].nodes_os.update_text.textContent = data.time.dateTime(true, dashboard.global.payload.timeZone_offset);
                     dashboard.global.payload.os.machine.memory = data.machine.memory;
                     dashboard.global.payload.os.os.uptime = data.os.uptime;
@@ -5514,6 +5618,11 @@ const ui = function ui():void {
                                 : "hex";
                             dashboard.global.state.hash.source = dashboard.sections["hash"].nodes.source.value;
                         }
+                    }
+                    if (dashboard.sections["message-inspection"] !== undefined) {
+                        dashboard.global.state.messageInspection = (dashboard.sections["message-inspection"].nodes.type[dashboard.sections["message-inspection"].nodes.type.selectedIndex].textContent === "Web Server")
+                            ? "servers-web"
+                            : "docker-container";
                     }
                     if (dashboard.sections["statistics-resources"] !== undefined) {
                         dashboard.global.state.graph_display = dashboard.sections["statistics-resources"].nodes.graph_display.selectedIndex;

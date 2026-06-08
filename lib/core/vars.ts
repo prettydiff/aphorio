@@ -74,6 +74,8 @@ const vars:core_vars = {
         },
         // storage of service objects that are not associated with dashboard service messaging
         data_store: {
+            // list of dashboard UI sockets inspecting web server traffic or docker logs
+            message_inspection: [],
             // the actual web server objects and their actual socket objects
             server: {},
             // server certificates
@@ -108,6 +110,7 @@ const vars:core_vars = {
                 "file-system": true,
                 "hash": true,
                 "interfaces": true,
+                "message-inspection": true,
                 "notes": true,
                 "os-machine": true,
                 "ports-application": true,

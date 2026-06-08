@@ -145,6 +145,15 @@ interface services_log {
     total: number;
 }
 
+interface services_message_inspection {
+    count: number;
+    direction: "in" | "out";
+    max_size: number;
+    message: string;
+    service: string;
+    type: "docker-container" | "web-server";
+}
+
 interface services_os_devs {
     data: os_devs[];
     time: number;

@@ -92,6 +92,14 @@ interface core_hash_output {
     size: number;
 }
 
+interface core_message_inspection {
+    service: string;
+    socket: websocket_client;
+    spawn: core_module_spawn;
+    stdout: (out:Buffer) => void;
+    type: "" | "docker-container" | "web-server";
+}
+
 interface core_module_docker {
     commands: core_compose_commands;
     list: (callback:() => void) => void;
@@ -115,6 +123,12 @@ interface core_module_log {
     shell: (input:string[], summary?:boolean) => void;
 }
 
+interface core_module_messageInspection {
+    max_size: number;
+    send: (data:services_message_inspection) => void;
+    set: receiver;
+}
+
 interface core_module_spawn {
     close: () => void;
     command: string;
@@ -123,8 +137,8 @@ interface core_module_spawn {
     error: (err:node_childProcess_ExecException) => void;
     execute: () => void;
     spawn: node_childProcess_ChildProcess;
-    stderr: string[];
-    stdout: string[];
+    store_stderr: string[];
+    store_stdout: string[];
     type: string;
 }
 
@@ -252,6 +266,8 @@ interface core_spawn_options {
     env?: store_string;
     error?: (err:node_childProcess_ExecException) => void;
     shell?: string;
+    stream_stderr?: boolean;
+    stream_stdout?: boolean;
     type?: string;
 }
 
@@ -293,6 +309,8 @@ interface core_vars {
         sockets: number;
     };
     data_store: {
+        // list of dashboard UI sockets inspecting web server traffic or docker logs
+        message_inspection: core_message_inspection[];
         // storage of actual web server objects
         server: {
             [key:string]: {
@@ -336,6 +354,7 @@ interface core_vars {
             "file-system": boolean;
             "hash": boolean;
             "interfaces": boolean;
+            "message-inspection": boolean;
             "notes": boolean;
             "os-machine": boolean;
             "ports-application": boolean;
