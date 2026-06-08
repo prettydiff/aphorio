@@ -4,13 +4,15 @@ import vars from "../core/vars.ts";
 
 
 const message_inspection:core_module_messageInspection = {
+    max_size: 500000,
     send: function services_messageInspection_send(data:services_message_inspection):void {
         let index_messages:number = vars.data_store.message_inspection.length,
             len:number = data.message.length;
         data.count = len;
-        data.message = (len < 5000)
+        data.max_size = message_inspection.max_size;
+        data.message = (len < message_inspection.max_size)
             ? data.message
-            : data.message.slice(len - 5000);
+            : data.message.slice(len - message_inspection.max_size);
         if (index_messages > 0) {
             do {
                 index_messages = index_messages - 1;
@@ -38,7 +40,7 @@ const message_inspection:core_module_messageInspection = {
             },
             docker_start = function services_messageInspection_set_dockerStart():void {
                 if (data.type === "docker-container") {
-                    const command:string = `docker logs ${data.service} --follow`,
+                    const command:string = `docker logs ${data.service} --follow -n 5000`,
                         child:core_module_spawn = spawn(command, null, {
                             stream_stderr: true,
                             stream_stdout: true,
@@ -50,9 +52,10 @@ const message_inspection:core_module_messageInspection = {
                                 message:services_message_inspection = {
                                     count: len,
                                     direction: "in",
-                                    message: (len < 5000)
+                                    max_size: message_inspection.max_size,
+                                    message: (len < message_inspection.max_size)
                                         ? str
-                                        : str.slice(len - 5000),
+                                        : str.slice(len - message_inspection.max_size),
                                     service: data.service,
                                     type: "docker-container"
                                 };

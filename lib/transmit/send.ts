@@ -37,6 +37,7 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
         message_inspection.send({
             count: 0,
             direction: "out",
+            max_size: 0,
             message: (typeof body === "string")
                 ? body
                 : (Buffer.isBuffer(body) === true)

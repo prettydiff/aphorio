@@ -148,6 +148,7 @@ interface services_log {
 interface services_message_inspection {
     count: number;
     direction: "in" | "out";
+    max_size: number;
     message: string;
     service: string;
     type: "docker-container" | "web-server";

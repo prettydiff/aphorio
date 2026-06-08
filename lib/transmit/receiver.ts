@@ -174,6 +174,7 @@ const receiver = function transmit_receiver(this:websocket_client, buf:Buffer):v
                 message_inspection.send({
                     count: 0,
                     direction: "in",
+                    max_size: 0,
                     message: new node.stringDecoder.StringDecoder("utf8").end(payload),
                     service: socket.server,
                     type: "web-server"

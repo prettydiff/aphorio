@@ -2203,6 +2203,7 @@ const ui = function ui():void {
                             payload:services_message_inspection = {
                                 count: 0,
                                 direction: "in",
+                                max_size: 0,
                                 message: "",
                                 service: (value_service === "")
                                     ? ""
@@ -2280,9 +2281,9 @@ const ui = function ui():void {
                         const textarea:HTMLTextAreaElement = dashboard.sections["message-inspection"].nodes[`label_${data.direction}`].getElementsByTagName("textarea")[0],
                             value:string = textarea.value + data.message,
                             len:number = value.length;
-                        textarea.value = (len < 5000)
+                        textarea.value = (len < data.max_size)
                             ? value
-                            : value.slice(len - 5000);
+                            : value.slice(len - data.max_size);
                     }
                     dashboard.sections["message-inspection"].nodes.em.textContent = `(${data.count.commas()} characters total)`;
                 },

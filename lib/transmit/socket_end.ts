@@ -51,7 +51,9 @@ const socket_end = function transmit_socketEnd(this:websocket_client, error:node
 
     if (vars.data.servers[socket.server].id === vars.environment.dashboard_id && socket.type === "dashboard") {
         const payload:services_message_inspection = {
+            count: 0,
             direction: "in",
+            max_size: 0,
             message: "",
             service: "",
             type: "web-server"

@@ -124,6 +124,7 @@ interface core_module_log {
 }
 
 interface core_module_messageInspection {
+    max_size: number;
     send: (data:services_message_inspection) => void;
     set: receiver;
 }
