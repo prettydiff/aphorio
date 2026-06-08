@@ -2221,7 +2221,7 @@ const ui = function ui():void {
                     },
                     type: function dashboard_sections_messageInspection_type():void {
                         const value:string = dashboard.sections["message-inspection"].nodes.type[dashboard.sections["message-inspection"].nodes.type.selectedIndex].textContent,
-                            populate = function dashboard_sections_messageInspection_type_populate(list:store_compose|store_servers):void {
+                            populate = function dashboard_sections_messageInspection_type_populate(list:store_compose|store_servers, type:"docker-container"|"web-server"):void {
                                 const keys:string[] = Object.keys(list),
                                     len:number = keys.length;
                                 let option:HTMLElement = document.createElement("option"),
@@ -2231,9 +2231,11 @@ const ui = function ui():void {
                                 if (len > 0) {
                                     keys.sort();
                                     do {
-                                        option = document.createElement("option");
-                                        option.textContent = `${list[keys[index]].name} - ${keys[index]}`;
-                                        dashboard.sections["message-inspection"].nodes.service.appendChild(option);
+                                        if (type === "web-server" || (type === "docker-container" && (list[keys[index]] as core_compose_container).state === "running")) {
+                                            option = document.createElement("option");
+                                            option.textContent = `${list[keys[index]].name} - ${keys[index]}`;
+                                            dashboard.sections["message-inspection"].nodes.service.appendChild(option);
+                                        }
                                         index = index + 1;
                                     } while (index < len);
                                 }
@@ -2243,12 +2245,12 @@ const ui = function ui():void {
                         dashboard.sections["message-inspection"].nodes.label_out.getElementsByTagName("textarea")[0].value = "";
                         dashboard.sections["message-inspection"].nodes.em.textContent = "";
                         if (value === "Web Server") {
-                            populate(dashboard.global.payload.servers);
+                            populate(dashboard.global.payload.servers, "web-server");
                             dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Messages in" ;
                             dashboard.sections["message-inspection"].nodes.label_out.firstChild.textContent = "Messages out ";
                             dashboard.sections["message-inspection"].nodes.label_out.parentNode.style.display = "block";
                         } else {
-                            populate(dashboard.global.payload.compose.containers);
+                            populate(dashboard.global.payload.compose.containers, "docker-container");
                             dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Docker logs ";
                             dashboard.sections["message-inspection"].nodes.label_out.parentNode.style.display = "none";
                         }
@@ -2285,7 +2287,7 @@ const ui = function ui():void {
                                 ? value_total
                                 : value_total.slice(len - data.max_size);
                         textarea.value = value;
-                        dashboard.sections["message-inspection"].nodes.em.textContent = `(${data.count.commas()} characters updated, ${value.length} characteers total)`;
+                        dashboard.sections["message-inspection"].nodes.em.textContent = `(${data.count.commas()} characters updated, ${value.length.commas()} characteers total)`;
                     }
                 },
                 tools: {}
