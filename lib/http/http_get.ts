@@ -47,7 +47,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     `HTTP/1.1 ${statusText}`,
                     `content-type: ${config.content_type}`,
                     "",
-                    `server: ${vars.environment.name}`,
+                    `server: prettydiff/${vars.environment.name}`,
                     "accept-ranges: bytes",
                     "",
                     ""
@@ -84,7 +84,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         `<h1>${name}</h1>`,
                         (config.status === 200)
                             ? ""
-                            : `<h2>${config.status}</h2>`
+                            : `<h2>${config.status}</h2>`,
+                        ""
                     ],
                     script:string = (config.script === null)
                         ? null
@@ -92,9 +93,15 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             ? `(${config.script.toString().replace(/\(\s*\)/, "(core)")}(${core.toString()}));`
                             : `(${config.script.toString()}());`,
                     templateEnd:string[] = (config.script === null)
-                        ? ["</body></html"]
+                        ? [
+                            "",
+                            "</body></html>",
+                            ""
+                        ]
                         : [
-                            `<script type="application/javascript">${script}</script></body></html>`
+                            "",
+                            `<script type="application/javascript">${script}</script></body></html>`,
+                            ""
                         ],
                     bodyText:string = templateText.join("\r\n") + config.content.join("\r\n") + templateEnd.join("\r\n");
                     headerText[2] = `content-length: ${Buffer.byteLength(bodyText)}`;

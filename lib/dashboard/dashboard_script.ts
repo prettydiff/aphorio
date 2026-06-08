@@ -2216,7 +2216,8 @@ const ui = function ui():void {
                             dashboard.sections["message-inspection"].nodes.label_in.getElementsByTagName("textarea")[0].value = "";
                             dashboard.sections["message-inspection"].nodes.label_out.getElementsByTagName("textarea")[0].value = "";
                         }
-                        dashboard.sections["message-inspection"].nodes.em.textContent = "";
+                        dashboard.sections["message-inspection"].nodes.em_in.textContent = "";
+                        dashboard.sections["message-inspection"].nodes.em_out.textContent = "";
                         dashboard.message.send(payload, "dashboard-message-inspection");
                     },
                     type: function dashboard_sections_messageInspection_type():void {
@@ -2243,16 +2244,17 @@ const ui = function ui():void {
                         dashboard.sections["message-inspection"].nodes.service.textContent = "";
                         dashboard.sections["message-inspection"].nodes.label_in.getElementsByTagName("textarea")[0].value = "";
                         dashboard.sections["message-inspection"].nodes.label_out.getElementsByTagName("textarea")[0].value = "";
-                        dashboard.sections["message-inspection"].nodes.em.textContent = "";
+                        dashboard.sections["message-inspection"].nodes.em_in.textContent = "";
+                        dashboard.sections["message-inspection"].nodes.em_out.textContent = "";
                         if (value === "Web Server") {
                             populate(dashboard.global.payload.servers, "web-server");
+                            dashboard.sections["message-inspection"].nodes.label_in.parentNode.style.display = "block";
                             dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Messages in" ;
                             dashboard.sections["message-inspection"].nodes.label_out.firstChild.textContent = "Messages out ";
-                            dashboard.sections["message-inspection"].nodes.label_out.parentNode.style.display = "block";
                         } else {
                             populate(dashboard.global.payload.compose.containers, "docker-container");
-                            dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Docker logs ";
-                            dashboard.sections["message-inspection"].nodes.label_out.parentNode.style.display = "none";
+                            dashboard.sections["message-inspection"].nodes.label_in.parentNode.style.display = "none";
+                            dashboard.sections["message-inspection"].nodes.label_out.firstChild.textContent = "Docker logs ";
                         }
                         dashboard.utility.setState();
                     }
@@ -2266,7 +2268,8 @@ const ui = function ui():void {
                     dashboard.sections["message-inspection"].events.type();
                 },
                 nodes: {
-                    em: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[0].getElementsByTagName("em")[0],
+                    em_in: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[0].getElementsByTagName("em")[0],
+                    em_out: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[1].getElementsByTagName("em")[0],
                     label_in: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[0],
                     label_out: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[1],
                     service: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("select")[1] as HTMLSelectElement,
@@ -2287,7 +2290,7 @@ const ui = function ui():void {
                                 ? value_total
                                 : value_total.slice(len - data.max_size);
                         textarea.value = value;
-                        dashboard.sections["message-inspection"].nodes.em.textContent = `(${data.count.commas()} characters updated, ${value.length.commas()} characteers total)`;
+                        dashboard.sections["message-inspection"].nodes[`em_${data.direction}`].textContent = `(${data.count.commas()} characters updated, ${value.length.commas()} characteers total)`;
                     }
                 },
                 tools: {}
