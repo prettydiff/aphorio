@@ -1,4 +1,5 @@
 
+import message_inspection from "../services/message_inspection.ts";
 
 const http_options = function http_trace(headerList:string[], socket:websocket_client):void {
     const options:string[] = ["GET", "CONNECT", "OPTIONS", "TRACE"],
@@ -12,6 +13,14 @@ const http_options = function http_trace(headerList:string[], socket:websocket_c
         ];
     socket.write(output.join("\r\n"));
     socket.destroySoon();
+    message_inspection.send({
+        count: 0,
+        direction: "out",
+        max_size: 0,
+        message: output.join("\r\n"),
+        service: socket.server_hash,
+        type: "web-server"
+    });
 };
 
 export default http_options;

@@ -16,7 +16,7 @@ const socket_end = function transmit_socketEnd(this:websocket_client, error:node
         payload_log:config_log = {
             error: error,
             message: `Socket type ${socket.type} with id ${socket.hash} from ${address_local} to ${address_remote} ended.`,
-            origin: socket.server,
+            origin: socket.server_hash,
             section: "sockets-application-tcp",
             status: "error",
             time: Date.now()
@@ -24,14 +24,14 @@ const socket_end = function transmit_socketEnd(this:websocket_client, error:node
         encryption:"open"|"secure" = (socket.encrypted === true)
             ? "secure"
             : "open";
-    let index:number = vars.data_store.sockets_tcp[socket.server][encryption].length;
+    let index:number = vars.data_store.sockets_tcp[socket.server_hash][encryption].length;
 
     // remove actual socket object from storage
     if (index > 0) {
         do {
             index = index - 1;
-            if (vars.data_store.sockets_tcp[socket.server][encryption][index].hash === socket.hash) {
-                vars.data_store.sockets_tcp[socket.server][encryption].splice(index, 1);
+            if (vars.data_store.sockets_tcp[socket.server_hash][encryption][index].hash === socket.hash) {
+                vars.data_store.sockets_tcp[socket.server_hash][encryption].splice(index, 1);
                 break;
             }
         } while (index > 0);
@@ -49,7 +49,7 @@ const socket_end = function transmit_socketEnd(this:websocket_client, error:node
         } while (index > 0);
     }
 
-    if (vars.data.servers[socket.server].id === vars.environment.dashboard_id && socket.type === "dashboard") {
+    if (vars.data.servers[socket.server_hash].id === vars.environment.dashboard_id && socket.type === "dashboard") {
         const payload:services_message_inspection = {
             count: 0,
             direction: "in",

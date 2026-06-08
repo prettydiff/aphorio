@@ -5,6 +5,7 @@ import core from "../browser/core.ts";
 import directory from "../utilities/directory.ts";
 import file from "../utilities/file.ts";
 import file_list from "../browser/file_list.ts";
+import message_inspection from "../services/message_inspection.ts";
 import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
@@ -16,7 +17,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         method:"GET"|"HEAD" = (index0.indexOf("HEAD") === 0)
             ? "HEAD"
             : "GET",
-        server_id:string = socket.server,
+        server_id:string = socket.server_hash,
         path:string = `${vars.path.servers + server_id + vars.path.sep}assets${vars.path.sep}`,
         resource:string = index0[1],
         asset:string[] = resource.split("/"),
@@ -46,7 +47,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     `HTTP/1.1 ${statusText}`,
                     `content-type: ${config.content_type}`,
                     "",
-                    `server: ${vars.environment.name}`,
+                    `server: prettydiff/${vars.environment.name}`,
                     "accept-ranges: bytes",
                     "",
                     ""
@@ -83,7 +84,8 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                         `<h1>${name}</h1>`,
                         (config.status === 200)
                             ? ""
-                            : `<h2>${config.status}</h2>`
+                            : `<h2>${config.status}</h2>`,
+                        ""
                     ],
                     script:string = (config.script === null)
                         ? null
@@ -91,9 +93,15 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             ? `(${config.script.toString().replace(/\(\s*\)/, "(core)")}(${core.toString()}));`
                             : `(${config.script.toString()}());`,
                     templateEnd:string[] = (config.script === null)
-                        ? ["</body></html"]
+                        ? [
+                            "",
+                            "</body></html>",
+                            ""
+                        ]
                         : [
-                            `<script type="application/javascript">${script}</script></body></html>`
+                            "",
+                            `<script type="application/javascript">${script}</script></body></html>`,
+                            ""
                         ],
                     bodyText:string = templateText.join("\r\n") + config.content.join("\r\n") + templateEnd.join("\r\n");
                     headerText[2] = `content-length: ${Buffer.byteLength(bodyText)}`;
@@ -102,10 +110,20 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             headerText[2] = `content-length: ${Buffer.byteLength(bodyText)}`;
             return payload(headerText, bodyText);
         },
-        write = function http_get_write(payload:Buffer|string):void {
+        write = function http_get_write(payload:Buffer|string, final:boolean):void {
             // this if condition and the following "else" block are critical for ensuring response messages are delivered completely and the sockets are closed appropriately.
             socket.write(payload);
-            socket.destroySoon();
+            if (final === true) {
+                socket.destroySoon();
+            }
+            message_inspection.send({
+                count: 0,
+                direction: "out",
+                max_size: 0,
+                message: payload.toString(),
+                service: socket.server_hash,
+                type: "web-server"
+            });
         },
         notFound = function http_get_notFound():void {
             write(html({
@@ -116,7 +134,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                 script: null,
                 status: 404,
                 template: true
-            }));
+            }), true);
         },
         stat = function http_get_stat(input:string):void {
             const statTest = function http_get_stat_statTest(stat:node_fs_BigIntStats):void {
@@ -187,7 +205,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                         status: 200,
                                         template: true,
                                         script: file_list
-                                    }));
+                                    }), true);
                                 };
                                 directory({
                                     callback: callback,
@@ -216,7 +234,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                 ""
                             ];
                             if (method === "HEAD") {
-                                write(headerText.join("\r\n"));
+                                write(headerText.join("\r\n"), true);
                             } else {
                                 let range:string = "";
                                 const status:string = (function http_get_stat_statTest_fileItem_partial():string {
@@ -243,7 +261,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                     if (empty === true) {
                                         headerText[0] = "HTTP/1.1 200";
                                         headerText[2] = "content-length: 0";
-                                        socket.write(headerText.join("\r\n"));
+                                        write(headerText.join("\r\n"), true);
                                     } else {
                                         const stream:node_fs_ReadStream = node.fs.createReadStream(input, {
                                             end: end,
@@ -256,7 +274,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                         } else {
                                             headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
                                         }
-                                        socket.write(headerText.join("\r\n"));
+                                        write(headerText.join("\r\n"), false);
                                         stream.pipe(socket);
                                         stream.on("close", function http_get_statTest_fileItem_close():void {
                                             socket.destroySoon();
@@ -267,14 +285,11 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                     headerText[0] = status;
                                     headerText[2] = "transfer-encoding: chunked";
                                     stream.on("close", function http_get_stat_statTest_fileItem_close():void {
-                                        write("0\r\n\r\n");
-                                        socket.destroySoon();
+                                        write("0\r\n\r\n", true);
                                     });
-                                    socket.write(headerText.join("\r\n"));
+                                    write(headerText.join("\r\n"), false);
                                     stream.on("data", function http_get_stat_statTest_fileItem_data(chunk:Buffer|string):void {
-                                        socket.write(`${Buffer.byteLength(chunk).toString(16)}\r\n`);
-                                        socket.write(chunk);
-                                        socket.write("\r\n");
+                                        write(`${Buffer.byteLength(chunk).toString(16)}\r\n${chunk}\r\n`, false);
                                     });
                                 }
                         }
@@ -436,9 +451,9 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     ""
                 ];
             if (method === "GET") {
-                write(headers.join("\r\n") + dashboard);
+                write(headers.join("\r\n") + dashboard, true);
             } else if (method === "HEAD") {
-                write(headers.join("\r\n"));
+                write(headers.join("\r\n"), true);
             }
             return;
         }
@@ -450,7 +465,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             "accept-ranges: bytes",
             "",
             ""
-        ].join("\r\n"));
+        ].join("\r\n"), true);
     } else if (fileFragment === "") {
         // server root html file takes the name of the server, not index.html
         stat(`${path}index.html`);

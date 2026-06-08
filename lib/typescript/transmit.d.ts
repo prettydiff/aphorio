@@ -136,7 +136,8 @@ interface websocket_client extends node_tls_TLSSocket {
     queue: Buffer[];
     role: "client"|"server";
     secure: boolean;
-    server: string;
+    server: core_server_instance;
+    server_hash: string;
     status: type_socket_status;
     time: number;
     type: string;

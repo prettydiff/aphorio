@@ -33,7 +33,7 @@ const terminal:services_terminal = {
                 cols: config.cols,
                 cwd: vars.path.project,
                 env: process.env,
-                name: socket.server,
+                name: socket.server_hash,
                 rows: config.rows
             }),
             close = function services_terminalShell_close():void {
@@ -61,7 +61,7 @@ const terminal:services_terminal = {
                 pid: pty.pid,
                 port_browser: socket.addresses.remote.port,
                 port_terminal: socket.addresses.local.port,
-                server_name: socket.server,
+                server_name: socket.server_hash,
                 socket_hash: socket.hash
             };
         socket.handler = handler;

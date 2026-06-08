@@ -65,7 +65,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 status: "informational",
                 time: now
             };
-        config.socket.server = config.server;      // identifies which local server the given socket is connected to
+        config.socket.server_hash = config.server; // identifies which local server the given socket is connected to
         config.socket.hash = config.identifier;    // assigns a unique identifier to the socket based upon the socket's credentials
         config.socket.proxy = config.proxy;        // assigns the relationship between a socket and its proxy, if any
         config.socket.role = config.role;          // assigns socket creation location
@@ -92,7 +92,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 const death = function transmit_socketExtension_death(this:websocket_client):void {
                     server_halt({
                         action: "destroy",
-                        server: vars.data.servers[this.server]
+                        server: vars.data.servers[this.server_hash]
                     }, null);
                 };
                 config.socket.on("close", death);
