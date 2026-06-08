@@ -1,4 +1,6 @@
 
+import message_inspection from "../services/message_inspection.ts";
+
 const http_trace = function http_trace(headerList:string[], socket:websocket_client):void {
     const len:number = headerList.length,
         get_header = function http_trace_getHeader(name:string):string {
@@ -28,6 +30,14 @@ const http_trace = function http_trace(headerList:string[], socket:websocket_cli
     output[1] = output[1] + output.slice(output.length - 4).join("\r\n").length;
     socket.write(output.join("\r\n"));
     socket.destroySoon();
+    message_inspection.send({
+        count: 0,
+        direction: "out",
+        max_size: 0,
+        message: output.join("\r\n"),
+        service: socket.server,
+        type: "web-server"
+    });
 };
 
 export default http_trace;

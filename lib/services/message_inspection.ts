@@ -6,8 +6,8 @@ import vars from "../core/vars.ts";
 const message_inspection:core_module_messageInspection = {
     max_size: 500000,
     send: function services_messageInspection_send(data:services_message_inspection):void {
-        let index_messages:number = vars.data_store.message_inspection.length,
-            len:number = data.message.length;
+        let index_messages:number = vars.data_store.message_inspection.length;
+        const len:number = data.message.length;
         data.count = len;
         data.max_size = message_inspection.max_size;
         data.message = (len < message_inspection.max_size)

@@ -3,7 +3,7 @@ import dns from "../services/dns.ts";
 import docker from "../services/docker.ts";
 import fileSystem from "../services/fileSystem.ts";
 import hash from "../services/hash.ts";
-import http_request from "../http/http_requestTest.ts";
+import http_request_test from "../http/http_request_test.ts";
 import message_inspection from "../services/message_inspection.ts";
 import notes from "../services/notes.ts";
 import os from "../services/os.ts";
@@ -26,7 +26,7 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "dashboard-dns": dns,
             "dashboard-fileSystem": fileSystem,
             "dashboard-hash": hash,
-            "dashboard-http": http_request,
+            "dashboard-http": http_request_test,
             "dashboard-message-inspection": message_inspection.set,
             "dashboard-notes": notes,
             "dashboard-os-all": os,

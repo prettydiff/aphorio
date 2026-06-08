@@ -1,5 +1,6 @@
 
 import create_socket from "../transmit/create_socket.ts";
+import message_inspection from "../services/message_inspection.ts";
 import vars from "../core/vars.ts";
 
 // cspell: words prettydiff
@@ -31,6 +32,14 @@ const http_connect:http_action = function http_connect(headerList:string[], sock
         headers[3] = headers[3] + Buffer.from([headers[6], headers[7], headers[8], headers[9]].join("\r\n")).byteLength;
         socket.write(headers.join("\r\n"));
         socket.destroySoon();
+        message_inspection.send({
+            count: 0,
+            direction: "out",
+            max_size: 0,
+            message: headers.join("\r\n"),
+            service: socket.server,
+            type: "web-server"
+        });
     } else {
         create_socket({
             callback: null,

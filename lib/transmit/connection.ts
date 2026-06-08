@@ -5,6 +5,7 @@ import http from "../http/index.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import message_handler from "./messageHandler.ts";
+import message_inspection from "../services/message_inspection.ts";
 import server_halt from "../server/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
 import terminal from "../services/terminal.ts";
@@ -494,6 +495,14 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 domain_local:string[] = server.domain_local.concat(vars.environment.interfaces);
             headerList.forEach(headerEach);
             socket.addresses = address;
+            message_inspection.send({
+                count: 0,
+                direction: "in",
+                max_size: 0,
+                message: dataString,
+                service: socket.server,
+                type: "web-server"
+            });
 
             // TLS data sent to open server - proxy the socket to the server's TLS port
             if (data[0] === 22 && store.domain === "" && socket.encrypted !== true && vars.data_store.server_ports[server_id].secure > 0) {
