@@ -118,17 +118,8 @@ const ui = function ui():void {
                     }
                 },
                 open: function dashboard_execute_socketOpen(event:Event):void {
-                    const target:WebSocket = event.target as WebSocket,
-                        encryption:string = (target.url.indexOf("wss") === 0)
-                            ? "Encrypted"
-                            : "Insecure",
-                        status:HTMLElement = document.getElementById("connection-status");
+                    const target:WebSocket = event.target as WebSocket;
                     dashboard.socket.connected = true;
-                    if (status !== null ) {
-                        status.getElementsByTagName("strong")[0].textContent = `Online (${encryption})`;
-                        status.setAttribute("class", "connection-online");
-                    }
-                    
                     dashboard.socket.socket = target;
                     if (dashboard.socket.queueStore.length > 0) {
                         do {
@@ -316,7 +307,11 @@ const ui = function ui():void {
                                     dashboard.sections[section_name as type_dashboard_init].init();
                                 }
                             }
-                        };
+                        },
+                        encryption:string = (dashboard.socket.socket.url.indexOf("wss") === 0)
+                            ? "Encrypted"
+                            : "Insecure",
+                        status:HTMLElement = document.getElementById("connection-status");
                     init("application-logs", false);
                     init("compose-containers", false);
                     init("devices", true);
@@ -344,10 +339,14 @@ const ui = function ui():void {
                     init("users", true);
                     dashboard.global.loaded = true;
                     dashboard.utility.nodes.main.style.display = "block";
-                    dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
                     anchor.setAttribute("href", dashboard.global.payload.repository);
                     anchor.textContent = `version ${dashboard.global.payload.version}`;
                     title.appendChild(anchor);
+                    if (status !== null ) {
+                        status.getElementsByTagName("strong")[0].textContent = `Online (${encryption})`;
+                        status.setAttribute("class", "connection-online");
+                    }
+                    dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
                 }
             },
             receive: function dashboard_message_receive(data:string):void {
@@ -793,38 +792,38 @@ const ui = function ui():void {
                     }
                 },
                 init: function dashboard_sections_composeContainers_init():void {
-                    const shell = function dashboard_sections_composeContainers_init_shell():void {
-                        if (dashboard.sections["compose-containers"].shell === null) {
-                            if (typeof Terminal === "undefined") {
-                                setTimeout(dashboard_sections_composeContainers_init_shell, 200);
-                            } else {
-                                // @ts-expect-error - xterm has not updated their types to reflect Terminal is a constructor
-                                dashboard.sections["compose-containers"].shell = new Terminal({
-                                    cols: dashboard.sections["compose-containers"].cols,
-                                    cursorBlink: true,
-                                    cursorStyle: "underline",
-                                    disableStdin: false,
-                                    readonly: true,
-                                    rows: dashboard.sections["compose-containers"].rows,
-                                    theme: {
-                                        background: "#222",
-                                        selectionBackground: "#444"
+                    if (dashboard.global.payload.compose.status === "") {
+                        const shell = function dashboard_sections_composeContainers_init_shell():void {
+                            if (dashboard.sections["compose-containers"].shell === null) {
+                                if (typeof Terminal === "undefined") {
+                                    setTimeout(dashboard_sections_composeContainers_init_shell, 200);
+                                } else {
+                                    // @ts-expect-error - xterm has not updated their types to reflect Terminal is a constructor
+                                    dashboard.sections["compose-containers"].shell = new Terminal({
+                                        cols: dashboard.sections["compose-containers"].cols,
+                                        cursorBlink: true,
+                                        cursorStyle: "underline",
+                                        disableStdin: false,
+                                        readonly: true,
+                                        rows: dashboard.sections["compose-containers"].rows,
+                                        theme: {
+                                            background: "#222",
+                                            selectionBackground: "#444"
+                                        }
+                                    });
+                                    dashboard.sections["compose-containers"].shell.open(dashboard.sections["compose-containers"].nodes.shell);
+                                    if (typeof navigator.clipboard !== "undefined") {
+                                        dashboard.sections["compose-containers"].shell.onSelectionChange(dashboard.sections["compose-containers"].events.selection);
                                     }
-                                });
-                                dashboard.sections["compose-containers"].shell.open(dashboard.sections["compose-containers"].nodes.shell);
-                                if (typeof navigator.clipboard !== "undefined") {
-                                    dashboard.sections["compose-containers"].shell.onSelectionChange(dashboard.sections["compose-containers"].events.selection);
                                 }
                             }
-                        }
-                    };
-                    shell();
-                    dashboard.shared_services.shellResize({
-                        node: dashboard.sections["compose-containers"].nodes.shell,
-                        section: "compose-containers",
-                        shell: dashboard.sections["compose-containers"].shell
-                    });
-                    if (dashboard.global.payload.compose.status === "") {
+                        };
+                        shell();
+                        dashboard.shared_services.shellResize({
+                            node: dashboard.sections["compose-containers"].nodes.shell,
+                            section: "compose-containers",
+                            shell: dashboard.sections["compose-containers"].shell
+                        });
                         dashboard.sections["compose-containers"].nodes.new_container.onclick = dashboard.shared_services.create;
                         dashboard.sections["compose-containers"].nodes.new_variable.onclick = dashboard.sections["compose-containers"].events.edit_variable;
                         dashboard.sections["compose-containers"].nodes.update_button.onclick = dashboard.sections["compose-containers"].events.update;

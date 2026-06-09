@@ -90,7 +90,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                             start_prerequisites();
                                         }
                                         flags.html = flags.html.replace(/<div( class="first")?>\s*<h3>\w+(\s\w+)*<\/h3>\s*<ul>\s*<\/ul>\s*<\/div>/g, "");
-                                        flags.html = flags.html.replace(/<h2>Navigation<\/h2>\s*<div>/, "<h2>Navigation</h2> <div=\"first\">");
+                                        flags.html = flags.html.replace(/<h2>Navigation<\/h2>\s*<div>/, "<h2>Navigation</h2> <div class=\"first\">");
                                     },
                                     nav_start:number = flags.html.indexOf("<nav>");
                                 section("application-logs", "Application Logs");
