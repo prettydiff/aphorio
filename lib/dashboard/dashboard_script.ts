@@ -262,6 +262,7 @@ const ui = function ui():void {
                                 path_style: 1,
                                 search: ""
                             },
+                            graph_display: 0,
                             graph_type: 0,
                             hash: {
                                 algorithm: "sha3-512",
@@ -316,7 +317,6 @@ const ui = function ui():void {
                                 }
                             }
                         };
-                    dashboard.global.loaded = true;
                     init("application-logs", false);
                     init("compose-containers", false);
                     init("devices", true);
@@ -342,6 +342,7 @@ const ui = function ui():void {
                     init("test-websocket", false);
                     init("udp-socket", false);
                     init("users", true);
+                    dashboard.global.loaded = true;
                     dashboard.utility.nodes.main.style.display = "block";
                     dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
                     anchor.setAttribute("href", dashboard.global.payload.repository);
@@ -2215,9 +2216,9 @@ const ui = function ui():void {
                         if (value_service !== "") {
                             dashboard.sections["message-inspection"].nodes.label_in.getElementsByTagName("textarea")[0].value = "";
                             dashboard.sections["message-inspection"].nodes.label_out.getElementsByTagName("textarea")[0].value = "";
+                            dashboard.sections["message-inspection"].nodes.em_in.textContent = "";
+                            dashboard.sections["message-inspection"].nodes.em_out.textContent = "";
                         }
-                        dashboard.sections["message-inspection"].nodes.em_in.textContent = "";
-                        dashboard.sections["message-inspection"].nodes.em_out.textContent = "";
                         dashboard.message.send(payload, "dashboard-message-inspection");
                     },
                     type: function dashboard_sections_messageInspection_type():void {
@@ -3278,6 +3279,7 @@ const ui = function ui():void {
                         dashboard.sections["statistics-resources"].nodes.graphs.textContent = "";
                         dashboard.sections["statistics-resources"].nodes.graphs.setAttribute("data-type", dashboard.sections["statistics-resources"].nodes.graph_display.value);
                         dashboard.sections["statistics-resources"].events.change_type();
+                        dashboard.utility.setState();
                     },
                     change_type: function dashboard_sections_statisticsResources_changeType():void {
                         const keys:string[] = Object.keys(dashboard.sections["statistics-resources"].graphs);
@@ -3304,12 +3306,12 @@ const ui = function ui():void {
                                 }
                             } while (index > 0);
                         }
-                        dashboard.utility.setState();
                         if (dashboard.sections["statistics-resources"].nodes.graph_display.value === "individual") {
                             dashboard.sections["statistics-resources"].tools.graph_individual(true);
                         } else if (dashboard.sections["statistics-resources"].nodes.graph_display.value === "composite") {
                             dashboard.sections["statistics-resources"].tools.graph_composite(true);
                         }
+                        dashboard.utility.setState();
                     },
                     definitions: function dashboard_sections_statisticsResources_definitions(event:FocusEvent|KeyboardEvent):void {
                         const key:KeyboardEvent = event as KeyboardEvent,
@@ -3325,6 +3327,7 @@ const ui = function ui():void {
                             frequency: (frequency * 1000),
                             records: records
                         }, "dashboard-statistics-change");
+                        dashboard.utility.setState();
                     },
                 },
                 init: function dashboard_sections_statisticsResources_init():void {
@@ -3332,7 +3335,7 @@ const ui = function ui():void {
                     dashboard.sections["statistics-resources"].nodes.frequency.onkeyup = dashboard.sections["statistics-resources"].events.definitions;
                     dashboard.sections["statistics-resources"].nodes.frequency.value = (dashboard.global.payload.stats.frequency / 1000).toString();
                     dashboard.sections["statistics-resources"].nodes.graph_display.onchange = dashboard.sections["statistics-resources"].events.change_display;
-                    dashboard.sections["statistics-resources"].nodes.graph_type.onchange = dashboard.sections["statistics-resources"].events.change_type;    
+                    dashboard.sections["statistics-resources"].nodes.graph_type.onchange = dashboard.sections["statistics-resources"].events.change_type;
                     dashboard.sections["statistics-resources"].nodes.graph_display.selectedIndex = (dashboard.global.state.graph_display === null || dashboard.global.state.graph_display === undefined)
                         ? 0
                         : dashboard.global.state.graph_display;
@@ -3343,21 +3346,23 @@ const ui = function ui():void {
                     dashboard.sections["statistics-resources"].nodes.records.onblur = dashboard.sections["statistics-resources"].events.definitions;
                     dashboard.sections["statistics-resources"].nodes.records.onkeyup = dashboard.sections["statistics-resources"].events.definitions;
                     dashboard.sections["statistics-resources"].nodes.records.value = dashboard.global.payload.stats.records.toString();
-                    if (dashboard.sections["servers-web"] !== undefined) {
-                        const payload:services_server_update = {
-                            ports_used: dashboard.global.payload.server_ports,
-                            servers: dashboard.global.payload.servers
-                        };
-                        dashboard.sections["servers-web"].receive({
-                            data: payload,
-                            service: "dashboard-server-update"
+                    if (dashboard.global.loaded === true || (dashboard.global.loaded === false && dashboard.global.state.nav === "statistics-resources")) {
+                        if (dashboard.sections["servers-web"] !== undefined) {
+                            const payload:services_server_update = {
+                                ports_used: dashboard.global.payload.server_ports,
+                                servers: dashboard.global.payload.servers
+                            };
+                            dashboard.sections["servers-web"].receive({
+                                data: payload,
+                                service: "dashboard-server-update"
+                            });
+                        }
+                        Chart.defaults.color = "#ccc";
+                        dashboard.sections["statistics-resources"].receive({
+                            data: dashboard.global.payload.stats,
+                            service: "dashboard-statistics-data"
                         });
                     }
-                    Chart.defaults.color = "#ccc";
-                    dashboard.sections["statistics-resources"].receive({
-                        data: dashboard.global.payload.stats,
-                        service: "dashboard-statistics-data"
-                    });
                 },
                 graph_config: {
                     colors: [
@@ -5541,7 +5546,7 @@ const ui = function ui():void {
             },
             // gathers state artifacts and saves state data
             setState: function dashboard_utility_setState():void {
-                if (dashboard.socket.connected === true) {
+                if (dashboard.socket.connected === true && dashboard.global.loaded === true) {
                     const lists = function dashboard_utility_setState_lists(module:module_list):void {
                         if (module !== undefined) {
                             const type:string = module.dataName;

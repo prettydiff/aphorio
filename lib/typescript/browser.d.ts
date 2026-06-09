@@ -699,7 +699,7 @@ declare global {
             request: string;
         };
         messageInspection: "docker-container" | "servers-web";
-        nav: string;
+        nav: type_dashboard_sections;
         table_os: {
             [key:string]: table_os_item;
         };
