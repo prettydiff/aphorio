@@ -87,11 +87,10 @@ const start_application = function utilities_startApplication(process_path:strin
                                             if (vars.environment.features["servers-web"] === false) {
                                                 flags.html = flags.html.replace("<button", "<button class=\"nav-focus\"");
                                             }
-                                            if ((/<h2>Navigation<\/h2>\s*<div class="first">/).test(flags.html) === false) {
-                                                flags.html = flags.html.replace(/<h2>Navigation<\/h2>\s*<div>/, "<h2>Navigation</h2> <div class=\"first\">");
-                                            }
                                             start_prerequisites();
                                         }
+                                        flags.html = flags.html.replace(/<div( class="first")?>\s*<h3>\w+(\s\w+)*<\/h3>\s*<ul>\s*<\/ul>\s*<\/div>/g, "");
+                                        flags.html = flags.html.replace(/<h2>Navigation<\/h2>\s*<div>/, "<h2>Navigation</h2> <div=\"first\">");
                                     },
                                     nav_start:number = flags.html.indexOf("<nav>");
                                 section("application-logs", "Application Logs");
@@ -102,6 +101,8 @@ const start_application = function utilities_startApplication(process_path:strin
                                 section("file-system", "File System");
                                 section("hash", "Hash / Base64");
                                 section("interfaces", "Interfaces");
+                                section("message-inspection", "Message Inspection");
+                                section("notes", "Notes");
                                 section("os-machine", "OS/Machine");
                                 section("ports-application", "App Ports");
                                 section("processes", "Processes");
@@ -115,6 +116,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 section("terminal", "Terminal");
                                 section("test-http", "HTTP Test");
                                 section("test-websocket", "WebSocket Test");
+                                section("udp-socket", "UDP Socket");
                                 section("users", "Users");
                                 parent();
                                 vars.environment.dashboard_page = flags.html;

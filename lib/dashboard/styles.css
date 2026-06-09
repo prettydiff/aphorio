@@ -14,7 +14,7 @@
     --border_input:#666;
     --border_soft:#555;
     --fail_background:#322;
-    --fail_bright:#f66;
+    --fail_bright:#f77;
     --fail_dark:#911;
     --status_amber:#443;
     --status_green:#131;
@@ -39,11 +39,20 @@
     50% {clip-path: inset(calc(100% - 1px) 0 0 0); }
     75% {clip-path: inset(0 0 0 calc(100% - 1px)); }
 }
-
+@media screen and (width < 880px) {
+    #dashboard {
+        #clock{display:block;float:none;margin:-1em 0 1.7em 0}
+    }
+}
+@media screen and (width > 879px) {
+    #dashboard {
+        #clock{float:right;margin:1.4em 0 0 0}
+    }
+}
 @media screen and (width < 750px) {
     #dashboard{
         margin:0 1em;
-        #clock{float:none;margin:0 0 1.7em 0}
+        #clock{margin:0 0 1.7em 0}
         #clock span,
         .title span{display:inline-block;width:8.5em}
         #interfaces,
@@ -75,7 +84,6 @@
 @media screen and (width > 749px) {
     #dashboard{
         margin:0 2em;
-        #clock{float:right;margin:1.4em 0 0 0}
         #interfaces,
         #os-machine,
         #disks{
