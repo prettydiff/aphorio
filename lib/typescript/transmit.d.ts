@@ -1,11 +1,6 @@
 
 // cspell: words ifindex, ifname, linkmode, netnsid, operstate, qdisc
 
-interface socket_data {
-    data: type_socket_data;
-    service: type_service;
-}
-
 interface stat_item extends node_fs_Stats {
     path: string;
     type: type_file;
@@ -35,7 +30,7 @@ interface transmit_dashboard {
     };
     name: string;
     notes: string;
-    os: core_server_os;
+    os: services_os;
     path: core_vars_path;
     "ports-application": services_ports_application;
     repository: string;

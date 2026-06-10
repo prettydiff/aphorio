@@ -857,7 +857,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 }
             }
         },
-        main = function utilities_os_main(time:number):core_server_os {
+        main = function utilities_os_main(time:number):services_os {
             const mem:os_node_memoryUsage = process.memoryUsage(),
                 cpu:os_node_cpuUsage = process.cpuUsage(),
                 cpus:os_node_cpu = node.os.cpus(),
@@ -867,7 +867,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 uid:number = (typeof process.getuid === "undefined")
                     ? 0
                     : process.getuid(),
-                output:core_server_os = {
+                output:services_os = {
                     devs: {
                         data: [],
                         time: 0
@@ -972,7 +972,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             }
             complete[type] = true;
             if (type_os === "all" && index > 0) {
-                const output:core_server_os = main(now);
+                const output:services_os = main(now);
                 do {
                     index = index - 1;
                     if (complete[keys[index]] === false) {
@@ -1024,7 +1024,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     service: "dashboard-os-all"
                 });
             } else if (type_os === "main") {
-                const output:core_server_os = main(now);
+                const output:services_os = main(now);
                 callback({
                     data: output,
                     service: "dashboard-os-main"

@@ -481,7 +481,7 @@ const start_application = function utilities_startApplication(process_path:strin
                             index_srv:number = (config === null)
                                 ? 0
                                 : keys_srv.length,
-                            server:services_server = null,
+                            server:supplemental_server = null,
                             sub:number = 0;
                         if (config !== null) {
                             vars.environment.dashboard_id = config.dashboard_id;
@@ -643,7 +643,7 @@ const start_application = function utilities_startApplication(process_path:strin
             count_task = count_task + 1;
             if (count_task === len_tasks) {
                 // sends a server time update every 950ms
-                const default_server:services_server = {
+                const default_server:supplemental_server = {
                     activate: true,
                     domain_local: [
                         "localhost",

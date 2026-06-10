@@ -16,10 +16,10 @@ import websocket_test from "../services/websocket.ts";
 
 const connection = function transmit_connection(this:core_server_instance, TLS_socket:node_tls_TLSSocket):void {
     const server_id:string = this.id,
-        server:services_server = vars.data.servers[server_id],
+        server:supplemental_server = vars.data.servers[server_id],
         handshake = function transmit_connection_handshake(this:websocket_client, data:Buffer):void {
             const flags:store_flag = {
-                    dashboard_http: false,
+                    dashboard_http_test: false,
                     referer: false,
                     upgrade: false
                 },
@@ -111,8 +111,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         store.userAgent = `${ua[0]}, ${ua[1]}, ${store.userAgent.slice(store.userAgent.lastIndexOf(")") + 2)}`;
                     } else if ((/^upgrade-insecure-requests:\s*1$/).test(lower) === true && socket.encrypted !== true && server.upgrade === true && vars.data_store.server_ports[server_id].secure > 0) {
                         flags.upgrade = true;
-                    } else if (lower === "dashboard-http: true") {
-                        flags.dashboard_http = true;
+                    } else if (lower === "dashboard-http-test: true") {
+                        flags.dashboard_http_test = true;
                     }
                 },
                 redirection = function transmit_connection_handshake_redirection():Buffer {
@@ -534,7 +534,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 store.domain = `tls_socket_redirect-${vars.data.servers[server_id].name}`;
                 proxy_create(host, port, socket.encrypted);
             // redirect TLS connections sent to open servers instead to secure server peer if one is active
-            } else if (flags.upgrade === true as boolean && flags.dashboard_http === false) {
+            } else if (flags.upgrade === true as boolean && flags.dashboard_http_test === false) {
                 // * server option 'upgrade' must be true
                 // * must be http request with header 'upgrade-insecure-requests: 1'
                 // * requests from the dashboard http test tool are ignored

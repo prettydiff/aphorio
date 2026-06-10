@@ -20,7 +20,7 @@ const server_create = function services_serverCreate(data:services_server_action
         algorithm: "sha3-512",
         callback: function services_serverCreate_hashCallback(output:core_hash_output):void {
             let count:number = 0;
-            const config:services_server = data.server,
+            const config:supplemental_server = data.server,
                 path_name:string = vars.path.servers + output.hash + vars.path.sep,
                 path_assets:string = `${path_name}assets${vars.path.sep}`,
                 path_certs:string = `${path_name}certs${vars.path.sep}`,

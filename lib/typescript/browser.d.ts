@@ -81,7 +81,7 @@ declare global {
         message: {
             init: () => void;
             receive: (data:string) => void;
-            send: (data:type_socket_data, service:type_service) => void;
+            send: (socket_data:socket_data) => void;
         };
         sections: {
             "application-logs": section_applicationLogs;
@@ -155,7 +155,7 @@ declare global {
     }
 
     interface graph_config {
-        item: services_statistics_facet[];
+        item: supplemental_statistics_facet[];
         label: string[];
         parent: HTMLElement;
         title: string;
@@ -193,7 +193,7 @@ declare global {
     }
 
     interface module_list {
-        dataName: string;
+        dataName: "devs" | "ports-application" | "proc" | "serv" | "sockets-application-tcp" | "sockets-application-udp" | "stcp" | "sudp" | "user";
         nodes: {
             caseSensitive: HTMLInputElement;
             count: HTMLElement;
@@ -266,7 +266,7 @@ declare global {
         // eslint-disable-next-line max-params
         error: (message:string, source:string, line:number, col:number, error:Error) => void;
         evaluate: (test:test_assertion_dom) => test_assert;
-        event: (item:services_testBrowser, pageLoad:boolean) => void;
+        event: (item:services_test_browser, pageLoad:boolean) => void;
         getProperty: (test:test_assertion_dom) => [HTMLElement, test_primitive];
         index: number;
         keyAlt: boolean;
@@ -275,11 +275,11 @@ declare global {
         magicString: string;
         node: (dom:test_browserDOM, property:string) => HTMLElement;
         report: (delay:test_assertion_dom, test:test_assertion_dom[], index:number) => void;
-        sendTest: (payload:test_assert[], index:number) => services_testBrowser;
+        sendTest: (payload:test_assert[], index:number) => services_test_browser;
         store: HTMLElement | test_primitive;
         stringify: (primitive:test_primitive) => string;
         suite_name: string;
-        test_item: services_testBrowser;
+        test_item: services_test_browser;
     }
 
     interface module_sections {

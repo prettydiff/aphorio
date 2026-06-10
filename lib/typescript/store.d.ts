@@ -48,11 +48,11 @@ interface store_ports {
 }
 
 interface store_server_config {
-    [key:string]: services_server;
+    [key:string]: supplemental_server;
 }
 
 interface store_servers {
-    [key:string]: services_server;
+    [key:string]: supplemental_server;
 }
 
 interface store_sockets {

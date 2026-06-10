@@ -11,8 +11,8 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
     if (vars.environment.features["file-system"] === false) {
         return;
     }
-    const data:services_fileSystem = socket_data.data as services_fileSystem,
-        service:services_fileSystem = {
+    const data:services_file_system = socket_data.data as services_file_system,
+        service:services_file_system = {
             address: data.address,
             depth: data.depth,
             directory_size: data.directory_size,
@@ -28,7 +28,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
         complete = function services_fileSystem_complete():void {
             send({
                 data: service,
-                service: "dashboard-fileSystem"
+                service: "dashboard-file-system"
             }, transmit.socket as websocket_client, 3);
         },
         dirCallback = function services_fileSystem_dirCallback(list:core_directory_list):void {

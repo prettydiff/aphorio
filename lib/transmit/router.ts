@@ -4,6 +4,7 @@ import docker from "../services/docker.ts";
 import fileSystem from "../services/fileSystem.ts";
 import hash from "../services/hash.ts";
 import http_request_test from "../http/http_request_test.ts";
+import log from "../core/log.ts";
 import message_inspection from "../services/message_inspection.ts";
 import notes from "../services/notes.ts";
 import os from "../services/os.ts";
@@ -23,10 +24,11 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
         actions:transmit_receiver = {
             "dashboard-compose-container": docker.receive,
             "dashboard-compose-variables": docker.receive,
-            "dashboard-dns": dns,
-            "dashboard-fileSystem": fileSystem,
+            "dashboard-dns-input": dns,
+            "dashboard-file-system": fileSystem,
             "dashboard-hash": hash,
-            "dashboard-http": http_request_test,
+            "dashboard-http-test": http_request_test,
+            "dashboard-log": log.receive,
             "dashboard-message-inspection": message_inspection.set,
             "dashboard-notes": notes,
             "dashboard-os-all": os,

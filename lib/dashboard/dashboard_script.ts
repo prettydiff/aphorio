@@ -10,14 +10,18 @@ const ui = function ui():void {
         execute: function dashboard_execute():void {
             // eslint-disable-next-line max-params
             window.onerror = function dashboard_execute_windowError(message:Event|string, source:string, lineno:number, colno:number, error:Error):void {
-                dashboard.message.send({
-                    error: error,
-                    message: `JavaScript UI error in browser on line ${lineno} and column ${colno} in ${source}. ${message.toString()}`,
-                    origin: "web browser",
-                    section: "dashboard",
-                    status: "error",
-                    time: Date.now()
-                }, "dashboard-log");
+                const payload:services_log = {
+                    log: {
+                        error: error,
+                        message: `JavaScript UI error in browser on line ${lineno} and column ${colno} in ${source}. ${message.toString()}`,
+                        origin: "web browser",
+                        section: "dashboard",
+                        status: "error",
+                        time: Date.now()
+                    },
+                    total: 0
+                };
+                dashboard.message.send({data: payload, service: "dashboard-log"});
             };
             const navButtons:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("nav")[0].getElementsByTagName("button"),
                 navigation = function dashboard_execute_navigation(event:MouseEvent):void {
@@ -359,16 +363,19 @@ const ui = function ui():void {
                         "dashboard-compose-out": (dashboard.sections["compose-containers"] === undefined)
                             ? null
                             : dashboard.sections["compose-containers"].status_out,
-                        "dashboard-dns": (dashboard.sections["dns-query"] === undefined)
+                        "dashboard-dns-output": (dashboard.sections["dns-query"] === undefined)
                             ? null
                             : dashboard.sections["dns-query"].receive,
-                        "dashboard-fileSystem": (dashboard.sections["file-system"] === undefined)
+                        "dashboard-dns-reverse": (dashboard.sections["dns-query"] === undefined)
+                            ? null
+                            : dashboard.sections["dns-query"].receive,
+                        "dashboard-file-system": (dashboard.sections["file-system"] === undefined)
                             ? null
                             : dashboard.sections["file-system"].receive,
                         "dashboard-hash": (dashboard.sections["hash"] === undefined)
                             ? null
                             : dashboard.sections["hash"].receive,
-                        "dashboard-http": (dashboard.sections["test-http"] === undefined)
+                        "dashboard-http-test": (dashboard.sections["test-http"] === undefined)
                             ? null
                             : dashboard.sections["test-http"].receive,
                         "dashboard-log": (dashboard.sections["application-logs"] === undefined)
@@ -433,7 +440,7 @@ const ui = function ui():void {
                             : dashboard.sections["test-websocket"].transmit.status
                     };
                 if (message_item.service === "dashboard-os-all") {
-                    const data:core_server_os = message_item.data as core_server_os;
+                    const data:services_os = message_item.data as services_os;
                     if (dashboard.sections["devices"] !== undefined) {
                         dashboard.tables.populate(dashboard.sections["devices"], data.devs);
                     }
@@ -490,12 +497,8 @@ const ui = function ui():void {
                 }
             },
             // send dashboard service messages
-            send: function dashboard_message_send(data:type_socket_data, service:type_service):void {
-                const message:socket_data = {
-                        data: data,
-                        service: service
-                    };
-                dashboard.socket.queue(JSON.stringify(message));
+            send: function dashboard_message_send(socket_data:socket_data):void {
+                dashboard.socket.queue(JSON.stringify(socket_data));
             },
         },
         sections: {
@@ -648,7 +651,7 @@ const ui = function ui():void {
                                     ? ""
                                     : dashboard.global.payload.compose.containers[id].location
                             };
-                        dashboard.message.send(message, "dashboard-compose-container");
+                        dashboard.message.send({data: message, service: "dashboard-compose-container"});
                         dashboard.sections["compose-containers"].nodes.new_container.disabled = false;
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
@@ -662,7 +665,7 @@ const ui = function ui():void {
                             cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
                             value:string = edit.getElementsByTagName("textarea")[0].value,
                             variables:store_string = JSON.parse(value);
-                        dashboard.message.send(variables, "dashboard-compose-variables");
+                        dashboard.message.send({data: variables, service: "dashboard-compose-variables"});
                         dashboard.sections["compose-containers"].nodes.new_variable.disabled = false;
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
@@ -685,7 +688,7 @@ const ui = function ui():void {
                             id: "",
                             location: ""
                         };
-                        dashboard.message.send(message, "dashboard-compose-container");
+                        dashboard.message.send({data: message, service: "dashboard-compose-container"});
                     },
                     validate_containers: function dashboard_sections_composeContainers_validateContainers(event:FocusEvent|KeyboardEvent):void {
                         const target:HTMLElement = event.target,
@@ -1028,7 +1031,7 @@ const ui = function ui():void {
                 events: {
                     update: function dashboard_sections_disks_update():void {
                         dashboard.utility.performance_set("disks");
-                        dashboard.message.send(null, "dashboard-os-disk");
+                        dashboard.message.send({data: null, service: "dashboard-os-disk"});
                     }
                 },
                 init: function dashboard_sections_disks_init():void {
@@ -1194,7 +1197,7 @@ const ui = function ui():void {
                                     types: types_value
                                 };
                             dashboard.utility.setState();
-                            dashboard.message.send(payload, "dashboard-dns");
+                            dashboard.message.send({data: payload, service: "dashboard-dns-input"});
                             dashboard.sections["dns-query"].nodes.output.value = "";
                         }
                     }
@@ -1443,7 +1446,7 @@ const ui = function ui():void {
                             search:string = dashboard.sections["file-system"].nodes.search.value.replace(/^\s+/, "").replace(/\s+$/, ""),
                             depth:number = Number(dashboard.sections["file-system"].nodes.depth.value),
                             directory_size:boolean = dashboard.sections["file-system"].nodes.directory_size[dashboard.sections["file-system"].nodes.directory_size.selectedIndex].textContent === "true (extremely slow)",
-                            payload:services_fileSystem = {
+                            payload:services_file_system = {
                                 address: address,
                                 depth: (isNaN(depth) === true)
                                     ? 2
@@ -1471,7 +1474,7 @@ const ui = function ui():void {
                             dashboard.sections["file-system"].block = true;
                             dashboard.utility.performance_set("file-system");
                             dashboard.sections["file-system"].nodes.status.textContent = "Fetching\u2026";
-                            dashboard.message.send(payload, "dashboard-fileSystem");
+                            dashboard.message.send({data: payload, service: "dashboard-file-system"});
                         }
                     }
                 },
@@ -1724,7 +1727,7 @@ const ui = function ui():void {
                     tbody: document.getElementById("file-system").getElementsByTagName("tbody")[0]
                 },
                 receive: function dashboard_sections_fileSystem_receive(data_item:socket_data):void {
-                    const fs:services_fileSystem = data_item.data as services_fileSystem,
+                    const fs:services_file_system = data_item.data as services_file_system,
                         len:number = (fs.dirs === null)
                             ? 0
                             : fs.dirs.length,
@@ -2018,7 +2021,7 @@ const ui = function ui():void {
                         dashboard.sections["hash"].nodes.output.value = "";
                         dashboard.utility.performance_set("hash");
                         dashboard.utility.setState();
-                        dashboard.message.send(service, "dashboard-hash");
+                        dashboard.message.send({data: service, service: "dashboard-hash"});
                     },
                     toggle_mode: function dashboard_sections_hash_toggleMode(event:MouseEvent):void {
                         const target:HTMLElement = (event === null)
@@ -2109,7 +2112,7 @@ const ui = function ui():void {
                 events: {
                     update: function dashboard_sections_interfaces_update():void {
                         dashboard.utility.performance_set("interfaces");
-                        dashboard.message.send(null, "dashboard-os-intr");
+                        dashboard.message.send({data: null, service: "dashboard-os-intr"});
                     }
                 },
                 init: function dashboard_sections_interfaces_init():void {
@@ -2218,7 +2221,7 @@ const ui = function ui():void {
                             dashboard.sections["message-inspection"].nodes.em_in.textContent = "";
                             dashboard.sections["message-inspection"].nodes.em_out.textContent = "";
                         }
-                        dashboard.message.send(payload, "dashboard-message-inspection");
+                        dashboard.message.send({data: payload, service: "dashboard-message-inspection"});
                     },
                     type: function dashboard_sections_messageInspection_type():void {
                         const value:string = dashboard.sections["message-inspection"].nodes.type[dashboard.sections["message-inspection"].nodes.type.selectedIndex].textContent,
@@ -2329,7 +2332,7 @@ const ui = function ui():void {
                             payload:store_string = {
                                 notes: value
                             };
-                        dashboard.message.send(payload, "dashboard-notes");
+                        dashboard.message.send({data: payload, service: "dashboard-notes"});
                     }
                 }
             },
@@ -2339,7 +2342,7 @@ const ui = function ui():void {
                 events: {
                     update: function dashboard_sections_osMachine_update():void {
                         dashboard.utility.performance_set("os-machine");
-                        dashboard.message.send(null, "dashboard-os-main");
+                        dashboard.message.send({data: null, service: "dashboard-os-main"});
                     }
                 },
                 init: function dashboard_sections_osMachine_init():void {
@@ -2505,7 +2508,7 @@ const ui = function ui():void {
                     return nodeList;
                 }()),
                 receive: function dashboard_sections_osMachine_receive(socket_data:socket_data):void {
-                    const data:core_server_os = socket_data.data as core_server_os;
+                    const data:services_os = socket_data.data as services_os;
                     dashboard.sections["os-machine"].nodes_os.update_text.textContent = data.time.dateTime(true, dashboard.global.payload.timeZone_offset);
                     dashboard.global.payload.os.machine.memory = data.machine.memory;
                     dashboard.global.payload.os.os.uptime = data.os.uptime;
@@ -2545,7 +2548,7 @@ const ui = function ui():void {
                 },
                 receive: null,
                 row: function dashboard_sections_portsApplication_row(record_item:type_lists, tr:HTMLElement):void {
-                    const record:services_ports_application_item = record_item as services_ports_application_item;
+                    const record:supplemental_ports_application_item = record_item as supplemental_ports_application_item;
                     dashboard.tables.cell(tr, record.port.toString(), null);
                     dashboard.tables.cell(tr, record.type, null);
                     dashboard.tables.cell(tr, record.service, null);
@@ -2611,9 +2614,9 @@ const ui = function ui():void {
                             edit:HTMLElement = target.getAncestor("edit", "class"),
                             action:type_dashboard_action = target.getAttribute("class").replace("server-", "") as type_dashboard_action,
                             cancel:HTMLElement = edit.getElementsByClassName("server-cancel")[0] as HTMLElement,
-                            configuration:services_server = (function dashboard_serverMessage_configuration():services_server {
+                            configuration:supplemental_server = (function dashboard_serverMessage_configuration():supplemental_server {
                                 const textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
-                                    config:services_server = JSON.parse(textArea.value);
+                                    config:supplemental_server = JSON.parse(textArea.value);
                                 if (dashboard.global.payload.servers[config.id] !== undefined) {
                                     dashboard.global.payload.servers[config.id].encryption = config.encryption;
                                 }
@@ -2623,7 +2626,7 @@ const ui = function ui():void {
                                 action: action,
                                 server: configuration
                             };
-                        dashboard.message.send(data, "dashboard-server-action");
+                        dashboard.message.send({data: data, service: "dashboard-server-action"});
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
                         } else {
@@ -2657,7 +2660,7 @@ const ui = function ui():void {
                                 const save:HTMLButtonElement = (id === undefined)
                                         ? listItem.getElementsByClassName("server-add")[0] as HTMLButtonElement
                                         : listItem.getElementsByClassName("server-modify")[0] as HTMLButtonElement,
-                                    order = function dashboard_sections_serversWeb_validate_disable_order(item:services_server):string {
+                                    order = function dashboard_sections_serversWeb_validate_disable_order(item:supplemental_server):string {
                                         const keys:type_server_property[] = Object.keys(item).sort() as type_server_property[],
                                             output:object = {},
                                             len:number = keys.length;
@@ -2865,7 +2868,7 @@ const ui = function ui():void {
                                 }
                             },
                             rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
-                        let serverData:services_server = null,
+                        let serverData:supplemental_server = null,
                             failures:number = 0;
                         ul.textContent = "";
                         summary.style.display = "block";
@@ -3112,7 +3115,7 @@ const ui = function ui():void {
                 },
                 receive: null,
                 row: function dashboard_sections_socketsApplicationTCP_row(record_item:type_lists, tr:HTMLElement):void {
-                    const record:services_socket_application_tcp = record_item as services_socket_application_tcp;
+                    const record:supplemental_socket_application_tcp = record_item as supplemental_socket_application_tcp;
                     dashboard.tables.cell(tr, record["server_id"], "id");
                     dashboard.tables.cell(tr, record["server_name"], null);
                     dashboard.tables.cell(tr, record["hash"], null);
@@ -3323,9 +3326,12 @@ const ui = function ui():void {
                             return;
                         }
                         dashboard.message.send({
-                            frequency: (frequency * 1000),
-                            records: records
-                        }, "dashboard-statistics-change");
+                            data: {
+                                frequency: (frequency * 1000),
+                                records: records
+                            },
+                            service: "dashboard-statistics-change"
+                        });
                         dashboard.utility.setState();
                     },
                 },
@@ -3919,7 +3925,7 @@ const ui = function ui():void {
                             },
                             strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["test-http"].nodes.stats.getElementsByTagName("strong");
                         dashboard.utility.setState();
-                        dashboard.message.send(data, "dashboard-http");
+                        dashboard.message.send({data: data, service: "dashboard-http-test"});
                         dashboard.sections["test-http"].nodes.responseBody.value = "";
                         dashboard.sections["test-http"].nodes.responseHeaders.value = "";
                         dashboard.sections["test-http"].nodes.responseURI.value = "";
@@ -4019,7 +4025,7 @@ const ui = function ui():void {
                             };
                         dashboard.sections["test-websocket"].timeout = payload.timeout;
                         dashboard.sections["test-websocket"].nodes.status.value = "";
-                        dashboard.message.send(payload, "dashboard-websocket-handshake");
+                        dashboard.message.send({data: payload, service: "dashboard-websocket-handshake"});
                         dashboard.utility.setState();
                     },
                     keyup_frame: function dashboard_sections_websocketTest_keyupFrame(event:Event):void {
@@ -4112,7 +4118,7 @@ const ui = function ui():void {
                             frame: dashboard.sections["test-websocket"].tools.parse_frame(),
                             message: dashboard.sections["test-websocket"].nodes.message_send_body.value
                         };
-                        dashboard.message.send(payload, "dashboard-websocket-message");
+                        dashboard.message.send({data: payload, service: "dashboard-websocket-message"});
                         dashboard.sections["test-websocket"].events.keyup_frame(null);
                     }
                 },
@@ -4308,7 +4314,7 @@ const ui = function ui():void {
                                     ? "ipv4"
                                     : "ipv6"
                             };
-                        dashboard.message.send(payload, "dashboard-udp-socket");
+                        dashboard.message.send({data: payload, service: "dashboard-udp-socket"});
                     },
                     setState: function dashboard_sections_udpSocket_setState():void {
                         dashboard.utility.setState();
@@ -4655,7 +4661,7 @@ const ui = function ui():void {
                                     sanitize = function dashboard_shareServices_details_serversWeb_sanitize(input:string):string {
                                         return input.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
                                     },
-                                    serverData:services_server = (newFlag === true)
+                                    serverData:supplemental_server = (newFlag === true)
                                         ? {
                                             activate: true,
                                             domain_local: ["localhost"],
@@ -4927,16 +4933,19 @@ const ui = function ui():void {
                             }
                             if ((config.section === "terminal" && dashboard.sections["terminal"].info !== null) || config.section !== "terminal") {
                                 dashboard.message.send({
-                                    cols: cols,
-                                    hash: (config.section === "terminal")
-                                        ? dashboard.sections["terminal"].info.socket_hash
-                                        : "",
-                                    rows: rows,
-                                    secure: (location.protocol === "http:")
-                                        ? "open"
-                                        : "secure",
-                                    section: config.section
-                                } as services_terminal_resize, "dashboard-terminal-resize");
+                                    data: {
+                                        cols: cols,
+                                        hash: (config.section === "terminal")
+                                            ? dashboard.sections["terminal"].info.socket_hash
+                                            : "",
+                                        rows: rows,
+                                        secure: (location.protocol === "http:")
+                                            ? "open"
+                                            : "secure",
+                                        section: config.section
+                                    } as services_terminal_resize,
+                                    service: "dashboard-terminal-resize"
+                                });
                             }
                         }
                     }
@@ -5194,8 +5203,15 @@ const ui = function ui():void {
                     section_update("tcp");
                     section_update("udp");
                 } else if (module !== undefined) {
-                    // @ts-expect-error - cannot infer a module from a union of modules by a type name from a union of type names
-                    dashboard.global.payload.os[module.dataName] = socket_data.data;
+                    if (module.dataName === "ports-application") {
+                        dashboard.global.payload["ports-application"] = socket_data.data as services_ports_application;
+                    } else if (module.dataName === "sockets-application-tcp") {
+                        dashboard.global.payload.sockets.tcp = (socket_data.data as services_socket_application).tcp;
+                    } else if (module.dataName === "sockets-application-udp") {
+                        dashboard.global.payload.sockets.udp = (socket_data.data as services_socket_application).udp;
+                    } else {
+                        dashboard.global.payload.os[module.dataName as "devs"] = socket_data.data as services_os_devs;
+                    }
                     dashboard.tables.populate(module, socket_data.data as type_list_services);
                     dashboard.tables.sort(null, module.nodes.list.parentNode, Number(module.nodes.list.parentNode.dataset["column"]));
                     module.nodes.update_duration.textContent = dashboard.utility.performance_get(table);
@@ -5328,9 +5344,9 @@ const ui = function ui():void {
                         "user": "dashboard-os-user"
                     },
                     section:type_dashboard_sections = map_section[target] as type_dashboard_sections,
-                    service:type_service = map_service[target] as type_service;
+                    service:type_service = map_service[target] as "dashboard-os-devs";
                 dashboard.utility.performance_set(section);
-                dashboard.message.send(null, service);
+                dashboard.message.send({data: null, service: service});
             }
         },
         utility: {

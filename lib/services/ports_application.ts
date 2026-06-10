@@ -3,7 +3,7 @@ import broadcast from "../transmit/broadcast.ts";
 import vars from "../core/vars.ts";
 
 const ports_application = function services_portsApplication():void {
-    const list:services_ports_application_item[] = [],
+    const list:supplemental_ports_application_item[] = [],
         keys_container:string[] = Object.keys(vars.data.containers),
         keys_servers:string[] = Object.keys(vars.data.servers),
         payload:services_ports_application = {
@@ -12,7 +12,7 @@ const ports_application = function services_portsApplication():void {
         };
     let index_item:number = keys_container.length,
         index_ports:number = 0,
-        server:services_server = null,
+        server:supplemental_server = null,
         container:core_compose_container = null;
 
     // from containers
@@ -73,7 +73,7 @@ const ports_application = function services_portsApplication():void {
         } while (index_item > 0);
     }
 
-    list.sort(function dashboard_sections_portsApplication_receive_sort(a:services_ports_application_item, b:services_ports_application_item):-1|1 {
+    list.sort(function dashboard_sections_portsApplication_receive_sort(a:supplemental_ports_application_item, b:supplemental_ports_application_item):-1|1 {
         if (a.port < b.port || (a.port === b.port && a.type < b.type)) {
             return -1;
         }

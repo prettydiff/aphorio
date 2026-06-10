@@ -62,7 +62,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
     }
     log.shell(summary, complete);
     if (complete === true && exit === true) {
-        const item_service:services_testBrowser = {
+        const item_service:services_test_browser = {
                 index: -10,
                 magicString: null,
                 result: null,
