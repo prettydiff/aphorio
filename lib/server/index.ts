@@ -6,7 +6,7 @@ import server_start from "./server_start.ts";
 import vars from "../core/vars.ts";
 
 const servers = function services_server(socketData:socket_data):void {
-    if (socketData.service === "dashboard-server-action") {
+    if (socketData.service === "services_server_action") {
         const data:services_server_action = socketData.data as services_server_action,
             callback = function services_server_callback():void {
                 const payload:services_server_update = {
@@ -15,7 +15,7 @@ const servers = function services_server(socketData:socket_data):void {
                 };
                 broadcast(vars.environment.dashboard_id, "dashboard", {
                     data: payload,
-                    service: "dashboard-server-update"
+                    service: "services_server_update"
                 });
             };
         if (data.action === "activate") {

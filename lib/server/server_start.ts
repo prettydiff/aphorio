@@ -56,7 +56,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                         ports_used: vars.data_store.server_ports,
                         servers: vars.data.servers
                     },
-                    service: "dashboard-server-update"
+                    service: "services_server_update"
                 });
                 complete(serverItem.id);
             },

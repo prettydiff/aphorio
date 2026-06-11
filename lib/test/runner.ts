@@ -162,7 +162,7 @@ const test_runner:test_runner = {
                 },
                 payload:socket_data = {
                     data: item_service,
-                    service: "test-browser"
+                    service: "services_test_browser"
                 };
             send(payload, test_runner.socket, 3);
         }

@@ -48,7 +48,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
                 };
             send({
                 data: output,
-                service: "dashboard-http-test"
+                service: "services_http_test"
             }, transmit.socket as websocket_client, 3);
             if (socket !== null) {
                 socket.destroy();
@@ -165,7 +165,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
             bodyIndex:number = -1,
             contentLength:number = -1;
         if (vars.data.servers[vars.environment.dashboard_id].domain_local.indexOf(host) > -1 || vars.environment.interfaces.indexOf(host) > -1) {
-            headers.push("dashboard-http-test: true");
+            headers.push("services_http_test: true");
         }
         headers.push("");
         headers.push("");

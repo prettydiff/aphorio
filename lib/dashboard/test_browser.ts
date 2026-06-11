@@ -719,7 +719,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             };
             // eslint-disable-next-line
             console.log(`On browser sending index ${index} of suite "${remote.suite_name}"`);
-            // dashboard.utility.message_send(test, "test-browser");
+            // dashboard.message.send({data: test, service: "services_test_browser"});
             return test;
         },
 

@@ -16,7 +16,7 @@ const log:core_module_log = {
             vars.environment.logs.total = vars.environment.logs.total + 1;
             broadcast(vars.environment.dashboard_id, "dashboard", {
                 data: payload,
-                service: "dashboard-log"
+                service: "services_log"
             });
         }
     },

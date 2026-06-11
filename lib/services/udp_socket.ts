@@ -9,7 +9,7 @@ const udp_socket = function services_udpSocket(socket_data:socket_data, transmit
         const socket:websocket_client = transmit.socket as websocket_client;
         send({
             data: [`UDP ${socket_udp.role} socket created on local port ${socket_udp.addresses.local.port} with id: ${socket_udp.hash}.`],
-            service: "dashboard-udp-status"
+            service: "services_udp_status"
         }, socket, 3);
     });
 };

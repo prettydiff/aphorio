@@ -93,7 +93,7 @@ const statistics:core_module_statistics_resources = {
                     }
                     broadcast(vars.environment.dashboard_id, "dashboard", {
                         data: output,
-                        service: "dashboard-statistics-data"
+                        service: "services_statistics_data"
                     });
                 };
                 if (container_len === 0) {

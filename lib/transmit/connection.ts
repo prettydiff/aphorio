@@ -111,7 +111,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         store.userAgent = `${ua[0]}, ${ua[1]}, ${store.userAgent.slice(store.userAgent.lastIndexOf(")") + 2)}`;
                     } else if ((/^upgrade-insecure-requests:\s*1$/).test(lower) === true && socket.encrypted !== true && server.upgrade === true && vars.data_store.server_ports[server_id].secure > 0) {
                         flags.upgrade = true;
-                    } else if (lower === "dashboard-http-test: true") {
+                    } else if (lower === "services_http_test: true") {
                         flags.dashboard_http_test = true;
                     }
                 },

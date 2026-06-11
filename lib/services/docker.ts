@@ -249,9 +249,9 @@ const docker:core_module_docker = {
     },
     receive: function services_docker_receive(socket_data:socket_data, transmit:transmit_socket):void {
         const socket:websocket_client = transmit.socket as websocket_client;
-        if (socket_data.service === "dashboard-compose-variables") {
+        if (socket_data.service === "services_compose_variables") {
             docker.variables(socket_data.data as store_string, socket);
-        } else if (socket_data.service === "dashboard-compose-container") {
+        } else if (socket_data.service === "services_compose_container") {
             const data:services_compose_container = socket_data.data as services_compose_container,
                 segment:string = data.compose.split("container_name")[1],
                 name:string = (segment === undefined)
@@ -274,7 +274,7 @@ const docker:core_module_docker = {
                                 time: vars.data_meta.compose_time,
                                 variables: vars.data.compose_variables
                             },
-                            service: "dashboard-compose"
+                            service: "services_compose"
                         }, socket, 3);
                     });
                 },
@@ -354,13 +354,13 @@ const docker:core_module_docker = {
                                     time: vars.data_meta.compose_time,
                                     variables: vars.data.compose_variables
                                 },
-                                service: "dashboard-compose"
+                                service: "services_compose"
                             });
                         });
                     }
                     broadcast(vars.environment.dashboard_id, "dashboard", {
                         data: [output],
-                        service: "dashboard-compose-out"
+                        service: "services_compose_out"
                     });
                 };
             docker.shell = spawn_shell(shell, [], {
@@ -396,7 +396,7 @@ const docker:core_module_docker = {
                             time: vars.data_meta.compose_time,
                             variables: vars.data.compose_variables
                         },
-                        service: "dashboard-compose"
+                        service: "services_compose"
                     }, socket, 3);
                 });
             },

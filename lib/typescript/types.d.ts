@@ -11,7 +11,7 @@ type type_dashboard_features = type_dashboard_init | type_dashboard_tables;
 type type_dashboard_sections = type_dashboard_features | "faq" | "help";
 type type_dashboard_status = "error" | "informational";
 type type_dashboard_tables = "devices" | "ports-application" | "processes" | "services" | "sockets-application-tcp" | "sockets-application-udp" | "sockets-os-tcp" | "sockets-os-udp" | "users";
-type type_dashboard_table_services = "dashboard-os-devs" | "dashboard-ports-application" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-stcp" | "dashboard-os-sudp" | "dashboard-os-user" | "dashboard-socket-application";
+type type_dashboard_table_services = "services_os_devs" | "services_os_proc" | "services_os_serv" | "services_os_stcp" | "services_os_sudp" | "services_os_user" | "services_ports_application" | "services_socket_application";
 // type_directory_type
 // 0 - absolute path
 // 1 - file system item type
@@ -37,7 +37,7 @@ type type_hash_input = "direct" | "file";
 type type_http_method = "connect" | "get" | "head" | "options" | "trace";
 type type_keys = "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "Backspace" | "c" | "Delete" | "Enter" | "v";
 type type_list_services = services_os_devs | services_os_proc | services_os_serv | services_os_sock | services_os_user | services_ports_application | supplemental_socket_application_list;
-type type_lists = os_devs | os_proc | os_serv | os_sock | os_user | supplemental_ports_application_item | supplemental_socket_application_tcp | services_udp_socket;
+type type_lists = os_devs | os_proc | os_serv | os_sock | os_user | services_udp_socket | supplemental_ports_application_item | supplemental_socket_application_tcp;
 
 type type_os_key = type_os_list_names_base | "disk" | "part" | "stcp" | "sudp" | "volu";
 type type_os_list_names = type_os_list_names_base | "stcp" | "sudp";

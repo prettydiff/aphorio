@@ -13,7 +13,7 @@ const hashService = function services_hash(socket_data:socket_data, transmit:tra
             data.value = output.hash;
             send({
                 data: data,
-                service: "dashboard-hash"
+                service: "services_hash"
             }, transmit.socket as websocket_client, 3);
         };
     hash({

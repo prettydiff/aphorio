@@ -95,7 +95,7 @@ interface supplemental_server_method {
 }
 
 interface supplemental_socket_application_list {
-    data: supplemental_socket_application_tcp[] | services_udp_socket[];
+    data: services_udp_socket[] | supplemental_socket_application_tcp[];
     time: number;
 }
 

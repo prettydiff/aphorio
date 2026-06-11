@@ -1,43 +1,48 @@
 
 
 type socket_data =
-    {data: services_compose_container;   service: "dashboard-compose-container";} |   // changes from the user for docker compose objects
-    {data: services_compose;             service: "dashboard-compose";} |             // docker compose objects and service status
-    {data: services_dns_input;           service: "dashboard-dns-input";} |           // data submitted to trigger a dns query
-    {data: services_dns_output;          service: "dashboard-dns-output";} |          // data response to a dns query
-    {data: services_dns_reverse;         service: "dashboard-dns-reverse";} |         // data response to a reverse dns query
-    {data: services_file_system;         service: "dashboard-file-system";} |         // file system list
-    {data: services_hash;                service: "dashboard-hash";} |                // hash and base64 computational output
-    {data: services_http_test;           service: "dashboard-http-test";} |           // response messaging for an HTTP test request
-    {data: services_log;                 service: "dashboard-log";} |                 // a log entry
-    {data: services_message_inspection;  service: "dashboard-message-inspection";} |  // view data passing to/from a web server or docker logs for a named container
-    {data: services_os_devs;             service: "dashboard-os-devs";} |             // only the device portion of dashboard-os-all
-    {data: services_os_disk;             service: "dashboard-os-disk";} |             // only the disk portion of dashboard-os-all
-    {data: services_os_intr;             service: "dashboard-os-intr";} |             // only the network interface data of dashboard-os-all
-    {data: services_os_proc;             service: "dashboard-os-proc";} |             // only the process list information of dashboard-os-all
-    {data: services_os_serv;             service: "dashboard-os-serv";} |             // only the service information of dashboard-os-all
-    {data: services_os_sock;             service: "dashboard-os-stcp";} |             // only the tcp socket information of dashboard-os-all
-    {data: services_os_sock;             service: "dashboard-os-sudp";} |             // only the udp socket information of dashboard-os-all
-    {data: services_os_user;             service: "dashboard-os-user";} |             // only the user list information of dashboard-os-all
-    {data: services_os;                  service: "dashboard-os-all";} |              // all the information regarding machine, application, process, and more
-    {data: services_os;                  service: "dashboard-os-main";} |             // only the hardware, application, and process information of dashboard-os-all
-    {data: services_ports_application;   service: "dashboard-ports-application";} |   // a list of port information and associated processes managed from this application
-    {data: services_server_action;       service: "dashboard-server-action";} |       // provides a user initiated action to execute against servers
-    {data: services_server_update;       service: "dashboard-server-update";} |       // configuration details and port status for all servers
-    {data: services_socket_application;  service: "dashboard-socket-application";} |  // status updates about sockets created by this application
-    {data: services_statistics_change;   service: "dashboard-statistics-change";} |   // modifies control information respective to service statistical data collection
-    {data: services_statistics_data;     service: "dashboard-statistics-data";} |     // resource consumption statistics
-    {data: services_status_clock;        service: "dashboard-status-clock";} |        // current server clock time as epoch number
-    {data: services_terminal_resize;     service: "dashboard-terminal-resize";} |     // resizes the shell such that text is formatted properly with invisible control characters
-    {data: services_test_browser;        service: "test-browser";} |                  // test automation messaging to the browser
-    {data: services_udp_socket;          service: "dashboard-udp-socket";} |          // sends information about the creation of a UDP socket
-    {data: services_websocket_handshake; service: "dashboard-websocket-handshake";} | // custom created message to create a test WebSocket connection
-    {data: services_websocket_message;   service: "dashboard-websocket-message";} |   // parses the header of a WebSocket mes sage frame header sufficient to respond to the message on a test socket
-    {data: services_websocket_status;    service: "dashboard-websocket-status";} |    // sends connection establishment details for a test socket
-    {data: store_string;                 service: "dashboard-compose-variables";} |   // a key/value list of custom docker compose template variables
-    {data: store_string;                 service: "dashboard-notes";} |               // sends an updated notes value from UI for storage
-    {data: string[];                     service: "dashboard-compose-out";} |         // streams stdout of docker spawn commands to the ui
-    {data: string[];                     service: "dashboard-udp-status";};           // notifies the user a UDP socket is created
+    {data: services_compose_container;   service: "services_compose_container";} |   // changes from the user for docker compose objects
+    {data: services_compose_out;         service: "services_compose_out";} |         // streams stdout of docker spawn commands to the ui
+    {data: services_compose_variables;   service: "services_compose_variables";} |   // a key/value list of custom docker compose template variables
+    {data: services_compose;             service: "services_compose";} |             // docker compose objects and service status
+    {data: services_dns_input;           service: "services_dns_input";} |           // data submitted to trigger a dns query
+    {data: services_dns_output;          service: "services_dns_output";} |          // data response to a dns query
+    {data: services_dns_reverse;         service: "services_dns_reverse";} |         // data response to a reverse dns query
+    {data: services_file_system;         service: "services_file_system";} |         // file system list
+    {data: services_hash;                service: "services_hash";} |                // hash and base64 computational output
+    {data: services_http_test;           service: "services_http_test";} |           // response messaging for an HTTP test request
+    {data: services_log;                 service: "services_log";} |                 // a log entry
+    {data: services_message_inspection;  service: "services_message_inspection";} |  // view data passing to/from a web server or docker logs for a named container
+    {data: services_notes;               service: "services_notes";} |               // sends an updated notes value from UI for storage
+    {data: services_os_devs;             service: "services_os_devs";} |             // only the device portion of services_os_all
+    {data: services_os_disk;             service: "services_os_disk";} |             // only the disk portion of services_os_all
+    {data: services_os_intr;             service: "services_os_intr";} |             // only the network interface data of services_os_all
+    {data: services_os_proc;             service: "services_os_proc";} |             // only the process list information of services_os_all
+    {data: services_os_serv;             service: "services_os_serv";} |             // only the service information of services_os_all
+    {data: services_os_sock;             service: "services_os_stcp";} |             // only the tcp socket information of services_os_all
+    {data: services_os_sock;             service: "services_os_sudp";} |             // only the udp socket information of services_os_all
+    {data: services_os_user;             service: "services_os_user";} |             // only the user list information of services_os_all
+    {data: services_os;                  service: "services_os_all";} |              // all the information regarding machine, application, process, and more
+    {data: services_os;                  service: "services_os_main";} |             // only the hardware, application, and process information of services_os_all
+    {data: services_ports_application;   service: "services_ports_application";} |   // a list of port information and associated processes managed from this application
+    {data: services_server_action;       service: "services_server_action";} |       // provides a user initiated action to execute against servers
+    {data: services_server_update;       service: "services_server_update";} |       // configuration details and port status for all servers
+    {data: services_socket_application;  service: "services_socket_application";} |  // status updates about sockets created by this application
+    {data: services_statistics_change;   service: "services_statistics_change";} |   // modifies control information respective to service statistical data collection
+    {data: services_statistics_data;     service: "services_statistics_data";} |     // resource consumption statistics
+    {data: services_status_clock;        service: "services_status_clock";} |        // current server clock time as epoch number
+    {data: services_terminal_resize;     service: "services_terminal_resize";} |     // resizes the shell such that text is formatted properly with invisible control characters
+    {data: services_test_browser;        service: "services_test_browser";} |        // test automation messaging to the browser
+    {data: services_udp_socket;          service: "services_udp_socket";} |          // sends information about the creation of a UDP socket
+    {data: services_udp_status;          service: "services_udp_status";} |          // notifies the user a UDP socket is created
+    {data: services_websocket_handshake; service: "services_websocket_handshake";} | // custom created message to create a test WebSocket connection
+    {data: services_websocket_message;   service: "services_websocket_message";} |   // parses the header of a WebSocket mes sage frame header sufficient to respond to the message on a test socket
+    {data: services_websocket_status;    service: "services_websocket_status";};     // sends connection establishment details for a test socket
+
+type services_compose_out = string[];
+type services_compose_variables = store_string;
+type services_notes = store_string;
+type services_udp_status = string[];
 
 interface services_compose {
     containers: store_compose;

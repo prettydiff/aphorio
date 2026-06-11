@@ -34,7 +34,7 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
                 } else {
                     send({
                         data: output,
-                        service: "dashboard-dns-reverse"
+                        service: "services_dns_reverse"
                     }, transmit.socket as websocket_client, 3);
                 }
             };
@@ -76,7 +76,7 @@ const dns = function services_dns(socket_data:socket_data, transmit:transmit_soc
                         } else {
                             send({
                                 data: output,
-                                service: "dashboard-dns-output"
+                                service: "services_dns_output"
                             }, transmit.socket as websocket_client, 3);
                         }
                     }

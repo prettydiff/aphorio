@@ -73,7 +73,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
             socket:websocket_client = vars.data_store.sockets_tcp[vars.environment.dashboard_id].open[0],
             payload:socket_data = {
                 data: item_service,
-                service: "test-browser"
+                service: "services_test_browser"
             };
         send(payload, socket, 3);
         if (vars.test.total_assertions_fail > 1) {

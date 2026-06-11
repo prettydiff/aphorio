@@ -283,11 +283,11 @@ const start_application = function utilities_startApplication(process_path:strin
                                             .toString()
                                             .replace(/delay\s*=\s*0/, `delay=${vars.options["delay-time"]}`)
                                             .replace(/maxTries\s*=\s*0/, `maxTries=${vars.options["delay-intervals"]}`)
-                                            .replace(/\/\/ dashboard\.utility\.message_send\(test, "test-browser"\);\s+return test;/, "dashboard.utility.message_send(test,\"test-browser\");return test;")
+                                            .replace(/\/\/ dashboard\.message\.send\(\{data:\s*test,\s*service:\s*"services_test_browser"\}\);\s+return test;/, "dashboard.message.send({data: test, service: \"services_test_browser\"});return test;")
                                         : null;
                                 let total_script:string = null;
                                 if (vars.test.testing === true) {
-                                    script = script.replace("\"test-browser\": null,", `"test-browser": ${testBrowser},`);
+                                    script = script.replace("\"services_test_browser\": null,", `"services_test_browser": ${testBrowser},`);
                                 }
                                 total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time_elapsed:${universal.time_elapsed.toString()}};(${script}(${core.toString()}));`;
                                 vars.environment.dashboard_page = vars.environment.dashboard_page
