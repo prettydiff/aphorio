@@ -20,7 +20,7 @@ import websocket_test from "../services/websocket.ts";
 // cspell: words serv, stcp, sudp
 
 const router = function transmit_router(socketData:socket_data, transmit:transmit_socket):void {
-    const services:type_service = socketData.service,
+    const services:string = socketData.service,
         actions:transmit_receiver = {
             "dashboard-compose-container": docker.receive,
             "dashboard-compose-variables": docker.receive,

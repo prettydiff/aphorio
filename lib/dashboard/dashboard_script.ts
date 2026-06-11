@@ -5174,7 +5174,7 @@ const ui = function ui():void {
             },
             // populate data from update requests
             receive: function dashboard_table_receive(socket_data:socket_data):void {
-                const service:type_service = socket_data.service,
+                const service:string = socket_data.service,
                     map:store_string = {
                         "dashboard-ports-application": "ports-application",
                         "dashboard-os-devs": "devices",
@@ -5344,7 +5344,7 @@ const ui = function ui():void {
                         "user": "dashboard-os-user"
                     },
                     section:type_dashboard_sections = map_section[target] as type_dashboard_sections,
-                    service:type_service = map_service[target] as "dashboard-os-devs";
+                    service:type_dashboard_table_services = map_service[target] as "dashboard-os-devs";
                 dashboard.utility.performance_set(section);
                 dashboard.message.send({data: null, service: service});
             }

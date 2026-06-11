@@ -11,6 +11,7 @@ type type_dashboard_features = type_dashboard_init | type_dashboard_tables;
 type type_dashboard_sections = type_dashboard_features | "faq" | "help";
 type type_dashboard_status = "error" | "informational";
 type type_dashboard_tables = "devices" | "ports-application" | "processes" | "services" | "sockets-application-tcp" | "sockets-application-udp" | "sockets-os-tcp" | "sockets-os-udp" | "users";
+type type_dashboard_table_services = "dashboard-os-devs" | "dashboard-ports-application" | "dashboard-os-proc" | "dashboard-os-serv" | "dashboard-os-stcp" | "dashboard-os-sudp" | "dashboard-os-user" | "dashboard-socket-application";
 // type_directory_type
 // 0 - absolute path
 // 1 - file system item type
