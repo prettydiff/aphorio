@@ -10,7 +10,7 @@ const clock = function services_clock():void {
         };
     broadcast(vars.environment.dashboard_id, "dashboard", {
         data: payload,
-        service: "dashboard-status-clock"
+        service: "services_status_clock"
     });
     setTimeout(services_clock, 950);
 };

@@ -22,7 +22,7 @@ const message_inspection:core_module_messageInspection = {
                 ) {
                     send({
                         data: data,
-                        service: "dashboard-message-inspection"
+                        service: "services_message_inspection"
                     }, vars.data_store.message_inspection[index_messages].socket, 3);
                 }
             } while (index_messages > 0);
@@ -61,7 +61,7 @@ const message_inspection:core_module_messageInspection = {
                                 };
                             send({
                                 data: message,
-                                service: "dashboard-message-inspection"
+                                service: "services_message_inspection"
                             }, socket, 3);
                         };
                     child.execute();

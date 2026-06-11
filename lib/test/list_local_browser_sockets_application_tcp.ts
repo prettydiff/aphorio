@@ -184,7 +184,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                         ["getElementsByClassName", "table-filters", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
-                    value: "dashboard-terminal-"
+                    value: "services_terminal_"
                 },
                 {
                     event: "keyup",

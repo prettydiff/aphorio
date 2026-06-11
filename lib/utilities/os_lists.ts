@@ -857,7 +857,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 }
             }
         },
-        main = function utilities_os_main(time:number):core_server_os {
+        main = function utilities_os_main(time:number):services_os {
             const mem:os_node_memoryUsage = process.memoryUsage(),
                 cpu:os_node_cpuUsage = process.cpuUsage(),
                 cpus:os_node_cpu = node.os.cpus(),
@@ -867,7 +867,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 uid:number = (typeof process.getuid === "undefined")
                     ? 0
                     : process.getuid(),
-                output:core_server_os = {
+                output:services_os = {
                     devs: {
                         data: [],
                         time: 0
@@ -972,7 +972,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             }
             complete[type] = true;
             if (type_os === "all" && index > 0) {
-                const output:core_server_os = main(now);
+                const output:services_os = main(now);
                 do {
                     index = index - 1;
                     if (complete[keys[index]] === false) {
@@ -1021,13 +1021,13 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 vars.os.user = output.user;
                 callback({
                     data: output,
-                    service: "dashboard-os-all"
+                    service: "services_os_all"
                 });
             } else if (type_os === "main") {
-                const output:core_server_os = main(now);
+                const output:services_os = main(now);
                 callback({
                     data: output,
-                    service: "dashboard-os-main"
+                    service: "services_os_main"
                 });
             } else if (type_os === "devs") {
                 vars.os.devs = {
@@ -1036,7 +1036,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 };
                 callback({
                     data: vars.os.devs,
-                    service: "dashboard-os-devs"
+                    service: "services_os_devs"
                 });
             } else if (type_os === "disk") {
                 vars.os.disk = {
@@ -1045,7 +1045,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 };
                 callback({
                     data: vars.os.disk,
-                    service: "dashboard-os-disk"
+                    service: "services_os_disk"
                 });
             } else if (type_os === "intr") {
                 vars.os.intr = {
@@ -1054,7 +1054,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 };
                 callback({
                     data: vars.os.intr,
-                    service: "dashboard-os-intr"
+                    service: "services_os_intr"
                 });
             } else if (type_os === "proc") {
                 vars.os.proc = {
@@ -1063,7 +1063,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 };
                 callback({
                     data: vars.os.proc,
-                    service: "dashboard-os-proc"
+                    service: "services_os_proc"
                 });
             } else if (type_os === "serv") {
                 vars.os.serv = {
@@ -1072,7 +1072,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 };
                 callback({
                     data: vars.os.serv,
-                    service: "dashboard-os-serv"
+                    service: "services_os_serv"
                 });
             } else if (type_os === "stcp" && complete.stcp === true && complete.sudp === true) {
                 vars.os.stcp = {
@@ -1081,7 +1081,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 };
                 callback({
                     data: vars.os.stcp,
-                    service: "dashboard-os-stcp"
+                    service: "services_os_stcp"
                 });
             } else if (type_os === "sudp" && complete.stcp === true && complete.sudp === true) {
                 vars.os.sudp = {
@@ -1090,7 +1090,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 };
                 callback({
                     data: vars.os.sudp,
-                    service: "dashboard-os-sudp"
+                    service: "services_os_sudp"
                 });
             } else if (type_os === "user") {
                 if (win32 === true) {
@@ -1105,7 +1105,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 };
                 callback({
                     data: vars.os.user,
-                    service: "dashboard-os-user"
+                    service: "services_os_user"
                 });
             }
         },

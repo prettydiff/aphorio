@@ -337,7 +337,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         },
 
         /* Process a single event instance */
-        event: function testBrowser_event(item:services_testBrowser, pageLoad:boolean):void {
+        event: function testBrowser_event(item:services_test_browser, pageLoad:boolean):void {
             if (item.index > remote.index || remote.index < 0) {
                 remote.index = item.index;
                 remote.suite_name = item.suite_name;
@@ -708,8 +708,8 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         },
 
         /* A single location to package test evaluations into a format for transfer across the network */
-        sendTest: function testBrowser_sendTest(payload:test_assert[], index:number):services_testBrowser {
-            const test:services_testBrowser = {
+        sendTest: function testBrowser_sendTest(payload:test_assert[], index:number):services_test_browser {
+            const test:services_test_browser = {
                 index: index,
                 magicString: null,
                 result: payload,
@@ -719,7 +719,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             };
             // eslint-disable-next-line
             console.log(`On browser sending index ${index} of suite "${remote.suite_name}"`);
-            // dashboard.utility.message_send(test, "test-browser");
+            // dashboard.message.send({data: test, service: "services_test_browser"});
             return test;
         },
 
@@ -736,7 +736,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
 
     };
     if (location.href.indexOf("?test_browser") > 0) {
-        const data:services_testBrowser = socketData.data as services_testBrowser;
+        const data:services_test_browser = socketData.data as services_test_browser;
         // eslint-disable-next-line
         console.log(`On browser receive index ${data.index} of suite "${data.suite_name}"`);
         remote.magicString = data.magicString;

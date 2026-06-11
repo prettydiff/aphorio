@@ -93,7 +93,7 @@ const statistics:core_module_statistics_resources = {
                     }
                     broadcast(vars.environment.dashboard_id, "dashboard", {
                         data: output,
-                        service: "dashboard-statistics-data"
+                        service: "services_statistics_data"
                     });
                 };
                 if (container_len === 0) {
@@ -394,7 +394,7 @@ const statistics:core_module_statistics_resources = {
                 vars.stats.containers.application[`net_${type}`].labels.push(time);
             },
             // trim off excess data intervals
-            splice = function services_statisticsData_splice(item:services_statistics_facet):void {
+            splice = function services_statisticsData_splice(item:supplemental_statistics_facet):void {
                 const len:number = item.data.length;
                 if (len > vars.stats.records) {
                     item.data.splice(0, len - vars.stats.records);

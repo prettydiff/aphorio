@@ -12,7 +12,7 @@ const socket_list = function services_socketList():void {
     vars.data_meta.sockets = now;
     broadcast(vars.environment.dashboard_id, "dashboard", {
         data: payload,
-        service: "dashboard-socket-application"
+        service: "services_socket_application"
     });
 };
 

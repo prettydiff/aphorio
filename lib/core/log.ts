@@ -3,32 +3,37 @@ import broadcast from "../transmit/broadcast.ts";
 import vars from "./vars.ts";
 
 const log:core_module_log = {
-    application: function utilities_logApplication(config:config_log):void {
+    application: function core_log_application(config:config_log):void {
         if (vars.environment.features["application-logs"] === true) {
+            const payload:services_log = {
+                log: config,
+                total: vars.environment.logs.total
+            };
             if (typeof config.error === "boolean" || config.error === undefined) {
                 config.error = null;
             }
             vars.data.logs.push(config);
             vars.environment.logs.total = vars.environment.logs.total + 1;
             broadcast(vars.environment.dashboard_id, "dashboard", {
-                data: {
-                    log: config,
-                    total: vars.environment.logs.total
-                },
-                service: "dashboard-log"
+                data: payload,
+                service: "services_log"
             });
         }
     },
-    shell: function utilities_logShell(input:string[], summary?:boolean):void {
-        const logger = function utilities_logShell_logger(item:string):void {
+    receive: function core_log_receive(socket_data:socket_data):void {
+        const data:services_log = socket_data.data as services_log;
+        log.application(data.log);
+    },
+    shell: function core_log_shell(input:string[], summary?:boolean):void {
+        const logger = function core_log_shell_logger(item:string):void {
             // eslint-disable-next-line no-console
             console.log(item);
         };
-        input.forEach(function utilities_logShell_each(value:string):void {
+        input.forEach(function core_log_shell_each(value:string):void {
             logger(value);
         });
         if (summary === true && vars.environment.hash !== "") {
-            const difference:string = (function terminal_utilities_log_difference():string {
+            const difference:string = (function core_log_shell_difference():string {
                     const duration:number = Date.now() - vars.environment.date_commit,
                         day:number = (1000 * 60 * 60 * 24),
                         month:number = (day * 30),
@@ -36,7 +41,7 @@ const log:core_module_log = {
                         year:number = (day * 365),
                         years:number = Math.floor(duration / year),
                         days:number = Math.floor(duration / day),
-                        plural = function terminal_utilities_log_difference_plural(input:number):""|"s" {
+                        plural = function core_log_shell_difference_plural(input:number):""|"s" {
                             if (input === 1) {
                                 return "";
                             }

@@ -43,7 +43,7 @@ const websocket_test:websocket_test = {
         if (socket_dashboard !== null) {
             send({
                 data: payload,
-                service: "dashboard-websocket-message"
+                service: "services_websocket_message"
             }, socket_dashboard, 3);
         }
         if (frame.opcode === 8) {
@@ -69,7 +69,7 @@ const websocket_test:websocket_test = {
             };
             send({
                 data: message,
-                service: "dashboard-websocket-status"
+                service: "services_websocket_status"
             }, socket_dashboard, 3);
             if (socket_test !== null) {
                 socket_test.destroy();
@@ -85,7 +85,7 @@ const websocket_test:websocket_test = {
                         };
                     send({
                         data: message,
-                        service: "dashboard-websocket-status"
+                        service: "services_websocket_status"
                     }, socket_dashboard, 3);
                 },
                 config:config_websocket_create = {

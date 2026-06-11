@@ -60,7 +60,7 @@ const socket_end = function transmit_socketEnd(this:websocket_client, error:node
         };
         message_inspection.set({
             data: payload,
-            service: "dashboard-message-inspection"
+            service: "services_message_inspection"
         }, {
             socket: socket,
             type: "ws"

@@ -4,7 +4,7 @@ import http_get from "./http_get.ts";
 import http_options from "./http_options.ts";
 import http_trace from "./http_trace.ts";
 
-const http:services_http = {
+const http:supplemental_http = {
     connect: http_connect,
     get: http_get,
     head: http_get,

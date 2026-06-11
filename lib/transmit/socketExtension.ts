@@ -43,7 +43,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             encryption:"open"|"secure" = (config.socket.secure === true)
                 ? "secure"
                 : "open",
-            socket:services_socket_application_tcp = {
+            socket:supplemental_socket_application_tcp = {
                 address: config.socket.addresses,
                 encrypted: (config.socket.encrypted === true),
                 hash: config.identifier,

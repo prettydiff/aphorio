@@ -4,6 +4,7 @@ import docker from "../services/docker.ts";
 import fileSystem from "../services/fileSystem.ts";
 import hash from "../services/hash.ts";
 import http_request_test from "../http/http_request_test.ts";
+import log from "../core/log.ts";
 import message_inspection from "../services/message_inspection.ts";
 import notes from "../services/notes.ts";
 import os from "../services/os.ts";
@@ -19,38 +20,39 @@ import websocket_test from "../services/websocket.ts";
 // cspell: words serv, stcp, sudp
 
 const router = function transmit_router(socketData:socket_data, transmit:transmit_socket):void {
-    const services:type_service = socketData.service,
+    const services:string = socketData.service,
         actions:transmit_receiver = {
-            "dashboard-compose-container": docker.receive,
-            "dashboard-compose-variables": docker.receive,
-            "dashboard-dns": dns,
-            "dashboard-fileSystem": fileSystem,
-            "dashboard-hash": hash,
-            "dashboard-http": http_request_test,
-            "dashboard-message-inspection": message_inspection.set,
-            "dashboard-notes": notes,
-            "dashboard-os-all": os,
-            "dashboard-os-devs": os,
-            "dashboard-os-disk": os,
-            "dashboard-os-intr": os,
-            "dashboard-os-main": os,
-            "dashboard-os-proc": os,
-            "dashboard-os-serv": os,
-            "dashboard-os-sock": os,
-            "dashboard-os-stcp": os,
-            "dashboard-os-sudp": os,
-            "dashboard-os-user": os,
-            "dashboard-ports-application": ports_application,
-            "dashboard-server-action": servers,
-            "dashboard-socket-application": socket_list,
-            "dashboard-statistics-change": statistics_resources.change,
-            "dashboard-terminal-resize": terminal.resize,
-            "dashboard-udp-socket": udp_socket,
-            "dashboard-websocket-handshake": websocket_test.handshake,
-            "dashboard-websocket-message": websocket_test.message,
-            "test-browser": test_runner.receive
+            "services_compose_container": docker.receive,
+            "services_compose_variables": docker.receive,
+            "services_dns_input": dns,
+            "services_file_system": fileSystem,
+            "services_hash": hash,
+            "services_http_test": http_request_test,
+            "services_log": log.receive,
+            "services_message_inspection": message_inspection.set,
+            "services_notes": notes,
+            "services_os_all": os,
+            "services_os_devs": os,
+            "services_os_disk": os,
+            "services_os_intr": os,
+            "services_os_main": os,
+            "services_os_proc": os,
+            "services_os_serv": os,
+            "services_os_sock": os,
+            "services_os_stcp": os,
+            "services_os_sudp": os,
+            "services_os_user": os,
+            "services_ports_application": ports_application,
+            "services_server_action": servers,
+            "services_socket_application": socket_list,
+            "services_statistics_change": statistics_resources.change,
+            "services_terminal_resize": terminal.resize,
+            "services_test_browser": test_runner.receive,
+            "services_udp_socket": udp_socket,
+            "services_websocket_handshake": websocket_test.handshake,
+            "services_websocket_message": websocket_test.message
         };
-    if (services === "dashboard-terminal-resize") {
+    if (services === "services_terminal_resize") {
         const data:services_terminal_resize = socketData.data as services_terminal_resize;
         if (data.section === "compose-containers") {
             docker.resize(socketData, transmit);

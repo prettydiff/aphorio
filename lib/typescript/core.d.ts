@@ -120,6 +120,7 @@ interface core_module_file {
 
 interface core_module_log {
     application: (config:config_log) => void;
+    receive: (socket_data:socket_data) => void;
     shell: (input:string[], summary?:boolean) => void;
 }
 
@@ -145,6 +146,11 @@ interface core_module_spawn {
 interface core_module_statistics_resources {
     change: (data:socket_data) => void;
     data: () => void;
+}
+
+interface core_module_terminal {
+    resize: receiver;
+    shell: (socket:websocket_pty, config:config_terminal) => void;
 }
 
 interface core_module_udp {
@@ -185,64 +191,6 @@ interface core_server_content {
 interface core_server_instance extends node_net_Server {
     id?: string;
     secure?: boolean;
-}
-
-interface core_server_os {
-    devs: services_os_devs;
-    disk: services_os_disk;
-    intr: services_os_intr;
-    machine: {
-        cpu: {
-            arch: string;
-            cores: number;
-            endianness: string;
-            frequency: number;
-            name: string;
-        };
-        memory: {
-            free: number;
-            total: number;
-        };
-    };
-    os: {
-        env: store_string;
-        hostname: string;
-        name: string;
-        path: string[];
-        platform: string;
-        release: string;
-        type: string;
-        uptime: number;
-    };
-    proc: services_os_proc;
-    process: {
-        admin: boolean;
-        arch: string;
-        argv: string[];
-        cpuSystem: number;
-        cpuUser: number;
-        cwd: string;
-        memory: {
-            external: number;
-            rss: number;
-            V8: number;
-        };
-        pid: number;
-        platform: string;
-        ppid: number;
-        uptime: number;
-        versions: store_string;
-    };
-    serv: services_os_serv;
-    stcp: services_os_sock;
-    sudp: services_os_sock;
-    time: number;
-    user: services_os_user;
-    user_account: {
-        gid: number;
-        homedir: string;
-        uid: number;
-    };
 }
 
 interface core_server_ports {
@@ -296,9 +244,9 @@ interface core_vars {
         containers: store_compose;
         logs: config_log[];
         notes: string;
-        ports_application: services_ports_application_item[];
+        ports_application: supplemental_ports_application_item[];
         servers: store_servers;
-        sockets_tcp: services_socket_application_tcp[];
+        sockets_tcp: supplemental_socket_application_tcp[];
         sockets_udp: services_udp_socket[];
     };
     data_meta: {
@@ -404,12 +352,12 @@ interface core_vars {
         "test": boolean;
         "test-verbose": boolean;
     };
-    os: core_server_os;
+    os: services_os;
     path: core_vars_path;
     stats: {
         children: number;
         containers: {
-            [key:string]: services_statistics_item;
+            [key:string]: supplemental_statistics_item;
         };
         duration: number;
         frequency: number;

@@ -152,7 +152,7 @@ const test_runner:test_runner = {
                 test_runner.tools.browser_open();
                 return;
             }
-            const item_service:services_testBrowser = {
+            const item_service:services_test_browser = {
                     index: vars.test.index,
                     magicString: vars.test.magicString,
                     result: null,
@@ -162,7 +162,7 @@ const test_runner:test_runner = {
                 },
                 payload:socket_data = {
                     data: item_service,
-                    service: "test-browser"
+                    service: "services_test_browser"
                 };
             send(payload, test_runner.socket, 3);
         }
@@ -255,7 +255,7 @@ const test_runner:test_runner = {
         }
     },
     receive: function test_runner_receive(socket_data:socket_data):void {
-        const data:services_testBrowser = socket_data.data as services_testBrowser,
+        const data:services_test_browser = socket_data.data as services_test_browser,
             results:test_assert[] = data.result;
         test_runner.logger(results);
         test_runner.tools.next();

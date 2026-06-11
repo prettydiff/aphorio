@@ -10,14 +10,18 @@ const ui = function ui():void {
         execute: function dashboard_execute():void {
             // eslint-disable-next-line max-params
             window.onerror = function dashboard_execute_windowError(message:Event|string, source:string, lineno:number, colno:number, error:Error):void {
-                dashboard.message.send({
-                    error: error,
-                    message: `JavaScript UI error in browser on line ${lineno} and column ${colno} in ${source}. ${message.toString()}`,
-                    origin: "web browser",
-                    section: "dashboard",
-                    status: "error",
-                    time: Date.now()
-                }, "dashboard-log");
+                const payload:services_log = {
+                    log: {
+                        error: error,
+                        message: `JavaScript UI error in browser on line ${lineno} and column ${colno} in ${source}. ${message.toString()}`,
+                        origin: "web browser",
+                        section: "dashboard",
+                        status: "error",
+                        time: Date.now()
+                    },
+                    total: 0
+                };
+                dashboard.message.send({data: payload, service: "services_log"});
             };
             const navButtons:HTMLCollectionOf<HTMLElement> = document.getElementsByTagName("nav")[0].getElementsByTagName("button"),
                 navigation = function dashboard_execute_navigation(event:MouseEvent):void {
@@ -104,7 +108,7 @@ const ui = function ui():void {
                     };
                     dashboard.sections["application-logs"].receive({
                         data: log_entry,
-                        service: "dashboard-log"
+                        service: "services_log"
                     });
                     dashboard.socket.connected = false;
                     dashboard.utility.baseline();
@@ -118,17 +122,8 @@ const ui = function ui():void {
                     }
                 },
                 open: function dashboard_execute_socketOpen(event:Event):void {
-                    const target:WebSocket = event.target as WebSocket,
-                        encryption:string = (target.url.indexOf("wss") === 0)
-                            ? "Encrypted"
-                            : "Insecure",
-                        status:HTMLElement = document.getElementById("connection-status");
+                    const target:WebSocket = event.target as WebSocket;
                     dashboard.socket.connected = true;
-                    if (status !== null ) {
-                        status.getElementsByTagName("strong")[0].textContent = `Online (${encryption})`;
-                        status.setAttribute("class", "connection-online");
-                    }
-                    
                     dashboard.socket.socket = target;
                     if (dashboard.socket.queueStore.length > 0) {
                         do {
@@ -316,7 +311,11 @@ const ui = function ui():void {
                                     dashboard.sections[section_name as type_dashboard_init].init();
                                 }
                             }
-                        };
+                        },
+                        encryption:string = (dashboard.socket.socket.url.indexOf("wss") === 0)
+                            ? "Encrypted"
+                            : "Insecure",
+                        status:HTMLElement = document.getElementById("connection-status");
                     init("application-logs", false);
                     init("compose-containers", false);
                     init("devices", true);
@@ -344,146 +343,150 @@ const ui = function ui():void {
                     init("users", true);
                     dashboard.global.loaded = true;
                     dashboard.utility.nodes.main.style.display = "block";
-                    dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
                     anchor.setAttribute("href", dashboard.global.payload.repository);
                     anchor.textContent = `version ${dashboard.global.payload.version}`;
                     title.appendChild(anchor);
+                    if (status !== null ) {
+                        status.getElementsByTagName("strong")[0].textContent = `Online (${encryption})`;
+                        status.setAttribute("class", "connection-online");
+                    }
+                    dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
                 }
             },
             receive: function dashboard_message_receive(data:string):void {
                 const message_item:socket_data = JSON.parse(data),
                     service_map:map_messages = {
-                        "test-browser": null,
-                        "dashboard-compose": (dashboard.sections["compose-containers"] === undefined)
+                        "services_test_browser": null,
+                        "services_compose": (dashboard.sections["compose-containers"] === undefined)
                             ? null
                             : dashboard.sections["compose-containers"].receive,
-                        "dashboard-compose-out": (dashboard.sections["compose-containers"] === undefined)
+                        "services_compose_out": (dashboard.sections["compose-containers"] === undefined)
                             ? null
                             : dashboard.sections["compose-containers"].status_out,
-                        "dashboard-dns": (dashboard.sections["dns-query"] === undefined)
+                        "services_dns_output": (dashboard.sections["dns-query"] === undefined)
                             ? null
                             : dashboard.sections["dns-query"].receive,
-                        "dashboard-fileSystem": (dashboard.sections["file-system"] === undefined)
+                        "services_dns_reverse": (dashboard.sections["dns-query"] === undefined)
+                            ? null
+                            : dashboard.sections["dns-query"].receive,
+                        "services_file_system": (dashboard.sections["file-system"] === undefined)
                             ? null
                             : dashboard.sections["file-system"].receive,
-                        "dashboard-hash": (dashboard.sections["hash"] === undefined)
+                        "services_hash": (dashboard.sections["hash"] === undefined)
                             ? null
                             : dashboard.sections["hash"].receive,
-                        "dashboard-http": (dashboard.sections["test-http"] === undefined)
+                        "services_http_test": (dashboard.sections["test-http"] === undefined)
                             ? null
                             : dashboard.sections["test-http"].receive,
-                        "dashboard-log": (dashboard.sections["application-logs"] === undefined)
+                        "services_log": (dashboard.sections["application-logs"] === undefined)
                             ? null
                             : dashboard.sections["application-logs"].receive,
-                        "dashboard-message-inspection": (dashboard.sections["message-inspection"] === undefined)
+                        "services_message_inspection": (dashboard.sections["message-inspection"] === undefined)
                             ? null
                             : dashboard.sections["message-inspection"].receive,
-                        "dashboard-os-devs": (dashboard.sections["devices"] === undefined)
+                        "services_os_devs": (dashboard.sections["devices"] === undefined)
                             ? null
                             : dashboard.tables.receive,
-                        "dashboard-os-disk": (dashboard.sections["disks"] === undefined)
+                        "services_os_disk": (dashboard.sections["disks"] === undefined)
                             ? null
                             : dashboard.sections["disks"].receive,
-                        "dashboard-os-intr": (dashboard.sections["interfaces"] === undefined)
+                        "services_os_intr": (dashboard.sections["interfaces"] === undefined)
                             ? null
                             : dashboard.sections["interfaces"].receive,
-                        "dashboard-os-main": (dashboard.sections["os-machine"] === undefined)
+                        "services_os_main": (dashboard.sections["os-machine"] === undefined)
                             ? null
                             : dashboard.sections["os-machine"].receive,
-                        "dashboard-os-proc": (dashboard.sections["processes"] === undefined)
+                        "services_os_proc": (dashboard.sections["processes"] === undefined)
                             ? null
                             : dashboard.tables.receive,
-                        "dashboard-os-serv": (dashboard.sections["services"] === undefined)
+                        "services_os_serv": (dashboard.sections["services"] === undefined)
                             ? null
                             : dashboard.tables.receive,
-                        "dashboard-os-stcp": (dashboard.sections["sockets-os-tcp"] === undefined)
+                        "services_os_stcp": (dashboard.sections["sockets-os-tcp"] === undefined)
                             ? null
                             : dashboard.tables.receive,
-                        "dashboard-os-sudp": (dashboard.sections["sockets-os-udp"] === undefined)
+                        "services_os_sudp": (dashboard.sections["sockets-os-udp"] === undefined)
                             ? null
                             : dashboard.tables.receive,
-                        "dashboard-os-user": (dashboard.sections["users"] === undefined)
+                        "services_os_user": (dashboard.sections["users"] === undefined)
                             ? null
                             : dashboard.tables.receive,
-                        "dashboard-ports-application": (dashboard.sections["ports-application"] === undefined)
+                        "services_ports_application": (dashboard.sections["ports-application"] === undefined)
                             ? null
                             : dashboard.tables.receive,
-                        "dashboard-server": (dashboard.sections["servers-web"] === undefined)
+                        "services_server_update": (dashboard.sections["servers-web"] === undefined)
                             ? null
                             : dashboard.sections["servers-web"].receive,
-                        "dashboard-server-update": (dashboard.sections["servers-web"] === undefined)
-                            ? null
-                            : dashboard.sections["servers-web"].receive,
-                        "dashboard-socket-application": (dashboard.sections["sockets-application-tcp"] === undefined)
+                        "services_socket_application": (dashboard.sections["sockets-application-tcp"] === undefined)
                             ? (dashboard.sections["sockets-application-udp"] === undefined)
                                 ? null
                                 : dashboard.tables.receive
                             : dashboard.tables.receive,
-                        "dashboard-statistics-data": (dashboard.sections["statistics-resources"] === undefined)
+                        "services_statistics_data": (dashboard.sections["statistics-resources"] === undefined)
                             ? null
                             : dashboard.sections["statistics-resources"].receive,
-                        "dashboard-status-clock": dashboard.utility.clock,
-                        "dashboard-udp-status": (dashboard.sections["udp-socket"] === undefined)
+                        "services_status_clock": dashboard.utility.clock,
+                        "services_udp_status": (dashboard.sections["udp-socket"] === undefined)
                             ? null
                             : dashboard.sections["udp-socket"].receive,
-                        "dashboard-websocket-message": (dashboard.sections["test-websocket"] === undefined)
+                        "services_websocket_message": (dashboard.sections["test-websocket"] === undefined)
                             ? null
                             : dashboard.sections["test-websocket"].transmit.message_receive,
-                        "dashboard-websocket-status": (dashboard.sections["test-websocket"] === undefined)
+                        "services_websocket_status": (dashboard.sections["test-websocket"] === undefined)
                             ? null
                             : dashboard.sections["test-websocket"].transmit.status
                     };
-                if (message_item.service === "dashboard-os-all") {
-                    const data:core_server_os = message_item.data as core_server_os;
+                if (message_item.service === "services_os_all") {
+                    const data:services_os = message_item.data as services_os;
                     if (dashboard.sections["devices"] !== undefined) {
                         dashboard.tables.populate(dashboard.sections["devices"], data.devs);
                     }
                     if (dashboard.sections["disks"] !== undefined) {
                         dashboard.sections["disks"].receive({
                             data: data.disk,
-                            service: "dashboard-os-disk"
+                            service: "services_os_disk"
                         });
                     }
                     if (dashboard.sections["interfaces"] !== undefined) {
                         dashboard.sections["interfaces"].receive({
                             data: data.intr,
-                            service: "dashboard-os-intr"
+                            service: "services_os_intr"
                         });
                     }
                     if (dashboard.sections["os-machine"] !== undefined) {
                         dashboard.sections["os-machine"].receive({
                             data: data,
-                            service: "dashboard-os-main"
+                            service: "services_os_main"
                         });
                     }
                     if (dashboard.sections["processes"] !== undefined) {
                         dashboard.tables.receive({
                             data: data.proc,
-                            service: "dashboard-os-proc"
+                            service: "services_os_proc"
                         });
                     }
                     if (dashboard.sections["services"] !== undefined) {
                         dashboard.tables.receive({
                             data: data.serv,
-                            service: "dashboard-os-serv"
+                            service: "services_os_serv"
                         });
                     }
                     if (dashboard.sections["sockets-os-tcp"] !== undefined) {
                         dashboard.tables.receive({
                             data: data.stcp,
-                            service: "dashboard-os-stcp"
+                            service: "services_os_stcp"
                         });
                     }
                     if (dashboard.sections["sockets-os-udp"] !== undefined) {
                         dashboard.tables.receive({
                             data: data.sudp,
-                            service: "dashboard-os-sudp"
+                            service: "services_os_sudp"
                         });
                     }
                     if (dashboard.sections["users"] !== undefined) {
                         dashboard.tables.receive({
                             data: data.user,
-                            service: "dashboard-os-user"
+                            service: "services_os_user"
                         });
                     }
                 } else if (service_map[message_item.service] !== null) {
@@ -491,12 +494,8 @@ const ui = function ui():void {
                 }
             },
             // send dashboard service messages
-            send: function dashboard_message_send(data:type_socket_data, service:type_service):void {
-                const message:socket_data = {
-                        data: data,
-                        service: service
-                    };
-                dashboard.socket.queue(JSON.stringify(message));
+            send: function dashboard_message_send(socket_data:socket_data):void {
+                dashboard.socket.queue(JSON.stringify(socket_data));
             },
         },
         sections: {
@@ -519,7 +518,7 @@ const ui = function ui():void {
                                     log: dashboard.global.payload.logs.entries[index],
                                     total: dashboard.global.payload.logs.total
                                 },
-                                service: "dashboard-log"
+                                service: "services_log"
                             });
                         } while (index > 0);
                     }
@@ -649,7 +648,7 @@ const ui = function ui():void {
                                     ? ""
                                     : dashboard.global.payload.compose.containers[id].location
                             };
-                        dashboard.message.send(message, "dashboard-compose-container");
+                        dashboard.message.send({data: message, service: "services_compose_container"});
                         dashboard.sections["compose-containers"].nodes.new_container.disabled = false;
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
@@ -663,7 +662,7 @@ const ui = function ui():void {
                             cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
                             value:string = edit.getElementsByTagName("textarea")[0].value,
                             variables:store_string = JSON.parse(value);
-                        dashboard.message.send(variables, "dashboard-compose-variables");
+                        dashboard.message.send({data: variables, service: "services_compose_variables"});
                         dashboard.sections["compose-containers"].nodes.new_variable.disabled = false;
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
@@ -686,7 +685,7 @@ const ui = function ui():void {
                             id: "",
                             location: ""
                         };
-                        dashboard.message.send(message, "dashboard-compose-container");
+                        dashboard.message.send({data: message, service: "services_compose_container"});
                     },
                     validate_containers: function dashboard_sections_composeContainers_validateContainers(event:FocusEvent|KeyboardEvent):void {
                         const target:HTMLElement = event.target,
@@ -793,45 +792,45 @@ const ui = function ui():void {
                     }
                 },
                 init: function dashboard_sections_composeContainers_init():void {
-                    const shell = function dashboard_sections_composeContainers_init_shell():void {
-                        if (dashboard.sections["compose-containers"].shell === null) {
-                            if (typeof Terminal === "undefined") {
-                                setTimeout(dashboard_sections_composeContainers_init_shell, 200);
-                            } else {
-                                // @ts-expect-error - xterm has not updated their types to reflect Terminal is a constructor
-                                dashboard.sections["compose-containers"].shell = new Terminal({
-                                    cols: dashboard.sections["compose-containers"].cols,
-                                    cursorBlink: true,
-                                    cursorStyle: "underline",
-                                    disableStdin: false,
-                                    readonly: true,
-                                    rows: dashboard.sections["compose-containers"].rows,
-                                    theme: {
-                                        background: "#222",
-                                        selectionBackground: "#444"
+                    if (dashboard.global.payload.compose.status === "") {
+                        const shell = function dashboard_sections_composeContainers_init_shell():void {
+                            if (dashboard.sections["compose-containers"].shell === null) {
+                                if (typeof Terminal === "undefined") {
+                                    setTimeout(dashboard_sections_composeContainers_init_shell, 200);
+                                } else {
+                                    // @ts-expect-error - xterm has not updated their types to reflect Terminal is a constructor
+                                    dashboard.sections["compose-containers"].shell = new Terminal({
+                                        cols: dashboard.sections["compose-containers"].cols,
+                                        cursorBlink: true,
+                                        cursorStyle: "underline",
+                                        disableStdin: false,
+                                        readonly: true,
+                                        rows: dashboard.sections["compose-containers"].rows,
+                                        theme: {
+                                            background: "#222",
+                                            selectionBackground: "#444"
+                                        }
+                                    });
+                                    dashboard.sections["compose-containers"].shell.open(dashboard.sections["compose-containers"].nodes.shell);
+                                    if (typeof navigator.clipboard !== "undefined") {
+                                        dashboard.sections["compose-containers"].shell.onSelectionChange(dashboard.sections["compose-containers"].events.selection);
                                     }
-                                });
-                                dashboard.sections["compose-containers"].shell.open(dashboard.sections["compose-containers"].nodes.shell);
-                                if (typeof navigator.clipboard !== "undefined") {
-                                    dashboard.sections["compose-containers"].shell.onSelectionChange(dashboard.sections["compose-containers"].events.selection);
                                 }
                             }
-                        }
-                    };
-                    shell();
-                    dashboard.shared_services.shellResize({
-                        node: dashboard.sections["compose-containers"].nodes.shell,
-                        section: "compose-containers",
-                        shell: dashboard.sections["compose-containers"].shell
-                    });
-                    if (dashboard.global.payload.compose.status === "") {
+                        };
+                        shell();
+                        dashboard.shared_services.shellResize({
+                            node: dashboard.sections["compose-containers"].nodes.shell,
+                            section: "compose-containers",
+                            shell: dashboard.sections["compose-containers"].shell
+                        });
                         dashboard.sections["compose-containers"].nodes.new_container.onclick = dashboard.shared_services.create;
                         dashboard.sections["compose-containers"].nodes.new_variable.onclick = dashboard.sections["compose-containers"].events.edit_variable;
                         dashboard.sections["compose-containers"].nodes.update_button.onclick = dashboard.sections["compose-containers"].events.update;
                         dashboard.sections["compose-containers"].nodes.update_time.onclick = null;
                         dashboard.sections["compose-containers"].receive({
                             data: dashboard.global.payload.compose,
-                            service: "dashboard-compose"
+                            service: "services_compose"
                         });
                     } else {
                         const strong:HTMLElement = document.createElement("strong");
@@ -1029,14 +1028,14 @@ const ui = function ui():void {
                 events: {
                     update: function dashboard_sections_disks_update():void {
                         dashboard.utility.performance_set("disks");
-                        dashboard.message.send(null, "dashboard-os-disk");
+                        dashboard.message.send({data: null, service: "services_os_disk"});
                     }
                 },
                 init: function dashboard_sections_disks_init():void {
                     dashboard.sections["disks"].nodes.update_button.onclick = dashboard.sections["disks"].events.update;
                     dashboard.sections["disks"].receive({
                         data: dashboard.global.payload.os.disk,
-                        service: "dashboard-os-disk"
+                        service: "services_os_disk"
                     });
                     dashboard.sections["disks"].nodes.update_button.setAttribute("data-list", "disk");
                 },
@@ -1195,7 +1194,7 @@ const ui = function ui():void {
                                     types: types_value
                                 };
                             dashboard.utility.setState();
-                            dashboard.message.send(payload, "dashboard-dns");
+                            dashboard.message.send({data: payload, service: "services_dns_input"});
                             dashboard.sections["dns-query"].nodes.output.value = "";
                         }
                     }
@@ -1444,7 +1443,7 @@ const ui = function ui():void {
                             search:string = dashboard.sections["file-system"].nodes.search.value.replace(/^\s+/, "").replace(/\s+$/, ""),
                             depth:number = Number(dashboard.sections["file-system"].nodes.depth.value),
                             directory_size:boolean = dashboard.sections["file-system"].nodes.directory_size[dashboard.sections["file-system"].nodes.directory_size.selectedIndex].textContent === "true (extremely slow)",
-                            payload:services_fileSystem = {
+                            payload:services_file_system = {
                                 address: address,
                                 depth: (isNaN(depth) === true)
                                     ? 2
@@ -1472,7 +1471,7 @@ const ui = function ui():void {
                             dashboard.sections["file-system"].block = true;
                             dashboard.utility.performance_set("file-system");
                             dashboard.sections["file-system"].nodes.status.textContent = "Fetching\u2026";
-                            dashboard.message.send(payload, "dashboard-fileSystem");
+                            dashboard.message.send({data: payload, service: "services_file_system"});
                         }
                     }
                 },
@@ -1725,7 +1724,7 @@ const ui = function ui():void {
                     tbody: document.getElementById("file-system").getElementsByTagName("tbody")[0]
                 },
                 receive: function dashboard_sections_fileSystem_receive(data_item:socket_data):void {
-                    const fs:services_fileSystem = data_item.data as services_fileSystem,
+                    const fs:services_file_system = data_item.data as services_file_system,
                         len:number = (fs.dirs === null)
                             ? 0
                             : fs.dirs.length,
@@ -2019,7 +2018,7 @@ const ui = function ui():void {
                         dashboard.sections["hash"].nodes.output.value = "";
                         dashboard.utility.performance_set("hash");
                         dashboard.utility.setState();
-                        dashboard.message.send(service, "dashboard-hash");
+                        dashboard.message.send({data: service, service: "services_hash"});
                     },
                     toggle_mode: function dashboard_sections_hash_toggleMode(event:MouseEvent):void {
                         const target:HTMLElement = (event === null)
@@ -2110,14 +2109,14 @@ const ui = function ui():void {
                 events: {
                     update: function dashboard_sections_interfaces_update():void {
                         dashboard.utility.performance_set("interfaces");
-                        dashboard.message.send(null, "dashboard-os-intr");
+                        dashboard.message.send({data: null, service: "services_os_intr"});
                     }
                 },
                 init: function dashboard_sections_interfaces_init():void {
                     dashboard.sections["interfaces"].nodes.update_button.onclick = dashboard.sections["interfaces"].events.update;
                     dashboard.sections["interfaces"].receive({
                         data: dashboard.global.payload.os.intr,
-                        service: "dashboard-os-intr"
+                        service: "services_os_intr"
                     });
                     dashboard.sections["interfaces"].nodes.update_button.setAttribute("data-list", "intr");
                 },
@@ -2219,7 +2218,7 @@ const ui = function ui():void {
                             dashboard.sections["message-inspection"].nodes.em_in.textContent = "";
                             dashboard.sections["message-inspection"].nodes.em_out.textContent = "";
                         }
-                        dashboard.message.send(payload, "dashboard-message-inspection");
+                        dashboard.message.send({data: payload, service: "services_message_inspection"});
                     },
                     type: function dashboard_sections_messageInspection_type():void {
                         const value:string = dashboard.sections["message-inspection"].nodes.type[dashboard.sections["message-inspection"].nodes.type.selectedIndex].textContent,
@@ -2330,7 +2329,7 @@ const ui = function ui():void {
                             payload:store_string = {
                                 notes: value
                             };
-                        dashboard.message.send(payload, "dashboard-notes");
+                        dashboard.message.send({data: payload, service: "services_notes"});
                     }
                 }
             },
@@ -2340,7 +2339,7 @@ const ui = function ui():void {
                 events: {
                     update: function dashboard_sections_osMachine_update():void {
                         dashboard.utility.performance_set("os-machine");
-                        dashboard.message.send(null, "dashboard-os-main");
+                        dashboard.message.send({data: null, service: "services_os_main"});
                     }
                 },
                 init: function dashboard_sections_osMachine_init():void {
@@ -2506,7 +2505,7 @@ const ui = function ui():void {
                     return nodeList;
                 }()),
                 receive: function dashboard_sections_osMachine_receive(socket_data:socket_data):void {
-                    const data:core_server_os = socket_data.data as core_server_os;
+                    const data:services_os = socket_data.data as services_os;
                     dashboard.sections["os-machine"].nodes_os.update_text.textContent = data.time.dateTime(true, dashboard.global.payload.timeZone_offset);
                     dashboard.global.payload.os.machine.memory = data.machine.memory;
                     dashboard.global.payload.os.os.uptime = data.os.uptime;
@@ -2546,7 +2545,7 @@ const ui = function ui():void {
                 },
                 receive: null,
                 row: function dashboard_sections_portsApplication_row(record_item:type_lists, tr:HTMLElement):void {
-                    const record:services_ports_application_item = record_item as services_ports_application_item;
+                    const record:supplemental_ports_application_item = record_item as supplemental_ports_application_item;
                     dashboard.tables.cell(tr, record.port.toString(), null);
                     dashboard.tables.cell(tr, record.type, null);
                     dashboard.tables.cell(tr, record.service, null);
@@ -2612,9 +2611,9 @@ const ui = function ui():void {
                             edit:HTMLElement = target.getAncestor("edit", "class"),
                             action:type_dashboard_action = target.getAttribute("class").replace("server-", "") as type_dashboard_action,
                             cancel:HTMLElement = edit.getElementsByClassName("server-cancel")[0] as HTMLElement,
-                            configuration:services_server = (function dashboard_serverMessage_configuration():services_server {
+                            configuration:supplemental_server = (function dashboard_serverMessage_configuration():supplemental_server {
                                 const textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
-                                    config:services_server = JSON.parse(textArea.value);
+                                    config:supplemental_server = JSON.parse(textArea.value);
                                 if (dashboard.global.payload.servers[config.id] !== undefined) {
                                     dashboard.global.payload.servers[config.id].encryption = config.encryption;
                                 }
@@ -2624,7 +2623,7 @@ const ui = function ui():void {
                                 action: action,
                                 server: configuration
                             };
-                        dashboard.message.send(data, "dashboard-server-action");
+                        dashboard.message.send({data: data, service: "services_server_action"});
                         if (cancel === undefined) {
                             edit.parentNode.getElementsByTagName("button")[0].click();
                         } else {
@@ -2658,7 +2657,7 @@ const ui = function ui():void {
                                 const save:HTMLButtonElement = (id === undefined)
                                         ? listItem.getElementsByClassName("server-add")[0] as HTMLButtonElement
                                         : listItem.getElementsByClassName("server-modify")[0] as HTMLButtonElement,
-                                    order = function dashboard_sections_serversWeb_validate_disable_order(item:services_server):string {
+                                    order = function dashboard_sections_serversWeb_validate_disable_order(item:supplemental_server):string {
                                         const keys:type_server_property[] = Object.keys(item).sort() as type_server_property[],
                                             output:object = {},
                                             len:number = keys.length;
@@ -2866,7 +2865,7 @@ const ui = function ui():void {
                                 }
                             },
                             rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
-                        let serverData:services_server = null,
+                        let serverData:supplemental_server = null,
                             failures:number = 0;
                         ul.textContent = "";
                         summary.style.display = "block";
@@ -2992,7 +2991,7 @@ const ui = function ui():void {
                     };
                     dashboard.sections["servers-web"].receive({
                         data: payload,
-                        service: "dashboard-server-update"
+                        service: "services_server_update"
                     });
                 },
                 nodes: {
@@ -3113,7 +3112,7 @@ const ui = function ui():void {
                 },
                 receive: null,
                 row: function dashboard_sections_socketsApplicationTCP_row(record_item:type_lists, tr:HTMLElement):void {
-                    const record:services_socket_application_tcp = record_item as services_socket_application_tcp;
+                    const record:supplemental_socket_application_tcp = record_item as supplemental_socket_application_tcp;
                     dashboard.tables.cell(tr, record["server_id"], "id");
                     dashboard.tables.cell(tr, record["server_name"], null);
                     dashboard.tables.cell(tr, record["hash"], null);
@@ -3324,9 +3323,12 @@ const ui = function ui():void {
                             return;
                         }
                         dashboard.message.send({
-                            frequency: (frequency * 1000),
-                            records: records
-                        }, "dashboard-statistics-change");
+                            data: {
+                                frequency: (frequency * 1000),
+                                records: records
+                            },
+                            service: "services_statistics_change"
+                        });
                         dashboard.utility.setState();
                     },
                 },
@@ -3354,13 +3356,13 @@ const ui = function ui():void {
                             };
                             dashboard.sections["servers-web"].receive({
                                 data: payload,
-                                service: "dashboard-server-update"
+                                service: "services_server_update"
                             });
                         }
                         Chart.defaults.color = "#ccc";
                         dashboard.sections["statistics-resources"].receive({
                             data: dashboard.global.payload.stats,
-                            service: "dashboard-statistics-data"
+                            service: "services_statistics_data"
                         });
                     }
                 },
@@ -3920,7 +3922,7 @@ const ui = function ui():void {
                             },
                             strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["test-http"].nodes.stats.getElementsByTagName("strong");
                         dashboard.utility.setState();
-                        dashboard.message.send(data, "dashboard-http");
+                        dashboard.message.send({data: data, service: "services_http_test"});
                         dashboard.sections["test-http"].nodes.responseBody.value = "";
                         dashboard.sections["test-http"].nodes.responseHeaders.value = "";
                         dashboard.sections["test-http"].nodes.responseURI.value = "";
@@ -4020,7 +4022,7 @@ const ui = function ui():void {
                             };
                         dashboard.sections["test-websocket"].timeout = payload.timeout;
                         dashboard.sections["test-websocket"].nodes.status.value = "";
-                        dashboard.message.send(payload, "dashboard-websocket-handshake");
+                        dashboard.message.send({data: payload, service: "services_websocket_handshake"});
                         dashboard.utility.setState();
                     },
                     keyup_frame: function dashboard_sections_websocketTest_keyupFrame(event:Event):void {
@@ -4113,7 +4115,7 @@ const ui = function ui():void {
                             frame: dashboard.sections["test-websocket"].tools.parse_frame(),
                             message: dashboard.sections["test-websocket"].nodes.message_send_body.value
                         };
-                        dashboard.message.send(payload, "dashboard-websocket-message");
+                        dashboard.message.send({data: payload, service: "services_websocket_message"});
                         dashboard.sections["test-websocket"].events.keyup_frame(null);
                     }
                 },
@@ -4309,7 +4311,7 @@ const ui = function ui():void {
                                     ? "ipv4"
                                     : "ipv6"
                             };
-                        dashboard.message.send(payload, "dashboard-udp-socket");
+                        dashboard.message.send({data: payload, service: "services_udp_socket"});
                     },
                     setState: function dashboard_sections_udpSocket_setState():void {
                         dashboard.utility.setState();
@@ -4656,7 +4658,7 @@ const ui = function ui():void {
                                     sanitize = function dashboard_shareServices_details_serversWeb_sanitize(input:string):string {
                                         return input.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
                                     },
-                                    serverData:services_server = (newFlag === true)
+                                    serverData:supplemental_server = (newFlag === true)
                                         ? {
                                             activate: true,
                                             domain_local: ["localhost"],
@@ -4928,16 +4930,19 @@ const ui = function ui():void {
                             }
                             if ((config.section === "terminal" && dashboard.sections["terminal"].info !== null) || config.section !== "terminal") {
                                 dashboard.message.send({
-                                    cols: cols,
-                                    hash: (config.section === "terminal")
-                                        ? dashboard.sections["terminal"].info.socket_hash
-                                        : "",
-                                    rows: rows,
-                                    secure: (location.protocol === "http:")
-                                        ? "open"
-                                        : "secure",
-                                    section: config.section
-                                } as services_terminal_resize, "dashboard-terminal-resize");
+                                    data: {
+                                        cols: cols,
+                                        hash: (config.section === "terminal")
+                                            ? dashboard.sections["terminal"].info.socket_hash
+                                            : "",
+                                        rows: rows,
+                                        secure: (location.protocol === "http:")
+                                            ? "open"
+                                            : "secure",
+                                        section: config.section
+                                    } as services_terminal_resize,
+                                    service: "services_terminal_resize"
+                                });
                             }
                         }
                     }
@@ -5166,19 +5171,19 @@ const ui = function ui():void {
             },
             // populate data from update requests
             receive: function dashboard_table_receive(socket_data:socket_data):void {
-                const service:type_service = socket_data.service,
+                const service:string = socket_data.service,
                     map:store_string = {
-                        "dashboard-ports-application": "ports-application",
-                        "dashboard-os-devs": "devices",
-                        "dashboard-os-proc": "processes",
-                        "dashboard-os-serv": "services",
-                        "dashboard-os-user": "users",
-                        "dashboard-os-stcp": "sockets-os-tcp",
-                        "dashboard-os-sudp": "sockets-os-udp"
+                        "services_ports_application": "ports-application",
+                        "services_os_devs": "devices",
+                        "services_os-proc": "processes",
+                        "services_os_serv": "services",
+                        "services_os_user": "users",
+                        "services_os_stcp": "sockets-os-tcp",
+                        "services_os_sudp": "sockets-os-udp"
                     },
                     table:type_dashboard_tables = map[service] as type_dashboard_tables,
                     module:module_list = dashboard.sections[table];
-                if (service === "dashboard-socket-application") {
+                if (service === "services_socket_application") {
                     const sockets:services_socket_application = socket_data.data as services_socket_application,
                         section_update = function dashboard_table_receive_sectionUpdate(type:"tcp"|"udp"):void {
                             const name:type_dashboard_tables = `sockets-application-${type}`,
@@ -5195,8 +5200,15 @@ const ui = function ui():void {
                     section_update("tcp");
                     section_update("udp");
                 } else if (module !== undefined) {
-                    // @ts-expect-error - cannot infer a module from a union of modules by a type name from a union of type names
-                    dashboard.global.payload.os[module.dataName] = socket_data.data;
+                    if (module.dataName === "ports-application") {
+                        dashboard.global.payload["ports-application"] = socket_data.data as services_ports_application;
+                    } else if (module.dataName === "sockets-application-tcp") {
+                        dashboard.global.payload.sockets.tcp = (socket_data.data as services_socket_application).tcp;
+                    } else if (module.dataName === "sockets-application-udp") {
+                        dashboard.global.payload.sockets.udp = (socket_data.data as services_socket_application).udp;
+                    } else {
+                        dashboard.global.payload.os[module.dataName as "devs"] = socket_data.data as services_os_devs;
+                    }
                     dashboard.tables.populate(module, socket_data.data as type_list_services);
                     dashboard.tables.sort(null, module.nodes.list.parentNode, Number(module.nodes.list.parentNode.dataset["column"]));
                     module.nodes.update_duration.textContent = dashboard.utility.performance_get(table);
@@ -5318,20 +5330,20 @@ const ui = function ui():void {
                         "user": "users"
                     },
                     map_service:store_string = {
-                        "devs": "dashboard-os-devs",
-                        "ports-application": "dashboard-ports-application",
-                        "proc": "dashboard-os-proc",
-                        "serv": "dashboard-os-serv",
-                        "sockets-application-tcp": "dashboard-socket-application",
-                        "sockets-application-udp": "dashboard-socket-application",
-                        "stcp": "dashboard-os-stcp",
-                        "sudp": "dashboard-os-sudp",
-                        "user": "dashboard-os-user"
+                        "devs": "services_os_devs",
+                        "ports-application": "services_ports_application",
+                        "proc": "services_os_proc",
+                        "serv": "services_os_serv",
+                        "sockets-application-tcp": "services_socket_application",
+                        "sockets-application-udp": "services_socket_application",
+                        "stcp": "services_os_stcp",
+                        "sudp": "services_os_sudp",
+                        "user": "services_os_user"
                     },
                     section:type_dashboard_sections = map_section[target] as type_dashboard_sections,
-                    service:type_service = map_service[target] as type_service;
+                    service:type_dashboard_table_services = map_service[target] as "services_os_devs";
                 dashboard.utility.performance_set(section);
-                dashboard.message.send(null, service);
+                dashboard.message.send({data: null, service: service});
             }
         },
         utility: {

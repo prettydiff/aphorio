@@ -27,7 +27,7 @@ const certificate = function services_certificate(config:config_certificate):voi
                     }).execute();
                 },
                 cert_extensions:string = (function services_certificate_cert_extensions():string {
-                    const server:services_server = (vars.data.servers[config.id] === undefined)
+                    const server:supplemental_server = (vars.data.servers[config.id] === undefined)
                             ? null
                             : vars.data.servers[config.id],
                         output:string[] = [
