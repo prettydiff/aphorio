@@ -89,6 +89,7 @@ interface services_dns_reverse {
 
 interface services_file_system {
     address: string;
+    children: boolean;
     depth: number;
     directory_size: boolean;
     dirs: type_directory_item[];

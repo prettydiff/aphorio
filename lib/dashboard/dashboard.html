@@ -424,11 +424,12 @@
             <div class="table-filters">
                 <h3>Input Controls</h3>
                 <p class="summary"><em>Executes on press of 'Enter' key or loss of focus. Search values beginning with an exclamation are a negative search. Search values beginning and ending with a forward slash are regular expressions.</em></p>
-                <p><label>Absolute file system path address. <em>SMB shared paths are not supported.</em><input spellcheck="false" type="text"/></label></p>
+                <p><label>Absolute file system path address. <em>Path names beginning with "\\" are not supported.</em><input spellcheck="false" type="text"/></label></p>
                 <p><label>Search token. <input spellcheck="false" type="text"/></label></p>
                 <p><label>Depth. The depth of descendant directories to traverse. A value less than 1 provides full recursion.<input spellcheck="false" type="number" value="1"/></label></p>
                 <p><label>Absolute of relative file system paths <select><option>Absolute</option><option selected="selected">Relative</option></select></label></p>
                 <p><label>Total recursive directory size <select><option selected="selected">false</option><option>true (extremely slow)</option></select></label></p>
+                <p><label>Child artifact count. Can be slow for large directories shared over the internet.<select><option>false</option><option selected="selected">true</option></select></label></p>
                 <span class="clear"></span>
             </div>
             <div class="file-list">
