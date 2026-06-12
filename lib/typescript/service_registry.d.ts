@@ -41,7 +41,6 @@ type socket_data =
 
 type services_compose_out = string[];
 type services_compose_variables = store_string;
-type services_notes = store_string;
 type services_udp_status = string[];
 
 interface services_compose {
@@ -146,6 +145,10 @@ interface services_message_inspection {
     message: string;
     service: string;
     type: "docker-container" | "web-server";
+}
+
+interface services_notes {
+    notes: string;
 }
 
 interface services_os {

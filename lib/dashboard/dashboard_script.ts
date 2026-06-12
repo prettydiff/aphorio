@@ -385,6 +385,9 @@ const ui = function ui():void {
                         "services_message_inspection": (dashboard.sections["message-inspection"] === undefined)
                             ? null
                             : dashboard.sections["message-inspection"].receive,
+                        "services_notes": (dashboard.sections["notes"] === undefined)
+                            ? null
+                            : dashboard.sections["notes"].receive,
                         "services_os_devs": (dashboard.sections["devices"] === undefined)
                             ? null
                             : dashboard.tables.receive,
@@ -2330,12 +2333,15 @@ const ui = function ui():void {
                 nodes: {
                     textarea: document.getElementById("notes").getElementsByTagName("textarea")[0] as HTMLTextAreaElement
                 },
-                receive: null,
+                receive: function dashboard_sections_nodes_receiver(socket_data:socket_data):void {
+                    const data:services_notes = socket_data.data as services_notes;
+                    dashboard.sections["notes"].nodes.textarea.value = data.notes;
+                },
                 timer: null,
                 tools: {
                     save: function dashboard_sections_notes_save():void {
                         const value:string = dashboard.sections["notes"].nodes.textarea.value,
-                            payload:store_string = {
+                            payload:services_notes = {
                                 notes: value
                             };
                         dashboard.message.send({data: payload, service: "services_notes"});
