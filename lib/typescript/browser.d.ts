@@ -386,6 +386,7 @@ declare global {
             video: HTMLElement;
         };
         nodes: {
+            children: HTMLSelectElement;
             content: HTMLElement;
             depth: HTMLInputElement;
             directory_size: HTMLSelectElement;
@@ -679,6 +680,7 @@ declare global {
             types: string;
         };
         fileSystem: {
+            children: number;
             depth: string;
             directory_size: number;
             path: string;
