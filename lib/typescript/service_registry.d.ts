@@ -1,54 +1,12 @@
 
 
-type socket_data =
-    {data: services_compose_container;   service: "services_compose_container";} |   // changes from the user for docker compose objects
-    {data: services_compose_out;         service: "services_compose_out";} |         // streams stdout of docker spawn commands to the ui
-    {data: services_compose_variables;   service: "services_compose_variables";} |   // a key/value list of custom docker compose template variables
-    {data: services_compose;             service: "services_compose";} |             // docker compose objects and service status
-    {data: services_dns_input;           service: "services_dns_input";} |           // data submitted to trigger a dns query
-    {data: services_dns_output;          service: "services_dns_output";} |          // data response to a dns query
-    {data: services_dns_reverse;         service: "services_dns_reverse";} |         // data response to a reverse dns query
-    {data: services_file_system;         service: "services_file_system";} |         // file system list
-    {data: services_hash;                service: "services_hash";} |                // hash and base64 computational output
-    {data: services_http_test;           service: "services_http_test";} |           // response messaging for an HTTP test request
-    {data: services_log;                 service: "services_log";} |                 // a log entry
-    {data: services_message_inspection;  service: "services_message_inspection";} |  // view data passing to/from a web server or docker logs for a named container
-    {data: services_notes;               service: "services_notes";} |               // sends an updated notes value from UI for storage
-    {data: services_os_devs;             service: "services_os_devs";} |             // only the device portion of services_os_all
-    {data: services_os_disk;             service: "services_os_disk";} |             // only the disk portion of services_os_all
-    {data: services_os_intr;             service: "services_os_intr";} |             // only the network interface data of services_os_all
-    {data: services_os_proc;             service: "services_os_proc";} |             // only the process list information of services_os_all
-    {data: services_os_serv;             service: "services_os_serv";} |             // only the service information of services_os_all
-    {data: services_os_sock;             service: "services_os_stcp";} |             // only the tcp socket information of services_os_all
-    {data: services_os_sock;             service: "services_os_sudp";} |             // only the udp socket information of services_os_all
-    {data: services_os_user;             service: "services_os_user";} |             // only the user list information of services_os_all
-    {data: services_os;                  service: "services_os_all";} |              // all the information regarding machine, application, process, and more
-    {data: services_os;                  service: "services_os_main";} |             // only the hardware, application, and process information of services_os_all
-    {data: services_ports_application;   service: "services_ports_application";} |   // a list of port information and associated processes managed from this application
-    {data: services_server_action;       service: "services_server_action";} |       // provides a user initiated action to execute against servers
-    {data: services_server_update;       service: "services_server_update";} |       // configuration details and port status for all servers
-    {data: services_socket_application;  service: "services_socket_application";} |  // status updates about sockets created by this application
-    {data: services_statistics_change;   service: "services_statistics_change";} |   // modifies control information respective to service statistical data collection
-    {data: services_statistics_data;     service: "services_statistics_data";} |     // resource consumption statistics
-    {data: services_status_clock;        service: "services_status_clock";} |        // current server clock time as epoch number
-    {data: services_terminal_resize;     service: "services_terminal_resize";} |     // resizes the shell such that text is formatted properly with invisible control characters
-    {data: services_test_browser;        service: "services_test_browser";} |        // test automation messaging to the browser
-    {data: services_udp_socket;          service: "services_udp_socket";} |          // sends information about the creation of a UDP socket
-    {data: services_udp_status;          service: "services_udp_status";} |          // notifies the user a UDP socket is created
-    {data: services_websocket_handshake; service: "services_websocket_handshake";} | // custom created message to create a test WebSocket connection
-    {data: services_websocket_message;   service: "services_websocket_message";} |   // parses the header of a WebSocket mes sage frame header sufficient to respond to the message on a test socket
-    {data: services_websocket_status;    service: "services_websocket_status";};     // sends connection establishment details for a test socket
-
-type services_compose_out = string[];
-type services_compose_variables = store_string;
-type services_udp_status = string[];
-
 interface services_compose {
     containers: store_compose;
     status: string;
     time: number;
     variables: store_string;
 }
+// Docker compose objects and their corresponding status
 
 interface services_compose_container {
     action: type_dashboard_action;
@@ -56,12 +14,24 @@ interface services_compose_container {
     id: string;
     location: string;
 }
+// Changes from the user for docker compose objects
+
+interface services_compose_out {
+    status: string;
+}
+// Streams Docker logs to the dashboard UI
+
+interface services_compose_variables {
+    [key:string]: string;
+}
+// A key/value list of custom docker compose template variables
 
 interface services_dns_input {
     names: string[];
     reverse: boolean;
     types: string;
 }
+// A user's request to execute a DNS query
 
 interface services_dns_output {
     [key:string]: {
@@ -80,11 +50,13 @@ interface services_dns_output {
         "TXT"?: type_dns_records;
     };
 }
+// The output of a forward DNS query
 
 interface services_dns_reverse {
     hostnames: store_string_list;
     reverse: true;
 }
+// The output of a reverse DNS query
 
 interface services_file_system {
     address: string;
@@ -100,6 +72,7 @@ interface services_file_system {
     search: string;
     sep: "/"|"\\";
 }
+// File system list output as well as the user request details
 
 interface services_hash {
     algorithm: string;
@@ -109,6 +82,7 @@ interface services_hash {
     type: type_hash_input;
     value: string;
 }
+// Hash and base64 computational output as well as the user request details
 
 interface services_http_test {
     body: string;
@@ -132,11 +106,13 @@ interface services_http_test {
     timeout: number;
     uri: string;
 }
+// HTTP test response details and the user's request for such
 
 interface services_log {
     log: config_log;
     total: number;
 }
+// Provides a log entry to the UI and allows for sending JS errors from the UI
 
 interface services_message_inspection {
     count: number;
@@ -146,15 +122,46 @@ interface services_message_inspection {
     service: string;
     type: "docker-container" | "web-server";
 }
+// Initiates streaming of Docker logs and messaging traversing supported web servers to the UI as well as the actions to start/stop/change that messaging
 
 interface services_notes {
     notes: string;
 }
+// Sends changes to user notes from the UI to offline storage and broadcasts those changes to other devices
 
-interface services_os {
+interface services_os_all {
     devs: services_os_devs;
     disk: services_os_disk;
     intr: services_os_intr;
+    main: services_os_main;
+    proc: services_os_proc;
+    serv: services_os_serv;
+    stcp: services_os_sock;
+    sudp: services_os_sock;
+    time: number;
+    user: services_os_user;
+}
+// All the information regarding machine and operating system data
+
+interface services_os_devs {
+    data: os_devs[];
+    time: number;
+}
+// List of devices attached to the OS
+
+interface services_os_disk {
+    data: os_disk[];
+    time: number;
+}
+// List of storage devices and their partitions
+
+interface services_os_intr {
+    data: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
+    time: number;
+}
+// List of network interfaces 
+
+interface services_os_main {
     machine: {
         cpu: {
             arch: string;
@@ -178,7 +185,6 @@ interface services_os {
         type: string;
         uptime: number;
     };
-    proc: services_os_proc;
     process: {
         admin: boolean;
         arch: string;
@@ -197,62 +203,50 @@ interface services_os {
         uptime: number;
         versions: store_string;
     };
-    serv: services_os_serv;
-    stcp: services_os_sock;
-    sudp: services_os_sock;
     time: number;
-    user: services_os_user;
     user_account: {
         gid: number;
         homedir: string;
         uid: number;
     };
 }
-
-interface services_os_devs {
-    data: os_devs[];
-    time: number;
-}
-
-interface services_os_disk {
-    data: os_disk[];
-    time: number;
-}
-
-interface services_os_intr {
-    data: NodeJS.Dict<node_os_NetworkInterfaceInfo[]>;
-    time: number;
-}
+// Factual data about the server's machine and operating system
 
 interface services_os_proc {
     data: os_proc[];
     time: number;
 }
+// List of processes running in the OS
 
 interface services_os_serv {
     data: os_serv[];
     time: number;
 }
+// List of services known to the OS
 
 interface services_os_sock {
     data: os_sock[];
     time: number;
 }
+// List of network sockets known to the OS
 
 interface services_os_user {
     data: os_user[];
     time: number;
 }
+// List of user accounts in the OS
 
 interface services_ports_application {
     data: supplemental_ports_application_item[];
     time: number;
 }
+// TCP and UDP ports used by Docker containers and web servers created by this application
 
 interface services_server_action {
     action: type_dashboard_action;
     server: supplemental_server;
 }
+// A user requested action to activate, stop, remove, or modify a web server
 
 interface services_server_update {
     ports_used: {
@@ -260,17 +254,20 @@ interface services_server_update {
     };
     servers: store_servers;
 }
+// Configuration details and port status for all managed web servers
 
 interface services_socket_application {
     tcp: supplemental_socket_application_tcp[];
     time: number;
     udp: services_udp_socket[];
 }
+// List of network sockets created by this application and all associated details
 
 interface services_statistics_change {
     frequency: number;
     records: number;
 }
+// Saves data about how much data to gather and send to the UI for statistics graphs
 
 interface services_statistics_data {
     containers: {
@@ -281,11 +278,13 @@ interface services_statistics_data {
     now: number;
     records: number;
 }
+// Details necessary to populate statistics graphs in the UI
 
 interface services_status_clock {
     time_local: number;
     time_zulu: number;
 }
+// Provides the server's clock time to the UI
 
 interface services_terminal_resize {
     cols: number;
@@ -294,6 +293,7 @@ interface services_terminal_resize {
     section: type_dashboard_features;
     secure: "open" | "secure";
 }
+// Resizes the shell such that text is formatted properly with invisible control characters
 
 interface services_test_browser {
     index: number;
@@ -303,6 +303,7 @@ interface services_test_browser {
     suite_name: string;
     test: test_browserItem;
 }
+// Test automation messaging to the browser
 
 interface services_udp_socket {
     address_destination: string;
@@ -320,20 +321,68 @@ interface services_udp_socket {
     time: number;
     type: "ipv4" | "ipv6";
 }
+// Sends information about the creation of a UDP socket
+
+interface services_udp_status {
+    status: string;
+}
+// Notifies the user a UDP socket is created
 
 interface services_websocket_handshake {
     encryption: boolean;
     message: string[];
     timeout: number;
 }
+// Custom crafted message to create a test WebSocket connection
 
 interface services_websocket_message {
     frame: websocket_frame;
     message: string;
 }
+// Parses the header of a WebSocket test message frame header sufficient to respond to the message on a test socket
 
 interface services_websocket_status {
     connected: boolean;
     encrypted: boolean;
     error: node_error | string;
 }
+// Sends connection establishment details for a test websocket
+
+type socket_data =
+    {data: services_compose_container;   service: "services_compose_container";} |
+    {data: services_compose_out;         service: "services_compose_out";} |
+    {data: services_compose_variables;   service: "services_compose_variables";} |
+    {data: services_compose;             service: "services_compose";} |
+    {data: services_dns_input;           service: "services_dns_input";} |
+    {data: services_dns_output;          service: "services_dns_output";} |
+    {data: services_dns_reverse;         service: "services_dns_reverse";} |
+    {data: services_file_system;         service: "services_file_system";} |
+    {data: services_hash;                service: "services_hash";} |
+    {data: services_http_test;           service: "services_http_test";} |
+    {data: services_log;                 service: "services_log";} |
+    {data: services_message_inspection;  service: "services_message_inspection";} |
+    {data: services_notes;               service: "services_notes";} |
+    {data: services_os_all;              service: "services_os_all";} |
+    {data: services_os_devs;             service: "services_os_devs";} |
+    {data: services_os_disk;             service: "services_os_disk";} |
+    {data: services_os_intr;             service: "services_os_intr";} |
+    {data: services_os_main;             service: "services_os_main";} |
+    {data: services_os_proc;             service: "services_os_proc";} |
+    {data: services_os_serv;             service: "services_os_serv";} |
+    {data: services_os_sock;             service: "services_os_stcp";} |
+    {data: services_os_sock;             service: "services_os_sudp";} |
+    {data: services_os_user;             service: "services_os_user";} |
+    {data: services_ports_application;   service: "services_ports_application";} |
+    {data: services_server_action;       service: "services_server_action";} |
+    {data: services_server_update;       service: "services_server_update";} |
+    {data: services_socket_application;  service: "services_socket_application";} |
+    {data: services_statistics_change;   service: "services_statistics_change";} |
+    {data: services_statistics_data;     service: "services_statistics_data";} |
+    {data: services_status_clock;        service: "services_status_clock";} |
+    {data: services_terminal_resize;     service: "services_terminal_resize";} |
+    {data: services_test_browser;        service: "services_test_browser";} |
+    {data: services_udp_socket;          service: "services_udp_socket";} |
+    {data: services_udp_status;          service: "services_udp_status";} |
+    {data: services_websocket_handshake; service: "services_websocket_handshake";} |
+    {data: services_websocket_message;   service: "services_websocket_message";} |
+    {data: services_websocket_status;    service: "services_websocket_status";};

@@ -103,9 +103,9 @@ interface core_message_inspection {
 interface core_module_docker {
     commands: core_compose_commands;
     list: (callback:() => void) => void;
-    receive: receiver;
-    resize: receiver;
-    shell: pty;
+    receive: type_receiver;
+    resize: type_receiver;
+    shell: shell_pty;
     shell_start: () => void;
     variables: (variables:store_string, socket:websocket_client) => void;
 }
@@ -127,7 +127,7 @@ interface core_module_log {
 interface core_module_messageInspection {
     max_size: number;
     send: (data:services_message_inspection) => void;
-    set: receiver;
+    set: type_receiver;
 }
 
 interface core_module_spawn {
@@ -149,7 +149,7 @@ interface core_module_statistics_resources {
 }
 
 interface core_module_terminal {
-    resize: receiver;
+    resize: type_receiver;
     shell: (socket:websocket_pty, config:config_terminal) => void;
 }
 
@@ -207,6 +207,12 @@ interface core_servers_file {
         frequency: number;
         records: number;
     };
+}
+
+interface core_service_internal {
+    code: string;
+    description: string;
+    name: string;
 }
 
 interface core_spawn_options {
@@ -308,7 +314,8 @@ interface core_vars {
             "ports-application": boolean;
             "processes": boolean;
             "servers-web": boolean;
-            "services": boolean;
+            "services-app": boolean;
+            "services-os": boolean;
             "sockets-application-tcp": boolean;
             "sockets-application-udp": boolean;
             "sockets-os-tcp": boolean;
@@ -333,6 +340,7 @@ interface core_vars {
         };
         name: string;
         repository: string;
+        services_app: core_service_internal[];
         start_date: number;
         start_time: bigint;
         terminal: string[];
@@ -352,7 +360,7 @@ interface core_vars {
         "test": boolean;
         "test-verbose": boolean;
     };
-    os: services_os;
+    os: services_os_all;
     path: core_vars_path;
     stats: {
         children: number;

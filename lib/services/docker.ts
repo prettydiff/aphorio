@@ -30,7 +30,7 @@ const docker:core_module_docker = {
                 callback();
             },
             now:number = Date.now();
-        if (vars.os.process.admin === true) {
+        if (vars.os.main.process.admin === true) {
             const child = function services_docker_list_child(output:core_spawn_output):void {
                 const stdout:string = output.stdout.trim();
                 if (stdout.charAt(0) !== "{" || stdout.charAt(stdout.length - 1) !== "}") {
@@ -336,7 +336,7 @@ const docker:core_module_docker = {
     },
     shell: null,
     shell_start: function services_docker_shell():void {
-        if (vars.os.process.admin === true) {
+        if (vars.os.main.process.admin === true) {
             const shell:string = (process.env.SHELL === undefined)
                     ? vars.environment.terminal[0]
                     : process.env.SHELL,
@@ -359,7 +359,9 @@ const docker:core_module_docker = {
                         });
                     }
                     broadcast(vars.environment.dashboard_id, "dashboard", {
-                        data: [output],
+                        data: {
+                            status: output
+                        },
                         service: "services_compose_out"
                     });
                 };

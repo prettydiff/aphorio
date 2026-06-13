@@ -83,7 +83,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     temporary: false,
                     timeout: startTime,
                     type: config.type,
-                    userAgent: `${vars.os.os.type}, ${vars.environment.name.capitalize()} Client Socket`
+                    userAgent: `${vars.os.main.os.type}, ${vars.environment.name.capitalize()} Client Socket`
                 });
             });
         },

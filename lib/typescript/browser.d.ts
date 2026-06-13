@@ -98,7 +98,8 @@ declare global {
             "ports-application": section_ports_application;
             "processes": section_processes;
             "servers-web": section_servers_web;
-            "services": section_services;
+            "services-app": module_sections;
+            "services-os": section_services;
             "sockets-application-tcp": section_sockets_application;
             "sockets-application-udp": section_sockets_application;
             "sockets-os-tcp": section_sockets_os;

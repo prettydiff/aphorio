@@ -29,7 +29,7 @@ const start_application = function utilities_startApplication(process_path:strin
                     spawn(vars.commands.admin_check, function utilities_startApplication_admin_callback(output:core_spawn_output):void {
                         const std:string = output.stdout.replace(/\s+/g, "");
                         if (std === "0" || std === "true") {
-                            vars.os.process.admin = true;
+                            vars.os.main.process.admin = true;
                         }
                         start_prerequisites();
                     }, {
@@ -107,7 +107,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 section("ports-application", "App Ports");
                                 section("processes", "Processes");
                                 section("servers-web", "Web Servers");
-                                section("services", "Services");
+                                section("services-os", "Services");
                                 section("sockets-application-tcp", "App TCP Sockets");
                                 section("sockets-application-udp", "App UDP Sockets");
                                 section("sockets-os-tcp", "OS TCP Sockets");
@@ -186,7 +186,7 @@ const start_application = function utilities_startApplication(process_path:strin
             cgroup: {
                 label: "Find Linux cgroup address for gathering precision docker performance metrics.",
                 task: function utilities_startApplication_cgroup():void {
-                    if (vars.environment.features["compose-containers"] === true && vars.environment.compose_status === "" && vars.os.process.admin === true) {
+                    if (vars.environment.features["compose-containers"] === true && vars.environment.compose_status === "" && vars.os.main.process.admin === true) {
                         const addresses:string[] = [
                                 "/sys/fs/cgroup/system.slice/",
                                 "/sys/fs/cgroup/docker/",
@@ -408,7 +408,7 @@ const start_application = function utilities_startApplication(process_path:strin
             os_serv: {
                 label: "Gathers a list of known services.",
                 task: function utilities_startApplication_taskOSServ():void {
-                    if (vars.environment.features["services"] === true) {
+                    if (vars.environment.features["services-os"] === true) {
                         const callback = function utilities_startApplication_taskOSServ_callback():void {
                             complete_tasks("os_serv");
                         };
@@ -540,6 +540,35 @@ const start_application = function utilities_startApplication(process_path:strin
                     file.read({
                         callback: callback,
                         location: `${vars.path.project}servers.json`,
+                        no_file: null,
+                        section: "startup"
+                    });
+                }
+            },
+            services_app: {
+                label: "Provides the application's service list to the dashboard UI.",
+                task: function utilities_startApplication_servicesApp():void {
+                    const callback = function utilities_startApplication_servicesApp_callback(data:Buffer):void {
+                        const services:string[] = data.toString().replace(/^\s+/, "").replace(/\s+$/, "").split("\n\n"),
+                            len:number = services.length - 1;
+                        let index:number = 0,
+                            strings:string[] = null,
+                            service:core_service_internal = null;
+                        do {
+                            strings = services[index].split("\n");
+                            service = {
+                                code: strings.slice(0, strings.length - 1).join("\n"),
+                                description: strings[strings.length - 1].replace(/^\s*\/\/\s*/, ""),
+                                name: strings[0].replace(/\s*interface\s+/, "").replace(/\s+\{\s*$/, "")
+                            };
+                            vars.environment.services_app.push(service);
+                            index = index + 1;
+                        } while (index < len);
+                        complete_tasks("services_app");
+                    };
+                    file.read({
+                        callback: callback,
+                        location: `${process_path}lib${vars.path.sep}typescript${vars.path.sep}service_registry.d.ts`,
                         no_file: null,
                         section: "startup"
                     });

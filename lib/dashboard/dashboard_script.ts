@@ -331,7 +331,8 @@ const ui = function ui():void {
                     init("ports-application", true);
                     init("processes", true);
                     init("servers-web", false);
-                    init("services", true);
+                    init("services-app", false);
+                    init("services-os", true);
                     init("sockets-application-tcp", true);
                     init("sockets-application-udp", true);
                     init("sockets-os-tcp", true);
@@ -403,7 +404,7 @@ const ui = function ui():void {
                         "services_os_proc": (dashboard.sections["processes"] === undefined)
                             ? null
                             : dashboard.tables.receive,
-                        "services_os_serv": (dashboard.sections["services"] === undefined)
+                        "services_os_serv": (dashboard.sections["services-os"] === undefined)
                             ? null
                             : dashboard.tables.receive,
                         "services_os_stcp": (dashboard.sections["sockets-os-tcp"] === undefined)
@@ -441,7 +442,7 @@ const ui = function ui():void {
                             : dashboard.sections["test-websocket"].transmit.status
                     };
                 if (message_item.service === "services_os_all") {
-                    const data:services_os = message_item.data as services_os;
+                    const data:services_os_all = message_item.data as services_os_all;
                     if (dashboard.sections["devices"] !== undefined) {
                         dashboard.tables.populate(dashboard.sections["devices"], data.devs);
                     }
@@ -459,7 +460,7 @@ const ui = function ui():void {
                     }
                     if (dashboard.sections["os-machine"] !== undefined) {
                         dashboard.sections["os-machine"].receive({
-                            data: data,
+                            data: data.main,
                             service: "services_os_main"
                         });
                     }
@@ -469,7 +470,7 @@ const ui = function ui():void {
                             service: "services_os_proc"
                         });
                     }
-                    if (dashboard.sections["services"] !== undefined) {
+                    if (dashboard.sections["services-os"] !== undefined) {
                         dashboard.tables.receive({
                             data: data.serv,
                             service: "services_os_serv"
@@ -943,8 +944,8 @@ const ui = function ui():void {
                 rows: 0,
                 shell: null,
                 status_out: function dashboard_sections_composeContainers_statusOut(socket_data:socket_data):void {
-                    const status:string[] = socket_data.data as string[];
-                    dashboard.sections["compose-containers"].shell.write(status[0]);
+                    const data:services_compose_out = socket_data.data as services_compose_out;
+                    dashboard.sections["compose-containers"].shell.write(data.status);
                 },
                 tools: {
                     descriptions: function dashboard_sections_composeContainers_description(id:boolean|string):HTMLElement {
@@ -2366,60 +2367,60 @@ const ui = function ui():void {
                         len:number = 0,
                         index:number = 0;
                     dashboard.sections["os-machine"].nodes_os.update_text.textContent = time;
-                    dashboard.sections["os-machine"].nodes_os.cpu.arch.textContent = dashboard.global.payload.os.machine.cpu.arch;
-                    dashboard.sections["os-machine"].nodes_os.cpu.cores.textContent = dashboard.global.payload.os.machine.cpu.cores.commas();
-                    dashboard.sections["os-machine"].nodes_os.cpu.endianness.textContent = dashboard.global.payload.os.machine.cpu.endianness;
-                    dashboard.sections["os-machine"].nodes_os.cpu.frequency.textContent = `${dashboard.global.payload.os.machine.cpu.frequency.commas()}mhz`;
-                    dashboard.sections["os-machine"].nodes_os.cpu.name.textContent = dashboard.global.payload.os.machine.cpu.name;
-                    dashboard.sections["os-machine"].nodes_os.memory.free.textContent = `${dashboard.global.payload.os.machine.memory.free.bytesLong()}, ${((dashboard.global.payload.os.machine.memory.free / dashboard.global.payload.os.machine.memory.total) * 100).toFixed(2)}%`;
-                    dashboard.sections["os-machine"].nodes_os.memory.used.textContent = `${(dashboard.global.payload.os.machine.memory.total - dashboard.global.payload.os.machine.memory.free).bytesLong()}, ${(((dashboard.global.payload.os.machine.memory.total - dashboard.global.payload.os.machine.memory.free) / dashboard.global.payload.os.machine.memory.total) * 100).toFixed(2)}%`;
-                    dashboard.sections["os-machine"].nodes_os.memory.total.textContent = `${dashboard.global.payload.os.machine.memory.total.bytesLong()}, 100%`;
-                    dashboard.sections["os-machine"].nodes_os.os.hostname.textContent = dashboard.global.payload.os.os.hostname;
-                    dashboard.sections["os-machine"].nodes_os.os.name.textContent = dashboard.global.payload.os.os.name;
-                    dashboard.sections["os-machine"].nodes_os.os.platform.textContent = dashboard.global.payload.os.os.platform;
-                    dashboard.sections["os-machine"].nodes_os.os.release.textContent = dashboard.global.payload.os.os.release;
-                    dashboard.sections["os-machine"].nodes_os.os.type.textContent = dashboard.global.payload.os.os.type;
-                    dashboard.sections["os-machine"].nodes_os.os.uptime.textContent = dashboard.global.payload.os.os.uptime.time_elapsed();
-                    dashboard.sections["os-machine"].nodes_os.process.admin.textContent = dashboard.global.payload.os.process.admin.toString();
-                    dashboard.sections["os-machine"].nodes_os.process.arch.textContent = dashboard.global.payload.os.process.arch;
-                    dashboard.sections["os-machine"].nodes_os.process.argv.textContent = JSON.stringify(dashboard.global.payload.os.process.argv);
-                    dashboard.sections["os-machine"].nodes_os.process.cpuSystem.textContent = dashboard.global.payload.os.process.cpuSystem.time_elapsed();
-                    dashboard.sections["os-machine"].nodes_os.process.cpuUser.textContent = dashboard.global.payload.os.process.cpuUser.time_elapsed();
-                    dashboard.sections["os-machine"].nodes_os.process.cwd.textContent = dashboard.global.payload.os.process.cwd;
-                    dashboard.sections["os-machine"].nodes_os.process.platform.textContent = dashboard.global.payload.os.process.platform;
-                    dashboard.sections["os-machine"].nodes_os.process.pid.textContent = String(dashboard.global.payload.os.process.pid);
-                    dashboard.sections["os-machine"].nodes_os.process.ppid.textContent = String(dashboard.global.payload.os.process.ppid);
-                    dashboard.sections["os-machine"].nodes_os.process.uptime.textContent = dashboard.global.payload.os.process.uptime.time_elapsed();
-                    dashboard.sections["os-machine"].nodes_os.process.memoryProcess.textContent = `${dashboard.global.payload.os.process.memory.rss.bytesLong()}, ${((dashboard.global.payload.os.process.memory.rss / dashboard.global.payload.os.machine.memory.total) * 100).toFixed(2)}%`;
-                    dashboard.sections["os-machine"].nodes_os.process.memoryV8.textContent = dashboard.global.payload.os.process.memory.V8.bytesLong();
-                    dashboard.sections["os-machine"].nodes_os.process.memoryExternal.textContent = dashboard.global.payload.os.process.memory.external.bytesLong();
-                    if (dashboard.global.payload.os.process.platform === "win32") {
+                    dashboard.sections["os-machine"].nodes_os.cpu.arch.textContent = dashboard.global.payload.os.main.machine.cpu.arch;
+                    dashboard.sections["os-machine"].nodes_os.cpu.cores.textContent = dashboard.global.payload.os.main.machine.cpu.cores.commas();
+                    dashboard.sections["os-machine"].nodes_os.cpu.endianness.textContent = dashboard.global.payload.os.main.machine.cpu.endianness;
+                    dashboard.sections["os-machine"].nodes_os.cpu.frequency.textContent = `${dashboard.global.payload.os.main.machine.cpu.frequency.commas()}mhz`;
+                    dashboard.sections["os-machine"].nodes_os.cpu.name.textContent = dashboard.global.payload.os.main.machine.cpu.name;
+                    dashboard.sections["os-machine"].nodes_os.memory.free.textContent = `${dashboard.global.payload.os.main.machine.memory.free.bytesLong()}, ${((dashboard.global.payload.os.main.machine.memory.free / dashboard.global.payload.os.main.machine.memory.total) * 100).toFixed(2)}%`;
+                    dashboard.sections["os-machine"].nodes_os.memory.used.textContent = `${(dashboard.global.payload.os.main.machine.memory.total - dashboard.global.payload.os.main.machine.memory.free).bytesLong()}, ${(((dashboard.global.payload.os.main.machine.memory.total - dashboard.global.payload.os.main.machine.memory.free) / dashboard.global.payload.os.main.machine.memory.total) * 100).toFixed(2)}%`;
+                    dashboard.sections["os-machine"].nodes_os.memory.total.textContent = `${dashboard.global.payload.os.main.machine.memory.total.bytesLong()}, 100%`;
+                    dashboard.sections["os-machine"].nodes_os.os.hostname.textContent = dashboard.global.payload.os.main.os.hostname;
+                    dashboard.sections["os-machine"].nodes_os.os.name.textContent = dashboard.global.payload.os.main.os.name;
+                    dashboard.sections["os-machine"].nodes_os.os.platform.textContent = dashboard.global.payload.os.main.os.platform;
+                    dashboard.sections["os-machine"].nodes_os.os.release.textContent = dashboard.global.payload.os.main.os.release;
+                    dashboard.sections["os-machine"].nodes_os.os.type.textContent = dashboard.global.payload.os.main.os.type;
+                    dashboard.sections["os-machine"].nodes_os.os.uptime.textContent = dashboard.global.payload.os.main.os.uptime.time_elapsed();
+                    dashboard.sections["os-machine"].nodes_os.process.admin.textContent = dashboard.global.payload.os.main.process.admin.toString();
+                    dashboard.sections["os-machine"].nodes_os.process.arch.textContent = dashboard.global.payload.os.main.process.arch;
+                    dashboard.sections["os-machine"].nodes_os.process.argv.textContent = JSON.stringify(dashboard.global.payload.os.main.process.argv);
+                    dashboard.sections["os-machine"].nodes_os.process.cpuSystem.textContent = dashboard.global.payload.os.main.process.cpuSystem.time_elapsed();
+                    dashboard.sections["os-machine"].nodes_os.process.cpuUser.textContent = dashboard.global.payload.os.main.process.cpuUser.time_elapsed();
+                    dashboard.sections["os-machine"].nodes_os.process.cwd.textContent = dashboard.global.payload.os.main.process.cwd;
+                    dashboard.sections["os-machine"].nodes_os.process.platform.textContent = dashboard.global.payload.os.main.process.platform;
+                    dashboard.sections["os-machine"].nodes_os.process.pid.textContent = String(dashboard.global.payload.os.main.process.pid);
+                    dashboard.sections["os-machine"].nodes_os.process.ppid.textContent = String(dashboard.global.payload.os.main.process.ppid);
+                    dashboard.sections["os-machine"].nodes_os.process.uptime.textContent = dashboard.global.payload.os.main.process.uptime.time_elapsed();
+                    dashboard.sections["os-machine"].nodes_os.process.memoryProcess.textContent = `${dashboard.global.payload.os.main.process.memory.rss.bytesLong()}, ${((dashboard.global.payload.os.main.process.memory.rss / dashboard.global.payload.os.main.machine.memory.total) * 100).toFixed(2)}%`;
+                    dashboard.sections["os-machine"].nodes_os.process.memoryV8.textContent = dashboard.global.payload.os.main.process.memory.V8.bytesLong();
+                    dashboard.sections["os-machine"].nodes_os.process.memoryExternal.textContent = dashboard.global.payload.os.main.process.memory.external.bytesLong();
+                    if (dashboard.global.payload.os.main.process.platform === "win32") {
                         dashboard.sections["os-machine"].nodes_os.user.gid.parentNode.style.display = "none";
                         dashboard.sections["os-machine"].nodes_os.user.uid.parentNode.style.display = "none";
                     } else {
-                        dashboard.sections["os-machine"].nodes_os.user.gid.textContent = String(dashboard.global.payload.os.user_account.gid);
-                        dashboard.sections["os-machine"].nodes_os.user.uid.textContent = String(dashboard.global.payload.os.user_account.uid);
+                        dashboard.sections["os-machine"].nodes_os.user.gid.textContent = String(dashboard.global.payload.os.main.user_account.gid);
+                        dashboard.sections["os-machine"].nodes_os.user.uid.textContent = String(dashboard.global.payload.os.main.user_account.uid);
                     }
-                    dashboard.sections["os-machine"].nodes_os.user.homedir.textContent = dashboard.global.payload.os.user_account.homedir;
+                    dashboard.sections["os-machine"].nodes_os.user.homedir.textContent = dashboard.global.payload.os.main.user_account.homedir;
                     dashboard.sections["os-machine"].nodes_os.update_button.onclick = dashboard.sections["os-machine"].events.update;
                     dashboard.sections["os-machine"].nodes_os.update_button.setAttribute("data-list", "main");
 
                     // System Path
-                    len = dashboard.global.payload.os.os.path.length;
+                    len = dashboard.global.payload.os.main.os.path.length;
                     if (len > 0) {
                         index = 0;
                         do {
                             li = document.createElement("li");
-                            li.textContent = dashboard.global.payload.os.os.path[index];
+                            li.textContent = dashboard.global.payload.os.main.os.path[index];
                             dashboard.sections["os-machine"].nodes_os.path.appendChild(li);
                             index = index + 1;
                         } while (index < len);
                     }
-                    delete dashboard.global.payload.os.os.env.Path;
-                    delete dashboard.global.payload.os.os.env.PATH;
+                    delete dashboard.global.payload.os.main.os.env.Path;
+                    delete dashboard.global.payload.os.main.os.env.PATH;
 
                     // Environmental Variables
-                    keys = Object.keys(dashboard.global.payload.os.os.env);
+                    keys = Object.keys(dashboard.global.payload.os.main.os.env);
                     len = keys.length;
                     if (len > 0) {
                         do {
@@ -2427,7 +2428,7 @@ const ui = function ui():void {
                             strong = document.createElement("strong");
                             strong.textContent = keys[index];
                             span = document.createElement("span");
-                            span.textContent = dashboard.global.payload.os.os.env[keys[index]];
+                            span.textContent = dashboard.global.payload.os.main.os.env[keys[index]];
                             li.appendChild(strong);
                             li.appendChild(span);
                             dashboard.sections["os-machine"].nodes_os.env.appendChild(li);
@@ -2436,7 +2437,7 @@ const ui = function ui():void {
                     }
 
                     // Node Dependency Versions
-                    keys = Object.keys(dashboard.global.payload.os.process.versions);
+                    keys = Object.keys(dashboard.global.payload.os.main.process.versions);
                     len = keys.length;
                     if (len > 0) {
                         index = 0;
@@ -2445,7 +2446,7 @@ const ui = function ui():void {
                             strong = document.createElement("strong");
                             strong.textContent = keys[index];
                             span = document.createElement("span");
-                            span.textContent = dashboard.global.payload.os.process.versions[keys[index]];
+                            span.textContent = dashboard.global.payload.os.main.process.versions[keys[index]];
                             li.appendChild(strong);
                             li.appendChild(span);
                             dashboard.sections["os-machine"].nodes_os.versions.appendChild(li);
@@ -2520,24 +2521,20 @@ const ui = function ui():void {
                     return nodeList;
                 }()),
                 receive: function dashboard_sections_osMachine_receive(socket_data:socket_data):void {
-                    const data:services_os = socket_data.data as services_os;
+                    const data:services_os_main = socket_data.data as services_os_main;
                     dashboard.sections["os-machine"].nodes_os.update_text.textContent = data.time.dateTime(true, dashboard.global.payload.timeZone_offset);
-                    dashboard.global.payload.os.machine.memory = data.machine.memory;
-                    dashboard.global.payload.os.os.uptime = data.os.uptime;
-                    dashboard.global.payload.os.process.cpuSystem = data.process.cpuSystem;
-                    dashboard.global.payload.os.process.cpuUser = data.process.cpuUser;
-                    dashboard.global.payload.os.process.uptime = data.process.uptime;
-                    dashboard.sections["os-machine"].nodes_os.memory.free.textContent = `${dashboard.global.payload.os.machine.memory.free.bytesLong()}, ${((dashboard.global.payload.os.machine.memory.free / dashboard.global.payload.os.machine.memory.total) * 100).toFixed(2)}%`;
-                    dashboard.sections["os-machine"].nodes_os.memory.used.textContent = `${(dashboard.global.payload.os.machine.memory.total - dashboard.global.payload.os.machine.memory.free).bytesLong()}, ${(((dashboard.global.payload.os.machine.memory.total - dashboard.global.payload.os.machine.memory.free) / dashboard.global.payload.os.machine.memory.total) * 100).toFixed(2)}%`;
-                    dashboard.sections["os-machine"].nodes_os.memory.total.textContent = `${dashboard.global.payload.os.machine.memory.total.bytesLong()}, 100%`;
-                    dashboard.sections["os-machine"].nodes_os.os.uptime.textContent = dashboard.global.payload.os.os.uptime.time_elapsed();
-                    dashboard.sections["os-machine"].nodes_os.process.admin.textContent = dashboard.global.payload.os.process.admin.toString();
-                    dashboard.sections["os-machine"].nodes_os.process.cpuSystem.textContent = dashboard.global.payload.os.process.cpuSystem.time_elapsed();
-                    dashboard.sections["os-machine"].nodes_os.process.cpuUser.textContent = dashboard.global.payload.os.process.cpuUser.time_elapsed();
-                    dashboard.sections["os-machine"].nodes_os.process.uptime.textContent = dashboard.global.payload.os.process.uptime.time_elapsed();
-                    dashboard.sections["os-machine"].nodes_os.process.memoryProcess.textContent = `${dashboard.global.payload.os.process.memory.rss.bytesLong()}, ${((dashboard.global.payload.os.process.memory.rss / dashboard.global.payload.os.machine.memory.total) * 100).toFixed(2)}%`;
-                    dashboard.sections["os-machine"].nodes_os.process.memoryV8.textContent = dashboard.global.payload.os.process.memory.V8.bytesLong();
-                    dashboard.sections["os-machine"].nodes_os.process.memoryExternal.textContent = dashboard.global.payload.os.process.memory.external.bytesLong();
+                    dashboard.global.payload.os.main = data;
+                    dashboard.sections["os-machine"].nodes_os.memory.free.textContent = `${dashboard.global.payload.os.main.machine.memory.free.bytesLong()}, ${((dashboard.global.payload.os.main.machine.memory.free / dashboard.global.payload.os.main.machine.memory.total) * 100).toFixed(2)}%`;
+                    dashboard.sections["os-machine"].nodes_os.memory.used.textContent = `${(dashboard.global.payload.os.main.machine.memory.total - dashboard.global.payload.os.main.machine.memory.free).bytesLong()}, ${(((dashboard.global.payload.os.main.machine.memory.total - dashboard.global.payload.os.main.machine.memory.free) / dashboard.global.payload.os.main.machine.memory.total) * 100).toFixed(2)}%`;
+                    dashboard.sections["os-machine"].nodes_os.memory.total.textContent = `${dashboard.global.payload.os.main.machine.memory.total.bytesLong()}, 100%`;
+                    dashboard.sections["os-machine"].nodes_os.os.uptime.textContent = dashboard.global.payload.os.main.os.uptime.time_elapsed();
+                    dashboard.sections["os-machine"].nodes_os.process.admin.textContent = dashboard.global.payload.os.main.process.admin.toString();
+                    dashboard.sections["os-machine"].nodes_os.process.cpuSystem.textContent = dashboard.global.payload.os.main.process.cpuSystem.time_elapsed();
+                    dashboard.sections["os-machine"].nodes_os.process.cpuUser.textContent = dashboard.global.payload.os.main.process.cpuUser.time_elapsed();
+                    dashboard.sections["os-machine"].nodes_os.process.uptime.textContent = dashboard.global.payload.os.main.process.uptime.time_elapsed();
+                    dashboard.sections["os-machine"].nodes_os.process.memoryProcess.textContent = `${dashboard.global.payload.os.main.process.memory.rss.bytesLong()}, ${((dashboard.global.payload.os.main.process.memory.rss / dashboard.global.payload.os.main.machine.memory.total) * 100).toFixed(2)}%`;
+                    dashboard.sections["os-machine"].nodes_os.process.memoryV8.textContent = dashboard.global.payload.os.main.process.memory.V8.bytesLong();
+                    dashboard.sections["os-machine"].nodes_os.process.memoryExternal.textContent = dashboard.global.payload.os.main.process.memory.external.bytesLong();
                     dashboard.sections["os-machine"].nodes_os.update_duration.textContent = dashboard.utility.performance_get("os-machine");
                 },
                 time: 0,
@@ -2591,7 +2588,7 @@ const ui = function ui():void {
                         timeValue:string = (record.time === null)
                             ? (0).time_elapsed()
                             : record.time.time_elapsed(),
-                        time:string = (dashboard.global.payload.os.process.platform === "win32")
+                        time:string = (dashboard.global.payload.os.main.process.platform === "win32")
                             ? timeValue.replace(/000$/, "")
                             : timeValue.replace(/\.0+$/, ""),
                         memory:string = (record.memory === null)
@@ -3086,19 +3083,49 @@ const ui = function ui():void {
                 }
             },
             // servers-web end
-            // services start
-            "services": {
+            // services-app start
+            "services-app": {
+                events: null,
+                init: function dashboard_sections_servicesApp_init():void {
+                    const len:number = dashboard.global.payload.services_app.length,
+                        build = function dashboard_sections_servicesApp_init_build(text:string, name:string, parent:HTMLElement):void {
+                            const element:HTMLElement = document.createElement(name);
+                            element.textContent = text;
+                            parent.appendChild(element);
+                        };
+                    let index:number = 0,
+                        li:HTMLElement = null;
+                    dashboard.sections["services-app"].nodes.count.textContent = len.commas();
+                    do {
+                        li = document.createElement("li");
+                        build(dashboard.global.payload.services_app[index].name, "h3", li);
+                        build(dashboard.global.payload.services_app[index].code, "code", li);
+                        build(dashboard.global.payload.services_app[index].description, "p", li);
+                        dashboard.sections["services-app"].nodes.list.appendChild(li);
+                        index = index + 1;
+                    } while (index < len);
+                },
+                nodes: {
+                    count: document.getElementById("services-app").getElementsByClassName("section")[0].getElementsByTagName("em")[0],
+                    list: document.getElementById("services-app").getElementsByClassName("section")[0].getElementsByTagName("ul")[0]
+                },
+                receive: null,
+                tools: null
+            },
+            // services-app end
+            // services-os start
+            "services-os": {
                 dataName: "serv",
                 nodes: {
-                    caseSensitive: document.getElementById("services").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
-                    count: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-                    filter_column: document.getElementById("services").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
-                    filter_count: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
-                    filter_value: document.getElementById("services").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
-                    list: document.getElementById("services").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
-                    update_button: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
-                    update_duration: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[1],
-                    update_text: document.getElementById("services").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
+                    caseSensitive: document.getElementById("services-os").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
+                    count: document.getElementById("services-os").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
+                    filter_column: document.getElementById("services-os").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
+                    filter_count: document.getElementById("services-os").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
+                    filter_value: document.getElementById("services-os").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
+                    list: document.getElementById("services-os").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
+                    update_button: document.getElementById("services-os").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
+                    update_duration: document.getElementById("services-os").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[1],
+                    update_text: document.getElementById("services-os").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[0]
                 },
                 receive: null,
                 row: function dashboard_sections_services_row(record_item:type_lists, tr:HTMLElement):void {
@@ -3110,7 +3137,7 @@ const ui = function ui():void {
                 sort_name: ["name", "status", "description"],
                 time: 0
             },
-            // services end
+            // services-os end
             // sockets-application-tcp start
             "sockets-application-tcp": {
                 dataName: "sockets-application-tcp",
@@ -4478,8 +4505,8 @@ const ui = function ui():void {
                     toggle_server: document.getElementById("udp-socket").getElementsByClassName("udp-role-server")[0] as HTMLElement
                 },
                 receive: function dashboard_sections_udpSocket_receive(socket_data:socket_data):void {
-                    const data:string[] = socket_data.data as string[];
-                    dashboard.sections["udp-socket"].nodes.status.textContent = data[0];
+                    const data:services_udp_status = socket_data.data as services_udp_status;
+                    dashboard.sections["udp-socket"].nodes.status.textContent = data.status;
                 },
                 tools: {}
             },
@@ -4892,7 +4919,7 @@ const ui = function ui():void {
                     p.parentNode.appendChild(note);
                 } else if (dashboard_server === false) {
                     note.textContent = (dashboard.global.section === "compose-containers")
-                        ? `Changing the container name of an existing container will create a new container. Ensure the compose file mentions PUID and PGID with values ${dashboard.global.payload.os.user_account.uid} and ${dashboard.global.payload.os.user_account.gid} to prevent writing files as root.`
+                        ? `Changing the container name of an existing container will create a new container. Ensure the compose file mentions PUID and PGID with values ${dashboard.global.payload.os.main.user_account.uid} and ${dashboard.global.payload.os.main.user_account.gid} to prevent writing files as root.`
                         : "Destroying a server will delete all associated file system artifacts. Back up your data first.";
                     note.setAttribute("class", "note");
                     p.parentNode.appendChild(note);
@@ -5029,7 +5056,7 @@ const ui = function ui():void {
                         "devices": dashboard.sections["devices"],
                         "ports-application": dashboard.sections["ports-application"],
                         "processes": dashboard.sections["processes"],
-                        "services": dashboard.sections["services"],
+                        "services-os": dashboard.sections["services-os"],
                         "sockets-application-tcp": dashboard.sections["sockets-application-tcp"],
                         "sockets-application-udp": dashboard.sections["sockets-application-udp"],
                         "sockets-os-tcp": dashboard.sections["sockets-os-tcp"],
@@ -5191,7 +5218,7 @@ const ui = function ui():void {
                         "services_ports_application": "ports-application",
                         "services_os_devs": "devices",
                         "services_os-proc": "processes",
-                        "services_os_serv": "services",
+                        "services_os_serv": "services-os",
                         "services_os_user": "users",
                         "services_os_stcp": "sockets-os-tcp",
                         "services_os_sudp": "sockets-os-udp"
@@ -5337,7 +5364,7 @@ const ui = function ui():void {
                         "devs": "devices",
                         "ports-application": "ports-application",
                         "proc": "processes",
-                        "serv": "services",
+                        "serv": "services-os",
                         "sockets-application-tcp": "sockets-application-tcp",
                         "sockets-application-udp": "sockets-application-udp",
                         "stcp": "sockets-os-tcp",
@@ -5404,7 +5431,7 @@ const ui = function ui():void {
                     lists(dashboard.sections["devices"], true);
                     lists(dashboard.sections["disks"], false);
                     lists(dashboard.sections["processes"], true);
-                    lists(dashboard.sections["services"], true);
+                    lists(dashboard.sections["services-os"], true);
                     lists(dashboard.sections["users"], true);
                     if (dashboard.sections["application-logs"] !== undefined) {
                         replace(dashboard.sections["application-logs"].nodes.list, false);
@@ -5715,7 +5742,7 @@ const ui = function ui():void {
                     }
                     lists(dashboard.sections["devices"]);
                     lists(dashboard.sections["processes"]);
-                    lists(dashboard.sections["services"]);
+                    lists(dashboard.sections["services-os"]);
                     lists(dashboard.sections["sockets-application-tcp"]);
                     lists(dashboard.sections["sockets-application-udp"]);
                     lists(dashboard.sections["sockets-os-tcp"]);

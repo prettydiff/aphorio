@@ -58,5 +58,5 @@ declare global {
     type node_tls_TLSSocketOptions = TLSSocketOptions;
     type node_zlib_BrotliCompress = BrotliCompress;
     type node_zlib_BrotliDecompress = BrotliDecompress;
-    type pty = IPty;
+    type shell_pty = IPty; // from xterm dependency 
 }

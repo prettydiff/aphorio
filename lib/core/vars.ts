@@ -116,7 +116,8 @@ const vars:core_vars = {
                 "ports-application": true,
                 "processes": true,
                 "servers-web": true,
-                "services": true,
+                "services-app": true,
+                "services-os": true,
                 "sockets-application-tcp": true,
                 "sockets-application-udp": true,
                 "sockets-os-tcp": true,
@@ -156,6 +157,8 @@ const vars:core_vars = {
             name: "aphorio",
             // where the source code lives
             repository: "https://github.com/prettydiff/aphorio",
+            // a list of data service definitions used by this application
+            services_app: [],
             // a start date time value for use in the browser
             start_date: Date.now(),
             // the earliest recorded time this application starts
@@ -203,50 +206,58 @@ const vars:core_vars = {
                 data: null,
                 time: 0
             },
-            machine: {
-                cpu: {
-                    arch: "",
-                    cores: 0,
-                    endianness: "",
-                    frequency: 0,
-                    name: ""
+            main: {
+                machine: {
+                    cpu: {
+                        arch: "",
+                        cores: 0,
+                        endianness: "",
+                        frequency: 0,
+                        name: ""
+                    },
+                    memory: {
+                        free: 0,
+                        total: 0
+                    }
                 },
-                memory: {
-                    free: 0,
-                    total: 0
+                os: {
+                    env: {},
+                    hostname: "",
+                    name: "",
+                    path: [],
+                    platform: "",
+                    release: "",
+                    type: "",
+                    uptime: 0
+                },
+                process: {
+                    admin: false,
+                    arch: "",
+                    argv: [],
+                    cpuSystem: 0,
+                    cpuUser: 0,
+                    cwd: "",
+                    memory: {
+                        external: 0,
+                        rss: 0,
+                        V8: 0
+                    },
+                    pid: 0,
+                    platform: "",
+                    ppid: 0,
+                    uptime: 0,
+                    versions: {}
+                },
+                time: 0,
+                user_account: {
+                    gid: 0,
+                    homedir: "",
+                    uid: 0
                 }
-            },
-            os: {
-                env: {},
-                hostname: "",
-                name: "",
-                path: [],
-                platform: "",
-                release: "",
-                type: "",
-                uptime: 0
             },
             proc: {
                 data: [],
                 time: 0
-            },
-            process: {
-                admin: false,
-                arch: "",
-                argv: [],
-                cpuSystem: 0,
-                cpuUser: 0,
-                cwd: "",
-                memory: {
-                    external: 0,
-                    rss: 0,
-                    V8: 0
-                },
-                pid: 0,
-                platform: "",
-                ppid: 0,
-                uptime: 0,
-                versions: {}
             },
             serv: {
                 data: [],
@@ -264,11 +275,6 @@ const vars:core_vars = {
             user: {
                 data: [],
                 time: 0
-            },
-            user_account: {
-                gid: 0,
-                homedir: "",
-                uid: 0
             }
         },
         // commonly used file system path addresses that are validated at start up

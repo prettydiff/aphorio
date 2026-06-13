@@ -6,11 +6,11 @@ type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentE
 type type_certKey = "ca" | "crt" | "key";
 type type_dashboard_action = type_halt_action | "activate" | "add" | "update";
 type type_dashboard_list = "container" | "server";
-type type_dashboard_init = "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "message-inspection" | "notes" | "os-machine" | "servers-web" | "statistics-resources" | "terminal" | "test-http" | "test-websocket" | "udp-socket";
+type type_dashboard_init = "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "message-inspection" | "notes" | "os-machine" | "servers-web" | "services-app" | "statistics-resources" | "terminal" | "test-http" | "test-websocket" | "udp-socket";
 type type_dashboard_features = type_dashboard_init | type_dashboard_tables;
 type type_dashboard_sections = type_dashboard_features | "faq" | "help";
 type type_dashboard_status = "error" | "informational";
-type type_dashboard_tables = "devices" | "ports-application" | "processes" | "services" | "sockets-application-tcp" | "sockets-application-udp" | "sockets-os-tcp" | "sockets-os-udp" | "users";
+type type_dashboard_tables = "devices" | "ports-application" | "processes" | "services-os" | "sockets-application-tcp" | "sockets-application-udp" | "sockets-os-tcp" | "sockets-os-udp" | "users";
 type type_dashboard_table_services = "services_os_devs" | "services_os_proc" | "services_os_serv" | "services_os_stcp" | "services_os_sudp" | "services_os_user" | "services_ports_application" | "services_socket_application";
 // type_directory_type
 // 0 - absolute path
@@ -51,11 +51,11 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_start_pre_tasks = "admin" | "compose" | "os_main";
-type type_start_primary_tasks = "cgroup" | "file"| "git" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_stcp" | "os_sudp" | "os_user" | "servers" | "test_browser" | "test_list" | "version";
+type type_start_primary_tasks = "cgroup" | "file"| "git" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_stcp" | "os_sudp" | "os_user" | "servers" | "services_app" | "test_browser" | "test_list" | "version";
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";
 
 type http_action = (headerList:string[], socket:websocket_client, payload:Buffer) => void;
-type receiver = (socketData:socket_data, transmit:transmit_socket) => void;
+type type_receiver = (socketData:socket_data, transmit:transmit_socket) => void;
 type type_server_action = (data:services_server_action, callback:() => void, halt?:type_halt_action) => void;
 type websocket_message_handler = (socket:websocket_client, resultBuffer:Buffer, frame:websocket_frame) => void;

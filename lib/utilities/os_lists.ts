@@ -615,7 +615,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                             intr: "interfaces",
                             main: "os",
                             proc: "processes",
-                            serv: "services",
+                            serv: "services-os",
                             sock: "sockets-os",
                             user: "users"
                         };
@@ -857,7 +857,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 }
             }
         },
-        main = function utilities_os_main(time:number):services_os {
+        main = function utilities_os_main(time:number):services_os_main {
             const mem:os_node_memoryUsage = process.memoryUsage(),
                 cpu:os_node_cpuUsage = process.cpuUsage(),
                 cpus:os_node_cpu = node.os.cpus(),
@@ -867,19 +867,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 uid:number = (typeof process.getuid === "undefined")
                     ? 0
                     : process.getuid(),
-                output:services_os = {
-                    devs: {
-                        data: [],
-                        time: 0
-                    },
-                    disk: {
-                        data: [],
-                        time: 0
-                    },
-                    intr: {
-                        data: {},
-                        time: 0
-                    },
+                output:services_os_main = {
                     machine: {
                         cpu: {
                             arch: node.os.arch(),
@@ -908,7 +896,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         uptime: node.os.uptime()
                     },
                     process: {
-                        admin: vars.os.process.admin,
+                        admin: vars.os.main.process.admin,
                         arch: process.arch,
                         argv: process.argv,
                         cpuSystem: cpu.system / 1e6,
@@ -925,27 +913,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         uptime: process.uptime(),
                         versions: process.versions
                     },
-                    proc: {
-                        data: [],
-                        time: 0
-                    },
-                    serv: {
-                        data: [],
-                        time: 0
-                    },
-                    stcp: {
-                        data: [],
-                        time: 0,
-                    },
-                    sudp: {
-                        data: [],
-                        time: 0
-                    },
                     time: time,
-                    user: {
-                        data: [],
-                        time: 0
-                    },
                     user_account: {
                         gid: (gid === 0)
                             ? 1000
@@ -957,10 +925,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                     }
                 };
             vars.os.time = time;
-            vars.os.machine = output.machine;
-            vars.os.os = output.os;
-            vars.os.process = output.process;
-            vars.os.user_account = output.user_account;
+            vars.os.main = output;
             return output;
         },
         completed = function utilities_os_complete(type:type_os_key):void {
@@ -972,59 +937,62 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
             }
             complete[type] = true;
             if (type_os === "all" && index > 0) {
-                const output:services_os = main(now);
                 do {
                     index = index - 1;
                     if (complete[keys[index]] === false) {
                         return;
                     }
                 } while (index > 0);
-                output.devs = {
-                    data: devices,
-                    time: now
+                const all:services_os_all = {
+                    devs: {
+                        data: devices,
+                        time: now
+                    },
+                    disk: {
+                        data: disks,
+                        time: now
+                    },
+                    intr: {
+                        data: int,
+                        time: now
+                    },
+                    main: main(now),
+                    proc: {
+                        data: processes,
+                        time: now
+                    },
+                    serv: {
+                        data: services,
+                        time: now
+                    },
+                    stcp: {
+                        data: tcp,
+                        time: now
+                    },
+                    sudp: {
+                        data: udp,
+                        time: now
+                    },
+                    time: now,
+                    user: {
+                        data: users,
+                        time: now
+                    }
                 };
-                output.disk = {
-                    data: disks,
-                    time: now
-                };
-                output.intr = {
-                    data: int,
-                    time: now
-                };
-                output.proc = {
-                    data: processes,
-                    time: now
-                };
-                output.serv = {
-                    data: services,
-                    time: now
-                };
-                output.stcp = {
-                    data: tcp,
-                    time: now
-                };
-                output.sudp = {
-                    data: udp,
-                    time: now
-                };
-                output.user = {
-                    data: users,
-                    time: now
-                };
-                vars.os.devs = output.devs;
-                vars.os.disk = output.disk;
-                vars.os.intr = output.intr;
-                vars.os.proc = output.proc;
-                vars.os.serv = output.serv;
-                vars.os.stcp = output.stcp;
-                vars.os.sudp = output.sudp;
-                vars.os.user = output.user;
+                vars.os.devs = all.devs;
+                vars.os.disk = all.disk;
+                vars.os.intr = all.intr;
+                vars.os.proc = all.proc;
+                vars.os.serv = all.serv;
+                vars.os.stcp = all.stcp;
+                vars.os.sudp = all.sudp;
+                vars.os.user = all.user;
                 callback({
-                    data: output,
+                    data: all,
                     service: "services_os_all"
                 });
             } else if (type_os === "main") {
-                const output:services_os = main(now);
+                const output:services_os_main = main(now);
                 callback({
                     data: output,
                     service: "services_os_main"

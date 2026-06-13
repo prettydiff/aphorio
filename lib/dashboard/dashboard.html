@@ -34,6 +34,7 @@
                 <li><button class="nav-focus" data-section="servers-web">Web Servers</button></li>
                 <li><button data-section="compose-containers">Docker Compose</button></li>
                 <li><button data-section="udp-socket">UDP Socket</button></li>
+                <li><button data-section="message-inspection">Message Inspection</button></li>
                 <li><button data-section="statistics-resources">Resource Statistics</button></li>
             </ul>
         </div>
@@ -43,7 +44,6 @@
                 <li><button data-section="ports-application">App Ports</button></li>
                 <li><button data-section="sockets-application-tcp">App TCP Sockets</button></li>
                 <li><button data-section="sockets-application-udp">App UDP Sockets</button></li>
-                <li><button data-section="message-inspection">Message Inspection</button></li>
             </ul>
         </div>
         <div>
@@ -61,7 +61,7 @@
                 <li><button data-section="devices">Devices</button></li>
                 <li><button data-section="disks">Disks</button></li>
                 <li><button data-section="processes">Processes</button></li>
-                <li><button data-section="services">Services</button></li>
+                <li><button data-section="services-os">OS Services</button></li>
                 <li><button data-section="users">Users</button></li>
             </ul>
         </div>
@@ -86,6 +86,7 @@
             <h3>Informational</h3>
             <ul>
                 <li><button data-section="application-logs">Application Logs</button></li>
+                <li><button data-section="services-app">App Services</button></li>
                 <li><button data-section="faq">FAQ</button></li>
                 <li><button data-section="help">Help</button></li>
             </ul>
@@ -957,9 +958,19 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- servers-web end -->
-        <!-- services start -->
-        <div class="tab" id="services">
-            <h2>Services</h2>
+        <!-- services-app start -->
+        <div class="tab" id="services-app">
+            <h2>App Services</h2>
+            <p class="tab-description">A list of data service definitions used internally by this application.</p>
+            <div class="section">
+                <p class="count">Total service definitions: <em></em></p>
+                <ul></ul>
+            </div>
+        </div>
+        <!-- services-app end -->
+        <!-- services-os start -->
+        <div class="tab" id="services-os">
+            <h2>OS Services</h2>
             <p class="tab-description">A list of application services on the local operating system. Data automatically refreshes at server's midnight time.</p>
             <div class="table-filters">
                 <h3>List Controls</h3>
@@ -987,7 +998,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </table>
             </div>
         </div>
-        <!-- services end -->
+        <!-- services-os end -->
         <!-- sockets-application-tcp start -->
         <div class="tab" id="sockets-application-tcp">
             <h2>App TCP Sockets</h2>
