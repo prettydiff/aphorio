@@ -596,12 +596,17 @@ const start_application = function utilities_startApplication(process_path:strin
                                             name:string = "";
                                         do {
                                             index_def = index_def - 1;
+                                            // un-indent
                                             if (list[index_def].indexOf("    ") === 0) {
                                                 do {
                                                     list[index_def] = list[index_def].replace("    ", "").replace(/\n    /g, "\n");
                                                 } while (list[index_def].indexOf("    ") === 0);
                                             }
-                                            name = list[index_def].split("\n")[0].replace(/\s*interface\s+/, "").replace(/\s+\{\s*$/, "");
+                                            name = list[index_def].split("\n")[0].replace(/\s*interface\s+/, "");
+                                            name = name.replace(/\s*\{\s*/, "");
+                                            if (name.includes(" ") === true) {
+                                                name = name.slice(0, name.indexOf(" "));
+                                            }
                                             definitions[name] = `${list[index_def]}\n// ${location.replace(process_path, vars.path.sep)}`;
                                         } while (index_def > 0);
                                     }
@@ -609,17 +614,31 @@ const start_application = function utilities_startApplication(process_path:strin
                                 code[location] = file.toString();
                                 keys_code.push(location);
                                 if (count === 0) {
-                                    const len_code = keys_code.length;
+                                    const len_code = keys_code.length,
+                                        dependency = function utilities_startApplication_servicesApp_callbackDirectory_dependency(sample:string, dep:store_string):void {
+                                            if (sample === undefined){console.log(definitions)}
+                                            const lines:string[] = sample.split("\n");
+                                            let index_lines = lines.length;
+                                            do {
+                                                index_lines = index_lines - 1;
+                                                if ((/:\s*\w+_/).test(lines[index_lines]) === true) {
+                                                    name = lines[index_lines].slice(lines[index_lines].lastIndexOf(":") + 1).replace(/^\s*/, "").split("|")[0].replace(/\[?\]?;?\s*$/, "");
+                                                    if (dep[name] === undefined) {
+                                                        dep[name] = definitions[name];
+                                                        dependency(definitions[name], dep);
+                                                    }
+                                                }
+                                            } while (index_lines > 0);
+                                        };
                                     let index_service:number = vars.environment.services_app.length,
                                         name:string = "",
-                                        names:string[] = null,
-                                        lines:string[] = null,
                                         index_code:number = 0,
                                         reg_colon:RegExp = null,
                                         reg_as:RegExp = null;
                                     do {
                                         index_service = index_service - 1;
                                         index_code = len_code;
+                                        // find files referrencing this service by name
                                         do {
                                             index_code = index_code - 1;
                                             reg_colon = new RegExp(`:\\s*${vars.environment.services_app[index_service].name}`);
@@ -628,18 +647,9 @@ const start_application = function utilities_startApplication(process_path:strin
                                                 vars.environment.services_app[index_service].files.push(keys_code[index_code].replace(process_path, vars.path.sep));
                                             }
                                         } while (index_code > 0);
-                                        lines = vars.environment.services_app[index_service].code.split("\n");
-                                        index_code = lines.length;
-                                        names = [];
-                                        do {
-                                            index_code = index_code - 1;
-                                            if ((/:\s*\w+_/).test(lines[index_code]) === true) {
-                                                name = lines[index_code].slice(lines[index_code].lastIndexOf(":") + 1).replace(/^\s*/, "").split("|")[0].replace(/\[?\]?;?\s*$/, "");
-                                                if (vars.environment.services_app[index_service].dependencies[name] === undefined) {
-                                                    vars.environment.services_app[index_service].dependencies[name] = definitions[name];
-                                                }
-                                            }
-                                        } while (index_code > 0);
+
+                                        // find all type dependencies
+                                        dependency(vars.environment.services_app[index_service].code, vars.environment.services_app[index_service].dependencies);
                                     } while (index_service > 0);
                                     complete_tasks("services_app");
                                 }

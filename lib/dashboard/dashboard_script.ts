@@ -3097,7 +3097,7 @@ const ui = function ui():void {
                             return element;
                         },
                         dependencies = function dashboard_sections_serviceApps_init_dependencies(deps:store_string, parent:HTMLElement):void {
-                            const dep_keys = Object.keys(dashboard.global.payload.services_app[index].dependencies),
+                            const dep_keys = Object.keys(dashboard.global.payload.services_app[index].dependencies).sort(),
                                 dep_len = dep_keys.length;
                             if (dep_len > 0) {
                                 const div:HTMLElement = document.createElement("div"),
@@ -3130,12 +3130,14 @@ const ui = function ui():void {
                         plural:string = "",
                         p:HTMLElement = null,
                         em:HTMLElement = null,
+                        strong:HTMLElement = null,
                         ul:HTMLElement = null,
                         li:HTMLElement = null;
                     dashboard.sections["services-app"].nodes.count.textContent = len.commas();
                     do {
                         li = document.createElement("li");
                         em = document.createElement("em");
+                        strong = document.createElement("strong");
                         p = document.createElement("p");
                         build(dashboard.global.payload.services_app[index].name, "h3", li);
                         build(dashboard.global.payload.services_app[index].code, "code", li);
@@ -3146,7 +3148,10 @@ const ui = function ui():void {
                         plural = (index_files === 1)
                             ? ""
                             : "s";
-                        p.textContent = "Service referenced in ";
+                        p.textContent = "Service ";
+                        strong.textContent = dashboard.global.payload.services_app[index].name;
+                        p.appendChild(strong);
+                        p.appendText(" referenced in ");
                         em.textContent = index_files.toString();
                         p.appendChild(em);
                         p.appendText(` file${plural}.`);
