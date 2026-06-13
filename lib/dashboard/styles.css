@@ -277,7 +277,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
                 em{font-size:0.8em;font-weight:normal}
             }
             &:last-child{margin:0}
-            .file-list{
+            .reference-list{
                 border-style:none;margin:0;padding:0 0 0 2em;
                 li{border-style:none;display:list-item;list-style:disc;margin:0;padding:0}
             }

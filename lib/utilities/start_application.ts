@@ -617,20 +617,44 @@ const start_application = function utilities_startApplication(process_path:strin
                                     const len_code = keys_code.length,
                                         dependency = function utilities_startApplication_servicesApp_callbackDirectory_dependency(sample:[string, string], dep:core_services_interal_dependency):void {
                                             const lines:string[] = sample[0].split("\n");
-                                            let index_lines = lines.length;
+                                            let index_lines:number = lines.length,
+                                                index_names:number = 0,
+                                                name:string = "",
+                                                names:string[] = null;
                                             do {
                                                 index_lines = index_lines - 1;
-                                                if ((/:\s*\w+_/).test(lines[index_lines]) === true) {
-                                                    name = lines[index_lines].slice(lines[index_lines].lastIndexOf(":") + 1).replace(/^\s*/, "").split("|")[0].replace(/\[?\]?;?\s*$/, "");
-                                                    if (dep[name] === undefined) {
-                                                        dep[name] = definitions[name];
-                                                        dependency(definitions[name], dep);
+                                                if ((/^interface\s/).test(lines[index_lines]) === false) {
+                                                    name = ((/^type\s/).test(lines[index_lines]) === true)
+                                                        ? lines[index_lines].slice(lines[index_lines].indexOf("=") + 1).replace(/^\s+/, "").replace(/\s*;\s*$/, "")
+                                                        : lines[index_lines].slice(lines[index_lines].lastIndexOf(":") + 1).replace(/^\s+/, "").replace(/\s*;\s*$/, "");
+                                                    if (name.includes("|") === true) {
+                                                        names = name.split("|");
+                                                    } else {
+                                                        names = [name];
                                                     }
+                                                    index_names = names.length;
+                                                    do {
+                                                        index_names = index_names - 1;
+                                                        if (names[index_names].includes("_") === true) {
+                                                            name = names[index_names].replace(/\s+/g, "");
+                                                            if (name.includes("<") === true) {
+                                                                name = name.slice(0, name.indexOf("<"));
+                                                            }
+                                                            if (name.includes("[") === true) {
+                                                                name = name.slice(0, name.indexOf("["));
+                                                            }
+                                                            if (dep[name] === undefined) {
+                                                                dep[name] = definitions[name];
+                                                                if (definitions[name] !== undefined) {
+                                                                    dependency(definitions[name], dep);
+                                                                }
+                                                            }
+                                                        }
+                                                    } while (index_names > 0);
                                                 }
                                             } while (index_lines > 0);
                                         };
                                     let index_service:number = vars.environment.services_app.length,
-                                        name:string = "",
                                         index_code:number = 0,
                                         reg_colon:RegExp = null,
                                         reg_as:RegExp = null;

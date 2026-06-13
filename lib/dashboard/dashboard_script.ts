@@ -3120,7 +3120,6 @@ const ui = function ui():void {
                                     li.appendChild(h5);
                                     code = document.createElement("code");
                                     code.textContent = deps[dep_keys[index_dep]][0];
-
                                     li.appendChild(code);
                                     ul.appendChild(li);
                                     index_dep = index_dep + 1;
@@ -3169,7 +3168,7 @@ const ui = function ui():void {
                         li.appendChild(p);
                         if (index_files > 0) {
                             ul = build(null, "ul", li);
-                            ul.setAttribute("class", "file-list");
+                            ul.setAttribute("class", "reference-list");
                             do {
                                 index_files = index_files - 1;
                                 build(dashboard.global.payload.services_app[index].files[index_files], "li", ul);
