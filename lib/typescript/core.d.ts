@@ -211,7 +211,9 @@ interface core_servers_file {
 
 interface core_service_internal {
     code: string;
+    dependencies: store_string;
     description: string;
+    files: string[];
     name: string;
 }
 

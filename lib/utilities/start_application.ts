@@ -3,6 +3,7 @@ import broadcast from "../transmit/broadcast.ts";
 import clock from "../services/clock.ts";
 import core from "../browser/core.ts";
 import dashboard_script from "../dashboard/dashboard_script.ts";
+import directory from "./directory.ts";
 import docker from "../services/docker.ts";
 import file from "./file.ts";
 import log from "../core/log.ts";
@@ -548,30 +549,132 @@ const start_application = function utilities_startApplication(process_path:strin
             services_app: {
                 label: "Provides the application's service list to the dashboard UI.",
                 task: function utilities_startApplication_servicesApp():void {
-                    const callback = function utilities_startApplication_servicesApp_callback(data:Buffer):void {
-                        const services:string[] = data.toString().replace(/^\s+/, "").replace(/\s+$/, "").split("\n\n"),
-                            len:number = services.length - 1;
-                        let index:number = 0,
-                            strings:string[] = null,
-                            service:core_service_internal = null;
-                        do {
-                            strings = services[index].split("\n");
-                            service = {
-                                code: strings.slice(0, strings.length - 1).join("\n"),
-                                description: strings[strings.length - 1].replace(/^\s*\/\/\s*/, ""),
-                                name: strings[0].replace(/\s*interface\s+/, "").replace(/\s+\{\s*$/, "")
+                    const callback_directory = function utilities_startApplication_servicesApp_callbackDirectory(dir:core_directory_list):void {
+                        const len:number = dir.length,
+                            code:store_string = {},
+                            definitions:store_string = {},
+                            keys_code:string[] = [],
+                            read = function utilities_startApplication_servicesApp_callbackDirectory_read(file:Buffer, location:string):void {
+                                count = count - 1;
+                                if ((/\.d\.ts$/).test(location) === true) {
+                                    if (location === `${process_path}lib${vars.path.sep}typescript${vars.path.sep}service_registry.d.ts`) {
+                                        const services:string[] = file.toString().replace(/^\s+/, "").replace(/\s+$/, "").split("\n\n"),
+                                            len:number = services.length - 1;
+                                        let index:number = 0,
+                                            strings:string[] = null,
+                                            name:string = "",
+                                            service:core_service_internal = null;
+                                        do {
+                                            strings = services[index].split("\n");
+                                            name = strings[0].replace(/\s*interface\s+/, "").replace(/\s+\{\s*$/, "");
+                                            service = {
+                                                code: strings.slice(0, strings.length - 1).join("\n"),
+                                                dependencies: {},
+                                                description: strings[strings.length - 1].replace(/^\s*\/\/\s*/, ""),
+                                                files: [],
+                                                name: name
+                                            };
+                                            vars.environment.services_app.push(service);
+                                            definitions[name] = `${services[index]}\n// ${location.replace(process_path, vars.path.sep)}`;
+                                            index = index + 1;
+                                        } while (index < len);
+                                    } else if (location === `${process_path}lib${vars.path.sep}typescript${vars.path.sep}node.d.ts` || location === `${process_path}lib${vars.path.sep}typescript${vars.path.sep}types.d.ts`) {
+                                        const raw:string = file.toString(),
+                                            list:string[] = raw.slice(raw.indexOf("type")).replace(/^\s+/, "").replace(/\s+$/, "").replace(/\n\n/g, "\n").split("\n");
+                                        let index_def:number = list.length,
+                                            values:string[] = null;
+                                        do {
+                                            index_def = index_def - 1;
+                                            if (list[index_def].replace(/^\s*/, "").indexOf("type ") === 0) {
+                                                values = list[index_def].replace(/^\s*/, "").replace(/\s*=\s*/, "=").split("=");
+                                                definitions[values[0].slice(5)] = `${values[0]} = ${values[1]}\n// ${location.replace(process_path, vars.path.sep)}`;
+                                            }
+                                        } while (index_def > 0);
+                                    } else {
+                                        const list:string[] = file.toString().replace(/^\s+/, "").replace(/\s+$/, "").split("\n\n");
+                                        let index_def:number = list.length,
+                                            name:string = "";
+                                        do {
+                                            index_def = index_def - 1;
+                                            if (list[index_def].indexOf("    ") === 0) {
+                                                do {
+                                                    list[index_def] = list[index_def].replace("    ", "").replace(/\n    /g, "\n");
+                                                } while (list[index_def].indexOf("    ") === 0);
+                                            }
+                                            name = list[index_def].split("\n")[0].replace(/\s*interface\s+/, "").replace(/\s+\{\s*$/, "");
+                                            definitions[name] = `${list[index_def]}\n// ${location.replace(process_path, vars.path.sep)}`;
+                                        } while (index_def > 0);
+                                    }
+                                }
+                                code[location] = file.toString();
+                                keys_code.push(location);
+                                if (count === 0) {
+                                    const len_code = keys_code.length;
+                                    let index_service:number = vars.environment.services_app.length,
+                                        name:string = "",
+                                        names:string[] = null,
+                                        lines:string[] = null,
+                                        index_code:number = 0,
+                                        reg_colon:RegExp = null,
+                                        reg_as:RegExp = null;
+                                    do {
+                                        index_service = index_service - 1;
+                                        index_code = len_code;
+                                        do {
+                                            index_code = index_code - 1;
+                                            reg_colon = new RegExp(`:\\s*${vars.environment.services_app[index_service].name}`);
+                                            reg_as = new RegExp(`as\\s+${vars.environment.services_app[index_service].name}`);
+                                            if (reg_colon.test(code[keys_code[index_code]]) === true || reg_as.test(code[keys_code[index_code]]) === true || code[keys_code[index_code]].includes(`"${vars.environment.services_app[index_service].name}"`) === true) {
+                                                vars.environment.services_app[index_service].files.push(keys_code[index_code].replace(process_path, vars.path.sep));
+                                            }
+                                        } while (index_code > 0);
+                                        lines = vars.environment.services_app[index_service].code.split("\n");
+                                        index_code = lines.length;
+                                        names = [];
+                                        do {
+                                            index_code = index_code - 1;
+                                            if ((/:\s*\w+_/).test(lines[index_code]) === true) {
+                                                name = lines[index_code].slice(lines[index_code].lastIndexOf(":") + 1).replace(/^\s*/, "").split("|")[0].replace(/\[?\]?;?\s*$/, "");
+                                                if (vars.environment.services_app[index_service].dependencies[name] === undefined) {
+                                                    vars.environment.services_app[index_service].dependencies[name] = definitions[name];
+                                                }
+                                            }
+                                        } while (index_code > 0);
+                                    } while (index_service > 0);
+                                    complete_tasks("services_app");
+                                }
                             };
-                            vars.environment.services_app.push(service);
-                            index = index + 1;
-                        } while (index < len);
-                        complete_tasks("services_app");
+                        let index_dir:number = len,
+                            count:number = len;
+                        do {
+                            index_dir = index_dir - 1;
+                            if (dir[index_dir][1] === "file" && (/\.ts$/).test(dir[index_dir][0]) === true) {
+                                file.read({
+                                    callback: read,
+                                    location: dir[index_dir][0],
+                                    no_file: null,
+                                    section: "startup"
+                                });
+                            } else {
+                                count = count - 1;
+                            }
+                        } while (index_dir > 0);
                     };
-                    file.read({
-                        callback: callback,
-                        location: `${process_path}lib${vars.path.sep}typescript${vars.path.sep}service_registry.d.ts`,
-                        no_file: null,
-                        section: "startup"
-                    });
+                    if (vars.environment.features["services-app"] === true) {
+                        directory({
+                            callback: callback_directory,
+                            depth: 0,
+                            directory_size: false,
+                            exclusions: [],
+                            parent: false,
+                            path: `${process_path}lib`,
+                            relative: false,
+                            search: null,
+                            symbolic: false
+                        });
+                    } else {
+                        complete_tasks("services_app");
+                    }
                 }
             },
             test_browser: {

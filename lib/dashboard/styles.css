@@ -271,7 +271,17 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
             border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:0 0 1.667em;padding:1.667em;
             code{margin:0}
             p{margin-bottom:0}
+            h4,
+            h5{margin:1em 0 0}
             &:last-child{margin:0}
+            .file-list{
+                border-style:none;margin:0;padding:0 0 0 2em;
+                li{border-style:none;display:list-item;list-style:disc;margin:0;padding:0}
+            }
+            .service-dependencies{
+                li{border-style:none;margin:0;padding:0}
+                ul{padding:0 0 0 2em}
+            }
         }
         ul{margin:0;padding:0}
         .count{margin:0 0 1.667em}

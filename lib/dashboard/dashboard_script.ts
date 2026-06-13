@@ -3088,19 +3088,77 @@ const ui = function ui():void {
                 events: null,
                 init: function dashboard_sections_servicesApp_init():void {
                     const len:number = dashboard.global.payload.services_app.length,
-                        build = function dashboard_sections_servicesApp_init_build(text:string, name:string, parent:HTMLElement):void {
+                        build = function dashboard_sections_servicesApp_init_build(text:string, name:string, parent:HTMLElement):HTMLElement {
                             const element:HTMLElement = document.createElement(name);
-                            element.textContent = text;
+                            if (text !== null) {
+                                element.textContent = text;
+                            }
                             parent.appendChild(element);
+                            return element;
+                        },
+                        dependencies = function dashboard_sections_serviceApps_init_dependencies(deps:store_string, parent:HTMLElement):void {
+                            const dep_keys = Object.keys(dashboard.global.payload.services_app[index].dependencies),
+                                dep_len = dep_keys.length;
+                            if (dep_len > 0) {
+                                const div:HTMLElement = document.createElement("div"),
+                                    h4:HTMLElement = document.createElement("h4"),
+                                    ul:HTMLElement = document.createElement("ul");
+                                let index_dep:number = 0,
+                                    h5:HTMLElement = null,
+                                    code:HTMLElement = null,
+                                    li:HTMLElement = null;
+                                h4.textContent = "Type Dependencies";
+                                div.appendChild(h4);
+                                do {
+                                    li = document.createElement("li");
+                                    h5 = document.createElement("h5");
+                                    h5.textContent = dep_keys[index_dep];
+                                    li.appendChild(h5);
+                                    code = document.createElement("code");
+                                    code.textContent = deps[dep_keys[index_dep]];
+                                    li.appendChild(code);
+                                    ul.appendChild(li);
+                                    index_dep = index_dep + 1;
+                                } while (index_dep < dep_len);
+                                div.appendChild(ul);
+                                div.setAttribute("class", "service-dependencies");
+                                parent.appendChild(div);
+                            }
                         };
                     let index:number = 0,
+                        index_files:number = 0,
+                        plural:string = "",
+                        p:HTMLElement = null,
+                        em:HTMLElement = null,
+                        ul:HTMLElement = null,
                         li:HTMLElement = null;
                     dashboard.sections["services-app"].nodes.count.textContent = len.commas();
                     do {
                         li = document.createElement("li");
+                        em = document.createElement("em");
+                        p = document.createElement("p");
                         build(dashboard.global.payload.services_app[index].name, "h3", li);
                         build(dashboard.global.payload.services_app[index].code, "code", li);
                         build(dashboard.global.payload.services_app[index].description, "p", li);
+                        dependencies(dashboard.global.payload.services_app[index].dependencies, li);
+                        build("References", "h4", li);
+                        index_files = dashboard.global.payload.services_app[index].files.length;
+                        plural = (index_files === 1)
+                            ? ""
+                            : "s";
+                        p.textContent = "Service referenced in ";
+                        em.textContent = index_files.toString();
+                        p.appendChild(em);
+                        p.appendText(` file${plural}.`);
+                        li.appendChild(p);
+                        if (index_files > 0) {
+                            ul = build(null, "ul", li);
+                            ul.setAttribute("class", "file-list");
+                            do {
+                                index_files = index_files - 1;
+                                build(dashboard.global.payload.services_app[index].files[index_files], "li", ul);
+                            } while (index_files > 0);
+                        }
                         dashboard.sections["services-app"].nodes.list.appendChild(li);
                         index = index + 1;
                     } while (index < len);
