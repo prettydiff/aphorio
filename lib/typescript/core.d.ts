@@ -211,10 +211,14 @@ interface core_servers_file {
 
 interface core_service_internal {
     code: string;
-    dependencies: store_string;
+    dependencies: core_services_interal_dependency;
     description: string;
     files: string[];
     name: string;
+}
+
+interface core_services_interal_dependency {
+    [key:string]: [string, string];
 }
 
 interface core_spawn_options {

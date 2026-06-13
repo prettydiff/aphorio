@@ -272,7 +272,10 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
             code{margin:0}
             p{margin-bottom:0}
             h4,
-            h5{margin:1em 0 0}
+            h5{
+                margin:1em 0 0;
+                em{font-size:0.8em;font-weight:normal}
+            }
             &:last-child{margin:0}
             .file-list{
                 border-style:none;margin:0;padding:0 0 0 2em;

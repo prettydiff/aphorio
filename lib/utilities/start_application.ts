@@ -552,7 +552,7 @@ const start_application = function utilities_startApplication(process_path:strin
                     const callback_directory = function utilities_startApplication_servicesApp_callbackDirectory(dir:core_directory_list):void {
                         const len:number = dir.length,
                             code:store_string = {},
-                            definitions:store_string = {},
+                            definitions:core_services_interal_dependency = {},
                             keys_code:string[] = [],
                             read = function utilities_startApplication_servicesApp_callbackDirectory_read(file:Buffer, location:string):void {
                                 count = count - 1;
@@ -575,7 +575,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                                 name: name
                                             };
                                             vars.environment.services_app.push(service);
-                                            definitions[name] = `${services[index]}\n// ${location.replace(process_path, vars.path.sep)}`;
+                                            definitions[name] = [services[index], location.replace(process_path, vars.path.sep)];
                                             index = index + 1;
                                         } while (index < len);
                                     } else if (location === `${process_path}lib${vars.path.sep}typescript${vars.path.sep}node.d.ts` || location === `${process_path}lib${vars.path.sep}typescript${vars.path.sep}types.d.ts`) {
@@ -587,7 +587,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                             index_def = index_def - 1;
                                             if (list[index_def].replace(/^\s*/, "").indexOf("type ") === 0) {
                                                 values = list[index_def].replace(/^\s*/, "").replace(/\s*=\s*/, "=").split("=");
-                                                definitions[values[0].slice(5)] = `${values[0]} = ${values[1]}\n// ${location.replace(process_path, vars.path.sep)}`;
+                                                definitions[values[0].slice(5)] = [`${values[0]} = ${values[1]}`, location.replace(process_path, vars.path.sep)];
                                             }
                                         } while (index_def > 0);
                                     } else {
@@ -607,7 +607,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                             if (name.includes(" ") === true) {
                                                 name = name.slice(0, name.indexOf(" "));
                                             }
-                                            definitions[name] = `${list[index_def]}\n// ${location.replace(process_path, vars.path.sep)}`;
+                                            definitions[name] = [list[index_def], location.replace(process_path, vars.path.sep)];
                                         } while (index_def > 0);
                                     }
                                 }
@@ -615,9 +615,8 @@ const start_application = function utilities_startApplication(process_path:strin
                                 keys_code.push(location);
                                 if (count === 0) {
                                     const len_code = keys_code.length,
-                                        dependency = function utilities_startApplication_servicesApp_callbackDirectory_dependency(sample:string, dep:store_string):void {
-                                            if (sample === undefined){console.log(definitions)}
-                                            const lines:string[] = sample.split("\n");
+                                        dependency = function utilities_startApplication_servicesApp_callbackDirectory_dependency(sample:[string, string], dep:core_services_interal_dependency):void {
+                                            const lines:string[] = sample[0].split("\n");
                                             let index_lines = lines.length;
                                             do {
                                                 index_lines = index_lines - 1;
@@ -649,7 +648,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                         } while (index_code > 0);
 
                                         // find all type dependencies
-                                        dependency(vars.environment.services_app[index_service].code, vars.environment.services_app[index_service].dependencies);
+                                        dependency([vars.environment.services_app[index_service].code, ""], vars.environment.services_app[index_service].dependencies);
                                     } while (index_service > 0);
                                     complete_tasks("services_app");
                                 }
