@@ -71,78 +71,90 @@ declare global {
 
     interface dashboard {
         execute: () => void;
-        global: {
-            click: boolean;
-            loaded: boolean;
-            payload: transmit_dashboard;
-            section: type_dashboard_sections;
-            state: state_store;
-        };
-        message: {
-            init: () => void;
-            receive: (data:string) => void;
-            send: (socket_data:socket_data) => void;
-        };
-        sections: {
-            "application-logs": section_applicationLogs;
-            "compose-containers": section_compose_containers;
-            "devices": section_devices;
-            "disks": section_disks;
-            "dns-query": section_dns_query;
-            "file-system": section_file_system;
-            "hash": section_hash;
-            "interfaces": section_interfaces;
-            "message-inspection": section_message_text;
-            "notes": section_notes;
-            "os-machine": section_os;
-            "ports-application": section_ports_application;
-            "processes": section_processes;
-            "servers-web": section_servers_web;
-            "services-app": module_sections;
-            "services-os": section_services;
-            "sockets-application-tcp": section_sockets_application;
-            "sockets-application-udp": section_sockets_application;
-            "sockets-os-tcp": section_sockets_os;
-            "sockets-os-udp": section_sockets_os;
-            "statistics-resources": section_statistics_resources;
-            "terminal": section_terminal;
-            "test-http": section_http_test;
-            "test-websocket": section_websocket_test;
-            "udp-socket": section_udpSocket;
-            "users": section_users;
-        };
-        shared_services: {
-            cancel: (event:MouseEvent) => void;
-            color: (name_server:string, type:type_dashboard_list) => type_activation_status;
-            create: (event:MouseEvent) => void;
-            details: (event:MouseEvent) => void;
-            edit: (event:MouseEvent) => void;
-            shellResize: (config:config_resize) => void;
-            title: (name_server:string, type:type_dashboard_list) => HTMLElement;
-        };
+        global: dashboard_global;
+        message: dashboard_message;
+        sections: dashboard_sections;
+        shared_services: dashboard_shared_services;
         socket: socket_object;
-        tables: {
-            cell: (tr:HTMLElement, text:string, raw:string) => void;
-            filter: (event:Event, target?:HTMLInputElement) => void;
-            init: (module:module_list|section_ports_application|section_sockets_application) => void;
-            populate: (module:module_list, item:type_list_services) => void;
-            receive: (socket_data:socket_data) => void;
-            sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
-            update: (event:MouseEvent) => void;
+        tables: dashboard_tables;
+        utility: dashboard_utility;
+    }
+
+    interface dashboard_global {
+        click: boolean;
+        loaded: boolean;
+        payload: transmit_dashboard;
+        section: type_dashboard_sections;
+        state: state_store;
+    }
+
+    interface dashboard_message {
+        init: () => void;
+        receive: (data:string) => void;
+        send: (socket_data:socket_data) => void;
+    }
+
+    interface dashboard_sections {
+        "application-logs": section_applicationLogs;
+        "compose-containers": section_compose_containers;
+        "devices": section_devices;
+        "disks": section_disks;
+        "dns-query": section_dns_query;
+        "file-system": section_file_system;
+        "hash": section_hash;
+        "interfaces": section_interfaces;
+        "message-inspection": section_message_text;
+        "notes": section_notes;
+        "os-machine": section_os;
+        "ports-application": section_ports_application;
+        "processes": section_processes;
+        "servers-web": section_servers_web;
+        "services-app": module_sections;
+        "services-os": section_services;
+        "sockets-application-tcp": section_sockets_application;
+        "sockets-application-udp": section_sockets_application;
+        "sockets-os-tcp": section_sockets_os;
+        "sockets-os-udp": section_sockets_os;
+        "statistics-resources": section_statistics_resources;
+        "terminal": section_terminal;
+        "test-http": section_http_test;
+        "test-websocket": section_websocket_test;
+        "udp-socket": section_udpSocket;
+        "users": section_users;
+    }
+
+    interface dashboard_shared_services {
+        cancel: (event:MouseEvent) => void;
+        color: (name_server:string, type:type_dashboard_list) => type_activation_status;
+        create: (event:MouseEvent) => void;
+        details: (event:MouseEvent) => void;
+        edit: (event:MouseEvent) => void;
+        shellResize: (config:config_resize) => void;
+        title: (name_server:string, type:type_dashboard_list) => HTMLElement;
+    }
+
+    interface dashboard_tables {
+        cell: (tr:HTMLElement, text:string, raw:string) => void;
+        filter: (event:Event, target?:HTMLInputElement) => void;
+        init: (module:module_list|section_ports_application|section_sockets_application) => void;
+        populate: (module:module_list, item:type_list_services) => void;
+        receive: (socket_data:socket_data) => void;
+        sort: (event:MouseEvent, table?:HTMLElement, heading_index?:number) => void;
+        update: (event:MouseEvent) => void;
+    }
+
+    interface dashboard_utility {
+        baseline: () => void;
+        clock: (data_item:socket_data) => void;
+        nodes: {
+            clock: HTMLElement;
+            load: HTMLElement;
+            main: HTMLElement;
         };
-        utility: {
-            baseline: () => void;
-            clock: (data_item:socket_data) => void;
-            nodes: {
-                clock: HTMLElement;
-                load: HTMLElement;
-                main: HTMLElement;
-            };
-            performance_get: (section:type_dashboard_sections) => string;
-            performance_set: (section:type_dashboard_sections) => void;
-            resize: () => void;
-            setState: () => void;
-        };
+        performance_get: (section:type_dashboard_sections) => string;
+        performance_set: (section:type_dashboard_sections) => void;
+        resize: () => void;
+        setState: () => void;
     }
 
     interface graph_composite {
