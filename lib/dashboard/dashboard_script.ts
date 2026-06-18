@@ -2303,7 +2303,7 @@ const ui = function ui():void {
                                 ? value_total
                                 : value_total.slice(len - data.max_size);
                         textarea.value = value;
-                        dashboard.sections["message-inspection"].nodes[`em_${data.direction}`].textContent = `(${data.count.commas()} characters updated, ${value.length.commas()} characteers total)`;
+                        dashboard.sections["message-inspection"].nodes[`em_${data.direction}`].textContent = `(${data.count.commas()} characters updated, ${value.length.commas()} characters total)`;
                     }
                 },
                 tools: {}
@@ -3096,7 +3096,7 @@ const ui = function ui():void {
                             parent.appendChild(element);
                             return element;
                         },
-                        dependencies = function dashboard_sections_serviceApps_init_dependencies(deps:core_services_interal_dependency, parent:HTMLElement):void {
+                        dependencies = function dashboard_sections_serviceApps_init_dependencies(deps:core_services_internal_dependency, parent:HTMLElement):void {
                             const dep_keys = Object.keys(dashboard.global.payload.services_app[index].dependencies).sort(),
                                 dep_len = dep_keys.length;
                             if (dep_len > 0) {

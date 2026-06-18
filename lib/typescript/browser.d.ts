@@ -103,22 +103,22 @@ declare global {
         "file-system": section_file_system;
         "hash": section_hash;
         "interfaces": section_interfaces;
-        "message-inspection": section_message_text;
+        "message-inspection": section_message_inspection;
         "notes": section_notes;
         "os-machine": section_os;
         "ports-application": section_ports_application;
         "processes": section_processes;
         "servers-web": section_servers_web;
         "services-app": module_sections;
-        "services-os": section_services;
+        "services-os": section_services_os;
         "sockets-application-tcp": section_sockets_application;
         "sockets-application-udp": section_sockets_application;
         "sockets-os-tcp": section_sockets_os;
         "sockets-os-udp": section_sockets_os;
         "statistics-resources": section_statistics_resources;
         "terminal": section_terminal;
-        "test-http": section_http_test;
-        "test-websocket": section_websocket_test;
+        "test-http": section_test_http;
+        "test-websocket": section_test_websocket;
         "udp-socket": section_udpSocket;
         "users": section_users;
     }
@@ -441,22 +441,6 @@ declare global {
         time: number;
     }
 
-    interface section_http_test extends module_sections {
-        events: {
-            request: () => void;
-        };
-        nodes: {
-            encryption: HTMLInputElement;
-            http_request: HTMLElement;
-            request: HTMLTextAreaElement;
-            responseBody: HTMLTextAreaElement;
-            responseHeaders: HTMLTextAreaElement;
-            responseURI: HTMLTextAreaElement;
-            stats: HTMLElement;
-            timeout: HTMLInputElement;
-        };
-    }
-
     interface section_interfaces extends module_sections {
         events: {
             update: () => void;
@@ -473,7 +457,7 @@ declare global {
         time: number;
     }
 
-    interface section_message_text extends module_sections {
+    interface section_message_inspection extends module_sections {
         events: {
             service: () => void;
             type: () => void;
@@ -531,7 +515,7 @@ declare global {
         };
     }
 
-    interface section_services extends module_list {
+    interface section_services_os extends module_list {
         dataName: "serv";
     }
 
@@ -606,6 +590,58 @@ declare global {
         socket: WebSocket;
     }
 
+    interface section_test_http extends module_sections {
+        events: {
+            request: () => void;
+        };
+        nodes: {
+            encryption: HTMLInputElement;
+            http_request: HTMLElement;
+            request: HTMLTextAreaElement;
+            responseBody: HTMLTextAreaElement;
+            responseHeaders: HTMLTextAreaElement;
+            responseURI: HTMLTextAreaElement;
+            stats: HTMLElement;
+            timeout: HTMLInputElement;
+        };
+    }
+
+    interface section_test_websocket extends module_sections {
+        connected: boolean;
+        events: {
+            encryption: (event:MouseEvent) => void;
+            handshakeSend: () => void;
+            keyup_frame: (event:Event) => void;
+            keyup_message: (event:KeyboardEvent) => void;
+            message_send: () => void;
+        };
+        frameBeautify: (target:"receive"|"send", valueItem?:string) => void;
+        init: () => void;
+        nodes: {
+            button_handshake: HTMLButtonElement;
+            button_send: HTMLButtonElement;
+            encrypt_false: HTMLInputElement;
+            encrypt_true: HTMLInputElement;
+            frame_validate: HTMLElement;
+            halt_receive: HTMLInputElement;
+            handshake: HTMLTextAreaElement;
+            handshake_label: HTMLElement;
+            handshake_status: HTMLTextAreaElement;
+            handshake_timeout: HTMLInputElement;
+            message_receive_body: HTMLTextAreaElement;
+            message_receive_frame: HTMLTextAreaElement;
+            message_send_body: HTMLTextAreaElement;
+            message_send_frame: HTMLTextAreaElement;
+            status: HTMLTextAreaElement;
+        };
+        timeout: number;
+        tools: {
+            handshake: () => void;
+            parse_frame: () => websocket_frame;
+        };
+        transmit: map_messages;
+    }
+
     interface section_udpSocket extends module_sections {
         events: {
             create: () => void;
@@ -640,42 +676,6 @@ declare global {
 
     interface section_users extends module_list {
         dataName: "user";
-    }
-
-    interface section_websocket_test extends module_sections {
-        connected: boolean;
-        events: {
-            encryption: (event:MouseEvent) => void;
-            handshakeSend: () => void;
-            keyup_frame: (event:Event) => void;
-            keyup_message: (event:KeyboardEvent) => void;
-            message_send: () => void;
-        };
-        frameBeautify: (target:"receive"|"send", valueItem?:string) => void;
-        init: () => void;
-        nodes: {
-            button_handshake: HTMLButtonElement;
-            button_send: HTMLButtonElement;
-            encrypt_false: HTMLInputElement;
-            encrypt_true: HTMLInputElement;
-            frame_validate: HTMLElement;
-            halt_receive: HTMLInputElement;
-            handshake: HTMLTextAreaElement;
-            handshake_label: HTMLElement;
-            handshake_status: HTMLTextAreaElement;
-            handshake_timeout: HTMLInputElement;
-            message_receive_body: HTMLTextAreaElement;
-            message_receive_frame: HTMLTextAreaElement;
-            message_send_body: HTMLTextAreaElement;
-            message_send_frame: HTMLTextAreaElement;
-            status: HTMLTextAreaElement;
-        };
-        timeout: number;
-        tools: {
-            handshake: () => void;
-            parse_frame: () => websocket_frame;
-        };
-        transmit: map_messages;
     }
 
     interface socket_object {

@@ -1,4 +1,5 @@
 
+import assembler from "./assembler.ts";
 import broadcast from "../transmit/broadcast.ts";
 import clock from "../services/clock.ts";
 import core from "../browser/core.ts";
@@ -552,7 +553,7 @@ const start_application = function utilities_startApplication(process_path:strin
                     const callback_directory = function utilities_startApplication_servicesApp_callbackDirectory(dir:core_directory_list):void {
                         const len:number = dir.length,
                             code:store_string = {},
-                            definitions:core_services_interal_dependency = {},
+                            definitions:core_services_internal_dependency = {},
                             keys_code:string[] = [],
                             read = function utilities_startApplication_servicesApp_callbackDirectory_read(file:Buffer, location:string):void {
                                 count = count - 1;
@@ -615,7 +616,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 keys_code.push(location);
                                 if (count === 0) {
                                     const len_code = keys_code.length,
-                                        dependency = function utilities_startApplication_servicesApp_callbackDirectory_dependency(sample:[string, string], dep:core_services_interal_dependency):void {
+                                        dependency = function utilities_startApplication_servicesApp_callbackDirectory_dependency(sample:[string, string], dep:core_services_internal_dependency):void {
                                             const lines:string[] = sample[0].split("\n");
                                             let index_lines:number = lines.length,
                                                 index_names:number = 0,
@@ -661,7 +662,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                     do {
                                         index_service = index_service - 1;
                                         index_code = len_code;
-                                        // find files referrencing this service by name
+                                        // find files referencing this service by name
                                         do {
                                             index_code = index_code - 1;
                                             reg_colon = new RegExp(`:\\s*${vars.environment.services_app[index_service].name}`);
@@ -807,6 +808,7 @@ const start_application = function utilities_startApplication(process_path:strin
             // delete task_definitions[flag];console.log(Object.keys(task_definitions));
             count_task = count_task + 1;
             if (count_task === len_tasks) {
+    //assembler();
                 // sends a server time update every 950ms
                 const default_server:supplemental_server = {
                     activate: true,

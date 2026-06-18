@@ -1,5 +1,6 @@
 
 import dashboard from "./dashboard.ts";
+// cspell: words PGID, PUID
 
 const ui_shared_services = function ui_shared_services():void {
     const shared_services:dashboard_shared_services = {
