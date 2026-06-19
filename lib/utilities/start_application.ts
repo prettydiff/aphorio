@@ -2,8 +2,6 @@
 import assembler from "./assembler.ts";
 import broadcast from "../transmit/broadcast.ts";
 import clock from "../services/clock.ts";
-import core from "../browser/core.ts";
-import dashboard_script from "../dashboard/dashboard_script.ts";
 import directory from "./directory.ts";
 import docker from "../services/docker.ts";
 import file from "./file.ts";
@@ -15,7 +13,6 @@ import server_create from "../server/server_create.ts";
 import server_start from "../server/server_start.ts";
 import spawn from "../core/spawn.ts";
 import statistics_resources from "../services/statistics_resources.ts";
-import test_browser from "../dashboard/test_browser.ts";
 import test_index from "../test/index.ts";
 import universal from "../core/universal.ts";
 import vars from "../core/vars.ts";
@@ -54,14 +51,9 @@ const start_application = function utilities_startApplication(process_path:strin
                                     section = function utilities_startApplication_features_ready_section(section_name:type_dashboard_features, label:string):void {
                                         if (feature_list[section_name] !== true) {
                                             const end_html:number = flags.html.indexOf(`<!-- ${section_name} end -->`),
-                                                start_html:number = flags.html.indexOf(`<!-- ${section_name} start -->`),
-                                                end_script:number = script.indexOf(`// ${section_name} end`),
-                                                start_script:number = script.indexOf(`// ${section_name} start`);
+                                                start_html:number = flags.html.indexOf(`<!-- ${section_name} start -->`);
                                             if (start_html > 0 && end_html > 0) {
                                                 flags.html = flags.html.slice(0, start_html) + flags.html.slice(end_html + section_name.length + 13);
-                                            }
-                                            if (start_script > 0 && end_script > 0) {
-                                                script = script.slice(0, start_script) + script.slice(end_script + section_name.length + 8);
                                             }
                                             flags.html = (section_name === "servers-web")
                                                 ? flags.html.replace(`<li><button class="nav-focus" data-section="servers-web">${label}</button></li>`, "")
@@ -266,88 +258,8 @@ const start_application = function utilities_startApplication(process_path:strin
             html: {
                 label: "Read's the dashboard's HTML file for dynamic modification.",
                 task: function utilities_startApplication_taskHTML():void {
-                    let chart_js:string = null,
-                        xterm_js:string = null,
-                        xterm_css:string = null;
-                    const flags:store_flag = {
-                            chart: false,
-                            css: false,
-                            xterm_css: false,
-                            xterm_js: false
-                        },
-                        complete = function utilities_startApplication_taskHTML_complete(key:string):void {
-                            flags[key] = true;
-                            if (flags.chart === true && flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
-                                const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
-                                    chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, ""),
-                                    testBrowser:string = (vars.test.testing === true)
-                                        ? test_browser
-                                            .toString()
-                                            .replace(/delay\s*=\s*0/, `delay=${vars.options["delay-time"]}`)
-                                            .replace(/maxTries\s*=\s*0/, `maxTries=${vars.options["delay-intervals"]}`)
-                                            .replace(/\/\/ dashboard\.message\.send\(\{data:\s*test,\s*service:\s*"services_test_browser"\}\);\s+return test;/, "dashboard.message.send({data: test, service: \"services_test_browser\"});return test;")
-                                        : null;
-                                let total_script:string = null;
-                                if (vars.test.testing === true) {
-                                    script = script.replace("\"services_test_browser\": null,", `"services_test_browser": ${testBrowser},`);
-                                }
-                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time_elapsed:${universal.time_elapsed.toString()}};(${script}(${core.toString()}));`;
-                                vars.environment.dashboard_page = vars.environment.dashboard_page
-                                    .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard `)
-                                    .replace("replace_javascript", total_script)
-                                    .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.environment.css_complete + xterm_css}</style>`);
-                                complete_tasks("html");
-                            }
-                        };
-                    if (vars.environment.features["terminal"] === true || vars.environment.features["compose-containers"] === true) {
-                        file.read({
-                            callback: function utilities_startApplication_taskHTML_readXtermCSS(file:Buffer):void {
-                                xterm_css = file.toString();
-                                complete("xterm_css");
-                            },
-                            location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`,
-                            no_file: null,
-                            section: "startup"
-                        });
-                        file.read({
-                            callback: function utilities_startApplication_taskHTML_readXtermJS(file:Buffer):void {
-                                xterm_js = file.toString();
-                                complete("xterm_js");
-                            },
-                            location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}lib${vars.path.sep}xterm.js`,
-                            no_file: null,
-                            section: "startup"
-                        });
-                    } else {
-                        flags.xterm_css = true;
-                        flags.xterm_js = true;
-                        xterm_js = "";
-                        xterm_css = "";
-                    }
-                    if (vars.environment.features["statistics-resources"] === true) {
-                        file.read({
-                            callback: function utilities_startApplication_taskHTML_readChart(file:Buffer):void {
-                                chart_js = file.toString();
-                                complete("chart");
-                            },
-                            location: `${process_path}node_modules${vars.path.sep}chart.js${vars.path.sep}dist${vars.path.sep}chart.umd.min.js`,
-                            no_file: null,
-                            section: "startup"
-                        });
-                    } else {
-                        flags.chart = true;
-                        chart_js = "";
-                    }
-                    file.read({
-                        callback: function utilities_startApplication_taskCSS_readCSS(fileContents:Buffer):void {
-                            const css:string = fileContents.toString();
-                            vars.environment.css_complete = css.slice(css.indexOf(":root"));
-                            vars.environment.css_basic = vars.environment.css_complete.slice(0, css.indexOf("/* end basic html */"));
-                            complete("css");
-                        },
-                        location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
-                        no_file: null,
-                        section: "startup"
+                    assembler(process_path, function utilities_startApplication_taskHTML_assembler():void {
+                        complete_tasks("html");
                     });
                 }
             },
@@ -600,7 +512,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                             // un-indent
                                             if (list[index_def].indexOf("    ") === 0) {
                                                 do {
-                                                    list[index_def] = list[index_def].replace("    ", "").replace(/\n    /g, "\n");
+                                                    list[index_def] = list[index_def].replace("    ", "").replace(/\n {4}/g, "\n");
                                                 } while (list[index_def].indexOf("    ") === 0);
                                             }
                                             name = list[index_def].split("\n")[0].replace(/\s*interface\s+/, "");
@@ -615,7 +527,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 code[location] = file.toString();
                                 keys_code.push(location);
                                 if (count === 0) {
-                                    const len_code = keys_code.length,
+                                    const len_code:number = keys_code.length,
                                         dependency = function utilities_startApplication_servicesApp_callbackDirectory_dependency(sample:[string, string], dep:core_services_internal_dependency):void {
                                             const lines:string[] = sample[0].split("\n");
                                             let index_lines:number = lines.length,
@@ -808,7 +720,6 @@ const start_application = function utilities_startApplication(process_path:strin
             // delete task_definitions[flag];console.log(Object.keys(task_definitions));
             count_task = count_task + 1;
             if (count_task === len_tasks) {
-    //assembler();
                 // sends a server time update every 950ms
                 const default_server:supplemental_server = {
                     activate: true,
@@ -1045,12 +956,7 @@ const start_application = function utilities_startApplication(process_path:strin
             : keys_tasks.length;
     let index_tasks:number = keys_tasks.length,
         index_prerequisites:number = 0,
-        count_task:number = 0,
-        script:string = dashboard_script
-            .toString()
-            .replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\")
-            .replace(/"/g, "\\\"")}",`)
-            .replace(/\(\s*\)/, "(core)");
+        count_task:number = 0;
 
     BigInt.prototype.time_elapsed = universal.time_elapsed;
     Number.prototype.commas = universal.commas;

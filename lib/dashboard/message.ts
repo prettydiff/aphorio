@@ -1,5 +1,6 @@
 
 import dashboard from "./dashboard.ts";
+// cspell: words serv, stcp, sudp
 
 const ui_message = function ui_message():void {
     const message:dashboard_message = {

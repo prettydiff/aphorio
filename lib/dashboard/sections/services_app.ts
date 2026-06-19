@@ -16,8 +16,8 @@ const ui_services_app = function ui_services_app():void {
                     return element;
                 },
                 dependencies = function dashboard_sections_serviceApps_init_dependencies(deps:core_services_internal_dependency, parent:HTMLElement):void {
-                    const dep_keys = Object.keys(dashboard.global.payload.services_app[index].dependencies).sort(),
-                        dep_len = dep_keys.length;
+                    const dep_keys:string[] = Object.keys(dashboard.global.payload.services_app[index].dependencies).sort(),
+                        dep_len:number = dep_keys.length;
                     if (dep_len > 0) {
                         const div:HTMLElement = document.createElement("div"),
                             h4:HTMLElement = document.createElement("h4"),
