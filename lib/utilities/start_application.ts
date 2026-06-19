@@ -398,6 +398,9 @@ const start_application = function utilities_startApplication(process_path:strin
                             server:supplemental_server = null,
                             sub:number = 0;
                         if (config !== null) {
+                            if (typeof config.notes === "string") {
+                                vars.data.notes = config.notes;
+                            }
                             vars.environment.dashboard_id = config.dashboard_id;
                             if (config.stats !== undefined) {
                                 vars.stats.frequency = config.stats.frequency;
@@ -437,9 +440,6 @@ const start_application = function utilities_startApplication(process_path:strin
                                     vars.data.servers[server.id] = server;
                                 }
                             } while (index_srv > 0);
-                        }
-                        if (typeof config.notes === "string") {
-                            vars.data.notes = config.notes;
                         }
                         do {
                             index_int = index_int - 1;
