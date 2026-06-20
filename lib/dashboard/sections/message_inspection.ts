@@ -92,7 +92,7 @@ const ui_message_inspection = function ui_message_inspection():void {
                 )
             ) {
                 const textarea:HTMLTextAreaElement = dashboard.sections["message-inspection"].nodes[`label_${data.direction}`].getElementsByTagName("textarea")[0],
-                    value_total:string = textarea.value + data.message,
+                    value_total:string = `${textarea.value}\n\n${data.message}`,
                     len:number = value_total.length,
                     value:string = (len < data.max_size)
                         ? value_total

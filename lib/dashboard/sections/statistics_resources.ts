@@ -65,40 +65,6 @@ const ui_statistics_resources = function ui_statistics_resources():void {
                 dashboard.utility.setState();
             },
         },
-        init: function dashboard_sections_statisticsResources_init():void {
-            dashboard.sections["statistics-resources"].nodes.frequency.onblur = dashboard.sections["statistics-resources"].events.definitions;
-            dashboard.sections["statistics-resources"].nodes.frequency.onkeyup = dashboard.sections["statistics-resources"].events.definitions;
-            dashboard.sections["statistics-resources"].nodes.frequency.value = (dashboard.global.payload.stats.frequency / 1000).toString();
-            dashboard.sections["statistics-resources"].nodes.graph_display.onchange = dashboard.sections["statistics-resources"].events.change_display;
-            dashboard.sections["statistics-resources"].nodes.graph_type.onchange = dashboard.sections["statistics-resources"].events.change_type;
-            dashboard.sections["statistics-resources"].nodes.graph_display.selectedIndex = (dashboard.global.state.graph_display === null || dashboard.global.state.graph_display === undefined)
-                ? 0
-                : dashboard.global.state.graph_display;
-            dashboard.sections["statistics-resources"].nodes.graph_type.selectedIndex = (dashboard.global.state.graph_type === null || dashboard.global.state.graph_type === undefined)
-                ? 0
-                : dashboard.global.state.graph_type;
-            dashboard.sections["statistics-resources"].nodes.graphs.setAttribute("data-type", dashboard.sections["statistics-resources"].nodes.graph_display.value);
-            dashboard.sections["statistics-resources"].nodes.records.onblur = dashboard.sections["statistics-resources"].events.definitions;
-            dashboard.sections["statistics-resources"].nodes.records.onkeyup = dashboard.sections["statistics-resources"].events.definitions;
-            dashboard.sections["statistics-resources"].nodes.records.value = dashboard.global.payload.stats.records.toString();
-            if (dashboard.global.loaded === true || (dashboard.global.loaded === false && dashboard.global.state.nav === "statistics-resources")) {
-                if (dashboard.sections["servers-web"] !== undefined) {
-                    const payload:services_server_update = {
-                        ports_used: dashboard.global.payload.server_ports,
-                        servers: dashboard.global.payload.servers
-                    };
-                    dashboard.sections["servers-web"].receive({
-                        data: payload,
-                        service: "services_server_update"
-                    });
-                }
-                Chart.defaults.color = "#ccc";
-                dashboard.sections["statistics-resources"].receive({
-                    data: dashboard.global.payload.stats,
-                    service: "services_statistics_data"
-                });
-            }
-        },
         graph_config: {
             colors: [
                 "rgba(204,170,51,1)",
@@ -142,6 +108,40 @@ const ui_statistics_resources = function ui_statistics_resources():void {
             }
         },
         graphs: {},
+        init: function dashboard_sections_statisticsResources_init():void {
+            dashboard.sections["statistics-resources"].nodes.frequency.onblur = dashboard.sections["statistics-resources"].events.definitions;
+            dashboard.sections["statistics-resources"].nodes.frequency.onkeyup = dashboard.sections["statistics-resources"].events.definitions;
+            dashboard.sections["statistics-resources"].nodes.frequency.value = (dashboard.global.payload.stats.frequency / 1000).toString();
+            dashboard.sections["statistics-resources"].nodes.graph_display.onchange = dashboard.sections["statistics-resources"].events.change_display;
+            dashboard.sections["statistics-resources"].nodes.graph_type.onchange = dashboard.sections["statistics-resources"].events.change_type;
+            dashboard.sections["statistics-resources"].nodes.graph_display.selectedIndex = (dashboard.global.state.graph_display === null || dashboard.global.state.graph_display === undefined)
+                ? 0
+                : dashboard.global.state.graph_display;
+            dashboard.sections["statistics-resources"].nodes.graph_type.selectedIndex = (dashboard.global.state.graph_type === null || dashboard.global.state.graph_type === undefined)
+                ? 0
+                : dashboard.global.state.graph_type;
+            dashboard.sections["statistics-resources"].nodes.graphs.setAttribute("data-type", dashboard.sections["statistics-resources"].nodes.graph_display.value);
+            dashboard.sections["statistics-resources"].nodes.records.onblur = dashboard.sections["statistics-resources"].events.definitions;
+            dashboard.sections["statistics-resources"].nodes.records.onkeyup = dashboard.sections["statistics-resources"].events.definitions;
+            dashboard.sections["statistics-resources"].nodes.records.value = dashboard.global.payload.stats.records.toString();
+            if (dashboard.global.loaded === true || (dashboard.global.loaded === false && dashboard.global.state.nav === "statistics-resources")) {
+                if (dashboard.sections["servers-web"] !== undefined) {
+                    const payload:services_server_update = {
+                        ports_used: dashboard.global.payload.server_ports,
+                        servers: dashboard.global.payload.servers
+                    };
+                    dashboard.sections["servers-web"].receive({
+                        data: payload,
+                        service: "services_server_update"
+                    });
+                }
+                Chart.defaults.color = "#ccc";
+                dashboard.sections["statistics-resources"].receive({
+                    data: dashboard.global.payload.stats,
+                    service: "services_statistics_data"
+                });
+            }
+        },
         nodes: {
             duration: document.getElementById("statistics-resources").getElementsByClassName("section")[0].getElementsByTagName("em")[1],
             frequency: document.getElementById("statistics-resources").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],

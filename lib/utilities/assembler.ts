@@ -53,11 +53,10 @@ const assembler = function utilities_assembler(process_path:string, callback:() 
             const keys:string[] = Object.keys(store),
                 output:string[] = [first],
                 len:number = keys.length - 1;
-            let index:number = 0,
-                comma:string = ",";
+            let index:number = 0;
             do {
                 if (features === false || (features === true && vars.environment.features[keys[index] as type_dashboard_features] === true)) {
-                    output.push(`"${keys[index]}": ${unwrap(store[keys[index]]) + comma}`);
+                    output.push(`"${keys[index]}": ${unwrap(store[keys[index]])},`);
                 }
                 index = index + 1;
             } while (index < len);
