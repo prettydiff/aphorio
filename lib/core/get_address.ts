@@ -4,6 +4,9 @@ const get_address = function core_getAddress(socket_input:websocket_client):tran
             if (input === undefined) {
                 return "undefined, possibly due to socket closing";
             }
+            if (input === "::1" && process.platform === "win32") {
+                return "127.0.0.1";
+            }
             if (input.indexOf("::ffff:") === 0) {
                 return input.replace("::ffff:", "");
             }

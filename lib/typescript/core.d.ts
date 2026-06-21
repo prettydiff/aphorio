@@ -211,13 +211,13 @@ interface core_servers_file {
 
 interface core_service_internal {
     code: string;
-    dependencies: core_services_interal_dependency;
+    dependencies: core_services_internal_dependency;
     description: string;
     files: string[];
     name: string;
 }
 
-interface core_services_interal_dependency {
+interface core_services_internal_dependency {
     [key:string]: [string, string];
 }
 
