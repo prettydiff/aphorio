@@ -30,7 +30,7 @@ interface transmit_dashboard {
     };
     name: string;
     notes: string;
-    os: services_os;
+    os: services_os_all;
     path: core_vars_path;
     "ports-application": services_ports_application;
     repository: string;
@@ -38,6 +38,7 @@ interface transmit_dashboard {
         [key:string]: core_server_ports;
     }; 
     servers: store_servers;
+    services_app: core_service_internal[];
     sockets: services_socket_application;
     start_date: number;
     stats: services_statistics_data;
@@ -80,7 +81,7 @@ interface transmit_linux_ip_stats {
 }
 
 interface transmit_receiver {
-    [key:string]: receiver;
+    [key:string]: type_receiver;
 }
 
 interface transmit_socket {
@@ -140,7 +141,7 @@ interface websocket_client extends node_tls_TLSSocket {
 }
 
 interface websocket_pty extends websocket_client {
-    pty: pty;
+    pty: shell_pty;
 }
 
 interface websocket_event extends Event {
@@ -189,6 +190,6 @@ interface websocket_test {
     find_socket: (direction:"in"|"out", hashString:string) => websocket_client;
     handler_client: websocket_message_handler;
     handler_server: websocket_message_handler;
-    handshake: receiver;
-    message: receiver;
+    handshake: type_receiver;
+    message: type_receiver;
 }

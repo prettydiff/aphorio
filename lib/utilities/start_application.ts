@@ -1,8 +1,8 @@
 
+import assembler from "./assembler.ts";
 import broadcast from "../transmit/broadcast.ts";
 import clock from "../services/clock.ts";
-import core from "../browser/core.ts";
-import dashboard_script from "../dashboard/dashboard_script.ts";
+import directory from "./directory.ts";
 import docker from "../services/docker.ts";
 import file from "./file.ts";
 import log from "../core/log.ts";
@@ -13,7 +13,6 @@ import server_create from "../server/server_create.ts";
 import server_start from "../server/server_start.ts";
 import spawn from "../core/spawn.ts";
 import statistics_resources from "../services/statistics_resources.ts";
-import test_browser from "../dashboard/test_browser.ts";
 import test_index from "../test/index.ts";
 import universal from "../core/universal.ts";
 import vars from "../core/vars.ts";
@@ -29,7 +28,7 @@ const start_application = function utilities_startApplication(process_path:strin
                     spawn(vars.commands.admin_check, function utilities_startApplication_admin_callback(output:core_spawn_output):void {
                         const std:string = output.stdout.replace(/\s+/g, "");
                         if (std === "0" || std === "true") {
-                            vars.os.process.admin = true;
+                            vars.os.main.process.admin = true;
                         }
                         start_prerequisites();
                     }, {
@@ -52,14 +51,9 @@ const start_application = function utilities_startApplication(process_path:strin
                                     section = function utilities_startApplication_features_ready_section(section_name:type_dashboard_features, label:string):void {
                                         if (feature_list[section_name] !== true) {
                                             const end_html:number = flags.html.indexOf(`<!-- ${section_name} end -->`),
-                                                start_html:number = flags.html.indexOf(`<!-- ${section_name} start -->`),
-                                                end_script:number = script.indexOf(`// ${section_name} end`),
-                                                start_script:number = script.indexOf(`// ${section_name} start`);
+                                                start_html:number = flags.html.indexOf(`<!-- ${section_name} start -->`);
                                             if (start_html > 0 && end_html > 0) {
                                                 flags.html = flags.html.slice(0, start_html) + flags.html.slice(end_html + section_name.length + 13);
-                                            }
-                                            if (start_script > 0 && end_script > 0) {
-                                                script = script.slice(0, start_script) + script.slice(end_script + section_name.length + 8);
                                             }
                                             flags.html = (section_name === "servers-web")
                                                 ? flags.html.replace(`<li><button class="nav-focus" data-section="servers-web">${label}</button></li>`, "")
@@ -107,7 +101,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 section("ports-application", "App Ports");
                                 section("processes", "Processes");
                                 section("servers-web", "Web Servers");
-                                section("services", "Services");
+                                section("services-os", "Services");
                                 section("sockets-application-tcp", "App TCP Sockets");
                                 section("sockets-application-udp", "App UDP Sockets");
                                 section("sockets-os-tcp", "OS TCP Sockets");
@@ -186,7 +180,7 @@ const start_application = function utilities_startApplication(process_path:strin
             cgroup: {
                 label: "Find Linux cgroup address for gathering precision docker performance metrics.",
                 task: function utilities_startApplication_cgroup():void {
-                    if (vars.environment.features["compose-containers"] === true && vars.environment.compose_status === "" && vars.os.process.admin === true) {
+                    if (vars.environment.features["compose-containers"] === true && vars.environment.compose_status === "" && vars.os.main.process.admin === true) {
                         const addresses:string[] = [
                                 "/sys/fs/cgroup/system.slice/",
                                 "/sys/fs/cgroup/docker/",
@@ -264,88 +258,8 @@ const start_application = function utilities_startApplication(process_path:strin
             html: {
                 label: "Read's the dashboard's HTML file for dynamic modification.",
                 task: function utilities_startApplication_taskHTML():void {
-                    let chart_js:string = null,
-                        xterm_js:string = null,
-                        xterm_css:string = null;
-                    const flags:store_flag = {
-                            chart: false,
-                            css: false,
-                            xterm_css: false,
-                            xterm_js: false
-                        },
-                        complete = function utilities_startApplication_taskHTML_complete(key:string):void {
-                            flags[key] = true;
-                            if (flags.chart === true && flags.css === true && flags.xterm_css === true && flags.xterm_js === true) {
-                                const xterm:string = xterm_js.replace(/\s*\/\/# sourceMappingURL=xterm\.js\.map/, ""),
-                                    chart:string = chart_js.replace(/\/\/# sourceMappingURL=chart\.umd.min\.js\.map\s*$/, ""),
-                                    testBrowser:string = (vars.test.testing === true)
-                                        ? test_browser
-                                            .toString()
-                                            .replace(/delay\s*=\s*0/, `delay=${vars.options["delay-time"]}`)
-                                            .replace(/maxTries\s*=\s*0/, `maxTries=${vars.options["delay-intervals"]}`)
-                                            .replace(/\/\/ dashboard\.message\.send\(\{data:\s*test,\s*service:\s*"services_test_browser"\}\);\s+return test;/, "dashboard.message.send({data: test, service: \"services_test_browser\"});return test;")
-                                        : null;
-                                let total_script:string = null;
-                                if (vars.test.testing === true) {
-                                    script = script.replace("\"services_test_browser\": null,", `"services_test_browser": ${testBrowser},`);
-                                }
-                                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time_elapsed:${universal.time_elapsed.toString()}};(${script}(${core.toString()}));`;
-                                vars.environment.dashboard_page = vars.environment.dashboard_page
-                                    .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard `)
-                                    .replace("replace_javascript", total_script)
-                                    .replace("<style type=\"text/css\"></style>", `<style type="text/css">${vars.environment.css_complete + xterm_css}</style>`);
-                                complete_tasks("html");
-                            }
-                        };
-                    if (vars.environment.features["terminal"] === true || vars.environment.features["compose-containers"] === true) {
-                        file.read({
-                            callback: function utilities_startApplication_taskHTML_readXtermCSS(file:Buffer):void {
-                                xterm_css = file.toString();
-                                complete("xterm_css");
-                            },
-                            location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}css${vars.path.sep}xterm.css`,
-                            no_file: null,
-                            section: "startup"
-                        });
-                        file.read({
-                            callback: function utilities_startApplication_taskHTML_readXtermJS(file:Buffer):void {
-                                xterm_js = file.toString();
-                                complete("xterm_js");
-                            },
-                            location: `${process_path}node_modules${vars.path.sep}@xterm${vars.path.sep}xterm${vars.path.sep}lib${vars.path.sep}xterm.js`,
-                            no_file: null,
-                            section: "startup"
-                        });
-                    } else {
-                        flags.xterm_css = true;
-                        flags.xterm_js = true;
-                        xterm_js = "";
-                        xterm_css = "";
-                    }
-                    if (vars.environment.features["statistics-resources"] === true) {
-                        file.read({
-                            callback: function utilities_startApplication_taskHTML_readChart(file:Buffer):void {
-                                chart_js = file.toString();
-                                complete("chart");
-                            },
-                            location: `${process_path}node_modules${vars.path.sep}chart.js${vars.path.sep}dist${vars.path.sep}chart.umd.min.js`,
-                            no_file: null,
-                            section: "startup"
-                        });
-                    } else {
-                        flags.chart = true;
-                        chart_js = "";
-                    }
-                    file.read({
-                        callback: function utilities_startApplication_taskCSS_readCSS(fileContents:Buffer):void {
-                            const css:string = fileContents.toString();
-                            vars.environment.css_complete = css.slice(css.indexOf(":root"));
-                            vars.environment.css_basic = vars.environment.css_complete.slice(0, css.indexOf("/* end basic html */"));
-                            complete("css");
-                        },
-                        location: `${process_path}lib${vars.path.sep}dashboard${vars.path.sep}styles.css`,
-                        no_file: null,
-                        section: "startup"
+                    assembler(process_path, function utilities_startApplication_taskHTML_assembler():void {
+                        complete_tasks("html");
                     });
                 }
             },
@@ -408,7 +322,7 @@ const start_application = function utilities_startApplication(process_path:strin
             os_serv: {
                 label: "Gathers a list of known services.",
                 task: function utilities_startApplication_taskOSServ():void {
-                    if (vars.environment.features["services"] === true) {
+                    if (vars.environment.features["services-os"] === true) {
                         const callback = function utilities_startApplication_taskOSServ_callback():void {
                             complete_tasks("os_serv");
                         };
@@ -484,6 +398,9 @@ const start_application = function utilities_startApplication(process_path:strin
                             server:supplemental_server = null,
                             sub:number = 0;
                         if (config !== null) {
+                            if (typeof config.notes === "string") {
+                                vars.data.notes = config.notes;
+                            }
                             vars.environment.dashboard_id = config.dashboard_id;
                             if (config.stats !== undefined) {
                                 vars.stats.frequency = config.stats.frequency;
@@ -524,9 +441,6 @@ const start_application = function utilities_startApplication(process_path:strin
                                 }
                             } while (index_srv > 0);
                         }
-                        if (typeof config.notes === "string") {
-                            vars.data.notes = config.notes;
-                        }
                         do {
                             index_int = index_int - 1;
                             sub = interfaces[keys_int[index_int]].length;
@@ -543,6 +457,170 @@ const start_application = function utilities_startApplication(process_path:strin
                         no_file: null,
                         section: "startup"
                     });
+                }
+            },
+            services_app: {
+                label: "Provides the application's service list to the dashboard UI.",
+                task: function utilities_startApplication_servicesApp():void {
+                    const callback_directory = function utilities_startApplication_servicesApp_callbackDirectory(dir:core_directory_list):void {
+                        const len:number = dir.length,
+                            code:store_string = {},
+                            definitions:core_services_internal_dependency = {},
+                            keys_code:string[] = [],
+                            read = function utilities_startApplication_servicesApp_callbackDirectory_read(file:Buffer, location:string):void {
+                                count = count - 1;
+                                if ((/\.d\.ts$/).test(location) === true) {
+                                    if (location === `${process_path}lib${vars.path.sep}typescript${vars.path.sep}service_registry.d.ts`) {
+                                        const services:string[] = file.toString().replace(/^\s+/, "").replace(/\s+$/, "").split("\n\n"),
+                                            len:number = services.length - 1;
+                                        let index:number = 0,
+                                            strings:string[] = null,
+                                            name:string = "",
+                                            service:core_service_internal = null;
+                                        do {
+                                            strings = services[index].split("\n");
+                                            name = strings[0].replace(/\s*interface\s+/, "").replace(/\s+\{\s*$/, "");
+                                            service = {
+                                                code: strings.slice(0, strings.length - 1).join("\n"),
+                                                dependencies: {},
+                                                description: strings[strings.length - 1].replace(/^\s*\/\/\s*/, ""),
+                                                files: [],
+                                                name: name
+                                            };
+                                            vars.environment.services_app.push(service);
+                                            definitions[name] = [services[index], location.replace(process_path, vars.path.sep)];
+                                            index = index + 1;
+                                        } while (index < len);
+                                    } else if (location === `${process_path}lib${vars.path.sep}typescript${vars.path.sep}node.d.ts` || location === `${process_path}lib${vars.path.sep}typescript${vars.path.sep}types.d.ts`) {
+                                        const raw:string = file.toString(),
+                                            list:string[] = raw.slice(raw.indexOf("type")).replace(/^\s+/, "").replace(/\s+$/, "").replace(/\n\n/g, "\n").split("\n");
+                                        let index_def:number = list.length,
+                                            values:string[] = null;
+                                        do {
+                                            index_def = index_def - 1;
+                                            if (list[index_def].replace(/^\s*/, "").indexOf("type ") === 0) {
+                                                values = list[index_def].replace(/^\s*/, "").replace(/\s*=\s*/, "=").split("=");
+                                                definitions[values[0].slice(5)] = [`${values[0]} = ${values[1]}`, location.replace(process_path, vars.path.sep)];
+                                            }
+                                        } while (index_def > 0);
+                                    } else {
+                                        const list:string[] = file.toString().replace(/^\s+/, "").replace(/\s+$/, "").split("\n\n");
+                                        let index_def:number = list.length,
+                                            name:string = "";
+                                        do {
+                                            index_def = index_def - 1;
+                                            // un-indent
+                                            if (list[index_def].indexOf("    ") === 0) {
+                                                do {
+                                                    list[index_def] = list[index_def].replace("    ", "").replace(/\n {4}/g, "\n");
+                                                } while (list[index_def].indexOf("    ") === 0);
+                                            }
+                                            name = list[index_def].split("\n")[0].replace(/\s*interface\s+/, "");
+                                            name = name.replace(/\s*\{\s*/, "");
+                                            if (name.includes(" ") === true) {
+                                                name = name.slice(0, name.indexOf(" "));
+                                            }
+                                            definitions[name] = [list[index_def], location.replace(process_path, vars.path.sep)];
+                                        } while (index_def > 0);
+                                    }
+                                }
+                                code[location] = file.toString();
+                                keys_code.push(location);
+                                if (count === 0) {
+                                    const len_code:number = keys_code.length,
+                                        dependency = function utilities_startApplication_servicesApp_callbackDirectory_dependency(sample:[string, string], dep:core_services_internal_dependency):void {
+                                            const lines:string[] = sample[0].split("\n");
+                                            let index_lines:number = lines.length,
+                                                index_names:number = 0,
+                                                name:string = "",
+                                                names:string[] = null;
+                                            do {
+                                                index_lines = index_lines - 1;
+                                                if ((/^interface\s/).test(lines[index_lines]) === false) {
+                                                    name = ((/^type\s/).test(lines[index_lines]) === true)
+                                                        ? lines[index_lines].slice(lines[index_lines].indexOf("=") + 1).replace(/^\s+/, "").replace(/\s*;\s*$/, "")
+                                                        : lines[index_lines].slice(lines[index_lines].lastIndexOf(":") + 1).replace(/^\s+/, "").replace(/\s*;\s*$/, "");
+                                                    if (name.includes("|") === true) {
+                                                        names = name.split("|");
+                                                    } else {
+                                                        names = [name];
+                                                    }
+                                                    index_names = names.length;
+                                                    do {
+                                                        index_names = index_names - 1;
+                                                        if (names[index_names].includes("_") === true) {
+                                                            name = names[index_names].replace(/\s+/g, "");
+                                                            if (name.includes("<") === true) {
+                                                                name = name.slice(0, name.indexOf("<"));
+                                                            }
+                                                            if (name.includes("[") === true) {
+                                                                name = name.slice(0, name.indexOf("["));
+                                                            }
+                                                            if (dep[name] === undefined) {
+                                                                dep[name] = definitions[name];
+                                                                if (definitions[name] !== undefined) {
+                                                                    dependency(definitions[name], dep);
+                                                                }
+                                                            }
+                                                        }
+                                                    } while (index_names > 0);
+                                                }
+                                            } while (index_lines > 0);
+                                        };
+                                    let index_service:number = vars.environment.services_app.length,
+                                        index_code:number = 0,
+                                        reg_colon:RegExp = null,
+                                        reg_as:RegExp = null;
+                                    do {
+                                        index_service = index_service - 1;
+                                        index_code = len_code;
+                                        // find files referencing this service by name
+                                        do {
+                                            index_code = index_code - 1;
+                                            reg_colon = new RegExp(`:\\s*${vars.environment.services_app[index_service].name}`);
+                                            reg_as = new RegExp(`as\\s+${vars.environment.services_app[index_service].name}`);
+                                            if (reg_colon.test(code[keys_code[index_code]]) === true || reg_as.test(code[keys_code[index_code]]) === true || code[keys_code[index_code]].includes(`"${vars.environment.services_app[index_service].name}"`) === true) {
+                                                vars.environment.services_app[index_service].files.push(keys_code[index_code].replace(process_path, vars.path.sep));
+                                            }
+                                        } while (index_code > 0);
+
+                                        // find all type dependencies
+                                        dependency([vars.environment.services_app[index_service].code, ""], vars.environment.services_app[index_service].dependencies);
+                                    } while (index_service > 0);
+                                    complete_tasks("services_app");
+                                }
+                            };
+                        let index_dir:number = len,
+                            count:number = len;
+                        do {
+                            index_dir = index_dir - 1;
+                            if (dir[index_dir][1] === "file" && (/\.ts$/).test(dir[index_dir][0]) === true) {
+                                file.read({
+                                    callback: read,
+                                    location: dir[index_dir][0],
+                                    no_file: null,
+                                    section: "startup"
+                                });
+                            } else {
+                                count = count - 1;
+                            }
+                        } while (index_dir > 0);
+                    };
+                    if (vars.environment.features["services-app"] === true) {
+                        directory({
+                            callback: callback_directory,
+                            depth: 0,
+                            directory_size: false,
+                            exclusions: [],
+                            parent: false,
+                            path: `${process_path}lib`,
+                            relative: false,
+                            search: null,
+                            symbolic: false
+                        });
+                    } else {
+                        complete_tasks("services_app");
+                    }
                 }
             },
             test_browser: {
@@ -878,12 +956,7 @@ const start_application = function utilities_startApplication(process_path:strin
             : keys_tasks.length;
     let index_tasks:number = keys_tasks.length,
         index_prerequisites:number = 0,
-        count_task:number = 0,
-        script:string = dashboard_script
-            .toString()
-            .replace("path: \"\",", `path: "${vars.path.project.replace(/\\/g, "\\\\")
-            .replace(/"/g, "\\\"")}",`)
-            .replace(/\(\s*\)/, "(core)");
+        count_task:number = 0;
 
     BigInt.prototype.time_elapsed = universal.time_elapsed;
     Number.prototype.commas = universal.commas;

@@ -21,7 +21,7 @@ const terminal:core_module_terminal = {
                 }
                 return null;
             }()),
-            pty:pty = (socket === null)
+            pty:shell_pty = (socket === null)
                 ? null
                 : socket.pty;
         if (pty !== null && Number.isNaN(data.cols) === false && Number.isNaN(data.rows) === false && data.cols > 0 && data.rows > 0) {
@@ -29,7 +29,7 @@ const terminal:core_module_terminal = {
         }
     },
     shell: function services_terminalShell(socket:websocket_pty, config:config_terminal):void {
-        const pty:pty = spawn(config.shell, [], {
+        const pty:shell_pty = spawn(config.shell, [], {
                 cols: config.cols,
                 cwd: vars.path.project,
                 env: process.env,

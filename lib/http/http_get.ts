@@ -417,6 +417,9 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     servers: (vars.environment.features["servers-web"] === true)
                         ? vars.data.servers
                         : null,
+                    services_app: (vars.environment.features["services-app"] === true)
+                        ? vars.environment.services_app
+                        : null,
                     sockets: (vars.environment.features["sockets-application-tcp"] === true || vars.environment.features["sockets-application-udp"] === true)
                         ? {
                             tcp: vars.data.sockets_tcp,

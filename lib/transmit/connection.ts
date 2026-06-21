@@ -504,16 +504,14 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 type: "web-server"
             });
 
-            // TLS data sent to open server - proxy the socket to the server's TLS port
-            if (data[0] === 22 && store.domain === "" && socket.encrypted !== true && vars.data_store.server_ports[server_id].secure > 0) {
-                socket.addresses = address;
-                socket.encrypted = true;
-                store.domain = `open_socket_tunnel-${vars.data.servers[server_id].name}`;
-                proxy_create(address.local.address, vars.data_store.server_ports[server_id].secure, true);
-            // origin in specified block list or requested origin is not in domain_local list
-            } else if (blocked === true || (domain_local.includes(store.origin) === false && socket.proxy === null)) {
-                socket.destroy();
             // origin is in the socket's redirect_domain list
+            if (blocked === true || (domain_local.includes(store.origin) === false && socket.proxy === null)) {
+                socket.destroy();
+            // TLS data sent to open server - proxy the socket to the server's TLS port
+            } else if (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data_store.server_ports[server_id].secure > 0) {
+                store.domain = `open_socket_tunnel-${vars.data.servers[server_id].name}`;
+                proxy_create(address.local.address, vars.data_store.server_ports[server_id].secure, false);
+            // origin in specified block list or requested origin is not in domain_local list
             } else if (domain_redirect === true) {
                 const pair:[string, number] = (socket.encrypted === true)
                         ? server.redirect_domain[`${store.origin}.secure`]

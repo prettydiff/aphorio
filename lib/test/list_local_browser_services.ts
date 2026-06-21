@@ -6,7 +6,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
         {
             delay: {
                 node: [
-                    ["getElementById", "services", null],
+                    ["getElementById", "services-os", null],
                     ["getElementsByTagName", "h2", 0]
                 ],
                 qualifier: "greater",
@@ -31,7 +31,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
         {
             delay: {
                 node: [
-                    ["getElementById", "services", null],
+                    ["getElementById", "services-os", null],
                     ["getElementsByTagName", "tbody", 0],
                     ["getElementsByTagName", "tr", null]
                 ],
@@ -47,7 +47,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
             unit: [
                 {
                     node: [
-                        ["getElementById", "services", null],
+                        ["getElementById", "services-os", null],
                         ["getElementsByTagName", "tbody", 0],
                         ["getElementsByTagName", "tr", 0],
                         ["getElementsByTagName", "td", 0]
@@ -59,7 +59,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
                 },
                 {
                     node: [
-                        ["getElementById", "services", null],
+                        ["getElementById", "services-os", null],
                         ["getElementsByTagName", "tbody", 0],
                         ["getElementsByTagName", "tr", 0],
                         ["getElementsByTagName", "td", 1]
@@ -71,7 +71,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
                 },
                 {
                     node: [
-                        ["getElementById", "services", null],
+                        ["getElementById", "services-os", null],
                         ["getElementsByTagName", "tbody", 0],
                         ["getElementsByTagName", "tr", 0],
                         ["getElementsByTagName", "td", 2]
@@ -89,7 +89,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "services", null],
+                        ["getElementById", "services-os", null],
                         ["getElementsByClassName", "table-filters", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
@@ -97,7 +97,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "services", null],
+                        ["getElementById", "services-os", null],
                         ["getElementsByClassName", "table-filters", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -106,7 +106,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "services", null],
+                        ["getElementById", "services-os", null],
                         ["getElementsByClassName", "table-filters", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
@@ -123,7 +123,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
             unit: [
                 {
                     node: [
-                        ["getElementById", "services", null],
+                        ["getElementById", "services-os", null],
                         ["getElementsByClassName", "table-stats", 0],
                         ["getElementsByTagName", "em", 1]
                     ],

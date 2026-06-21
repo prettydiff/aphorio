@@ -157,7 +157,7 @@ const server_create = function services_serverCreate(data:services_server_action
         digest: "hex",
         hash_input_type: "direct",
         section: "servers-web",
-        source: String(Date.now()) + String(Math.random()) + vars.os.os.hostname
+        source: String(Date.now()) + String(Math.random()) + vars.os.main.os.hostname
     });
 };
 

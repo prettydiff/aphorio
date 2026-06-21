@@ -241,7 +241,7 @@ const statistics:core_module_statistics_resources = {
                                     if (file === null) {
                                         vars.stats.containers[identifier].mem.data.push(0);
                                     } else {
-                                        const per:number = Math.round((value / vars.os.machine.memory.total) * 10000) / 100;
+                                        const per:number = Math.round((value / vars.os.main.machine.memory.total) * 10000) / 100;
                                         vars.stats.containers[identifier].mem.data.push((per < 0.01) ? 0.01 : per);
                                     }
                                 }
@@ -418,7 +418,7 @@ const statistics:core_module_statistics_resources = {
         vars.stats.containers.application.cpu.data.push((cpu_per) < 0.01 ? 0.01 : cpu_per);
         vars.stats.containers.application.disk_in.data.push(0);
         vars.stats.containers.application.disk_out.data.push(0);
-        vars.stats.containers.application.mem.data.push(Math.round(((mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss) / vars.os.machine.memory.total) * 10000) / 100);
+        vars.stats.containers.application.mem.data.push(Math.round(((mem.arrayBuffers + mem.external + mem.heapUsed + mem.rss) / vars.os.main.machine.memory.total) * 10000) / 100);
         vars.stats.containers.application.threads.data.push(vars.stats.children);
         net("in");
         net("out");

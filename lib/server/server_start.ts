@@ -181,6 +181,15 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                     }
                 }
             },
+            certError = function transmit_serverStart_certError(error:Error):void {
+                log.shell([
+                    `Error reading certificate files for server named ${vars.text.cyan + vars.data.servers[id].name + vars.text.none} and id:`,
+                    id,
+                    "",
+                    JSON.stringify(error)
+                ]);
+                process.exit(1);
+            },
             certRead = function transmit_serverStart_certRead(certType:type_certKey):void {
                 const location:string = (certType === "ca")
                     ? `${certLocation + caName}.crt`
@@ -193,8 +202,10 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                         } else {
                             https.options[certType] = fileData;
                         }
+                        certCheck();
+                    } else {
+                        certError(fileError);
                     }
-                    certCheck();
                 });
             },
             certStat = function transmit_serverStart_certStat(certType:type_certKey):void {
@@ -205,8 +216,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                     if (statError === null) {
                         certRead(certType);
                     } else {
-                        https.fileFlag[certType] = true;
-                        certCheck();
+                        certError(statError);
                     }
                 });
             };
