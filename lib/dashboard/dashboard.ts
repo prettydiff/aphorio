@@ -1,6 +1,4 @@
 
-import core from "../browser/core.ts";
-import Terminal from "@xterm/xterm";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // cspell: words serv, stcp, sudp
@@ -211,9 +209,9 @@ const dashboard:dashboard = {
             },
             "init": function():void {},
             "nodes": {
-                "count": document.getElementsByTagName("div")[0],
-                "list": document.getElementsByTagName("div")[0],
-                "total": document.getElementsByTagName("div")[0]
+                "count": null,
+                "list": null,
+                "total": null
             },
             "receive": function(socket_data:socket_data):void {},
             "tools": {}
@@ -233,50 +231,38 @@ const dashboard:dashboard = {
             },
             "init": function():void {},
             "nodes": {
-                body: document.getElementsByTagName("div")[0] as HTMLElement,
-                cols: document.getElementsByTagName("div")[0] as HTMLElement,
-                list: document.getElementsByTagName("div")[0] as HTMLElement,
-                list_variables: document.getElementsByTagName("div")[0] as HTMLElement,
-                new_container: document.getElementsByTagName("button")[0] as HTMLButtonElement,
-                new_variable: document.getElementsByTagName("button")[0] as HTMLButtonElement,
-                rows: document.getElementsByTagName("div")[0] as HTMLElement,
-                shell: document.getElementsByTagName("div")[0] as HTMLElement,
-                status: document.getElementsByTagName("div")[0] as HTMLElement,
-                update_button: document.getElementsByTagName("button")[0] as HTMLButtonElement,
-                update_containers: document.getElementsByTagName("div")[0] as HTMLElement,
-                update_time: document.getElementsByTagName("div")[0] as HTMLElement,
-                update_variables: document.getElementsByTagName("div")[0] as HTMLElement
+                body: null,
+                cols: null,
+                list: null,
+                list_variables: null,
+                new_container: null,
+                new_variable: null,
+                rows: null,
+                shell: null,
+                status: null,
+                update_button: null,
+                update_containers: null,
+                update_time: null,
+                update_variables: null
             },
             "receive": function(socket_data:socket_data):void {},
             "rows": 0,
-            // @ts-expect-error - xterm has not updated their types to reflect Terminal is a constructor
-            "shell": new Terminal({
-                cols: 0,
-                cursorBlink: true,
-                cursorStyle: "underline",
-                disableStdin: false,
-                readonly: true,
-                rows: 0,
-                theme: {
-                    background: "#222",
-                    selectionBackground: "#444"
-                }
-            }),
+            "shell": null,
             "status_out": function(socket_data:socket_data):void {},
             "tools": {}
         },
         "devices": {
             "dataName": "devs",
             "nodes": {
-                caseSensitive: document.getElementsByTagName("input")[0],
-                count: document.getElementsByTagName("div")[0],
-                filter_column: document.getElementsByTagName("select")[0],
-                filter_count: document.getElementsByTagName("div")[0],
-                filter_value: document.getElementsByTagName("input")[0],
-                list: document.getElementsByTagName("div")[0],
-                update_button: document.getElementsByTagName("button")[0],
-                update_duration: document.getElementsByTagName("time")[0],
-                update_text: document.getElementsByTagName("time")[0]
+                caseSensitive: null,
+                count: null,
+                filter_column: null,
+                filter_count: null,
+                filter_value: null,
+                list: null,
+                update_button: null,
+                update_duration: null,
+                update_text: null
             },
             "receive": function():void {}, // not used
             "row": function(record_item:type_lists, tr:HTMLElement):void {},
@@ -289,11 +275,11 @@ const dashboard:dashboard = {
             },
             "init": function():void {},
             "nodes": {
-                count: document.getElementsByTagName("em")[0],
-                list: document.getElementsByTagName("div")[0] as HTMLElement,
-                update_button: document.getElementsByTagName("button")[0],
-                update_duration: document.getElementsByTagName("time")[0],
-                update_text: document.getElementsByTagName("time")[0]
+                count: null,
+                list: null,
+                update_button: null,
+                update_duration: null,
+                update_text: null
             },
             "receive": function(socket_data:socket_data):void {},
             "time": 0,
@@ -306,12 +292,12 @@ const dashboard:dashboard = {
             },
             "init": function():void {},
             "nodes": {
-                hosts: document.getElementsByTagName("input")[0],
-                lookup: document.getElementsByTagName("input")[0],
-                output: document.getElementsByTagName("textarea")[0],
-                query: document.getElementsByTagName("button")[0],
-                reverse: document.getElementsByTagName("input")[0],
-                types: document.getElementsByTagName("input")[3]
+                hosts: null,
+                lookup: null,
+                output: null,
+                query: null,
+                reverse: null,
+                types: null
             },
             "receive": function(socket_data:socket_data):void {},
             "tools": {
@@ -328,26 +314,26 @@ const dashboard:dashboard = {
             },
             "init": function():void {},
             "media": {
-                "audio": document.getElementsByTagName("audio")[0],
-                "image": document.getElementsByTagName("img")[0],
-                "other": document.getElementsByTagName("div")[0],
-                "pdf": document.getElementsByTagName("iframe")[0],
-                "text": document.getElementsByTagName("textarea")[0],
-                "video": document.getElementsByTagName("video")[0]
+                "audio": null,
+                "image": null,
+                "other": null,
+                "pdf": null,
+                "text": null,
+                "video": null
             },
             "nodes": {
-                children: document.getElementsByTagName("select")[0],
-                content: document.getElementsByTagName("div")[0] as HTMLElement,
-                depth: document.getElementsByTagName("input")[0],
-                directory_size: document.getElementsByTagName("select")[0],
-                failures: document.getElementsByTagName("div")[0] as HTMLElement,
-                output: document.getElementsByTagName("div")[0] as HTMLElement,
-                path: document.getElementsByTagName("input")[0],
-                path_style: document.getElementsByTagName("select")[0],
-                search: document.getElementsByTagName("input")[0],
-                status: document.getElementsByTagName("em")[0],
-                summary: document.getElementsByTagName("div")[0] as HTMLElement,
-                tbody: document.getElementsByTagName("tbody")[0]
+                children: null,
+                content: null,
+                depth: null,
+                directory_size: null,
+                failures: null,
+                output: null,
+                path: null,
+                path_style: null,
+                search: null,
+                status: null,
+                summary: null,
+                tbody: null
             },
             "receive": function(socket_data:socket_data):void {},
             "time": 0,
@@ -362,19 +348,19 @@ const dashboard:dashboard = {
             },
             "init": function():void {},
             "nodes": {
-                algorithm: document.getElementsByTagName("select")[0],
-                base64: document.getElementsByTagName("input")[0],
-                button: document.getElementsByTagName("button")[0],
-                digest: document.getElementsByTagName("input")[0],
-                file: document.getElementsByTagName("input")[0],
-                hash: document.getElementsByTagName("input")[0],
-                hex: document.getElementsByTagName("input")[0],
-                output: document.getElementsByTagName("textarea")[0],
-                size: document.getElementsByTagName("strong")[0],
-                source: document.getElementsByTagName("textarea")[0],
-                string: document.getElementsByTagName("input")[0],
-                time: document.getElementsByTagName("strong")[0],
-                type: document.getElementsByTagName("input")[0]
+                algorithm: null,
+                base64: null,
+                button: null,
+                digest: null,
+                file: null,
+                hash: null,
+                hex: null,
+                output: null,
+                size: null,
+                source: null,
+                string: null,
+                time: null,
+                type: null
             },
             "receive": function(socket_data:socket_data):void {},
             "time": 0,
@@ -386,11 +372,11 @@ const dashboard:dashboard = {
             },
             "init": function():void {},
             "nodes": {
-                count: document.getElementsByTagName("div")[0],
-                list: document.getElementsByTagName("div")[0] as HTMLElement,
-                update_button: document.getElementsByTagName("button")[0],
-                update_duration: document.getElementsByTagName("time")[0],
-                update_text: document.getElementsByTagName("time")[0]
+                count: null,
+                list: null,
+                update_button: null,
+                update_duration: null,
+                update_text: null
             },
             "receive": function(socket_data:socket_data):void {},
             "time": 0,
@@ -403,12 +389,12 @@ const dashboard:dashboard = {
             },
             "init": function():void {},
             "nodes": {
-                em_in: document.getElementsByTagName("em")[0],
-                em_out: document.getElementsByTagName("em")[0],
-                label_in: document.getElementsByTagName("label")[0],
-                label_out: document.getElementsByTagName("label")[0],
-                service: document.getElementsByTagName("select")[0] as HTMLSelectElement,
-                type: document.getElementsByTagName("select")[0] as HTMLSelectElement
+                em_in: null,
+                em_out: null,
+                label_in: null,
+                label_out: null,
+                service: null,
+                type: null
             },
             "receive": function(socket_data:socket_data):void {},
             "tools": {}
@@ -421,7 +407,7 @@ const dashboard:dashboard = {
             },
             "init": function():void {},
             "nodes": {
-                "textarea": document.getElementsByTagName("textarea")[0]
+                "textarea": null
             },
             "receive": function(socket_data:socket_data):void {},
             "timer": setTimeout(function():void {}, 0),
@@ -435,51 +421,51 @@ const dashboard:dashboard = {
             "nodes": {},
             "nodes_os": {
                 "cpu": {
-                    "arch": document.getElementsByTagName("div")[0],
-                    "cores": document.getElementsByTagName("div")[0],
-                    "endianness": document.getElementsByTagName("div")[0],
-                    "frequency": document.getElementsByTagName("div")[0],
-                    "name": document.getElementsByTagName("div")[0]
+                    "arch": null,
+                    "cores": null,
+                    "endianness": null,
+                    "frequency": null,
+                    "name": null
                 },
-                "env": document.getElementsByTagName("div")[0],
+                "env": null,
                 "memory": {
-                    "free": document.getElementsByTagName("div")[0],
-                    "total": document.getElementsByTagName("div")[0],
-                    "used": document.getElementsByTagName("div")[0]
+                    "free": null,
+                    "total": null,
+                    "used": null
                 },
                 "os": {
-                    "hostname": document.getElementsByTagName("div")[0],
-                    "name": document.getElementsByTagName("div")[0],
-                    "platform": document.getElementsByTagName("div")[0],
-                    "release": document.getElementsByTagName("div")[0],
-                    "type": document.getElementsByTagName("div")[0],
-                    "uptime": document.getElementsByTagName("div")[0]
+                    "hostname": null,
+                    "name": null,
+                    "platform": null,
+                    "release": null,
+                    "type": null,
+                    "uptime": null
                 },
-                "path": document.getElementsByTagName("div")[0],
+                "path": null,
                 "process": {
-                    "admin": document.getElementsByTagName("div")[0],
-                    "arch": document.getElementsByTagName("div")[0],
-                    "argv": document.getElementsByTagName("div")[0],
-                    "cpuSystem": document.getElementsByTagName("div")[0],
-                    "cpuUser": document.getElementsByTagName("div")[0],
-                    "cwd": document.getElementsByTagName("div")[0],
-                    "memoryExternal": document.getElementsByTagName("div")[0],
-                    "memoryProcess": document.getElementsByTagName("div")[0],
-                    "memoryV8": document.getElementsByTagName("div")[0],
-                    "pid": document.getElementsByTagName("div")[0],
-                    "platform": document.getElementsByTagName("div")[0],
-                    "ppid": document.getElementsByTagName("div")[0],
-                    "uptime": document.getElementsByTagName("div")[0]
+                    "admin": null,
+                    "arch": null,
+                    "argv": null,
+                    "cpuSystem": null,
+                    "cpuUser": null,
+                    "cwd": null,
+                    "memoryExternal": null,
+                    "memoryProcess": null,
+                    "memoryV8": null,
+                    "pid": null,
+                    "platform": null,
+                    "ppid": null,
+                    "uptime": null
                 },
-                "update_button": document.getElementsByTagName("button")[0],
-                "update_duration": document.getElementsByTagName("div")[0],
-                "update_text": document.getElementsByTagName("div")[0],
+                "update_button": null,
+                "update_duration": null,
+                "update_text": null,
                 "user": {
-                    "gid": document.getElementsByTagName("div")[0],
-                    "homedir": document.getElementsByTagName("div")[0],
-                    "uid": document.getElementsByTagName("div")[0]
+                    "gid": null,
+                    "homedir": null,
+                    "uid": null
                 },
-                "versions": document.getElementsByTagName("div")[0],
+                "versions": null,
             },
             "receive": function(socket_data:socket_data):void {},
             "time": 0,
@@ -488,15 +474,15 @@ const dashboard:dashboard = {
         "ports-application": {
             "dataName": "ports-application",
             "nodes": {
-                caseSensitive: document.getElementsByTagName("input")[0],
-                count: document.getElementsByTagName("div")[0],
-                filter_column: document.getElementsByTagName("select")[0],
-                filter_count: document.getElementsByTagName("div")[0],
-                filter_value: document.getElementsByTagName("input")[0],
-                list: document.getElementsByTagName("div")[0],
-                update_button: document.getElementsByTagName("button")[0],
-                update_duration: document.getElementsByTagName("time")[0],
-                update_text: document.getElementsByTagName("time")[0]
+                caseSensitive: null,
+                count: null,
+                filter_column: null,
+                filter_count: null,
+                filter_value: null,
+                list: null,
+                update_button: null,
+                update_duration: null,
+                update_text: null
             },
             "receive": function():void {}, // not used
             "row": function(record_item:type_lists, tr:HTMLElement):void {},
@@ -506,15 +492,15 @@ const dashboard:dashboard = {
         "processes": {
             "dataName": "proc",
             "nodes": {
-                caseSensitive: document.getElementsByTagName("input")[0],
-                count: document.getElementsByTagName("div")[0],
-                filter_column: document.getElementsByTagName("select")[0],
-                filter_count: document.getElementsByTagName("div")[0],
-                filter_value: document.getElementsByTagName("input")[0],
-                list: document.getElementsByTagName("div")[0],
-                update_button: document.getElementsByTagName("button")[0],
-                update_duration: document.getElementsByTagName("time")[0],
-                update_text: document.getElementsByTagName("time")[0]
+                caseSensitive: null,
+                count: null,
+                filter_column: null,
+                filter_count: null,
+                filter_value: null,
+                list: null,
+                update_button: null,
+                update_duration: null,
+                update_text: null
             },
             "receive": function():void {}, // not used
             "row": function(record_item:type_lists, tr:HTMLElement):void {},
@@ -528,8 +514,8 @@ const dashboard:dashboard = {
             },
             "init": function():void {},
             "nodes": {
-                "list": document.getElementsByTagName("div")[0],
-                "service_new": document.getElementsByTagName("button")[0]
+                "list": null,
+                "service_new": null
             },
             "receive": function(socket_data:socket_data):void {},
             "tools": {
@@ -540,7 +526,7 @@ const dashboard:dashboard = {
             "events": {},
             "init": function():void {},
             "nodes": {
-                "": document.getElementsByTagName("div")[0]
+                "": null
             },
             "receive": function():void {}, // not used
             "tools": {}
@@ -548,15 +534,15 @@ const dashboard:dashboard = {
         "services-os": {
             "dataName": "serv",
             "nodes": {
-                caseSensitive: document.getElementsByTagName("input")[0],
-                count: document.getElementsByTagName("div")[0],
-                filter_column: document.getElementsByTagName("select")[0],
-                filter_count: document.getElementsByTagName("div")[0],
-                filter_value: document.getElementsByTagName("input")[0],
-                list: document.getElementsByTagName("div")[0],
-                update_button: document.getElementsByTagName("button")[0],
-                update_duration: document.getElementsByTagName("time")[0],
-                update_text: document.getElementsByTagName("time")[0]
+                caseSensitive: null,
+                count: null,
+                filter_column: null,
+                filter_count: null,
+                filter_value: null,
+                list: null,
+                update_button: null,
+                update_duration: null,
+                update_text: null
             },
             "receive": function():void {}, // not used
             "row": function(record_item:type_lists, tr:HTMLElement):void {},
@@ -566,15 +552,15 @@ const dashboard:dashboard = {
         "sockets-application-tcp": {
             "dataName": "sockets-application-tcp",
             "nodes": {
-                caseSensitive: document.getElementsByTagName("input")[0],
-                count: document.getElementsByTagName("div")[0],
-                filter_column: document.getElementsByTagName("select")[0],
-                filter_count: document.getElementsByTagName("div")[0],
-                filter_value: document.getElementsByTagName("input")[0],
-                list: document.getElementsByTagName("div")[0],
-                update_button: document.getElementsByTagName("button")[0],
-                update_duration: document.getElementsByTagName("time")[0],
-                update_text: document.getElementsByTagName("time")[0]
+                caseSensitive: null,
+                count: null,
+                filter_column: null,
+                filter_count: null,
+                filter_value: null,
+                list: null,
+                update_button: null,
+                update_duration: null,
+                update_text: null
             },
             "receive": function():void {}, // not used
             "row": function(record_item:type_lists, tr:HTMLElement):void {},
@@ -584,15 +570,15 @@ const dashboard:dashboard = {
         "sockets-application-udp": {
             "dataName": "sockets-application-udp",
             "nodes": {
-                caseSensitive: document.getElementsByTagName("input")[0],
-                count: document.getElementsByTagName("div")[0],
-                filter_column: document.getElementsByTagName("select")[0],
-                filter_count: document.getElementsByTagName("div")[0],
-                filter_value: document.getElementsByTagName("input")[0],
-                list: document.getElementsByTagName("div")[0],
-                update_button: document.getElementsByTagName("button")[0],
-                update_duration: document.getElementsByTagName("time")[0],
-                update_text: document.getElementsByTagName("time")[0]
+                caseSensitive: null,
+                count: null,
+                filter_column: null,
+                filter_count: null,
+                filter_value: null,
+                list: null,
+                update_button: null,
+                update_duration: null,
+                update_text: null
             },
             "receive": function():void {}, // not used
             "row": function(record_item:type_lists, tr:HTMLElement):void {},
@@ -602,15 +588,15 @@ const dashboard:dashboard = {
         "sockets-os-tcp": {
             "dataName": "stcp",
             "nodes": {
-                caseSensitive: document.getElementsByTagName("input")[0],
-                count: document.getElementsByTagName("div")[0],
-                filter_column: document.getElementsByTagName("select")[0],
-                filter_count: document.getElementsByTagName("div")[0],
-                filter_value: document.getElementsByTagName("input")[0],
-                list: document.getElementsByTagName("div")[0],
-                update_button: document.getElementsByTagName("button")[0],
-                update_duration: document.getElementsByTagName("time")[0],
-                update_text: document.getElementsByTagName("time")[0]
+                caseSensitive: null,
+                count: null,
+                filter_column: null,
+                filter_count: null,
+                filter_value: null,
+                list: null,
+                update_button: null,
+                update_duration: null,
+                update_text: null
             },
             "receive": function():void {}, // not used
             "row": function(record_item:type_lists, tr:HTMLElement):void {},
@@ -620,15 +606,15 @@ const dashboard:dashboard = {
         "sockets-os-udp": {
             "dataName": "sudp",
             "nodes": {
-                caseSensitive: document.getElementsByTagName("input")[0],
-                count: document.getElementsByTagName("div")[0],
-                filter_column: document.getElementsByTagName("select")[0],
-                filter_count: document.getElementsByTagName("div")[0],
-                filter_value: document.getElementsByTagName("input")[0],
-                list: document.getElementsByTagName("div")[0],
-                update_button: document.getElementsByTagName("button")[0],
-                update_duration: document.getElementsByTagName("time")[0],
-                update_text: document.getElementsByTagName("time")[0]
+                caseSensitive: null,
+                count: null,
+                filter_column: null,
+                filter_count: null,
+                filter_value: null,
+                list: null,
+                update_button: null,
+                update_duration: null,
+                update_text: null
             },
             "receive": function():void {}, // not used
             "row": function(record_item:type_lists, tr:HTMLElement):void {},
@@ -649,13 +635,13 @@ const dashboard:dashboard = {
             "graphs": {},
             "init": function():void {},
             "nodes": {
-                duration: document.getElementsByTagName("div")[0],
-                frequency: document.getElementsByTagName("input")[0],
-                graph_display: document.getElementsByTagName("select")[0],
-                graph_type: document.getElementsByTagName("select")[0],
-                graphs: document.getElementsByTagName("div")[0] as HTMLElement,
-                records: document.getElementsByTagName("input")[0],
-                update: document.getElementsByTagName("div")[0]
+                duration: null,
+                frequency: null,
+                graph_display: null,
+                graph_type: null,
+                graphs: null,
+                records: null,
+                update: null
             },
             "receive": function(socket_data:socket_data):void {},
             "tools": {
@@ -682,28 +668,16 @@ const dashboard:dashboard = {
                 "socket_hash": ""
             },
             "init": function():void {},
-            // @ts-expect-error - xterm has not updated their types to reflect Terminal is a constructor
-            "item": new Terminal({
-                cols: 0,
-                cursorBlink: true,
-                cursorStyle: "underline",
-                disableStdin: false,
-                readonly: true,
-                rows: 0,
-                theme: {
-                    background: "#222",
-                    selectionBackground: "#444"
-                }
-            }),
+            "item": null,
             "nodes": {
-                cols: document.getElementsByTagName("div")[0],
-                output: document.getElementsByTagName("div")[0] as HTMLElement,
-                rows: document.getElementsByTagName("div")[0],
-                select: document.getElementsByTagName("select")[0] as HTMLSelectElement
+                cols: null,
+                output: null,
+                rows: null,
+                select: null
             },
             "receive": function():void {}, // not used
             "rows": 0,
-            socket: new WebSocket(""),
+            socket: null,
             "tools": {
                 "": function():void {}
             }
@@ -714,14 +688,14 @@ const dashboard:dashboard = {
             },
             "init": function():void {},
             "nodes": {
-                encryption: document.getElementsByTagName("input")[0],
-                http_request: document.getElementsByTagName("button")[0] as HTMLButtonElement,
-                request: document.getElementsByTagName("textarea")[0],
-                responseBody: document.getElementsByTagName("textarea")[0],
-                responseHeaders: document.getElementsByTagName("textarea")[0],
-                responseURI: document.getElementsByTagName("textarea")[0],
-                stats: document.getElementsByTagName("div")[0] as HTMLElement,
-                timeout: document.getElementsByTagName("input")[0]
+                encryption: null,
+                http_request: null,
+                request: null,
+                responseBody: null,
+                responseHeaders: null,
+                responseURI: null,
+                stats: null,
+                timeout: null
             },
             "receive": function(socket_data:socket_data):void {},
             "tools": {}
@@ -738,21 +712,21 @@ const dashboard:dashboard = {
             "frameBeautify": function(target:"receive"|"send", valueItem?:string):void {},
             "init": function():void {},
             "nodes": {
-                button_handshake: document.getElementsByTagName("button")[0] as HTMLButtonElement,
-                button_send: document.getElementsByTagName("button")[0] as HTMLButtonElement,
-                encrypt_false: document.getElementsByTagName("input")[0] as HTMLInputElement,
-                encrypt_true: document.getElementsByTagName("input")[0] as HTMLInputElement,
-                frame_validate: document.getElementsByTagName("p")[0],
-                halt_receive: document.getElementsByTagName("input")[0] as HTMLInputElement,
-                handshake: document.getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                handshake_label: document.getElementsByTagName("span")[0],
-                handshake_status: document.getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                handshake_timeout: document.getElementsByTagName("input")[0] as HTMLInputElement,
-                message_receive_body: document.getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                message_receive_frame: document.getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                message_send_body: document.getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                message_send_frame: document.getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
-                status: document.getElementById("websocket-status") as HTMLTextAreaElement
+                button_handshake: null,
+                button_send: null,
+                encrypt_false: null,
+                encrypt_true: null,
+                frame_validate: null,
+                halt_receive: null,
+                handshake: null,
+                handshake_label: null,
+                handshake_status: null,
+                handshake_timeout: null,
+                message_receive_body: null,
+                message_receive_frame: null,
+                message_send_body: null,
+                message_send_frame: null,
+                status: null
             },
             "receive": function():void {},
             "timeout": 0,
@@ -789,26 +763,26 @@ const dashboard:dashboard = {
             },
             "init": function ():void {},
             "nodes": {
-                button_create: document.getElementsByTagName("button")[0],
-                input_address_destination: document.getElementsByTagName("input")[0],
-                input_address_source: document.getElementsByTagName("input")[0],
-                input_multicast_membership: document.getElementsByTagName("input")[0],
-                input_multicast_none: document.getElementsByTagName("input")[8],
-                input_multicast_source: document.getElementsByTagName("input")[0],
-                input_port_destination: document.getElementsByTagName("input")[0],
-                input_port_source: document.getElementsByTagName("input")[0],
-                input_role_client: document.getElementsByTagName("input")[0],
-                input_role_server: document.getElementsByTagName("input")[0],
-                input_type_ipv4: document.getElementsByTagName("input")[0],
-                input_type_ipv6: document.getElementsByTagName("input")[0],
-                interfaces: document.getElementsByTagName("select")[0],
-                multicast_group: document.getElementsByTagName("div")[0] as HTMLElement,
-                multicast_interface: document.getElementsByTagName("div")[0] as HTMLElement,
-                multicast_membership: document.getElementsByTagName("div")[0] as HTMLElement,
-                multicast_source: document.getElementsByTagName("div")[0] as HTMLElement,
-                status: document.getElementsByTagName("div")[0] as HTMLElement,
-                toggle_client: document.getElementsByTagName("div")[0] as HTMLElement,
-                toggle_server: document.getElementsByTagName("div")[0] as HTMLElement
+                button_create: null,
+                input_address_destination: null,
+                input_address_source: null,
+                input_multicast_membership: null,
+                input_multicast_none: null,
+                input_multicast_source: null,
+                input_port_destination: null,
+                input_port_source: null,
+                input_role_client: null,
+                input_role_server: null,
+                input_type_ipv4: null,
+                input_type_ipv6: null,
+                interfaces: null,
+                multicast_group: null,
+                multicast_interface: null,
+                multicast_membership: null,
+                multicast_source: null,
+                status: null,
+                toggle_client: null,
+                toggle_server: null
             },
             "receive": function(socket_data:socket_data):void {},
             tools: {}
@@ -816,15 +790,15 @@ const dashboard:dashboard = {
         "users": {
             "dataName": "user",
             "nodes": {
-                caseSensitive: document.getElementsByTagName("input")[0],
-                count: document.getElementsByTagName("em")[0],
-                filter_column: document.getElementsByTagName("select")[0],
-                filter_count: document.getElementsByTagName("em")[0],
-                filter_value: document.getElementsByTagName("input")[0],
-                list: document.getElementsByTagName("tbody")[0],
-                update_button: document.getElementsByTagName("button")[0],
-                update_duration: document.getElementsByTagName("time")[0],
-                update_text: document.getElementsByTagName("time")[0]
+                caseSensitive: null,
+                count: null,
+                filter_column: null,
+                filter_count: null,
+                filter_value: null,
+                list: null,
+                update_button: null,
+                update_duration: null,
+                update_text: null
             },
             "receive": function():void {}, // not used
             "row": function(record_item:type_lists, tr:HTMLElement):void {},
@@ -839,14 +813,9 @@ const dashboard:dashboard = {
         "details": function(event:Event):void {},
         "edit": function(event:Event):void {},
         "shellResize": function(config:config_resize):void {},
-        "title": function(id:string, type:type_dashboard_list):HTMLElement {return document.getElementsByTagName("div")[0];}
+        "title": function(id:string, type:type_dashboard_list):HTMLElement {return null;}
     },
-    socket: core({
-        "close": function():void {},
-        "message": function(event:websocket_event):void {},
-        "open": function(event:Event):void {},
-        "type": "dashboard"
-    }),
+    socket: null,
     tables: {
         "cell": function(tr:HTMLElement, text:string, raw:string):void {},
         "filter": function(event:Event, target?:HTMLInputElement):void {},
@@ -860,9 +829,9 @@ const dashboard:dashboard = {
         "baseline": function():void {},
         "clock": function(socket_data:socket_data):void {},
         "nodes": {
-            clock: document.getElementsByTagName("time")[0],
-            load: document.getElementsByTagName("time")[0],
-            main: document.getElementsByTagName("main")[0]
+            clock: null,
+            load: null,
+            main: null
         },
         "performance_get": function(section:type_dashboard_sections):string {return "";},
         "performance_set": function(section:type_dashboard_sections):void {},
