@@ -310,7 +310,7 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                             percent = Number(line[2]);
                             proc = {
                                 id: Number(line[0]),
-                                memory: Number(line[3]),
+                                memory: Number(line[3]) * 1024,
                                 name: line[5],
                                 percent: (percent > 99.99 && line[1] === "00:00:00")
                                     ? 0
