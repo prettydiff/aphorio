@@ -450,9 +450,13 @@ const ui_file_system = function ui_file_system():void {
                         index_record = index_record + 1;
                     } while (index_record < len);
                 }
+                dashboard.tables.sort(null, dashboard.sections["file-system"].nodes.tbody.parentNode, Number(dashboard.sections["file-system"].nodes.tbody.parentNode.dataset["column"]));
             }
+
+            // no results
             if (len === 0) {
                 dashboard.sections["file-system"].nodes.summary.style.display = "none";
+            // list regular results
             } else if (fs.dirs[0][1] === "directory" || fs.search !== null) {
                 const li:HTMLCollectionOf<HTMLElement> = dashboard.sections["file-system"].nodes.summary.getElementsByTagName("li");
                 li[0].getElementsByTagName("strong")[0].textContent = (fs.directory_size === true)
@@ -469,9 +473,12 @@ const ui_file_system = function ui_file_system():void {
                 li[7].getElementsByTagName("strong")[0].textContent = summary.socket.commas();
                 li[8].getElementsByTagName("strong")[0].textContent = summary.symbolic_link.commas();
                 dashboard.sections["file-system"].nodes.summary.style.display = "block";
+            // media/file contents output
             } else {
                 dashboard.sections["file-system"].nodes.summary.style.display = "none";
             }
+
+            // list regular results
             if (fs.file === null) {
                 dashboard.sections["file-system"].nodes.content.style.display = "none";
                 if (len === 0) {
@@ -489,6 +496,7 @@ const ui_file_system = function ui_file_system():void {
                     fails.appendText("0 artifacts failed accessing.");
                 }
                 failureTitle.textContent = "Items in current directory that could not be read";
+            // media/file contents output
             } else {
                 const strong:HTMLElement = document.createElement("strong"),
                     media = function dashboard_sections_fileSystem_receive_media(mediaType:type_fileSystem_media):void {
