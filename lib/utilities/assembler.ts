@@ -117,7 +117,7 @@ const assembler = function utilities_assembler(process_path:string, callback:() 
             "message-inspection": ui_message_inspection,
             "notes": ui_notes,
             "os-machine": ui_os_machine,
-            "ports=application": ui_ports_application,
+            "ports-application": ui_ports_application,
             "processes": ui_processes,
             "servers-web": ui_servers_web,
             "services-app": ui_services_app,

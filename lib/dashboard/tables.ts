@@ -246,6 +246,7 @@ const ui_tables = function ui_tables():void {
                 tbody:HTMLElement = tableElement.getElementsByTagName("tbody")[0],
                 tr_list:HTMLCollectionOf<HTMLElement> = tbody.getElementsByTagName("tr"),
                 records:HTMLElement[] = [],
+                file_test:boolean = (tbody === dashboard.sections["file-system"].nodes.tbody && tr_list[0] !== undefined && tr_list[1] !== undefined && tr_list[0].getElementsByTagName("button")[0].lastChild.textContent === " .." && tr_list[1].getElementsByTagName("button")[0].lastChild.textContent === " ."),
                 tr_length:number = tr_list.length;
             if (tr_length > 0) {
                 const th:HTMLElement = (event === null)
@@ -264,7 +265,9 @@ const ui_tables = function ui_tables():void {
                 let index_th:number = (event === null)
                         ? heading_index
                         : cells_length,
-                    index_tr:number = 0;
+                    index_tr:number = (file_test === true)
+                        ? 2
+                        : 0;
                 if (event !== null) {
                     const tables:HTMLCollectionOf<HTMLElement> = document.getElementById(id).getElementsByTagName("table");
                     let tables_index:number = tables.length;
@@ -326,9 +329,11 @@ const ui_tables = function ui_tables():void {
                     }
                     return 0;
                 });
-
-                index_tr = 0;
+                if (file_test === true) {
+                    records.splice(0, 0, tr_list[0], tr_list[1]);
+                }
                 tbody.textContent = "";
+                index_tr = 0;
                 do {
                     records[index_tr].setAttribute("class", (index_tr % 2 === 0) ? "even" : "odd");
                     tbody.appendChild(records[index_tr]);

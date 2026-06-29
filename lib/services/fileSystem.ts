@@ -37,24 +37,9 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             if (len === 0) {
                 complete();
             } else if (data.search !== null || list[0][1] === "directory") {
-                const sort = function services_fileSystem_dirCallback_sort(a:type_directory_item, b:type_directory_item):-1|0|1 {
-                        if (a[1] < b[1]) {
-                            return -1;
-                        }
-                        if (a[1] > b[1]) {
-                            return 1;
-                        }
-                        if (a[1] === b[1]) {
-                            if ((vars.path.sep === "/" && a[0] < b[0]) || (vars.path.sep === "\\" && a[0].toLowerCase() < b[0].toLowerCase())) {
-                                return -1;
-                            }
-                            if ((vars.path.sep === "/" && a[0] > b[0]) || (vars.path.sep === "\\" && a[0].toLowerCase() > b[0].toLowerCase())) {
-                                return 1;
-                            }
-                        }
-                        return 0;
-                    },
-                    children:type_directory_item[] = [];
+                const children:type_directory_item[] = (data.search === null)
+                    ? [list[0]]
+                    : [];
                 if (data.depth > 0) {
                     const token:string = (data.address.charAt(data.address.length - 1) === vars.path.sep)
                             ? data.address
@@ -71,13 +56,8 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
                             children.push(list[index]);
                         }
                     } while (index > end);
-                    if (data.search === null) {
-                        children.push(list[0]);
-                    }
-                    children.sort(sort);
                     service.dirs = children;
                 } else {
-                    list.sort(sort);
                     service.dirs = list;
                 }
                 service.failures = list.failures;
