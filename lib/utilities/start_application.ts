@@ -196,7 +196,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 ],
                                 no_file = function utilities_startApplication_cgroup_noFile():void {
                                     index = index + 1;
-                                    if (index < 4) {
+                                    if (index < 2) {
                                         if (process.platform === "win32") {
                                             spawn(vars.commands.docker_read.replace("address", addresses[index]).replace("cat", "ls"), windows_callback, {shell: shell}).execute();
                                         } else {
