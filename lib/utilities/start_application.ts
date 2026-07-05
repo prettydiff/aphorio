@@ -183,7 +183,7 @@ const start_application = function utilities_startApplication(process_path:strin
                     if (vars.environment.features["compose-containers"] === true && vars.environment.compose_status === "" && (vars.os.main.process.admin === true || process.platform === "win32")) {
                         const command:string = (process.platform === "win32")
                                 ? vars.commands.docker_read.replace("cat address", "systemctl status containerd")
-                                : "systemctl systemctl containerd",
+                                : "systemctl status containerd",
                             shell:string = (process.platform === "win32" && vars.environment.terminal[0].includes("pwsh") === true)
                                 ? vars.environment.terminal[0]
                                 : null;
@@ -212,8 +212,8 @@ const start_application = function utilities_startApplication(process_path:strin
                                         complete_tasks("cgroup");
                                     }
                                 },
-                                windows_callback = function utilities_startApplication_cgroup_windowsCallback(out:core_spawn_output):void {
-                                    if (out.stderr.length > 0) {
+                                windows_callback = function utilities_startApplication_cgroup_windowsCallback(out_windows:core_spawn_output):void {
+                                    if (out_windows.stderr.length > 0) {
                                         no_file();
                                     } else {
                                         vars.path.cgroup = addresses[index];
