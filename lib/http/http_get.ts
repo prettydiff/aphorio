@@ -173,11 +173,13 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                                 value:string = "";
                                             do {
                                                 index = index - 1;
-                                                if (headerList[index].toLowerCase().indexOf("host:") === 0) {
-                                                    value = headerList[index].slice(headerList[index].indexOf(":") + 1).replace(/\s+/g, "");
-                                                } else if (headerList[index].toLowerCase().indexOf("connection:") === 0) {
-                                                    headerList.splice(index, 1);
-                                                    index = index + 1;
+                                                if (typeof headerList[index] === "string") {
+                                                    if (headerList[index].toLowerCase().indexOf("host:") === 0) {
+                                                        value = headerList[index].slice(headerList[index].indexOf(":") + 1).replace(/\s+/g, "");
+                                                    } else if (headerList[index].toLowerCase().indexOf("connection:") === 0) {
+                                                        headerList.splice(index, 1);
+                                                        index = index + 1;
+                                                    }
                                                 }
                                             } while (index > 0);
                                             return value;
