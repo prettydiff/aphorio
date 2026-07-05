@@ -30,7 +30,7 @@ const docker:core_module_docker = {
                 callback();
             },
             now:number = Date.now();
-        if (vars.os.main.process.admin === true) {
+        if (vars.os.main.process.admin === true || process.platform === "win32") {
             const child = function services_docker_list_child(output:core_spawn_output):void {
                 const stdout:string = output.stdout.trim();
                 if (stdout.charAt(0) !== "{" || stdout.charAt(stdout.length - 1) !== "}") {
@@ -228,16 +228,27 @@ const docker:core_module_docker = {
                                 vars.data.containers[id].version = out.stdout.trim();
                             }
                             complete_meta(id, true);
-                        };
-                    let index:number = 0,
-                        count:number = 0,
+                        },
+                        shell:string = (process.platform === "win32" && vars.environment.terminal[0].includes("pwsh") === true)
+                            ? vars.environment.terminal[0]
+                            : null;
+                    let count:number = 0,
                         total:number = 0;
-                    if (len > 0) {
-                        do {
-                            counts[list[index].ID] = 0;
-                            spawn(`docker inspect ${list[index].ID} -f '{{index .Config.Labels "com.docker.compose.project.config_files"}}'`, file_path, {type: index.toString()}).execute();
-                            index = index + 1;
-                        } while (index < len);
+                    if (process.platform === "win32" && shell === null) {
+                        complete("This application requires use of PowerShell 7, or greater, to execute Docker support.");
+                    } else {
+                        let index:number = 0;
+                        if (len > 0) {
+                            do {
+                                counts[list[index].ID] = 0;
+                                if (process.platform === "win32") {
+                                    spawn(`docker inspect ${list[index].ID} -f '{{index .Config.Labels "com.docker.compose.project.config_files"}}'`, file_path, {shell: shell, type: index.toString()}).execute();
+                                } else {
+                                    spawn(`docker inspect ${list[index].ID} -f '{{index .Config.Labels "com.docker.compose.project.config_files"}}'`, file_path, {type: index.toString()}).execute();
+                                }
+                                index = index + 1;
+                            } while (index < len);
+                        }
                     }
                 }
             };
@@ -336,7 +347,7 @@ const docker:core_module_docker = {
     },
     shell: null,
     shell_start: function services_docker_shell():void {
-        if (vars.os.main.process.admin === true) {
+        if (vars.os.main.process.admin === true || process.platform === "win32") {
             const shell:string = (process.env.SHELL === undefined)
                     ? vars.environment.terminal[0]
                     : process.env.SHELL,

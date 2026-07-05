@@ -1,4 +1,5 @@
 
+// cspell: words serv, stcp, sudp, TLSA
 
 interface services_compose {
     containers: store_compose;

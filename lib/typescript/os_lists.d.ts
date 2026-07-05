@@ -1,4 +1,4 @@
-// cspell: words bootable, fsavail, fsroots, fssize, fstype, fsused, mountpoint, partflags, parttypename, serv, stcp, sudp, volu
+// cspell: words bootable, fsavail, fsroots, fssize, fstype, fsused, mountpoint, partflags, parttypename, procs, serv, stcp, sudp, volu
 
 interface os_child_out extends node_stream_Readable {
     type: type_os_key;
@@ -216,6 +216,10 @@ interface os_vars {
     devs: string;
     directory_size: string;
     disk: string;
+    docker_net: string;
+    docker_procs: string;
+    docker_read: string;
+    docker_stats: string;
     file: string;
     open: string;
     part: string;

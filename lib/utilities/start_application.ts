@@ -180,33 +180,66 @@ const start_application = function utilities_startApplication(process_path:strin
             cgroup: {
                 label: "Find Linux cgroup address for gathering precision docker performance metrics.",
                 task: function utilities_startApplication_cgroup():void {
-                    if (vars.environment.features["compose-containers"] === true && vars.environment.compose_status === "" && vars.os.main.process.admin === true) {
-                        const addresses:string[] = [
-                                "/sys/fs/cgroup/system.slice/",
-                                "/sys/fs/cgroup/docker/",
-                                "/sys/fs/cgroup/memory/system.slice/",
-                                "/sys/fs/cgroup/memory/docker/"
-                            ],
-                            no_file = function utilities_startApplication_cgroup_noFile():void {
-                                index = index + 1;
-                                if (index < 4) {
-                                    file.stat({
-                                        callback: stat_callback,
-                                        location: addresses[index],
-                                        no_file: utilities_startApplication_cgroup_noFile,
-                                        section: "startup"
-                                    });
-                                } else {
-                                    vars.path.cgroup = null;
+                    if (vars.environment.features["compose-containers"] === true && vars.environment.compose_status === "" && (vars.os.main.process.admin === true || process.platform === "win32")) {
+                        const command:string = (process.platform === "win32")
+                                ? vars.commands.docker_read.replace("cat address", "systemctl status containerd")
+                                : "systemctl systemctl containerd",
+                            shell:string = (process.platform === "win32" && vars.environment.terminal[0].includes("pwsh") === true)
+                                ? vars.environment.terminal[0]
+                                : null;
+                        spawn(command, function utilities_startApplication_cgroup_systemD(out:core_spawn_output):void {
+                            const addresses:string[] = [
+                                    "/sys/fs/cgroup/system.slice/",
+                                    "/sys/fs/cgroup/memory/system.slice/",
+                                    "/sys/fs/cgroup/docker/",
+                                    "/sys/fs/cgroup/memory/docker/"
+                                ],
+                                no_file = function utilities_startApplication_cgroup_noFile():void {
+                                    index = index + 1;
+                                    if (index < 4) {
+                                        if (process.platform === "win32") {
+                                            spawn(vars.commands.docker_read.replace("address", addresses[index]).replace("cat", "ls"), windows_callback, {shell: shell}).execute();
+                                        } else {
+                                            file.stat({
+                                                callback: stat_callback,
+                                                location: addresses[index],
+                                                no_file: utilities_startApplication_cgroup_noFile,
+                                                section: "startup"
+                                            });
+                                        }
+                                    } else {
+                                        vars.path.cgroup = null;
+                                        complete_tasks("cgroup");
+                                    }
+                                },
+                                windows_callback = function utilities_startApplication_cgroup_windowsCallback(out:core_spawn_output):void {
+                                    if (out.stderr.length > 0) {
+                                        no_file();
+                                    } else {
+                                        vars.path.cgroup = addresses[index];
+                                        complete_tasks("cgroup");
+                                    }
+                                },
+                                stat_callback = function utilities_startApplication_cgroup_statCallback(stats:node_fs_BigIntStats, location:string):void {
+                                    vars.path.cgroup = location;
                                     complete_tasks("cgroup");
-                                }
-                            },
-                            stat_callback = function utilities_startApplication_cgroup_statCallback(stats:node_fs_BigIntStats, location:string):void {
-                                vars.path.cgroup = location;
+                                };
+                            let index:number = -1;
+                            // if output is a string then system_d reported a status for containerd, so docker is a system_d service
+                            if (out.stdout.length > 0) {
+                                addresses.splice(2, 2);
+                            } else {
+                                addresses.splice(0, 2);
+                            }
+                            if (process.platform === "win32" && shell === null) {
+                                vars.path.cgroup = null;
                                 complete_tasks("cgroup");
-                            };
-                        let index:number = -1;
-                        no_file();
+                            } else {
+                                no_file();
+                            }
+                        }, {
+                            shell: shell
+                        }).execute();
                     } else {
                         vars.path.cgroup = null;
                         complete_tasks("cgroup");
@@ -467,30 +500,44 @@ const start_application = function utilities_startApplication(process_path:strin
                             code:store_string = {},
                             definitions:core_services_internal_dependency = {},
                             keys_code:string[] = [],
+                            // reads a file
                             read = function utilities_startApplication_servicesApp_callbackDirectory_read(file:Buffer, location:string):void {
                                 count = count - 1;
+
+                                // type definition files
                                 if ((/\.d\.ts$/).test(location) === true) {
+                                    // service_registry.d.ts
                                     if (location === `${process_path}lib${vars.path.sep}typescript${vars.path.sep}service_registry.d.ts`) {
                                         const services:string[] = file.toString().replace(/^\s+/, "").replace(/\s+$/, "").split("\n\n"),
+                                            service_add = function utilities_startApplication_serviceApp_callbackDirectory_read_serviceAdd(strings:string[]):void {
+                                                const name:string = strings[0].replace(/\s*interface\s+/, "").replace(/\s+\{\s*$/, "");
+                                                service = {
+                                                    code: strings.slice(0, strings.length - 1).join("\n"),
+                                                    dependencies: {},
+                                                    description: strings[strings.length - 1].replace(/^\s*\/\/\s*/, ""),
+                                                    files: [],
+                                                    name: name
+                                                };
+                                                vars.environment.services_app.push(service);
+                                                definitions[name] = [services[index], location.replace(process_path, vars.path.sep)];
+                                            },
                                             len:number = services.length - 1;
                                         let index:number = 0,
                                             strings:string[] = null,
-                                            name:string = "",
                                             service:core_service_internal = null;
                                         do {
                                             strings = services[index].split("\n");
-                                            name = strings[0].replace(/\s*interface\s+/, "").replace(/\s+\{\s*$/, "");
-                                            service = {
-                                                code: strings.slice(0, strings.length - 1).join("\n"),
-                                                dependencies: {},
-                                                description: strings[strings.length - 1].replace(/^\s*\/\/\s*/, ""),
-                                                files: [],
-                                                name: name
-                                            };
-                                            vars.environment.services_app.push(service);
-                                            definitions[name] = [services[index], location.replace(process_path, vars.path.sep)];
+                                            if ((/^\s*\/(\*|\/)\s*cspell/).test(strings[0]) === true) {
+                                                if (strings.length > 1) {
+                                                    strings.splice(0, 1);
+                                                    service_add(strings);
+                                                }
+                                            } else {
+                                                service_add(strings);
+                                            }
                                             index = index + 1;
                                         } while (index < len);
+                                    // types.d.ts
                                     } else if (location === `${process_path}lib${vars.path.sep}typescript${vars.path.sep}node.d.ts` || location === `${process_path}lib${vars.path.sep}typescript${vars.path.sep}types.d.ts`) {
                                         const raw:string = file.toString(),
                                             list:string[] = raw.slice(raw.indexOf("type")).replace(/^\s+/, "").replace(/\s+$/, "").replace(/\n\n/g, "\n").split("\n");
@@ -503,6 +550,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                                 definitions[values[0].slice(5)] = [`${values[0]} = ${values[1]}`, location.replace(process_path, vars.path.sep)];
                                             }
                                         } while (index_def > 0);
+                                    // all other definitions
                                     } else {
                                         const list:string[] = file.toString().replace(/^\s+/, "").replace(/\s+$/, "").split("\n\n");
                                         let index_def:number = list.length,

@@ -1,44 +1,90 @@
 
 
-/* cspell: words atupn, cputime, lslogins, pcpu, pwsh, serv, stcp, sudp, volu */
+/* cspell: words atupn, cputime, lslogins, pcpu, procs, pwsh, serv, stcp, sudp, volu */
 
 const vars:core_vars = {
         // critical shell commands by operating system
         commands: (function utilities_vars_commands():os_vars {
             const os_vars:os_var_list = {
                 "linux": {
-                    admin_check: "id -u", // true if it returns "0"
+                    // check if application is started administratively, true if it returns "0"
+                    admin_check: "id -u",
+                    // docker compose command
                     compose: "docker compose",
+                    // executes the projects's empty.yml fake compose file
                     compose_empty: "",
+                    // gets devices plugged into local computer
                     devs: "lspci -v -k",
+                    // recursive size of directories
                     directory_size: "du --bytes --summarize",
+                    // file system physical disk data
                     disk: "lsblk -Ob --json",
+                    // get list of network data from docker container
+                    docker_net: "docker exec id cat /proc/net/dev",
+                    // get list of active docker containers
+                    docker_procs: "docker ps --no-trunc --format json",
+                    // read a docker file from Windows Subsystem for Linux, unused in linux as linux does not need a linux subsystem
+                    docker_read: "",
+                    // get statistical data about active docker containers
+                    docker_stats: "docker stats --no-stream --no-trunc --format json",
+                    // file interpreter dependency
                     file: "",
+                    // open an application
                     open: "xdg-open",
+                    // gets disk partition data, unused in linux as the disk command is enough
                     part: "",
+                    // gets process list on local OS
                     proc: "ps -eo pid,cputime,pcpu,rss,user,comm= | tail -n +2 | tr -s \" \" \",\"",
+                    // get services list on local OS
                     serv: "systemctl list-units --type=service --all --output json",
+                    // get list of TCP sockets on local OS
                     stcp: "ss -atupn | tail -n +2 | tr -s \" \" \",\"",
+                    // get list of UDP sockets on local OS, unused in linux as the stcp command is enough
                     sudp: "",
+                    // get list of local user accounts on local OS
                     user: "lslogins -o user,uid,proc,last-login --time-format iso | tail -n +2 | tr -s \" \" \",\"",
+                    // get disk volume data
                     volu: ""
 
                 },
                 "win32": {
-                    admin_check: "([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)", // return a string "true" or "false" value
+                    // check if application is started administratively, return a string "true" or "false" value
+                    admin_check: "([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)",
+                    // docker compose command
                     compose: "docker-compose",
+                    // executes the projects's empty.yml fake compose file
                     compose_empty: "",
+                    // gets devices plugged into local computer
                     devs: "Get-PNPDevice | ConvertTo-json",
+                    // recursive size of directories
                     directory_size: "Get-ChildItem -recurse | measure-object -property length -sum | select-object -ExpandProperty sum",
+                    // file system physical disk data
                     disk: "Get-Disk | ConvertTo-JSON -compress -depth 2",
+                    // get list of network data from docker container
+                    docker_net: "docker exec id cat /proc/net/dev",
+                    // get list of active docker containers
+                    docker_procs: "docker ps --no-trunc --format json",
+                    // read a docker file from Windows Subsystem for Linux
+                    docker_read: "wsl -e sh -c \"cat address\"",
+                    // get statistical data about active docker containers
+                    docker_stats: "docker stats --no-stream --no-trunc --format json",
+                    // file interpreter dependency
                     file: "",
+                    // open an application
                     open: "start",
+                    // gets disk partition data
                     part: "Get-Partition | ConvertTo-JSON -compress -depth 2",
+                    // gets process list on local OS
                     proc: "Get-Process -IncludeUserName | Select-Object id, cpu, pm, name, username | ConvertTo-JSON -compress -depth 1",
+                    // get services list on local OS
                     serv: "Get-Service | ConvertTo-JSON -compress -depth 2",
+                    // get list of TCP sockets on local OS
                     stcp: "Get-NetTCPConnection | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningProcess | ConvertTo-JSON -compress -depth 2",
+                    // get list of UDP sockets on local OS
                     sudp: "Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess | ConvertTo-JSON -compress -depth 2",
+                    // get list of local user accounts on local OS
                     user: "Get-LocalUser | ConvertTo-JSON -compress -depth 1",
+                    // get disk volume data
                     volu: "Get-Volume | ConvertTo-JSON -compress -depth 2"
                 }
             };

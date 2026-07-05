@@ -6,7 +6,7 @@ import save from "../utilities/save.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
-// cspell: words CPUPerc, MemPerc, pids, rbytes, usec, wbytes
+// cspell: words CPUPerc, MemPerc, pids, procs, rbytes, usec, wbytes
 
 const statistics:core_module_statistics_resources = {
     change: function services_statisticsChange(data:socket_data):void {
@@ -99,7 +99,7 @@ const statistics:core_module_statistics_resources = {
                 if (container_len === 0) {
                     payload(null, null);
                 } else if (vars.path.cgroup === null) {
-                    spawn("docker stats --no-stream --no-trunc --format json", function services_statisticsData_diskComplete_spawnStats(output:core_spawn_output):void {
+                    spawn(vars.commands.docker_stats, function services_statisticsData_diskComplete_spawnStats(output:core_spawn_output):void {
                         const obj:string = `[${output.stdout.replace(/\}\n/g, "},")}]`.replace(/\},\]$/, "}]"),
                             data:core_docker_status[] = JSON.parse(obj),
                             len:number = data.length,
@@ -146,7 +146,7 @@ const statistics:core_module_statistics_resources = {
                         payload(container_keys, actual_keys);
                     }).execute();
                 } else {
-                    spawn("docker ps --no-trunc --format json", function services_statisticsData_diskComplete_spawnPS(output:core_spawn_output):void {
+                    spawn(vars.commands.docker_procs, function services_statisticsData_diskComplete_spawnPS(output:core_spawn_output):void {
                         const obj:string = `[${output.stdout.replace(/\}\n/g, "},")}]`.replace(/\},\]$/, "}]"),
                             complete = function services_statisticsData_diskComplete_spawnPS_complete(identifier:string, name:"cpu"|"io"|"mem"|"net"|"threads"):void {
                                 flags[identifier][name] =  true;
@@ -290,7 +290,8 @@ const statistics:core_module_statistics_resources = {
                             actual_keys:string[] = [];
                         let count:number = 0,
                             index:number = len,
-                            id:string = "";
+                            id:string = "",
+                            path_id:string = "";
                         if (index > 0) {
                             do {
                                 index = index - 1;
@@ -306,35 +307,61 @@ const statistics:core_module_statistics_resources = {
                                     net: false,
                                     threads: false
                                 };
-                                file.read({
-                                    callback: cpu,
-                                    identifier: id,
-                                    location: `${vars.path.cgroup}docker-${id}.scope/cpu.stat`,
-                                    no_file: null,
-                                    section: "statistics-resources"
-                                });
-                                file.read({
-                                    callback: io,
-                                    identifier: id,
-                                    location: `${vars.path.cgroup}docker-${id}.scope/io.stat`,
-                                    no_file: null,
-                                    section: "statistics-resources"
-                                });
-                                file.read({
-                                    callback: mem,
-                                    identifier: id,
-                                    location: `${vars.path.cgroup}docker-${id}.scope/memory.current`,
-                                    no_file: null,
-                                    section: "statistics-resources"
-                                });
-                                file.read({
-                                    callback: threads,
-                                    identifier: id,
-                                    location: `${vars.path.cgroup}docker-${id}.scope/pids.current`,
-                                    no_file: null,
-                                    section: "statistics-resources"
-                                });
-                                spawn(`docker exec ${id} cat /proc/net/dev`, net, {
+                                path_id = (vars.path.cgroup.includes("system.slice") === true)
+                                    ? `${vars.path.cgroup}docker-${id}.scope/`
+                                    : `${vars.path.cgroup + id}/`;
+                                if (process.platform === "win32") {
+                                    spawn(vars.commands.docker_read.replace("address", `${path_id}cpu.stat`), function services_statisticsData_diskComplete_spawnCPU(out:core_spawn_output, identifier:string):void {
+                                        if (out.stdout.length > 0) {
+                                            cpu(Buffer.from(out.stdout), "", identifier);
+                                        }
+                                    }, {type: id}).execute();
+                                    spawn(vars.commands.docker_read.replace("address", `${path_id}io.stat`), function services_statisticsData_diskComplete_spawnIO(out:core_spawn_output, identifier:string):void {
+                                        if (out.stdout.length > 0) {
+                                            io(Buffer.from(out.stdout), "", identifier);
+                                        }
+                                    }, {type: id}).execute();
+                                    spawn(vars.commands.docker_read.replace("address", `${path_id}memory.current`), function services_statisticsData_diskComplete_spawnMem(out:core_spawn_output, identifier:string):void {
+                                        if (out.stdout.length > 0) {
+                                            mem(Buffer.from(out.stdout), "", identifier);
+                                        }
+                                    }, {type: id}).execute();
+                                    spawn(vars.commands.docker_read.replace("address", `${path_id}pids.current`), function services_statisticsData_diskComplete_spawnThreads(out:core_spawn_output, identifier:string):void {
+                                        if (out.stdout.length > 0) {
+                                            threads(Buffer.from(out.stdout), "", identifier);
+                                        }
+                                    }, {type: id}).execute();
+                                } else {
+                                    file.read({
+                                        callback: cpu,
+                                        identifier: id,
+                                        location: `${path_id}cpu.stat`,
+                                        no_file: null,
+                                        section: "statistics-resources"
+                                    });
+                                    file.read({
+                                        callback: io,
+                                        identifier: id,
+                                        location: `${path_id}io.stat`,
+                                        no_file: null,
+                                        section: "statistics-resources"
+                                    });
+                                    file.read({
+                                        callback: mem,
+                                        identifier: id,
+                                        location: `${path_id}memory.current`,
+                                        no_file: null,
+                                        section: "statistics-resources"
+                                    });
+                                    file.read({
+                                        callback: threads,
+                                        identifier: id,
+                                        location: `${path_id}pids.current`,
+                                        no_file: null,
+                                        section: "statistics-resources"
+                                    });
+                                }
+                                spawn(vars.commands.docker_net.replace("id", id), net, {
                                     type: id
                                 }).execute();
                             } while (index > 0);
