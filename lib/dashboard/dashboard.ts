@@ -198,7 +198,7 @@ const dashboard:dashboard = {
         }
     },
     message: {
-        "init": function():void {},
+        "init": function(socket_data:socket_data):void {},
         "receive": function(data:string):void {},
         "send": function(socket_data:socket_data):void {}
     },
@@ -750,7 +750,7 @@ const dashboard:dashboard = {
                 }
             },
             "transmit": {
-                "": function(socket_data):void {}
+                "": function(socket_data:socket_data):void {}
             }
         },
         "udp-socket": {
@@ -761,7 +761,7 @@ const dashboard:dashboard = {
                 "toggle_role": function():void {},
                 "toggle_type": function():void {}
             },
-            "init": function ():void {},
+            "init": function():void {},
             "nodes": {
                 button_create: null,
                 input_address_destination: null,

@@ -127,7 +127,6 @@ const ui_execute = function ui_execute():void {
                         dashboard.socket.queueStore.splice(0, 1);
                     } while (dashboard.socket.queueStore.length > 0);
                 }
-                dashboard.message.init();
             },
             type: "dashboard"
         });
@@ -201,12 +200,6 @@ const ui_execute = function ui_execute():void {
 
         // handle page resize
         window.onresize = dashboard.utility.resize;
-        window.show_payload = function dashboard_execute_showPayload():[string, transmit_dashboard] {
-            return [
-                JSON.stringify(dashboard.global.payload).length.commas(),
-                dashboard.global.payload
-            ];
-        };
 
         // Disabling popular but slow conventions. Enhancements to the project must consider performance and scale
         delete Element.prototype.innerHTML;

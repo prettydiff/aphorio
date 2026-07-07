@@ -292,6 +292,29 @@
                         Typically partial encryption is good enough for privacy, but should not be trusted with sensitive data like passwords or connections to financial institutions.
                     </p>
                 </div>
+                <div class="section">
+                    <h4>If this application can connect an HTTPS request to a HTTP server then why can't it connect an HTTP request to a HTTPS server?</h4>
+                    <p>
+                        To connect an HTTPS request to a HTTP server the application looks to see if the first byte of a request is decimal equivalent 22.
+                        That indicates a TLS encrypted transmission, encrypted by a client and sent to a server.
+                        If the given port on the given server is not listening for encrypted messages the transmission will not work, but the message can be piped to a socket on a port listening for incoming TLS messages.
+                        This allows an HTTPS request to connect to a port dedicated for unencrypted traffic and still achieve perfect TLS cryptography, because the HTTP addressed service passes everything forward to an actual HTTPS service with neither end point knowing the difference.
+                    </p>
+                    <p>The way TLS works is by following these steps:</p>
+                    <ol>
+                        <li>TCP socket establishment following the TCP 3-way handshake.  In Node this execute's a server's <em>connection</em> event on a TLS listening service.</li>
+                        <li>The TLS handshake executes, which executes a server's <em>secureConnection</em> event.  The TLS handshake is a negotiation to establish a double encrypted pipe.  A weak outer encrypted pipe is built using PKI cryptography to transfer a one time secret key.  A strong inner encrypted pipe is built using that secret key following a symmetric cryptographic algorithm.</li>
+                        <li>Messages are exchanged according to a given application transmission protocol.</li>
+                    </ol>
+                    <p>
+                        An HTTP request to a HTTPS service will establish step 1 above, but not step 2.
+                        This application makes no attempt to fake or abuse a TLS handshake where there is none, and that likely would not work anyways because the client is not anticipating such.
+                        Without the TLS handshake no messages are transmitted by either end, which means there is nothing to proxy.
+                        In theory the server could reply to the HTTP request with a HTTP 302 or 307 response status pointing to the correct port for TLS service, but this is not recommended as it would entirely invalidate the TLS service.
+                        Since the <em>connection</em> event executes prior to the TLS handshake, the <em>secureConnection</em> event, and thus before message exchange, there is no way for the server to know if the given request is HTTP or HTTPS yet.
+                        As such, this application treats all sockets connecting to TLS services as TLS sockets and allows them to fail naturally due to external circumstances.
+                    </p>
+                </div>
             </div>
             <div class="section">
                 <h3>Containers</h3>
@@ -329,6 +352,15 @@
                 <div class="section">
                     <h4>Docker isn't working after computer restart.</h4>
                     <p>See if the problem is solved by restarting service <em>containerd</em> first and then service <em>docker</em> second. Then review service logs to determine if service <em>docker</em> started without error.</p>
+                </div>
+                <div class="section">
+                    <h4>Where does Docker store container statistics?</h4>
+                    <p>Most likely a container's statistical data will be in one of following locations.  If docker is managed by System D the first path will be the answer, otherwise it will be the second.</p>
+                    <ul>
+                        <li><code>/sys/fs/cgroup/system.slice/&lt;container_id&gt;</code></li>
+                        <li><code>/sys/fs/cgroup/docker/&lt;container_id&gt;</code></li>
+                    </ul>
+                    <p>If executing Docker on Windows these locations can only be accessed from within the Linux kernel via Windows Subsystem for Linux (WSL2).  Use this Window's command to insert a command into the Linux kernel: <code>wsl -e sh -c "linux command here"</code></p>
                 </div>
             </div>
             <div class="section">

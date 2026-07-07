@@ -379,73 +379,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         }
         if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
             const list:string = headerList.join("\n"),
-                payload:transmit_dashboard = {
-                    compose: (vars.environment.features["compose-containers"] === true)
-                        ? {
-                            containers: vars.data.containers,
-                            status: vars.environment.compose_status,
-                            time: vars.data_meta.compose_time,
-                            variables: vars.data.compose_variables
-                        }
-                        : null,
-                    dashboard_id: vars.environment.dashboard_id,
-                    hashes: (vars.environment.features["hash"] === true)
-                        ? vars.environment.hashes
-                        : null,
-                    http_request: (vars.environment.features["test-http"] === true)
-                        ? vars.environment.http_request
-                        : null,
-                    logs: (vars.environment.features["application-logs"] === true)
-                        ? {
-                            entries: (vars.environment.logs.total > vars.environment.logs.max)
-                                ? vars.data.logs.slice(vars.environment.logs.total - vars.environment.logs.max)
-                                : vars.data.logs,
-                            max: vars.environment.logs.max,
-                            total: vars.environment.logs.total
-                        }
-                        : null,
-                    name: vars.environment.name,
-                    notes: vars.data.notes,
-                    os: vars.os,
-                    path: vars.path,
-                    "ports-application": {
-                        data: vars.data.ports_application,
-                        time: vars.data_meta.ports_application
-                    },
-                    repository: vars.environment.repository,
-                    server_ports: (vars.environment.features["servers-web"] === true)
-                        ? vars.data_store.server_ports
-                        : null,
-                    servers: (vars.environment.features["servers-web"] === true)
-                        ? vars.data.servers
-                        : null,
-                    services_app: (vars.environment.features["services-app"] === true)
-                        ? vars.environment.services_app
-                        : null,
-                    sockets: (vars.environment.features["sockets-application-tcp"] === true || vars.environment.features["sockets-application-udp"] === true)
-                        ? {
-                            tcp: vars.data.sockets_tcp,
-                            time: vars.data_meta.sockets,
-                            udp: vars.data.sockets_udp
-                        }
-                        : null,
-                    start_date: vars.environment.start_date,
-                    stats: (vars.environment.features["statistics-resources"] === true)
-                        ? {
-                            containers: vars.stats.containers,
-                            duration: vars.stats.duration,
-                            frequency: vars.stats.frequency,
-                            now: vars.stats.now,
-                            records: vars.stats.records
-                        }
-                        : null,
-                    terminal: (vars.environment.features["terminal"] === true)
-                        ? vars.environment.terminal
-                        : null,
-                    timeZone_offset: vars.environment.timeZone_offset,
-                    version: vars.environment.version
-                },
-                dashboard:string = vars.environment.dashboard_page.replace("request: \"\"", `request: \`${list}\``).replace(/\s+payload\s*:\s*null/, `payload:${JSON.stringify(payload)}`),
+                dashboard:string = vars.environment.dashboard_page.replace("request: \"\"", `request: \`${list}\``),
                 headers:string[] = [
                     "HTTP/1.1 200",
                     "content-type: text/html",

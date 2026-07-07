@@ -4,10 +4,15 @@ import dashboard from "./dashboard.ts";
 
 const ui_message = function ui_message():void {
     const message:dashboard_message = {
-        init: function dashboard_message_init():void {
+        init: function dashboard_message_init(socket_data:socket_data):void {
             if (dashboard.global.loaded === false) {
-                const title:HTMLElement = document.getElementsByTagName("h1")[0],
+                const data:services_dashboard_open = socket_data.data as services_dashboard_open,
+                    title:HTMLElement = document.getElementsByTagName("h1")[0],
                     anchor:HTMLElement = document.createElement("a"),
+                    encryption:string = (dashboard.socket.socket.url.indexOf("wss") === 0)
+                        ? "Encrypted"
+                        : "Insecure",
+                    status:HTMLElement = document.getElementById("connection-status"),
                     init = function dashboard_execute_init(section_name:type_dashboard_features, table:boolean):void {
                         if (dashboard.sections[section_name] !== undefined) {
                             if (table === true) {
@@ -16,11 +21,8 @@ const ui_message = function ui_message():void {
                                 dashboard.sections[section_name as type_dashboard_init].init();
                             }
                         }
-                    },
-                    encryption:string = (dashboard.socket.socket.url.indexOf("wss") === 0)
-                        ? "Encrypted"
-                        : "Insecure",
-                    status:HTMLElement = document.getElementById("connection-status");
+                    };
+                dashboard.global.payload = data;
                 init("application-logs", false);
                 init("compose-containers", false);
                 init("devices", true);
@@ -57,6 +59,12 @@ const ui_message = function ui_message():void {
                     status.setAttribute("class", "connection-online");
                 }
                 dashboard.utility.nodes.load.textContent = `${Math.round(performance.getEntries()[0].duration * 10000) / 1e7} seconds`;
+                window.show_payload = function dashboard_execute_showPayload():[string, services_dashboard_open] {
+                    return [
+                        JSON.stringify(dashboard.global.payload).length.commas(),
+                        dashboard.global.payload
+                    ];
+                };
             }
         },
         receive: function dashboard_message_receive(data:string):void {
@@ -69,6 +77,7 @@ const ui_message = function ui_message():void {
                     "services_compose_out": (dashboard.sections["compose-containers"] === undefined)
                         ? null
                         : dashboard.sections["compose-containers"].status_out,
+                    "services_dashboard_open": dashboard.message.init,
                     "services_dns_output": (dashboard.sections["dns-query"] === undefined)
                         ? null
                         : dashboard.sections["dns-query"].receive,

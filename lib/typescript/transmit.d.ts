@@ -18,35 +18,6 @@ interface transmit_addresses_socket {
     };
 }
 
-interface transmit_dashboard {
-    compose: services_compose;
-    dashboard_id: string;
-    hashes: string[];
-    http_request: string;
-    logs: {
-        entries: config_log[];
-        max: number;
-        total: number;
-    };
-    name: string;
-    notes: string;
-    os: services_os_all;
-    path: core_vars_path;
-    "ports-application": services_ports_application;
-    repository: string;
-    server_ports: {
-        [key:string]: core_server_ports;
-    }; 
-    servers: store_servers;
-    services_app: core_service_internal[];
-    sockets: services_socket_application;
-    start_date: number;
-    stats: services_statistics_data;
-    terminal: string[];
-    timeZone_offset: number;
-    version: string;
-}
-
 interface transmit_linux_ip extends Array<transmit_linux_ip_item> {
     [index:number]: transmit_linux_ip_item;
 }

@@ -27,6 +27,36 @@ interface services_compose_variables {
 }
 // A key/value list of custom docker compose template variables
 
+interface services_dashboard_open {
+    compose: services_compose;
+    dashboard_id: string;
+    hashes: string[];
+    http_request: string;
+    logs: {
+        entries: config_log[];
+        max: number;
+        total: number;
+    };
+    name: string;
+    notes: string;
+    os: services_os_all;
+    path: core_vars_path;
+    "ports-application": services_ports_application;
+    repository: string;
+    server_ports: {
+        [key:string]: core_server_ports;
+    };
+    servers: store_servers;
+    services_app: core_service_internal[];
+    sockets: services_socket_application;
+    start_date: number;
+    stats: services_statistics_data;
+    terminal: string[];
+    timeZone_offset: number;
+    version: string;
+}
+// Initial payload to populate the dashboard with data
+
 interface services_dns_input {
     names: string[];
     reverse: boolean;
@@ -354,6 +384,7 @@ type socket_data =
     {data: services_compose_out;         service: "services_compose_out";} |
     {data: services_compose_variables;   service: "services_compose_variables";} |
     {data: services_compose;             service: "services_compose";} |
+    {data: services_dashboard_open;      service: "services_dashboard_open";} |
     {data: services_dns_input;           service: "services_dns_input";} |
     {data: services_dns_output;          service: "services_dns_output";} |
     {data: services_dns_reverse;         service: "services_dns_reverse";} |

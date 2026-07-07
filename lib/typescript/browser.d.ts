@@ -45,7 +45,7 @@ declare global {
     }
 
     interface Window {
-        show_payload: () => [string, transmit_dashboard];
+        show_payload: () => [string, services_dashboard_open];
     }
 
     interface HTMLAudioElement {
@@ -83,13 +83,13 @@ declare global {
     interface dashboard_global {
         click: boolean;
         loaded: boolean;
-        payload: transmit_dashboard;
+        payload: services_dashboard_open;
         section: type_dashboard_sections;
         state: state_store;
     }
 
     interface dashboard_message {
-        init: () => void;
+        init: (socket_data:socket_data) => void;
         receive: (data:string) => void;
         send: (socket_data:socket_data) => void;
     }
