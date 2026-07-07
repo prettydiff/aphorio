@@ -6,6 +6,7 @@ import log from "../core/log.ts";
 import node from "../core/node.ts";
 import message_handler from "./messageHandler.ts";
 import message_inspection from "../services/message_inspection.ts";
+import send from "./send.ts";
 import server_halt from "../server/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
 import terminal from "../services/terminal.ts";
@@ -355,29 +356,102 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                             : "open";
                                         vars.data_store.server[server_id][security].removeAllListeners();
                                     }
-                                    if (terminalFlag === true && headerList[0].includes("shell") === true) {
-                                        const url:URL = new URL(decodeURIComponent(`http://www.x${headerList[0].split(" ")[1]}`)),
-                                            params:string[] = url.search.slice(1).split("&"),
-                                            cols:number = (params[1] === undefined)
-                                                ? null
-                                                : Number(params[1].split("=")[1]),
-                                            rows:number = (params[2] === undefined)
-                                                ? null
-                                                : Number(params[2].split("=")[1]),
-                                            term:config_terminal = {
-                                                cols: (Number.isNaN(cols) === true)
-                                                    ? 199
-                                                    : cols,
-                                                rows: (Number.isNaN(rows) === true)
-                                                    ? 50
-                                                    : rows,
-                                                shell: params[0].split("=")[1].replace(/%20/g, " ")
+                                    if (localFlag === true) {
+                                        if (store.type === "dashboard-terminal" && headerList[0].includes("shell") === true) {
+                                            const url:URL = new URL(decodeURIComponent(`http://www.x${headerList[0].split(" ")[1]}`)),
+                                                params:string[] = url.search.slice(1).split("&"),
+                                                cols:number = (params[1] === undefined)
+                                                    ? null
+                                                    : Number(params[1].split("=")[1]),
+                                                rows:number = (params[2] === undefined)
+                                                    ? null
+                                                    : Number(params[2].split("=")[1]),
+                                                term:config_terminal = {
+                                                    cols: (Number.isNaN(cols) === true)
+                                                        ? 199
+                                                        : cols,
+                                                    rows: (Number.isNaN(rows) === true)
+                                                        ? 50
+                                                        : rows,
+                                                    shell: params[0].split("=")[1].replace(/%20/g, " ")
+                                                };
+                                            terminal.shell(socket as websocket_pty, term);
+                                        } else if (store.type === "dashboard") {
+                                            const payload:services_dashboard_open = {
+                                                compose: (vars.environment.features["compose-containers"] === true)
+                                                    ? {
+                                                        containers: vars.data.containers,
+                                                        status: vars.environment.compose_status,
+                                                        time: vars.data_meta.compose_time,
+                                                        variables: vars.data.compose_variables
+                                                    }
+                                                    : null,
+                                                dashboard_id: vars.environment.dashboard_id,
+                                                hashes: (vars.environment.features["hash"] === true)
+                                                    ? vars.environment.hashes
+                                                    : null,
+                                                http_request: (vars.environment.features["test-http"] === true)
+                                                    ? vars.environment.http_request
+                                                    : null,
+                                                logs: (vars.environment.features["application-logs"] === true)
+                                                    ? {
+                                                        entries: (vars.environment.logs.total > vars.environment.logs.max)
+                                                            ? vars.data.logs.slice(vars.environment.logs.total - vars.environment.logs.max)
+                                                            : vars.data.logs,
+                                                        max: vars.environment.logs.max,
+                                                        total: vars.environment.logs.total
+                                                    }
+                                                    : null,
+                                                name: vars.environment.name,
+                                                notes: vars.data.notes,
+                                                os: vars.os,
+                                                path: vars.path,
+                                                "ports-application": {
+                                                    data: vars.data.ports_application,
+                                                    time: vars.data_meta.ports_application
+                                                },
+                                                repository: vars.environment.repository,
+                                                server_ports: (vars.environment.features["servers-web"] === true)
+                                                    ? vars.data_store.server_ports
+                                                    : null,
+                                                servers: (vars.environment.features["servers-web"] === true)
+                                                    ? vars.data.servers
+                                                    : null,
+                                                services_app: (vars.environment.features["services-app"] === true)
+                                                    ? vars.environment.services_app
+                                                    : null,
+                                                sockets: (vars.environment.features["sockets-application-tcp"] === true || vars.environment.features["sockets-application-udp"] === true)
+                                                    ? {
+                                                        tcp: vars.data.sockets_tcp,
+                                                        time: vars.data_meta.sockets,
+                                                        udp: vars.data.sockets_udp
+                                                    }
+                                                    : null,
+                                                start_date: vars.environment.start_date,
+                                                stats: (vars.environment.features["statistics-resources"] === true)
+                                                    ? {
+                                                        containers: vars.stats.containers,
+                                                        duration: vars.stats.duration,
+                                                        frequency: vars.stats.frequency,
+                                                        now: vars.stats.now,
+                                                        records: vars.stats.records
+                                                    }
+                                                    : null,
+                                                terminal: (vars.environment.features["terminal"] === true)
+                                                    ? vars.environment.terminal
+                                                    : null,
+                                                timeZone_offset: vars.environment.timeZone_offset,
+                                                version: vars.environment.version
                                             };
-                                        terminal.shell(socket as websocket_pty, term);
+                                            send({
+                                                data: payload,
+                                                service: "services_dashboard_open"
+                                            }, socket, 3);
+                                        }
                                     }
                                 },
-                                terminalFlag:boolean = (server_id === vars.environment.dashboard_id && store.type === "dashboard-terminal"),
-                                identifier:string = (terminalFlag === true)
+                                localFlag:boolean = (server_id === vars.environment.dashboard_id),
+                                identifier:string = (localFlag === true && store.type === "dashboard-terminal")
                                     ? `dashboard-terminal-${hashOutput.hash}`
                                     : (store.type === "test-websocket")
                                         ? `websocketTest-browserSocket-${hashOutput.hash}`

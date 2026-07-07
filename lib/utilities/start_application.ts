@@ -187,6 +187,7 @@ const start_application = function utilities_startApplication(process_path:strin
                             shell:string = (process.platform === "win32" && vars.environment.terminal[0].includes("pwsh") === true)
                                 ? vars.environment.terminal[0]
                                 : null;
+                        // first determine if system_d is used
                         spawn(command, function utilities_startApplication_cgroup_systemD(out:core_spawn_output):void {
                             const addresses:string[] = [
                                     "/sys/fs/cgroup/system.slice/",
