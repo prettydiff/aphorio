@@ -12,8 +12,8 @@ const ui_test_websocket = function ui_test_websocket():void {
                             ? dashboard.sections["test-websocket"].nodes.encrypt_true
                             : dashboard.sections["test-websocket"].nodes.encrypt_false
                         : event.target as HTMLInputElement,
-                    port_open:number = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open,
-                    port_secure:number = dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure,
+                    port_open:number = dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].open,
+                    port_secure:number = dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].secure,
                     text:string = dashboard.sections["test-websocket"].nodes.handshake.value,
                     reg:RegExp = new RegExp(`(H|h)ost\\s*:\\s*${location.hostname}:(${port_open}|${port_secure})`);
                 if (reg.test(text) === true) {
@@ -159,23 +159,23 @@ const ui_test_websocket = function ui_test_websocket():void {
             dashboard.sections["test-websocket"].nodes.message_send_frame.onblur = dashboard.sections["test-websocket"].events.keyup_frame;
             dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "";
             // server socket status messaging
-            if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open) === true) {
+            if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].open) === true) {
                 dashboard.sections["test-websocket"].nodes.encrypt_true.checked = true;
                 h4.style.display = "none";
                 scheme.style.display = "none";
-                emSecure.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure);
+                emSecure.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].secure);
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendText("secure - ");
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
-            } else if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure) === true) {
+            } else if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].secure) === true) {
                 dashboard.sections["test-websocket"].nodes.encrypt_false.checked = true;
                 h4.style.display = "none";
                 scheme.style.display = "none";
-                emOpen.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open);
+                emOpen.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].open);
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
             } else {
-                emOpen.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].open);
-                emSecure.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.dashboard_id].secure);
+                emOpen.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].open);
+                emSecure.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].secure);
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendText(", secure - ");

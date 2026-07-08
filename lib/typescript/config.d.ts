@@ -87,7 +87,7 @@ declare global {
         callback: (hashOutput:core_hash_output) => void;
         digest: "base64-output" | "base64" | "hex";
         hash_input_type: type_hash_input;
-        section: type_dashboard_sections;
+        section: type_dashboard_sections | "startup";
         source: Buffer | string;
     }
 

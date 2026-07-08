@@ -29,9 +29,9 @@ interface services_compose_variables {
 
 interface services_dashboard_open {
     compose: services_compose;
-    dashboard_id: string;
     hashes: string[];
     http_request: string;
+    id: core_vars_id;
     logs: {
         entries: config_log[];
         max: number;

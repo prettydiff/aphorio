@@ -386,13 +386,13 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                         variables: vars.data.compose_variables
                                                     }
                                                     : null,
-                                                dashboard_id: vars.id.dashboard_server,
                                                 hashes: (vars.environment.features["hash"] === true)
                                                     ? vars.environment.hashes
                                                     : null,
                                                 http_request: (vars.environment.features["test-http"] === true)
                                                     ? vars.environment.http_request
                                                     : null,
+                                                id: vars.id,
                                                 logs: (vars.environment.features["application-logs"] === true)
                                                     ? {
                                                         entries: (vars.environment.logs.total > vars.environment.logs.max)

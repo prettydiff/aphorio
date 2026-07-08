@@ -4,7 +4,7 @@
 
 const vars:core_vars = {
         // critical shell commands by operating system
-        commands: (function utilities_vars_commands():os_vars {
+        commands: (function utilities_vars_commands():core_vars_commands {
             const os_vars:os_var_list = {
                 "linux": {
                     // check if application is started administratively, true if it returns "0"
@@ -176,7 +176,7 @@ const vars:core_vars = {
             // whether linux "file" command is available in the OS system path
             file: false,
             // last git commit hash
-            hash: "",
+            git_hash: "",
             // list of supported hash algorithm names
             hashes: [],
             // the HTTP request header of the dashboard page request, used as a default value for the dashboard's http test tool
