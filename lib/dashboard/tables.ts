@@ -196,7 +196,7 @@ const ui_tables = function ui_tables():void {
                 map:store_string = {
                     "services_ports_application": "ports-application",
                     "services_os_devs": "devices",
-                    "services_os-proc": "processes",
+                    "services_os_proc": "processes",
                     "services_os_serv": "services-os",
                     "services_os_user": "users",
                     "services_os_stcp": "sockets-os-tcp",
