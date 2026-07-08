@@ -164,7 +164,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
             fragment:string = "",
             bodyIndex:number = -1,
             contentLength:number = -1;
-        if (vars.data.servers[vars.environment.dashboard_id].domain_local.indexOf(host) > -1 || vars.environment.interfaces.indexOf(host) > -1) {
+        if (vars.data.servers[vars.id.dashboard_server].domain_local.indexOf(host) > -1 || vars.environment.interfaces.indexOf(host) > -1) {
             headers.push("services_http_test: true");
         }
         headers.push("");

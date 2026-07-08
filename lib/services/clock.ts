@@ -8,7 +8,7 @@ const clock = function services_clock():void {
             time_local: now,
             time_zulu: (now + (new Date().getTimezoneOffset() * 60000))
         };
-    broadcast(vars.environment.dashboard_id, "dashboard", {
+    broadcast(vars.id.dashboard_server, "dashboard", {
         data: payload,
         service: "services_status_clock"
     });

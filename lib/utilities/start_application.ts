@@ -143,7 +143,7 @@ const start_application = function utilities_startApplication(process_path:strin
                 task: function utilities_startApplication_taskOSMain():void {
                     const osDelay = function utilities_startApplication_taskOSMain_osDelay():void {
                             os_lists("all", function utilities_startApplication_taskOSMain_osDelay_callback(payload:socket_data):void {
-                                broadcast(vars.environment.dashboard_id, "dashboard", payload);
+                                broadcast(vars.id.dashboard_server, "dashboard", payload);
                             });
                             osDaily();
                         },
@@ -435,7 +435,7 @@ const start_application = function utilities_startApplication(process_path:strin
                             if (typeof config.notes === "string") {
                                 vars.data.notes = config.notes;
                             }
-                            vars.environment.dashboard_id = config.dashboard_id;
+                            vars.id.dashboard_server = config.dashboard_id;
                             if (config.stats !== undefined) {
                                 vars.stats.frequency = config.stats.frequency;
                                 vars.stats.records = config.stats.records;
@@ -960,7 +960,7 @@ const start_application = function utilities_startApplication(process_path:strin
                         index:number = 0;
 
                     if (vars.test.testing === true) {
-                        server_start(vars.data.servers[vars.environment.dashboard_id].id, callback);
+                        server_start(vars.data.servers[vars.id.dashboard_server].id, callback);
                     } else {
                         do {
                             server_start(vars.data.servers[servers[index]].id, callback);
@@ -971,7 +971,7 @@ const start_application = function utilities_startApplication(process_path:strin
                 };
                 clock();
                 statistics_resources.data();
-                if (vars.test.testing === true || vars.data.servers[vars.environment.dashboard_id] === undefined) {
+                if (vars.test.testing === true || vars.data.servers[vars.id.dashboard_server] === undefined) {
                     server_create({
                         action: "add",
                         server: default_server

@@ -302,7 +302,6 @@ interface core_vars {
         css_basic: string;
         // css for the dashboard application
         css_complete: string;
-        dashboard_id: string;
         dashboard_page: string;
         date_commit: number;
         features: {
@@ -352,6 +351,10 @@ interface core_vars {
         terminal: string[];
         timeZone_offset: number;
         version: string;
+    };
+    id: {
+        dashboard_server: string;
+        machine: string;
     };
     options: {
         "browser": string;

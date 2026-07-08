@@ -6,7 +6,7 @@ import vars from "../core/vars.ts";
 const notes = function services_notes(socket_data:socket_data):void {
     const data:store_string = socket_data.data as store_string;
     vars.data.notes = data.notes;
-    broadcast(vars.environment.dashboard_id, "dashboard", socket_data);
+    broadcast(vars.id.dashboard_server, "dashboard", socket_data);
     save(null, "notes");
 };
 

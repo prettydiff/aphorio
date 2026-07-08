@@ -44,7 +44,7 @@ const server_create = function services_serverCreate(data:services_server_action
                             },
                             // 5. launch servers
                             certCallback = function services_serverCreate_complete_certificate():void {
-                                if (config.activate === true && config.id !== vars.environment.dashboard_id) {
+                                if (config.activate === true && config.id !== vars.id.dashboard_server) {
                                     server_start(data.server.id, serverCallback);
                                 } else if (callback !== null) {
                                     callback();
@@ -89,7 +89,7 @@ const server_create = function services_serverCreate(data:services_server_action
                 config.id = output.hash;
                 if (vars.data.servers[config.id] === undefined) {
                     if (dashboard === true) {
-                        vars.environment.dashboard_id = output.hash;
+                        vars.id.dashboard_server = output.hash;
                     }
                     if (config.ports === undefined || config.ports === null) {
                         config.ports = {};

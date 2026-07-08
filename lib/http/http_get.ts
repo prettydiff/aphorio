@@ -53,7 +53,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                     ""
                 ];
             if (config.template === true) {
-                const name:string = (server_id === vars.environment.dashboard_id)
+                const name:string = (server_id === vars.id.dashboard_server)
                         ? `${vars.environment.name.capitalize()} Dashboard`
                         : vars.data.servers[server_id].name,
                     templateText:string[] = [
@@ -372,7 +372,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         decoded:string = (decode.includes("?") === true)
             ? decode.slice(0, decode.indexOf("?"))
             : decode;
-    if (server_id === vars.environment.dashboard_id) {
+    if (server_id === vars.id.dashboard_server) {
         if (decoded.indexOf("file-system-") > -1) {
             stat(decoded.slice(decoded.indexOf("file-system-") + 12));
             return;

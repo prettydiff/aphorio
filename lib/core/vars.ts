@@ -140,8 +140,6 @@ const vars:core_vars = {
             css_basic: "",
             // more complete css for the dashboard
             css_complete: "",
-            // the web server id that is the dashboard's web server
-            dashboard_id: "",
             // the fully assembled dashboard HTML after dynamic changes during build time with css and JavaScript included
             dashboard_page: "",
             // last git commit date/time
@@ -223,6 +221,12 @@ const vars:core_vars = {
             // the amount of time required to covert local time to UTC time
             timeZone_offset: 0,
             version: "0.0.0"
+        },
+        id: {
+            // the web server id that is the dashboard's web server
+            dashboard_server: "",
+            // a unique identifier to describe the machine running this application instance
+            machine: ""
         },
         // command line options for running this application
         options: {

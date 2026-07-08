@@ -51,7 +51,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
                     status: "informational",
                     time: Date.now()
                 });
-                broadcast(vars.environment.dashboard_id, "dashboard", {
+                broadcast(vars.id.dashboard_server, "dashboard", {
                     data: {
                         ports_used: vars.data_store.server_ports,
                         servers: vars.data.servers
@@ -99,7 +99,7 @@ const server_start = function transmit_serverStart(id:string, callback:(name:str
 
         // secure connection listener
         wsServer.listen({
-            port: (vars.options[`port-${secureType}`] > 0 && id === vars.environment.dashboard_id)
+            port: (vars.options[`port-${secureType}`] > 0 && id === vars.id.dashboard_server)
                 ? vars.options[`port-${secureType}`]
                 : vars.data.servers[id].ports[secureType]
         }, listenerCallback);
