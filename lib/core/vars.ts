@@ -133,6 +133,7 @@ const vars:core_vars = {
             // list of application created UDP sockets
             sockets_udp: []
         },
+        // general storage area for static assets used by the application
         environment: {
             // whether the application believes docker and docker compose are executing as an OS service
             compose_status: null,
@@ -222,6 +223,7 @@ const vars:core_vars = {
             timeZone_offset: 0,
             version: "0.0.0"
         },
+        // a list of unique identifiers that are intended to be saved as state data
         id: {
             // the web server id that is the dashboard's web server
             dashboard_server: "",

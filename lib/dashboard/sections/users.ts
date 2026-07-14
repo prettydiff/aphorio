@@ -23,7 +23,7 @@ const ui_users = function ui_users():void {
                 proc:string = String(record.proc);
             dashboard.tables.cell(tr, record.name, null);
             dashboard.tables.cell(tr, uid, uid);
-            dashboard.tables.cell(tr, (record.lastLogin === 0)
+            dashboard.tables.cell(tr, (record.lastLogin === 0 || record.lastLogin === null)
                 ? "never"
                 : record.lastLogin.dateTime(true, null), String(record.lastLogin));
             dashboard.tables.cell(tr, proc, proc);

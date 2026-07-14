@@ -278,7 +278,9 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 const data_win:os_proc_windows[] = raw.proc as os_proc_windows[],
                     data_posix:string[] = raw.proc as string[],
                     len:number = (win32 === true)
-                        ? data_win.length
+                        ? (data_win === null)
+                            ? 0
+                            : data_win.length
                         : data_posix.length;
                 let index:number = 0,
                     proc:os_proc = null,
@@ -470,13 +472,17 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                 let index:number = 0,
                     user:os_user = null,
                     line:string[] = null,
+                    time:number = 0,
                     uid:number = 0;
                 if (len > 0) {
                     do {
                         if (win32 === true) {
                             uid = Number(data_win[index].SID.slice(data_win[index].SID.lastIndexOf("-") + 1));
+                            time = new Date(data_win[index].LastLogon).getTime();
                             user = {
-                                lastLogin: new Date(data_win[index].LastLogon).getTime(),
+                                lastLogin: (time === null)
+                                    ? 0
+                                    : time,
                                 name: data_win[index].Name,
                                 proc: proc(data_win[index].Name),
                                 type: (uid < 1000)
@@ -487,10 +493,13 @@ const os = function utilities_os(type_os:type_os_services, callback:(output:sock
                         } else {
                             line = data_posix[index].split(",");
                             uid = Number(line[1]);
+                            time = (line[3] === undefined || line[3] === null || line[3] === "")
+                                ? 0
+                                : new Date(line[3]).getTime();
                             user = {
-                                lastLogin: (line[3] === undefined || line[3] === null || line[3] === "")
+                                lastLogin: (time === null)
                                     ? 0
-                                    : new Date(line[3]).getTime(),
+                                    : time,
                                 name: line[0],
                                 proc: Number(line[2]),
                                 type: (uid > 0 && (uid < 1000 || uid > 65530))
