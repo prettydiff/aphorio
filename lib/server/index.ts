@@ -13,7 +13,7 @@ const servers = function services_server(socketData:socket_data):void {
                     ports_used: vars.data_store.server_ports,
                     servers: vars.data.servers
                 };
-                broadcast(vars.environment.dashboard_id, "dashboard", {
+                broadcast(vars.id.dashboard_server, "dashboard", {
                     data: payload,
                     service: "services_server_update"
                 });
@@ -21,7 +21,7 @@ const servers = function services_server(socketData:socket_data):void {
         if (data.action === "activate") {
             server_start(data.server.id, callback);
         } else if (data.action === "add") {
-            server_create(data, callback, (data.server.id === vars.environment.dashboard_id));
+            server_create(data, callback, (data.server.id === vars.id.dashboard_server));
         } else {
             server_halt(data, callback);
         }

@@ -49,7 +49,7 @@ const socket_end = function transmit_socketEnd(this:websocket_client, error:node
         } while (index > 0);
     }
 
-    if (vars.data.servers[socket.server_hash].id === vars.environment.dashboard_id && socket.type === "dashboard") {
+    if (vars.data.servers[socket.server_hash].id === vars.id.dashboard_server && socket.type === "dashboard") {
         const payload:services_message_inspection = {
             count: 0,
             direction: "in",

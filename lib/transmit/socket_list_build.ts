@@ -10,7 +10,7 @@ const socket_list = function services_socketList():void {
             udp: vars.data.sockets_udp
         };
     vars.data_meta.sockets = now;
-    broadcast(vars.environment.dashboard_id, "dashboard", {
+    broadcast(vars.id.dashboard_server, "dashboard", {
         data: payload,
         service: "services_socket_application"
     });

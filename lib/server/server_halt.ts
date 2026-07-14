@@ -18,7 +18,7 @@ import vars from "../core/vars.ts";
 
 const server_halt = function services_serverHalt(data:services_server_action, callback:() => void):void {
     const id:string = data.server.id;
-    if (id === "" || (data.action === "destroy" && id === vars.environment.dashboard_id)) {
+    if (id === "" || (data.action === "destroy" && id === vars.id.dashboard_server)) {
         return;
     } 
     if (vars.data.servers[id] === undefined) {

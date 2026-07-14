@@ -71,6 +71,7 @@
         nav{
             float:none;margin:0 0 2em;
             div{float:left;width:50%}
+            div.second{border-style:none}
         }
         h1 a{display:block}
     }

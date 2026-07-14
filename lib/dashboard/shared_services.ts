@@ -311,7 +311,7 @@ const ui_shared_services = function ui_shared_services():void {
                     : target.getAncestor("edit", "class"),
                 editButton:HTMLElement = edit.getElementsByClassName("server-edit")[0] as HTMLElement,
                 listItem:HTMLElement = edit.parentNode,
-                dashboard_server:boolean = (createServer === false && listItem.dataset.id === dashboard.global.payload.dashboard_id),
+                dashboard_server:boolean = (createServer === false && listItem.dataset.id === dashboard.global.payload.id.dashboard_server),
                 p:HTMLElement = edit.lastChild as HTMLElement,
                 activate:HTMLButtonElement = document.createElement("button"),
                 deactivate:HTMLButtonElement = document.createElement("button"),

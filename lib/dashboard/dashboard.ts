@@ -15,9 +15,12 @@ const dashboard:dashboard = {
                 "time": 0,
                 "variables": {}
             },
-            "dashboard_id": "",
             "hashes": [""],
             "http_request": "",
+            id: {
+                dashboard_server: "",
+                machine: ""
+            },
             "logs": {
                 "entries": [],
                 "max": 0,

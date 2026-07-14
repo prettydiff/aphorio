@@ -14,7 +14,7 @@ const log:core_module_log = {
             }
             vars.data.logs.push(config);
             vars.environment.logs.total = vars.environment.logs.total + 1;
-            broadcast(vars.environment.dashboard_id, "dashboard", {
+            broadcast(vars.id.dashboard_server, "dashboard", {
                 data: payload,
                 service: "services_log"
             });
@@ -32,7 +32,7 @@ const log:core_module_log = {
         input.forEach(function core_log_shell_each(value:string):void {
             logger(value);
         });
-        if (summary === true && vars.environment.hash !== "") {
+        if (summary === true && vars.environment.git_hash !== "") {
             const difference:string = (function core_log_shell_difference():string {
                     const duration:number = Date.now() - vars.environment.date_commit,
                         day:number = (1000 * 60 * 60 * 24),
@@ -60,9 +60,9 @@ const log:core_module_log = {
                 }()),
                 updated:string = `${vars.environment.date_commit.dateTime(true, null)} (${difference})`,
                 dateString:string = `updated ${vars.text.blue + updated + vars.text.none}`,
-                hash:string = `git log ${vars.text.red + vars.environment.hash + vars.text.none}`,
+                hash:string = `git log ${vars.text.red + vars.environment.git_hash + vars.text.none}`,
                 version:string = `version ${vars.environment.version}`,
-                max:number = Math.max(updated.length, vars.environment.hash.length, vars.environment.repository.length, vars.environment.version.length, vars.environment.license.length),
+                max:number = Math.max(updated.length, vars.environment.git_hash.length, vars.environment.repository.length, vars.environment.version.length, vars.environment.license.length),
                 border = function utilities_logShell_border(character:string):string {
                     let index:number = max + 8;
                     const output:string[] = [];

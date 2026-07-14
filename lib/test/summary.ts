@@ -70,7 +70,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
                 suite_name: null,
                 test: null
             },
-            socket:websocket_client = vars.data_store.sockets_tcp[vars.environment.dashboard_id].open[0],
+            socket:websocket_client = vars.data_store.sockets_tcp[vars.id.dashboard_server].open[0],
             payload:socket_data = {
                 data: item_service,
                 service: "services_test_browser"

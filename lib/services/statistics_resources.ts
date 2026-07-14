@@ -91,7 +91,7 @@ const statistics:core_module_statistics_resources = {
                             } while (index > 0);
                         }
                     }
-                    broadcast(vars.environment.dashboard_id, "dashboard", {
+                    broadcast(vars.id.dashboard_server, "dashboard", {
                         data: output,
                         service: "services_statistics_data"
                     });

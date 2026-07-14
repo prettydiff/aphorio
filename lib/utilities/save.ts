@@ -3,9 +3,8 @@ import file from "./file.ts";
 import vars from "../core/vars.ts";
 
 const save = function utilities_save(callback:() => void, section:type_dashboard_sections|"startup"):void {
-    const payload:core_servers_file = {
-            "compose-variables": vars.data.compose_variables,
-            dashboard_id: vars.environment.dashboard_id,
+    const payload:core_state_file = {
+            id: vars.id,
             notes: vars.data.notes,
             servers: vars.data.servers,
             stats: vars.stats

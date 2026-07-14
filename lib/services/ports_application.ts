@@ -84,7 +84,7 @@ const ports_application = function services_portsApplication():void {
 
     vars.data.ports_application = payload.data;
     vars.data_meta.ports_application = payload.time;
-    broadcast(vars.environment.dashboard_id, "dashboard", {
+    broadcast(vars.id.dashboard_server, "dashboard", {
         data: payload,
         service: "services_ports_application"
     });

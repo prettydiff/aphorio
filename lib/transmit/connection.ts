@@ -295,7 +295,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     // unsupported HTTP methods result in socket destruction
                                     socket.destroy();
                                 } else {
-                                    if (method === "get" && server_id === vars.environment.dashboard_id && (headerList[0].indexOf("GET / HTTP") === 0 || headerList[0].indexOf("GET /?test_browser HTTP") === 0)) {
+                                    if (method === "get" && server_id === vars.id.dashboard_server && (headerList[0].indexOf("GET / HTTP") === 0 || headerList[0].indexOf("GET /?test_browser HTTP") === 0)) {
                                         vars.environment.http_request = headerString;//.replace(/GET \/\?test_browser HTTP/, "GET / HTTP");
                                     }
                                     http[method](headerList, socket, headerIndex < 1
@@ -386,13 +386,13 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                         variables: vars.data.compose_variables
                                                     }
                                                     : null,
-                                                dashboard_id: vars.environment.dashboard_id,
                                                 hashes: (vars.environment.features["hash"] === true)
                                                     ? vars.environment.hashes
                                                     : null,
                                                 http_request: (vars.environment.features["test-http"] === true)
                                                     ? vars.environment.http_request
                                                     : null,
+                                                id: vars.id,
                                                 logs: (vars.environment.features["application-logs"] === true)
                                                     ? {
                                                         entries: (vars.environment.logs.total > vars.environment.logs.max)
@@ -450,7 +450,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                         }
                                     }
                                 },
-                                localFlag:boolean = (server_id === vars.environment.dashboard_id),
+                                localFlag:boolean = (server_id === vars.id.dashboard_server),
                                 identifier:string = (localFlag === true && store.type === "dashboard-terminal")
                                     ? `dashboard-terminal-${hashOutput.hash}`
                                     : (store.type === "test-websocket")

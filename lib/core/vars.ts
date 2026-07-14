@@ -4,7 +4,7 @@
 
 const vars:core_vars = {
         // critical shell commands by operating system
-        commands: (function utilities_vars_commands():os_vars {
+        commands: (function utilities_vars_commands():core_vars_commands {
             const os_vars:os_var_list = {
                 "linux": {
                     // check if application is started administratively, true if it returns "0"
@@ -133,6 +133,7 @@ const vars:core_vars = {
             // list of application created UDP sockets
             sockets_udp: []
         },
+        // general storage area for static assets used by the application
         environment: {
             // whether the application believes docker and docker compose are executing as an OS service
             compose_status: null,
@@ -140,8 +141,6 @@ const vars:core_vars = {
             css_basic: "",
             // more complete css for the dashboard
             css_complete: "",
-            // the web server id that is the dashboard's web server
-            dashboard_id: "",
             // the fully assembled dashboard HTML after dynamic changes during build time with css and JavaScript included
             dashboard_page: "",
             // last git commit date/time
@@ -178,7 +177,7 @@ const vars:core_vars = {
             // whether linux "file" command is available in the OS system path
             file: false,
             // last git commit hash
-            hash: "",
+            git_hash: "",
             // list of supported hash algorithm names
             hashes: [],
             // the HTTP request header of the dashboard page request, used as a default value for the dashboard's http test tool
@@ -223,6 +222,13 @@ const vars:core_vars = {
             // the amount of time required to covert local time to UTC time
             timeZone_offset: 0,
             version: "0.0.0"
+        },
+        // a list of unique identifiers that are intended to be saved as state data
+        id: {
+            // the web server id that is the dashboard's web server
+            dashboard_server: "",
+            // a unique identifier to describe the machine running this application instance
+            machine: ""
         },
         // command line options for running this application
         options: {

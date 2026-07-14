@@ -1,5 +1,5 @@
 
-// cspell: words Perc, serv, stcp, sudp
+// cspell: words Perc, procs, serv, stcp, sudp, volu
 
 interface core_compose_commands {
     activate: string;
@@ -198,17 +198,6 @@ interface core_server_ports {
     secure?: number;
 }
 
-interface core_servers_file {
-    "compose-variables": store_string;
-    dashboard_id: string;
-    notes: string;
-    servers: store_server_config;
-    stats: {
-        frequency: number;
-        records: number;
-    };
-}
-
 interface core_service_internal {
     code: string;
     dependencies: core_services_internal_dependency;
@@ -244,165 +233,181 @@ interface core_start_tasks {
     };
 }
 
+interface core_state_file {
+    id: core_vars_id;
+    notes: string;
+    servers: store_server_config;
+    stats: {
+        frequency: number;
+        records: number;
+    };
+}
+
 interface core_string_detect {
     confidence: number;
     encoding: string;
 }
 
 interface core_vars {
-    commands: os_vars;
-    data: {
-        compose_variables: store_string;
-        containers: store_compose;
-        logs: config_log[];
-        notes: string;
-        ports_application: supplemental_ports_application_item[];
-        servers: store_servers;
-        sockets_tcp: supplemental_socket_application_tcp[];
-        sockets_udp: services_udp_socket[];
-    };
-    data_meta: {
-        compose_time: number;
-        // time of last port update
-        ports_application: number;
-        // time of last sockets update
-        sockets: number;
-    };
-    data_store: {
-        // list of dashboard UI sockets inspecting web server traffic or docker logs
-        message_inspection: core_message_inspection[];
-        // storage of actual web server objects
-        server: {
-            [key:string]: {
-                open: core_server_instance;
-                secure: core_server_instance;
-            };
-        };
-        // server certificates
-        server_certs: {
-            [key:string]: transmit_tlsCerts;
-        };
-        // actual ports in use by web servers
-        server_ports: {
-            [key:string]: core_server_ports;
-        };
-        // storage of application managed tcp sockets
-        sockets_tcp: {
-            [key:string]: {
-                open: websocket_client[];
-                secure: websocket_client[];
-            };
-        };
-        // storage of application managed udp sockets
-        sockets_udp: transmit_udp[];
-    };
-    environment: {
-        compose_status: string;
-        // css for generated web pages and file system display
-        css_basic: string;
-        // css for the dashboard application
-        css_complete: string;
-        dashboard_id: string;
-        dashboard_page: string;
-        date_commit: number;
-        features: {
-            "application-logs": boolean;
-            "compose-containers": boolean;
-            "devices": boolean;
-            "disks": boolean;
-            "dns-query": boolean;
-            "file-system": boolean;
-            "hash": boolean;
-            "interfaces": boolean;
-            "message-inspection": boolean;
-            "notes": boolean;
-            "os-machine": boolean;
-            "ports-application": boolean;
-            "processes": boolean;
-            "servers-web": boolean;
-            "services-app": boolean;
-            "services-os": boolean;
-            "sockets-application-tcp": boolean;
-            "sockets-application-udp": boolean;
-            "sockets-os-tcp": boolean;
-            "sockets-os-udp": boolean;
-            "statistics-resources": boolean;
-            "terminal": boolean;
-            "test-http": boolean;
-            "test-websocket": boolean;
-            "udp-socket": boolean;
-            "users": boolean;
-        };
-        file: boolean;
-        hash: string;
-        hashes: string[];
-        http_request: string;
-        interfaces: string[];
-        license: string;
-        loading: boolean;
-        logs: {
-            max: number;
-            total: number;
-        };
-        name: string;
-        repository: string;
-        services_app: core_service_internal[];
-        start_date: number;
-        start_time: bigint;
-        terminal: string[];
-        timeZone_offset: number;
-        version: string;
-    };
-    options: {
-        "browser": string;
-        "delay-intervals": number;
-        "delay-time": number;
-        "list": string;
-        "no-color": boolean;
-        "no-exit": boolean;
-        "port-open": number;
-        "port-secure": number;
-        "stop-on-fail": boolean;
-        "test": boolean;
-        "test-verbose": boolean;
-    };
+    commands: core_vars_commands;
+    data: core_vars_data_primary;
+    data_meta: core_vars_data_meta;
+    data_store: core_vars_data_store;
+    environment: core_vars_environment;
+    id: core_vars_id;
+    options: core_vars_options;
     os: services_os_all;
     path: core_vars_path;
-    stats: {
-        children: number;
-        containers: {
-            [key:string]: supplemental_statistics_item;
-        };
-        duration: number;
-        frequency: number;
-        net_in: number;
-        net_out: number;
-        now: number;
-        records: number;
-    };
-    test: {
-        browser_args: string[];
-        browser_child: core_module_spawn;
-        browser_start: boolean;
-        counts: {
-            [key:string]: test_counts;
-        };
-        index: number;
-        list: test_list;
-        magicString: string;
-        store: test_primitive;
-        test_browser: string;
-        testing: boolean;
-        total_assertions: number;
-        total_assertions_fail: number;
-        total_lists: number;
-        total_tests: number;
-        total_tests_fail: number;
-        total_tests_skipped: number;
-        total_time_end: bigint;
-        total_time_start: bigint;
-    };
+    stats: core_vars_stats;
+    test: core_vars_test;
     text: store_string;
+}
+
+interface core_vars_commands {
+    admin_check: string;
+    compose: string;
+    compose_empty: string;
+    devs: string;
+    directory_size: string;
+    disk: string;
+    docker_net: string;
+    docker_procs: string;
+    docker_read: string;
+    docker_stats: string;
+    file: string;
+    open: string;
+    part: string;
+    proc: string;
+    serv: string;
+    stcp: string;
+    sudp: string;
+    user: string;
+    volu: string;
+}
+
+interface core_vars_data_meta {
+    // time of last compose update
+    compose_time: number;
+    // time of last port update
+    ports_application: number;
+    // time of last sockets update
+    sockets: number;
+}
+
+interface core_vars_data_primary {
+    compose_variables: store_string;
+    containers: store_compose;
+    logs: config_log[];
+    notes: string;
+    ports_application: supplemental_ports_application_item[];
+    servers: store_servers;
+    sockets_tcp: supplemental_socket_application_tcp[];
+    sockets_udp: services_udp_socket[];
+}
+
+interface core_vars_data_store {
+    // list of dashboard UI sockets inspecting web server traffic or docker logs
+    message_inspection: core_message_inspection[];
+    // storage of actual web server objects
+    server: {
+        [key:string]: {
+            open: core_server_instance;
+            secure: core_server_instance;
+        };
+    };
+    // server certificates
+    server_certs: {
+        [key:string]: transmit_tlsCerts;
+    };
+    // actual ports in use by web servers
+    server_ports: {
+        [key:string]: core_server_ports;
+    };
+    // storage of application managed tcp sockets
+    sockets_tcp: {
+        [key:string]: {
+            open: websocket_client[];
+            secure: websocket_client[];
+        };
+    };
+    // storage of application managed udp sockets
+    sockets_udp: transmit_udp[];
+}
+
+interface core_vars_environment {
+    compose_status: string;
+    // css for generated web pages and file system display
+    css_basic: string;
+    // css for the dashboard application
+    css_complete: string;
+    dashboard_page: string;
+    date_commit: number;
+    features: {
+        "application-logs": boolean;
+        "compose-containers": boolean;
+        "devices": boolean;
+        "disks": boolean;
+        "dns-query": boolean;
+        "file-system": boolean;
+        "hash": boolean;
+        "interfaces": boolean;
+        "message-inspection": boolean;
+        "notes": boolean;
+        "os-machine": boolean;
+        "ports-application": boolean;
+        "processes": boolean;
+        "servers-web": boolean;
+        "services-app": boolean;
+        "services-os": boolean;
+        "sockets-application-tcp": boolean;
+        "sockets-application-udp": boolean;
+        "sockets-os-tcp": boolean;
+        "sockets-os-udp": boolean;
+        "statistics-resources": boolean;
+        "terminal": boolean;
+        "test-http": boolean;
+        "test-websocket": boolean;
+        "udp-socket": boolean;
+        "users": boolean;
+    };
+    file: boolean;
+    git_hash: string;
+    hashes: string[];
+    http_request: string;
+    interfaces: string[];
+    license: string;
+    loading: boolean;
+    logs: {
+        max: number;
+        total: number;
+    };
+    name: string;
+    repository: string;
+    services_app: core_service_internal[];
+    start_date: number;
+    start_time: bigint;
+    terminal: string[];
+    timeZone_offset: number;
+    version: string;
+}
+
+interface core_vars_id {
+    dashboard_server: string;
+    machine: string;
+}
+
+interface core_vars_options {
+    "browser": string;
+    "delay-intervals": number;
+    "delay-time": number;
+    "list": string;
+    "no-color": boolean;
+    "no-exit": boolean;
+    "port-open": number;
+    "port-secure": number;
+    "stop-on-fail": boolean;
+    "test": boolean;
+    "test-verbose": boolean;
 }
 
 interface core_vars_path {
@@ -414,6 +419,42 @@ interface core_vars_path {
     project: string;
     sep: "/" | "\\";
     servers: string;
+}
+
+interface core_vars_stats {
+    children: number;
+    containers: {
+        [key:string]: supplemental_statistics_item;
+    };
+    duration: number;
+    frequency: number;
+    net_in: number;
+    net_out: number;
+    now: number;
+    records: number;
+}
+
+interface core_vars_test {
+    browser_args: string[];
+    browser_child: core_module_spawn;
+    browser_start: boolean;
+    counts: {
+        [key:string]: test_counts;
+    };
+    index: number;
+    list: test_list;
+    magicString: string;
+    store: test_primitive;
+    test_browser: string;
+    testing: boolean;
+    total_assertions: number;
+    total_assertions_fail: number;
+    total_lists: number;
+    total_tests: number;
+    total_tests_fail: number;
+    total_tests_skipped: number;
+    total_time_end: bigint;
+    total_time_start: bigint;
 }
 
 interface core_windows_drives {

@@ -358,7 +358,7 @@ const docker:core_module_docker = {
                     if ((/command complete$/).test(output) === true) {
                         docker.shell.write("\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008\u0008");
                         docker.list(function services_docker_shell_out_list():void {
-                            broadcast(vars.environment.dashboard_id, "dashboard", {
+                            broadcast(vars.id.dashboard_server, "dashboard", {
                                 data: {
                                     containers: vars.data.containers,
                                     status: vars.environment.compose_status,
@@ -369,7 +369,7 @@ const docker:core_module_docker = {
                             });
                         });
                     }
-                    broadcast(vars.environment.dashboard_id, "dashboard", {
+                    broadcast(vars.id.dashboard_server, "dashboard", {
                         data: {
                             status: output
                         },
