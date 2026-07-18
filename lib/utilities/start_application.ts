@@ -820,7 +820,7 @@ const start_application = function utilities_startApplication(process_path:strin
             const label:string = (list === "task")
                 ? tasks[flag].label
                 : prerequisite_tasks[flag].label;
-            log.shell([`${vars.text.angry}*${vars.text.none} ${vars.text.cyan}[${process.hrtime.bigint().time_elapsed(vars.environment.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${label}`]);
+            log.shell([`${asterisk} ${vars.text.cyan}[${process.hrtime.bigint().time_elapsed(vars.environment.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${label}`]);
         },
         complete_tasks = function utilities_startApplication_completeTasks(flag:type_start_primary_tasks):void {
             log_task("task", flag);
@@ -862,13 +862,17 @@ const start_application = function utilities_startApplication(process_path:strin
                                 count = count + 1;
                                 if (count === total) {
                                     const time:number = Number(process.hrtime.bigint() - vars.environment.start_time),
+                                        sea:string = (node.sea.isSea() === true)
+                                            ? "Node.js Single Executable Application (SEA)"
+                                            : "regular Node.js project",
                                         logs:string[] = [
                                             "",
-                                            `${vars.text.underline}Application completed ${count_task} startup tasks in ${time / 1e9} seconds.${vars.text.none}`,
+                                            heading("Startup Complete"),
+                                            `${asterisk} Application executed as a ${vars.text.cyan + sea + vars.text.none}.`,
+                                            `${asterisk} Application completed ${vars.text.cyan + count_task + vars.text.none} startup tasks in ${vars.text.cyan + (time / 1e9) + vars.text.none} seconds.`,
+                                            `${asterisk} Process ID: ${vars.text.cyan + process.pid + vars.text.none}`,
                                             "",
-                                            `Process ID: ${vars.text.cyan + process.pid + vars.text.none}`,
-                                            "",
-                                            "Web Server Ports:",
+                                            heading("Web Server Ports"),
                                         ],
                                         pad = function utilities_startApplication_completeTasks_ready_start_serverCallback_pad(str:string, num:number, dir:"left"|"right"):string {
                                             let item:number = longest[num] - str.length;
@@ -886,7 +890,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                         },
                                         logItem = function utilities_startApplication_completeTasks_ready_start_serverCallback_logItem(name:string, encryption:"open"|"secure"|"tcp"|"udp", value:string):void {
                                             const conflict:boolean = (value.indexOf(vars.text.angry) === 0),
-                                                str:string = `${vars.text.angry}*${vars.text.none} ${pad(name, 0, "right")} - ${pad(encryption, 1, "right")} - ${value}`;
+                                                str:string = `${asterisk} ${pad(name, 0, "right")} - ${pad(encryption, 1, "right")} - ${value}`;
                                             if (conflict === true) {
                                                 if (Number(value.replace(vars.text.none, "").replace(vars.text.angry, "")) < 1025) {
                                                     logs.push(`${str} (Server offline, typically due to insufficient access for reserved port or port conflict.)`);
@@ -979,7 +983,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                             longest = [0, 3, 0];
                                             keys.sort();
                                             logs.push("");
-                                            logs.push("Container Ports:");
+                                            logs.push(heading("Container Ports"));
                                             do {
                                                 if (vars.data.containers[keys[index]].name.length > longest[0]) {
                                                     longest[0] = vars.data.containers[keys[index]].name.length;
@@ -1064,6 +1068,10 @@ const start_application = function utilities_startApplication(process_path:strin
                 prerequisite_tasks[keys_prerequisites[index_prerequisites - 1]].task();
             }
         },
+        heading = function utilities_startApplication_heading(message:string):string {
+            return vars.text.underline + message + vars.text.none;
+        },
+        asterisk:string = `${vars.text.angry}*${vars.text.none}`,
         keys_tasks:type_start_primary_tasks[] = Object.keys(tasks) as type_start_primary_tasks[],
         keys_prerequisites:type_start_pre_tasks[] = Object.keys(prerequisite_tasks) as type_start_pre_tasks[],
         len_tasks:number = (vars.test.testing === true)
@@ -1084,7 +1092,7 @@ const start_application = function utilities_startApplication(process_path:strin
 
     vars.environment.hashes = node.crypto.getHashes();
 
-    log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);
+    log.shell(["", heading("Executing start up tasks")]);
 
     // update OS list of available shells
     if (vars.environment.features["terminal"] === true) {
