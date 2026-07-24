@@ -231,6 +231,7 @@ interface services_os_main {
         pid: number;
         platform: string;
         ppid: number;
+        sea: boolean;
         uptime: number;
         versions: store_string;
     };

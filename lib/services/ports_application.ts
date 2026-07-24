@@ -69,6 +69,11 @@ const ports_application = function services_portsApplication():void {
                         type: "tcp"
                     });
                 }
+            } else {
+                vars.data_store.server_ports[keys_servers[index_item]] = {
+                    open: 0,
+                    secure: 0
+                };
             }
         } while (index_item > 0);
     }

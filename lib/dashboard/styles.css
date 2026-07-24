@@ -430,7 +430,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     button.server-add{color:var(--text_green)}
 
     #connection-status,
-    p#websocket-status{border-color:var(--border_color);border-style:solid;border-width:0.1em;padding:0.2em 0.4em}
+    p#websocket-status{border-color:var(--border_input);border-style:solid;border-width:0.1em;padding:0.2em 0.4em}
 
     #connection-status,
     #websocket-status,

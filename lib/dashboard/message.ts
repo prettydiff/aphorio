@@ -58,7 +58,9 @@ const ui_message = function ui_message():void {
                     status.getElementsByTagName("strong")[0].textContent = `Online (${encryption})`;
                     status.setAttribute("class", "connection-online");
                 }
-                dashboard.utility.nodes.load.textContent = `${(performance.now() / 1e3).toFixed(3)} seconds`;
+                if (dashboard.utility.nodes.load.textContent === "0.00000 seconds") {
+                    dashboard.utility.nodes.load.textContent = `${(performance.now() / 1e3).toFixed(3)} seconds`;
+                }
                 window.show_payload = function dashboard_execute_showPayload():[string, services_dashboard_open] {
                     return [
                         JSON.stringify(dashboard.global.payload).length.commas(),

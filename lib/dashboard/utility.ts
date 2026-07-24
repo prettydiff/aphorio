@@ -143,7 +143,6 @@ const ui_utility = function ui_utility():void {
                     dashboard.sections["test-websocket"].nodes.button_send.disabled = true;
                 }
                 dashboard.utility.nodes.clock.textContent = "00:00:00L (00:00:00Z)";
-                dashboard.utility.nodes.load.textContent = "0.00000 seconds";
                 dashboard.utility.nodes.main.style.display = "none";
                 dashboard.socket.socket = null;
                 title.removeChild(title.getElementsByTagName("a")[0]);
