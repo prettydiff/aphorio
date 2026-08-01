@@ -72,7 +72,8 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                                     test_time[test_time.length - 1][1] = process.hrtime.bigint();
                                     index_test = index_test + 1;
                                     if (index_test < data.quantity_tests + 1) {
-                                        services_testPerformance_testWebSocket();
+                                        // services_testPerformance_testWebSocket();
+                                        setTimeout(services_testPerformance_testWebSocket, 250);
                                     } else {
                                         times("Test complete.", false);
                                     }

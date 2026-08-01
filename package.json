@@ -48,7 +48,7 @@
     },
     "scripts": {
         "lint":   "node ./node_modules/eslint/bin/eslint.js ./",
-        "server": "node ./lib/index.ts",
+        "server": "node --max-old-space-size=8192 ./lib/index.ts",
         "test":   "node ./lib/index.ts test",
         "tsc":    "node ./node_modules/typescript/bin/tsc --pretty"
     },
