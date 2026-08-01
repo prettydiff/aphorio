@@ -460,7 +460,9 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 callback: client_respond,
                                 handler: (store.type === "test-websocket")
                                     ? websocket_test.handler_server
-                                    : message_handler.default,
+                                    : (store.type === "test-performance-socket")
+                                        ? message_handler.test_performance
+                                        : message_handler.default,
                                 identifier: identifier,
                                 proxy: null,
                                 role: "server",

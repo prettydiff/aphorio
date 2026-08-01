@@ -13,6 +13,7 @@ import servers from "../server/index.ts";
 import socket_list from "../services/socket_list.ts";
 import statistics_resources from "../services/statistics_resources.ts";
 import terminal from "../services/terminal.ts";
+import test_performance from "../services/test_performance.ts";
 import test_runner from "../test/runner.ts";
 import udp_socket from "../services/udp_socket.ts";
 import websocket_test from "../services/websocket.ts";
@@ -48,6 +49,7 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "services_statistics_change": statistics_resources.change,
             "services_terminal_resize": terminal.resize,
             "services_test_browser": test_runner.receive,
+            "services_test_performance_input": test_performance,
             "services_udp_socket": udp_socket,
             "services_websocket_handshake": websocket_test.handshake,
             "services_websocket_message": websocket_test.message

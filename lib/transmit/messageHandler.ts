@@ -3,7 +3,7 @@ import node from "../core/node.ts";
 import router from "./router.ts";
 
 const message_handler:transmit_socket_messageHandler = {
-    default: function transmit_messageHandler(socket:websocket_client, bufferData:Buffer):void {
+    default: function transmit_messageHandler_default(socket:websocket_client, bufferData:Buffer):void {
         const decoder:node_stringDecoder_StringDecoder = new node.stringDecoder.StringDecoder("utf8"),
             result:string = decoder.end(bufferData);
 
@@ -14,6 +14,9 @@ const message_handler:transmit_socket_messageHandler = {
                 type: "ws"
             });
         }
+    },
+    test_performance: function transmit_messageHandler_testPerformance(socket:websocket_client, bufferData:Buffer):void {
+        //console.log(bufferData.toString());
     }
 };
 

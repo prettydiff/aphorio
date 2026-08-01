@@ -134,6 +134,15 @@ const ui_utility = function ui_utility():void {
                         dashboard.sections["terminal"].socket = null;
                     }
                 }
+                if (dashboard.sections["test-performance"] !== undefined) {
+                    dashboard.sections["test-performance"].nodes.body.value = "";
+                    dashboard.sections["test-performance"].nodes.connect_address.value = "";
+                    dashboard.sections["test-performance"].nodes.connect_port.value = "";
+                    dashboard.sections["test-performance"].nodes.encrypt_false.checked = true;
+                    dashboard.sections["test-performance"].nodes.quantity_tests.value = "";
+                    dashboard.sections["test-performance"].nodes.quantity_transmit.value = "";
+                    dashboard.sections["test-performance"].nodes.type_websocket.checked = true;
+                }
                 if (dashboard.sections["test-websocket"] !== undefined) {
                     dashboard.sections["test-websocket"].nodes.handshake_status.value = "Disconnected.";
                     dashboard.sections["test-websocket"].nodes.button_handshake.textContent = "Connect";
@@ -320,6 +329,29 @@ const ui_utility = function ui_utility():void {
                     } else {
                         dashboard.global.state.http.encryption = (dashboard.sections["test-http"].nodes.encryption.checked === true);
                         dashboard.global.state.http.request = dashboard.sections["test-http"].nodes.request.value;
+                    }
+                }
+                if (dashboard.sections["test-performance"] !== undefined) {
+                    if (dashboard.global.state.test_performance === undefined || dashboard.global.state.test_performance === null) {
+                        dashboard.global.state.test_performance = {
+                            body: "",
+                            connect_address: "",
+                            connect_port: 80,
+                            encryption: false,
+                            quantity_tests: 10,
+                            quantity_transmit: 1000,
+                            type: "websocket"
+                        };
+                    } else {
+                        dashboard.global.state.test_performance.body = dashboard.sections["test-performance"].nodes.body.value;
+                        dashboard.global.state.test_performance.connect_address = dashboard.sections["test-performance"].nodes.connect_address.value;
+                        dashboard.global.state.test_performance.connect_port = Number(dashboard.sections["test-performance"].nodes.connect_port.value);
+                        dashboard.global.state.test_performance.encryption = dashboard.sections["test-performance"].nodes.encrypt_true.checked;
+                        dashboard.global.state.test_performance.quantity_tests = Number(dashboard.sections["test-performance"].nodes.quantity_tests.value);
+                        dashboard.global.state.test_performance.quantity_transmit = Number(dashboard.sections["test-performance"].nodes.quantity_transmit.value);
+                        dashboard.global.state.test_performance.type = (dashboard.sections["test-performance"].nodes.type_http.checked === true)
+                            ? "http"
+                            : "websocket";
                     }
                 }
                 if (dashboard.sections["test-websocket"] !== undefined) {

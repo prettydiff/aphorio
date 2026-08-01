@@ -46,7 +46,7 @@ const message_inspection:core_module_messageInspection = {
                             stream_stdout: true,
                             type: "message-inspection"
                         }),
-                        output = function services_mesageInspection_set_stdout(out:Buffer):void {
+                        output = function services_messageInspection_set_stdout(out:Buffer):void {
                             const str:string = out.toString(),
                                 len:number = str.length,
                                 message:services_message_inspection = {

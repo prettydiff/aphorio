@@ -46,6 +46,7 @@ const ui_message = function ui_message():void {
                 init("statistics-resources", false);
                 init("terminal", false);
                 init("test-http", false);
+                init("test-performance", false);
                 init("test-websocket", false);
                 init("udp-socket", false);
                 init("users", true);
@@ -146,6 +147,9 @@ const ui_message = function ui_message():void {
                         ? null
                         : dashboard.sections["statistics-resources"].receive,
                     "services_status_clock": dashboard.utility.clock,
+                    "services_test_performance_output": (dashboard.sections["test-performance"] === undefined)
+                        ? null
+                        : dashboard.sections["test-performance"].receive,
                     "services_udp_status": (dashboard.sections["udp-socket"] === undefined)
                         ? null
                         : dashboard.sections["udp-socket"].receive,

@@ -1,23 +1,26 @@
 
 import message_inspection from "../services/message_inspection.ts";
 
-const send = function transmit_send(body:Buffer|socket_data|string, socketItem:websocket_client, opcode:number):void {
+const send = function transmit_send(body:Buffer|socket_data|string, socket:websocket_client, opcode:0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15):void {
     const writeFrame = function transmit_send_writeFrame():void {
             const writeCallback = function transmit_send_writeFrame_writeCallback():void {
-                socketItem.queue.splice(0, 1);
-                if (socketItem.queue.length > 0) {
+                socket.queue.splice(0, 1);
+                if (socket.queue.length > 0) {
                     transmit_send_writeFrame();
                 } else {
-                    socketItem.status = "open";
+                    socket.status = "open";
+                    if (socket.queue_callback !== null && socket.queue_callback !== undefined) {
+                        socket.queue_callback();
+                    }
                 }
             };
-            if (socketItem.status === "open") {
-                socketItem.status = "pending";
+            if (socket.status === "open") {
+                socket.status = "pending";
             }
-            if (socketItem.write(socketItem.queue[0]) === true) {
+            if (socket.write(socket.queue[0]) === true) {
                 writeCallback();
             } else {
-                socketItem.once("drain", writeCallback);
+                socket.once("drain", writeCallback);
             }
         },
         socketData:socket_data = body as socket_data,
@@ -30,10 +33,10 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
     let dataPackage:Buffer = (isBuffer === true)
         ? body as Buffer
         : Buffer.from(stringBody);
-    if (socketItem === undefined || socketItem === null) {
+    if (socket === undefined || socket === null) {
         return;
     }
-    if (opcode !== 3 || (opcode === 3 && socketData.service !== "services_message_inspection")) {
+    if (socket.type !== "test-performance" && (opcode !== 3 || (opcode === 3 && socketData.service !== "services_message_inspection"))) {
         message_inspection.send({
             count: 0,
             direction: "out",
@@ -43,7 +46,7 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
                 : (Buffer.isBuffer(body) === true)
                     ? body.toString()
                     : JSON.stringify(body),
-            service: socketItem.server_hash,
+            service: socket.server_hash,
             type: "web-server"
         });
     }
@@ -74,7 +77,7 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
     // * Mask bit is set as payload length (up to 127) + 128 assigned to frame header second byte.
     // * Mask key is first 4 bytes following payload length bytes (if any).
     if (opcode === 1 || opcode === 2 || opcode === 3 || opcode === 4 || opcode === 5 || opcode === 6 || opcode === 7) {
-        const fragmentSize:number = (socketItem.hash.indexOf("browser") === 0 || socketItem.hash.indexOf("http") === 0)
+        const fragmentSize:number = (socket.hash.indexOf("browser") === 0 || socket.hash.indexOf("http") === 0)
                 ? 0
                 : 1e6,
             op:1|2 = (isBuffer === true)
@@ -130,9 +133,9 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
                         }
                         return frame;
                     }());
-                socketItem.queue.push(Buffer.concat([frameHeader, frameBody]));
+                socket.queue.push(Buffer.concat([frameHeader, frameBody]));
                 if (finish === true) {
-                    if (socketItem.status === "open") {
+                    if (socket.status === "open") {
                         writeFrame();
                     }
                 } else {
@@ -146,8 +149,8 @@ const send = function transmit_send(body:Buffer|socket_data|string, socketItem:w
             frameBody:Buffer = dataPackage.subarray(0, 125);
         frameHeader[0] = 128 + opcode;
         frameHeader[1] = frameBody.length;
-        socketItem.queue.unshift(Buffer.concat([frameHeader, frameBody]));
-        if (socketItem.status === "open") {
+        socket.queue.unshift(Buffer.concat([frameHeader, frameBody]));
+        if (socket.status === "open") {
             writeFrame();
         }
     }

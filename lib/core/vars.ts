@@ -170,6 +170,7 @@ const vars:core_vars = {
                 "statistics-resources": true,
                 "terminal": true,
                 "test-http": true,
+                "test-performance": true,
                 "test-websocket": true,
                 "udp-socket": true,
                 "users": true
@@ -297,6 +298,7 @@ const vars:core_vars = {
                     pid: 0,
                     platform: "",
                     ppid: 0,
+                    sea: false,
                     uptime: 0,
                     versions: {}
                 },

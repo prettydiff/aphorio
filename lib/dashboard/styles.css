@@ -141,7 +141,6 @@ div.table-filters,
 div.udp-role-client,
 div.udp-role-server{border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:0 0 2em;min-width:fit-content;padding:2em}
 div.section:last-child{margin:0}
-div.table-filters p:last-child{margin:0}
 #dashboard .form h3,
 div.form h3:first-child,
 div.form h4:first-child,
@@ -150,7 +149,7 @@ div.definitions h3{margin:0}
 h1{font-size:3em}
 h2{font-size:2em}
 h3{font-size:var(--h3-size)}
-h4{font-size:1.6em}
+h4{font-size:1.5em}
 h5{font-size:1.4em}
 h6{font-size:1.2em}
 h1,h2,h3,h4,h5,h6{margin:0 0 1em}
@@ -208,15 +207,11 @@ fieldset{background:var(--background_fieldset);border-color:var(--border_color);
 .ytDownload input{display:block;width:100%}
 .fail{color:var(--fail_bright);font-weight:bold}
 .success{color:var(--text_green);font-weight:bold}
-.buttons span,
-label.radio{display:inline-block;width:45%}
+.buttons span{display:inline-block;width:45%}
 label.multicast{display:inline-block;width:30%}
 .buttons span.clear{display:block}
-.buttons button,
-label.multicast,
-label.radio{cursor:pointer}
-label.multicast input,
-label.radio input{display:inline-block;margin:0 0 0 0.5em}
+label.multicast{cursor:pointer;margin:0 0 1em}
+label.multicast input{display:inline-block;margin:0 0 0 0.5em}
 input,
 select{background:var(--background_textarea);border-color:var(--border_input);border-style:solid;border-width:0.065em;color:var(--text_input);font-family:monospace;margin:0.5em 0 0;padding:0.5em}
 .controls p{margin:2em 0}
@@ -302,7 +297,14 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     /* class selectors */
     .active-ports h5{font-size:1.2em}
     .block{display:block}
-    .buttons button:disabled{color:var(--border_input)}
+    .buttons{
+        float:left;
+        margin:1em 0 0;
+        button{
+            cursor:pointer;
+            &:disabled{color:var(--border_input)}
+        }
+    }
     .dependencies{
         li{list-style:disc;margin:0 0 0 1em}
     }
@@ -329,6 +331,19 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         max-height:85em;overflow:scroll;
         table{border-style:none}
     }
+    .form .radio,
+    .table-filters .radio{
+        clear:both;
+        float:none;
+        width:100%;
+        label{
+            cursor:pointer;
+            display:inline-block;
+            margin:0 0 1em;
+            width:45%;
+            input{display:inline-block;margin:0 0 0 0.5em}
+        }
+    }
     .http_response{
         .form{float:left;margin:2em 0;padding:2em;width:calc(50% - 5.2em)}
         .form:first-child{margin-right:2em}
@@ -339,9 +354,17 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .pass-false{color:var(--fail_bright)}
     .pass-warn{color:var(--text_yellow)}
     .server_id{max-width:calc(65ch + 3em);overflow:hidden;text-overflow:ellipsis}
-    .summary-stats .file-system-summary-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}
+    .summary-stats .summary-stats-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}
     .tab{display:none}
     .tab-description{border-color:var(--border_soft);border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 0.5em}
+    .table-filters {
+        p.textarea{clear:both;float:none;width:100%};
+        p:last-child{
+            margin:0;
+            textarea{margin:0}
+        }
+        p.textarea:last-child{margin:1em 0 0}
+    }
     .title{display:block}
     /* end class selectors */
 
@@ -485,7 +508,8 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     #compose-containers .edit-summary li,
     #file-system li,
     #servers-web .container-ports li,
-    #servers-web .edit-summary li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
+    #servers-web .edit-summary li,
+    #test-performance li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
     #compose-containers .edit-summary,
     #servers-web .edit-summary{margin:0;padding:0}
 
@@ -500,6 +524,11 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
 
     #servers label span.details-redundant,
     label span.text{background:transparent;border-style:none;display:inline-block;font-size:1em;font-weight:bold;line-height:2.5;width:auto}
+
+    #test-performance{
+        .summary-stats-list{width:40em}
+        li span{width:18.5em}
+    }
 
     .active-ports,
     .edit .summary{background:var(--background);border-color:var(--border_input);border-style:solid;border-width:0.1em;margin:0 0 1em;padding:1em 0.5em}
@@ -517,19 +546,14 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         h4:hover{background:rgba(0,0,0,0.25)}
     }
 
-    .definitions > .buttons,
-    .form > .buttons,
-    .section > .buttons,
-    .udp-role-client > .buttons,
-    .udp-role-server > .buttons{margin:0 0 2em}
-
     .form,
+    .table-filters,
     .udp-role-client,
     .udp-role-server{
-        .buttons{margin:0};
-        h3{margin:0};
-        h4{margin:1.5em 0 0.25em};
+        h3{float:left;margin:0;width:100%};
+        h4{float:left;margin:1em 0 0.25em;width:100%};
         p{margin-top:0}
+        .buttons{float:left;margin:1em 0 0}
     }
 
     .media {
@@ -572,8 +596,9 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     input[type="number"],
     input[type="text"],
     select{height:2.5em;padding:0 0.2em}
-    input[type=number]{-moz-appearance:textfield;appearance:textfield;margin:0}
-    input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+    input[type="text"],
+    input[type="number"]{-moz-appearance:textfield;appearance:textfield;margin:0 0 1em}
+    input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0 0 1em}
 
     h1 a{font-size:0.35em;font-weight:normal}
 

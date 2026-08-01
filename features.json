@@ -22,7 +22,8 @@
     "statistics-resources": true,
     "terminal": true,
     "test-http": true,
+    "test-performance": true,
     "test-websocket": true,
-    "udp-socket": false,
+    "udp-socket": true,
     "users": true
 }

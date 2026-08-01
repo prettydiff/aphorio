@@ -80,6 +80,7 @@
             <ul>
                 <li><button data-section="test-http">HTTP Test</button></li>
                 <li><button data-section="test-websocket">WebSocket Test</button></li>
+                <li><button data-section="test-performance">Performance Test</button></li>
             </ul>
         </div>
         <div>
@@ -119,6 +120,7 @@
                 <div class="section">
                     <h3>Environmental Variables</h3>
                     <p class="buttons"><button class="compose-variable-new">Edit Variables</button></p>
+                    <span class="clear"></span>
                     <ul class="compose-variable-list"></ul>
                 </div>
                 <div class="section">
@@ -129,6 +131,7 @@
                 <div class="section">
                     <h3>Containers</h3>
                     <p class="buttons"><button class="compose-container-new">New Container</button></p>
+                    <span class="clear"></span>
                     <ul class="compose-container-list"></ul>
                 </div>
             </div>
@@ -213,13 +216,13 @@
                     <dd>text records</dd>
                 </dl>
             </div>
-            <div class="section">
+            <div class="table-filters">
                 <h3>Input</h3>
-                <h4>Query Direction</h4>
-                <p><label class="radio">DNS Name Resolve <input checked="checked" name="dns_direction" type="radio" value="resolve"/></label> <label class="radio">Reverse DNS Lookup <input checked="checked" name="dns_direction" type="radio" value="reverse"/></label></p>
+                <p class="radio"><label>DNS Name Resolve <input checked="checked" name="dns_direction" type="radio" value="resolve"/></label> <label>Reverse DNS Lookup <input checked="checked" name="dns_direction" type="radio" value="reverse"/></label></p>
                 <p><label>Comma separated list of domains and/or hostname entries <input type="text"/></label></p>
                 <p><label>Comma separated list of record types. Leave blank for all types. Supported types: A, AAAA, CAA, CNAME, MX, NAPTR, NS, PTR, SOA, SRV, TLSA, TXT <input type="text"/></label></p>
                 <p class="buttons"><button>Execute Query</button></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>Output</h3>
@@ -478,7 +481,7 @@
             <div class="file-system-content"></div>
             <div class="summary-stats">
                 <h3>Summary of Results</h3>
-                <ul class="file-system-summary-list">
+                <ul class="summary-stats-list">
                     <li><span>Displayed Artifact Size:</span> <strong></strong></li>
                     <li><span>Displayed Item Count:</span> <strong></strong></li>
                 </ul>
@@ -526,25 +529,26 @@
             <div class="form">
                 <h3>Input</h3>
                 <h4>Function</h4>
-                <p>
-                    <label class="radio">Generate Hash <input checked="checked" name="hash_function" type="radio" value="false"/></label>
-                    <label class="radio">Base64 Encode <input name="hash_function" type="radio" value="true"/></label>
+                <p class="radio">
+                    <label>Generate Hash <input checked="checked" name="hash_function" type="radio" value="false"/></label>
+                    <label>Base64 Encode <input name="hash_function" type="radio" value="true"/></label>
                 </p>
                 <h4>Input Source Type</h4>
-                <p>
-                    <label class="radio">String <input checked="checked" name="hash_type" type="radio" value="false"/></label>
-                    <label class="radio">File <input name="hash_type" type="radio" value="true"/></label>
+                <p class="radio">
+                    <label>String <input checked="checked" name="hash_type" type="radio" value="false"/></label>
+                    <label>File <input name="hash_type" type="radio" value="true"/></label>
                 </p>
                 <h4>Hash Output Format</h4>
-                <p>
-                    <label class="radio">Hexadecimal <input checked="checked" name="hash_digest" type="radio" value="false"/></label>
-                    <label class="radio">Base64 <input name="hash_digest" type="radio" value="true"/></label>
+                <p class="radio">
+                    <label>Hexadecimal <input checked="checked" name="hash_digest" type="radio" value="false"/></label>
+                    <label>Base64 <input name="hash_digest" type="radio" value="true"/></label>
                 </p>
                 <h4>Hash Algorithm</h4>
                 <p><label>Choose one of all supported hash algorithms <select></select></label></p>
                 <h4>Input Value</h4>
                 <p><label>Input must be a local absolute file system path if input type is <em>file</em>, otherwise provide any text value. <textarea spellcheck="spellcheck"></textarea></label></p>
                 <p class="buttons"><button>Generate Hash</button></p>
+                <span class="clear"></span>
             </div>
             <div class="form">
                 <h3>Output</h3>
@@ -986,6 +990,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <div class="section">
                 <h3>Web Server List</h3>
                 <p class="buttons"><button class="server-new">Create Server</button></p>
+                <span class="clear"></span>
                 <ul class="server-list"></ul>
             </div>
         </div>
@@ -1316,12 +1321,13 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <div class="form">
                 <h3>Request</h3>
                 <h4>Scheme</h4>
-                <p><label class="radio">Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
+                <p class="radio"><label>Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label>Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
                 <h4>Timeout</h4>
                 <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input spellcheck="false" type="number" value="0"/></label></p>
                 <h4>Raw Request Text</h4>
                 <p><label>Complete raw HTTP request including header <textarea class="test-input" spellcheck="false"></textarea></label></p>
                 <p class="buttons"><button class="send_request">Send Request</button></p>
+                <span class="clear"></span>
             </div>
             <div class="form">
                 <h3>Response</h3>
@@ -1347,6 +1353,66 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- test-http end -->
+        <!-- test-performance start -->
+        <div class="tab" id="test-performance">
+            <h2>Performance Test</h2>
+            <p class="tab-description">A simplistic WebSocket performance measurement tool.</p>
+            <div class="definitions">
+                <h3>Performance Testing <button class="expand">Expand</button></h3>
+                <div class="definition-body">
+                    <p>
+                        Performance testing occurs from either measuring the time it takes to complete a given number of task iterations or counting the number of task iterations that occur in a given timeframe.
+                        Performance must be measured using actual numbers that represent a point of precise comparison.
+                        Without numbers humans tend to guess at performance using bias and prejudice and tend to be frequently wrong by multiple orders of magnitude.
+                    </p>
+                    <p>
+                        Results my vary between tests, so it is recommended to conduct multiple test runs for a given measurable criteria.
+                        With multiple measures the test platform can determine the variance between test cycles.
+                        Larger than expected variance may likely represent a larger performance problem.
+                    </p>
+                    <p>
+                        Transmission tests should always include a message body.
+                        For HTTP tests the body content is ignored on common HTTP methods, such as GET, but it still factors into the transmission speed.
+                        HTTP tests will comprise opening and closing sockets for each message transmission, as is the standard for HTTP 1.1 without the keep-alive feature.
+                        WebSocket tests will open a socket before any message transfer and close the socket only after sending all messages in the queue.
+                    </p>
+                </div>
+            </div>
+            <div class="table-filters">
+                <h3>Test Input</h3>
+                <h4>Transmission Type</h4>
+                <p class="radio"><label>HTTP <input name="test-performance-type" type="radio" value="http"/></label><label>WebSocket <input checked="checked" name="test-performance-type" type="radio" value="websocket"/></label></p>
+                <h4>Encryption</h4>
+                <p class="radio"><label>Encrypted (HTTPS/WSS) <input name="test-performance-encryption" type="radio" value="encrypted"/></label><label>Unencrypted (HTTP/WS) <input checked="checked" name="test-performance-encryption" type="radio" value="unencrypted"/></label></p>
+                <h4>Connection Details</h4>
+                <p><label>Destination address <input type="text"/></label></p>
+                <p><label>Destination port <input type="number"/></label></p>
+                <h4>Test Quantity</h4>
+                <p><label>Number of transmissions per test <input type="number"/></label></p>
+                <p><label>Number of tests per experiment <input type="number"/></label></p>
+                <span class="clear"></span>
+                <p class="textarea"><label>Message body <textarea></textarea></label></p>
+                <p class="buttons"><button>Generate Hash</button></p>
+                <span class="clear"></span>
+            </div>
+            <div class="summary-stats">
+                <h3>Test Output</h3>
+                <ul class="summary-stats-list">
+                    <li><span>Transmission Quantity per Test Run:</span> <strong>0</strong></li>
+                    <li><span>Number of Tests in Experiment:</span> <strong>0</strong></li>
+                    <li><span>Message Size:</span> <strong>0 bytes</strong></li>
+                    <li><span>Total Experiment Duration:</span> <strong>0 seconds</strong></li>
+                    <li><span>Experiment Type:</span> <strong></strong></li>
+                </ul>
+                <ul>
+                    <li><span>Fastest Test:</span> <strong>0 seconds</strong></li>
+                    <li><span>Test Average:</span> <strong>0 seconds</strong></li>
+                    <li><span>Slowest Test:</span> <strong>0 seconds</strong></li>
+                    <li><span>Variance:</span> <strong>0 seconds</strong></li>
+                </ul>
+            </div>
+        </div>
+        <!-- test-performance end -->
         <!-- test-websocket start -->
         <div class="tab" id="test-websocket">
             <h2>WebSocket Test</h2>
@@ -1407,7 +1473,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p id="websocket-status" class="connection-offline">WebSocket Test socket: <strong>Offline</strong></p>
                 <h3>Socket Connection</h3>
                 <h4>Scheme</h4>
-                <p><label class="radio">Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label> <em class="block">Ensure ports in the handshake message correspond to the scheme choice.</em></p>
+                <p class="radio"><label>Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label>Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label> <em class="block">Ensure ports in the handshake message correspond to the scheme choice.</em></p>
                 <h4>Handshake Timeout</h4>
                 <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input spellcheck="false" type="number" value="0"/></label></p>
                 <h4>Raw Handshake Message</h4>
@@ -1418,6 +1484,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
                 <p class="ports">Localhost ports: <span></span></p>
                 <p class="buttons"><button>Connect</button></p>
+                <span class="clear"></span>
             </div>
             <div class="form">
                 <h3>Messaging</h3>
@@ -1439,6 +1506,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <p class="float-last"><label>Message <textarea spellcheck="false"></textarea></label></p>
                         <span class="clear"></span>
                         <p class="buttons"><button disabled="disabled">Send</button></p>
+                        <span class="clear"></span>
                         <p class="frame_validate"><em></em></p>
                     </div>
                     <div class="form">
@@ -1530,14 +1598,14 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <div class="form">
                 <h3>Create UDP Socket</h3>
                 <h4>Role</h4>
-                <p>
-                    <label class="radio">Connect (Client) <input name="udp-socket-role" type="radio" value="client"/></label>
-                    <label class="radio">Bind (Server) <input checked="checked" name="udp-socket-role" type="radio" value="server"/></label>
+                <p class="radio">
+                    <label>Connect (Client) <input name="udp-socket-role" type="radio" value="client"/></label>
+                    <label>Bind (Server) <input checked="checked" name="udp-socket-role" type="radio" value="server"/></label>
                 </p>
                 <h4>Address Type</h4>
-                <p>
-                    <label class="radio">IPv4 <input name="udp-socket-type" type="radio" value="ipv4"/></label>
-                    <label class="radio">IPv6 <input checked="checked" name="udp-socket-type" type="radio" value="ipv6"/></label>
+                <p class="radio">
+                    <label>IPv4 <input name="udp-socket-type" type="radio" value="ipv4"/></label>
+                    <label>IPv6 <input checked="checked" name="udp-socket-type" type="radio" value="ipv6"/></label>
                 </p>
             </div>
             <div class="udp-role-server">

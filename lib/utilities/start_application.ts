@@ -111,6 +111,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 section("statistics-resources", "Resource Statistics");
                                 section("terminal", "Terminal");
                                 section("test-http", "HTTP Test");
+                                section("test-performance", "Performance Test");
                                 section("test-websocket", "WebSocket Test");
                                 section("udp-socket", "UDP Socket");
                                 section("users", "Users");
