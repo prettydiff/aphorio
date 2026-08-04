@@ -16,7 +16,11 @@ const ui_test_performance = function ui_test_performance():void {
                     service:services_test_performance_input = {
                         body: dashboard.sections["test-performance"].nodes.body.value,
                         encryption: (dashboard.sections["test-performance"].nodes.encrypt_true.checked === true),
+                        garbage_collection: (dashboard.sections["test-performance"].nodes.garbage_collection_true.checked === true),
                         location: dashboard.sections["test-performance"].nodes.connect_address.value,
+                        measure: (dashboard.sections["test-performance"].nodes.measure_send.checked === true)
+                            ? "send"
+                            : "roundtrip",
                         port: Number(dashboard.sections["test-performance"].nodes.connect_port.value),
                         quantity_tests: Number(dashboard.sections["test-performance"].nodes.quantity_tests.value),
                         quantity_transmit: Number(dashboard.sections["test-performance"].nodes.quantity_transmit.value),
@@ -27,6 +31,8 @@ const ui_test_performance = function ui_test_performance():void {
                 service.port = numeric(service.port, (service.encryption === true) ? 443 : 80, true);
                 service.quantity_tests = numeric(service.quantity_tests, 10, false);
                 service.quantity_transmit = numeric(service.quantity_transmit, 1000, false);
+                dashboard.sections["test-performance"].nodes.status.textContent = "Test started.";
+                dashboard.sections["test-performance"].nodes.button_execute.disabled = true;
                 dashboard.message.send({
                     data: service,
                     service: "services_test_performance_input"
@@ -55,22 +61,34 @@ const ui_test_performance = function ui_test_performance():void {
                 }
                 dashboard.sections["test-performance"].nodes.quantity_tests.value = String(dashboard.global.state.test_performance.quantity_tests);
                 dashboard.sections["test-performance"].nodes.quantity_transmit.value = String(dashboard.global.state.test_performance.quantity_transmit);
+                if (dashboard.global.state.test_performance.measure === "roundtrip") {
+                    dashboard.sections["test-performance"].nodes.measure_roundtrip.checked = true;
+                } else {
+                    dashboard.sections["test-performance"].nodes.measure_send.checked = true;
+                }
                 if (dashboard.global.state.test_performance.type === "http") {
                     dashboard.sections["test-performance"].nodes.type_http.checked = true;
                 } else {
                     dashboard.sections["test-performance"].nodes.type_websocket.checked = true;
                 }
+                dashboard.sections["test-performance"].nodes.status.textContent = "Test not started.";
+                dashboard.sections["test-performance"].nodes.button_execute.disabled = false;
             }
         },
         nodes: {
             body: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
             button_execute: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("button")[0],
-            connect_address: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[4],
-            connect_port: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[5],
+            connect_address: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[8],
+            connect_port: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[9],
             encrypt_false: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[3],
             encrypt_true: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[2],
-            quantity_tests: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[7],
-            quantity_transmit: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[6],
+            garbage_collection_false: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[7],
+            garbage_collection_true: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[6],
+            measure_roundtrip: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[5],
+            measure_send: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[4],
+            quantity_tests: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[11],
+            quantity_transmit: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[10],
+            status: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("strong")[0],
             type_http: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
             type_websocket: document.getElementById("test-performance").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1]
         },
@@ -82,10 +100,16 @@ const ui_test_performance = function ui_test_performance():void {
             list[2].textContent = `${data.message_size.commas()} bytes`;
             list[3].textContent = `${(data.time / 1e9).commas()} seconds`;
             list[4].textContent = data.type;
-            list[5].textContent = `${(data.min / 1e9).commas()} seconds`;
-            list[6].textContent = `${(data.average / 1e9).commas()} seconds`;
-            list[7].textContent = `${(data.max / 1e9).commas()} seconds`;
-            list[8].textContent = `\u00b1${(data.variance / 1e9).toFixed(9).replace(/0+$/, "")} seconds`;
+            list[5].textContent = `${(data.send.min / 1e9).commas()} seconds`;
+            list[6].textContent = `${(data.send.average / 1e9).commas()} seconds`;
+            list[7].textContent = `${(data.send.max / 1e9).commas()} seconds`;
+            list[8].textContent = `\u00b1${(data.send.variance / 1e9).toFixed(9).replace(/0+$/, "")} seconds`;
+            list[9].textContent = `${(data.roundtrip.min / 1e9).commas()} seconds`;
+            list[10].textContent = `${(data.roundtrip.average / 1e9).commas()} seconds`;
+            list[11].textContent = `${(data.roundtrip.max / 1e9).commas()} seconds`;
+            list[12].textContent = `\u00b1${(data.roundtrip.variance / 1e9).toFixed(9).replace(/0+$/, "")} seconds`;
+            dashboard.sections["test-performance"].nodes.status.textContent = "Test complete.";
+            dashboard.sections["test-performance"].nodes.button_execute.disabled = false;
         },
         tools: {}
     };

@@ -79,7 +79,9 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     : message_handler[config.server]
                 : config.handler;   // assigns an event handler to process incoming messages
             if (config.type !== "http") {
-                config.socket.on("data", receiver);
+                if (config.socket.handler !== null && config.socket.handler !== undefined) {
+                    config.socket.on("data", receiver);
+                }
                 config.socket.buffer = Buffer.from([]);   // stores a growing payload
                 config.socket.fragments = [];             // stores completed frame payloads, which may be fragments of a larger message
                 config.socket.frame = null;               // stores last received data frame header

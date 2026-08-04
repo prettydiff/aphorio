@@ -340,7 +340,9 @@ interface services_test_browser {
 interface services_test_performance_input {
     body: string;
     encryption: boolean;
+    garbage_collection: boolean;
     location: string;
+    measure: "roundtrip" | "send";
     port: number;
     quantity_tests: number;
     quantity_transmit: number;
@@ -349,16 +351,24 @@ interface services_test_performance_input {
 // Execute a performance test
 
 interface services_test_performance_output {
-    average: number;
-    max: number;
     message_size: number;
-    min: number;
     quantity_tests: number;
     quantity_transmit: number;
+    roundtrip: {
+        average: number;
+        max: number;
+        min: number;
+        variance: number;
+    };
+    send: {
+        average: number;
+        max: number;
+        min: number;
+        variance: number;
+    };
     summary: string;
     time: number;
     type: "http" | "websocket";
-    variance: number;
 }
 
 interface services_udp_socket {

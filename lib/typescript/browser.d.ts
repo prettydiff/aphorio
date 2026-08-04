@@ -613,13 +613,18 @@ declare global {
         };
         nodes: {
             body: HTMLTextAreaElement;
-            button_execute: HTMLElement;
+            button_execute: HTMLButtonElement;
             connect_address: HTMLInputElement;
             connect_port: HTMLInputElement;
             encrypt_false: HTMLInputElement;
             encrypt_true: HTMLInputElement;
+            garbage_collection_false: HTMLInputElement;
+            garbage_collection_true: HTMLInputElement;
+            measure_roundtrip: HTMLInputElement;
+            measure_send: HTMLInputElement;
             quantity_tests: HTMLInputElement;
             quantity_transmit: HTMLInputElement;
+            status: HTMLElement;
             type_http: HTMLInputElement;
             type_websocket: HTMLInputElement;
         };
@@ -749,6 +754,7 @@ declare global {
             connect_address: string;
             connect_port: number;
             encryption: boolean;
+            measure: "roundtrip" | "send";
             quantity_tests: number;
             quantity_transmit: number;
             type: "http" | "websocket";

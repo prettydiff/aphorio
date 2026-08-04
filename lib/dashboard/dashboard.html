@@ -1381,17 +1381,23 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <div class="table-filters">
                 <h3>Test Input</h3>
                 <h4>Transmission Type</h4>
-                <p class="radio"><label>HTTP <input name="test-performance-type" type="radio" value="http"/></label><label>WebSocket <input checked="checked" name="test-performance-type" type="radio" value="websocket"/></label></p>
+                <p class="radio"><label>HTTP GET <input name="test-performance-type" type="radio" value="http"/></label><label>WebSocket <input checked="checked" name="test-performance-type" type="radio" value="websocket"/></label></p>
                 <h4>Encryption</h4>
                 <p class="radio"><label>Encrypted (HTTPS/WSS) <input name="test-performance-encryption" type="radio" value="encrypted"/></label><label>Unencrypted (HTTP/WS) <input checked="checked" name="test-performance-encryption" type="radio" value="unencrypted"/></label></p>
+                <h4>Measurement Type</h4>
+                <p class="radio"><label>Send Only <input checked="checked" name="test-performance-measure" type="radio" value="send"/></label><label>Roundtrip <input name="test-performance-measure" type="radio" value="roundtrip"/></label></p>
+                <h4>Garbage Collection</h4>
+                <p class="radio"><label>Force GC Between Tests <input checked="checked" name="test-performance-gc" type="radio" value="forced"/></label><label>Back to Back Tests <input name="test-performance-gc" type="radio" value="back-to-back"/></label></p>
                 <h4>Connection Details</h4>
-                <p><label>Destination address <input type="text"/></label></p>
-                <p><label>Destination port <input type="number"/></label></p>
+                <p><label>Destination IP Address <input type="text"/></label></p>
+                <p><label>Destination Port <input type="number"/></label></p>
                 <h4>Test Quantity</h4>
-                <p><label>Number of transmissions per test <input type="number"/></label></p>
-                <p><label>Number of tests per experiment <input type="number"/></label></p>
+                <p><label>Number of Transmissions per Test <input type="number"/></label></p>
+                <p><label>Number of Tests per Experiment <input type="number"/></label></p>
                 <span class="clear"></span>
                 <p class="textarea"><label>Message body <textarea></textarea></label></p>
+                <p class="ports">Current Status: <strong>Not started</strong></span></p>
+                <span class="clear"></span>
                 <p class="buttons"><button>Generate Hash</button></p>
                 <span class="clear"></span>
             </div>
@@ -1405,10 +1411,14 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     <li><span>Experiment Type:</span> <strong></strong></li>
                 </ul>
                 <ul>
-                    <li><span>Fastest Test:</span> <strong>0 seconds</strong></li>
-                    <li><span>Test Average:</span> <strong>0 seconds</strong></li>
-                    <li><span>Slowest Test:</span> <strong>0 seconds</strong></li>
-                    <li><span>Variance:</span> <strong>0 seconds</strong></li>
+                    <li><span>Send - Fastest Test:</span> <strong>0 seconds</strong></li>
+                    <li><span>Send - Test Average:</span> <strong>0 seconds</strong></li>
+                    <li><span>Send - Slowest Test:</span> <strong>0 seconds</strong></li>
+                    <li><span>Send - Variance:</span> <strong>0 seconds</strong></li>
+                    <li><span>Roundtrip - Fastest Test:</span> <strong>0 seconds</strong></li>
+                    <li><span>Roundtrip - Test Average:</span> <strong>0 seconds</strong></li>
+                    <li><span>Roundtrip - Slowest Test:</span> <strong>0 seconds</strong></li>
+                    <li><span>Roundtrip - Variance:</span> <strong>0 seconds</strong></li>
                 </ul>
             </div>
         </div>

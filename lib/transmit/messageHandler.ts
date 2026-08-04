@@ -1,6 +1,7 @@
 
 import node from "../core/node.ts";
 import router from "./router.ts";
+import send from "./send.ts";
 
 const message_handler:transmit_socket_messageHandler = {
     default: function transmit_messageHandler_default(socket:websocket_client, bufferData:Buffer):void {
@@ -16,7 +17,10 @@ const message_handler:transmit_socket_messageHandler = {
         }
     },
     test_performance: function transmit_messageHandler_testPerformance(socket:websocket_client, bufferData:Buffer):void {
-        //console.log(bufferData.toString());
+        send(bufferData.toString(), socket, 1);
+    },
+    test_websocket: function transmit_messageHandler_testWebsocket(socket:websocket_client, bufferData:Buffer):void {
+        send(`Response message.\n\n${bufferData.toString()}`, socket, 1);
     }
 };
 

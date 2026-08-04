@@ -36,7 +36,7 @@ const send = function transmit_send(body:Buffer|socket_data|string, socket:webso
     if (socket === undefined || socket === null) {
         return;
     }
-    if (socket.type !== "test-performance" && (opcode !== 3 || (opcode === 3 && socketData.service !== "services_message_inspection"))) {
+    if (opcode !== 3 || (opcode === 3 && socketData.service !== "services_message_inspection")) {
         message_inspection.send({
             count: 0,
             direction: "out",

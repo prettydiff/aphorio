@@ -1,7 +1,6 @@
 
 import create_socket from "../transmit/create_socket.ts";
 import hash from "../core/hash.ts";
-import message_handler from "../transmit/messageHandler.ts";
 import send from "../transmit/send.ts";
 import vars from "../core/vars.ts";
 
@@ -10,45 +9,62 @@ const test_performance = function services_testPerformance(socket_data:socket_da
         time_start:bigint = 0n;
     const data:services_test_performance_input = socket_data.data as services_test_performance_input,
         output:services_test_performance_output = {
-            average: 0,
-            max: 0,
             message_size: Buffer.from(data.body).byteLength,
-            min: 0,
+            roundtrip: {
+                average: 0,
+                max: 0,
+                min: 0,
+                variance: 0
+            },
+            send: {
+                average: 0,
+                max: 0,
+                min: 0,
+                variance: 0
+            },
             summary: "",
             quantity_tests: data.quantity_tests,
             quantity_transmit: data.quantity_transmit,
             time: 0,
-            type: data.type,
-            variance: 0
+            type: data.type
         },
         socket_service:websocket_client = transmit.socket as websocket_client,
-        test_time:[bigint, bigint][] = [],
+        test_time:[bigint, bigint, bigint][] = [],
         times = function services_testPerformance_times(summary:string, error:boolean):void {
             if (error === false) {
-                const values:number[] = [];
-                let index:number = 1,
-                    value:number = 0,
-                    variance:number = 0,
-                    total:number = 0;
-                do {
-                    value = Number(test_time[index][1] - test_time[index][0]);
-                    values.push(value);
-                    if (output.min === 0 || value < output.min) {
-                        output.min = value;
-                    }
-                    if (value > output.max) {
-                        output.max = value;
-                    }
-                    total = total + value;
-                    index = index + 1;
-                } while (index < data.quantity_tests + 1);
-                output.average = (total / data.quantity_tests);
-                index = 1;
-                do {
-                    variance = variance + ((values[0] - output.average) * (values[0] - output.average));
-                    index = index + 1;
-                } while (index < data.quantity_tests + 1);
-                output.variance = Math.sqrt(variance / data.quantity_tests);
+                const setTimes = function services_testPerformance_times_setTimes(type:"roundtrip"|"send"):void {
+                    const values:number[] = [];
+                    let index:number = 0,
+                        value:number = 0,
+                        variance:number = 0,
+                        total:number = 0,
+                        value_index:1|2 = (type === "roundtrip")
+                            ? 2
+                            : 1;
+                    do {
+                        value = Number(test_time[index][value_index] - test_time[index][0]);
+                        values.push(value);
+                        if (output[type].min === 0 || value < output[type].min) {
+                            output[type].min = value;
+                        }
+                        if (value > output[type].max) {
+                            output[type].max = value;
+                        }
+                        total = total + value;
+                        index = index + 1;
+                    } while (index < data.quantity_tests);
+                    output[type].average = (total / data.quantity_tests);
+                    index = 0;
+                    do {
+                        variance = variance + ((values[index] - output[type].average) * (values[index] - output[type].average));
+                        index = index + 1;
+                    } while (index < data.quantity_tests);
+                    output[type].variance = Math.sqrt(variance / data.quantity_tests);
+                };
+                if (data.measure === "roundtrip") {
+                    setTimes("roundtrip");
+                }
+                setTimes("send");
                 output.time = Number(process.hrtime.bigint() - time_start);
             }
             output.summary = summary;
@@ -57,38 +73,71 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                 service: "services_test_performance_output"
             }, socket_service, 3);
         },
-        // test_http = function services_testPerformance_testHTTP():void {},
-        test_websocket = function services_testPerformance_testWebSocket():void {
-            test_time.push([process.hrtime.bigint(), 0n]);
+        complete = function services_testPerformance_complete(measure:"roundtrip"|"send", socket:websocket_client):void {
+            if (measure === data.measure) {
+                socket.destroy();
+                index_test = index_test + 1;
+                if (index_test < data.quantity_tests) {
+                    if (data.garbage_collection === true) {
+                        setTimeout(test_type, 0);
+                    } else {
+                        test_type();
+                    }
+                } else {
+                    times("Test complete.", false);
+                }
+            }
+        },
+        test_http = function services_testPerformance_testHTTP(socket_test:websocket_client, timeout:bigint, error:node_error):void {
+            if (error === null || error === undefined) {
+                let index:number = data.quantity_transmit;
+                socket_test.on("data", function services_testPerformance_testHTTP_receive(data:Buffer):void {
+
+                });
+                socket_test.write(`${vars.environment.http_request}\r\n\r\n${data.body}`, "utf-8", function services_testPerformance_testHTTP_writeCallback():void {
+                    test_time[test_time.length - 1][1] = process.hrtime.bigint();
+                });
+            } else {
+                times(JSON.stringify(error), true);
+            }
+        },
+        test_websocket = function services_testPerformance_testWebSocket(socket_test:websocket_client, timeout:bigint, error:node_error):void {
+            let index_receive:number = 1;
+            if (error === null || error === undefined) {
+                let index:number = data.quantity_transmit;
+                socket_test.handler = (data.measure === "send")
+                    ? null
+                    : function services_testPerformance_testWebsocket_handler(socket_client:websocket_client):void {
+                        index_receive = index_receive + 1;
+                        if (index_receive === data.quantity_transmit) {
+                            test_time[test_time.length - 1][2] = process.hrtime.bigint();
+                            complete("roundtrip", socket_client);
+                        }
+                    };
+                socket_test.queue_callback = function services_testPerformance_testWebSocket_hash_socket_queueCallback():void {
+                    test_time[test_time.length - 1][1] = process.hrtime.bigint();
+                    complete("send", socket_test);
+                };
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        send(data.body, socket_test, 1);
+                    } while (index > 0);
+                }
+            } else {
+                times(JSON.stringify(error), true);
+            }
+        },
+        test_type = function services_testPerformance_testType():void {
+            test_time.push([process.hrtime.bigint(), 0n, 0n]);
             hash({
                 algorithm: "sha3-512",
-                callback: function services_testPerformance_testWebSocket_hash(output:core_hash_output):void {
+                callback: function services_test_Performance_testType_hash(output:core_hash_output):void {
                     create_socket({
-                        callback: function services_testPerformance_testWebSocket_socket(socket_test:websocket_client, timeout:bigint, error:node_error):void {
-                            if (error === null || error === undefined) {
-                                let index:number = data.quantity_transmit;
-                                socket_test.queue_callback = function services_testPerformance_testWebSocket_socket_last():void {
-                                    socket_test.destroy();
-                                    test_time[test_time.length - 1][1] = process.hrtime.bigint();
-                                    index_test = index_test + 1;
-                                    if (index_test < data.quantity_tests + 1) {
-                                        // services_testPerformance_testWebSocket();
-                                        setTimeout(services_testPerformance_testWebSocket, 250);
-                                    } else {
-                                        times("Test complete.", false);
-                                    }
-                                };
-                                if (index > 1) {
-                                    do {
-                                        index = index - 1;
-                                        send(data.body, socket_test, 1);
-                                    } while (index > 0);
-                                }
-                            } else {
-                                times(JSON.stringify(error), true);
-                            }
-                        },
-                        handler: message_handler.test_performance,
+                        callback: (data.type === "http")
+                            ? test_http
+                            : test_websocket,
+                        handler: null,
                         hash: output.hash,
                         headers: null,
                         ip: data.location,
@@ -108,10 +157,8 @@ const test_performance = function services_testPerformance(socket_data:socket_da
             });
         };
     if (typeof data.quantity_tests === "number" && typeof data.quantity_transmit === "number" && data.quantity_tests > 0 && data.quantity_transmit > 0) {
-        if (data.type === "websocket") {
-            time_start = process.hrtime.bigint();
-            test_websocket();
-        }
+        time_start = process.hrtime.bigint();
+        test_type();
     } else {
         times("Test properties 'quantity_transmit' or 'quantity_test' is not a number greater than 0.", true);
     }

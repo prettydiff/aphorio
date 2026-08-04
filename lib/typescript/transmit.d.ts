@@ -161,7 +161,6 @@ interface websocket_store {
 interface websocket_test {
     find_socket: (direction:"in"|"out", hashString:string) => websocket_client;
     handler_client: websocket_message_handler;
-    handler_server: websocket_message_handler;
     handshake: type_receiver;
     message: type_receiver;
 }

@@ -11,7 +11,6 @@ import server_halt from "../server/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
 import terminal from "../services/terminal.ts";
 import vars from "../core/vars.ts";
-import websocket_test from "../services/websocket.ts";
 
 //cspell: words prettydiff
 
@@ -459,7 +458,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             socket_extension({
                                 callback: client_respond,
                                 handler: (store.type === "test-websocket")
-                                    ? websocket_test.handler_server
+                                    ? message_handler.test_websocket
                                     : (store.type === "test-performance-socket")
                                         ? message_handler.test_performance
                                         : message_handler.default,
