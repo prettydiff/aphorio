@@ -1360,10 +1360,11 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <div class="definitions">
                 <h3>Performance Testing <button class="expand">Expand</button></h3>
                 <div class="definition-body">
+                    <h4>About Testing in General</h4>
                     <p>
                         Performance testing occurs from either measuring the time it takes to complete a given number of task iterations or counting the number of task iterations that occur in a given timeframe.
                         Performance must be measured using actual numbers that represent a point of precise comparison.
-                        Without numbers humans tend to guess at performance using bias and prejudice and tend to be frequently wrong by multiple orders of magnitude.
+                        Without numbers humans tend to guess at performance using bias and prejudice that is frequently wrong by multiple orders of magnitude.
                     </p>
                     <p>
                         Results my vary between tests, so it is recommended to conduct multiple test runs for a given measurable criteria.
@@ -1372,10 +1373,39 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     </p>
                     <p>
                         Transmission tests should always include a message body.
-                        For HTTP tests the body content is ignored on common HTTP methods, such as GET, but it still factors into the transmission speed.
+                        For HTTP tests the body content is ignored on common HTTP methods, such as GET, but it still factors into the transmission speed and memory management.
                         HTTP tests will comprise opening and closing sockets for each message transmission, as is the standard for HTTP 1.1 without the keep-alive feature.
                         WebSocket tests will open a socket before any message transfer and close the socket only after sending all messages in the queue.
                     </p>
+                    <h4>Test Methodology</h4>
+                    <p>
+                        This application creates experiments that comprise a series of tests, which defaults to 10.
+                        Multiple tests allow for discovery of variability and the application reports this variability as experiment variance computed by:
+                    </p>
+                    <ol>
+                        <li>Find the average from a list of results.</li>
+                        <li>For each value in the list subtract the average and then square the result.</li>
+                        <li>Gather the total of those squared differences.</li>
+                        <li>Divide that total of squared difference by the number of values in the list.</li>
+                        <li>Take the square root of that resulting total.</li>
+                    </ol>
+                    <p>
+                        For WebSocket experiments the application allows for the measuring of messaging sending only or for measuring a roundtrip of send and data receive.
+                        Roundtrip measurements are a more honest measure of transmission performance, but because receiving data from WebSockets is dramatically slow compared to sending that data most tools bias their results by only reporting send speeds.
+                    </p>
+                    <p>
+                        The tool also allows for imposing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Memory_management">JavaScript garbage collection</a> between tests or allowing garbage collection at the application's discretion.
+                        The actual real world timings between those are similar, but the raw numbers measuring transmission speed only are wildly different.
+                    </p>
+                    <h4>Key Findings</h4>
+                    <ul>
+                        <li>TLS WebSocket transmissions are a bit faster in Node.js 26.3.1.</li>
+                        <li>This application in Node 26.3.1 on a Windows computer reports a send speed of about 3,250,000 messages a second, or about 5,000,000 in about 2.1 seconds, when garbage collection is not forced between tests.</li>
+                        <li>When garbage collection is forced between test runs the application reports a send speed of about 0.002-0.006 seconds to send 3,250,000 messages, but the experiment reports a slightly longer total duration, around 13.1 seconds for 10 tests as compared to 12.2 for 10 tests. This may indicate a fundamental performance difference between memory management in Node versus network interface buffer management in the OS kernel.</li>
+                        <li>Although this application reports slightly improved performance using TLS encryption versus an unencrypted socket Node.js will crash if too many TLS messages are queued for transport. This occurs even when pushing Node to consume 8gb of memory at start.  I have not gotten an unencrypted socket to crash in this manner, which suggests a problem with TLS execution in Node.js.</li>
+                        <li>Smaller, more numerous, message segments result in slightly slower send speeds.</li>
+                        <li>This application reports a dramatically slower performance on reading incoming messages compared to sending messages. This is likely due to a combination of segmentation and unpredictability.  When sending messages you know exactly what the data looks like and can segment it in a way that is most ideal for the local application. Messages can be segmented from a variety of factors, such as TLS 1.3 will segment messages into 16,383 bytes, and the receiving end how to account for all these factors and unpredictable network behavior.  This results in a variety of integrity schemes taking priority. While this application can send 3,250,000 in 0,004 seconds it can only send and receive messages at a rate of about 45,000 messages per second according to this tool on the tested hardware.</li>
+                    </ul>
                 </div>
             </div>
             <div class="table-filters">

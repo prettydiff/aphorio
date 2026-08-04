@@ -102,18 +102,8 @@ const test_performance = function services_testPerformance(socket_data:socket_da
             }
         },
         test_websocket = function services_testPerformance_testWebSocket(socket_test:websocket_client, timeout:bigint, error:node_error):void {
-            let index_receive:number = 1;
             if (error === null || error === undefined) {
                 let index:number = data.quantity_transmit;
-                socket_test.handler = (data.measure === "send")
-                    ? null
-                    : function services_testPerformance_testWebsocket_handler(socket_client:websocket_client):void {
-                        index_receive = index_receive + 1;
-                        if (index_receive === data.quantity_transmit) {
-                            test_time[test_time.length - 1][2] = process.hrtime.bigint();
-                            complete("roundtrip", socket_client);
-                        }
-                    };
                 socket_test.queue_callback = function services_testPerformance_testWebSocket_hash_socket_queueCallback():void {
                     test_time[test_time.length - 1][1] = process.hrtime.bigint();
                     complete("send", socket_test);
@@ -132,12 +122,21 @@ const test_performance = function services_testPerformance(socket_data:socket_da
             test_time.push([process.hrtime.bigint(), 0n, 0n]);
             hash({
                 algorithm: "sha3-512",
-                callback: function services_test_Performance_testType_hash(output:core_hash_output):void {
+                callback: function services_testPerformance_testType_hash(output:core_hash_output):void {
+                    let index_receive:number = 1;
                     create_socket({
                         callback: (data.type === "http")
                             ? test_http
                             : test_websocket,
-                        handler: null,
+                        handler: (data.type === "websocket" && data.measure === "roundtrip")
+                            ? function services_testPerformance_testType_hash_handler(socket_client:websocket_client):void {
+                                index_receive = index_receive + 1;
+                                if (index_receive === data.quantity_transmit) {
+                                    test_time[test_time.length - 1][2] = process.hrtime.bigint();
+                                    complete("roundtrip", socket_client);
+                                }
+                            }
+                            : null,
                         hash: output.hash,
                         headers: null,
                         ip: data.location,

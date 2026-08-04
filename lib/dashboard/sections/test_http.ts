@@ -8,7 +8,7 @@ const ui_test_http = function ui_test_http():void {
             request: function dashboard_sections_http_request():void {
                 const encryption:boolean = dashboard.sections["test-http"].nodes.encryption.checked,
                     timeout:number = Number(dashboard.sections["test-http"].nodes.timeout.value),
-                    data:services_http_test = {
+                    data:services_test_http = {
                         body: "",
                         encryption: encryption,
                         headers: dashboard.sections["test-http"].nodes.request.value,
@@ -20,7 +20,7 @@ const ui_test_http = function ui_test_http():void {
                     },
                     strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["test-http"].nodes.stats.getElementsByTagName("strong");
                 dashboard.utility.setState();
-                dashboard.message.send({data: data, service: "services_http_test"});
+                dashboard.message.send({data: data, service: "services_test_http"});
                 dashboard.sections["test-http"].nodes.responseBody.value = "";
                 dashboard.sections["test-http"].nodes.responseHeaders.value = "";
                 dashboard.sections["test-http"].nodes.responseURI.value = "";
@@ -60,7 +60,7 @@ const ui_test_http = function ui_test_http():void {
             timeout: document.getElementById("test-http").getElementsByTagName("input")[2]
         },
         receive: function dashboard_sections_http_receive(data_item:socket_data):void {
-            const data:services_http_test = data_item.data as services_http_test,
+            const data:services_test_http = data_item.data as services_test_http,
                 strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["test-http"].nodes.stats.getElementsByTagName("strong");
             dashboard.sections["test-http"].nodes.responseBody.value = data.body;
             dashboard.sections["test-http"].nodes.responseHeaders.value = data.headers;

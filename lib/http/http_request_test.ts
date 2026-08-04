@@ -7,7 +7,7 @@ import vars from "../core/vars.ts";
 
 // processes HTTP tests from the dashboard UI
 const http_request = function http_request(socket_data:socket_data, transmit:transmit_socket):void {
-    const data:services_http_test = socket_data.data as services_http_test,
+    const data:services_test_http = socket_data.data as services_test_http,
         req:string = data.headers,
         header:string = req.split("\r\n\r\n")[0].replace(/\s+$/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n"),
         headers:string[] = header.split("\n"),
@@ -20,7 +20,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
             const response_body:string = (response_body_raw === undefined)
                         ? ""
                         : response_body_raw,
-                output:services_http_test = {
+                output:services_test_http = {
                     body: response_body,
                     encryption: data.encryption,
                     headers: response_headers,
@@ -48,7 +48,7 @@ const http_request = function http_request(socket_data:socket_data, transmit:tra
                 };
             send({
                 data: output,
-                service: "services_http_test"
+                service: "services_test_http"
             }, transmit.socket as websocket_client, 3);
             if (socket !== null) {
                 socket.destroy();

@@ -115,30 +115,6 @@ interface services_hash {
 }
 // Hash and base64 computational output as well as the user request details
 
-interface services_http_test {
-    body: string;
-    encryption: boolean;
-    headers: string;
-    stats: {
-        chunks: {
-            chunked: boolean;
-            count: number;
-        };
-        request: {
-            size_body: number;
-            size_header: number;
-        };
-        response: {
-            size_body: number;
-            size_header: number;
-        };
-        time: number;
-    };
-    timeout: number;
-    uri: string;
-}
-// HTTP test response details and the user's request for such
-
 interface services_log {
     log: config_log;
     total: number;
@@ -337,6 +313,30 @@ interface services_test_browser {
 }
 // Test automation messaging to the browser
 
+interface services_test_http {
+    body: string;
+    encryption: boolean;
+    headers: string;
+    stats: {
+        chunks: {
+            chunked: boolean;
+            count: number;
+        };
+        request: {
+            size_body: number;
+            size_header: number;
+        };
+        response: {
+            size_body: number;
+            size_header: number;
+        };
+        time: number;
+    };
+    timeout: number;
+    uri: string;
+}
+// HTTP test response details and the user's request for such
+
 interface services_test_performance_input {
     body: string;
     encryption: boolean;
@@ -425,7 +425,6 @@ type socket_data =
     {data: services_dns_reverse;             service: "services_dns_reverse";} |
     {data: services_file_system;             service: "services_file_system";} |
     {data: services_hash;                    service: "services_hash";} |
-    {data: services_http_test;               service: "services_http_test";} |
     {data: services_log;                     service: "services_log";} |
     {data: services_message_inspection;      service: "services_message_inspection";} |
     {data: services_notes;                   service: "services_notes";} |
@@ -448,6 +447,7 @@ type socket_data =
     {data: services_status_clock;            service: "services_status_clock";} |
     {data: services_terminal_resize;         service: "services_terminal_resize";} |
     {data: services_test_browser;            service: "services_test_browser";} |
+    {data: services_test_http;               service: "services_test_http";} |
     {data: services_test_performance_input;  service: "services_test_performance_input";} |
     {data: services_test_performance_output; service: "services_test_performance_output";} |
     {data: services_udp_socket;              service: "services_udp_socket";} |
