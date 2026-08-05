@@ -68,6 +68,7 @@ const socket_end = function transmit_socketEnd(this:websocket_client, error:node
     }
 
     log.application(payload_log);
+    this.destroy();
     socket_list_build();
 };
 
