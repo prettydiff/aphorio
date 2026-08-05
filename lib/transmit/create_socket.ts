@@ -49,6 +49,8 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                 time: Date.now()
             });
             if (config.type === "test-websocket") {
+                client.removeAllListeners("error");
+                client.removeAllListeners("ready");
                 config.callback(null, null, errorMessage);
             }
         },
@@ -95,19 +97,19 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
             error.code = (errorItem === undefined)
                 ? "ETIMEDOUT"
                 : errorItem.code;
-            config.callback(null, null, error);
             client.removeAllListeners("error");
             client.removeAllListeners("ready");
+            config.callback(null, null, error);
         };
     if (config.ip === "") {
         // an empty string defaults to loopback, which creates an endless feedback loop
         return;
     }
+    client.on("error", callbackError);
     if (config.timeout > 0) {
         client.once("connectionAttemptTimeout", callbackTimeout);
     }
     client.once("connectionAttemptFailed", callbackTimeout);
-    client.once("error", callbackError);
     client.once("ready", callbackReady);
 };
 

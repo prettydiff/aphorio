@@ -122,7 +122,7 @@ const ui_test_performance = function ui_test_performance():void {
             list[10].textContent = `${(data.roundtrip.average / 1e9).commas()} seconds`;
             list[11].textContent = `${(data.roundtrip.max / 1e9).commas()} seconds`;
             list[12].textContent = `\u00b1${(data.roundtrip.variance / 1e9).toFixed(9).replace(/0+$/, "")} seconds`;
-            dashboard.sections["test-performance"].nodes.status.textContent = "Test complete.";
+            dashboard.sections["test-performance"].nodes.status.textContent = data.summary;
             dashboard.sections["test-performance"].nodes.button_execute.disabled = false;
         },
         tools: {}

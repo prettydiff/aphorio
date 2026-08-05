@@ -130,7 +130,9 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                     let index_receive:number = 1;
                     create_socket({
                         callback: function services_testPerformance_testWebsocket_hash_create(socket_test:websocket_client, timeout:bigint, error:node_error):void {
-                            if (error === null || error === undefined) {
+                            if (socket_test === null || (error !== null && error !== undefined)) {
+                                times(JSON.stringify(error), true);
+                            } else {
                                 let index:number = data.quantity_transmit;
                                 socket_test.queue_callback = function services_testPerformance_testWebSocket_hash_socket_queueCallback():void {
                                     socket_test.destroy();
@@ -143,8 +145,6 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                                         send(data.body, socket_test, 1);
                                     } while (index > 0);
                                 }
-                            } else {
-                                times(JSON.stringify(error), true);
                             }
                         },
                         handler: (data.measure === "roundtrip")
