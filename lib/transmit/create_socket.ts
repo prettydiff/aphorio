@@ -48,11 +48,8 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                 status: "error",
                 time: Date.now()
             });
-            if (config.type === "test-websocket") {
-                client.removeAllListeners("error");
-                client.removeAllListeners("ready");
-                config.callback(null, null, errorMessage);
-            }
+            client.destroy();
+            config.callback(null, null, errorMessage);
         },
         callbackReady = function transmit_createSocket_hash_ready():void {
             client.once("data", function transmit_createSocket_hash_ready_data(responseData:Buffer):void {
@@ -97,8 +94,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
             error.code = (errorItem === undefined)
                 ? "ETIMEDOUT"
                 : errorItem.code;
-            client.removeAllListeners("error");
-            client.removeAllListeners("ready");
+            client.destroy();
             config.callback(null, null, error);
         };
     if (config.ip === "") {
@@ -109,7 +105,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
     if (config.timeout > 0) {
         client.once("connectionAttemptTimeout", callbackTimeout);
     }
-    client.once("connectionAttemptFailed", callbackTimeout);
+    client.on("connectionAttemptFailed", callbackTimeout);
     client.once("ready", callbackReady);
 };
 
