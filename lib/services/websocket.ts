@@ -50,9 +50,6 @@ const websocket_test:websocket_test = {
             socket_test.destroy();
         }
     },
-    handler_server: function services_websocketTest_handlerServer(socket_test:websocket_client, resultBuffer:Buffer):void {
-        send(`Response message.\n\n${resultBuffer.toString()}`, socket_test, 1);
-    },
     handshake: function services_websocketTest_handshake(socket_data:socket_data, transmit:transmit_socket):void {
         const data:services_websocket_handshake = socket_data.data as services_websocket_handshake,
             browser_socket:websocket_client = transmit.socket as websocket_client,

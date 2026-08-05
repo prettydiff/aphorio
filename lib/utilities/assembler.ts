@@ -33,6 +33,7 @@ import ui_sockets_os_udp from "../dashboard/sections/sockets_os_udp.ts";
 import ui_statistics_resources from "../dashboard/sections/statistics_resources.ts";
 import ui_terminal from "../dashboard/sections/terminal.ts";
 import ui_test_http from "../dashboard/sections/test_http.ts";
+import ui_test_performance from "../dashboard/sections/test_performance.ts";
 import ui_test_websocket from "../dashboard/sections/test_websocket.ts";
 import ui_udp_socket from "../dashboard/sections/udp_socket.ts";
 import ui_users from "../dashboard/sections/users.ts";
@@ -129,6 +130,7 @@ const assembler = function utilities_assembler(process_path:string, callback:() 
             "statistics-resources": ui_statistics_resources,
             "terminal": ui_terminal,
             "test-http": ui_test_http,
+            "test-performance": ui_test_performance,
             "test-websocket": ui_test_websocket,
             "udp=socket": ui_udp_socket,
             "users": ui_users

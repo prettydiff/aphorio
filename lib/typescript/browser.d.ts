@@ -118,6 +118,7 @@ declare global {
         "statistics-resources": section_statistics_resources;
         "terminal": section_terminal;
         "test-http": section_test_http;
+        "test-performance": section_test_performance;
         "test-websocket": section_test_websocket;
         "udp-socket": section_udpSocket;
         "users": section_users;
@@ -606,6 +607,30 @@ declare global {
         };
     }
 
+    interface section_test_performance extends module_sections {
+        events: {
+            submit: () => void;
+            type: (event:MouseEvent) => void;
+        };
+        nodes: {
+            body: HTMLTextAreaElement;
+            button_execute: HTMLButtonElement;
+            connect_address: HTMLInputElement;
+            connect_port: HTMLInputElement;
+            encrypt_false: HTMLInputElement;
+            encrypt_true: HTMLInputElement;
+            garbage_collection_false: HTMLInputElement;
+            garbage_collection_true: HTMLInputElement;
+            measure_roundtrip: HTMLInputElement;
+            measure_send: HTMLInputElement;
+            quantity_tests: HTMLInputElement;
+            quantity_transmit: HTMLInputElement;
+            status: HTMLElement;
+            type_http: HTMLInputElement;
+            type_websocket: HTMLInputElement;
+        };
+    }
+
     interface section_test_websocket extends module_sections {
         connected: boolean;
         events: {
@@ -725,6 +750,16 @@ declare global {
             };
         };
         terminal: string;
+        test_performance: {
+            body: string;
+            connect_address: string;
+            connect_port: number;
+            encryption: boolean;
+            measure: "roundtrip" | "send";
+            quantity_tests: number;
+            quantity_transmit: number;
+            type: "http" | "websocket";
+        };
         test_websocket: {
             request_timeout: string;
             send_frame: string;

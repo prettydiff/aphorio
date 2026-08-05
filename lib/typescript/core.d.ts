@@ -130,6 +130,13 @@ interface core_module_messageInspection {
     set: type_receiver;
 }
 
+interface core_module_peer {
+    confirm_peer: (socket_data:socket_data) => void;
+    confirm_ui: (socket_data:socket_data) => void;
+    request_peer: (socket_data:socket_data) => void;
+    request_ui: (socket_data:socket_data) => void;
+}
+
 interface core_module_spawn {
     close: () => void;
     command: string;
@@ -366,6 +373,7 @@ interface core_vars_environment {
         "statistics-resources": boolean;
         "terminal": boolean;
         "test-http": boolean;
+        "test-performance": boolean;
         "test-websocket": boolean;
         "udp-socket": boolean;
         "users": boolean;

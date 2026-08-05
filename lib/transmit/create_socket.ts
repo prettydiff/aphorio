@@ -22,7 +22,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
         resource:string = (config.resource === null || config.resource === "" || config.resource === "/")
             ? "GET / HTTP/1.1"
             : config.resource,
-        header:string[] = (config.headers === undefined || config.headers === null)
+        header:string[] = (config.headers === undefined || config.headers === null || config.headers.length < 1)
             ? [
                 resource,
                 (config.ip.indexOf(":") > -1)
@@ -49,14 +49,12 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                 time: Date.now()
             });
             if (config.type === "test-websocket") {
+                client.removeAllListeners("error");
+                client.removeAllListeners("ready");
                 config.callback(null, null, errorMessage);
             }
         },
         callbackReady = function transmit_createSocket_hash_ready():void {
-            header.push("");
-            header.push("");
-            client.write(header.join("\r\n"));
-            startTime = process.hrtime.bigint();
             client.once("data", function transmit_createSocket_hash_ready_data(responseData:Buffer):void {
                 const response:string = responseData.toString();
                 if ((/^HTTP\/1.1 (4|5)\d{2}/).test(response) === true) {
@@ -86,6 +84,10 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     userAgent: `${vars.os.main.os.type}, ${vars.environment.name.capitalize()} Client Socket`
                 });
             });
+            header.push("");
+            header.push("");
+            client.write(header.join("\r\n"));
+            startTime = process.hrtime.bigint();
         },
         // eslint-disable-next-line max-params
         callbackTimeout = function transmit_createSocket_hash_timeout(ip:string, port:number, family:number, errorItem?:node_error):void {
@@ -95,19 +97,19 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
             error.code = (errorItem === undefined)
                 ? "ETIMEDOUT"
                 : errorItem.code;
-            config.callback(null, null, error);
             client.removeAllListeners("error");
             client.removeAllListeners("ready");
+            config.callback(null, null, error);
         };
     if (config.ip === "") {
         // an empty string defaults to loopback, which creates an endless feedback loop
         return;
     }
+    client.on("error", callbackError);
     if (config.timeout > 0) {
         client.once("connectionAttemptTimeout", callbackTimeout);
     }
     client.once("connectionAttemptFailed", callbackTimeout);
-    client.once("error", callbackError);
     client.once("ready", callbackReady);
 };
 

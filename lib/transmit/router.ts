@@ -3,7 +3,6 @@ import dns from "../services/dns.ts";
 import docker from "../services/docker.ts";
 import fileSystem from "../services/fileSystem.ts";
 import hash from "../services/hash.ts";
-import http_request_test from "../http/http_request_test.ts";
 import log from "../core/log.ts";
 import message_inspection from "../services/message_inspection.ts";
 import notes from "../services/notes.ts";
@@ -13,6 +12,8 @@ import servers from "../server/index.ts";
 import socket_list from "../services/socket_list.ts";
 import statistics_resources from "../services/statistics_resources.ts";
 import terminal from "../services/terminal.ts";
+import test_http from "../services/test_http.ts";
+import test_performance from "../services/test_performance.ts";
 import test_runner from "../test/runner.ts";
 import udp_socket from "../services/udp_socket.ts";
 import websocket_test from "../services/websocket.ts";
@@ -27,7 +28,6 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "services_dns_input": dns,
             "services_file_system": fileSystem,
             "services_hash": hash,
-            "services_http_test": http_request_test,
             "services_log": log.receive,
             "services_message_inspection": message_inspection.set,
             "services_notes": notes,
@@ -48,6 +48,8 @@ const router = function transmit_router(socketData:socket_data, transmit:transmi
             "services_statistics_change": statistics_resources.change,
             "services_terminal_resize": terminal.resize,
             "services_test_browser": test_runner.receive,
+            "services_test_http": test_http,
+            "services_test_performance_input": test_performance,
             "services_udp_socket": udp_socket,
             "services_websocket_handshake": websocket_test.handshake,
             "services_websocket_message": websocket_test.message

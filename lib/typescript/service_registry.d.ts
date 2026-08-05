@@ -115,30 +115,6 @@ interface services_hash {
 }
 // Hash and base64 computational output as well as the user request details
 
-interface services_http_test {
-    body: string;
-    encryption: boolean;
-    headers: string;
-    stats: {
-        chunks: {
-            chunked: boolean;
-            count: number;
-        };
-        request: {
-            size_body: number;
-            size_header: number;
-        };
-        response: {
-            size_body: number;
-            size_header: number;
-        };
-        time: number;
-    };
-    timeout: number;
-    uri: string;
-}
-// HTTP test response details and the user's request for such
-
 interface services_log {
     log: config_log;
     total: number;
@@ -337,6 +313,64 @@ interface services_test_browser {
 }
 // Test automation messaging to the browser
 
+interface services_test_http {
+    body: string;
+    encryption: boolean;
+    headers: string;
+    stats: {
+        chunks: {
+            chunked: boolean;
+            count: number;
+        };
+        request: {
+            size_body: number;
+            size_header: number;
+        };
+        response: {
+            size_body: number;
+            size_header: number;
+        };
+        time: number;
+    };
+    timeout: number;
+    uri: string;
+}
+// HTTP test response details and the user's request for such
+
+interface services_test_performance_input {
+    body: string;
+    encryption: boolean;
+    garbage_collection: boolean;
+    location: string;
+    measure: "roundtrip" | "send";
+    port: number;
+    quantity_tests: number;
+    quantity_transmit: number;
+    type: "http" | "websocket";
+}
+// Execute a performance test
+
+interface services_test_performance_output {
+    message_size: number;
+    quantity_tests: number;
+    quantity_transmit: number;
+    roundtrip: {
+        average: number;
+        max: number;
+        min: number;
+        variance: number;
+    };
+    send: {
+        average: number;
+        max: number;
+        min: number;
+        variance: number;
+    };
+    summary: string;
+    time: number;
+    type: "http" | "websocket";
+}
+
 interface services_udp_socket {
     address_destination: string;
     address_source: string;
@@ -381,41 +415,43 @@ interface services_websocket_status {
 // Sends connection establishment details for a test websocket
 
 type socket_data =
-    {data: services_compose_container;   service: "services_compose_container";} |
-    {data: services_compose_out;         service: "services_compose_out";} |
-    {data: services_compose_variables;   service: "services_compose_variables";} |
-    {data: services_compose;             service: "services_compose";} |
-    {data: services_dashboard_open;      service: "services_dashboard_open";} |
-    {data: services_dns_input;           service: "services_dns_input";} |
-    {data: services_dns_output;          service: "services_dns_output";} |
-    {data: services_dns_reverse;         service: "services_dns_reverse";} |
-    {data: services_file_system;         service: "services_file_system";} |
-    {data: services_hash;                service: "services_hash";} |
-    {data: services_http_test;           service: "services_http_test";} |
-    {data: services_log;                 service: "services_log";} |
-    {data: services_message_inspection;  service: "services_message_inspection";} |
-    {data: services_notes;               service: "services_notes";} |
-    {data: services_os_all;              service: "services_os_all";} |
-    {data: services_os_devs;             service: "services_os_devs";} |
-    {data: services_os_disk;             service: "services_os_disk";} |
-    {data: services_os_intr;             service: "services_os_intr";} |
-    {data: services_os_main;             service: "services_os_main";} |
-    {data: services_os_proc;             service: "services_os_proc";} |
-    {data: services_os_serv;             service: "services_os_serv";} |
-    {data: services_os_sock;             service: "services_os_stcp";} |
-    {data: services_os_sock;             service: "services_os_sudp";} |
-    {data: services_os_user;             service: "services_os_user";} |
-    {data: services_ports_application;   service: "services_ports_application";} |
-    {data: services_server_action;       service: "services_server_action";} |
-    {data: services_server_update;       service: "services_server_update";} |
-    {data: services_socket_application;  service: "services_socket_application";} |
-    {data: services_statistics_change;   service: "services_statistics_change";} |
-    {data: services_statistics_data;     service: "services_statistics_data";} |
-    {data: services_status_clock;        service: "services_status_clock";} |
-    {data: services_terminal_resize;     service: "services_terminal_resize";} |
-    {data: services_test_browser;        service: "services_test_browser";} |
-    {data: services_udp_socket;          service: "services_udp_socket";} |
-    {data: services_udp_status;          service: "services_udp_status";} |
-    {data: services_websocket_handshake; service: "services_websocket_handshake";} |
-    {data: services_websocket_message;   service: "services_websocket_message";} |
-    {data: services_websocket_status;    service: "services_websocket_status";};
+    {data: services_compose_container;       service: "services_compose_container";} |
+    {data: services_compose_out;             service: "services_compose_out";} |
+    {data: services_compose_variables;       service: "services_compose_variables";} |
+    {data: services_compose;                 service: "services_compose";} |
+    {data: services_dashboard_open;          service: "services_dashboard_open";} |
+    {data: services_dns_input;               service: "services_dns_input";} |
+    {data: services_dns_output;              service: "services_dns_output";} |
+    {data: services_dns_reverse;             service: "services_dns_reverse";} |
+    {data: services_file_system;             service: "services_file_system";} |
+    {data: services_hash;                    service: "services_hash";} |
+    {data: services_log;                     service: "services_log";} |
+    {data: services_message_inspection;      service: "services_message_inspection";} |
+    {data: services_notes;                   service: "services_notes";} |
+    {data: services_os_all;                  service: "services_os_all";} |
+    {data: services_os_devs;                 service: "services_os_devs";} |
+    {data: services_os_disk;                 service: "services_os_disk";} |
+    {data: services_os_intr;                 service: "services_os_intr";} |
+    {data: services_os_main;                 service: "services_os_main";} |
+    {data: services_os_proc;                 service: "services_os_proc";} |
+    {data: services_os_serv;                 service: "services_os_serv";} |
+    {data: services_os_sock;                 service: "services_os_stcp";} |
+    {data: services_os_sock;                 service: "services_os_sudp";} |
+    {data: services_os_user;                 service: "services_os_user";} |
+    {data: services_ports_application;       service: "services_ports_application";} |
+    {data: services_server_action;           service: "services_server_action";} |
+    {data: services_server_update;           service: "services_server_update";} |
+    {data: services_socket_application;      service: "services_socket_application";} |
+    {data: services_statistics_change;       service: "services_statistics_change";} |
+    {data: services_statistics_data;         service: "services_statistics_data";} |
+    {data: services_status_clock;            service: "services_status_clock";} |
+    {data: services_terminal_resize;         service: "services_terminal_resize";} |
+    {data: services_test_browser;            service: "services_test_browser";} |
+    {data: services_test_http;               service: "services_test_http";} |
+    {data: services_test_performance_input;  service: "services_test_performance_input";} |
+    {data: services_test_performance_output; service: "services_test_performance_output";} |
+    {data: services_udp_socket;              service: "services_udp_socket";} |
+    {data: services_udp_status;              service: "services_udp_status";} |
+    {data: services_websocket_handshake;     service: "services_websocket_handshake";} |
+    {data: services_websocket_message;       service: "services_websocket_message";} |
+    {data: services_websocket_status;        service: "services_websocket_status";};

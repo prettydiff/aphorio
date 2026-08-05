@@ -80,6 +80,7 @@
             <ul>
                 <li><button data-section="test-http">HTTP Test</button></li>
                 <li><button data-section="test-websocket">WebSocket Test</button></li>
+                <li><button data-section="test-performance">Performance Test</button></li>
             </ul>
         </div>
         <div>
@@ -119,6 +120,7 @@
                 <div class="section">
                     <h3>Environmental Variables</h3>
                     <p class="buttons"><button class="compose-variable-new">Edit Variables</button></p>
+                    <span class="clear"></span>
                     <ul class="compose-variable-list"></ul>
                 </div>
                 <div class="section">
@@ -129,6 +131,7 @@
                 <div class="section">
                     <h3>Containers</h3>
                     <p class="buttons"><button class="compose-container-new">New Container</button></p>
+                    <span class="clear"></span>
                     <ul class="compose-container-list"></ul>
                 </div>
             </div>
@@ -213,13 +216,13 @@
                     <dd>text records</dd>
                 </dl>
             </div>
-            <div class="section">
+            <div class="table-filters">
                 <h3>Input</h3>
-                <h4>Query Direction</h4>
-                <p><label class="radio">DNS Name Resolve <input checked="checked" name="dns_direction" type="radio" value="resolve"/></label> <label class="radio">Reverse DNS Lookup <input checked="checked" name="dns_direction" type="radio" value="reverse"/></label></p>
+                <p class="radio"><label>DNS Name Resolve <input checked="checked" name="dns_direction" type="radio" value="resolve"/></label> <label>Reverse DNS Lookup <input checked="checked" name="dns_direction" type="radio" value="reverse"/></label></p>
                 <p><label>Comma separated list of domains and/or hostname entries <input type="text"/></label></p>
                 <p><label>Comma separated list of record types. Leave blank for all types. Supported types: A, AAAA, CAA, CNAME, MX, NAPTR, NS, PTR, SOA, SRV, TLSA, TXT <input type="text"/></label></p>
                 <p class="buttons"><button>Execute Query</button></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
                 <h3>Output</h3>
@@ -478,7 +481,7 @@
             <div class="file-system-content"></div>
             <div class="summary-stats">
                 <h3>Summary of Results</h3>
-                <ul class="file-system-summary-list">
+                <ul class="summary-stats-list">
                     <li><span>Displayed Artifact Size:</span> <strong></strong></li>
                     <li><span>Displayed Item Count:</span> <strong></strong></li>
                 </ul>
@@ -526,25 +529,26 @@
             <div class="form">
                 <h3>Input</h3>
                 <h4>Function</h4>
-                <p>
-                    <label class="radio">Generate Hash <input checked="checked" name="hash_function" type="radio" value="false"/></label>
-                    <label class="radio">Base64 Encode <input name="hash_function" type="radio" value="true"/></label>
+                <p class="radio">
+                    <label>Generate Hash <input checked="checked" name="hash_function" type="radio" value="false"/></label>
+                    <label>Base64 Encode <input name="hash_function" type="radio" value="true"/></label>
                 </p>
                 <h4>Input Source Type</h4>
-                <p>
-                    <label class="radio">String <input checked="checked" name="hash_type" type="radio" value="false"/></label>
-                    <label class="radio">File <input name="hash_type" type="radio" value="true"/></label>
+                <p class="radio">
+                    <label>String <input checked="checked" name="hash_type" type="radio" value="false"/></label>
+                    <label>File <input name="hash_type" type="radio" value="true"/></label>
                 </p>
                 <h4>Hash Output Format</h4>
-                <p>
-                    <label class="radio">Hexadecimal <input checked="checked" name="hash_digest" type="radio" value="false"/></label>
-                    <label class="radio">Base64 <input name="hash_digest" type="radio" value="true"/></label>
+                <p class="radio">
+                    <label>Hexadecimal <input checked="checked" name="hash_digest" type="radio" value="false"/></label>
+                    <label>Base64 <input name="hash_digest" type="radio" value="true"/></label>
                 </p>
                 <h4>Hash Algorithm</h4>
                 <p><label>Choose one of all supported hash algorithms <select></select></label></p>
                 <h4>Input Value</h4>
                 <p><label>Input must be a local absolute file system path if input type is <em>file</em>, otherwise provide any text value. <textarea spellcheck="spellcheck"></textarea></label></p>
                 <p class="buttons"><button>Generate Hash</button></p>
+                <span class="clear"></span>
             </div>
             <div class="form">
                 <h3>Output</h3>
@@ -986,6 +990,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <div class="section">
                 <h3>Web Server List</h3>
                 <p class="buttons"><button class="server-new">Create Server</button></p>
+                <span class="clear"></span>
                 <ul class="server-list"></ul>
             </div>
         </div>
@@ -1316,12 +1321,13 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <div class="form">
                 <h3>Request</h3>
                 <h4>Scheme</h4>
-                <p><label class="radio">Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
+                <p class="radio"><label>Plain text (http) <input name="http_scheme" type="radio" value="false"/></label> <label>Encrypted (https) <input checked="checked" name="http_scheme" type="radio" value="true"/></label></p>
                 <h4>Timeout</h4>
                 <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input spellcheck="false" type="number" value="0"/></label></p>
                 <h4>Raw Request Text</h4>
                 <p><label>Complete raw HTTP request including header <textarea class="test-input" spellcheck="false"></textarea></label></p>
                 <p class="buttons"><button class="send_request">Send Request</button></p>
+                <span class="clear"></span>
             </div>
             <div class="form">
                 <h3>Response</h3>
@@ -1347,6 +1353,127 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             </div>
         </div>
         <!-- test-http end -->
+        <!-- test-performance start -->
+        <div class="tab" id="test-performance">
+            <h2>Performance Test</h2>
+            <p class="tab-description">A simplistic WebSocket performance measurement tool.</p>
+            <div class="definitions">
+                <h3>Performance Testing <button class="expand">Expand</button></h3>
+                <div class="definition-body">
+                    <h4>About Testing in General</h4>
+                    <p>
+                        Performance testing occurs from either measuring the time it takes to complete a given number of task iterations or counting the number of task iterations that occur in a given timeframe.
+                        Performance must be measured using actual numbers that represent a point of precise comparison.
+                        Without numbers humans tend to guess at performance using bias and prejudice that is frequently wrong by multiple orders of magnitude.
+                    </p>
+                    <p>
+                        Results my vary between tests, so it is recommended to conduct multiple test runs for a given measurable criteria.
+                        With multiple measures the test platform can determine the variance between test cycles.
+                        Larger than expected variance may likely represent a larger performance problem.
+                    </p>
+                    <p>
+                        Transmission tests should always include a message body.
+                        For HTTP tests the body content is ignored on common HTTP methods, such as GET, but it still factors into the transmission speed and memory management.
+                        HTTP tests will comprise opening and closing sockets for each message transmission, as is the standard for HTTP 1.1 without the keep-alive feature.
+                        WebSocket tests will open a socket before any message transfer and close the socket only after sending all messages in the queue.
+                    </p>
+                    <h4>Test Methodology</h4>
+                    <p>
+                        This application creates experiments that comprise a series of tests, which defaults to 10.
+                        Multiple tests allow for discovery of variability and the application reports this variability as experiment variance computed by:
+                    </p>
+                    <ol>
+                        <li>Find the average from a list of results.</li>
+                        <li>For each value in the list subtract the average and then square the result.</li>
+                        <li>Gather the total of those squared differences.</li>
+                        <li>Divide that total of squared difference by the number of values in the list.</li>
+                        <li>Take the square root of that resulting total.</li>
+                    </ol>
+                    <p>
+                        For WebSocket experiments the application allows for the measuring of messaging sending only or for measuring a roundtrip of send and data receive.
+                        Roundtrip measurements are a more honest measure of transmission performance, but because receiving data from WebSockets is dramatically slow compared to sending that data most tools bias their results by only reporting send speeds.
+                    </p>
+                    <p>
+                        The tool also allows for imposing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Memory_management">JavaScript garbage collection</a> between tests or allowing garbage collection at the application's discretion.
+                        The actual real world timings between those are similar, but the raw numbers measuring transmission speed only are wildly different.
+                    </p>
+                    <p>
+                        All messages are sent serially, for both HTTP and WebSocket tests, which means one after another without any kind of parallel messaging.
+                        In the case of WebSockets the protocol, <a href="https://www.rfc-editor.org/info/rfc6455/">RFC 6455</a>, requires that messages be sent in an orderly fashion without any inter-splicing.
+                        The means to test for parallel message transfer would require the use of multiple sockets, but this application does not perform such testing.
+                    </p>
+                    <p>
+                        In the case of both HTTP and WebSocket tests a socket is created before any message transfer.
+                        Where HTTP and WebSockets differ is that HTTP will close the socket after the final response chunk is delivered while a WebSockets socket remains open until closed at the end of a given test.
+                        In this way HTTP behaves according to the guidance of <a href="https://www.rfc-editor.org/info/rfc2616/">RFC 2616</a> and <a href="https://www.rfc-editor.org/info/rfc9112/">RFC 9112</a> without a keep-alive header.
+                    </p>
+                    <h4>Key Findings</h4>
+                    <ul>
+                        <li>TLS WebSocket transmissions are a bit faster in Node.js 26.3.1.</li>
+                        <li>This application in Node 26.3.1 on a Windows computer reports a send speed of about 3,250,000 messages a second, or about 5,000,000 in about 2.1 seconds, when garbage collection is not forced between tests.</li>
+                        <li>When garbage collection is forced between test runs the application reports a send speed of about 0.002-0.006 seconds to send 3,250,000 messages, but the experiment reports a slightly longer total duration, around 13.1 seconds for 10 tests as compared to 12.2 for 10 tests. This may indicate a fundamental performance difference between memory management in Node versus network interface buffer management in the OS kernel.</li>
+                        <li>Although this application reports slightly improved performance using TLS encryption versus an unencrypted socket Node.js will crash if too many TLS messages are queued for transport. This occurs even when pushing Node to consume 8gb of memory at start.  I have not gotten an unencrypted socket to crash in this manner, which suggests a problem with TLS execution in Node.js.</li>
+                        <li>Smaller, more numerous, message segments result in slightly slower send speeds.</li>
+                        <li>This application reports a dramatically slower performance on reading incoming messages compared to sending messages. This is likely due to a combination of segmentation and unpredictability.  When sending messages you know exactly what the data looks like and can segment it in a way that is most ideal for the local application. Messages can be segmented from a variety of factors, such as TLS 1.3 will segment messages into 16,383 bytes, and the receiving end how to account for all these factors and unpredictable network behavior.  This results in a variety of integrity schemes taking priority. While this application can send 3,250,000 in 0,004 seconds it can only send and receive messages at a rate of about 45,000 messages per second according to this tool on the tested hardware.</li>
+                        <li>This application reports only about 100 HTTP round trips serially per second.</li>
+                    </ul>
+                    <h4>Summary of Findings</h4>
+                    <p>It appears most WebSocket servers report invalid numbers if they report only message send speed. WebSocket message send is dramatically faster than WebSocket message receive.  In the case of this application is a difference of sending 3,250,000 messages as fast as 0.002 seconds compared to a send and receive speed of about 45,000 messages per second.</p>
+                    <p>Even if the total round trip speed of WebSocket messaging is dramatically slower than the most ideal case of message send speed it is still amazingly faster than HTTP at 45,000 versus 100.</p>
+                    <p>Here are the numbers from my personal Windows machine in a list:</p>
+                    <ul>
+                        <li>3,250,000 messages in 0.002 seconds for WebSocket message send with language garbage collection separated from message send instructions</li>
+                        <li>3,250,000 messages in 1 second for WebSocket send without separating language garbage collection from testing</li>
+                        <li>45,000 messages in 1 second WebSocket send and receive</li>
+                        <li>100 messages in 1 second for HTTP 1.1</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="table-filters">
+                <h3>Test Input</h3>
+                <h4>Transmission Type</h4>
+                <p class="radio"><label>HTTP GET <input name="test-performance-type" type="radio" value="http"/></label><label>WebSocket <input checked="checked" name="test-performance-type" type="radio" value="websocket"/></label></p>
+                <h4>Encryption</h4>
+                <p class="radio"><label>Encrypted (HTTPS/WSS) <input name="test-performance-encryption" type="radio" value="encrypted"/></label><label>Unencrypted (HTTP/WS) <input checked="checked" name="test-performance-encryption" type="radio" value="unencrypted"/></label></p>
+                <h4>Measurement Type</h4>
+                <p class="radio"><label>Send Only <input checked="checked" name="test-performance-measure" type="radio" value="send"/></label><label>Roundtrip <input name="test-performance-measure" type="radio" value="roundtrip"/></label></p>
+                <h4>Garbage Collection</h4>
+                <p class="radio"><label>Force GC Between Tests <input checked="checked" name="test-performance-gc" type="radio" value="forced"/></label><label>Back to Back Tests <input name="test-performance-gc" type="radio" value="back-to-back"/></label></p>
+                <h4>Connection Details</h4>
+                <p><label>Destination IP Address <input type="text"/></label></p>
+                <p><label>Destination Port <input type="number"/></label></p>
+                <h4>Test Quantity</h4>
+                <p><label>Number of Transmissions per Test <input type="number"/></label></p>
+                <p><label>Number of Tests per Experiment <input type="number"/></label></p>
+                <span class="clear"></span>
+                <p class="textarea"><label>Message body <textarea></textarea></label></p>
+                <p class="ports">Current Status: <strong>Not started</strong></span></p>
+                <span class="clear"></span>
+                <p class="buttons"><button>Generate Hash</button></p>
+                <span class="clear"></span>
+            </div>
+            <div class="summary-stats">
+                <h3>Test Output</h3>
+                <ul class="summary-stats-list">
+                    <li><span>Transmission Quantity per Test Run:</span> <strong>0</strong></li>
+                    <li><span>Number of Tests in Experiment:</span> <strong>0</strong></li>
+                    <li><span>Message Size:</span> <strong>0 bytes</strong></li>
+                    <li><span>Total Experiment Duration:</span> <strong>0 seconds</strong></li>
+                    <li><span>Experiment Type:</span> <strong></strong></li>
+                </ul>
+                <ul>
+                    <li><span>Send - Fastest Test:</span> <strong>0 seconds</strong></li>
+                    <li><span>Send - Test Average:</span> <strong>0 seconds</strong></li>
+                    <li><span>Send - Slowest Test:</span> <strong>0 seconds</strong></li>
+                    <li><span>Send - Variance:</span> <strong>0 seconds</strong></li>
+                    <li><span>Roundtrip - Fastest Test:</span> <strong>0 seconds</strong></li>
+                    <li><span>Roundtrip - Test Average:</span> <strong>0 seconds</strong></li>
+                    <li><span>Roundtrip - Slowest Test:</span> <strong>0 seconds</strong></li>
+                    <li><span>Roundtrip - Variance:</span> <strong>0 seconds</strong></li>
+                </ul>
+            </div>
+        </div>
+        <!-- test-performance end -->
         <!-- test-websocket start -->
         <div class="tab" id="test-websocket">
             <h2>WebSocket Test</h2>
@@ -1407,7 +1534,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p id="websocket-status" class="connection-offline">WebSocket Test socket: <strong>Offline</strong></p>
                 <h3>Socket Connection</h3>
                 <h4>Scheme</h4>
-                <p><label class="radio">Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label class="radio">Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label> <em class="block">Ensure ports in the handshake message correspond to the scheme choice.</em></p>
+                <p class="radio"><label>Plain text (ws) <input name="socket_scheme" type="radio" value="false"/></label> <label>Encrypted (wss) <input checked="checked" name="socket_scheme" type="radio" value="true"/></label> <em class="block">Ensure ports in the handshake message correspond to the scheme choice.</em></p>
                 <h4>Handshake Timeout</h4>
                 <p><label>Request timeout in milliseconds. Value defaults to 0 and a 0 value removes any timeout.<input spellcheck="false" type="number" value="0"/></label></p>
                 <h4>Raw Handshake Message</h4>
@@ -1418,6 +1545,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 </div>
                 <p class="ports">Localhost ports: <span></span></p>
                 <p class="buttons"><button>Connect</button></p>
+                <span class="clear"></span>
             </div>
             <div class="form">
                 <h3>Messaging</h3>
@@ -1439,6 +1567,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <p class="float-last"><label>Message <textarea spellcheck="false"></textarea></label></p>
                         <span class="clear"></span>
                         <p class="buttons"><button disabled="disabled">Send</button></p>
+                        <span class="clear"></span>
                         <p class="frame_validate"><em></em></p>
                     </div>
                     <div class="form">
@@ -1530,14 +1659,14 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
             <div class="form">
                 <h3>Create UDP Socket</h3>
                 <h4>Role</h4>
-                <p>
-                    <label class="radio">Connect (Client) <input name="udp-socket-role" type="radio" value="client"/></label>
-                    <label class="radio">Bind (Server) <input checked="checked" name="udp-socket-role" type="radio" value="server"/></label>
+                <p class="radio">
+                    <label>Connect (Client) <input name="udp-socket-role" type="radio" value="client"/></label>
+                    <label>Bind (Server) <input checked="checked" name="udp-socket-role" type="radio" value="server"/></label>
                 </p>
                 <h4>Address Type</h4>
-                <p>
-                    <label class="radio">IPv4 <input name="udp-socket-type" type="radio" value="ipv4"/></label>
-                    <label class="radio">IPv6 <input checked="checked" name="udp-socket-type" type="radio" value="ipv6"/></label>
+                <p class="radio">
+                    <label>IPv4 <input name="udp-socket-type" type="radio" value="ipv4"/></label>
+                    <label>IPv6 <input checked="checked" name="udp-socket-type" type="radio" value="ipv6"/></label>
                 </p>
             </div>
             <div class="udp-role-server">

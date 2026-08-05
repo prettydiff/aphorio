@@ -60,7 +60,7 @@ const ui_application_logs = function ui_application_logs():void {
                 }
             }
             li.appendChild(p);
-            if (len > dashboard.global.payload.logs.max) {
+            if (dashboard.global.payload !== null && len > dashboard.global.payload.logs.max) {
                 dashboard.sections["application-logs"].nodes.list.removeChild(dashboard.sections["application-logs"].nodes.list.lastChild);
                 dashboard.sections["application-logs"].nodes.count.textContent = String(len);
             } else {

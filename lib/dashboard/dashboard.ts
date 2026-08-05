@@ -80,6 +80,7 @@ const dashboard:dashboard = {
                         "pid": 0,
                         "platform": "",
                         "ppid": 0,
+                        "sea": false,
                         "uptime": 0,
                         "versions": {}
                     },
@@ -180,6 +181,16 @@ const dashboard:dashboard = {
             "table_os": {},
             "tables": {},
             "terminal": "",
+            "test_performance": {
+                body: "",
+                connect_address: "",
+                connect_port: 80,
+                encryption: false,
+                measure: "send",
+                quantity_tests: 1000,
+                quantity_transmit: 10,
+                type: "websocket"
+            },
             "test_websocket": {
                 "request_timeout": "",
                 "send_frame": "",
@@ -702,6 +713,32 @@ const dashboard:dashboard = {
             },
             "receive": function(socket_data:socket_data):void {},
             "tools": {}
+        },
+        "test-performance": {
+            events: {
+                submit: function():void {},
+                type: function(event:MouseEvent) {}
+            },
+            init: null,
+            nodes: {
+                body: null,
+                button_execute: null,
+                connect_address: null,
+                connect_port: null,
+                encrypt_false: null,
+                encrypt_true: null,
+                garbage_collection_false: null,
+                garbage_collection_true: null,
+                measure_roundtrip: null,
+                measure_send: null,
+                quantity_tests: null,
+                quantity_transmit: null,
+                status: null,
+                type_http: null,
+                type_websocket: null
+            },
+            receive: null,
+            tools: {}
         },
         "test-websocket": {
             "connected": false,

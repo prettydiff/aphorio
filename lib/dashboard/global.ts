@@ -43,6 +43,15 @@ const ui_global = function ui_global():void {
                         table_os: {},
                         tables: {},
                         terminal: "",
+                        test_performance: {
+                            body: "",
+                            connect_address: "",
+                            connect_port: 80,
+                            encryption: false,
+                            quantity_tests: 10,
+                            quantity_transmit: 1000,
+                            type: "websocket"
+                        },
                         test_websocket: {
                             request_timeout: "0",
                             send_frame: "",
