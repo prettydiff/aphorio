@@ -92,6 +92,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             config.socket.status = "open"; // sets the status flag for the socket
             if (config.single_socket === true) {
                 const death = function transmit_socketExtension_death(this:websocket_client):void {
+                    this.destroy();
                     server_halt({
                         action: "destroy",
                         server: vars.data.servers[this.server_hash]

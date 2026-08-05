@@ -303,6 +303,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     );
                                     if (server.single_socket === true) {
                                         const terminate = function transmit_connection_handshake_localService_httpAction_terminate(this:websocket_client):void {
+                                            this.destroy();
                                             server_halt({
                                                 action: "destroy",
                                                 server: vars.data.servers[this.server_hash]

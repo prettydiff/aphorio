@@ -48,6 +48,7 @@ const terminal:core_module_terminal = {
                     status: "error",
                     time: Date.now()
                 };
+                socket.destroy();
                 log.application(config);
                 close();
             },
