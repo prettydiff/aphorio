@@ -101,6 +101,15 @@ declare global {
         template: boolean;
     }
 
+    interface config_http_request_output {
+        chunked: boolean;
+        chunks: number;
+        error: node_error;
+        response_body_raw: string;
+        response_headers: string;
+        url: URL;
+    }
+
     interface config_log {
         error: node_childProcess_ExecException | node_error | TypeError;
         message: string;

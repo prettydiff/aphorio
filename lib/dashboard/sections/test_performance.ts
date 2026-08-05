@@ -37,6 +37,16 @@ const ui_test_performance = function ui_test_performance():void {
                     data: service,
                     service: "services_test_performance_input"
                 });
+            },
+            type: function dashboard_sections_testPerformance_type(event:MouseEvent):void {
+                dashboard.utility.setState();
+                if (event.target === dashboard.sections["test-performance"].nodes.type_http) {
+                    dashboard.sections["test-performance"].nodes.measure_roundtrip.disabled = true;
+                    dashboard.sections["test-performance"].nodes.measure_send.disabled = true;
+                } else {
+                    dashboard.sections["test-performance"].nodes.measure_roundtrip.disabled = false;
+                    dashboard.sections["test-performance"].nodes.measure_send.disabled = false;
+                }
             }
         },
         init: function dashboard_sections_testPerformance_init():void {
@@ -49,8 +59,8 @@ const ui_test_performance = function ui_test_performance():void {
                 dashboard.sections["test-performance"].nodes.encrypt_true.onclick = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.quantity_tests.onblur = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.quantity_transmit.onblur = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.type_http.onclick = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.type_websocket.onclick = dashboard.utility.setState;
+                dashboard.sections["test-performance"].nodes.type_http.onclick = dashboard.sections["test-performance"].events.type;
+                dashboard.sections["test-performance"].nodes.type_websocket.onclick = dashboard.sections["test-performance"].events.type;
                 dashboard.sections["test-performance"].nodes.body.value = dashboard.global.state.test_performance.body;
                 dashboard.sections["test-performance"].nodes.connect_address.value = dashboard.global.state.test_performance.connect_address;
                 dashboard.sections["test-performance"].nodes.connect_port.value = String(dashboard.global.state.test_performance.connect_port);
@@ -68,8 +78,12 @@ const ui_test_performance = function ui_test_performance():void {
                 }
                 if (dashboard.global.state.test_performance.type === "http") {
                     dashboard.sections["test-performance"].nodes.type_http.checked = true;
+                    dashboard.sections["test-performance"].nodes.measure_roundtrip.disabled = true;
+                    dashboard.sections["test-performance"].nodes.measure_send.disabled = true;
                 } else {
                     dashboard.sections["test-performance"].nodes.type_websocket.checked = true;
+                    dashboard.sections["test-performance"].nodes.measure_roundtrip.disabled = false;
+                    dashboard.sections["test-performance"].nodes.measure_send.disabled = false;
                 }
                 dashboard.sections["test-performance"].nodes.status.textContent = "Test not started.";
                 dashboard.sections["test-performance"].nodes.button_execute.disabled = false;

@@ -716,7 +716,8 @@ const dashboard:dashboard = {
         },
         "test-performance": {
             events: {
-                submit: function():void {}
+                submit: function():void {},
+                type: function(event:MouseEvent) {}
             },
             init: null,
             nodes: {

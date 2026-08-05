@@ -610,6 +610,7 @@ declare global {
     interface section_test_performance extends module_sections {
         events: {
             submit: () => void;
+            type: (event:MouseEvent) => void;
         };
         nodes: {
             body: HTMLTextAreaElement;
