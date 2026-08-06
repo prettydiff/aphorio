@@ -40,7 +40,16 @@ Determine which features to exclude by simply setting a boolean value in the `fe
 7. Run the application: `npm run server`.
 6. Access the dashboard in a browser on the specified random port.
 
-## Shell commands
+## Performance
+The following benchmarks are executed from the application's internal *Performance Test* section.  The results are hardware specific executed using a localhost address and message size of 120 bytes across multiple experiments each comprising 10 tests.
+
+* *3,250,000 messages* in **0.002-0.006 seconds**: WebSockets, send only, not including garbage collection of system memory
+* *3,250,000 messages* in about 1 second: WebSockets, send only, includes memory garbage collection in the tests
+* *45,000 messages* in about 1 second: WebSockets, full round trip, includes memory garbage collection in the tests
+* *100 messages* in about 1 second: HTTP GET without keep alive, full round trip, includes memory garbage collection in the tests
+
+## Nerd Stuff
+### Shell commands
 * `npm run lint` - Executes ESLint for TypeScript to analyze the application against a bunch of draconian rules
 * `npm run server` or `node ./lib/index.ts` - Executes the application
 * `npm run test` or  `node ./lib/index.ts test` - Runs the test automation
@@ -48,10 +57,10 @@ Determine which features to exclude by simply setting a boolean value in the `fe
 
 Please note that for Docker support the `npm run server` command must be executed using an administrative account and/or shell.
 
-### Supported shell command arguments
+#### Supported shell command arguments
 All arguments are supported only on the server command, example: `npm run server test no-color`
 
-#### Test Options
+##### Test Options
 * `browser:<file_path>`      - Provides for an absolute file path for a web browser executable to test against.
                                The file path value can be quoted, but if not quoted then spaces must be escaped according to the given shell's syntax rules.
                                Any arguments following this argument will be passed directly to that web browser.
@@ -64,21 +73,21 @@ All arguments are supported only on the server command, example: `npm run server
 * `stop-on-fail`             - Tells the test runner to stop processing further test lists after the first failed assertion.
 * `test`                     - If present this option instructs the application to execute test automation.
 
-#### General Use Options
+##### General Use Options
 * `no-color`                  - Eliminates use of ANSI color codes in terminal output.
 * `port-open:<port_number>`   - Creates an insecure instance of the dashboard server on the specified insecure port, if that port is open.
 * `port-secure:<port_number>` - Creates a secure instance of the dashboard server on the specified insecure port, if that port is open.
 
 Example: `npm run test "browser:C:\Program Files\Mozilla Firefox\firefox.exe" "list:list_local_browser_fileSystem.ts" no-exit no-color`
 
-## Tested Platforms
+### Tested Platforms
 * Debian Linux 13
 * Windows 11
 
-## Dependencies
+### Dependencies
 The external dependencies need to be installed and added to the system path, but require no further configuration.  The included dependencies require no action or configuration at all.
 
-### External Dependencies
+#### External Dependencies
 These dependencies must be installed separate from this application.
 
 * [Node.js](https://github.com)
@@ -116,7 +125,7 @@ These dependencies must be installed separate from this application.
       sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
       ```
 
-### Included Dependencies
+#### Included Dependencies
 These dependencies are included with this application code repository.
 
 * [@lydell/node-pty](https://www.npmjs.com/package/@lydell/node-pty)
