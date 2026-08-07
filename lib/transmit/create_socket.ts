@@ -6,6 +6,10 @@ import socket_extension from "./socketExtension.ts";
 import vars from "../core/vars.ts";
 
 const create_socket = function transmit_createSocket(config:config_websocket_create):void {
+    if (typeof config.ip !== "string" || config.ip === "") {
+        config.callback(null, null, new Error(`Error: Host value does not appear valid: ${config.ip}`));
+        return;
+    }
     let startTime:bigint = null;
     const client:websocket_client = (config.secure === true)
             ? node.tls.connect({

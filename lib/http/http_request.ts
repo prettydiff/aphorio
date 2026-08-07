@@ -85,6 +85,17 @@ const http_request = function http_request(config:services_test_http, callback:(
         host = address_input[0];
         port = address_input[1];
     }
+    if (typeof host !== "string" || host === "") {
+        callback({
+            error: new Error(`Error: Host value does not appear valid: ${host}`),
+            chunked: null,
+            chunks: 0,
+            response_body_raw: "",
+            response_headers: "",
+            url: null
+        });
+        return;
+    }
     if (config.encryption === true && vars.environment.interfaces.includes(host) === true) {
         let index:number = vars.data.ports_application.length;
         do {
