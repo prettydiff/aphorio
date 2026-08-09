@@ -715,12 +715,20 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <!-- message-inspection start -->
         <div class="tab" id="message-inspection">
             <h2>Message Inspection</h2>
-            <p class="tab-description">View server messaging or docker logs in real time up to 500,000 characters of output. In the case of docker logs only the latest 5,000 entries will be fetched.</p>
-            <div class="section">
+            <p class="tab-description">View server messaging or docker logs in real time.</p>
+            <div class="table-filters">
+                <h3>Throttling</h3>
+                <p><label>Throttle Character Size <input type="number" value="500000"/></label></p>
+                <p><label>Throttle Duration in Seconds <input type="number" value="10"/></label></p>
+                <p><label>Maximum Display Size in characters <input type="number" value="500000"/></label></p>
+                <span class="clear"></span>
+                <h3>Service Identity</h3>
                 <p><label>Source Type <select><option selected="selected">Web Server</option><option>Docker Container</option></select></label></p>
                 <p><label>Service <select></select></label></p>
+                <span class="clear"></span>
             </div>
             <div class="section">
+                <h3>Messaging</h3>
                 <p><label> <em>test</em><textarea readonly="readonly"></textarea></label></p>
                 <p><label> <em>test</em><textarea readonly="readonly"></textarea></label></p>
             </div>

@@ -8,14 +8,25 @@ const ui_message_inspection = function ui_message_inspection():void {
             service: function dashboard_sections_messageInspection_service():void {
                 const value_service:string = dashboard.sections["message-inspection"].nodes.service[dashboard.sections["message-inspection"].nodes.service.selectedIndex].textContent,
                     value_type:string = dashboard.sections["message-inspection"].nodes.type[dashboard.sections["message-inspection"].nodes.type.selectedIndex].textContent,
+                    maximum_size:number = Number(dashboard.sections["message-inspection"].nodes.maximum_size.value),
+                    throttle_size:number = Number(dashboard.sections["message-inspection"].nodes.throttle_size.value),
+                    throttle_time:number = Number(dashboard.sections["message-inspection"].nodes.throttle_time.value),
                     payload:services_message_inspection = {
                         count: 0,
                         direction: "in",
-                        max_size: 0,
+                        maximum_size: (isNaN(maximum_size) === true)
+                            ? 500000
+                            : maximum_size,
                         message: "",
                         service: (value_service === "")
                             ? ""
                             : value_service.split(" - ")[1],
+                        throttle_size: (isNaN(throttle_size) === true)
+                            ? 500000
+                            : throttle_size,
+                        throttle_time: (isNaN(throttle_time) === true)
+                            ? 10000
+                            : throttle_time * 1000,
                         type: (value_type === "Web Server")
                             ? "web-server"
                             : "docker-container"
@@ -57,7 +68,7 @@ const ui_message_inspection = function ui_message_inspection():void {
                 if (value === "Web Server") {
                     populate(dashboard.global.payload.servers, "web-server");
                     dashboard.sections["message-inspection"].nodes.label_in.parentNode.style.display = "block";
-                    dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Messages in" ;
+                    dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Messages in ";
                     dashboard.sections["message-inspection"].nodes.label_out.firstChild.textContent = "Messages out ";
                 } else {
                     populate(dashboard.global.payload.compose.containers, "docker-container");
@@ -76,12 +87,15 @@ const ui_message_inspection = function ui_message_inspection():void {
             dashboard.sections["message-inspection"].events.type();
         },
         nodes: {
-            em_in: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[0].getElementsByTagName("em")[0],
-            em_out: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[1].getElementsByTagName("em")[0],
-            label_in: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[0],
-            label_out: document.getElementById("message-inspection").getElementsByClassName("section")[1].getElementsByTagName("label")[1],
-            service: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("select")[1] as HTMLSelectElement,
-            type: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("select")[0] as HTMLSelectElement
+            em_in: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("label")[0].getElementsByTagName("em")[0],
+            em_out: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("label")[1].getElementsByTagName("em")[0],
+            label_in: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("label")[0],
+            label_out: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("label")[1],
+            maximum_size: document.getElementById("message-inspection").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[2] as HTMLInputElement,
+            service: document.getElementById("message-inspection").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[1] as HTMLSelectElement,
+            throttle_size: document.getElementById("message-inspection").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0] as HTMLInputElement,
+            throttle_time: document.getElementById("message-inspection").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1] as HTMLInputElement,
+            type: document.getElementById("message-inspection").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0] as HTMLSelectElement
         },
         receive: function dashboard_services_messageInspection_receive(socket_data:socket_data):void {
             const data:services_message_inspection = socket_data.data as services_message_inspection;
@@ -94,9 +108,9 @@ const ui_message_inspection = function ui_message_inspection():void {
                 const textarea:HTMLTextAreaElement = dashboard.sections["message-inspection"].nodes[`label_${data.direction}`].getElementsByTagName("textarea")[0],
                     value_total:string = `${textarea.value}\n\n${data.message}`,
                     len:number = value_total.length,
-                    value:string = (len < data.max_size)
+                    value:string = (len < data.maximum_size)
                         ? value_total
-                        : value_total.slice(len - data.max_size);
+                        : value_total.slice(len - data.maximum_size);
                 textarea.value = value;
                 dashboard.sections["message-inspection"].nodes[`em_${data.direction}`].textContent = `(${data.count.commas()} characters updated, ${value.length.commas()} characters total)`;
             }

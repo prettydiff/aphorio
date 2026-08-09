@@ -574,9 +574,11 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
             message_inspection.send({
                 count: 0,
                 direction: "in",
-                max_size: 0,
+                maximum_size: 0,
                 message: dataString,
                 service: socket.server.id,
+                throttle_size: 0,
+                throttle_time: 0,
                 type: "web-server"
             });
 
