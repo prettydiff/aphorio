@@ -28,7 +28,7 @@ const ui_tables = function ui_tables():void {
                 target = event.target as HTMLInputElement;
                 dashboard.utility.setState();
             }
-            const section:HTMLElement = target.getAncestor("table-filters", "class"),
+            const section:HTMLElement = target.getAncestor("form", "class"),
                 tab:HTMLElement = section.getAncestor("tab", "class"),
                 tab_name:type_dashboard_tables = tab.getAttribute("id") as type_dashboard_tables,
                 module_map:store_module_map = {

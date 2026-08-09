@@ -6,11 +6,11 @@ const ui_users = function ui_users():void {
     const users:section_users = {
         dataName: "user",
         nodes: {
-            caseSensitive: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
+            caseSensitive: document.getElementById("users").getElementsByClassName("form")[0].getElementsByTagName("input")[1],
             count: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-            filter_column: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
+            filter_column: document.getElementById("users").getElementsByClassName("form")[0].getElementsByTagName("select")[0],
             filter_count: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
-            filter_value: document.getElementById("users").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
+            filter_value: document.getElementById("users").getElementsByClassName("form")[0].getElementsByTagName("input")[0],
             list: document.getElementById("users").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
             update_button: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
             update_duration: document.getElementById("users").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[1],

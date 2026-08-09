@@ -64,7 +64,7 @@
             .graphs[data-type="individual"] .section div{border-width:0.1em;float:none;width:100%}
         }
         #test-websocket p#websocket-status{margin:-1.75em -0.9em 1.5em}
-        .table-filters p{float:none;margin:1em 0;width:100%}
+        .form p{float:none;margin:1em 0;width:100%}
         .title p{display:block;margin:0}
         .title h1 span{display:block;font-size:0.4em;margin:1em 0 -1.2em 0}
         main{margin:0}
@@ -78,7 +78,6 @@
     div.form,
     div.definitions,
     div.section,
-    div.table-filters,
     div.udp-role-client,
     div.udp-role-server{padding:1em}
 }
@@ -96,7 +95,7 @@
             .graphs[data-type="individual"] .section div:first-child{margin:0}
         }
         #test-websocket p#websocket-status{margin:-1.75em -1.75em 1.5em}
-        .table-filters p{float:left;margin:1em 2em 0 0;width:calc(50% - 2em)}
+        .form p{float:left;margin:1em 2em 0 0;width:calc(50% - 2em)}
         .title p{display:inline-block}
         .title h1 span{margin:0 0 0 0.5em}
         main{margin:0 0 0 18.75em}
@@ -109,7 +108,6 @@
     div.form,
     div.definitions,
     div.section,
-    div.table-filters,
     div.udp-role-client,
     div.udp-role-server{padding:2em}
 }
@@ -137,7 +135,6 @@ li {
 div.form,
 div.definitions,
 div.section,
-div.table-filters,
 div.udp-role-client,
 div.udp-role-server{border-color:var(--border_color);border-style:solid;border-width:0.1em;margin:0 0 2em;min-width:fit-content;padding:2em}
 div.section:last-child{margin:0}
@@ -331,18 +328,25 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         max-height:85em;overflow:scroll;
         table{border-style:none}
     }
-    .form .radio,
-    .table-filters .radio{
-        clear:both;
-        float:none;
-        width:100%;
-        label{
-            cursor:pointer;
-            display:inline-block;
-            margin:0 0 1em;
-            width:45%;
-            input{display:inline-block;margin:0 0 0 0.5em}
+    .form {
+        .radio{
+            clear:both;
+            float:none;
+            width:100%;
+            label{
+                cursor:pointer;
+                display:inline-block;
+                margin:0 0 1em;
+                width:45%;
+                input{display:inline-block;margin:0 0 0 0.5em}
+            }
         }
+        p.textarea{clear:both;float:none;width:100%};
+        p:last-child{
+            margin:0;
+            textarea{margin:0}
+        }
+        p.textarea:last-child{margin:1em 0 0}
     }
     .http_response{
         .form{float:left;margin:2em 0;padding:2em;width:calc(50% - 5.2em)}
@@ -357,14 +361,6 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .summary-stats .summary-stats-list{border-color:var(--border_color);border-style:none none solid;border-width:0.1em;margin:0 0 2em 4em;padding:0 0 0.5em;width:30em}
     .tab{display:none}
     .tab-description{border-color:var(--border_soft);border-style:none none solid;border-width:0.1em;margin:0 0 2em;padding:0 0 0.5em}
-    .table-filters {
-        p.textarea{clear:both;float:none;width:100%};
-        p:last-child{
-            margin:0;
-            textarea{margin:0}
-        }
-        p.textarea:last-child{margin:1em 0 0}
-    }
     .title{display:block}
     /* end class selectors */
 
@@ -547,7 +543,6 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     }
 
     .form,
-    .table-filters,
     .udp-role-client,
     .udp-role-server{
         h3{float:left;margin:0;width:100%};

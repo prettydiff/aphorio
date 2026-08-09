@@ -124,9 +124,11 @@ interface services_log {
 interface services_message_inspection {
     count: number;
     direction: "in" | "out";
-    max_size: number;
+    maximum_size: number;
     message: string;
     service: string;
+    throttle_size: number;
+    throttle_time: number;
     type: "docker-container" | "web-server";
 }
 // Initiates streaming of Docker logs and messaging traversing supported web servers to the UI as well as the actions to start/stop/change that messaging

@@ -173,7 +173,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                     event: "click",
                     node: [
                         ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
                 },
@@ -181,7 +181,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                     event: "setValue",
                     node: [
                         ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "services_terminal_"
@@ -190,7 +190,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                     event: "keyup",
                     node: [
                         ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "Enter"

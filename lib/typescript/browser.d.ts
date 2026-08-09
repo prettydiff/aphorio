@@ -468,7 +468,10 @@ declare global {
             em_out: HTMLElement;
             label_in: HTMLElement;
             label_out: HTMLElement;
+            maximum_size: HTMLInputElement;
             service: HTMLSelectElement;
+            throttle_size: HTMLInputElement;
+            throttle_time: HTMLInputElement;
             type: HTMLSelectElement;
         };
     }

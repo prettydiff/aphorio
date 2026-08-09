@@ -6,11 +6,11 @@ const ui_processes = function ui_processes():void {
     const processes:section_processes = {
         dataName: "proc",
         nodes: {
-            caseSensitive: document.getElementById("processes").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
+            caseSensitive: document.getElementById("processes").getElementsByClassName("form")[0].getElementsByTagName("input")[1],
             count: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[0],
-            filter_column: document.getElementById("processes").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
+            filter_column: document.getElementById("processes").getElementsByClassName("form")[0].getElementsByTagName("select")[0],
             filter_count: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("em")[1],
-            filter_value: document.getElementById("processes").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
+            filter_value: document.getElementById("processes").getElementsByClassName("form")[0].getElementsByTagName("input")[0],
             list: document.getElementById("processes").getElementsByClassName("section")[0].getElementsByTagName("tbody")[0],
             update_button: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
             update_duration: document.getElementById("processes").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[1],

@@ -90,7 +90,7 @@ const test_listLocalSocketsOS_UDP = function test_listLocalSocketsOS_UDP():test_
                     event: "click",
                     node: [
                         ["getElementById", "sockets-os-udp", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
                 },
@@ -98,7 +98,7 @@ const test_listLocalSocketsOS_UDP = function test_listLocalSocketsOS_UDP():test_
                     event: "setValue",
                     node: [
                         ["getElementById", "sockets-os-udp", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "running"
@@ -107,7 +107,7 @@ const test_listLocalSocketsOS_UDP = function test_listLocalSocketsOS_UDP():test_
                     event: "keyup",
                     node: [
                         ["getElementById", "sockets-os-udp", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "Enter"

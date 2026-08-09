@@ -90,7 +90,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
                     event: "click",
                     node: [
                         ["getElementById", "services-os", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
                 },
@@ -98,7 +98,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
                     event: "setValue",
                     node: [
                         ["getElementById", "services-os", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "running"
@@ -107,7 +107,7 @@ const test_listLocalBrowserServices = function test_listLocalBrowserServices():t
                     event: "keyup",
                     node: [
                         ["getElementById", "services-os", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "Enter"

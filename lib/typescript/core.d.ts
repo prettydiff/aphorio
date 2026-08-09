@@ -93,10 +93,15 @@ interface core_hash_output {
 }
 
 interface core_message_inspection {
+    maximum_size: number;
+    measure_size: number;
+    measure_time: number;
     service: string;
     socket: websocket_client;
     spawn: core_module_spawn;
     stdout: (out:Buffer) => void;
+    throttle_size: number;
+    throttle_time: number;
     type: "" | "docker-container" | "web-server";
 }
 
@@ -125,7 +130,6 @@ interface core_module_log {
 }
 
 interface core_module_messageInspection {
-    max_size: number;
     send: (data:services_message_inspection) => void;
     set: type_receiver;
 }

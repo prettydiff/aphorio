@@ -33,9 +33,11 @@ const http_trace = function http_trace(headerList:string[], socket:websocket_cli
     message_inspection.send({
         count: 0,
         direction: "out",
-        max_size: 0,
+        maximum_size: 0,
         message: output.join("\r\n"),
         service: socket.server_hash,
+        throttle_size: 0,
+        throttle_time: 0,
         type: "web-server"
     });
 };

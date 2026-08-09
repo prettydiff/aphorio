@@ -35,9 +35,11 @@ const http_connect:http_action = function http_connect(headerList:string[], sock
         message_inspection.send({
             count: 0,
             direction: "out",
-            max_size: 0,
+            maximum_size: 0,
             message: headers.join("\r\n"),
             service: socket.server_hash,
+            throttle_size: 0,
+            throttle_time: 0,
             type: "web-server"
         });
     } else {

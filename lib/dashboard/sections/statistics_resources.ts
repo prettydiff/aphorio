@@ -144,11 +144,11 @@ const ui_statistics_resources = function ui_statistics_resources():void {
         },
         nodes: {
             duration: document.getElementById("statistics-resources").getElementsByClassName("section")[0].getElementsByTagName("em")[1],
-            frequency: document.getElementById("statistics-resources").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0],
-            graph_display: document.getElementById("statistics-resources").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[1],
-            graph_type: document.getElementById("statistics-resources").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0],
+            frequency: document.getElementById("statistics-resources").getElementsByClassName("form")[0].getElementsByTagName("input")[0],
+            graph_display: document.getElementById("statistics-resources").getElementsByClassName("form")[0].getElementsByTagName("select")[1],
+            graph_type: document.getElementById("statistics-resources").getElementsByClassName("form")[0].getElementsByTagName("select")[0],
             graphs: document.getElementById("statistics-resources").getElementsByClassName("graphs")[0] as HTMLElement,
-            records: document.getElementById("statistics-resources").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1],
+            records: document.getElementById("statistics-resources").getElementsByClassName("form")[0].getElementsByTagName("input")[1],
             update: document.getElementById("statistics-resources").getElementsByClassName("section")[0].getElementsByTagName("em")[0]
         },
         receive: function dashboard_sections_statisticsResources_receive(data:socket_data):void {

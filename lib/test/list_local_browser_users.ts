@@ -114,7 +114,7 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                     event: "click",
                     node: [
                         ["getElementById", "users", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
                 },
@@ -122,7 +122,7 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                     event: "setValue",
                     node: [
                         ["getElementById", "users", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "system"
@@ -131,7 +131,7 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                     event: "keyup",
                     node: [
                         ["getElementById", "users", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "Enter"

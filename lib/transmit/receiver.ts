@@ -174,9 +174,11 @@ const receiver = function transmit_receiver(this:websocket_client, buf:Buffer):v
                 message_inspection.send({
                     count: 0,
                     direction: "in",
-                    max_size: 0,
+                    maximum_size: 0,
                     message: new node.stringDecoder.StringDecoder("utf8").end(payload),
                     service: socket.server_hash,
+                    throttle_size: 0,
+                    throttle_time: 0,
                     type: "web-server"
                 });
             }

@@ -40,13 +40,15 @@ const send = function transmit_send(body:Buffer|socket_data|string, socket:webso
         message_inspection.send({
             count: 0,
             direction: "out",
-            max_size: 0,
+            maximum_size: 0,
             message: (typeof body === "string")
                 ? body
                 : (Buffer.isBuffer(body) === true)
                     ? body.toString()
                     : JSON.stringify(body),
             service: socket.server_hash,
+            throttle_size: 0,
+            throttle_time: 0,
             type: "web-server"
         });
     }

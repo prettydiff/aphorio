@@ -53,9 +53,11 @@ const socket_end = function transmit_socketEnd(this:websocket_client, error:node
         const payload:services_message_inspection = {
             count: 0,
             direction: "in",
-            max_size: 0,
+            maximum_size: 0,
             message: "",
             service: "",
+            throttle_size: 0,
+            throttle_time: 0,
             type: "web-server"
         };
         message_inspection.set({

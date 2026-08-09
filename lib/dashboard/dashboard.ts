@@ -407,7 +407,10 @@ const dashboard:dashboard = {
                 em_out: null,
                 label_in: null,
                 label_out: null,
+                maximum_size: null,
                 service: null,
+                throttle_size: null,
+                throttle_time: null,
                 type: null
             },
             "receive": function(socket_data:socket_data):void {},
