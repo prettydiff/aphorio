@@ -90,7 +90,7 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
                     event: "click",
                     node: [
                         ["getElementById", "devices", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
                 },
@@ -98,7 +98,7 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
                     event: "setValue",
                     node: [
                         ["getElementById", "devices", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "USB"
@@ -107,7 +107,7 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
                     event: "keyup",
                     node: [
                         ["getElementById", "devices", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "Enter"

@@ -24,6 +24,6 @@
     "test-http": true,
     "test-performance": true,
     "test-websocket": true,
-    "udp-socket": true,
+    "udp-socket": false,
     "users": true
 }

@@ -141,7 +141,7 @@
         <div class="tab" id="devices">
             <h2>Devices</h2>
             <p class="tab-description">A list of hardware devices registered with the OS kernel.</p>
-            <div class="table-filters">
+            <div class="form">
                 <h3>List Controls</h3>
                 <p><label>Column(s) To Filter  <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
@@ -216,7 +216,7 @@
                     <dd>text records</dd>
                 </dl>
             </div>
-            <div class="table-filters">
+            <div class="form">
                 <h3>Input</h3>
                 <p class="radio"><label>DNS Name Resolve <input checked="checked" name="dns_direction" type="radio" value="resolve"/></label> <label>Reverse DNS Lookup <input checked="checked" name="dns_direction" type="radio" value="reverse"/></label></p>
                 <p><label>Comma separated list of domains and/or hostname entries <input type="text"/></label></p>
@@ -462,7 +462,7 @@
                     <p>So, for example, a value of 5 means 4 + 1, or read and execute permissions and a value of 7 means read, write, and execute permissions. A complete permission value of <em>0755</em> means owners have complete permissions but users and members of the owner's group(s) can only read and execute to that artifact.</p>
                 </div>
             </div>
-            <div class="table-filters">
+            <div class="form">
                 <h3>Input Controls</h3>
                 <p class="summary"><em>Executes on press of 'Enter' key or loss of focus. Search values beginning with an exclamation are a negative search. Search values beginning and ending with a forward slash are regular expressions.</em></p>
                 <p><label>Absolute file system path address. <em>Path names beginning with "\\" are not supported.</em><input spellcheck="false" type="text"/></label></p>
@@ -716,7 +716,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="message-inspection">
             <h2>Message Inspection</h2>
             <p class="tab-description">View server messaging or docker logs in real time.</p>
-            <div class="table-filters">
+            <div class="form">
                 <h3>Throttling</h3>
                 <p><label>Throttle Character Size <input type="number" value="500000"/></label></p>
                 <p><label>Throttle Duration in Seconds <input type="number" value="10"/></label></p>
@@ -825,7 +825,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="ports-application">
             <h2>App Ports</h2>
             <p class="tab-description">A list of ports listened upon by web servers and docker containers managed from this dashboard.</p>
-            <div class="table-filters">
+            <div class="form">
                 <h3>List Controls</h3>
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
@@ -858,7 +858,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="processes">
             <h2>Processes</h2>
             <p class="tab-description">A list of processes running in the local operating system. Data automatically refreshes at server's midnight time.</p>
-            <div class="table-filters">
+            <div class="form">
                 <h3>List Controls</h3>
                 <p><label>Column(s) To Filter  <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
@@ -1017,7 +1017,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="services-os">
             <h2>OS Services</h2>
             <p class="tab-description">A list of application services on the local operating system. Data automatically refreshes at server's midnight time.</p>
-            <div class="table-filters">
+            <div class="form">
                 <h3>List Controls</h3>
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
@@ -1048,7 +1048,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="sockets-application-tcp">
             <h2>App TCP Sockets</h2>
             <p class="tab-description">A list of TCP sockets created by this application. Sockets not of 'type' http are WebSocket connections. Proxy identifies the id of the paired socket or null if not piped to another socket. Data automatically refreshes at server's midnight time. Local address and port are from the perspective of the application server. Remote address and port could represent the local web browser.</p>
-            <div class="table-filters">
+            <div class="form">
                 <h3>List Controls</h3>
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
@@ -1089,7 +1089,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="sockets-application-udp">
             <h2>App UDP Sockets</h2>
             <p class="tab-description">A list of UDP sockets created by this application.</p>
-            <div class="table-filters">
+            <div class="form">
                 <h3>List Controls</h3>
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
@@ -1128,7 +1128,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="sockets-os-tcp">
             <h2>OS TCP Sockets</h2>
             <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
-            <div class="table-filters">
+            <div class="form">
                 <h3>List Controls</h3>
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
@@ -1162,7 +1162,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="sockets-os-udp">
             <h2>OS UDP Sockets</h2>
             <p class="tab-description">A list of all connected sockets in the operating system. Data automatically refreshes at server's midnight time.</p>
-            <div class="table-filters">
+            <div class="form">
                 <h3>List Controls</h3>
                 <p><label>Column(s) To Filter <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>
@@ -1196,7 +1196,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="statistics-resources">
             <h2>Resource Statistics</h2>
             <p class="tab-description">Providing a real time metrics for supported services.</p>
-            <div class="table-filters">
+            <div class="form">
                 <h3>Metric Controls</h3>
                 <p><label>Delay between updates in seconds <input spellcheck="false" type="number"/></label></p>
                 <p><label>Maximum number of data points <input spellcheck="false" type="number"/></label></p>
@@ -1437,7 +1437,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     </ul>
                 </div>
             </div>
-            <div class="table-filters">
+            <div class="form">
                 <h3>Test Input</h3>
                 <h4>Transmission Type</h4>
                 <p class="radio"><label>HTTP GET <input name="test-performance-type" type="radio" value="http"/></label><label>WebSocket <input checked="checked" name="test-performance-type" type="radio" value="websocket"/></label></p>
@@ -1710,7 +1710,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
         <div class="tab" id="users">
             <h2>Users</h2>
             <p class="tab-description">A list of user accounts on the local operating system. Data automatically refreshes at server's midnight time.</p>
-            <div class="table-filters">
+            <div class="form">
                 <h3>List Controls</h3>
                 <p><label>Column(s) To Filter  <select></select></label></p>
                 <p><label>Filter Value <input spellcheck="false" type="text"/></label></p>

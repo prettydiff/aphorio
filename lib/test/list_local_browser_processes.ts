@@ -102,7 +102,7 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
                     event: "click",
                     node: [
                         ["getElementById", "processes", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ]
                 },
@@ -110,7 +110,7 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
                     event: "setValue",
                     node: [
                         ["getElementById", "processes", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "running"
@@ -119,7 +119,7 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
                     event: "keyup",
                     node: [
                         ["getElementById", "processes", null],
-                        ["getElementsByClassName", "table-filters", 0],
+                        ["getElementsByClassName", "form", 0],
                         ["getElementsByTagName", "input", 0]
                     ],
                     value: "Enter"

@@ -91,11 +91,11 @@ const ui_message_inspection = function ui_message_inspection():void {
             em_out: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("label")[1].getElementsByTagName("em")[0],
             label_in: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("label")[0],
             label_out: document.getElementById("message-inspection").getElementsByClassName("section")[0].getElementsByTagName("label")[1],
-            maximum_size: document.getElementById("message-inspection").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[2] as HTMLInputElement,
-            service: document.getElementById("message-inspection").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[1] as HTMLSelectElement,
-            throttle_size: document.getElementById("message-inspection").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[0] as HTMLInputElement,
-            throttle_time: document.getElementById("message-inspection").getElementsByClassName("table-filters")[0].getElementsByTagName("input")[1] as HTMLInputElement,
-            type: document.getElementById("message-inspection").getElementsByClassName("table-filters")[0].getElementsByTagName("select")[0] as HTMLSelectElement
+            maximum_size: document.getElementById("message-inspection").getElementsByClassName("form")[0].getElementsByTagName("input")[2] as HTMLInputElement,
+            service: document.getElementById("message-inspection").getElementsByClassName("form")[0].getElementsByTagName("select")[1] as HTMLSelectElement,
+            throttle_size: document.getElementById("message-inspection").getElementsByClassName("form")[0].getElementsByTagName("input")[0] as HTMLInputElement,
+            throttle_time: document.getElementById("message-inspection").getElementsByClassName("form")[0].getElementsByTagName("input")[1] as HTMLInputElement,
+            type: document.getElementById("message-inspection").getElementsByClassName("form")[0].getElementsByTagName("select")[0] as HTMLSelectElement
         },
         receive: function dashboard_services_messageInspection_receive(socket_data:socket_data):void {
             const data:services_message_inspection = socket_data.data as services_message_inspection;
