@@ -47,7 +47,7 @@ const message_inspection:core_module_messageInspection = {
             } while (index_messages > 0);
         }
     },
-    // assing the service to monitor
+    // passing the service to monitor
     set: function services_messageInspection_set(socket_data:socket_data, transmit:transmit_socket):void {
         const data:services_message_inspection = socket_data.data as services_message_inspection,
             socket:websocket_client = transmit.socket as websocket_client,

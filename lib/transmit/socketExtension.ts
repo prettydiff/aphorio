@@ -1,10 +1,10 @@
 
 import log from "../core/log.ts";
 import message_handler from "./messageHandler.ts";
+import message_inspection from "../services/message_inspection.ts";
 import receiver from "./receiver.ts";
 import send from "./send.ts";
 import server_halt from "../server/server_halt.ts";
-import socket_end from "./socket_end.ts";
 import socket_list_build from "./socket_list_build.ts";
 import vars from "../core/vars.ts";
 
@@ -47,9 +47,9 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 address: config.socket.addresses,
                 encrypted: (config.socket.encrypted === true),
                 hash: config.identifier,
-                proxy: (config.socket.proxy === undefined || config.socket.proxy === null)
+                proxy: (config.proxy === undefined || config.proxy === null)
                     ? null
-                    : config.socket.proxy.hash,
+                    : config.proxy.hash,
                 role: config.role,
                 server_id: config.server,
                 server_name: vars.data.servers[config.server].name,
@@ -64,6 +64,117 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 section: "sockets-application-tcp",
                 status: "informational",
                 time: now
+            },
+            end = function transmit_socketExtension_end(socket:websocket_client, error:node_error):void {
+                const address_local:string = (socket.addresses.local.address.includes(":") === true)
+                        ? `[${socket.addresses.local.address}]:${socket.addresses.local.port}`
+                        : `${socket.addresses.local.address}:${socket.addresses.local.port}`,
+                    address_remote:string = (socket.addresses.remote.address.includes(":") === true)
+                        ? `[${socket.addresses.remote.address}]:${socket.addresses.remote.port}`
+                        : `${socket.addresses.remote.address}:${socket.addresses.remote.port}`,
+                    payload_log:config_log = {
+                        error: error,
+                        message: `Socket type ${socket.type} with id ${socket.hash} from ${address_local} to ${address_remote} ended.`,
+                        origin: socket.server_hash,
+                        section: "sockets-application-tcp",
+                        status: "error",
+                        time: Date.now()
+                    },
+                    encryption:"open"|"secure" = (socket.encrypted === true)
+                        ? "secure"
+                        : "open";
+                let index:number = vars.data_store.sockets_tcp[socket.server_hash][encryption].length;
+
+                // remove actual socket object from storage
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        if (vars.data_store.sockets_tcp[socket.server_hash][encryption][index].hash === socket.hash) {
+                            vars.data_store.sockets_tcp[socket.server_hash][encryption].splice(index, 1);
+                        } else if (
+                            socket.proxy !== null &&
+                            vars.data_store.sockets_tcp[socket.server_hash][encryption][index].proxy !== null &&
+                            vars.data_store.sockets_tcp[socket.server_hash][encryption][index].proxy.hash === socket.proxy.hash &&
+                            socket.type !== "test-performance-socket"
+                        ) {
+                            vars.data_store.sockets_tcp[socket.server_hash][encryption].splice(index, 1);
+                            socket.proxy.destroy();
+                        }
+                    } while (index > 0);
+                }
+
+                // remove socket data
+                index = vars.data.sockets_tcp.length;
+                if (index > 0) {
+                    do {
+                        index = index - 1;
+                        if (vars.data.sockets_tcp[index].hash === socket.hash) {
+                            vars.data.sockets_tcp.splice(index, 1);
+                            break;
+                        }
+                    } while (index > 0);
+                }
+
+                if (vars.data.servers[socket.server_hash].id === vars.id.dashboard_server && socket.type === "dashboard") {
+                    const payload:services_message_inspection = {
+                        count: 0,
+                        direction: "in",
+                        maximum_size: 0,
+                        message: "",
+                        service: "",
+                        throttle_size: 0,
+                        throttle_time: 0,
+                        type: "web-server"
+                    };
+                    message_inspection.set({
+                        data: payload,
+                        service: "services_message_inspection"
+                    }, {
+                        socket: socket,
+                        type: "ws"
+                    });
+                }
+
+                if (socket.type === "test-performance-socket" && error !== null && error !== undefined) {
+                    const output:services_test_performance_output = {
+                        message_size: 0,
+                        roundtrip: {
+                            average: 0,
+                            max: 0,
+                            min: 0,
+                            trials: [],
+                            variance: 0
+                        },
+                        send: {
+                            average: 0,
+                            max: 0,
+                            min: 0,
+                            trials: [],
+                            variance: 0
+                        },
+                        summary: JSON.stringify(error),
+                        quantity_tests: 0,
+                        quantity_transmit: 0,
+                        time: 0,
+                        type: "websocket"
+                    };
+                    send({
+                        data: output,
+                        service: "services_test_performance_output"
+                    }, socket.proxy, 3);
+                }
+
+                log.application(payload_log);
+                socket.destroy();
+                socket_list_build();
+            },
+            end_close = function transmit_socketExtension_endError(this:websocket_client):void {
+                const socket:websocket_client = this;
+                end(socket, null);
+            },
+            end_error = function transmit_socketExtension_endError(this:websocket_client, error:node_error):void {
+                const socket:websocket_client = this;
+                end(socket, error);
             };
         config.socket.server_hash = config.server; // identifies which local server the given socket is connected to
         config.socket.hash = config.identifier;    // assigns a unique identifier to the socket based upon the socket's credentials
@@ -102,17 +213,29 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 config.socket.on("end", death);
                 config.socket.on("error", death);
             } else {
-                config.socket.on("close", socket_end);
-                config.socket.on("end", socket_end);
-                config.socket.on("error", socket_end);
+                config.socket.on("close", end_close);
+                config.socket.on("end", end_close);
+                config.socket.on("error", end_error);
             }
         } else {
-            config.socket.on("close", socket_end);
-            config.socket.on("end", socket_end);
-            config.socket.on("error", socket_end);
+            config.socket.on("close", end_close);
+            config.socket.on("end", end_close);
+            config.socket.on("error", end_error);
         }
         if (config.callback !== null && config.callback !== undefined) {
             config.callback(config.socket, config.timeout);
+        }
+        if (config.proxy !== null && config.proxy !== undefined) {
+            let index:number = vars.data.sockets_tcp.length;
+            if (index > 0) {
+                do {
+                    index = index - 1;
+                    if (vars.data.sockets_tcp[index].hash === socket.proxy) {
+                        vars.data.sockets_tcp[index].proxy = config.identifier;
+                        break;
+                    }
+                } while (index > 0);
+            }
         }
         vars.data_store.sockets_tcp[config.server][encryption].push(config.socket);
         vars.data.sockets_tcp.push(socket);

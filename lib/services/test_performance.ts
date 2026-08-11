@@ -16,12 +16,14 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                 average: 0,
                 max: 0,
                 min: 0,
+                trials: [],
                 variance: 0
             },
             send: {
                 average: 0,
                 max: 0,
                 min: 0,
+                trials: [],
                 variance: 0
             },
             summary: "",
@@ -35,8 +37,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
         times = function services_testPerformance_times(summary:string, error:boolean):void {
             if (error === false) {
                 const setTimes = function services_testPerformance_times_setTimes(type:"roundtrip"|"send"):void {
-                    const values:number[] = [],
-                        value_index:1|2 = (type === "roundtrip")
+                    const value_index:1|2 = (type === "roundtrip")
                             ? 2
                             : 1;
                     let index:number = 0,
@@ -45,7 +46,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                         total:number = 0;
                     do {
                         value = Number(test_time[index][value_index] - test_time[index][0]);
-                        values.push(value);
+                        output[type].trials.push(value);
                         if (output[type].min === 0 || value < output[type].min) {
                             output[type].min = value;
                         }
@@ -58,7 +59,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                     output[type].average = (total / data.quantity_tests);
                     index = 0;
                     do {
-                        variance = variance + ((values[index] - output[type].average) * (values[index] - output[type].average));
+                        variance = variance + ((output[type].trials[index] - output[type].average) * (output[type].trials[index] - output[type].average));
                         index = index + 1;
                     } while (index < data.quantity_tests);
                     output[type].variance = Math.sqrt(variance / data.quantity_tests);
@@ -130,12 +131,15 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                     let index_receive:number = 1;
                     create_socket({
                         callback: function services_testPerformance_testWebsocket_hash_create(socket_test:websocket_client, timeout:bigint, error:node_error):void {
+                            socket_test.proxy = transmit.socket as websocket_client;
                             if (socket_test === null || (error !== null && error !== undefined)) {
                                 times(JSON.stringify(error), true);
                             } else {
                                 let index:number = data.quantity_transmit;
                                 socket_test.queue_callback = function services_testPerformance_testWebSocket_hash_socket_queueCallback():void {
-                                    socket_test.destroy();
+                                    if (data.measure === "send") {
+                                        socket_test.destroy();
+                                    }
                                     test_time[test_time.length - 1][1] = process.hrtime.bigint();
                                     complete("send");
                                 };
@@ -148,9 +152,10 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                             }
                         },
                         handler: (data.measure === "roundtrip")
-                            ? function services_testPerformance_testWebsocket_hash_handler():void {
+                            ? function services_testPerformance_testWebsocket_hash_handler(socket_test:websocket_client):void {
                                 index_receive = index_receive + 1;
                                 if (index_receive === data.quantity_transmit) {
+                                    socket_test.destroy();
                                     test_time[test_time.length - 1][2] = process.hrtime.bigint();
                                     complete("roundtrip");
                                 }

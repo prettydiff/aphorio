@@ -522,8 +522,10 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     label span.text{background:transparent;border-style:none;display:inline-block;font-size:1em;font-weight:bold;line-height:2.5;width:auto}
 
     #test-performance{
+        .green{background:var(--background_dark);color:var(--text_green)}
+        .red{background:var(--background_dark);color:var(--fail_bright)}
         .summary-stats-list{width:40em}
-        li span{width:18.5em}
+        li span{width:19.35em}
     }
 
     .active-ports,

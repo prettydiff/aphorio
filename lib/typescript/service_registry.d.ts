@@ -350,28 +350,19 @@ interface services_test_performance_input {
     quantity_transmit: number;
     type: "http" | "websocket";
 }
-// Execute a performance test
+// Indicates instructions for executing a performance experiment
 
 interface services_test_performance_output {
     message_size: number;
     quantity_tests: number;
     quantity_transmit: number;
-    roundtrip: {
-        average: number;
-        max: number;
-        min: number;
-        variance: number;
-    };
-    send: {
-        average: number;
-        max: number;
-        min: number;
-        variance: number;
-    };
+    roundtrip: supplemental_test_performance_data;
+    send: supplemental_test_performance_data;
     summary: string;
     time: number;
     type: "http" | "websocket";
 }
+// Data resulting from a performance experiment
 
 interface services_udp_socket {
     address_destination: string;
