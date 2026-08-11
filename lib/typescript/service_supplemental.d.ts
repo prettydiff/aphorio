@@ -130,3 +130,11 @@ interface supplemental_statistics_item {
 interface supplemental_terminal_request {
     secure: "open" | "secure";
 }
+
+interface supplemental_test_performance_data {
+    average: number;
+    max: number;
+    min: number;
+    trials: number[];
+    variance: number;
+}

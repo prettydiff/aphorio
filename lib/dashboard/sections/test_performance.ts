@@ -57,6 +57,8 @@ const ui_test_performance = function ui_test_performance():void {
                 dashboard.sections["test-performance"].nodes.connect_port.onblur = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.encrypt_false.onclick = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.encrypt_true.onclick = dashboard.utility.setState;
+                dashboard.sections["test-performance"].nodes.measure_roundtrip.onclick = dashboard.utility.setState;
+                dashboard.sections["test-performance"].nodes.measure_send.onclick = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.quantity_tests.onblur = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.quantity_transmit.onblur = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.type_http.onclick = dashboard.sections["test-performance"].events.type;
@@ -108,20 +110,54 @@ const ui_test_performance = function ui_test_performance():void {
         },
         receive: function dashboard_sections_testPerformance_receive(socket_data:socket_data):void {
             const data:services_test_performance_output = socket_data.data as services_test_performance_output,
-                list:HTMLCollectionOf<HTMLElement> = document.getElementById("test-performance").getElementsByClassName("summary-stats")[0].getElementsByTagName("strong");
+                list:HTMLCollectionOf<HTMLElement> = document.getElementById("test-performance").getElementsByClassName("summary-stats")[0].getElementsByTagName("strong"),
+                output = function dashboard_sections_testPerformance_receive_output(index:number, type:"roundtrip"|"send"):void {
+                    const max:HTMLElement = document.createElement("em"),
+                        min:HTMLElement = document.createElement("em"),
+                        len:number = data[type].trials.length;
+                    let trials:string[] = `[${data[type].trials.join(", ")}]`.split(data[type].max.toString()),
+                        trial_min:string[] = null;
+                    max.textContent = data[type].max.toString();
+                    min.textContent = data[type].min.toString();
+                    max.setAttribute("title", "maximum value");
+                    min.setAttribute("title", "minimum value");
+                    max.setAttribute("class", "red");
+                    min.setAttribute("class", "green");
+                    list[index].textContent = `${(data[type].min / 1e9).commas()} seconds`;
+                    list[index + 1].textContent = `${(data[type].average / 1e9).commas()} seconds`;
+                    list[index + 2].textContent = `${(data[type].max / 1e9).commas()} seconds`;
+                    list[index + 3].textContent = (data[type].variance === 0 || data[type].average === 0)
+                        ? "0 seconds, (0.00%)"
+                        : `\u00b1${(data[type].variance / 1e9).toFixed(9).replace(/0+$/, "")} seconds, (${((data[type].variance / data[type].average) * 100).toFixed(2)}%)`;
+                    if (len > 1) {
+                        if (trials[0].includes(data[type].min.toString()) === true) {
+                            trial_min = trials[0].split(data[type].min.toString());
+                            list[index + 4].textContent = trial_min[0];
+                            list[index + 4].appendChild(min);
+                            list[index + 4].appendText(trial_min[1]);
+                            list[index + 4].appendChild(max);
+                            list[index + 4].appendText(trials[1]);
+                        } else {
+                            trial_min = trials[1].split(data[type].min.toString());
+                            list[index + 4].textContent = trials[0];
+                            list[index + 4].appendChild(max);
+                            list[index + 4].appendText(trial_min[0]);
+                            list[index + 4].appendChild(min);
+                            list[index + 4].appendText(trial_min[1]);
+                        }
+                    } else if (len === 1) {
+                        list[index + 4].textContent = `[${data[type].trials}]`;
+                    } else {
+                        list[index + 4].textContent = "[]";
+                    }
+                };
             list[0].textContent = data.quantity_transmit.commas();
             list[1].textContent = data.quantity_tests.commas();
             list[2].textContent = `${data.message_size.commas()} bytes`;
             list[3].textContent = `${(data.time / 1e9).commas()} seconds`;
             list[4].textContent = data.type;
-            list[5].textContent = `${(data.send.min / 1e9).commas()} seconds`;
-            list[6].textContent = `${(data.send.average / 1e9).commas()} seconds`;
-            list[7].textContent = `${(data.send.max / 1e9).commas()} seconds`;
-            list[8].textContent = `\u00b1${(data.send.variance / 1e9).toFixed(9).replace(/0+$/, "")} seconds`;
-            list[9].textContent = `${(data.roundtrip.min / 1e9).commas()} seconds`;
-            list[10].textContent = `${(data.roundtrip.average / 1e9).commas()} seconds`;
-            list[11].textContent = `${(data.roundtrip.max / 1e9).commas()} seconds`;
-            list[12].textContent = `\u00b1${(data.roundtrip.variance / 1e9).toFixed(9).replace(/0+$/, "")} seconds`;
+            output(5, "send");
+            output(10, "roundtrip");
             dashboard.sections["test-performance"].nodes.status.textContent = data.summary;
             dashboard.sections["test-performance"].nodes.button_execute.disabled = false;
         },
