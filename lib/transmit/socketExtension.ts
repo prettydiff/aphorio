@@ -169,10 +169,12 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 socket_list_build();
             },
             end_close = function transmit_socketExtension_endError(this:websocket_client):void {
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
                 const socket:websocket_client = this;
                 end(socket, null);
             },
             end_error = function transmit_socketExtension_endError(this:websocket_client, error:node_error):void {
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
                 const socket:websocket_client = this;
                 end(socket, error);
             };
