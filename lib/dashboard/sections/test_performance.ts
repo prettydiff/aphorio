@@ -114,9 +114,9 @@ const ui_test_performance = function ui_test_performance():void {
                 output = function dashboard_sections_testPerformance_receive_output(index:number, type:"roundtrip"|"send"):void {
                     const max:HTMLElement = document.createElement("em"),
                         min:HTMLElement = document.createElement("em"),
+                        trials:string[] = `[${data[type].trials.join(", ")}]`.split(data[type].max.toString()),
                         len:number = data[type].trials.length;
-                    let trials:string[] = `[${data[type].trials.join(", ")}]`.split(data[type].max.toString()),
-                        trial_min:string[] = null;
+                    let trial_min:string[] = null;
                     max.textContent = data[type].max.toString();
                     min.textContent = data[type].min.toString();
                     max.setAttribute("title", "maximum value");
