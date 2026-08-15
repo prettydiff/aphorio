@@ -76,6 +76,7 @@ interface supplemental_server {
         post?: supplemental_server_method;
         put?: supplemental_server_method;
     };
+    mutual_tls: boolean;
     name: string;
     ports: core_server_ports;
     redirect_asset?: {

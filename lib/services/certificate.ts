@@ -4,7 +4,7 @@ import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
-// cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey, keyid, pathlen
+// cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey, keyid, passout, pathlen
 
 const certificate = function services_certificate(config:config_certificate):void {
     const cert_path:string = `${vars.path.servers + config.id + vars.path.sep}certs${vars.path.sep}`,
@@ -19,7 +19,7 @@ const certificate = function services_certificate(config:config_certificate):voi
                         index = index + 1;
                         if (index < commands.length) {
                             services_certificate_cert_crypto();
-                        } else {
+                        } else {console.log("callback");
                             config.callback();
                         }
                     }, {
@@ -160,21 +160,22 @@ const certificate = function services_certificate(config:config_certificate):voi
                         org:string = "/O=home_server/OU=home_server",
                         // provides the path to the configuration file used for certificate signing
                         pathConf = function services_certificate_cert_create_confPath(configName:"ca"|"selfSign"):string {
-                            return `"${cert_path}extensions.cnf" -extensions ${configName}`;
-                        },
-                        // create a certificate signed by another certificate
-                        actionCert = function services_certificate_cert_create_cert(type:"int"|"server"):string {
-                            return `openssl req -new -sha512 -key ${type}.key -out ${type}.csr -subj "/CN=${domain + org}"`;
+                            return `"extensions.cnf" -extensions ${configName}`;
                         },
                         // generates the key file associated with a given certificate
-                        actionKey = function services_certificate_cert_create_key(type:"int"|"root"|"server"):string {
+                        actionKey = function services_certificate_cert_create_key(type:"client"|"int"|"root"|"server"):string {
                             return `openssl genrsa -out ${type}.key 4096`;
                         },
-                        // signs the certificate
-                        actionSign = function services_certificate_cert_create_sign(cert:string, parent:string, path:"ca"|"selfSign"):string {
-                            return `openssl x509 -req -sha512 -in ${cert}.csr -days ${config.days} -out ${cert}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile ${pathConf(path)}`;
+                        cert = function services_certificate_create_cert(type:"client"|"int"|"root"|"server", parent:"int"|"root", path:"ca"|"selfSign"):void {
+                            // generate the key file
+                            commands.push(actionKey(type));
+                            // create the certificate file
+                            commands.push(`openssl req -new -sha512 -key ${type}.key -out ${type}.csr -subj "/CN=${domain + org}"`);
+                            // sign the certificate using the parent
+                            commands.push(`openssl x509 -req -sha512 -in ${type}.csr -days ${config.days} -out ${type}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile ${pathConf(path)}`);
                         },
-                        root:string = `openssl req -x509 -new -newkey rsa:4096 -nodes -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`;
+                        root:string = `openssl req -x509 -new -newkey rsa:4096 -nodes -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`,
+                        replicate:string = "openssl pkcs12 -export -passout pass: -out client.pfx -inkey client.key -in client.crt";
                     if (config.selfSign === true) {
                         commands.push(actionKey("root"));
                         commands.push(`${root} -config ${pathConf("selfSign")}`);
@@ -183,18 +184,14 @@ const certificate = function services_certificate(config:config_certificate):voi
                         commands.push(actionKey("root"));
                         // 2. generate a root certificate
                         commands.push(root);
-                        // 3. generate a private key for intermediate certificate
-                        commands.push(actionKey("int"));
-                        // 4. generate an intermediate certificate signing request
-                        commands.push(actionCert("int"));
-                        // 5. sign the intermediate certificate with the root certificate
-                        commands.push(actionSign("int", "root", "selfSign"));
-                        // 6. generate a private key for server certificate
-                        commands.push(actionKey("server"));
-                        // 7. generate a server certificate signing request
-                        commands.push(actionCert("server"));
-                        // 8. sign the server certificate with the intermediate certificate
-                        commands.push(actionSign("server", "int", "ca"));
+                        // 3. create the intermediate certificate
+                        cert("int", "root", "selfSign");
+                        // 4. create the server certificate
+                        cert("server", "int", "ca");
+                        // 5. create the client certificate
+                        cert("client", "int", "ca");
+                        // 6. replicate the client certificate in pkcs12 format for browser compatibility
+                        commands.push(replicate);
                     }
                     crypto();
                 };

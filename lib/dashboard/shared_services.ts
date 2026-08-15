@@ -166,6 +166,7 @@ const ui_shared_services = function ui_shared_services():void {
                                         domain_local: ["localhost"],
                                         encryption: "both",
                                         id: "",
+                                        mutual_tls: false,
                                         name: "new_server",
                                         ports: {
                                             open: 0,
@@ -197,6 +198,7 @@ const ui_shared_services = function ui_shared_services():void {
                             }
                             output.push(`"id": "${serverData.id}",`);
                             methods();
+                            output.push("\"mutual_tls\": false,");
                             if (newFlag === true) {
                                 output.push("\"name\": \"new_server\",");
                             } else {

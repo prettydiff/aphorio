@@ -295,7 +295,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .active-ports h5{font-size:1.2em}
     .block{display:block}
     .buttons{
-        float:left;
+        float:none;
         margin:1em 0 0;
         button{
             cursor:pointer;
@@ -550,7 +550,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         h3{float:left;margin:0;width:100%};
         h4{float:left;margin:1em 0 0.25em;width:100%};
         p{margin-top:0}
-        .buttons{float:left;margin:1em 0 0}
+        .buttons{float:none;margin:1em 0 0}
     }
 
     .media {

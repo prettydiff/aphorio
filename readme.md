@@ -9,6 +9,7 @@ Like Windows Task Manager, but also works on Linux and displays web servers, doc
   - Server standup via small JSON configuration, which includes optional proxies and traffic redirection
   - Simple and yet more powerful file system navigation via web server
   - Servers include a *temporary* option to spin up servers with no state information
+  - Servers support mutual TLS (mTLS) for secure access by trusted certificate
 * Docker Compose container management
 * OS Data dashboards:
   - Accounts for system and users
@@ -129,7 +130,7 @@ These dependencies must be installed separate from this application.
 These dependencies are included with this application code repository.
 
 * [@lydell/node-pty](https://www.npmjs.com/package/@lydell/node-pty)
-   * [GitHub](https://github.com/lydell/node-pty)"
+   * [GitHub](https://github.com/lydell/node-pty)
    * License - MIT
    * Description - the binaries powering XTERM emulation for the UI terminal
 * [@xterm/xterm](https://www.npmjs.com/package/@xterm/xterm)

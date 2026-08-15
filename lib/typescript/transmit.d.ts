@@ -73,7 +73,7 @@ interface transmit_tlsCerts {
 interface transmit_tlsOptions {
     fileFlag: {
         ca: boolean;
-        crt: boolean;
+        cert: boolean;
         key: boolean;
     };
     options: transmit_tlsCerts;

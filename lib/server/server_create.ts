@@ -1,5 +1,4 @@
 
-import certificate from "../services/certificate.ts";
 import file from "../utilities/file.ts";
 import hash from "../core/hash.ts";
 import log from "../core/log.ts";
@@ -41,14 +40,6 @@ const server_create = function services_serverCreate(data:services_server_action
                                         callback();
                                     }
                                 }
-                            },
-                            // 5. launch servers
-                            certCallback = function services_serverCreate_complete_certificate():void {
-                                if (config.activate === true && config.id !== vars.id.dashboard_server) {
-                                    server_start(data.server.id, serverCallback);
-                                } else if (callback !== null) {
-                                    callback();
-                                }
                             };
                         log.application({
                             error: null,
@@ -58,18 +49,13 @@ const server_create = function services_serverCreate(data:services_server_action
                             status: "informational",
                             time: Date.now()
                         });
-                        // 4. create server's certificates
-                        if (config.encryption === "open") {
-                            certCallback();
-                        } else {
-                            certificate({
-                                callback: certCallback,
-                                days: 65535,
-                                id: config.id,
-                                selfSign: false
-                            });
+                        // 4. launch servers
+                        if (config.activate === true && config.id !== vars.id.dashboard_server) {
+                            server_start(data.server.id, serverCallback);
+                        } else if (callback !== null) {
+                            callback();
                         }
-                    }
+            }
                 },
                 children = function services_serverCreate_children():void {
                     count = count + 1;

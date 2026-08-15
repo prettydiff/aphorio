@@ -263,7 +263,7 @@ const ui_servers_web = function ui_servers_web():void {
                             }
                         }
                     },
-                    rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
+                    rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "mutual_tls", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
                 let serverData:supplemental_server = null,
                     failures:number = 0;
                 ul.textContent = "";
@@ -299,7 +299,13 @@ const ui_servers_web = function ui_servers_web():void {
                 } else {
                     populate(false, "Required property 'encryption' is not assigned a supported value: \"both\", \"open\", or \"secure\".");
                 }
-                // http
+                // id
+                if (typeof serverData.id === "string") {
+                    populate(true, "Required property 'id' is a read only string.");
+                } else {
+                    populate(false, "Required property 'id' must be a string.");
+                }
+                // method
                 key_test({
                     name: "method",
                     required_name: false,
@@ -307,11 +313,11 @@ const ui_servers_web = function ui_servers_web():void {
                     supported: ["delete", "patch", "post", "put"],
                     type: "method"
                 });
-                // id
-                if (typeof serverData.id === "string") {
-                    populate(true, "Required property 'id' is a read only string.");
+                // mutual_tls
+                if (typeof serverData.mutual_tls === "boolean") {
+                    populate(true, "Required property 'mutual_tls' is present with either a 'true' or 'false' boolean value.");
                 } else {
-                    populate(false, "Required property 'id' must be a string.");
+                    populate(false, "Required property 'mutual_tls' must have a boolean type value or 'true' or 'false'.");
                 }
                 // name
                 if (typeof serverData.name === "string" && serverData.name !== "") {

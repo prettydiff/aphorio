@@ -1,5 +1,4 @@
 
-import certificate from "../services/certificate.ts";
 import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import ports_application from "../services/ports_application.ts";
@@ -78,20 +77,12 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
                         section: "servers-web"
                     };
                     delete vars.data.servers[id];
-                    // 3a. Remove the web server's assets from the file system
+                    // 3. Remove the web server's assets from the file system
                     file.remove(file_remove);
                 } else if (data.action === "modify" && (encryption === "both" || encryption === "secure")) {
                     vars.data.servers[id] = data.server;
-                    // 3b. Issue new certificates for modified secure server
-                    certificate({
-                        callback: function services_serverHalt_certificate():void {
-                            server_start(data.server.id, function services_serverHalt_certificate_serverStart():void {
-                                activate();
-                            });
-                        },
-                        days: 65535,
-                        id: id,
-                        selfSign: true
+                    server_start(data.server.id, function services_serverHalt_certificate_serverStart():void {
+                        activate();
                     });
                 } else {
                     activate();
