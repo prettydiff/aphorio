@@ -120,6 +120,8 @@ const vars:core_vars = {
         },
         // storage of service objects that are not associated with dashboard service messaging
         data_store: {
+            // stores the default client certificate created for web servers
+            certificates_client: {},
             // list of dashboard UI sockets inspecting web server traffic or docker logs
             message_inspection: [],
             // the actual web server objects and their actual socket objects

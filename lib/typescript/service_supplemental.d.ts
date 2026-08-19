@@ -6,6 +6,15 @@ interface supplemental_action_compose {
     compose: string;
 }
 
+interface supplemental_certificate_client {
+    crt: string;
+    pfx: string;
+}
+
+interface supplemental_certificate_store {
+    [key:string]: supplemental_certificate_client;
+}
+
 interface supplemental_docker_compose_publishers {
     Protocol: "tcp"|"udp";
     PublishedPort: number;

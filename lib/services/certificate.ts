@@ -14,13 +14,44 @@ const certificate = function services_certificate(config:config_certificate):voi
                 domain:string = (vars.data.servers[config.id].domain_local.length < 1)
                     ? "localhost"
                     : vars.data.servers[config.id].domain_local[0],
+                client:string = `${vars.environment.name}_${domain}`,
                 crypto = function services_certificate_cert_crypto():void {
                     spawn(commands[index], function services_certificate_cert_crypto_child():void {
                         index = index + 1;
                         if (index < commands.length) {
                             services_certificate_cert_crypto();
                         } else {
-                            config.callback();
+                            let count:number = 0;
+                            const store_cert:supplemental_certificate_client = {
+                                    crt: null,
+                                    pfx: null
+                                },
+                                read_certificates = function services_certificate_cert_crypto_child_readCerts(file:Buffer, location:string):void {
+                                    count = count + 1;
+                                    if (file !== null) {
+                                        if (location.slice(location.length - 4) === ".crt") {
+                                            store_cert.crt = file.toString("utf-8");
+                                        } else {
+                                            store_cert.pfx = file.toString("base64");
+                                        }
+                                    }
+                                    if (count > 1) {
+                                        vars.data_store.certificates_client[config.id] = store_cert;
+                                        config.callback();
+                                    }
+                                };
+                            file.read({
+                                callback: read_certificates,
+                                location: `${cert_path + domain}.crt`,
+                                no_file: null,
+                                section: "certificate"
+                            });
+                            file.read({
+                                callback: read_certificates,
+                                location: `${cert_path + domain}.pfx`,
+                                no_file: null,
+                                section: "certificate"
+                            });
                         }
                     }, {
                         cwd: cert_path
@@ -157,7 +188,6 @@ const certificate = function services_certificate(config:config_certificate):voi
                     const mode:[string, string] = (config.selfSign === true)
                             ? ["server", domain]
                             : ["root", domain],
-                        client:string = `${vars.environment.name}_${domain}`,
                         org:string = `/O=${vars.environment.name.capitalize()}/OU=${vars.environment.name.capitalize()}`,
                         cert = function services_certificate_create_cert(type:type_certName, parent:"int"|"root", path:"ca"|"selfSign"):void {
                             // key file

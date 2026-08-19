@@ -28,6 +28,7 @@ interface services_compose_variables {
 // A key/value list of custom docker compose template variables
 
 interface services_dashboard_open {
+    certificates: supplemental_certificate_store;
     compose: services_compose;
     hashes: string[];
     http_request: string;
@@ -259,6 +260,7 @@ interface services_server_action {
 // A user requested action to activate, stop, remove, or modify a web server
 
 interface services_server_update {
+    certificates: supplemental_certificate_store;
     ports_used: {
         [key:string]: core_server_ports;
     };

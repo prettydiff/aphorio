@@ -391,6 +391,7 @@ const ui_servers_web = function ui_servers_web():void {
         },
         init: function dashboard_sections_serversWeb_init():void {
             const payload:services_server_update = {
+                certificates: dashboard.global.payload.certificates,
                 ports_used: dashboard.global.payload.server_ports,
                 servers: dashboard.global.payload.servers
             };
@@ -431,13 +432,24 @@ const ui_servers_web = function ui_servers_web():void {
         tools: {
             activePorts: function dashboard_sections_serversWeb_activePorts(id:boolean|string):HTMLElement {
                 const div:HTMLElement = document.createElement("div"),
-                    h5:HTMLElement = document.createElement("h5"),
+                    h5_ports:HTMLElement = document.createElement("h5"),
+                    h5_crt:HTMLElement = document.createElement("h5"),
+                    h5_pfx:HTMLElement = document.createElement("h5"),
                     portList:HTMLElement = document.createElement("ul"),
                     encryption:type_encryption = dashboard.global.payload.servers[id as string].encryption,
-                    ports:core_server_ports = dashboard.global.payload.server_ports[id as string];
+                    ports:core_server_ports = dashboard.global.payload.server_ports[id as string],
+                    cert = function dashboard_sections_serversWeb_activePorts_certs(type:"crt"|"pfx"):void {
+                        const p:HTMLElement = document.createElement("p"),
+                            code:HTMLElement = document.createElement("code");
+                        code.textContent = dashboard.global.payload.certificates[id as string][type];
+                        p.appendChild(code);
+                        div.appendChild(p);
+                    };
                 let portItem:HTMLElement = document.createElement("li");
-                h5.appendText("Active Ports");
-                div.appendChild(h5);
+                h5_ports.appendText("Active Ports");
+                h5_crt.appendText("Client Certificate in crt format (utf-8)");
+                h5_pfx.appendText("Client Certificate in pfx format (base64, must be converted to a binary buffer when saving to a file)");
+                div.appendChild(h5_ports);
                 div.setAttribute("class", "active-ports");
                 portList.setAttribute("class", "container-ports");
                 
@@ -471,6 +483,10 @@ const ui_servers_web = function ui_servers_web():void {
                     portList.appendChild(portItem);
                 }
                 div.appendChild(portList);
+                div.appendChild(h5_crt);
+                cert("crt");
+                div.appendChild(h5_pfx);
+                cert("pfx");
                 return div;
             }
         }

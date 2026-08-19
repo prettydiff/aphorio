@@ -56,6 +56,7 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                 });
                 broadcast(vars.id.dashboard_server, "dashboard", {
                     data: {
+                        certificates: vars.data_store.certificates_client,
                         ports_used: vars.data_store.server_ports,
                         servers: vars.data.servers
                     },

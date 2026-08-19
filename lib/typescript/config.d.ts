@@ -55,7 +55,7 @@ declare global {
         identifier?: string;
         location: string;
         no_file: (location:string, identifier:string) => void;
-        section: type_dashboard_sections | "startup";
+        section: type_dashboard_sections | "certificate" | "startup";
     }
 
     interface config_file_remove {
@@ -114,7 +114,7 @@ declare global {
         error: node_childProcess_ExecException | node_error | TypeError;
         message: string;
         origin: string;
-        section: type_dashboard_sections | "dashboard" | "startup";
+        section: type_dashboard_sections | "certificate" | "dashboard" | "startup";
         status: type_dashboard_status;
         time: number;
     }

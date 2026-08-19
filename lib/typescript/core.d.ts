@@ -317,6 +317,8 @@ interface core_vars_data_primary {
 }
 
 interface core_vars_data_store {
+    // stores the default client certificate created for a web server
+    certificates_client: supplemental_certificate_store;
     // list of dashboard UI sockets inspecting web server traffic or docker logs
     message_inspection: core_message_inspection[];
     // storage of actual web server objects

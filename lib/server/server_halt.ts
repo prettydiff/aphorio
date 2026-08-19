@@ -130,7 +130,9 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
                 save(write_callback, "servers-web");
             } else {
                 delete vars.data.servers[id];
+                delete vars.data_store.certificates_client[id];
                 delete vars.data_store.server[id];
+                delete vars.data_store.server_certs[id];
                 delete vars.data_store.sockets_tcp[id];
                 file.remove({
                     callback: function server_serverHalt_delete():void {

@@ -378,6 +378,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                             terminal.shell(socket as websocket_pty, term);
                                         } else if (store.type === "dashboard") {
                                             const payload:services_dashboard_open = {
+                                                certificates: vars.data_store.certificates_client,
                                                 compose: (vars.environment.features["compose-containers"] === true)
                                                     ? {
                                                         containers: vars.data.containers,

@@ -506,6 +506,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     #servers-web .container-ports li,
     #servers-web .edit-summary li,
     #test-performance li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
+    #servers-web .container-ports{margin-bottom:1em}
     #compose-containers .edit-summary,
     #servers-web .edit-summary{margin:0;padding:0}
 
