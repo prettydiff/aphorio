@@ -71,12 +71,12 @@ interface transmit_tlsCerts {
 }
 
 interface transmit_tlsOptions {
+    certificates: transmit_tlsCerts;
     fileFlag: {
         ca: boolean;
         cert: boolean;
         key: boolean;
     };
-    options: transmit_tlsCerts;
 }
 
 interface transmit_udp extends node_dgram_Socket {

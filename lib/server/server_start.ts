@@ -16,10 +16,10 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                 // options are of type TlsOptions
                 ? node.net.createServer()
                 : node.tls.createServer({
-                    ca: options.options.ca,
-                    cert: options.options.cert,
-                    key: options.options.key,
-                    rejectUnauthorized: true,
+                    ca: options.certificates.ca,
+                    cert: options.certificates.cert,
+                    key: options.certificates.key,
+                    rejectUnauthorized: false,
                     requestCert: (vars.data.servers[id].mutual_tls === true)
                 }, connection),
             secureType:"open"|"secure" = (options === null)
@@ -27,7 +27,7 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                 : "secure",
             complete = function server_start_open_complete(id:string):void {
                 count = count + 1;
-                if (callback !== null && callback !== undefined && ((vars.data.servers[id].encryption === "both" && count > 1) || vars.data.servers[id].encryption !== "both")) {console.log("start callback");
+                if (callback !== null && callback !== undefined && ((vars.data.servers[id].encryption === "both" && count > 1) || vars.data.servers[id].encryption !== "both")) {
                     callback(id);
                 }
             },
@@ -92,7 +92,7 @@ const server_start = function server_start(id:string, callback:(name:string) => 
         wsServer.on("error", server_error);
         wsServer.on("close", server_error);
         if (vars.data.servers[wsServer.id] !== undefined && options !== null) {
-            vars.data_store.server_certs[wsServer.id] = options.options;
+            vars.data_store.server_certs[wsServer.id] = options.certificates;
         }
 
         // insecure connection listener
@@ -142,15 +142,15 @@ const server_start = function server_start(id:string, callback:(name:string) => 
             flag_error:boolean = false;
         const certLocation:string = `${vars.path.servers + id + vars.path.sep}certs${vars.path.sep}`,
             https:transmit_tlsOptions = {
+                certificates: {
+                    ca: "",
+                    cert: "",
+                    key: ""
+                },
                 fileFlag: {
                     ca: false,
                     cert: false,
                     key: false
-                },
-                options: {
-                    ca: "",
-                    cert: "",
-                    key: ""
                 }
             },
             certCheck = function server_start_certCheck():void {
@@ -193,7 +193,7 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                                     time: Date.now()
                                 });
                             } else {
-                                https.options[type] = file.toString();
+                                https.certificates[type] = file.toString();
                                 https.fileFlag[type] = true;
                                 certCheck();
                             }

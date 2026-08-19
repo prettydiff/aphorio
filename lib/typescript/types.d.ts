@@ -10,6 +10,7 @@ type test_qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesse
 type type_activation_status = ["amber" | "green" | "red", "deactivated" | "new" | "offline" | "online" | "partially online"];
 type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window", string, number];
 type type_certKey = "ca" | "crt" | "key";
+type type_certName = "client" | "int" | "root" | "server";
 type type_dashboard_action = type_halt_action | "activate" | "add" | "update";
 type type_dashboard_list = "container" | "server";
 type type_dashboard_init = "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "message-inspection" | "notes" | "os-machine" | "servers-web" | "services-app" | "statistics-resources" | "terminal" | "test-http" | "test-performance" | "test-websocket" | "udp-socket";

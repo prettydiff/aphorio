@@ -564,11 +564,27 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         });
                     });
                 },
+                certificate_client:node_crypto_X509Certificate = (socket.encrypted === true)
+                    ? socket.getPeerX509Certificate()
+                    : null,
                 blocked_host:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(store.origin) === true),
                 blocked_ip:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
                 blocked:boolean = (flags.referer === true || blocked_host === true || blocked_ip === true),
                 domain_redirect:boolean = (server.redirect_domain !== undefined && server.redirect_domain !== null && server.redirect_domain[store.origin] !== undefined && server.redirect_domain[store.origin] !== null),
                 domain_local:string[] = server.domain_local.concat(vars.environment.interfaces);
+            // mutual TLS enforcement
+            if (vars.data.servers[server.id].mutual_tls === true) {
+                if (socket.encrypted !== true || certificate_client === null || certificate_client === undefined) {
+                    socket.destroy();
+                    return;
+                }
+                const certificate_client_raw:node_crypto_X509Certificate = new node.crypto.X509Certificate(socket.getPeerX509Certificate().raw),
+                    parent_key:node_crypto_KeyObject = new node.crypto.X509Certificate(vars.data_store.server_certs[server.id].ca).publicKey;
+                if (certificate_client_raw === null || certificate_client_raw === undefined || parent_key === null || parent_key === undefined || certificate_client_raw.verify(parent_key) !== true) {
+                    socket.destroy();
+                    return;
+                }
+            }
             headerList.forEach(headerEach);
             socket.addresses = address;
             message_inspection.send({

@@ -19,7 +19,7 @@ const certificate = function services_certificate(config:config_certificate):voi
                         index = index + 1;
                         if (index < commands.length) {
                             services_certificate_cert_crypto();
-                        } else {console.log("callback");
+                        } else {
                             config.callback();
                         }
                     }, {
@@ -157,41 +157,26 @@ const certificate = function services_certificate(config:config_certificate):voi
                     const mode:[string, string] = (config.selfSign === true)
                             ? ["server", domain]
                             : ["root", domain],
-                        org:string = "/O=home_server/OU=home_server",
-                        // provides the path to the configuration file used for certificate signing
-                        pathConf = function services_certificate_cert_create_confPath(configName:"ca"|"selfSign"):string {
-                            return `"extensions.cnf" -extensions ${configName}`;
-                        },
-                        // generates the key file associated with a given certificate
-                        actionKey = function services_certificate_cert_create_key(type:"client"|"int"|"root"|"server"):string {
-                            return `openssl genrsa -out ${type}.key 4096`;
-                        },
-                        cert = function services_certificate_create_cert(type:"client"|"int"|"root"|"server", parent:"int"|"root", path:"ca"|"selfSign"):void {
-                            // generate the key file
-                            commands.push(actionKey(type));
-                            // create the certificate file
+                        client:string = `${vars.environment.name}_${domain}`,
+                        org:string = `/O=${vars.environment.name.capitalize()}/OU=${vars.environment.name.capitalize()}`,
+                        cert = function services_certificate_create_cert(type:type_certName, parent:"int"|"root", path:"ca"|"selfSign"):void {
+                            // key file
+                            commands.push(`openssl genrsa -out ${type}.key 4096`);
+                            // certificate file
                             commands.push(`openssl req -new -sha512 -key ${type}.key -out ${type}.csr -subj "/CN=${domain + org}"`);
-                            // sign the certificate using the parent
-                            commands.push(`openssl x509 -req -sha512 -in ${type}.csr -days ${config.days} -out ${type}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile ${pathConf(path)}`);
+                            // sign the certificate
+                            commands.push(`openssl x509 -req -sha512 -in ${type}.csr -days ${config.days} -out ${type}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile "extensions.cnf" -extensions ${path}`);
                         },
-                        root:string = `openssl req -x509 -new -newkey rsa:4096 -nodes -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`,
-                        replicate:string = "openssl pkcs12 -export -passout pass: -out client.pfx -inkey client.key -in client.crt";
+                        root:string = `openssl req -x509 -new -newkey rsa:4096 -nodes -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`;
+                    commands.push("openssl genrsa -out root.key 4096");
                     if (config.selfSign === true) {
-                        commands.push(actionKey("root"));
-                        commands.push(`${root} -config ${pathConf("selfSign")}`);
+                        commands.push(`${root} -config "extensions.cnf" -extensions selfSign}`);
                     } else {
-                        // 1. generate a private key for root certificate
-                        commands.push(actionKey("root"));
-                        // 2. generate a root certificate
                         commands.push(root);
-                        // 3. create the intermediate certificate
                         cert("int", "root", "selfSign");
-                        // 4. create the server certificate
                         cert("server", "int", "ca");
-                        // 5. create the client certificate
-                        cert("client", "int", "ca");
-                        // 6. replicate the client certificate in pkcs12 format for browser compatibility
-                        commands.push(replicate);
+                        cert(client as "client", "int", "ca");
+                        commands.push(`openssl pkcs12 -export -passout pass: -out ${client}.pfx -inkey ${client}.key -in ${client}.crt`);
                     }
                     crypto();
                 };

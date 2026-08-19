@@ -198,7 +198,11 @@ const ui_shared_services = function ui_shared_services():void {
                             }
                             output.push(`"id": "${serverData.id}",`);
                             methods();
-                            output.push("\"mutual_tls\": false,");
+                            if (newFlag === true) {
+                                output.push("\"mutual_tls\": false,");
+                            } else {
+                                output.push(`"mutual_tls": ${serverData.mutual_tls},`);
+                            }
                             if (newFlag === true) {
                                 output.push("\"name\": \"new_server\",");
                             } else {
