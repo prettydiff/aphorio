@@ -9,6 +9,7 @@ const dashboard:dashboard = {
         "click": false,
         "loaded": false,
         "payload": {
+            "certificates": {},
             "compose": {
                 "containers": {},
                 "status": "",

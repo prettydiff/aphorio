@@ -10,6 +10,7 @@ const servers = function services_server(socketData:socket_data):void {
         const data:services_server_action = socketData.data as services_server_action,
             callback = function services_server_callback():void {
                 const payload:services_server_update = {
+                    certificates: vars.data_store.certificates_client,
                     ports_used: vars.data_store.server_ports,
                     servers: vars.data.servers
                 };

@@ -127,6 +127,7 @@ const ui_statistics_resources = function ui_statistics_resources():void {
             if (dashboard.global.loaded === true || (dashboard.global.loaded === false && dashboard.global.state.nav === "statistics-resources")) {
                 if (dashboard.sections["servers-web"] !== undefined) {
                     const payload:services_server_update = {
+                        certificates: dashboard.global.payload.certificates,
                         ports_used: dashboard.global.payload.server_ports,
                         servers: dashboard.global.payload.servers
                     };
