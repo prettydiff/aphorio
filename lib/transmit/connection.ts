@@ -132,7 +132,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                             if (vars.data.sockets_tcp[index].proxy === null) {
                                                 const servers:string[] = Object.keys(vars.data_store.server),
                                                     list = function transmit_connection_handshake_proxyExisting_loop_list(id:string, list_type:"open"|"secure"):boolean {
-                                                        const sockets:websocket_client[] = vars.data_store.sockets_tcp[id][list_type];
+                                                        const sockets:websocket_client[] = vars.data_store.server[id].sockets_tcp[list_type];
                                                         let count:number = sockets.length;
                                                         do {
                                                             count = count - 1;
@@ -354,7 +354,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                         const security:"open"|"secure" = (socket.secure === true)
                                             ? "secure"
                                             : "open";
-                                        vars.data_store.server[server_id][security].removeAllListeners();
+                                        vars.data_store.server[server_id].server_object[security].removeAllListeners();
                                     }
                                     if (localFlag === true) {
                                         if (store.type === "dashboard-terminal" && headerList[0].includes("shell") === true) {
@@ -580,7 +580,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     return;
                 }
                 const certificate_client_raw:node_crypto_X509Certificate = new node.crypto.X509Certificate(socket.getPeerX509Certificate().raw),
-                    parent_key:node_crypto_KeyObject = new node.crypto.X509Certificate(vars.data_store.server_certs[server.id].ca).publicKey;
+                    parent_key:node_crypto_KeyObject = new node.crypto.X509Certificate(vars.data_store.server[server.id].server_certs.ca).publicKey;
                 if (certificate_client_raw === null || certificate_client_raw === undefined || parent_key === null || parent_key === undefined || certificate_client_raw.verify(parent_key) !== true) {
                     socket.destroy();
                     return;

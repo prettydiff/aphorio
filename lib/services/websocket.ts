@@ -8,7 +8,7 @@ const websocket_test:websocket_test = {
         const hash:string = (direction === "in")
             ? hashString.replace("websocketTest-", "")
             : `websocketTest-${hashString}`;
-        let sockets:websocket_client[] = vars.data_store.sockets_tcp[vars.id.dashboard_server].open,
+        let sockets:websocket_client[] = vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open,
             index:number = sockets.length;
         if (index > 0) {
             do {
@@ -18,7 +18,7 @@ const websocket_test:websocket_test = {
                 }
             } while (index > 0);
         }
-        sockets = vars.data_store.sockets_tcp[vars.id.dashboard_server].secure;
+        sockets = vars.data_store.server[vars.id.dashboard_server].sockets_tcp.secure;
         index = sockets.length;
         if (index > 0) {
             do {

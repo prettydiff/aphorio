@@ -322,22 +322,20 @@ interface core_vars_data_primary {
 }
 
 interface core_vars_data_store {
-    // storage of actual web server objects
     server: {
         [key:string]: {
-            open: core_server_instance;
-            secure: core_server_instance;
-        };
-    };
-    // server certificates
-    server_certs: {
-        [key:string]: transmit_tlsCerts;
-    };
-    // storage of application managed tcp sockets
-    sockets_tcp: {
-        [key:string]: {
-            open: websocket_client[];
-            secure: websocket_client[];
+            // server certificates
+            server_certs: transmit_tlsCerts;
+            // storage of actual web server objects
+            server_object: {
+                open: core_server_instance;
+                secure: core_server_instance;
+            };
+            // storage of application managed tcp sockets
+            sockets_tcp: {
+                open: websocket_client[];
+                secure: websocket_client[];
+            };
         };
     };
     // storage of application managed udp sockets

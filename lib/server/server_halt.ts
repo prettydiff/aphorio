@@ -104,20 +104,20 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
 
         // 1. Disable the servers and kill their sockets
         if (encryption === "both") {
-            if (vars.data_store.server[id].open !== null) {
-                vars.data_store.server[id].open.close();
+            if (vars.data_store.server[id].server_object.open !== null) {
+                vars.data_store.server[id].server_object.open.close();
                 vars.data.server_ports[id].open = 0;
-                kill_sockets(vars.data_store.sockets_tcp[id].open);
+                kill_sockets(vars.data_store.server[id].sockets_tcp.open);
             }
-            if (vars.data_store.server[id].secure !== null) {
-                vars.data_store.server[id].secure.close();
+            if (vars.data_store.server[id].server_object.secure !== null) {
+                vars.data_store.server[id].server_object.secure.close();
                 vars.data.server_ports[id].secure = 0;
-                kill_sockets(vars.data_store.sockets_tcp[id].secure);
+                kill_sockets(vars.data_store.server[id].sockets_tcp.secure);
             }
         } else {
-            vars.data_store.server[id][encryption].close();
+            vars.data_store.server[id].server_object[encryption].close();
             vars.data.server_ports[id][encryption] = 0;
-            kill_sockets(vars.data_store.sockets_tcp[id][encryption]);
+            kill_sockets(vars.data_store.server[id].sockets_tcp[encryption]);
         }
         delete vars.data_store.server[id];
         if (data.action === "destroy" || data.action === "modify") {
@@ -133,8 +133,6 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
                 delete vars.data.server_ports[id];
                 delete vars.data.servers[id];
                 delete vars.data_store.server[id];
-                delete vars.data_store.server_certs[id];
-                delete vars.data_store.sockets_tcp[id];
                 file.remove({
                     callback: function server_serverHalt_delete():void {
                         save(write_callback, "servers-web");

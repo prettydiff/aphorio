@@ -90,11 +90,21 @@ const server_create = function services_serverCreate(data:services_server_action
                             config.ports.secure = 0;
                         }
                     }
-                    vars.data.servers[config.id] = config;
-                    vars.data_store.server_certs[config.id] = null;
                     vars.data.server_ports[config.id] = {
                         open: 0,
                         secure: 0
+                    };
+                    vars.data.servers[config.id] = config;
+                    vars.data_store.server[config.id] = {
+                        server_certs: null,
+                        server_object: {
+                            open: null,
+                            secure: null
+                        },
+                        sockets_tcp: {
+                            open: [],
+                            secure: []
+                        }
                     };
                     // 2. save server data
                     if (config.single_socket === true || config.temporary === true) {

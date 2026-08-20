@@ -128,10 +128,6 @@ const vars:core_vars = {
         data_store: {
             // the actual web server objects and their actual socket objects
             server: {},
-            // server certificates
-            server_certs: {},
-            // storage of application created TCP sockets by server id
-            sockets_tcp: {},
             // list of application created UDP sockets
             sockets_udp: []
         },

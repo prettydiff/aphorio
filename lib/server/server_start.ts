@@ -38,7 +38,7 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                     secure:"open"|"secure" = (serverItem.secure === true)
                         ? "secure"
                         : "open";
-                vars.data_store.server[serverItem.id][secure] = serverItem;
+                vars.data_store.server[serverItem.id].server_object[secure] = serverItem;
                 if (vars.data.server_ports[serverItem.id] === undefined) {
                     vars.data.server_ports[serverItem.id] = {
                         open: 0,
@@ -93,7 +93,7 @@ const server_start = function server_start(id:string, callback:(name:string) => 
         wsServer.on("error", server_error);
         wsServer.on("close", server_error);
         if (vars.data.servers[wsServer.id] !== undefined && options !== null) {
-            vars.data_store.server_certs[wsServer.id] = options.certificates;
+            vars.data_store.server[wsServer.id].server_certs = options.certificates;
         }
 
         // insecure connection listener
@@ -114,11 +114,11 @@ const server_start = function server_start(id:string, callback:(name:string) => 
         vars.data.servers[id].domain_local = [];
     }
     if (vars.data_store.server[id] === undefined) {
-        vars.data_store.server[id] = {
+        vars.data_store.server[id].server_object = {
             open: null,
             secure: null
         };
-        vars.data_store.sockets_tcp[id] = {
+        vars.data_store.server[id].sockets_tcp = {
             open: [],
             secure: []
         };

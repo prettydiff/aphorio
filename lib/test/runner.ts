@@ -274,10 +274,10 @@ const test_runner:test_runner = {
                     return `${vars.commands.open} "${path}"`;
                 },
                 call_dom = function test_runner_toolsBrowser_callDom():void {
-                    if (vars.data_store.sockets_tcp[vars.id.dashboard_server].open[0] === undefined || vars.data_store.sockets_tcp[vars.id.dashboard_server].open[0].queue === undefined) {
+                    if (vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0] === undefined || vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0].queue === undefined) {
                         setTimeout(test_runner_toolsBrowser_callDom, 50);
                     } else {
-                        test_runner.socket = vars.data_store.sockets_tcp[vars.id.dashboard_server].open[0];
+                        test_runner.socket = vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0];
                         test_runner.execution.dom();
                     }
                 };
