@@ -113,8 +113,8 @@ const websocket_test:websocket_test = {
             if (host === "") {
                 config.ip = "127.0.0.1";
                 config.port = (data.encryption === true)
-                    ? vars.data_store.server_ports[vars.id.dashboard_server].secure
-                    : vars.data_store.server_ports[vars.id.dashboard_server].open;
+                    ? vars.data.server_ports[vars.id.dashboard_server].secure
+                    : vars.data.server_ports[vars.id.dashboard_server].open;
             // discern host value from IPv6 address plus specified port
             } else if (host.includes("[") === true && host.includes("]") === true) {
                 config.ip = host.slice(host.indexOf("[") + 1, host.indexOf("]"));

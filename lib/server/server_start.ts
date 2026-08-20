@@ -39,13 +39,13 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                         ? "secure"
                         : "open";
                 vars.data_store.server[serverItem.id][secure] = serverItem;
-                if (vars.data_store.server_ports[serverItem.id] === undefined) {
-                    vars.data_store.server_ports[serverItem.id] = {
+                if (vars.data.server_ports[serverItem.id] === undefined) {
+                    vars.data.server_ports[serverItem.id] = {
                         open: 0,
                         secure: 0
                     };
                 }
-                vars.data_store.server_ports[serverItem.id][secure] = address.port;
+                vars.data.server_ports[serverItem.id][secure] = address.port;
                 log.application({
                     error: null,
                     message: `${secure.capitalize()} server came online at port ${address.port}.`,
@@ -56,8 +56,8 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                 });
                 broadcast(vars.id.dashboard_server, "dashboard", {
                     data: {
-                        certificates: vars.data_store.certificates_client,
-                        ports_used: vars.data_store.server_ports,
+                        certificates: vars.data.certificates_client,
+                        ports_used: vars.data.server_ports,
                         servers: vars.data.servers
                     },
                     service: "services_server_update"

@@ -264,7 +264,7 @@ const test_runner:test_runner = {
     tools: {
         browser_open: function test_runner_toolsBrowser():void {
             const browserCommand = function test_runner_toolsBrowser_browserCommand():string {
-                    const path:string = `http://localhost:${vars.data_store.server_ports[vars.id.dashboard_server].open}/?test_browser`;
+                    const path:string = `http://localhost:${vars.data.server_ports[vars.id.dashboard_server].open}/?test_browser`;
                     if (vars.test.test_browser !== "" && vars.test.test_browser !== null) {
                         if (vars.test.browser_args.length > 0) {
                             return `${vars.commands.open} "${vars.test.test_browser}" "${path}" ${vars.test.browser_args.join(" ")}`;

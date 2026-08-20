@@ -44,18 +44,18 @@ const ports_application = function services_portsApplication():void {
         do {
             index_item = index_item - 1;
             server = vars.data.servers[keys_servers[index_item]];
-            if (vars.data_store.server_ports[keys_servers[index_item]] !== undefined) {
+            if (vars.data.server_ports[keys_servers[index_item]] !== undefined) {
                 if (server.encryption === "both") {
                     list.push({
                         hash: keys_servers[index_item],
-                        port: vars.data_store.server_ports[keys_servers[index_item]].open,
+                        port: vars.data.server_ports[keys_servers[index_item]].open,
                         service: "server",
                         service_name: server.name,
                         type: "tcp"
                     });
                     list.push({
                         hash: keys_servers[index_item],
-                        port: vars.data_store.server_ports[keys_servers[index_item]].secure,
+                        port: vars.data.server_ports[keys_servers[index_item]].secure,
                         service: "server",
                         service_name: server.name,
                         type: "tcp"
@@ -63,14 +63,14 @@ const ports_application = function services_portsApplication():void {
                 } else {
                     list.push({
                         hash: keys_servers[index_item],
-                        port: vars.data_store.server_ports[keys_servers[index_item]][server.encryption],
+                        port: vars.data.server_ports[keys_servers[index_item]][server.encryption],
                         service: "server",
                         service_name: server.name,
                         type: "tcp"
                     });
                 }
             } else {
-                vars.data_store.server_ports[keys_servers[index_item]] = {
+                vars.data.server_ports[keys_servers[index_item]] = {
                     open: 0,
                     secure: 0
                 };
@@ -78,7 +78,7 @@ const ports_application = function services_portsApplication():void {
         } while (index_item > 0);
     }
 
-    list.sort(function dashboard_sections_portsApplication_receive_sort(a:supplemental_ports_application_item, b:supplemental_ports_application_item):-1|1 {
+    list.sort(function services_portsApplication_sort(a:supplemental_ports_application_item, b:supplemental_ports_application_item):-1|1 {
         if (a.port < b.port || (a.port === b.port && a.type < b.type)) {
             return -1;
         }

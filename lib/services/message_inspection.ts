@@ -6,7 +6,7 @@ import vars from "../core/vars.ts";
 const message_inspection:core_module_messageInspection = {
     // send the intercepted message data
     send: function services_messageInspection_send(data:services_message_inspection):void {
-        let index_messages:number = vars.data_store.message_inspection.length,
+        let index_messages:number = vars.data.message_inspection.length,
             item:core_message_inspection = null,
             len:number = data.message.length;
         const now:number = Date.now();
@@ -14,7 +14,7 @@ const message_inspection:core_module_messageInspection = {
         if (index_messages > 0) {
             do {
                 index_messages = index_messages - 1;
-                item = vars.data_store.message_inspection[index_messages];
+                item = vars.data.message_inspection[index_messages];
                 if (item.type === data.type && item.service === data.service) {
                     data.message = (item.maximum_size === 0 || len < item.maximum_size)
                         ? data.message
@@ -98,20 +98,20 @@ const message_inspection:core_module_messageInspection = {
                     payload.stdout = output;
                 }
             };
-        let index:number = vars.data_store.message_inspection.length;
+        let index:number = vars.data.message_inspection.length;
         if (index > 0) {
             do {
                 index = index - 1;
-                if (vars.data_store.message_inspection[index].socket === socket) {
+                if (vars.data.message_inspection[index].socket === socket) {
                     if (data.type === "docker-container") {
-                        vars.data_store.message_inspection[index].spawn.spawn.stdout.off("data", vars.data_store.message_inspection[index].stdout);
-                        vars.data_store.message_inspection[index].spawn.spawn.stderr.off("data", vars.data_store.message_inspection[index].stdout);
+                        vars.data.message_inspection[index].spawn.spawn.stdout.off("data", vars.data.message_inspection[index].stdout);
+                        vars.data.message_inspection[index].spawn.spawn.stderr.off("data", vars.data.message_inspection[index].stdout);
                     }
                     if (data.service === "" || (data.type === "web-server" && vars.data.servers[data.service] === undefined) || (data.type === "docker-container" && vars.data.containers[data.service] === undefined)) {
-                        vars.data_store.message_inspection.splice(index, 1);
+                        vars.data.message_inspection.splice(index, 1);
                     } else {
-                        vars.data_store.message_inspection[index].service = data.service;
-                        vars.data_store.message_inspection[index].type = data.type;
+                        vars.data.message_inspection[index].service = data.service;
+                        vars.data.message_inspection[index].type = data.type;
                         docker_start();
                     }
                     return;
@@ -123,7 +123,7 @@ const message_inspection:core_module_messageInspection = {
             (data.type === "docker-container" && vars.data.containers[data.service] !== undefined)
         )) {
             docker_start();
-            vars.data_store.message_inspection.push(payload);
+            vars.data.message_inspection.push(payload);
         }
     }
 };

@@ -109,7 +109,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         ua[0] = store.userAgent.slice(store.userAgent.indexOf("(") + 1, store.userAgent.indexOf(")"));
                         ua = ua[0].split(";");
                         store.userAgent = `${ua[0]}, ${ua[1]}, ${store.userAgent.slice(store.userAgent.lastIndexOf(")") + 2)}`;
-                    } else if ((/^upgrade-insecure-requests:\s*1$/).test(lower) === true && socket.encrypted !== true && server.upgrade === true && vars.data_store.server_ports[server_id].secure > 0) {
+                    } else if ((/^upgrade-insecure-requests:\s*1$/).test(lower) === true && socket.encrypted !== true && server.upgrade === true && vars.data.server_ports[server_id].secure > 0) {
                         flags.upgrade = true;
                     } else if (lower === "services_http_test: true") {
                         flags.dashboard_http_test = true;
@@ -378,7 +378,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                             terminal.shell(socket as websocket_pty, term);
                                         } else if (store.type === "dashboard") {
                                             const payload:services_dashboard_open = {
-                                                certificates: vars.data_store.certificates_client,
+                                                certificates: vars.data.certificates_client,
                                                 compose: (vars.environment.features["compose-containers"] === true)
                                                     ? {
                                                         containers: vars.data.containers,
@@ -413,7 +413,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                 },
                                                 repository: vars.environment.repository,
                                                 server_ports: (vars.environment.features["servers-web"] === true)
-                                                    ? vars.data_store.server_ports
+                                                    ? vars.data.server_ports
                                                     : null,
                                                 servers: (vars.environment.features["servers-web"] === true)
                                                     ? vars.data.servers
@@ -603,9 +603,9 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
             if (blocked === true || (domain_local.includes(store.origin) === false && socket.proxy === null)) {
                 socket.destroy();
             // TLS data sent to open server - proxy the socket to the server's TLS port
-            } else if (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data_store.server_ports[server_id].secure > 0) {
+            } else if (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data.server_ports[server_id].secure > 0) {
                 store.domain = `open_socket_tunnel-${vars.data.servers[server_id].name}`;
-                proxy_create(address.local.address, vars.data_store.server_ports[server_id].secure, false);
+                proxy_create(address.local.address, vars.data.server_ports[server_id].secure, false);
             // origin in specified block list or requested origin is not in domain_local list
             } else if (domain_redirect === true) {
                 const pair:[string, number] = (socket.encrypted === true)
@@ -636,7 +636,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     resource:string = resource_second.replace(/\/$/, "");
                 socket.write([
                     "HTTP/1.1 308",
-                    `location: https://${store.domain + resource}:${vars.data_store.server_ports[server_id].secure}`,
+                    `location: https://${store.domain + resource}:${vars.data.server_ports[server_id].secure}`,
                     "content-length: 5",
                     "",
                     "moved",

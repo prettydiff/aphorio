@@ -193,9 +193,9 @@ const start_application = function utilities_startApplication(process_path:strin
                                             count = count + 1;
                                             if (file !== null) {
                                                 if (identifier === "crt") {
-                                                    vars.data_store.certificates_client[dir[index]].crt = file.toString("utf-8");
+                                                    vars.data.certificates_client[dir[index]].crt = file.toString("utf-8");
                                                 } else {
-                                                    vars.data_store.certificates_client[dir[index]].pfx = file.toString("base64");
+                                                    vars.data.certificates_client[dir[index]].pfx = file.toString("base64");
                                                 }
                                             }
                                             if (count > 1) {
@@ -220,7 +220,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                     add_cert = function utility_startApplication_certificates_readdir_addCert():void {
                                         index = index - 1;
                                         if (index > -1) {
-                                            vars.data_store.certificates_client[dir[index]] = {
+                                            vars.data.certificates_client[dir[index]] = {
                                                 crt: null,
                                                 pfx: null
                                             };
@@ -1027,25 +1027,25 @@ const start_application = function utilities_startApplication(process_path:strin
                                         // from servers
                                         index = 0;
                                         do {
-                                            if (vars.data_store.server_ports[servers[index]] !== undefined) {
+                                            if (vars.data.server_ports[servers[index]] !== undefined) {
                                                 if (vars.data.servers[servers[index]].encryption === "both") {
-                                                    logItem(vars.data.servers[servers[index]].name, "open", (vars.data_store.server_ports[servers[index]].open === 0)
+                                                    logItem(vars.data.servers[servers[index]].name, "open", (vars.data.server_ports[servers[index]].open === 0)
                                                         ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
-                                                        : vars.text.green + vars.data_store.server_ports[servers[index]].open + vars.text.none
+                                                        : vars.text.green + vars.data.server_ports[servers[index]].open + vars.text.none
                                                     );
-                                                    logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_store.server_ports[servers[index]].secure === 0)
+                                                    logItem(vars.data.servers[servers[index]].name, "secure", (vars.data.server_ports[servers[index]].secure === 0)
                                                         ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
-                                                        : vars.text.green + vars.data_store.server_ports[servers[index]].secure + vars.text.none
+                                                        : vars.text.green + vars.data.server_ports[servers[index]].secure + vars.text.none
                                                     );
                                                 } else if (vars.data.servers[servers[index]].encryption === "open") {
-                                                    logItem(vars.data.servers[servers[index]].name, "open", (vars.data_store.server_ports[servers[index]].open === 0)
+                                                    logItem(vars.data.servers[servers[index]].name, "open", (vars.data.server_ports[servers[index]].open === 0)
                                                         ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
-                                                        : vars.text.green + vars.data_store.server_ports[servers[index]].open + vars.text.none
+                                                        : vars.text.green + vars.data.server_ports[servers[index]].open + vars.text.none
                                                     );
                                                 } else if (vars.data.servers[servers[index]].encryption === "secure") {
-                                                    logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_store.server_ports[servers[index]].secure === 0)
+                                                    logItem(vars.data.servers[servers[index]].name, "secure", (vars.data.server_ports[servers[index]].secure === 0)
                                                         ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
-                                                        : vars.text.green + vars.data_store.server_ports[servers[index]].secure + vars.text.none
+                                                        : vars.text.green + vars.data.server_ports[servers[index]].secure + vars.text.none
                                                     );
                                                 }
                                             }

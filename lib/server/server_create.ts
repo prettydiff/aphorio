@@ -78,39 +78,21 @@ const server_create = function services_serverCreate(data:services_server_action
                         vars.id.dashboard_server = output.hash;
                     }
                     if (config.ports === undefined || config.ports === null) {
-                        config.ports = {};
-                    }
-                    if (config.encryption === "both") {
+                        config.ports = {
+                            open: 0,
+                            secure: 0
+                        };
+                    } else {
                         if (typeof config.ports.open !== "number") {
                             config.ports.open = 0;
                         }
                         if (typeof config.ports.secure !== "number") {
                             config.ports.secure = 0;
                         }
-                    } else if (config.encryption === "open") {
-                        if (typeof config.ports.open !== "number") {
-                            config.ports = {
-                                open: 0
-                            };
-                        } else {
-                            config.ports = {
-                                open: config.ports.open
-                            };
-                        }
-                    } else {
-                        if (typeof config.ports.secure !== "number") {
-                            config.ports = {
-                                secure: 0
-                            };
-                        } else {
-                            config.ports = {
-                                secure: config.ports.secure
-                            };
-                        }
                     }
                     vars.data.servers[config.id] = config;
                     vars.data_store.server_certs[config.id] = null;
-                    vars.data_store.server_ports[config.id] = {
+                    vars.data.server_ports[config.id] = {
                         open: 0,
                         secure: 0
                     };

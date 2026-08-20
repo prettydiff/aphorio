@@ -36,7 +36,7 @@ const certificate = function services_certificate(config:config_certificate):voi
                                         }
                                     }
                                     if (count > 1) {
-                                        vars.data_store.certificates_client[config.id] = store_cert;
+                                        vars.data.certificates_client[config.id] = store_cert;
                                         config.callback();
                                     }
                                 };

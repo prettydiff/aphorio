@@ -106,31 +106,32 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
         if (encryption === "both") {
             if (vars.data_store.server[id].open !== null) {
                 vars.data_store.server[id].open.close();
-                vars.data_store.server_ports[id].open = 0;
+                vars.data.server_ports[id].open = 0;
                 kill_sockets(vars.data_store.sockets_tcp[id].open);
             }
             if (vars.data_store.server[id].secure !== null) {
                 vars.data_store.server[id].secure.close();
-                vars.data_store.server_ports[id].secure = 0;
+                vars.data.server_ports[id].secure = 0;
                 kill_sockets(vars.data_store.sockets_tcp[id].secure);
             }
         } else {
             vars.data_store.server[id][encryption].close();
-            vars.data_store.server_ports[id][encryption] = 0;
+            vars.data.server_ports[id][encryption] = 0;
             kill_sockets(vars.data_store.sockets_tcp[id][encryption]);
         }
         delete vars.data_store.server[id];
         if (data.action === "destroy" || data.action === "modify") {
             if (data.action === "modify") {
                 vars.data.servers[id] = data.server;
-                vars.data_store.server_ports[id] = {
+                vars.data.server_ports[id] = {
                     open: 0,
                     secure: 0
                 };
                 save(write_callback, "servers-web");
             } else {
+                delete vars.data.certificates_client[id];
+                delete vars.data.server_ports[id];
                 delete vars.data.servers[id];
-                delete vars.data_store.certificates_client[id];
                 delete vars.data_store.server[id];
                 delete vars.data_store.server_certs[id];
                 delete vars.data_store.sockets_tcp[id];
