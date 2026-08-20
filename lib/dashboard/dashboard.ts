@@ -9,7 +9,6 @@ const dashboard:dashboard = {
         "click": false,
         "loaded": false,
         "payload": {
-            "certificates": {},
             "compose": {
                 "containers": {},
                 "status": "",
@@ -129,8 +128,7 @@ const dashboard:dashboard = {
                 "time": 0
             },
             "repository": "",
-            "server_ports": {},
-            "servers": {},
+            "server": {},
             "services_app": [],
             "sockets": {
                 "tcp": [],

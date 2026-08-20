@@ -408,7 +408,7 @@ const statistics:core_module_statistics_resources = {
                 if (index > 0) {
                     do {
                         index = index - 1;
-                        encryption = vars.data.servers[keys[index]].encryption;
+                        encryption = vars.data.server[keys[index]].config.encryption;
                         if (encryption === "both") {
                             sockets(vars.data_store.server[keys[index]].sockets_tcp.open);
                             sockets(vars.data_store.server[keys[index]].sockets_tcp.secure);

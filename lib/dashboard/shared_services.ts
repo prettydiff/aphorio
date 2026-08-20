@@ -25,11 +25,11 @@ const ui_shared_services = function ui_shared_services():void {
                 }
                 return ["red", "offline"];
             }
-            if (dashboard.global.payload.servers[id].activate === false) {
+            if (dashboard.global.payload.server[id].config.activate === false) {
                 return [null, "deactivated"];
             }
-            const encryption:type_encryption = dashboard.global.payload.servers[id].encryption,
-                ports:core_server_ports = dashboard.global.payload.server_ports[id];
+            const encryption:type_encryption = dashboard.global.payload.server[id].config.encryption,
+                ports:core_server_ports = dashboard.global.payload.server[id].ports;
             if (ports === undefined) {
                 return ["red", "offline"];
             }
@@ -160,7 +160,7 @@ const ui_shared_services = function ui_shared_services():void {
                                 sanitize = function dashboard_shareServices_details_serversWeb_sanitize(input:string):string {
                                     return input.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
                                 },
-                                serverData:supplemental_server = (newFlag === true)
+                                serverData:supplemental_server_config = (newFlag === true)
                                     ? {
                                         activate: true,
                                         domain_local: ["localhost"],
@@ -174,7 +174,7 @@ const ui_shared_services = function ui_shared_services():void {
                                         },
                                         upgrade: false
                                     }
-                                    : dashboard.global.payload.servers[id],
+                                    : dashboard.global.payload.server[id].config,
                                 output:string[] = [
                                         "{",
                                         `"activate": ${serverData.activate},`
@@ -466,7 +466,7 @@ const ui_shared_services = function ui_shared_services():void {
                 name:string = (id === undefined)
                     ? `new_${type}`
                     : (type === "server")
-                        ? dashboard.global.payload.servers[id].name
+                        ? dashboard.global.payload.server[id].config.name
                         : (dashboard.global.payload.compose.containers[id] === null || dashboard.global.payload.compose.containers[id] === undefined)
                             ? id
                             : dashboard.global.payload.compose.containers[id].name;

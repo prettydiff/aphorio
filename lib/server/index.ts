@@ -9,13 +9,8 @@ const servers = function services_server(socketData:socket_data):void {
     if (socketData.service === "services_server_action") {
         const data:services_server_action = socketData.data as services_server_action,
             callback = function services_server_callback():void {
-                const payload:services_server_update = {
-                    certificates: vars.data.certificates_client,
-                    ports_used: vars.data.server_ports,
-                    servers: vars.data.servers
-                };
                 broadcast(vars.id.dashboard_server, "dashboard", {
-                    data: payload,
+                    data: vars.data.server,
                     service: "services_server_update"
                 });
             };

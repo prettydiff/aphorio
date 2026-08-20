@@ -52,7 +52,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     : config.proxy.hash,
                 role: config.role,
                 server_id: config.server,
-                server_name: vars.data.servers[config.server].name,
+                server_name: vars.data.server[config.server].config.name,
                 time: now,
                 type: config.type,
                 userAgent: config.userAgent
@@ -115,7 +115,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     } while (index > 0);
                 }
 
-                if (vars.data.servers[socket.server_hash].id === vars.id.dashboard_server && socket.type === "dashboard") {
+                if (vars.data.server[socket.server_hash].config.id === vars.id.dashboard_server && socket.type === "dashboard") {
                     const payload:services_message_inspection = {
                         count: 0,
                         direction: "in",
@@ -208,7 +208,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     this.destroy();
                     server_halt({
                         action: "destroy",
-                        server: vars.data.servers[this.server_hash]
+                        server: vars.data.server[this.server_hash].config
                     }, null);
                 };
                 config.socket.on("close", death);

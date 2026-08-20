@@ -107,7 +107,7 @@ const message_inspection:core_module_messageInspection = {
                         vars.data.message_inspection[index].spawn.spawn.stdout.off("data", vars.data.message_inspection[index].stdout);
                         vars.data.message_inspection[index].spawn.spawn.stderr.off("data", vars.data.message_inspection[index].stdout);
                     }
-                    if (data.service === "" || (data.type === "web-server" && vars.data.servers[data.service] === undefined) || (data.type === "docker-container" && vars.data.containers[data.service] === undefined)) {
+                    if (data.service === "" || (data.type === "web-server" && vars.data.server[data.service] === undefined) || (data.type === "docker-container" && vars.data.containers[data.service] === undefined)) {
                         vars.data.message_inspection.splice(index, 1);
                     } else {
                         vars.data.message_inspection[index].service = data.service;
@@ -119,7 +119,7 @@ const message_inspection:core_module_messageInspection = {
             } while (index > 0);
         }
         if (data.service !== "" && (
-            (data.type === "web-server" && vars.data.servers[data.service] !== undefined) ||
+            (data.type === "web-server" && vars.data.server[data.service] !== undefined) ||
             (data.type === "docker-container" && vars.data.containers[data.service] !== undefined)
         )) {
             docker_start();

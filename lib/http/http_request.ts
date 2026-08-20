@@ -165,7 +165,7 @@ const http_request = function http_request(config:services_test_http, callback:(
             fragment:string = "",
             bodyIndex:number = -1,
             contentLength:number = -1;
-        if (vars.data.servers[vars.id.dashboard_server].domain_local.indexOf(host) > -1 || vars.environment.interfaces.indexOf(host) > -1) {
+        if (vars.data.server[vars.id.dashboard_server].config.domain_local.indexOf(host) > -1 || vars.environment.interfaces.indexOf(host) > -1) {
             headers.push("services_http_test: true");
         }
         headers.push("");

@@ -11,10 +11,6 @@ interface supplemental_certificate_client {
     pfx: string;
 }
 
-interface supplemental_certificate_store {
-    [key:string]: supplemental_certificate_client;
-}
-
 interface supplemental_docker_compose_publishers {
     Protocol: "tcp"|"udp";
     PublishedPort: number;
@@ -70,6 +66,12 @@ interface supplemental_ports_application_item {
 }
 
 interface supplemental_server {
+    certificates_client: supplemental_certificate_client;
+    config: supplemental_server_config;
+    ports: core_server_ports;
+}
+
+interface supplemental_server_config {
     activate: boolean;
     block_list?: {
         host: string[];

@@ -20,14 +20,14 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                     cert: options.certificates.cert,
                     key: options.certificates.key,
                     rejectUnauthorized: false,
-                    requestCert: (vars.data.servers[id].mutual_tls === true)
+                    requestCert: (vars.data.server[id].config.mutual_tls === true)
                 }, connection),
             secureType:"open"|"secure" = (options === null)
                 ? "open"
                 : "secure",
             complete = function server_start_open_complete(id:string):void {
                 count = count + 1;
-                if (callback !== null && callback !== undefined && ((vars.data.servers[id].encryption === "both" && count > 1) || vars.data.servers[id].encryption !== "both")) {
+                if (callback !== null && callback !== undefined && ((vars.data.server[id].config.encryption === "both" && count > 1) || vars.data.server[id].config.encryption !== "both")) {
                     callback(id);
                 }
             },
@@ -39,13 +39,13 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                         ? "secure"
                         : "open";
                 vars.data_store.server[serverItem.id].server_object[secure] = serverItem;
-                if (vars.data.server_ports[serverItem.id] === undefined) {
-                    vars.data.server_ports[serverItem.id] = {
+                if (vars.data.server[serverItem.id].ports === undefined) {
+                    vars.data.server[serverItem.id].ports = {
                         open: 0,
                         secure: 0
                     };
                 }
-                vars.data.server_ports[serverItem.id][secure] = address.port;
+                vars.data.server[serverItem.id].ports[secure] = address.port;
                 log.application({
                     error: null,
                     message: `${secure.capitalize()} server came online at port ${address.port}.`,
@@ -55,11 +55,7 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                     time: Date.now()
                 });
                 broadcast(vars.id.dashboard_server, "dashboard", {
-                    data: {
-                        certificates: vars.data.certificates_client,
-                        ports_used: vars.data.server_ports,
-                        servers: vars.data.servers
-                    },
+                    data: vars.data.server,
                     service: "services_server_update"
                 });
                 complete(serverItem.id);
@@ -69,8 +65,8 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                         ? "secure"
                         : "open",
                     message:string = (ser !== null && ser !== undefined && ser.code === "EADDRINUSE")
-                        ? `Port conflict on port ${vars.data.servers[this.id].ports[secure]} of ${secure} server.`
-                        : `${secure.capitalize()} went offline.  Was listening on port ${vars.data.servers[this.id].ports[secure]}.`;
+                        ? `Port conflict on port ${vars.data.server[this.id].config.ports[secure]} of ${secure} server.`
+                        : `${secure.capitalize()} went offline.  Was listening on port ${vars.data.server[this.id].ports[secure]}.`;
                 log.application({
                     error: ser,
                     message: message,
@@ -92,7 +88,7 @@ const server_start = function server_start(id:string, callback:(name:string) => 
         wsServer.id = id;
         wsServer.on("error", server_error);
         wsServer.on("close", server_error);
-        if (vars.data.servers[wsServer.id] !== undefined && options !== null) {
+        if (vars.data.server[wsServer.id] !== undefined && options !== null) {
             vars.data_store.server[wsServer.id].server_certs = options.certificates;
         }
 
@@ -105,13 +101,13 @@ const server_start = function server_start(id:string, callback:(name:string) => 
         wsServer.listen({
             port: (vars.options[`port-${secureType}`] > 0 && id === vars.id.dashboard_server)
                 ? vars.options[`port-${secureType}`]
-                : vars.data.servers[id].ports[secureType]
+                : vars.data.server[id].config.ports[secureType]
         }, listenerCallback);
     };
 
     // create default structures
-    if (Array.isArray(vars.data.servers[id].domain_local) === false) {
-        vars.data.servers[id].domain_local = [];
+    if (Array.isArray(vars.data.server[id].config.domain_local) === false) {
+        vars.data.server[id].config.domain_local = [];
     }
     if (vars.data_store.server[id] === undefined) {
         vars.data_store.server[id].server_object = {
@@ -124,8 +120,8 @@ const server_start = function server_start(id:string, callback:(name:string) => 
         };
     }
 
-    if (vars.data.servers[id].encryption === "open") {
-        if (vars.data.servers[id].single_socket === true || vars.data.servers[id].temporary === true) {
+    if (vars.data.server[id].config.encryption === "open") {
+        if (vars.data.server[id].config.single_socket === true || vars.data.server[id].config.temporary === true) {
             file.remove({
                 callback: function server_start_starterOpen():void {
                     open(null);
@@ -157,13 +153,13 @@ const server_start = function server_start(id:string, callback:(name:string) => 
             certCheck = function server_start_certCheck():void {
                 if (https.fileFlag.ca === true && https.fileFlag.cert === true && https.fileFlag.key === true) {
                     const starter = function server_start_certCheck_starterSecure():void {
-                        if (vars.data.servers[id].encryption === "both") {
+                        if (vars.data.server[id].config.encryption === "both") {
                             // starts server without TLS certs for non-TLS server
                             open(null);
                         }
                         open(https);
                     };
-                    if (vars.data.servers[id].single_socket === true || vars.data.servers[id].temporary === true) {
+                    if (vars.data.server[id].config.single_socket === true || vars.data.server[id].config.temporary === true) {
                         file.remove({
                             callback: starter,
                             exclusions: null,
@@ -187,7 +183,7 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                             if (file === null) {
                                 log.application({
                                     error: new Error(),
-                                    message: `Required certificate files are missing for server named ${vars.data.servers[id].name}.`,
+                                    message: `Required certificate files are missing for server named ${vars.data.server[id].config.name}.`,
                                     origin: id,
                                     section: "servers-web",
                                     status: "error",

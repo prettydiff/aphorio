@@ -19,7 +19,7 @@ const server_create = function services_serverCreate(data:services_server_action
         algorithm: "sha3-512",
         callback: function services_serverCreate_hashCallback(output:core_hash_output):void {
             let count:number = 0;
-            const config:supplemental_server = data.server,
+            const config:supplemental_server_config = data.server,
                 path_name:string = vars.path.servers + output.hash + vars.path.sep,
                 path_assets:string = `${path_name}assets${vars.path.sep}`,
                 path_certs:string = `${path_name}certs${vars.path.sep}`,
@@ -70,10 +70,10 @@ const server_create = function services_serverCreate(data:services_server_action
                         section: "servers-web"
                     });
                 };
-            if (vars.data.servers[output.hash] === undefined) {
+            if (vars.data.server[output.hash] === undefined) {
                 // 1. add server to the vars.data.servers object
                 config.id = output.hash;
-                if (vars.data.servers[config.id] === undefined) {
+                if (vars.data.server[config.id] === undefined) {
                     if (dashboard === true) {
                         vars.id.dashboard_server = output.hash;
                     }
@@ -90,11 +90,11 @@ const server_create = function services_serverCreate(data:services_server_action
                             config.ports.secure = 0;
                         }
                     }
-                    vars.data.server_ports[config.id] = {
+                    vars.data.server[config.id].ports = {
                         open: 0,
                         secure: 0
                     };
-                    vars.data.servers[config.id] = config;
+                    vars.data.server[config.id].config = config;
                     vars.data_store.server[config.id] = {
                         server_certs: null,
                         server_object: {

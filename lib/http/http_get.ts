@@ -55,7 +55,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             if (config.template === true) {
                 const name:string = (server_id === vars.id.dashboard_server)
                         ? `${vars.environment.name.capitalize()} Dashboard`
-                        : vars.data.servers[server_id].name,
+                        : vars.data.server[server_id].config.name,
                     templateText:string[] = [
                         "<!doctype html>",
                         "<html lang=\"en\">",

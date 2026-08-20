@@ -11,9 +11,9 @@ const certificate = function services_certificate(config:config_certificate):voi
         cert = function services_certificate_cert():void {
             let index:number = 0;
             const commands:string[] = [],
-                domain:string = (vars.data.servers[config.id].domain_local.length < 1)
+                domain:string = (vars.data.server[config.id].config.domain_local.length < 1)
                     ? "localhost"
-                    : vars.data.servers[config.id].domain_local[0],
+                    : vars.data.server[config.id].config.domain_local[0],
                 client:string = `${vars.environment.name}_${domain}`,
                 crypto = function services_certificate_cert_crypto():void {
                     spawn(commands[index], function services_certificate_cert_crypto_child():void {
@@ -36,7 +36,7 @@ const certificate = function services_certificate(config:config_certificate):voi
                                         }
                                     }
                                     if (count > 1) {
-                                        vars.data.certificates_client[config.id] = store_cert;
+                                        vars.data.server[config.id].certificates_client = store_cert;
                                         config.callback();
                                     }
                                 };
@@ -58,9 +58,9 @@ const certificate = function services_certificate(config:config_certificate):voi
                     }).execute();
                 },
                 cert_extensions:string = (function services_certificate_cert_extensions():string {
-                    const server:supplemental_server = (vars.data.servers[config.id] === undefined)
+                    const server:supplemental_server_config = (vars.data.server[config.id] === undefined)
                             ? null
-                            : vars.data.servers[config.id],
+                            : vars.data.server[config.id].config,
                         output:string[] = [
                             `[ ca ]
         basicConstraints       = CA:false

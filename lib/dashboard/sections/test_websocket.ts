@@ -12,8 +12,8 @@ const ui_test_websocket = function ui_test_websocket():void {
                             ? dashboard.sections["test-websocket"].nodes.encrypt_true
                             : dashboard.sections["test-websocket"].nodes.encrypt_false
                         : event.target as HTMLInputElement,
-                    port_open:number = dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].open,
-                    port_secure:number = dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].secure,
+                    port_open:number = dashboard.global.payload.server[dashboard.global.payload.id.dashboard_server].ports.open,
+                    port_secure:number = dashboard.global.payload.server[dashboard.global.payload.id.dashboard_server].ports.secure,
                     text:string = dashboard.sections["test-websocket"].nodes.handshake.value,
                     reg:RegExp = new RegExp(`(H|h)ost\\s*:\\s*${location.hostname}:(${port_open}|${port_secure})`);
                 if (reg.test(text) === true) {
@@ -149,7 +149,9 @@ const ui_test_websocket = function ui_test_websocket():void {
                 h4:HTMLElement = form.getElementsByTagName("h4")[0],
                 scheme:HTMLElement = form.getElementsByTagName("p")[1],
                 emOpen:HTMLElement = document.createElement("em"),
-                emSecure:HTMLElement = document.createElement("em");
+                emSecure:HTMLElement = document.createElement("em"),
+                port_open:number = dashboard.global.payload.server[dashboard.global.payload.id.dashboard_server].ports.open,
+                port_secure:number = dashboard.global.payload.server[dashboard.global.payload.id.dashboard_server].ports.secure;
             dashboard.sections["test-websocket"].tools.handshake();
             dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
             dashboard.sections["test-websocket"].nodes.button_send.onclick = dashboard.sections["test-websocket"].events.message_send;
@@ -159,23 +161,23 @@ const ui_test_websocket = function ui_test_websocket():void {
             dashboard.sections["test-websocket"].nodes.message_send_frame.onblur = dashboard.sections["test-websocket"].events.keyup_frame;
             dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "";
             // server socket status messaging
-            if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].open) === true) {
+            if (isNaN(port_open) === true) {
                 dashboard.sections["test-websocket"].nodes.encrypt_true.checked = true;
                 h4.style.display = "none";
                 scheme.style.display = "none";
-                emSecure.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].secure);
+                emSecure.textContent = String(port_secure);
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendText("secure - ");
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
-            } else if (isNaN(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].secure) === true) {
+            } else if (isNaN(port_secure) === true) {
                 dashboard.sections["test-websocket"].nodes.encrypt_false.checked = true;
                 h4.style.display = "none";
                 scheme.style.display = "none";
-                emOpen.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].open);
+                emOpen.textContent = String(port_open);
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
             } else {
-                emOpen.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].open);
-                emSecure.textContent = String(dashboard.global.payload.server_ports[dashboard.global.payload.id.dashboard_server].secure);
+                emOpen.textContent = String(port_open);
+                emSecure.textContent = String(port_secure);
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
                 dashboard.sections["test-websocket"].nodes.handshake_label.appendText(", secure - ");

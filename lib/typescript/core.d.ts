@@ -306,17 +306,13 @@ interface core_vars_data_meta {
 }
 
 interface core_vars_data_primary {
-    certificates_client: supplemental_certificate_store;
     compose_variables: store_string;
     containers: store_compose;
     logs: config_log[];
     message_inspection: core_message_inspection[];
     notes: string;
     ports_application: supplemental_ports_application_item[];
-    server_ports: {
-        [key:string]: core_server_ports;
-    };
-    servers: store_servers;
+    server: services_server_update;
     sockets_tcp: supplemental_socket_application_tcp[];
     sockets_udp: services_udp_socket[];
 }

@@ -28,7 +28,6 @@ interface services_compose_variables {
 // A key/value list of custom docker compose template variables
 
 interface services_dashboard_open {
-    certificates: supplemental_certificate_store;
     compose: services_compose;
     hashes: string[];
     http_request: string;
@@ -44,10 +43,7 @@ interface services_dashboard_open {
     path: core_vars_path;
     "ports-application": services_ports_application;
     repository: string;
-    server_ports: {
-        [key:string]: core_server_ports;
-    };
-    servers: store_servers;
+    server: services_server_update;
     services_app: core_service_internal[];
     sockets: services_socket_application;
     start_date: number;
@@ -255,16 +251,12 @@ interface services_ports_application {
 
 interface services_server_action {
     action: type_dashboard_action;
-    server: supplemental_server;
+    server: supplemental_server_config;
 }
 // A user requested action to activate, stop, remove, or modify a web server
 
 interface services_server_update {
-    certificates: supplemental_certificate_store;
-    ports_used: {
-        [key:string]: core_server_ports;
-    };
-    servers: store_servers;
+    [key:string]: supplemental_server;
 }
 // Configuration details and port status for all managed web servers
 

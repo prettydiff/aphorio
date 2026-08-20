@@ -10,11 +10,11 @@ const ui_servers_web = function ui_servers_web():void {
                     edit:HTMLElement = target.getAncestor("edit", "class"),
                     action:type_dashboard_action = target.getAttribute("class").replace("server-", "") as type_dashboard_action,
                     cancel:HTMLElement = edit.getElementsByClassName("server-cancel")[0] as HTMLElement,
-                    configuration:supplemental_server = (function dashboard_serverMessage_configuration():supplemental_server {
+                    configuration:supplemental_server_config = (function dashboard_serverMessage_configuration():supplemental_server_config {
                         const textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
-                            config:supplemental_server = JSON.parse(textArea.value);
-                        if (dashboard.global.payload.servers[config.id] !== undefined) {
-                            dashboard.global.payload.servers[config.id].encryption = config.encryption;
+                            config:supplemental_server_config = JSON.parse(textArea.value);
+                        if (dashboard.global.payload.server[config.id] !== undefined) {
+                            dashboard.global.payload.server[config.id].config.encryption = config.encryption;
                         }
                         return config;
                     }()),
@@ -56,7 +56,7 @@ const ui_servers_web = function ui_servers_web():void {
                         const save:HTMLButtonElement = (id === undefined)
                                 ? listItem.getElementsByClassName("server-add")[0] as HTMLButtonElement
                                 : listItem.getElementsByClassName("server-modify")[0] as HTMLButtonElement,
-                            order = function dashboard_sections_serversWeb_validate_disable_order(item:supplemental_server):string {
+                            order = function dashboard_sections_serversWeb_validate_disable_order(item:supplemental_server_config):string {
                                 const keys:type_server_property[] = Object.keys(item).sort() as type_server_property[],
                                     output:object = {},
                                     len:number = keys.length;
@@ -74,7 +74,7 @@ const ui_servers_web = function ui_servers_web():void {
                                 : "s";
                             save.disabled = true;
                             populate(false, `The server configuration contains ${failures} violation${plural}.`);
-                        } else if (id !== null && id !== undefined && order(serverData) === order(dashboard.global.payload.servers[id])) {
+                        } else if (id !== null && id !== undefined && order(serverData) === order(dashboard.global.payload.server[id].config)) {
                             save.disabled = true;
                             populate(false, "The server configuration is valid, but not modified.");
                         } else {
@@ -264,7 +264,7 @@ const ui_servers_web = function ui_servers_web():void {
                         }
                     },
                     rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "mutual_tls", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
-                let serverData:supplemental_server = null,
+                let serverData:supplemental_server_config = null,
                     failures:number = 0;
                 ul.textContent = "";
                 summary.style.display = "block";
@@ -390,13 +390,8 @@ const ui_servers_web = function ui_servers_web():void {
             }
         },
         init: function dashboard_sections_serversWeb_init():void {
-            const payload:services_server_update = {
-                certificates: dashboard.global.payload.certificates,
-                ports_used: dashboard.global.payload.server_ports,
-                servers: dashboard.global.payload.servers
-            };
             dashboard.sections["servers-web"].receive({
-                data: payload,
+                data: dashboard.global.payload.server,
                 service: "services_server_update"
             });
         },
@@ -406,12 +401,11 @@ const ui_servers_web = function ui_servers_web():void {
         },
         receive: function dashboard_sections_serversWeb_receive(socket_data:socket_data):void {
             const data:services_server_update = socket_data.data as services_server_update,
-                list:string[] = Object.keys(data.servers),
+                list:string[] = Object.keys(data),
                 list_node:HTMLElement = dashboard.sections["servers-web"].nodes.list,
                 total:number = list.length;
             let index:number = 0;
-            dashboard.global.payload.servers = data.servers;
-            dashboard.global.payload.server_ports = data.ports_used;
+            dashboard.global.payload.server = data;
             dashboard.sections["servers-web"].nodes.service_new.onclick = dashboard.shared_services.create;
             list.sort(function dashboard_sections_serversWeb_receive_sort(a:string, b:string):-1|1 {
                 if (a < b) {
@@ -422,8 +416,8 @@ const ui_servers_web = function ui_servers_web():void {
             list_node.textContent = "";
             if (total > 0) {
                 do {
-                    if (dashboard.global.payload.servers[list[index]] !== undefined) {
-                        list_node.appendChild(dashboard.shared_services.title(dashboard.global.payload.servers[list[index]].id, "server"));
+                    if (dashboard.global.payload.server[list[index]] !== undefined) {
+                        list_node.appendChild(dashboard.shared_services.title(dashboard.global.payload.server[list[index]].config.id, "server"));
                     }
                     index = index + 1;
                 } while (index < total);
@@ -436,12 +430,12 @@ const ui_servers_web = function ui_servers_web():void {
                     h5_crt:HTMLElement = document.createElement("h5"),
                     h5_pfx:HTMLElement = document.createElement("h5"),
                     portList:HTMLElement = document.createElement("ul"),
-                    encryption:type_encryption = dashboard.global.payload.servers[id as string].encryption,
-                    ports:core_server_ports = dashboard.global.payload.server_ports[id as string],
+                    encryption:type_encryption = dashboard.global.payload.server[id as string].config.encryption,
+                    ports:core_server_ports = dashboard.global.payload.server[id as string].ports,
                     cert = function dashboard_sections_serversWeb_activePorts_certs(type:"crt"|"pfx"):void {
                         const p:HTMLElement = document.createElement("p"),
                             code:HTMLElement = document.createElement("code");
-                        code.textContent = dashboard.global.payload.certificates[id as string][type];
+                        code.textContent = dashboard.global.payload.server[id as string].certificates_client[type];
                         p.appendChild(code);
                         div.appendChild(p);
                     };

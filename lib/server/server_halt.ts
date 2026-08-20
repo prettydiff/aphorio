@@ -20,7 +20,7 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
     if (id === "" || (data.action === "destroy" && id === vars.id.dashboard_server)) {
         return;
     } 
-    if (vars.data.servers[id] === undefined) {
+    if (vars.data.server[id] === undefined) {
         log.application({
             error: new Error(),
             message: "Server does not exist.  Called on library server_halt.",
@@ -30,10 +30,10 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
             time: Date.now()
         });
     } else {
-        const single_socket:boolean = vars.data.servers[id].single_socket,
-            temporary:boolean = vars.data.servers[id].temporary,
+        const single_socket:boolean = vars.data.server[id].config.single_socket,
+            temporary:boolean = vars.data.server[id].config.temporary,
             path_name:string = vars.path.servers + id + vars.path.sep,
-            encryption:type_encryption = vars.data.servers[id].encryption,
+            encryption:type_encryption = vars.data.server[id].config.encryption,
             complete = function services_serverHalt_complete():void {
                 const actionText:string = (data.action.charAt(data.action.length - 1) === "e")
                     ? `${data.action}d`
@@ -56,7 +56,7 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
             },
             write_callback = function services_serverHalt_writeCallback():void {
                 const activate = function servers_serverHalt_activate():void {
-                        if (vars.data.servers[id].activate === true) {
+                        if (vars.data.server[id].config.activate === true) {
                             // 4. Reactivate the server(s) if its given "activate" property has a true boolean value
                             server_start(data.server.id, function servers_serverHalt_complete_serverStart():void {
                                 complete();
@@ -76,11 +76,11 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
                         location: path_name,
                         section: "servers-web"
                     };
-                    delete vars.data.servers[id];
+                    delete vars.data.server[id];
                     // 3. Remove the web server's assets from the file system
                     file.remove(file_remove);
                 } else if (data.action === "modify" && (encryption === "both" || encryption === "secure")) {
-                    vars.data.servers[id] = data.server;
+                    vars.data.server[id].config = data.server;
                     server_start(data.server.id, function services_serverHalt_certificate_serverStart():void {
                         activate();
                     });
@@ -106,32 +106,30 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
         if (encryption === "both") {
             if (vars.data_store.server[id].server_object.open !== null) {
                 vars.data_store.server[id].server_object.open.close();
-                vars.data.server_ports[id].open = 0;
+                vars.data.server[id].ports.open = 0;
                 kill_sockets(vars.data_store.server[id].sockets_tcp.open);
             }
             if (vars.data_store.server[id].server_object.secure !== null) {
                 vars.data_store.server[id].server_object.secure.close();
-                vars.data.server_ports[id].secure = 0;
+                vars.data.server[id].ports.secure = 0;
                 kill_sockets(vars.data_store.server[id].sockets_tcp.secure);
             }
         } else {
             vars.data_store.server[id].server_object[encryption].close();
-            vars.data.server_ports[id][encryption] = 0;
+            vars.data.server[id].ports[encryption] = 0;
             kill_sockets(vars.data_store.server[id].sockets_tcp[encryption]);
         }
         delete vars.data_store.server[id];
         if (data.action === "destroy" || data.action === "modify") {
             if (data.action === "modify") {
-                vars.data.servers[id] = data.server;
-                vars.data.server_ports[id] = {
+                vars.data.server[id].config = data.server;
+                vars.data.server[id].ports = {
                     open: 0,
                     secure: 0
                 };
                 save(write_callback, "servers-web");
             } else {
-                delete vars.data.certificates_client[id];
-                delete vars.data.server_ports[id];
-                delete vars.data.servers[id];
+                delete vars.data.server[id];
                 delete vars.data_store.server[id];
                 file.remove({
                     callback: function server_serverHalt_delete():void {

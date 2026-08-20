@@ -92,8 +92,6 @@ const vars:core_vars = {
         }()),
         // primary data store, data for services, in-memory database
         data: {
-            // stores the default client certificate created for web servers
-            certificates_client: {},
             // docker compose environmental variables
             compose_variables: {},
             // docker image details and compose files
@@ -106,10 +104,8 @@ const vars:core_vars = {
             notes: "",
             // stores the port information for containers and services managed by this application
             ports_application: [],
-            // actual ports in use by web servers
-            server_ports: {},
             // objects describing web servers and contains objects describing their sockets
-            servers: {},
+            server: {},
             // the list of tcp socket data, services_socket_application_tcp[]
             sockets_tcp: [],
             // the list of udp socket data, services_udp_socket[]
