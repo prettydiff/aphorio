@@ -263,7 +263,7 @@ const ui_servers_web = function ui_servers_web():void {
                             }
                         }
                     },
-                    rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "mutual_tls", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
+                    rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "message_segmentation", "mutual_tls", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
                 let serverData:supplemental_server_config = null,
                     failures:number = 0;
                 ul.textContent = "";
@@ -304,6 +304,12 @@ const ui_servers_web = function ui_servers_web():void {
                     populate(true, "Required property 'id' is a read only string.");
                 } else {
                     populate(false, "Required property 'id' must be a string.");
+                }
+                // message_segmentation
+                if (typeof serverData.message_segmentation === "number" && Math.floor(serverData.message_segmentation) > 0) {
+                    populate(true, "Required property 'message_segmentation' is present with a positive numeric value.");
+                } else {
+                    populate(false, "Required property 'message_segmentation' must have a numeric value greater than 0.");
                 }
                 // method
                 key_test({

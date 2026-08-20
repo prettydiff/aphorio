@@ -119,7 +119,6 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
             vars.data.server[id].ports[encryption] = 0;
             kill_sockets(vars.data_store.server[id].sockets_tcp[encryption]);
         }
-        delete vars.data_store.server[id];
         if (data.action === "destroy" || data.action === "modify") {
             if (data.action === "modify") {
                 vars.data.server[id].config = data.server;

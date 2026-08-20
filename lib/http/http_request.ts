@@ -100,7 +100,7 @@ const http_request = function http_request(config:services_test_http, callback:(
         let index:number = vars.data.ports_application.length;
         do {
             index = index - 1;
-            if (vars.data.ports_application[index].port === port && vars.data.ports_application[index].type === "tcp") {
+            if (vars.data.ports_application[index].port === port && vars.data.ports_application[index].type === "tcp" && vars.data.server[vars.data.ports_application[index].hash].ports.open === port) {
                 callback({
                     error: new Error("Error: Encrypted connections not allowed to unencrypted servers."),
                     chunked: null,

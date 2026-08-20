@@ -250,6 +250,9 @@ const start_application = function utilities_startApplication(process_path:strin
                                     if (Array.isArray(server.domain_local) === false) {
                                         server.domain_local = [];
                                     }
+                                    if (server.message_segmentation === undefined || server.message_segmentation === null) {
+                                        server.message_segmentation = 1e6;
+                                    }
                                     vars.data.server[server.id] = {
                                         certificates_client: {
                                             crt: "",
@@ -941,6 +944,7 @@ const start_application = function utilities_startApplication(process_path:strin
                         ],
                         encryption: "both",
                         id: "",
+                        message_segmentation: 1e6,
                         mutual_tls: false,
                         name: "dashboard",
                         ports: {

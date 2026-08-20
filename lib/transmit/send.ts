@@ -79,28 +79,24 @@ const send = function transmit_send(body:Buffer|socket_data|string, socket:webso
     // * Mask bit is set as payload length (up to 127) + 128 assigned to frame header second byte.
     // * Mask key is first 4 bytes following payload length bytes (if any).
     if (opcode === 1 || opcode === 2 || opcode === 3 || opcode === 4 || opcode === 5 || opcode === 6 || opcode === 7) {
-        const fragmentSize:number = (socket.hash.indexOf("browser") === 0 || socket.hash.indexOf("http") === 0)
-                ? 0
-                : 1e6,
-            op:1|2 = (isBuffer === true)
+        const op:1|2 = (isBuffer === true)
                 ? 2
                 : 1,
             fragmentation = function transmit_send_fragmentation(first:boolean):void {
                 let finish:boolean = false;
                 const frameBody:Buffer = (function transmit_send_fragmentation_frameBody():Buffer {
-                        if (fragmentSize < 1 || len === fragmentSize) {
+                        if (socket.segmentation < 1 || dataPackage.byteLength < socket.segmentation + 1) {
                             finish = true;
                             return dataPackage;
                         }
-                        const fragment:Buffer = dataPackage.subarray(0, fragmentSize);
-                        dataPackage = dataPackage.subarray(fragmentSize);
-                        len = dataPackage.length;
-                        if (len < fragmentSize) {
+                        const fragment:Buffer = dataPackage.subarray(0, socket.segmentation);
+                        dataPackage = dataPackage.subarray(socket.segmentation);
+                        if (fragment.byteLength < socket.segmentation) {
                             finish = true;
                         }
                         return fragment;
                     }()),
-                    size:number = frameBody.length,
+                    size:number = frameBody.byteLength,
                     frameHeader:Buffer = (function transmit_send_fragmentation_frameHeader():Buffer {
                         // frame 0 is:
                         // * 128 bits for fin, 0 for unfinished plus opcode
@@ -144,7 +140,6 @@ const send = function transmit_send(body:Buffer|socket_data|string, socket:webso
                     transmit_send_fragmentation(false);
                 }
             };
-        let len:number = dataPackage.length;
         fragmentation(true);
     } else if (opcode === 8 || opcode === 9 || opcode === 10 || opcode === 11 || opcode === 12 || opcode === 13 || opcode === 14 || opcode === 15) {
         const frameHeader:Buffer = Buffer.alloc(2),

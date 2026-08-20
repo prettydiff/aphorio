@@ -179,6 +179,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 end(socket, error);
             };
         config.socket.server_hash = config.server; // identifies which local server the given socket is connected to
+        config.socket.segmentation = vars.data.server[config.server].config.message_segmentation; // maximum size of a WebSocket message frame body
         config.socket.hash = config.identifier;    // assigns a unique identifier to the socket based upon the socket's credentials
         config.socket.proxy = config.proxy;        // assigns the relationship between a socket and its proxy, if any
         config.socket.role = config.role;          // assigns socket creation location

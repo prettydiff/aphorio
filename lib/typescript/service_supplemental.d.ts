@@ -81,6 +81,7 @@ interface supplemental_server_config {
     domain_local: string[];
     encryption: type_encryption;
     id: string;
+    message_segmentation: number;
     method?: {
         delete?: supplemental_server_method;
         patch?: supplemental_server_method;

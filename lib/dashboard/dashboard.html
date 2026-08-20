@@ -971,6 +971,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                             <dd><p>A dynamically assigned identifier. The application creates this value and it cannot be modified.</p></dd>
                             <dt><em>method</em> (object)</dt>
                             <dd><p>Key names may include any of <em>delete</em>, <em>patch</em>, <em>post</em>, <em>put</em>. These key names are not case sensitive. The value of these method names is a child object containing the properties <em>address</em> (string) and <em>port</em> (number).</p> <code>"DELETE": {"address": "localhost", "port": 1234}</code></dd>
+                            <dt><em>message_segmentation</em> (number)</dt>
+                            <dd><p>Specifies maximum size of a WebSocket frame body. Messages larger than this number, in bytes, will be divided and sent as multiple data frames across the network. Bear in mind this number is not related to TLS segmentation which is 16384 bytes as of TLS version 1.3.</p></dd>
                             <dt><em>mutual_tls</em> (boolean)</dt>
                             <dd><p>Adds an option for secure servers to request a client certificate on each connection. This provides an extra layer of security that limits a server to authorized applications on selected devices without need for a password. Please note that when the mutual_tls option is enabled all unencrypted sockets will be dropped even if the server features both a secure and insecure service.</p></dd>
                             <dt><em>name</em> (string)</dt>

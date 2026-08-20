@@ -166,6 +166,7 @@ const ui_shared_services = function ui_shared_services():void {
                                         domain_local: ["localhost"],
                                         encryption: "both",
                                         id: "",
+                                        message_segmentation: 1e6,
                                         mutual_tls: false,
                                         name: "new_server",
                                         ports: {
@@ -198,6 +199,11 @@ const ui_shared_services = function ui_shared_services():void {
                             }
                             output.push(`"id": "${serverData.id}",`);
                             methods();
+                            if (newFlag === true) {
+                                output.push("\"message_segmentation\": 1e6,");
+                            } else {
+                                output.push(`"message_segmentation": ${serverData.message_segmentation},`);
+                            }
                             if (newFlag === true) {
                                 output.push("\"mutual_tls\": false,");
                             } else {
