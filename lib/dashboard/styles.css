@@ -94,7 +94,7 @@
             .graphs[data-type="individual"] .section div{float:left;margin:0 0 0 -0.1em;width:calc(20% - 0.1em)}
             .graphs[data-type="individual"] .section div:first-child{margin:0}
         }
-        #test-websocket p#websocket-status{margin:-1.75em -1.75em 1.5em}
+        #test-websocket p#websocket-status{margin:-1.75em -1.75em 1.5em;width:calc(100% + 2.5em)}
         .form p{float:left;margin:1em 2em 0 0;width:calc(50% - 2em)}
         .title p{display:inline-block}
         .title h1 span{margin:0 0 0 0.5em}

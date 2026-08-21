@@ -358,28 +358,37 @@ const start_application = function utilities_startApplication(process_path:strin
                                     add_cert = function utility_startApplication_certificates_readdir_addCert():void {
                                         index = index - 1;
                                         if (index > -1) {
-                                            vars.data.server[dir[index]].certificates_client = {
-                                                crt: null,
-                                                pfx: null
-                                            };
-                                            node.fs.readdir(`${process_path}servers${vars.path.sep + dir[index] + vars.path.sep}certs`, function utility_startApplication_certificates_readdir_addCert_files(erf:node_error, certs:string[]):void {
-                                                if (erf === null) {
-                                                    let index_certs = certs.length;
-                                                    if (index_certs > 0) {
-                                                        do {
-                                                            index_certs = index_certs - 1;
-                                                            if (certs[index_certs].slice(certs[index_certs].length - 4) === ".pfx") {
-                                                                read_cert(`${process_path}servers${vars.path.sep + dir[index] + vars.path.sep}certs${vars.path.sep + certs[index_certs]}`);
-                                                                break;
+                                            if (vars.data.server[dir[index]] === undefined) {
+                                                utility_startApplication_certificates_readdir_addCert();
+                                            } else {
+                                                vars.data.server[dir[index]].certificates_client = {
+                                                    crt: null,
+                                                    pfx: null
+                                                };
+                                                node.fs.readdir(`${process_path}servers${vars.path.sep + dir[index] + vars.path.sep}certs`, function utility_startApplication_certificates_readdir_addCert_files(erf:node_error, certs:string[]):void {
+                                                    if (erf === null) {
+                                                        let index_certs:number = certs.length,
+                                                            test:boolean = false;
+                                                        if (index_certs > 0) {
+                                                            do {
+                                                                index_certs = index_certs - 1;
+                                                                if (certs[index_certs].slice(certs[index_certs].length - 4) === ".pfx") {
+                                                                    read_cert(`${process_path}servers${vars.path.sep + dir[index] + vars.path.sep}certs${vars.path.sep + certs[index_certs]}`);
+                                                                    test = true;
+                                                                    break;
+                                                                }
+                                                            } while (index_certs > 0);
+                                                            if (test === false) {
+                                                                utility_startApplication_certificates_readdir_addCert(); 
                                                             }
-                                                        } while (index_certs > 0);
+                                                        } else {
+                                                            utility_startApplication_certificates_readdir_addCert();
+                                                        }
                                                     } else {
                                                         utility_startApplication_certificates_readdir_addCert();
                                                     }
-                                                } else {
-                                                    utility_startApplication_certificates_readdir_addCert();
-                                                }
-                                            });
+                                                });
+                                            }
                                         } else {
                                             complete_tasks("certificates");
                                         }
@@ -1013,7 +1022,12 @@ const start_application = function utilities_startApplication(process_path:strin
                                         ports:type_docker_ports = null,
                                         longest:number[] = [0, 0, 0],
                                         len:number = servers.length;
-                                    servers.sort();
+                                    servers.sort(function utilities_startApplication_completeTasks_read_start_serverCallback_serverSort(a:string, b:string):-1|1 {
+                                        if (a > b) {
+                                            return -1;
+                                        }
+                                        return 1;
+                                    });
                                     // get string column width
                                     do {
                                         name = vars.data.server[servers[index]].config.name;
