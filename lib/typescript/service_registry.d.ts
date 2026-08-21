@@ -336,6 +336,7 @@ interface services_test_http {
 interface services_test_performance_input {
     body: string;
     encryption: boolean;
+    frame_body_size: number;
     garbage_collection: boolean;
     location: string;
     measure: "roundtrip" | "send";
@@ -347,6 +348,7 @@ interface services_test_performance_input {
 // Indicates instructions for executing a performance experiment
 
 interface services_test_performance_output {
+    frame_body_size: number;
     message_size: number;
     quantity_tests: number;
     quantity_transmit: number;

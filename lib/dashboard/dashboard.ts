@@ -185,8 +185,9 @@ const dashboard:dashboard = {
                 connect_address: "",
                 connect_port: 80,
                 encryption: false,
+                frame_body_size: 1000000,
                 measure: "send",
-                quantity_tests: 1000,
+                quantity_tests: 50000,
                 quantity_transmit: 10,
                 type: "websocket"
             },
@@ -729,6 +730,7 @@ const dashboard:dashboard = {
                 connect_port: null,
                 encrypt_false: null,
                 encrypt_true: null,
+                frame_body_size: null,
                 garbage_collection_false: null,
                 garbage_collection_true: null,
                 measure_roundtrip: null,

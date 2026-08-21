@@ -1490,12 +1490,14 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p class="radio"><label>Send Only <input checked="checked" name="test-performance-measure" type="radio" value="send"/></label><label>Roundtrip <input name="test-performance-measure" type="radio" value="roundtrip"/></label></p>
                 <h4>Garbage Collection</h4>
                 <p class="radio"><label>Force GC Between Tests <input checked="checked" name="test-performance-gc" type="radio" value="forced"/></label><label>Back to Back Tests <input name="test-performance-gc" type="radio" value="back-to-back"/></label></p>
+                <h4>Message Frame Details</h4>
+                <p><label>Maximum Frame Body Size (WebSocket only)<input type="number" value="1000000"/></label></p>
                 <h4>Connection Details</h4>
                 <p><label>Destination IP Address <input type="text"/></label></p>
                 <p><label>Destination Port <input type="number"/></label></p>
                 <h4>Test Quantity</h4>
-                <p><label>Number of Transmissions per Test <input type="number"/></label></p>
-                <p><label>Number of Tests per Experiment <input type="number"/></label></p>
+                <p><label>Number of Transmissions per Test <input type="number" value="50000"/></label></p>
+                <p><label>Number of Tests per Experiment <input type="number" value="10"/></label></p>
                 <span class="clear"></span>
                 <p class="textarea"><label>Message body <textarea></textarea></label></p>
                 <p class="ports">Current Status: <strong>Not started</strong></span></p>
@@ -1509,6 +1511,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     <li><span>Transmission Quantity per Test Run</span> <strong>0</strong></li>
                     <li><span>Number of Tests in Experiment</span> <strong>0</strong></li>
                     <li><span>Message Size</span> <strong>0 bytes</strong></li>
+                    <li><span>Maximum Frame Body Size</span> <strong>0 bytes</strong></li>
                     <li><span>Total Experiment Duration</span> <strong>0 seconds</strong></li>
                     <li><span>Experiment Type</span> <strong></strong></li>
                 </ul>

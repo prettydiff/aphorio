@@ -137,6 +137,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
 
                 if (socket.type === "test-performance-socket" && error !== null && error !== undefined) {
                     const output:services_test_performance_output = {
+                        frame_body_size: 0,
                         message_size: 0,
                         roundtrip: {
                             average: 0,
