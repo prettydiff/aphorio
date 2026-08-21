@@ -4,32 +4,63 @@ import node from "../core/node.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
-// cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey, keyid, pathlen
+// cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey, keyid, passout, pathlen
 
 const certificate = function services_certificate(config:config_certificate):void {
     const cert_path:string = `${vars.path.servers + config.id + vars.path.sep}certs${vars.path.sep}`,
         cert = function services_certificate_cert():void {
             let index:number = 0;
             const commands:string[] = [],
-                domain:string = (vars.data.servers[config.id].domain_local.length < 1)
+                domain:string = (vars.data.server[config.id].config.domain_local.length < 1)
                     ? "localhost"
-                    : vars.data.servers[config.id].domain_local[0],
+                    : vars.data.server[config.id].config.domain_local[0],
+                client:string = `${vars.environment.name}_${domain}`,
                 crypto = function services_certificate_cert_crypto():void {
                     spawn(commands[index], function services_certificate_cert_crypto_child():void {
                         index = index + 1;
                         if (index < commands.length) {
                             services_certificate_cert_crypto();
                         } else {
-                            config.callback();
+                            let count:number = 0;
+                            const store_cert:supplemental_certificate_client = {
+                                    crt: null,
+                                    pfx: null
+                                },
+                                read_certificates = function services_certificate_cert_crypto_child_readCerts(file:Buffer, location:string):void {
+                                    count = count + 1;
+                                    if (file !== null) {
+                                        if (location.slice(location.length - 4) === ".crt") {
+                                            store_cert.crt = file.toString("utf-8");
+                                        } else {
+                                            store_cert.pfx = file.toString("base64");
+                                        }
+                                    }
+                                    if (count > 1) {
+                                        vars.data.server[config.id].certificates_client = store_cert;
+                                        config.callback();
+                                    }
+                                };
+                            file.read({
+                                callback: read_certificates,
+                                location: `${cert_path + domain}.crt`,
+                                no_file: null,
+                                section: "certificate"
+                            });
+                            file.read({
+                                callback: read_certificates,
+                                location: `${cert_path + domain}.pfx`,
+                                no_file: null,
+                                section: "certificate"
+                            });
                         }
                     }, {
                         cwd: cert_path
                     }).execute();
                 },
                 cert_extensions:string = (function services_certificate_cert_extensions():string {
-                    const server:supplemental_server = (vars.data.servers[config.id] === undefined)
+                    const server:supplemental_server_config = (vars.data.server[config.id] === undefined)
                             ? null
-                            : vars.data.servers[config.id],
+                            : vars.data.server[config.id].config,
                         output:string[] = [
                             `[ ca ]
         basicConstraints       = CA:false
@@ -157,44 +188,25 @@ const certificate = function services_certificate(config:config_certificate):voi
                     const mode:[string, string] = (config.selfSign === true)
                             ? ["server", domain]
                             : ["root", domain],
-                        org:string = "/O=home_server/OU=home_server",
-                        // provides the path to the configuration file used for certificate signing
-                        pathConf = function services_certificate_cert_create_confPath(configName:"ca"|"selfSign"):string {
-                            return `"${cert_path}extensions.cnf" -extensions ${configName}`;
-                        },
-                        // create a certificate signed by another certificate
-                        actionCert = function services_certificate_cert_create_cert(type:"int"|"server"):string {
-                            return `openssl req -new -sha512 -key ${type}.key -out ${type}.csr -subj "/CN=${domain + org}"`;
-                        },
-                        // generates the key file associated with a given certificate
-                        actionKey = function services_certificate_cert_create_key(type:"int"|"root"|"server"):string {
-                            return `openssl genrsa -out ${type}.key 4096`;
-                        },
-                        // signs the certificate
-                        actionSign = function services_certificate_cert_create_sign(cert:string, parent:string, path:"ca"|"selfSign"):string {
-                            return `openssl x509 -req -sha512 -in ${cert}.csr -days ${config.days} -out ${cert}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile ${pathConf(path)}`;
+                        org:string = `/O=${vars.environment.name.capitalize()}/OU=${vars.environment.name.capitalize()}`,
+                        cert = function services_certificate_create_cert(type:type_certName, parent:"int"|"root", path:"ca"|"selfSign"):void {
+                            // key file
+                            commands.push(`openssl genrsa -out ${type}.key 4096`);
+                            // certificate file
+                            commands.push(`openssl req -new -sha512 -key ${type}.key -out ${type}.csr -subj "/CN=${domain + org}"`);
+                            // sign the certificate
+                            commands.push(`openssl x509 -req -sha512 -in ${type}.csr -days ${config.days} -out ${type}.crt -CA ${parent}.crt -CAkey ${parent}.key -CAcreateserial -extfile "extensions.cnf" -extensions ${path}`);
                         },
                         root:string = `openssl req -x509 -new -newkey rsa:4096 -nodes -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`;
+                    commands.push("openssl genrsa -out root.key 4096");
                     if (config.selfSign === true) {
-                        commands.push(actionKey("root"));
-                        commands.push(`${root} -config ${pathConf("selfSign")}`);
+                        commands.push(`${root} -config "extensions.cnf" -extensions selfSign}`);
                     } else {
-                        // 1. generate a private key for root certificate
-                        commands.push(actionKey("root"));
-                        // 2. generate a root certificate
                         commands.push(root);
-                        // 3. generate a private key for intermediate certificate
-                        commands.push(actionKey("int"));
-                        // 4. generate an intermediate certificate signing request
-                        commands.push(actionCert("int"));
-                        // 5. sign the intermediate certificate with the root certificate
-                        commands.push(actionSign("int", "root", "selfSign"));
-                        // 6. generate a private key for server certificate
-                        commands.push(actionKey("server"));
-                        // 7. generate a server certificate signing request
-                        commands.push(actionCert("server"));
-                        // 8. sign the server certificate with the intermediate certificate
-                        commands.push(actionSign("server", "int", "ca"));
+                        cert("int", "root", "selfSign");
+                        cert("server", "int", "ca");
+                        cert(client as "client", "int", "ca");
+                        commands.push(`openssl pkcs12 -export -passout pass: -out ${client}.pfx -inkey ${client}.key -in ${client}.crt`);
                     }
                     crypto();
                 };

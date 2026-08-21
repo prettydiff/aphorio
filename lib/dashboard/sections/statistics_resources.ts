@@ -126,12 +126,8 @@ const ui_statistics_resources = function ui_statistics_resources():void {
             dashboard.sections["statistics-resources"].nodes.records.value = dashboard.global.payload.stats.records.toString();
             if (dashboard.global.loaded === true || (dashboard.global.loaded === false && dashboard.global.state.nav === "statistics-resources")) {
                 if (dashboard.sections["servers-web"] !== undefined) {
-                    const payload:services_server_update = {
-                        ports_used: dashboard.global.payload.server_ports,
-                        servers: dashboard.global.payload.servers
-                    };
                     dashboard.sections["servers-web"].receive({
-                        data: payload,
+                        data: dashboard.global.payload.server,
                         service: "services_server_update"
                     });
                 }

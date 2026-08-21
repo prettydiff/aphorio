@@ -10,11 +10,11 @@ const ui_servers_web = function ui_servers_web():void {
                     edit:HTMLElement = target.getAncestor("edit", "class"),
                     action:type_dashboard_action = target.getAttribute("class").replace("server-", "") as type_dashboard_action,
                     cancel:HTMLElement = edit.getElementsByClassName("server-cancel")[0] as HTMLElement,
-                    configuration:supplemental_server = (function dashboard_serverMessage_configuration():supplemental_server {
+                    configuration:supplemental_server_config = (function dashboard_serverMessage_configuration():supplemental_server_config {
                         const textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
-                            config:supplemental_server = JSON.parse(textArea.value);
-                        if (dashboard.global.payload.servers[config.id] !== undefined) {
-                            dashboard.global.payload.servers[config.id].encryption = config.encryption;
+                            config:supplemental_server_config = JSON.parse(textArea.value);
+                        if (dashboard.global.payload.server[config.id] !== undefined) {
+                            dashboard.global.payload.server[config.id].config.encryption = config.encryption;
                         }
                         return config;
                     }()),
@@ -56,7 +56,7 @@ const ui_servers_web = function ui_servers_web():void {
                         const save:HTMLButtonElement = (id === undefined)
                                 ? listItem.getElementsByClassName("server-add")[0] as HTMLButtonElement
                                 : listItem.getElementsByClassName("server-modify")[0] as HTMLButtonElement,
-                            order = function dashboard_sections_serversWeb_validate_disable_order(item:supplemental_server):string {
+                            order = function dashboard_sections_serversWeb_validate_disable_order(item:supplemental_server_config):string {
                                 const keys:type_server_property[] = Object.keys(item).sort() as type_server_property[],
                                     output:object = {},
                                     len:number = keys.length;
@@ -74,7 +74,7 @@ const ui_servers_web = function ui_servers_web():void {
                                 : "s";
                             save.disabled = true;
                             populate(false, `The server configuration contains ${failures} violation${plural}.`);
-                        } else if (id !== null && id !== undefined && order(serverData) === order(dashboard.global.payload.servers[id])) {
+                        } else if (id !== null && id !== undefined && order(serverData) === order(dashboard.global.payload.server[id].config)) {
                             save.disabled = true;
                             populate(false, "The server configuration is valid, but not modified.");
                         } else {
@@ -263,8 +263,8 @@ const ui_servers_web = function ui_servers_web():void {
                             }
                         }
                     },
-                    rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
-                let serverData:supplemental_server = null,
+                    rootProperties:string[] = ["activate", "block_list", "domain_local", "encryption", "id", "method", "message_segmentation", "mutual_tls", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
+                let serverData:supplemental_server_config = null,
                     failures:number = 0;
                 ul.textContent = "";
                 summary.style.display = "block";
@@ -299,7 +299,19 @@ const ui_servers_web = function ui_servers_web():void {
                 } else {
                     populate(false, "Required property 'encryption' is not assigned a supported value: \"both\", \"open\", or \"secure\".");
                 }
-                // http
+                // id
+                if (typeof serverData.id === "string") {
+                    populate(true, "Required property 'id' is a read only string.");
+                } else {
+                    populate(false, "Required property 'id' must be a string.");
+                }
+                // message_segmentation
+                if (typeof serverData.message_segmentation === "number" && Math.floor(serverData.message_segmentation) > 0) {
+                    populate(true, "Required property 'message_segmentation' is present with a positive numeric value.");
+                } else {
+                    populate(false, "Required property 'message_segmentation' must have a numeric value greater than 0.");
+                }
+                // method
                 key_test({
                     name: "method",
                     required_name: false,
@@ -307,11 +319,11 @@ const ui_servers_web = function ui_servers_web():void {
                     supported: ["delete", "patch", "post", "put"],
                     type: "method"
                 });
-                // id
-                if (typeof serverData.id === "string") {
-                    populate(true, "Required property 'id' is a read only string.");
+                // mutual_tls
+                if (typeof serverData.mutual_tls === "boolean") {
+                    populate(true, "Required property 'mutual_tls' is present with either a 'true' or 'false' boolean value.");
                 } else {
-                    populate(false, "Required property 'id' must be a string.");
+                    populate(false, "Required property 'mutual_tls' must have a boolean type value or 'true' or 'false'.");
                 }
                 // name
                 if (typeof serverData.name === "string" && serverData.name !== "") {
@@ -384,12 +396,8 @@ const ui_servers_web = function ui_servers_web():void {
             }
         },
         init: function dashboard_sections_serversWeb_init():void {
-            const payload:services_server_update = {
-                ports_used: dashboard.global.payload.server_ports,
-                servers: dashboard.global.payload.servers
-            };
             dashboard.sections["servers-web"].receive({
-                data: payload,
+                data: dashboard.global.payload.server,
                 service: "services_server_update"
             });
         },
@@ -399,12 +407,11 @@ const ui_servers_web = function ui_servers_web():void {
         },
         receive: function dashboard_sections_serversWeb_receive(socket_data:socket_data):void {
             const data:services_server_update = socket_data.data as services_server_update,
-                list:string[] = Object.keys(data.servers),
+                list:string[] = Object.keys(data),
                 list_node:HTMLElement = dashboard.sections["servers-web"].nodes.list,
                 total:number = list.length;
             let index:number = 0;
-            dashboard.global.payload.servers = data.servers;
-            dashboard.global.payload.server_ports = data.ports_used;
+            dashboard.global.payload.server = data;
             dashboard.sections["servers-web"].nodes.service_new.onclick = dashboard.shared_services.create;
             list.sort(function dashboard_sections_serversWeb_receive_sort(a:string, b:string):-1|1 {
                 if (a < b) {
@@ -415,8 +422,8 @@ const ui_servers_web = function ui_servers_web():void {
             list_node.textContent = "";
             if (total > 0) {
                 do {
-                    if (dashboard.global.payload.servers[list[index]] !== undefined) {
-                        list_node.appendChild(dashboard.shared_services.title(dashboard.global.payload.servers[list[index]].id, "server"));
+                    if (dashboard.global.payload.server[list[index]] !== undefined) {
+                        list_node.appendChild(dashboard.shared_services.title(dashboard.global.payload.server[list[index]].config.id, "server"));
                     }
                     index = index + 1;
                 } while (index < total);
@@ -425,13 +432,24 @@ const ui_servers_web = function ui_servers_web():void {
         tools: {
             activePorts: function dashboard_sections_serversWeb_activePorts(id:boolean|string):HTMLElement {
                 const div:HTMLElement = document.createElement("div"),
-                    h5:HTMLElement = document.createElement("h5"),
+                    h5_ports:HTMLElement = document.createElement("h5"),
+                    h5_crt:HTMLElement = document.createElement("h5"),
+                    h5_pfx:HTMLElement = document.createElement("h5"),
                     portList:HTMLElement = document.createElement("ul"),
-                    encryption:type_encryption = dashboard.global.payload.servers[id as string].encryption,
-                    ports:core_server_ports = dashboard.global.payload.server_ports[id as string];
+                    encryption:type_encryption = dashboard.global.payload.server[id as string].config.encryption,
+                    ports:core_server_ports = dashboard.global.payload.server[id as string].ports,
+                    cert = function dashboard_sections_serversWeb_activePorts_certs(type:"crt"|"pfx"):void {
+                        const p:HTMLElement = document.createElement("p"),
+                            code:HTMLElement = document.createElement("code");
+                        code.textContent = dashboard.global.payload.server[id as string].certificates_client[type];
+                        p.appendChild(code);
+                        div.appendChild(p);
+                    };
                 let portItem:HTMLElement = document.createElement("li");
-                h5.appendText("Active Ports");
-                div.appendChild(h5);
+                h5_ports.appendText("Active Ports");
+                h5_crt.appendText("Client Certificate in crt format (utf-8)");
+                h5_pfx.appendText("Client Certificate in pfx format (base64, must be converted to a binary buffer when saving to a file)");
+                div.appendChild(h5_ports);
                 div.setAttribute("class", "active-ports");
                 portList.setAttribute("class", "container-ports");
                 
@@ -465,6 +483,10 @@ const ui_servers_web = function ui_servers_web():void {
                     portList.appendChild(portItem);
                 }
                 div.appendChild(portList);
+                div.appendChild(h5_crt);
+                cert("crt");
+                div.appendChild(h5_pfx);
+                cert("pfx");
                 return div;
             }
         }

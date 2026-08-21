@@ -8,7 +8,7 @@ const websocket_test:websocket_test = {
         const hash:string = (direction === "in")
             ? hashString.replace("websocketTest-", "")
             : `websocketTest-${hashString}`;
-        let sockets:websocket_client[] = vars.data_store.sockets_tcp[vars.id.dashboard_server].open,
+        let sockets:websocket_client[] = vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open,
             index:number = sockets.length;
         if (index > 0) {
             do {
@@ -18,7 +18,7 @@ const websocket_test:websocket_test = {
                 }
             } while (index > 0);
         }
-        sockets = vars.data_store.sockets_tcp[vars.id.dashboard_server].secure;
+        sockets = vars.data_store.server[vars.id.dashboard_server].sockets_tcp.secure;
         index = sockets.length;
         if (index > 0) {
             do {
@@ -113,8 +113,8 @@ const websocket_test:websocket_test = {
             if (host === "") {
                 config.ip = "127.0.0.1";
                 config.port = (data.encryption === true)
-                    ? vars.data_store.server_ports[vars.id.dashboard_server].secure
-                    : vars.data_store.server_ports[vars.id.dashboard_server].open;
+                    ? vars.data.server[vars.id.dashboard_server].ports.secure
+                    : vars.data.server[vars.id.dashboard_server].ports.open;
             // discern host value from IPv6 address plus specified port
             } else if (host.includes("[") === true && host.includes("]") === true) {
                 config.ip = host.slice(host.indexOf("[") + 1, host.indexOf("]"));

@@ -1,7 +1,7 @@
 
 // cspell: words RSAPSS, Tlsa
 import { ChildProcess, ExecException, ExecOptions, SpawnOptions } from "node:child_process";
-import { ECDH, Hash, KeyObject, RSAKeyPairOptions } from "node:crypto";
+import { ECDH, Hash, KeyObject, RSAKeyPairOptions, X509Certificate } from "node:crypto";
 import { Socket as socket_dgram } from "node:dgram";
 import { AnyRecord, CaaRecord, MxRecord, NaptrRecord, SoaRecord, SrvRecord, TlsaRecord } from "node:dns";
 import { BigIntStats, ReadStream, Stats, WriteStream } from "node:fs";
@@ -25,6 +25,7 @@ declare global {
     type node_crypto_Hash = Hash;
     type node_crypto_KeyObject = KeyObject;
     type node_crypto_RSAKeyPairOptions = RSAKeyPairOptions;
+    type node_crypto_X509Certificate = X509Certificate;
     type node_dgram_Socket = socket_dgram;
     type node_dns_anyRecord = AnyRecord;
     type node_dns_caaRecord = CaaRecord;

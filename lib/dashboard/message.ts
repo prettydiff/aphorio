@@ -93,9 +93,6 @@ const ui_message = function ui_message():void {
                     "services_hash": (dashboard.sections["hash"] === undefined)
                         ? null
                         : dashboard.sections["hash"].receive,
-                    "services_http_test": (dashboard.sections["test-http"] === undefined)
-                        ? null
-                        : dashboard.sections["test-http"].receive,
                     "services_log": (dashboard.sections["application-logs"] === undefined)
                         ? null
                         : dashboard.sections["application-logs"].receive,
@@ -147,6 +144,9 @@ const ui_message = function ui_message():void {
                         ? null
                         : dashboard.sections["statistics-resources"].receive,
                     "services_status_clock": dashboard.utility.clock,
+                    "services_test_http": (dashboard.sections["test-http"] === undefined)
+                        ? null
+                        : dashboard.sections["test-http"].receive,
                     "services_test_performance_output": (dashboard.sections["test-performance"] === undefined)
                         ? null
                         : dashboard.sections["test-performance"].receive,

@@ -16,6 +16,7 @@ const ui_test_performance = function ui_test_performance():void {
                     service:services_test_performance_input = {
                         body: dashboard.sections["test-performance"].nodes.body.value,
                         encryption: (dashboard.sections["test-performance"].nodes.encrypt_true.checked === true),
+                        frame_body_size: Number(dashboard.sections["test-performance"].nodes.frame_body_size.value),
                         garbage_collection: (dashboard.sections["test-performance"].nodes.garbage_collection_true.checked === true),
                         location: dashboard.sections["test-performance"].nodes.connect_address.value,
                         measure: (dashboard.sections["test-performance"].nodes.measure_send.checked === true)
@@ -28,9 +29,10 @@ const ui_test_performance = function ui_test_performance():void {
                             ? "http"
                             : "websocket"
                     };
+                service.frame_body_size = numeric(service.frame_body_size, 1000000, false);
                 service.port = numeric(service.port, (service.encryption === true) ? 443 : 80, true);
                 service.quantity_tests = numeric(service.quantity_tests, 10, false);
-                service.quantity_transmit = numeric(service.quantity_transmit, 1000, false);
+                service.quantity_transmit = numeric(service.quantity_transmit, 50000, false);
                 dashboard.sections["test-performance"].nodes.status.textContent = "Test started.";
                 dashboard.sections["test-performance"].nodes.button_execute.disabled = true;
                 dashboard.message.send({
@@ -57,6 +59,7 @@ const ui_test_performance = function ui_test_performance():void {
                 dashboard.sections["test-performance"].nodes.connect_port.onblur = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.encrypt_false.onclick = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.encrypt_true.onclick = dashboard.utility.setState;
+                dashboard.sections["test-performance"].nodes.frame_body_size.onclick = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.measure_roundtrip.onclick = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.measure_send.onclick = dashboard.utility.setState;
                 dashboard.sections["test-performance"].nodes.quantity_tests.onblur = dashboard.utility.setState;
@@ -71,6 +74,7 @@ const ui_test_performance = function ui_test_performance():void {
                 } else {
                     dashboard.sections["test-performance"].nodes.encrypt_false.checked = true;
                 }
+                dashboard.sections["test-performance"].nodes.frame_body_size.value = String(dashboard.global.state.test_performance.frame_body_size);
                 dashboard.sections["test-performance"].nodes.quantity_tests.value = String(dashboard.global.state.test_performance.quantity_tests);
                 dashboard.sections["test-performance"].nodes.quantity_transmit.value = String(dashboard.global.state.test_performance.quantity_transmit);
                 if (dashboard.global.state.test_performance.measure === "roundtrip") {
@@ -94,16 +98,17 @@ const ui_test_performance = function ui_test_performance():void {
         nodes: {
             body: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
             button_execute: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("button")[0],
-            connect_address: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[8],
-            connect_port: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[9],
+            connect_address: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[9],
+            connect_port: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[10],
             encrypt_false: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[3],
             encrypt_true: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[2],
+            frame_body_size: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[8],
             garbage_collection_false: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[7],
             garbage_collection_true: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[6],
             measure_roundtrip: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[5],
             measure_send: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[4],
-            quantity_tests: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[11],
-            quantity_transmit: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[10],
+            quantity_tests: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[12],
+            quantity_transmit: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[11],
             status: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("strong")[0],
             type_http: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[0],
             type_websocket: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[1]
@@ -154,10 +159,11 @@ const ui_test_performance = function ui_test_performance():void {
             list[0].textContent = data.quantity_transmit.commas();
             list[1].textContent = data.quantity_tests.commas();
             list[2].textContent = `${data.message_size.commas()} bytes`;
-            list[3].textContent = `${(data.time / 1e9).commas()} seconds`;
-            list[4].textContent = data.type;
-            output(5, "send");
-            output(10, "roundtrip");
+            list[3].textContent = `${data.frame_body_size.commas()} bytes`;
+            list[4].textContent = `${(data.time / 1e9).commas()} seconds`;
+            list[5].textContent = data.type;
+            output(6, "send");
+            output(11, "roundtrip");
             dashboard.sections["test-performance"].nodes.status.textContent = data.summary;
             dashboard.sections["test-performance"].nodes.button_execute.disabled = false;
         },

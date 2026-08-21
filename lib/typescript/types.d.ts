@@ -10,6 +10,7 @@ type test_qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesse
 type type_activation_status = ["amber" | "green" | "red", "deactivated" | "new" | "offline" | "online" | "partially online"];
 type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window", string, number];
 type type_certKey = "ca" | "crt" | "key";
+type type_certName = "client" | "int" | "root" | "server";
 type type_dashboard_action = type_halt_action | "activate" | "add" | "update";
 type type_dashboard_list = "container" | "server";
 type type_dashboard_init = "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "message-inspection" | "notes" | "os-machine" | "servers-web" | "services-app" | "statistics-resources" | "terminal" | "test-http" | "test-performance" | "test-websocket" | "udp-socket";
@@ -57,7 +58,7 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_start_pre_tasks = "admin" | "compose" | "os_main";
-type type_start_primary_tasks = "cgroup" | "compose_variables" | "file"| "git" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_stcp" | "os_sudp" | "os_user" | "servers" | "services_app" | "test_browser" | "test_list" | "version";
+type type_start_primary_tasks = "certificates" | "cgroup" | "compose_variables" | "file"| "git" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_stcp" | "os_sudp" | "os_user" | "servers" | "services_app" | "test_browser" | "test_list" | "version";
 
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";

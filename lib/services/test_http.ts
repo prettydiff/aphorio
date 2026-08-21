@@ -6,7 +6,6 @@ const test_http = function services_testHTTP(socket_data:socket_data, transmit:t
     const data:services_test_http = socket_data.data as services_test_http;
     http_request(data, function services_testHTTP_callback(config:config_http_request_output):void {
         const startTime:bigint = process.hrtime.bigint(),
-            socket:websocket_client = transmit.socket as websocket_client,
             response_body:string = (config.error === null)
                     ? (config.response_body_raw === undefined)
                         ? ""
@@ -65,9 +64,6 @@ const test_http = function services_testHTTP(socket_data:socket_data, transmit:t
             data: output,
             service: "services_test_http"
         }, transmit.socket as websocket_client, 3);
-        if (socket !== null) {
-            socket.destroy();
-        }
     });
 };
 

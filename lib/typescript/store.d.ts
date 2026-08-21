@@ -48,7 +48,7 @@ interface store_ports {
 }
 
 interface store_server_config {
-    [key:string]: supplemental_server;
+    [key:string]: supplemental_server_config;
 }
 
 interface store_servers {

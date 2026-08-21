@@ -622,6 +622,7 @@ declare global {
             connect_port: HTMLInputElement;
             encrypt_false: HTMLInputElement;
             encrypt_true: HTMLInputElement;
+            frame_body_size: HTMLInputElement;
             garbage_collection_false: HTMLInputElement;
             garbage_collection_true: HTMLInputElement;
             measure_roundtrip: HTMLInputElement;
@@ -758,6 +759,7 @@ declare global {
             connect_address: string;
             connect_port: number;
             encryption: boolean;
+            frame_body_size: number;
             measure: "roundtrip" | "send";
             quantity_tests: number;
             quantity_transmit: number;

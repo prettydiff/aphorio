@@ -94,7 +94,7 @@
             .graphs[data-type="individual"] .section div{float:left;margin:0 0 0 -0.1em;width:calc(20% - 0.1em)}
             .graphs[data-type="individual"] .section div:first-child{margin:0}
         }
-        #test-websocket p#websocket-status{margin:-1.75em -1.75em 1.5em}
+        #test-websocket p#websocket-status{margin:-1.75em -1.75em 1.5em;width:calc(100% + 2.5em)}
         .form p{float:left;margin:1em 2em 0 0;width:calc(50% - 2em)}
         .title p{display:inline-block}
         .title h1 span{margin:0 0 0 0.5em}
@@ -119,7 +119,7 @@
 
 
 html{font-size:10px}
-body{background:var(--background);color:var(--text);font-family:sans-serif;letter-spacing:0.05em;margin:0}
+body{background-color:var(--background);color:var(--text);font-family:sans-serif;letter-spacing:0.05em;margin:0}
 li {
     p,
     h2,
@@ -248,12 +248,22 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     #file-system ul{margin:0 0 0 4em;padding:0}
     #hash .output{height:15em}
     #help ul{padding:0}
-    #test-http p.float-last{margin:0;width:calc(60% - 4em)}
+    #test-http .from p,
+    #test-websocket .form p{float:none;width:100%}
+    #test-http .http_response{
+        p{float:left;width:calc(33% - 0.5em)}
+        p.float-last{margin:0}
+    }
+    #test-websocket .http_response{
+        p{float:left;width:calc(50% - 1em)}
+        p.float-last{margin:0}
+    }
     #os-machine ul{padding:0 0 1em 2em}
     #servers-web{
         display:block;
         .detail_item p{margin:0 0 0.5em}
         .note{clear:both;font-size:1.2em}
+        code{overflow:hidden;text-overflow:ellipsis;white-space:preserve-breaks}
         label{
             width:100%;
             span.details-redundant{text-indent:-2000em}
@@ -288,14 +298,13 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         .graphs .section div{border-color:var(--border_input);border-style:solid;border-width:0.1em};
         .graphs[data-type="composite"] .section div{height:40em}
     }
-    #test-websocket p.float-last{margin:0;width:calc(80% - 2em)}
     /* end id selectors */
 
     /* class selectors */
     .active-ports h5{font-size:1.2em}
     .block{display:block}
     .buttons{
-        float:left;
+        float:none;
         margin:1em 0 0;
         button{
             cursor:pointer;
@@ -506,6 +515,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     #servers-web .container-ports li,
     #servers-web .edit-summary li,
     #test-performance li{border-style:none;list-style-type:disc;margin:0.5em 0 0 1em;padding:0}
+    #servers-web .container-ports{margin-bottom:1em}
     #compose-containers .edit-summary,
     #servers-web .edit-summary{margin:0;padding:0}
 
@@ -550,7 +560,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         h3{float:left;margin:0;width:100%};
         h4{float:left;margin:1em 0 0.25em;width:100%};
         p{margin-top:0}
-        .buttons{float:left;margin:1em 0 0}
+        .buttons{float:none;margin:1em 0 0}
     }
 
     .media {

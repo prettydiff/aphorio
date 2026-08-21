@@ -43,10 +43,7 @@ interface services_dashboard_open {
     path: core_vars_path;
     "ports-application": services_ports_application;
     repository: string;
-    server_ports: {
-        [key:string]: core_server_ports;
-    };
-    servers: store_servers;
+    server: services_server_update;
     services_app: core_service_internal[];
     sockets: services_socket_application;
     start_date: number;
@@ -254,15 +251,12 @@ interface services_ports_application {
 
 interface services_server_action {
     action: type_dashboard_action;
-    server: supplemental_server;
+    server: supplemental_server_config;
 }
 // A user requested action to activate, stop, remove, or modify a web server
 
 interface services_server_update {
-    ports_used: {
-        [key:string]: core_server_ports;
-    };
-    servers: store_servers;
+    [key:string]: supplemental_server;
 }
 // Configuration details and port status for all managed web servers
 
@@ -342,6 +336,7 @@ interface services_test_http {
 interface services_test_performance_input {
     body: string;
     encryption: boolean;
+    frame_body_size: number;
     garbage_collection: boolean;
     location: string;
     measure: "roundtrip" | "send";
@@ -353,6 +348,7 @@ interface services_test_performance_input {
 // Indicates instructions for executing a performance experiment
 
 interface services_test_performance_output {
+    frame_body_size: number;
     message_size: number;
     quantity_tests: number;
     quantity_transmit: number;

@@ -1,5 +1,4 @@
 
-import certificate from "../services/certificate.ts";
 import file from "../utilities/file.ts";
 import hash from "../core/hash.ts";
 import log from "../core/log.ts";
@@ -20,7 +19,7 @@ const server_create = function services_serverCreate(data:services_server_action
         algorithm: "sha3-512",
         callback: function services_serverCreate_hashCallback(output:core_hash_output):void {
             let count:number = 0;
-            const config:supplemental_server = data.server,
+            const config:supplemental_server_config = data.server,
                 path_name:string = vars.path.servers + output.hash + vars.path.sep,
                 path_assets:string = `${path_name}assets${vars.path.sep}`,
                 path_certs:string = `${path_name}certs${vars.path.sep}`,
@@ -41,14 +40,6 @@ const server_create = function services_serverCreate(data:services_server_action
                                         callback();
                                     }
                                 }
-                            },
-                            // 5. launch servers
-                            certCallback = function services_serverCreate_complete_certificate():void {
-                                if (config.activate === true && config.id !== vars.id.dashboard_server) {
-                                    server_start(data.server.id, serverCallback);
-                                } else if (callback !== null) {
-                                    callback();
-                                }
                             };
                         log.application({
                             error: null,
@@ -58,18 +49,13 @@ const server_create = function services_serverCreate(data:services_server_action
                             status: "informational",
                             time: Date.now()
                         });
-                        // 4. create server's certificates
-                        if (config.encryption === "open") {
-                            certCallback();
-                        } else {
-                            certificate({
-                                callback: certCallback,
-                                days: 65535,
-                                id: config.id,
-                                selfSign: false
-                            });
+                        // 4. launch servers
+                        if (config.activate === true && config.id !== vars.id.dashboard_server) {
+                            server_start(data.server.id, serverCallback);
+                        } else if (callback !== null) {
+                            callback();
                         }
-                    }
+            }
                 },
                 children = function services_serverCreate_children():void {
                     count = count + 1;
@@ -84,49 +70,41 @@ const server_create = function services_serverCreate(data:services_server_action
                         section: "servers-web"
                     });
                 };
-            if (vars.data.servers[output.hash] === undefined) {
+            if (vars.data.server[output.hash] === undefined) {
                 // 1. add server to the vars.data.servers object
                 config.id = output.hash;
-                if (vars.data.servers[config.id] === undefined) {
+                if (vars.data.server[config.id] === undefined) {
                     if (dashboard === true) {
                         vars.id.dashboard_server = output.hash;
                     }
                     if (config.ports === undefined || config.ports === null) {
-                        config.ports = {};
-                    }
-                    if (config.encryption === "both") {
+                        config.ports = {
+                            open: 0,
+                            secure: 0
+                        };
+                    } else {
                         if (typeof config.ports.open !== "number") {
                             config.ports.open = 0;
                         }
                         if (typeof config.ports.secure !== "number") {
                             config.ports.secure = 0;
                         }
-                    } else if (config.encryption === "open") {
-                        if (typeof config.ports.open !== "number") {
-                            config.ports = {
-                                open: 0
-                            };
-                        } else {
-                            config.ports = {
-                                open: config.ports.open
-                            };
-                        }
-                    } else {
-                        if (typeof config.ports.secure !== "number") {
-                            config.ports = {
-                                secure: 0
-                            };
-                        } else {
-                            config.ports = {
-                                secure: config.ports.secure
-                            };
-                        }
                     }
-                    vars.data.servers[config.id] = config;
-                    vars.data_store.server_certs[config.id] = null;
-                    vars.data_store.server_ports[config.id] = {
+                    vars.data.server[config.id].ports = {
                         open: 0,
                         secure: 0
+                    };
+                    vars.data.server[config.id].config = config;
+                    vars.data_store.server[config.id] = {
+                        server_certs: null,
+                        server_object: {
+                            open: null,
+                            secure: null
+                        },
+                        sockets_tcp: {
+                            open: [],
+                            secure: []
+                        }
                     };
                     // 2. save server data
                     if (config.single_socket === true || config.temporary === true) {

@@ -98,18 +98,20 @@ const vars:core_vars = {
             containers: {},
             // log entries
             logs: [],
+            // list of dashboard UI sockets inspecting web server traffic or docker logs
+            message_inspection: [],
             // notes from UI notes section
             notes: "",
             // stores the port information for containers and services managed by this application
             ports_application: [],
             // objects describing web servers and contains objects describing their sockets
-            servers: {},
+            server: {},
             // the list of tcp socket data, services_socket_application_tcp[]
             sockets_tcp: [],
             // the list of udp socket data, services_udp_socket[]
             sockets_udp: []
         },
-        // additional data store, not an in-memory database
+        // describes data, not an in-memory database
         data_meta: {
             // time of last update
             compose_time: 0,
@@ -120,16 +122,8 @@ const vars:core_vars = {
         },
         // storage of service objects that are not associated with dashboard service messaging
         data_store: {
-            // list of dashboard UI sockets inspecting web server traffic or docker logs
-            message_inspection: [],
             // the actual web server objects and their actual socket objects
             server: {},
-            // server certificates
-            server_certs: {},
-            // actual ports in use by web servers
-            server_ports: {},
-            // storage of application created TCP sockets by server id
-            sockets_tcp: {},
             // list of application created UDP sockets
             sockets_udp: []
         },

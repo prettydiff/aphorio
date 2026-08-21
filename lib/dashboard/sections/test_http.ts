@@ -5,7 +5,7 @@ import dashboard from "../dashboard.ts";
 const ui_test_http = function ui_test_http():void {
     const test_http:section_test_http = {
         events: {
-            request: function dashboard_sections_http_request():void {
+            request: function dashboard_sections_testHttp_request():void {
                 const encryption:boolean = dashboard.sections["test-http"].nodes.encryption.checked,
                     timeout:number = Number(dashboard.sections["test-http"].nodes.timeout.value),
                     data:services_test_http = {
@@ -34,7 +34,7 @@ const ui_test_http = function ui_test_http():void {
                 strong[7].textContent = "";
             }
         },
-        init: function dashboard_sections_http_init():void {
+        init: function dashboard_sections_testHttp_init():void {
             // populate a default HTTP test value
             dashboard.sections["test-http"].nodes.request.value = (dashboard.global.state.http === null || dashboard.global.state.http === undefined || typeof dashboard.global.state.http.request !== "string" || dashboard.global.state.http.request === "")
                 ? dashboard.global.payload.http_request
@@ -59,7 +59,7 @@ const ui_test_http = function ui_test_http():void {
             stats: document.getElementById("test-http").getElementsByClassName("summary-stats")[0] as HTMLElement,
             timeout: document.getElementById("test-http").getElementsByTagName("input")[2]
         },
-        receive: function dashboard_sections_http_receive(data_item:socket_data):void {
+        receive: function dashboard_sections_testHttp_receive(data_item:socket_data):void {
             const data:services_test_http = data_item.data as services_test_http,
                 strong:HTMLCollectionOf<HTMLElement> = dashboard.sections["test-http"].nodes.stats.getElementsByTagName("strong");
             dashboard.sections["test-http"].nodes.responseBody.value = data.body;
@@ -80,7 +80,9 @@ const ui_test_http = function ui_test_http():void {
             // request body size
             strong[6].textContent = data.stats.request.size_body.bytesLong();
             // URI length
-            strong[7].textContent = `${JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length.commas()} characters`;
+            strong[7].textContent = (data.uri === "")
+                ? ""
+                : `${JSON.parse(data.uri.replace(/\s+"/g, "\"")).absolute.length.commas()} characters`;
         },
         tools: null
     };

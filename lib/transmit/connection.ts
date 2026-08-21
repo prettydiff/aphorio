@@ -16,7 +16,7 @@ import vars from "../core/vars.ts";
 
 const connection = function transmit_connection(this:core_server_instance, TLS_socket:node_tls_TLSSocket):void {
     const server_id:string = this.id,
-        server:supplemental_server = vars.data.servers[server_id],
+        server:supplemental_server_config = vars.data.server[server_id].config,
         handshake = function transmit_connection_handshake(this:websocket_client, data:Buffer):void {
             const flags:store_flag = {
                     dashboard_http_test: false,
@@ -109,7 +109,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         ua[0] = store.userAgent.slice(store.userAgent.indexOf("(") + 1, store.userAgent.indexOf(")"));
                         ua = ua[0].split(";");
                         store.userAgent = `${ua[0]}, ${ua[1]}, ${store.userAgent.slice(store.userAgent.lastIndexOf(")") + 2)}`;
-                    } else if ((/^upgrade-insecure-requests:\s*1$/).test(lower) === true && socket.encrypted !== true && server.upgrade === true && vars.data_store.server_ports[server_id].secure > 0) {
+                    } else if ((/^upgrade-insecure-requests:\s*1$/).test(lower) === true && socket.encrypted !== true && server.upgrade === true && vars.data.server[server_id].ports.secure > 0) {
                         flags.upgrade = true;
                     } else if (lower === "services_http_test: true") {
                         flags.dashboard_http_test = true;
@@ -132,7 +132,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                             if (vars.data.sockets_tcp[index].proxy === null) {
                                                 const servers:string[] = Object.keys(vars.data_store.server),
                                                     list = function transmit_connection_handshake_proxyExisting_loop_list(id:string, list_type:"open"|"secure"):boolean {
-                                                        const sockets:websocket_client[] = vars.data_store.sockets_tcp[id][list_type];
+                                                        const sockets:websocket_client[] = vars.data_store.server[id].sockets_tcp[list_type];
                                                         let count:number = sockets.length;
                                                         do {
                                                             count = count - 1;
@@ -306,7 +306,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                             this.destroy();
                                             server_halt({
                                                 action: "destroy",
-                                                server: vars.data.servers[this.server_hash]
+                                                server: vars.data.server[this.server_hash].config
                                             }, null);
                                         };
                                         socket.on("close", terminate);
@@ -354,7 +354,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                         const security:"open"|"secure" = (socket.secure === true)
                                             ? "secure"
                                             : "open";
-                                        vars.data_store.server[server_id][security].removeAllListeners();
+                                        vars.data_store.server[server_id].server_object[security].removeAllListeners();
                                     }
                                     if (localFlag === true) {
                                         if (store.type === "dashboard-terminal" && headerList[0].includes("shell") === true) {
@@ -411,11 +411,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                     time: vars.data_meta.ports_application
                                                 },
                                                 repository: vars.environment.repository,
-                                                server_ports: (vars.environment.features["servers-web"] === true)
-                                                    ? vars.data_store.server_ports
-                                                    : null,
-                                                servers: (vars.environment.features["servers-web"] === true)
-                                                    ? vars.data.servers
+                                                server: (vars.environment.features["servers-web"] === true)
+                                                    ? vars.data.server
                                                     : null,
                                                 services_app: (vars.environment.features["services-app"] === true)
                                                     ? vars.environment.services_app
@@ -564,11 +561,27 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         });
                     });
                 },
+                certificate_client:node_crypto_X509Certificate = (socket.encrypted === true)
+                    ? socket.getPeerX509Certificate()
+                    : null,
                 blocked_host:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(store.origin) === true),
                 blocked_ip:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
                 blocked:boolean = (flags.referer === true || blocked_host === true || blocked_ip === true),
                 domain_redirect:boolean = (server.redirect_domain !== undefined && server.redirect_domain !== null && server.redirect_domain[store.origin] !== undefined && server.redirect_domain[store.origin] !== null),
                 domain_local:string[] = server.domain_local.concat(vars.environment.interfaces);
+            // mutual TLS enforcement
+            if (vars.data.server[server.id].config.mutual_tls === true) {
+                if (socket.encrypted !== true || certificate_client === null || certificate_client === undefined) {
+                    socket.destroy();
+                    return;
+                }
+                const certificate_client_raw:node_crypto_X509Certificate = new node.crypto.X509Certificate(socket.getPeerX509Certificate().raw),
+                    parent_key:node_crypto_KeyObject = new node.crypto.X509Certificate(vars.data_store.server[server.id].server_certs.ca).publicKey;
+                if (certificate_client_raw === null || certificate_client_raw === undefined || parent_key === null || parent_key === undefined || certificate_client_raw.verify(parent_key) !== true) {
+                    socket.destroy();
+                    return;
+                }
+            }
             headerList.forEach(headerEach);
             socket.addresses = address;
             message_inspection.send({
@@ -586,9 +599,9 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
             if (blocked === true || (domain_local.includes(store.origin) === false && socket.proxy === null)) {
                 socket.destroy();
             // TLS data sent to open server - proxy the socket to the server's TLS port
-            } else if (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data_store.server_ports[server_id].secure > 0) {
-                store.domain = `open_socket_tunnel-${vars.data.servers[server_id].name}`;
-                proxy_create(address.local.address, vars.data_store.server_ports[server_id].secure, false);
+            } else if (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0) {
+                store.domain = `open_socket_tunnel-${vars.data.server[server_id].config.name}`;
+                proxy_create(address.local.address, vars.data.server[server_id].ports.secure, false);
             // origin in specified block list or requested origin is not in domain_local list
             } else if (domain_redirect === true) {
                 const pair:[string, number] = (socket.encrypted === true)
@@ -607,7 +620,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         ? "localhost"
                         : host;
                 }
-                store.domain = `tls_socket_redirect-${vars.data.servers[server_id].name}`;
+                store.domain = `tls_socket_redirect-${vars.data.server[server_id].config.name}`;
                 proxy_create(host, port, socket.encrypted);
             // redirect TLS connections sent to open servers instead to secure server peer if one is active
             } else if (flags.upgrade === true as boolean && flags.dashboard_http_test === false) {
@@ -619,7 +632,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     resource:string = resource_second.replace(/\/$/, "");
                 socket.write([
                     "HTTP/1.1 308",
-                    `location: https://${store.domain + resource}:${vars.data_store.server_ports[server_id].secure}`,
+                    `location: https://${store.domain + resource}:${vars.data.server[server_id].ports.secure}`,
                     "content-length: 5",
                     "",
                     "moved",

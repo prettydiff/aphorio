@@ -71,12 +71,12 @@ interface transmit_tlsCerts {
 }
 
 interface transmit_tlsOptions {
+    certificates: transmit_tlsCerts;
     fileFlag: {
         ca: boolean;
-        crt: boolean;
+        cert: boolean;
         key: boolean;
     };
-    options: transmit_tlsCerts;
 }
 
 interface transmit_udp extends node_dgram_Socket {
@@ -104,6 +104,7 @@ interface websocket_client extends node_tls_TLSSocket {
     queue_callback?: () => void;
     role: "client"|"server";
     secure: boolean;
+    segmentation: number;
     server: core_server_instance;
     server_hash: string;
     status: type_socket_status;

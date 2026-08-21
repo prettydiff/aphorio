@@ -139,8 +139,9 @@ const ui_utility = function ui_utility():void {
                     dashboard.sections["test-performance"].nodes.connect_address.value = "";
                     dashboard.sections["test-performance"].nodes.connect_port.value = "";
                     dashboard.sections["test-performance"].nodes.encrypt_false.checked = true;
-                    dashboard.sections["test-performance"].nodes.quantity_tests.value = "";
-                    dashboard.sections["test-performance"].nodes.quantity_transmit.value = "";
+                    dashboard.sections["test-performance"].nodes.frame_body_size.value = "1000000";
+                    dashboard.sections["test-performance"].nodes.quantity_tests.value = "10";
+                    dashboard.sections["test-performance"].nodes.quantity_transmit.value = "50000";
                     dashboard.sections["test-performance"].nodes.type_websocket.checked = true;
                 }
                 if (dashboard.sections["test-websocket"] !== undefined) {
@@ -338,9 +339,10 @@ const ui_utility = function ui_utility():void {
                             connect_address: "",
                             connect_port: 80,
                             encryption: false,
+                            frame_body_size: 1000000,
                             measure: "send",
                             quantity_tests: 10,
-                            quantity_transmit: 1000,
+                            quantity_transmit: 50000,
                             type: "websocket"
                         };
                     } else {
@@ -348,6 +350,7 @@ const ui_utility = function ui_utility():void {
                         dashboard.global.state.test_performance.connect_address = dashboard.sections["test-performance"].nodes.connect_address.value;
                         dashboard.global.state.test_performance.connect_port = Number(dashboard.sections["test-performance"].nodes.connect_port.value);
                         dashboard.global.state.test_performance.encryption = dashboard.sections["test-performance"].nodes.encrypt_true.checked;
+                        dashboard.global.state.test_performance.frame_body_size = Number(dashboard.sections["test-performance"].nodes.frame_body_size.value);
                         dashboard.global.state.test_performance.measure = (dashboard.sections["test-performance"].nodes.measure_roundtrip.checked === true)
                             ? "roundtrip"
                             : "send";

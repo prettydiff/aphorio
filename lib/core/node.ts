@@ -2,7 +2,7 @@
 
 import { isAscii, isUtf8 } from "node:buffer";
 import { exec, fork, spawn } from "node:child_process";
-import { constants as constantsCrypto, createHash, createPrivateKey, createPublicKey, generateKeyPair, getHashes, Hash, privateDecrypt, publicEncrypt } from "node:crypto";
+import { constants as constantsCrypto, createHash, createPrivateKey, createPublicKey, generateKeyPair, getHashes, Hash, privateDecrypt, publicEncrypt, X509Certificate } from "node:crypto";
 import { createSocket } from "node:dgram";
 import { resolve as resolveDNS, reverse } from "node:dns";
 import { cp, createReadStream, createWriteStream, lstat, mkdir, open, read, readdir, readFile, readlink, realpath, rename, rm, rmdir, stat, Stats, symlink, unlink, utimes, writeFile } from "node:fs";
@@ -37,7 +37,8 @@ const node = {
         getHashes: getHashes,
         privateDecrypt: privateDecrypt,
         publicEncrypt: publicEncrypt,
-        Hash: Hash
+        Hash: Hash,
+        X509Certificate: X509Certificate
     },
     dgram: {
         createSocket: createSocket

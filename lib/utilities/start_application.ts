@@ -177,9 +177,232 @@ const start_application = function utilities_startApplication(process_path:strin
                         start_prerequisites();
                     }
                 }
+            },
+            servers: {
+                label: "Reads the servers.json file to dynamically standup and populate configured web servers.",
+                task: function utilities_startApplication_servers():void {
+                    const callback = function utilities_startApplication_servers_callback(fileContents:Buffer):void {
+                        const configStr:string = (fileContents === null)
+                                ? ""
+                                : fileContents.toString(),
+                            config:core_state_file = (configStr === "" || (/^\s*\{/).test(configStr) === false || (/\}\s*$/).test(configStr) === false)
+                                ? null
+                                : JSON.parse(configStr) as core_state_file,
+                            includes = function utilities_startApplication_servers_callback_includes(input:string):void {
+                                if (vars.environment.interfaces.includes(input) === false && input.toLowerCase().indexOf("fe80") !== 0) {
+                                    vars.environment.interfaces.push(input);
+                                }
+                            },
+                            interfaces:{ [index: string]: node_os_NetworkInterfaceInfo[]; } = node.os.networkInterfaces(),
+                            keys_int:string[] = Object.keys(interfaces),
+                            keys_srv:string[] = (config === null)
+                                ? null
+                                : Object.keys(config.servers);
+                        let index_int:number = keys_int.length,
+                            index_srv:number = (config === null)
+                                ? 0
+                                : keys_srv.length,
+                            server:supplemental_server_config = null,
+                            sub:number = 0;
+                        if (config !== null) {
+                            if (typeof config.notes === "string") {
+                                vars.data.notes = config.notes;
+                            }
+                            if (config.id !== undefined) {
+                                vars.id = config.id;
+                            }
+                            // @ts-expect-error - the reference dashboard_id no longer exists and is here for backwards compatibility
+                            if (typeof config.dashboard_id === "string") {
+                                // @ts-expect-error - the reference dashboard_id no longer exists and is here for backwards compatibility
+                                vars.id.dashboard_server = config.dashboard_id;
+                            }
+                            if (config.stats !== undefined) {
+                                vars.stats.frequency = config.stats.frequency;
+                                vars.stats.records = config.stats.records;
+                            }
+                        }
+                        if (index_srv > 0) {
+                            do {
+                                index_srv = index_srv - 1;
+                                if (vars.environment.features["servers-web"] === true || config.servers[keys_srv[index_srv]].id === config.id.dashboard_server) {
+                                    index_int = keys_int.length;
+                                    server = config.servers[keys_srv[index_srv]];
+                                    if (server.ports === null || server.ports === undefined) {
+                                        server.ports = {
+                                            open: 0,
+                                            secure: 0
+                                        };
+                                    } else {
+                                        if (typeof server.ports.open !== "number") {
+                                            server.ports.open = 0;
+                                        }
+                                        if (typeof server.ports.secure !== "number") {
+                                            server.ports.secure = 0;
+                                        }
+                                    }
+                                    if (server.block_list === undefined || server.block_list === null) {
+                                        server.block_list = {
+                                            host: [],
+                                            ip: [],
+                                            referrer: []
+                                        };
+                                    }
+                                    if (Array.isArray(server.domain_local) === false) {
+                                        server.domain_local = [];
+                                    }
+                                    if (server.message_segmentation === undefined || server.message_segmentation === null) {
+                                        server.message_segmentation = 1e6;
+                                    }
+                                    vars.data.server[server.id] = {
+                                        certificates_client: {
+                                            crt: "",
+                                            pfx: ""
+                                        },
+                                        config: server,
+                                        ports: {
+                                            open: 0,
+                                            secure: 0
+                                        }
+                                    };
+                                    vars.data_store.server[server.id] = {
+                                        server_certs: {
+                                            ca: "",
+                                            cert: "",
+                                            key: ""
+                                        },
+                                        server_object: {
+                                            open: null,
+                                            secure: null
+                                        },
+                                        sockets_tcp: {
+                                            open: [],
+                                            secure: []
+                                        }
+                                    };
+                                }
+                            } while (index_srv > 0);
+                        }
+                        do {
+                            index_int = index_int - 1;
+                            sub = interfaces[keys_int[index_int]].length;
+                            do {
+                                sub = sub - 1;
+                                includes(interfaces[keys_int[index_int]][sub].address);
+                            } while (sub > 0);
+                        } while (index_int > 0);
+                        if (typeof vars.id.machine === "string" && vars.id.machine.length > 0) {
+                            start_prerequisites();
+                        } else {
+                            const cpu:os_node_cpu = node.os.cpus();
+                            hash({
+                                algorithm: "sha3-512",
+                                callback: function utilities_startApplication_servers_callback_hash(out:core_hash_output):void {
+                                    vars.id.machine = out.hash;
+                                    machine_id = true;
+                                    start_prerequisites();
+                                },
+                                digest: "hex",
+                                hash_input_type: "direct",
+                                section: "startup",
+                                source: `${process.hrtime.bigint()} ${process.pid} ${process.ppid} ${cpu[0].model} ${cpu[0].speed} ${process.platform} ${node.os.hostname()}`
+                            });
+                        }
+                    };
+                    file.read({
+                        callback: callback,
+                        location: `${vars.path.project}servers.json`,
+                        no_file: null,
+                        section: "startup"
+                    });
+                }
             }
         },
         tasks:core_start_tasks = {
+            certificates: {
+                label: "Read all default client certificates for available web servers.",
+                task: function utilities_startApplication_certificates():void {
+                    node.fs.readdir(`${process_path}servers`, function utility_startApplication_certificates_readdir(err:node_error, dir:string[]):void {
+                        if (err === null) {
+                            let index:number = dir.length;
+                            if (index > 0) {
+                                const read_cert = function utility_startApplication_certificates_readdir_readCert(path:string):void {
+                                        let count:number = 0;
+                                        const callback = function utility_startApplication_certificates_readdir_readCert_callback(file:Buffer, location:string, identifier:string):void {
+                                            count = count + 1;
+                                            if (file !== null) {
+                                                if (identifier === "crt") {
+                                                    vars.data.server[dir[index]].certificates_client.crt = file.toString("utf-8");
+                                                } else {
+                                                    vars.data.server[dir[index]].certificates_client.pfx = file.toString("base64");
+                                                }
+                                            }
+                                            if (count > 1) {
+                                                add_cert();
+                                            }
+                                        };
+                                        file.read({
+                                            callback: callback,
+                                            identifier: "pfx",
+                                            location: path,
+                                            no_file: null,
+                                            section: "startup"
+                                        });
+                                        file.read({
+                                            callback: callback,
+                                            identifier: "crt",
+                                            location: path.replace(/\.pfx$/, ".crt"),
+                                            no_file: null,
+                                            section: "startup"
+                                        });
+                                    },
+                                    add_cert = function utility_startApplication_certificates_readdir_addCert():void {
+                                        index = index - 1;
+                                        if (index > -1) {
+                                            if (vars.data.server[dir[index]] === undefined) {
+                                                utility_startApplication_certificates_readdir_addCert();
+                                            } else {
+                                                vars.data.server[dir[index]].certificates_client = {
+                                                    crt: null,
+                                                    pfx: null
+                                                };
+                                                node.fs.readdir(`${process_path}servers${vars.path.sep + dir[index] + vars.path.sep}certs`, function utility_startApplication_certificates_readdir_addCert_files(erf:node_error, certs:string[]):void {
+                                                    if (erf === null) {
+                                                        let index_certs:number = certs.length,
+                                                            test:boolean = false;
+                                                        if (index_certs > 0) {
+                                                            do {
+                                                                index_certs = index_certs - 1;
+                                                                if (certs[index_certs].slice(certs[index_certs].length - 4) === ".pfx") {
+                                                                    read_cert(`${process_path}servers${vars.path.sep + dir[index] + vars.path.sep}certs${vars.path.sep + certs[index_certs]}`);
+                                                                    test = true;
+                                                                    break;
+                                                                }
+                                                            } while (index_certs > 0);
+                                                            if (test === false) {
+                                                                utility_startApplication_certificates_readdir_addCert(); 
+                                                            }
+                                                        } else {
+                                                            utility_startApplication_certificates_readdir_addCert();
+                                                        }
+                                                    } else {
+                                                        utility_startApplication_certificates_readdir_addCert();
+                                                    }
+                                                });
+                                            }
+                                        } else {
+                                            complete_tasks("certificates");
+                                        }
+                                    };
+                                add_cert();
+                            } else {
+                                complete_tasks("certificates");
+                            }
+                        } else {
+                            complete_tasks("certificates");
+                        }
+                    });
+                }
+            },
             cgroup: {
                 label: "Find Linux cgroup address for gathering precision docker performance metrics.",
                 task: function utilities_startApplication_cgroup():void {
@@ -441,116 +664,6 @@ const start_application = function utilities_startApplication(process_path:strin
                     } else {
                         complete_tasks("os_user");
                     }
-                }
-            },
-            servers: {
-                label: "Reads the servers.json file to dynamically standup and populate configured web servers.",
-                task: function utilities_startApplication_taskServers():void {
-                    const callback = function utilities_startApplication_taskServers_callback(fileContents:Buffer):void {
-                        const configStr:string = (fileContents === null)
-                                ? ""
-                                : fileContents.toString(),
-                            config:core_state_file = (configStr === "" || (/^\s*\{/).test(configStr) === false || (/\}\s*$/).test(configStr) === false)
-                                ? null
-                                : JSON.parse(configStr) as core_state_file,
-                            includes = function utilities_startApplication_taskServers_callback_includes(input:string):void {
-                                if (vars.environment.interfaces.includes(input) === false && input.toLowerCase().indexOf("fe80") !== 0) {
-                                    vars.environment.interfaces.push(input);
-                                }
-                            },
-                            interfaces:{ [index: string]: node_os_NetworkInterfaceInfo[]; } = node.os.networkInterfaces(),
-                            keys_int:string[] = Object.keys(interfaces),
-                            keys_srv:string[] = (config === null)
-                                ? null
-                                : Object.keys(config.servers);
-                        let index_int:number = keys_int.length,
-                            index_srv:number = (config === null)
-                                ? 0
-                                : keys_srv.length,
-                            server:supplemental_server = null,
-                            sub:number = 0;
-                        if (config !== null) {
-                            if (typeof config.notes === "string") {
-                                vars.data.notes = config.notes;
-                            }
-                            if (config.id !== undefined) {
-                                vars.id = config.id;
-                            }
-                            // @ts-expect-error - the reference dashboard_id no longer exists and is here for backwards compatibility
-                            if (typeof config.dashboard_id === "string") {
-                                // @ts-expect-error - the reference dashboard_id no longer exists and is here for backwards compatibility
-                                vars.id.dashboard_server = config.dashboard_id;
-                            }
-                            if (config.stats !== undefined) {
-                                vars.stats.frequency = config.stats.frequency;
-                                vars.stats.records = config.stats.records;
-                            }
-                        }
-                        if (index_srv > 0) {
-                            do {
-                                index_srv = index_srv - 1;
-                                if (vars.environment.features["servers-web"] === true || config.servers[keys_srv[index_srv]].id === config.id.dashboard_server) {
-                                    index_int = keys_int.length;
-                                    server = config.servers[keys_srv[index_srv]];
-                                    if (server.ports === null || server.ports === undefined) {
-                                        server.ports = {
-                                            open: 0,
-                                            secure: 0
-                                        };
-                                    } else {
-                                        if (typeof server.ports.open !== "number") {
-                                            server.ports.open = 0;
-                                        }
-                                        if (typeof server.ports.secure !== "number") {
-                                            server.ports.secure = 0;
-                                        }
-                                    }
-                                    if (server.block_list === undefined || server.block_list === null) {
-                                        server.block_list = {
-                                            host: [],
-                                            ip: [],
-                                            referrer: []
-                                        };
-                                    }
-                                    if (Array.isArray(server.domain_local) === false) {
-                                        server.domain_local = [];
-                                    }
-                                    vars.data.servers[server.id] = server;
-                                }
-                            } while (index_srv > 0);
-                        }
-                        do {
-                            index_int = index_int - 1;
-                            sub = interfaces[keys_int[index_int]].length;
-                            do {
-                                sub = sub - 1;
-                                includes(interfaces[keys_int[index_int]][sub].address);
-                            } while (sub > 0);
-                        } while (index_int > 0);
-                        if (typeof vars.id.machine === "string" && vars.id.machine.length > 0) {
-                            complete_tasks("servers");
-                        } else {
-                            const cpu:os_node_cpu = node.os.cpus();
-                            hash({
-                                algorithm: "sha3-512",
-                                callback: function utilities_startApplication_taskServers_callback_hash(out:core_hash_output):void {
-                                    vars.id.machine = out.hash;
-                                    machine_id = true;
-                                    complete_tasks("servers");
-                                },
-                                digest: "hex",
-                                hash_input_type: "direct",
-                                section: "startup",
-                                source: `${process.hrtime.bigint()} ${process.pid} ${process.ppid} ${cpu[0].model} ${cpu[0].speed} ${process.platform} ${node.os.hostname()}`
-                            });
-                        }
-                    };
-                    file.read({
-                        callback: callback,
-                        location: `${vars.path.project}servers.json`,
-                        no_file: null,
-                        section: "startup"
-                    });
                 }
             },
             services_app: {
@@ -831,7 +944,7 @@ const start_application = function utilities_startApplication(process_path:strin
             if (count_task === len_tasks) {
                 // sends a server time update every 950ms
                 const ready = function utilities_startApplication_completeTasks_ready():void {
-                    const default_server:supplemental_server = {
+                    const default_server:supplemental_server_config = {
                         activate: true,
                         domain_local: [
                             "localhost",
@@ -840,6 +953,8 @@ const start_application = function utilities_startApplication(process_path:strin
                         ],
                         encryption: "both",
                         id: "",
+                        message_segmentation: 1e6,
+                        mutual_tls: false,
                         name: "dashboard",
                         ports: {
                             open: vars.options["port-open"],
@@ -855,7 +970,7 @@ const start_application = function utilities_startApplication(process_path:strin
                         upgrade: false
                     },
                     start = function utilities_startApplication_completeTasks_ready_start():void {
-                        const servers:string[] = Object.keys(vars.data.servers),
+                        const servers:string[] = Object.keys(vars.data.server),
                             total:number = (vars.test.testing === true)
                                 ? 1
                                 : servers.length,
@@ -869,7 +984,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                         logs:string[] = [
                                             "",
                                             heading("Startup Complete"),
-                                            `${asterisk} Application executed as a ${vars.text.cyan + sea + vars.text.none}.`,
+                                            `${asterisk} Application executed as a ${vars.text.cyan + sea + vars.text.none} at version ${vars.text.cyan + process.version + vars.text.none}.`,
                                             `${asterisk} Application completed ${vars.text.cyan + count_task + vars.text.none} startup tasks in ${vars.text.cyan + (time / 1e9) + vars.text.none} seconds.`,
                                             `${asterisk} Process ID: ${vars.text.cyan + process.pid + vars.text.none}`,
                                             "",
@@ -907,29 +1022,34 @@ const start_application = function utilities_startApplication(process_path:strin
                                         ports:type_docker_ports = null,
                                         longest:number[] = [0, 0, 0],
                                         len:number = servers.length;
-                                    servers.sort();
+                                    servers.sort(function utilities_startApplication_completeTasks_read_start_serverCallback_serverSort(a:string, b:string):-1|1 {
+                                        if (a > b) {
+                                            return -1;
+                                        }
+                                        return 1;
+                                    });
                                     // get string column width
                                     do {
-                                        name = vars.data.servers[servers[index]].name;
+                                        name = vars.data.server[servers[index]].config.name;
                                         if (name.length > longest[0]) {
                                             longest[0] = name.length;
                                         }
-                                        if (vars.data.servers[servers[index]].encryption === "both") {
-                                            if (vars.data.servers[servers[index]].ports["secure"].toString().length > longest[2]) {
-                                                longest[2] = vars.data.servers[servers[index]].ports["secure"].toString().length;
+                                        if (vars.data.server[servers[index]].config.encryption === "both") {
+                                            if (vars.data.server[servers[index]].ports["secure"].toString().length > longest[2]) {
+                                                longest[2] = vars.data.server[servers[index]].ports["secure"].toString().length;
                                             }
-                                            if (vars.data.servers[servers[index]].ports["open"].toString().length > longest[2]) {
-                                                longest[3] = vars.data.servers[servers[index]].ports["secure"].toString().length;
+                                            if (vars.data.server[servers[index]].ports["open"].toString().length > longest[2]) {
+                                                longest[3] = vars.data.server[servers[index]].ports["secure"].toString().length;
                                             }
                                             longest[1] = 6;
-                                        } else if (vars.data.servers[servers[index]].encryption === "secure") {
-                                            if (vars.data.servers[servers[index]].ports["secure"].toString().length > longest[2]) {
-                                                longest[2] = vars.data.servers[servers[index]].ports["secure"].toString().length;
+                                        } else if (vars.data.server[servers[index]].config.encryption === "secure") {
+                                            if (vars.data.server[servers[index]].ports["secure"].toString().length > longest[2]) {
+                                                longest[2] = vars.data.server[servers[index]].ports["secure"].toString().length;
                                             }
                                             longest[1] = 6;
                                         } else {
-                                            if (vars.data.servers[servers[index]].ports["open"].toString().length > longest[2]) {
-                                                longest[2] = vars.data.servers[servers[index]].ports["secure"].toString().length;
+                                            if (vars.data.server[servers[index]].ports["open"].toString().length > longest[2]) {
+                                                longest[2] = vars.data.server[servers[index]].ports["secure"].toString().length;
                                             }
                                         }
                                         index = index + 1;
@@ -949,26 +1069,28 @@ const start_application = function utilities_startApplication(process_path:strin
                                             };
                                         // from servers
                                         index = 0;
+                                        // server[servers[index]].config.ports = user assigned port value
+                                        // server[servers[index]].ports = actual system port in use
                                         do {
-                                            if (vars.data_store.server_ports[servers[index]] !== undefined) {
-                                                if (vars.data.servers[servers[index]].encryption === "both") {
-                                                    logItem(vars.data.servers[servers[index]].name, "open", (vars.data_store.server_ports[servers[index]].open === 0)
-                                                        ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
-                                                        : vars.text.green + vars.data_store.server_ports[servers[index]].open + vars.text.none
+                                            if (vars.data.server[servers[index]].ports !== undefined) {
+                                                if (vars.data.server[servers[index]].config.encryption === "both") {
+                                                    logItem(vars.data.server[servers[index]].config.name, "open", (vars.data.server[servers[index]].ports.open === 0)
+                                                        ? vars.text.angry + vars.data.server[servers[index]].config.ports.open + vars.text.none
+                                                        : vars.text.green + vars.data.server[servers[index]].ports.open + vars.text.none
                                                     );
-                                                    logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_store.server_ports[servers[index]].secure === 0)
-                                                        ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
-                                                        : vars.text.green + vars.data_store.server_ports[servers[index]].secure + vars.text.none
+                                                    logItem(vars.data.server[servers[index]].config.name, "secure", (vars.data.server[servers[index]].ports.secure === 0)
+                                                        ? vars.text.angry + vars.data.server[servers[index]].config.ports.secure + vars.text.none
+                                                        : vars.text.green + vars.data.server[servers[index]].ports.secure + vars.text.none
                                                     );
-                                                } else if (vars.data.servers[servers[index]].encryption === "open") {
-                                                    logItem(vars.data.servers[servers[index]].name, "open", (vars.data_store.server_ports[servers[index]].open === 0)
-                                                        ? vars.text.angry + vars.data.servers[servers[index]].ports.open + vars.text.none
-                                                        : vars.text.green + vars.data_store.server_ports[servers[index]].open + vars.text.none
+                                                } else if (vars.data.server[servers[index]].config.encryption === "open") {
+                                                    logItem(vars.data.server[servers[index]].config.name, "open", (vars.data.server[servers[index]].ports.open === 0)
+                                                        ? vars.text.angry + vars.data.server[servers[index]].config.ports.open + vars.text.none
+                                                        : vars.text.green + vars.data.server[servers[index]].ports.open + vars.text.none
                                                     );
-                                                } else if (vars.data.servers[servers[index]].encryption === "secure") {
-                                                    logItem(vars.data.servers[servers[index]].name, "secure", (vars.data_store.server_ports[servers[index]].secure === 0)
-                                                        ? vars.text.angry + vars.data.servers[servers[index]].ports.secure + vars.text.none
-                                                        : vars.text.green + vars.data_store.server_ports[servers[index]].secure + vars.text.none
+                                                } else if (vars.data.server[servers[index]].config.encryption === "secure") {
+                                                    logItem(vars.data.server[servers[index]].config.name, "secure", (vars.data.server[servers[index]].ports.secure === 0)
+                                                        ? vars.text.angry + vars.data.server[servers[index]].config.ports.secure + vars.text.none
+                                                        : vars.text.green + vars.data.server[servers[index]].ports.secure + vars.text.none
                                                     );
                                                 }
                                             }
@@ -1025,10 +1147,10 @@ const start_application = function utilities_startApplication(process_path:strin
                             index:number = 0;
 
                         if (vars.test.testing === true) {
-                            server_start(vars.data.servers[vars.id.dashboard_server].id, callback);
+                            server_start(vars.data.server[vars.id.dashboard_server].config.id, callback);
                         } else {
                             do {
-                                server_start(vars.data.servers[servers[index]].id, callback);
+                                server_start(vars.data.server[servers[index]].config.id, callback);
                                 index = index + 1;
                             } while (index < total);
                         }
@@ -1036,7 +1158,7 @@ const start_application = function utilities_startApplication(process_path:strin
                     };
                     clock();
                     statistics_resources.data();
-                    if (vars.test.testing === true || vars.data.servers[vars.id.dashboard_server] === undefined) {
+                    if (vars.test.testing === true || vars.data.server[vars.id.dashboard_server] === undefined) {
                         server_create({
                             action: "add",
                             server: default_server

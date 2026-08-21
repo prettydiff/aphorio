@@ -205,8 +205,8 @@ interface core_server_instance extends node_net_Server {
 }
 
 interface core_server_ports {
-    open?: number;
-    secure?: number;
+    open: number;
+    secure: number;
 }
 
 interface core_service_internal {
@@ -309,36 +309,29 @@ interface core_vars_data_primary {
     compose_variables: store_string;
     containers: store_compose;
     logs: config_log[];
+    message_inspection: core_message_inspection[];
     notes: string;
     ports_application: supplemental_ports_application_item[];
-    servers: store_servers;
+    server: services_server_update;
     sockets_tcp: supplemental_socket_application_tcp[];
     sockets_udp: services_udp_socket[];
 }
 
 interface core_vars_data_store {
-    // list of dashboard UI sockets inspecting web server traffic or docker logs
-    message_inspection: core_message_inspection[];
-    // storage of actual web server objects
     server: {
         [key:string]: {
-            open: core_server_instance;
-            secure: core_server_instance;
-        };
-    };
-    // server certificates
-    server_certs: {
-        [key:string]: transmit_tlsCerts;
-    };
-    // actual ports in use by web servers
-    server_ports: {
-        [key:string]: core_server_ports;
-    };
-    // storage of application managed tcp sockets
-    sockets_tcp: {
-        [key:string]: {
-            open: websocket_client[];
-            secure: websocket_client[];
+            // server certificates
+            server_certs: transmit_tlsCerts;
+            // storage of actual web server objects
+            server_object: {
+                open: core_server_instance;
+                secure: core_server_instance;
+            };
+            // storage of application managed tcp sockets
+            sockets_tcp: {
+                open: websocket_client[];
+                secure: websocket_client[];
+            };
         };
     };
     // storage of application managed udp sockets

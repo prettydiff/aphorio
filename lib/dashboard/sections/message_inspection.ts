@@ -41,7 +41,7 @@ const ui_message_inspection = function ui_message_inspection():void {
             },
             type: function dashboard_sections_messageInspection_type():void {
                 const value:string = dashboard.sections["message-inspection"].nodes.type[dashboard.sections["message-inspection"].nodes.type.selectedIndex].textContent,
-                    populate = function dashboard_sections_messageInspection_type_populate(list:store_compose|store_servers, type:"docker-container"|"web-server"):void {
+                    populate = function dashboard_sections_messageInspection_type_populate(list:store_compose|services_server_update, type:"docker-container"|"web-server"):void {
                         const keys:string[] = Object.keys(list),
                             len:number = keys.length;
                         let option:HTMLElement = document.createElement("option"),
@@ -53,7 +53,9 @@ const ui_message_inspection = function ui_message_inspection():void {
                             do {
                                 if (type === "web-server" || (type === "docker-container" && (list[keys[index]] as core_compose_container).state === "running")) {
                                     option = document.createElement("option");
-                                    option.textContent = `${list[keys[index]].name} - ${keys[index]}`;
+                                    option.textContent = `${(type === "docker-container")
+                                        ? (list[keys[index]] as core_compose_container).name
+                                        : (list[keys[index]] as supplemental_server).config.name} - ${keys[index]}`;
                                     dashboard.sections["message-inspection"].nodes.service.appendChild(option);
                                 }
                                 index = index + 1;
@@ -66,7 +68,7 @@ const ui_message_inspection = function ui_message_inspection():void {
                 dashboard.sections["message-inspection"].nodes.em_in.textContent = "";
                 dashboard.sections["message-inspection"].nodes.em_out.textContent = "";
                 if (value === "Web Server") {
-                    populate(dashboard.global.payload.servers, "web-server");
+                    populate(dashboard.global.payload.server, "web-server");
                     dashboard.sections["message-inspection"].nodes.label_in.parentNode.style.display = "block";
                     dashboard.sections["message-inspection"].nodes.label_in.firstChild.textContent = "Messages in ";
                     dashboard.sections["message-inspection"].nodes.label_out.firstChild.textContent = "Messages out ";

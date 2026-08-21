@@ -25,11 +25,11 @@ const ui_shared_services = function ui_shared_services():void {
                 }
                 return ["red", "offline"];
             }
-            if (dashboard.global.payload.servers[id].activate === false) {
+            if (dashboard.global.payload.server[id].config.activate === false) {
                 return [null, "deactivated"];
             }
-            const encryption:type_encryption = dashboard.global.payload.servers[id].encryption,
-                ports:core_server_ports = dashboard.global.payload.server_ports[id];
+            const encryption:type_encryption = dashboard.global.payload.server[id].config.encryption,
+                ports:core_server_ports = dashboard.global.payload.server[id].ports;
             if (ports === undefined) {
                 return ["red", "offline"];
             }
@@ -160,12 +160,14 @@ const ui_shared_services = function ui_shared_services():void {
                                 sanitize = function dashboard_shareServices_details_serversWeb_sanitize(input:string):string {
                                     return input.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
                                 },
-                                serverData:supplemental_server = (newFlag === true)
+                                serverData:supplemental_server_config = (newFlag === true)
                                     ? {
                                         activate: true,
                                         domain_local: ["localhost"],
                                         encryption: "both",
                                         id: "",
+                                        message_segmentation: 1e6,
+                                        mutual_tls: false,
                                         name: "new_server",
                                         ports: {
                                             open: 0,
@@ -173,7 +175,7 @@ const ui_shared_services = function ui_shared_services():void {
                                         },
                                         upgrade: false
                                     }
-                                    : dashboard.global.payload.servers[id],
+                                    : dashboard.global.payload.server[id].config,
                                 output:string[] = [
                                         "{",
                                         `"activate": ${serverData.activate},`
@@ -197,6 +199,16 @@ const ui_shared_services = function ui_shared_services():void {
                             }
                             output.push(`"id": "${serverData.id}",`);
                             methods();
+                            if (newFlag === true) {
+                                output.push("\"message_segmentation\": 1e6,");
+                            } else {
+                                output.push(`"message_segmentation": ${serverData.message_segmentation},`);
+                            }
+                            if (newFlag === true) {
+                                output.push("\"mutual_tls\": false,");
+                            } else {
+                                output.push(`"mutual_tls": ${serverData.mutual_tls},`);
+                            }
                             if (newFlag === true) {
                                 output.push("\"name\": \"new_server\",");
                             } else {
@@ -460,7 +472,7 @@ const ui_shared_services = function ui_shared_services():void {
                 name:string = (id === undefined)
                     ? `new_${type}`
                     : (type === "server")
-                        ? dashboard.global.payload.servers[id].name
+                        ? dashboard.global.payload.server[id].config.name
                         : (dashboard.global.payload.compose.containers[id] === null || dashboard.global.payload.compose.containers[id] === undefined)
                             ? id
                             : dashboard.global.payload.compose.containers[id].name;

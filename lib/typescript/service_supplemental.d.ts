@@ -6,6 +6,11 @@ interface supplemental_action_compose {
     compose: string;
 }
 
+interface supplemental_certificate_client {
+    crt: string;
+    pfx: string;
+}
+
 interface supplemental_docker_compose_publishers {
     Protocol: "tcp"|"udp";
     PublishedPort: number;
@@ -61,6 +66,12 @@ interface supplemental_ports_application_item {
 }
 
 interface supplemental_server {
+    certificates_client: supplemental_certificate_client;
+    config: supplemental_server_config;
+    ports: core_server_ports;
+}
+
+interface supplemental_server_config {
     activate: boolean;
     block_list?: {
         host: string[];
@@ -70,12 +81,14 @@ interface supplemental_server {
     domain_local: string[];
     encryption: type_encryption;
     id: string;
+    message_segmentation: number;
     method?: {
         delete?: supplemental_server_method;
         patch?: supplemental_server_method;
         post?: supplemental_server_method;
         put?: supplemental_server_method;
     };
+    mutual_tls: boolean;
     name: string;
     ports: core_server_ports;
     redirect_asset?: {

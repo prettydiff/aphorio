@@ -11,6 +11,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
         time_start:bigint = 0n;
     const data:services_test_performance_input = socket_data.data as services_test_performance_input,
         output:services_test_performance_output = {
+            frame_body_size: data.frame_body_size,
             message_size: Buffer.from(data.body).byteLength,
             roundtrip: {
                 average: 0,
@@ -131,11 +132,12 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                     let index_receive:number = 1;
                     create_socket({
                         callback: function services_testPerformance_testWebsocket_hash_create(socket_test:websocket_client, timeout:bigint, error:node_error):void {
-                            socket_test.proxy = transmit.socket as websocket_client;
                             if (socket_test === null || (error !== null && error !== undefined)) {
                                 times(JSON.stringify(error), true);
                             } else {
                                 let index:number = data.quantity_transmit;
+                                socket_test.segmentation = data.frame_body_size;
+                                socket_test.proxy = transmit.socket as websocket_client;
                                 socket_test.queue_callback = function services_testPerformance_testWebSocket_hash_socket_queueCallback():void {
                                     if (data.measure === "send") {
                                         socket_test.destroy();

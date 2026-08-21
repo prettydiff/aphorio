@@ -13,7 +13,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         ? "secure"
         : "open";
     // permit if the socket is not already created
-    if (vars.data_store.sockets_tcp[config.server][encryption].includes(config.socket) === false) {
+    if (vars.data_store.server[config.server].sockets_tcp[encryption].includes(config.socket) === false) {
         const now:number = Date.now(),
             ping = function transmit_socketExtension_ping(ttl:number, callback:(err:node_error, roundtrip:bigint) => void):void {
                 const errorObject = function transmit_socketExtension_ping_errorObject(code:string, message:string):node_error {
@@ -52,7 +52,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     : config.proxy.hash,
                 role: config.role,
                 server_id: config.server,
-                server_name: vars.data.servers[config.server].name,
+                server_name: vars.data.server[config.server].config.name,
                 time: now,
                 type: config.type,
                 userAgent: config.userAgent
@@ -83,21 +83,21 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     encryption:"open"|"secure" = (socket.encrypted === true)
                         ? "secure"
                         : "open";
-                let index:number = vars.data_store.sockets_tcp[socket.server_hash][encryption].length;
+                let index:number = vars.data_store.server[socket.server_hash].sockets_tcp[encryption].length;
 
                 // remove actual socket object from storage
                 if (index > 0) {
                     do {
                         index = index - 1;
-                        if (vars.data_store.sockets_tcp[socket.server_hash][encryption][index].hash === socket.hash) {
-                            vars.data_store.sockets_tcp[socket.server_hash][encryption].splice(index, 1);
+                        if (vars.data_store.server[socket.server_hash].sockets_tcp[encryption][index].hash === socket.hash) {
+                            vars.data_store.server[socket.server_hash].sockets_tcp[encryption].splice(index, 1);
                         } else if (
                             socket.proxy !== null &&
-                            vars.data_store.sockets_tcp[socket.server_hash][encryption][index].proxy !== null &&
-                            vars.data_store.sockets_tcp[socket.server_hash][encryption][index].proxy.hash === socket.proxy.hash &&
+                            vars.data_store.server[socket.server_hash].sockets_tcp[encryption][index].proxy !== null &&
+                            vars.data_store.server[socket.server_hash].sockets_tcp[encryption][index].proxy.hash === socket.proxy.hash &&
                             socket.type !== "test-performance-socket"
                         ) {
-                            vars.data_store.sockets_tcp[socket.server_hash][encryption].splice(index, 1);
+                            vars.data_store.server[socket.server_hash].sockets_tcp[encryption].splice(index, 1);
                             socket.proxy.destroy();
                         }
                     } while (index > 0);
@@ -115,7 +115,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     } while (index > 0);
                 }
 
-                if (vars.data.servers[socket.server_hash].id === vars.id.dashboard_server && socket.type === "dashboard") {
+                if (vars.data.server[socket.server_hash].config.id === vars.id.dashboard_server && socket.type === "dashboard") {
                     const payload:services_message_inspection = {
                         count: 0,
                         direction: "in",
@@ -137,6 +137,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
 
                 if (socket.type === "test-performance-socket" && error !== null && error !== undefined) {
                     const output:services_test_performance_output = {
+                        frame_body_size: 0,
                         message_size: 0,
                         roundtrip: {
                             average: 0,
@@ -179,6 +180,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 end(socket, error);
             };
         config.socket.server_hash = config.server; // identifies which local server the given socket is connected to
+        config.socket.segmentation = vars.data.server[config.server].config.message_segmentation; // maximum size of a WebSocket message frame body
         config.socket.hash = config.identifier;    // assigns a unique identifier to the socket based upon the socket's credentials
         config.socket.proxy = config.proxy;        // assigns the relationship between a socket and its proxy, if any
         config.socket.role = config.role;          // assigns socket creation location
@@ -208,7 +210,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     this.destroy();
                     server_halt({
                         action: "destroy",
-                        server: vars.data.servers[this.server_hash]
+                        server: vars.data.server[this.server_hash].config
                     }, null);
                 };
                 config.socket.on("close", death);
@@ -239,7 +241,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 } while (index > 0);
             }
         }
-        vars.data_store.sockets_tcp[config.server][encryption].push(config.socket);
+        vars.data_store.server[config.server].sockets_tcp[encryption].push(config.socket);
         vars.data.sockets_tcp.push(socket);
         socket_list_build();
         log.application(log_config);

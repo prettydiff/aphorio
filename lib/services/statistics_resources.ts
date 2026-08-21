@@ -384,7 +384,7 @@ const statistics:core_module_statistics_resources = {
             //     disk_complete();
             // },
             net = function services_statisticsData_netIO(type:"in"|"out"):void {
-                const keys:string[] = Object.keys(vars.data_store.sockets_tcp),
+                const keys:string[] = Object.keys(vars.data_store.server),
                     sockets = function core_status_netIO_sockets(list:websocket_client[]):void {
                         let index_list:number = list.length;
                         if (index_list > 0) {
@@ -408,12 +408,12 @@ const statistics:core_module_statistics_resources = {
                 if (index > 0) {
                     do {
                         index = index - 1;
-                        encryption = vars.data.servers[keys[index]].encryption;
+                        encryption = vars.data.server[keys[index]].config.encryption;
                         if (encryption === "both") {
-                            sockets(vars.data_store.sockets_tcp[keys[index]].open);
-                            sockets(vars.data_store.sockets_tcp[keys[index]].secure);
+                            sockets(vars.data_store.server[keys[index]].sockets_tcp.open);
+                            sockets(vars.data_store.server[keys[index]].sockets_tcp.secure);
                         } else {
-                            sockets(vars.data_store.sockets_tcp[keys[index]][encryption]);
+                            sockets(vars.data_store.server[keys[index]].sockets_tcp[encryption]);
                         }
                     } while (index > 0);
                 }
