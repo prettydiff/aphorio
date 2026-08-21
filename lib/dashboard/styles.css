@@ -263,7 +263,7 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
         display:block;
         .detail_item p{margin:0 0 0.5em}
         .note{clear:both;font-size:1.2em}
-        code{overflow:hidden;text-overflow:ellipsis;white-space:preserve-breaks}
+        code{overflow-wrap:anywhere;white-space:break-spaces;word-break:break-all}
         label{
             width:100%;
             span.details-redundant{text-indent:-2000em}

@@ -194,7 +194,7 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                                 https.fileFlag[type] = true;
                                 certCheck();
                             }
-                        }
+                        };
                         file.read({
                             callback: read_callback,
                             identifier: "cert",
