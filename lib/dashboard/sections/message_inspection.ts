@@ -41,7 +41,7 @@ const ui_message_inspection = function ui_message_inspection():void {
             },
             type: function dashboard_sections_messageInspection_type():void {
                 const value:string = dashboard.sections["message-inspection"].nodes.type[dashboard.sections["message-inspection"].nodes.type.selectedIndex].textContent,
-                    populate = function dashboard_sections_messageInspection_type_populate(list:store_compose|services_server_update, type:"docker-container"|"web-server"):void {
+                    populate = function dashboard_sections_messageInspection_type_populate(list:services_server_update|store_compose, type:"docker-container"|"web-server"):void {
                         const keys:string[] = Object.keys(list),
                             len:number = keys.length;
                         let option:HTMLElement = document.createElement("option"),
