@@ -55,6 +55,12 @@ const demo:core_module_demo = {
     instances: {},
     kill: function services_demo_kill(id:string, socket:websocket_client):void {
         if (demo.instances[id] !== undefined) {
+            const command_in:string = vars.commands.firewall_deny_in
+                    .replace(/#/g, demo.instances[id].port.toString())
+                    .replace("NAME_INBOUND", `${id.slice(0, 20)}_INBOUND`),
+                command_out:string = vars.commands.firewall_deny_out
+                    .replace(/#/g, demo.instances[id].port.toString())
+                    .replace("NAME_OUTBOUND", `${id.slice(0, 20)}_OUTBOUND`);
             if (socket !== null) {
                 const payload:services_demo = {
                     port: demo.instances[id].port,
@@ -68,16 +74,11 @@ const demo:core_module_demo = {
                     service: "services_demo"
                 }, socket, 3);
             }
-            spawn(vars.commands.firewall_deny_in
-                .replace(/#/g, demo.instances[id].port.toString())
-                .replace("NAME_INBOUND", `${id.slice(0, 20)}_INBOUND`), function services_demo_kill_firewallIn():void {
-                    spawn(vars.commands.firewall_deny_out
-                        .replace(/#/g, demo.instances[id].port.toString())
-                        .replace("NAME_OUTBOUND", `${id.slice(0, 20)}_OUTBOUND`), function services_demo_kill_firewallIn_firewallOut():void {
-                            demo.instances[id].child.kill(0);
-                            delete demo.instances[id];
-                        }).execute();
-                }).execute();
+            demo.instances[id].child.kill(0);
+            delete demo.instances[id];
+            spawn(command_in, function services_demo_kill_firewallIn():void {
+                spawn(command_out, null).execute();
+            }).execute();
         }
     },
     service: function services_demo_service(socket_data:socket_data, transmit:transmit_socket):void {
