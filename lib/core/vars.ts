@@ -30,13 +30,13 @@ const vars:core_vars = {
                     // file interpreter dependency
                     file: "",
                     // default debian firewall is ufw
-                    firewall_allow_in: "sudo ufw allow incoming from any to any #/tcp",
+                    firewall_allow_in: "sudo ufw allow in #/tcp",
                     // ufw does not make use of this command
-                    firewall_allow_out: "sudo ufw allow outgoing from any to any #/tcp",
+                    firewall_allow_out: "sudo ufw allow out #/tcp",
                     // default debian firewall is ufw
-                    firewall_deny_in: "sudo ufw deny #/tcp",
+                    firewall_deny_in: "sudo ufw delete allow in #/tcp",
                     // ufw does not make use of this command
-                    firewall_deny_out: "",
+                    firewall_deny_out: "sudo ufw delete allow out #/tcp",
                     // open an application
                     open: "xdg-open",
                     // gets disk partition data, unused in linux as the disk command is enough

@@ -71,11 +71,9 @@ const demo:core_module_demo = {
             spawn(vars.commands.firewall_deny_in
                 .replace(/#/g, demo.instances[id].port.toString())
                 .replace("NAME_INBOUND", `${id.slice(0, 20)}_INBOUND`), null).execute();
-            if (process.platform === "win32") {
-                spawn(vars.commands.firewall_deny_out
-                    .replace(/#/g, demo.instances[id].port.toString())
-                    .replace("NAME_OUTBOUND", `${id.slice(0, 20)}_OUTBOUND`), null).execute();
-            }
+            spawn(vars.commands.firewall_deny_out
+                .replace(/#/g, demo.instances[id].port.toString())
+                .replace("NAME_OUTBOUND", `${id.slice(0, 20)}_OUTBOUND`), null).execute();
             demo.instances[id].child.kill(0);
             delete demo.instances[id];
         }
@@ -131,7 +129,7 @@ const demo:core_module_demo = {
                         };
                     demo.instances[socket.hash] = payload;
                     spawn(vars.commands.firewall_allow_in
-                        .replace(/#/, data.port.toString())
+                        .replace(/#/g, data.port.toString())
                         .replace("NAME_INBOUND", `${hash.slice(0, 20)}_INBOUND`), function services_demo_service_stderr_firewallInbound():void {
                             const clock = function services_demo_service_stderr_firewallInbound_clock():void {
                                 demo.clock(data.time, hash, function services_demo_service_stderr_firewallInbound_clock(time_string:string):void {
@@ -152,7 +150,7 @@ const demo:core_module_demo = {
                                 });
                             };
                             spawn(vars.commands.firewall_allow_out
-                                .replace(/#/, data.port.toString())
+                                .replace(/#/g, data.port.toString())
                                 .replace("NAME_OUTBOUND", `${hash.slice(0, 20)}_OUTBOUND`), function services_demo_service_stderr_firewallInbound_firewallOutbound():void {
                                     clock();
                                 }).execute();
