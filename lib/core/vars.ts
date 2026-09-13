@@ -34,9 +34,9 @@ const vars:core_vars = {
                     // default debian firewall is ufw
                     firewall_allow_out: "sudo ufw allow out #/tcp",
                     // default debian firewall is ufw
-                    firewall_deny_in: "sudo ufw delete allow #/tcp",
-                    // ufw does not make use of this command
-                    firewall_deny_out: "",
+                    firewall_deny_in: "sudo ufw delete allow in #/tcp",
+                    // default debian firewall is ufw
+                    firewall_deny_out: "sudo ufw delete allow out #/tcp",
                     // open an application
                     open: "xdg-open",
                     // gets disk partition data, unused in linux as the disk command is enough
