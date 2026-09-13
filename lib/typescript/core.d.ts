@@ -295,6 +295,10 @@ interface core_vars_commands {
     docker_read: string;
     docker_stats: string;
     file: string;
+    firewall_allow_in: string;
+    firewall_allow_out: string;
+    firewall_deny_in: string;
+    firewall_deny_out: string;
     open: string;
     part: string;
     proc: string;

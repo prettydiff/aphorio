@@ -2,6 +2,7 @@
 import broadcast from "../transmit/broadcast.ts";
 import node from "../core/node.ts";
 import send from "../transmit/send.ts";
+import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
 const demo:core_module_demo = {
@@ -67,6 +68,14 @@ const demo:core_module_demo = {
                     service: "services_demo"
                 }, socket, 3);
             }
+            spawn(vars.commands.firewall_deny_in
+                .replace(/#/g, demo.instances[id].port.toString())
+                .replace("NAME_INBOUND", `${id}_INBOUND`), null);
+            if (process.platform === "win32") {
+                spawn(vars.commands.firewall_deny_out
+                    .replace(/#/g, demo.instances[id].port.toString())
+                    .replace("NAME_OUTBOUND", `${id}_OUTBOUND`), null);
+            }
             demo.instances[id].child.kill(0);
             delete demo.instances[id];
         }
@@ -121,22 +130,37 @@ const demo:core_module_demo = {
                             time_string: ""
                         };
                     demo.instances[socket.hash] = payload;
-                    demo.clock(data.time, hash, function services_demo_service_stderr_clock(time_string:string):void {
-                        demo.instances[socket.hash].time_string = time_string;
-                        if (socket !== null) {
-                            const payload_send:services_demo = {
-                                port: demo.instances[socket.hash].port,
-                                process: demo.instances[socket.hash].process,
-                                socket: socket.hash,
-                                time: demo.instances[socket.hash].time,
-                                time_string: time_string
+                    spawn(vars.commands.firewall_allow_in
+                        .replace(/#/, data.port.toString())
+                        .replace("NAME_INBOUND", `${hash}_INBOUND`), function services_demo_service_stderr_firewallInbound():void {
+                            const clock = function services_demo_service_stderr_firewallInbound_clock():void {
+                                demo.clock(data.time, hash, function services_demo_service_stderr_firewallInbound_clock(time_string:string):void {
+                                    demo.instances[socket.hash].time_string = time_string;
+                                    if (socket !== null) {
+                                        const payload_send:services_demo = {
+                                            port: demo.instances[socket.hash].port,
+                                            process: demo.instances[socket.hash].process,
+                                            socket: socket.hash,
+                                            time: demo.instances[socket.hash].time,
+                                            time_string: time_string
+                                        };
+                                        send({
+                                            data: payload_send,
+                                            service: "services_demo"
+                                        }, socket, 3);
+                                    }
+                                });
                             };
-                            send({
-                                data: payload_send,
-                                service: "services_demo"
-                            }, socket, 3);
-                        }
-                    });
+                            if (process.platform === "win32") {
+                                spawn(vars.commands.firewall_allow_out
+                                    .replace(/#/, data.port.toString())
+                                    .replace("NAME_OUTBOUND", `${hash}_OUTBOUND`), function services_demo_service_stderr_firewallInbound_firewallOutbound():void {
+                                        clock();
+                                    });
+                            } else {
+                                clock();
+                            }
+                        });
                 } catch(e:unknown) {
                     const payload:services_demo = {
                         port: 0,

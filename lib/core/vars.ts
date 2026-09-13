@@ -29,6 +29,14 @@ const vars:core_vars = {
                     docker_stats: "docker stats --no-stream --no-trunc --format json",
                     // file interpreter dependency
                     file: "",
+                    // default debian firewall is ufw
+                    firewall_allow_in: "ufw allow #/tcp",
+                    // ufw does not make use of this command
+                    firewall_allow_out: "",
+                    // default debian firewall is ufw
+                    firewall_deny_in: "ufw deny #/tcp",
+                    // ufw does not make use of this command
+                    firewall_deny_out: "",
                     // open an application
                     open: "xdg-open",
                     // gets disk partition data, unused in linux as the disk command is enough
@@ -70,6 +78,14 @@ const vars:core_vars = {
                     docker_stats: "docker stats --no-stream --no-trunc --format json",
                     // file interpreter dependency
                     file: "",
+                    // default windows firewall is Windows Defender Firewall
+                    firewall_allow_in: "New-NetFirewallRule -DisplayName \"NAME_INBOUND #\" -Direction Inbound -Profile Any -Action Allow -LocalPort # -Protocol TCP",
+                    // default windows firewall is Windows Defender Firewall
+                    firewall_allow_out: "New-NetFirewallRule -DisplayName \"NAME_OUTBOUND #\" -Direction Outbound -Profile Any -Action Allow -LocalPort # -Protocol TCP",
+                    // default windows firewall is Windows Defender Firewall
+                    firewall_deny_in: "Remove-NetFirewallRule -DisplayName \"NAME_INBOUND #\"",
+                    // default windows firewall is Windows Defender Firewall
+                    firewall_deny_out: "Remove-NetFirewallRule -DisplayName \"NAME_OUTBOUND #\"",
                     // open an application
                     open: "start",
                     // gets disk partition data
