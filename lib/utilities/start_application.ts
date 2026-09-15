@@ -30,8 +30,13 @@ const start_application = function utilities_startApplication(process_path:strin
                 task: function utilities_startApplication_admin():void {
                     spawn(vars.commands.admin_check, function utilities_startApplication_admin_callback(output:core_spawn_output):void {
                         const std:string = output.stdout.replace(/\s+/g, "");
-                        if (std === "0" || std === "true") {
+                        if (std === "0" || std.toLowerCase() === "true") {
                             vars.os.main.process.admin = true;
+                        } else {
+                            vars.commands.firewall_allow_in = "echo \"hello\"";
+                            vars.commands.firewall_allow_out = "echo \"hello\"";
+                            vars.commands.firewall_deny_in = "echo \"hello\"";
+                            vars.commands.firewall_deny_out = "echo \"hello\"";
                         }
                         start_prerequisites();
                     }, {
@@ -703,33 +708,37 @@ const start_application = function utilities_startApplication(process_path:strin
             server_audit: {
                 label: "Server audit removes directories of server artifacts no longer in the server inventory.",
                 task: function utilities_startApplication_serverAudit():void {
-                    node.fs.readdir(vars.path.servers, function utilities_startApplication_serverAudit_dirs(erd:node_error, dirs:string[]):void {
-                        if (erd === null) {
-                            const removed = function utilities_startApplication_serverAudit_dirs_removed():void {
-                                count = count - 1;
-                                if (count < 1) {
-                                    complete_tasks("server_audit");
-                                }
-                            };
-                            let index:number = dirs.length,
-                                count:number = 1;
-                            do {
-                                index = index - 1;
-                                if (vars.data.server[dirs[index]] === undefined) {
-                                    count = count + 1;
-                                    file.remove({
-                                        callback: removed,
-                                        exclusions: [],
-                                        location: vars.path.servers + dirs[index],
-                                        section: "startup"
-                                    });
-                                }
-                            } while (index > 0);
-                            removed();
-                        } else {
-                            complete_tasks("server_audit");
-                        }
-                    });
+                    if (vars.options.demo === true) {
+                        complete_tasks("server_audit");
+                    } else {
+                        node.fs.readdir(vars.path.servers, function utilities_startApplication_serverAudit_dirs(erd:node_error, dirs:string[]):void {
+                            if (erd === null) {
+                                const removed = function utilities_startApplication_serverAudit_dirs_removed():void {
+                                    count = count - 1;
+                                    if (count < 1) {
+                                        complete_tasks("server_audit");
+                                    }
+                                };
+                                let index:number = dirs.length,
+                                    count:number = 1;
+                                do {
+                                    index = index - 1;
+                                    if (vars.data.server[dirs[index]] === undefined) {
+                                        count = count + 1;
+                                        file.remove({
+                                            callback: removed,
+                                            exclusions: [],
+                                            location: vars.path.servers + dirs[index],
+                                            section: "startup"
+                                        });
+                                    }
+                                } while (index > 0);
+                                removed();
+                            } else {
+                                complete_tasks("server_audit");
+                            }
+                        });
+                    }
                 }
             },
             services_app: {

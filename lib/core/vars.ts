@@ -79,13 +79,13 @@ const vars:core_vars = {
                     // file interpreter dependency
                     file: "",
                     // default windows firewall is Windows Defender Firewall
-                    firewall_allow_in: "New-NetFirewallRule -DisplayName \"NAME_INBOUND #\" -Direction Inbound -Profile Any -Action Allow -LocalPort # -Protocol TCP",
+                    firewall_allow_in: "New-NetFirewallRule -DisplayName \"NAME_INBOUND_#\" -Direction Inbound -Profile Any -Action Allow -LocalPort # -Protocol TCP",
                     // default windows firewall is Windows Defender Firewall
-                    firewall_allow_out: "New-NetFirewallRule -DisplayName \"NAME_OUTBOUND #\" -Direction Outbound -Profile Any -Action Allow -LocalPort # -Protocol TCP",
+                    firewall_allow_out: "New-NetFirewallRule -DisplayName \"NAME_OUTBOUND_#\" -Direction Outbound -Profile Any -Action Allow -LocalPort # -Protocol TCP",
                     // default windows firewall is Windows Defender Firewall
-                    firewall_deny_in: "Remove-NetFirewallRule -DisplayName \"NAME_INBOUND #\"",
+                    firewall_deny_in: "Remove-NetFirewallRule -DisplayName \"NAME_INBOUND_#\"",
                     // default windows firewall is Windows Defender Firewall
-                    firewall_deny_out: "Remove-NetFirewallRule -DisplayName \"NAME_OUTBOUND #\"",
+                    firewall_deny_out: "Remove-NetFirewallRule -DisplayName \"NAME_OUTBOUND_#\"",
                     // open an application
                     open: "start",
                     // gets disk partition data
