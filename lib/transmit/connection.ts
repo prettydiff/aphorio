@@ -570,7 +570,6 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 blocked_host:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(store.origin) === true),
                 blocked_ip:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
                 blocked:boolean = (flags.referer === true || blocked_host === true || blocked_ip === true),
-                domain_redirect:boolean = (server.redirect_domain !== undefined && server.redirect_domain !== null && server.redirect_domain[store.origin] !== undefined && server.redirect_domain[store.origin] !== null),
                 domain_local:string[] = server.domain_local.concat(vars.environment.interfaces);
             // mutual TLS enforcement
             if (vars.data.server[server.id].config.mutual_tls === true) {
@@ -609,7 +608,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 store.domain = `open_socket_tunnel-${vars.data.server[server_id].config.name}`;
                 proxy_create(address.local.address, vars.data.server[server_id].ports.secure, false);
             // request indicates need for a proxy
-            } else if (domain_redirect === true) {
+            } else if (server.redirect_domain !== undefined && server.redirect_domain !== null && server.redirect_domain[store.origin] !== undefined && server.redirect_domain[store.origin] !== null) {
                 const pair:[string, number] = (socket.encrypted === true)
                         ? server.redirect_domain[`${store.origin}.secure`]
                         : server.redirect_domain[store.origin],
