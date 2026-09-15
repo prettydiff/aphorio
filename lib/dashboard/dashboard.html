@@ -259,6 +259,14 @@
                     </p>
                 </div>
                 <div class="section">
+                    <h4>My web server will not connect on the requested port.</h4>
+                    <p>
+                        The most likely scenario is a port conflict, as in multiple services are competing for access to the same port.
+                        The service that requests access first will win port assignment and the moment it goes down the second to request access will win assignment.
+                        To resolve this scenario every service requesting access to the desired port must be taken offline and then turned back on in order of desired access.
+                    </p>
+                </div>
+                <div class="section">
                     <h4>I created a redirect_asset rule for an absolute path, but it doesn't work.</h4>
                     <p>
                         For security reasons server paths are absolute to the server's asset location on the machine file system and not the root of the file system.
