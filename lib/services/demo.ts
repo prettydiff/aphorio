@@ -2,6 +2,7 @@
 import broadcast from "../transmit/broadcast.ts";
 import node from "../core/node.ts";
 import send from "../transmit/send.ts";
+import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
 const demo:core_module_demo = {
@@ -54,6 +55,12 @@ const demo:core_module_demo = {
     instances: {},
     kill: function services_demo_kill(id:string, socket:websocket_client):void {
         if (demo.instances[id] !== undefined) {
+            const command_in:string = vars.commands.firewall_deny_in
+                    .replace(/#/g, demo.instances[id].port.toString())
+                    .replace("NAME_INBOUND", `${id.slice(0, 20)}_INBOUND`),
+                command_out:string = vars.commands.firewall_deny_out
+                    .replace(/#/g, demo.instances[id].port.toString())
+                    .replace("NAME_OUTBOUND", `${id.slice(0, 20)}_OUTBOUND`);
             if (socket !== null) {
                 const payload:services_demo = {
                     port: demo.instances[id].port,
@@ -69,6 +76,9 @@ const demo:core_module_demo = {
             }
             demo.instances[id].child.kill(0);
             delete demo.instances[id];
+            spawn(command_in, function services_demo_kill_firewallIn():void {
+                spawn(command_out, null).execute();
+            }).execute();
         }
     },
     service: function services_demo_service(socket_data:socket_data, transmit:transmit_socket):void {
@@ -121,22 +131,33 @@ const demo:core_module_demo = {
                             time_string: ""
                         };
                     demo.instances[socket.hash] = payload;
-                    demo.clock(data.time, hash, function services_demo_service_stderr_clock(time_string:string):void {
-                        demo.instances[socket.hash].time_string = time_string;
-                        if (socket !== null) {
-                            const payload_send:services_demo = {
-                                port: demo.instances[socket.hash].port,
-                                process: demo.instances[socket.hash].process,
-                                socket: socket.hash,
-                                time: demo.instances[socket.hash].time,
-                                time_string: time_string
+                    spawn(vars.commands.firewall_allow_in
+                        .replace(/#/g, data.port.toString())
+                        .replace("NAME_INBOUND", `${hash.slice(0, 20)}_INBOUND`), function services_demo_service_stderr_firewallInbound():void {
+                            const clock = function services_demo_service_stderr_firewallInbound_clock():void {
+                                demo.clock(data.time, hash, function services_demo_service_stderr_firewallInbound_clock(time_string:string):void {
+                                    demo.instances[socket.hash].time_string = time_string;
+                                    if (socket !== null) {
+                                        const payload_send:services_demo = {
+                                            port: demo.instances[socket.hash].port,
+                                            process: demo.instances[socket.hash].process,
+                                            socket: socket.hash,
+                                            time: demo.instances[socket.hash].time,
+                                            time_string: time_string
+                                        };
+                                        send({
+                                            data: payload_send,
+                                            service: "services_demo"
+                                        }, socket, 3);
+                                    }
+                                });
                             };
-                            send({
-                                data: payload_send,
-                                service: "services_demo"
-                            }, socket, 3);
-                        }
-                    });
+                            spawn(vars.commands.firewall_allow_out
+                                .replace(/#/g, data.port.toString())
+                                .replace("NAME_OUTBOUND", `${hash.slice(0, 20)}_OUTBOUND`), function services_demo_service_stderr_firewallInbound_firewallOutbound():void {
+                                    clock();
+                                }).execute();
+                        }).execute();
                 } catch(e:unknown) {
                     const payload:services_demo = {
                         port: 0,
