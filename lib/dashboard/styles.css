@@ -327,9 +327,12 @@ select{background:var(--background_textarea);border-color:var(--border_input);bo
     .dependencies{
         li{list-style:disc;margin:0 0 0 1em}
     }
+    #servers-web .definition-body,
     .definition-body{
         display:none;margin:var(--h3-size) 0 0;
-        li{border-style:none;list-style:disc}
+        ol li{list-style:decimal}
+        ul li{list-style:disc}
+        li{border-style:none}
     }
     .edit{
         .summary{

@@ -1023,16 +1023,14 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                             <dt><em>redirect_domain</em> (object)</dt>
                             <dd><p>
                                 Redirects traffic to a different server location, such as a vanity domain that may or may not be served from the same server.
-                                Each instance uses the structure of <code>"domain": ["new domain", port_number]</code> because each server can represent 0 or more domain names.
-                                If the 'new domain' is an empty string the requested domain will be used.
-                                If the port number is not a number or 0 the current server's port number will be used.
+                                Each instance uses a three value array structure assigned to a domain name as an object key, such as: <code>"redirect_domain": {"domain": ["new domain", port_number, "default"]}</code></p>
+                                <ol start="0">
+                                    <li>The first value is a string representing the domain to redirect to. If this 'new domain' value is an empty string the current domain, the object key name, will be used.</li>
+                                    <li>The second value is a port number. If the port number is not a number or 0 the current server's port number will be used.</li>
+                                    <li>The third value is encryption on the proxy with supported values: <em>default</em>, <em>open</em>, <em>secure</em>.  The value "default" will impose encryption if the origin socket is encrypted.  The value "open" will create an unencrypted proxy and the value "secure" will create an encrypted proxy.</li>
+                                </ol>
                             </p><p>
-                                If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003]</code>
-                            </p><p>
-                                If the domain specific traffic should be redirected to an existing socket created from this application just supply the socket's id, a 128 hexadecimal, and the port value will be ignored: <code>"jellyfin.x": ["fe37dd66fa849ca98684160d542538b22c1edb576271d76b319ded4965d90143a0806fe1edf29b82b8740ec177880769629bdd1a0fb7cb97d7640e60c44833d3", 0]</code>
-                                The socket must merely exist from the current local instance of this application, which may include sockets associated with other web servers, but the socket must not already exist in a proxy relationship.
-                                If the specified socket does not exist or is in a proxy relationship the server will drop the request.
-                                If the given web server is TLS and the specified socket is not TLS the server will drop the request.
+                                If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003, "secure"]</code>
                             </p></dd>
                             <dt><em>single_socket</em> (boolean)</dt>
                             <dd><p>

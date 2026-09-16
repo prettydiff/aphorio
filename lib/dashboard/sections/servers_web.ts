@@ -126,7 +126,7 @@ const ui_servers_web = function ui_servers_web():void {
                                     ? []
                                     : Object.keys(serverData[config.name]);
                         let value:string = null,
-                            redirect:[string, number] = null,
+                            redirect:type_redirect_domain = null,
                             indexActual:number = keys.length,
                             indexSupported:number = 0,
                             pass:boolean = true;
@@ -169,8 +169,8 @@ const ui_servers_web = function ui_servers_web():void {
                                 } else if (config.type === "array") {
                                     if (config.name === "redirect_domain") {
                                         redirect = serverData.redirect_domain[keys[indexActual]];
-                                        if (redirect.length !== 2 || typeof redirect[0] !== "string" || typeof redirect[1] !== "number" ) {
-                                            populate(false, `Property '${keys[indexActual]}' of 'redirect_domain' is not a 2 index array with the first index of string type and the second of type number.`);
+                                        if (redirect.length !== 3 || typeof redirect[0] !== "string" || typeof redirect[1] !== "number" || (redirect[2] !== "default" && redirect[2] !== "open" && redirect[2] !== "secure")) {
+                                            populate(false, `Property '${keys[indexActual]}' of 'redirect_domain' is not a 3 index array with the first index of string type, the second of type number, and the third value of "default" or "open" or "secure".`);
                                             pass = false;
                                         }
                                     } else {
