@@ -262,15 +262,15 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                     }
                                 } else {
                                     stream = node.fs.createReadStream(input);
+                                    stream.on("close", function http_get_stat_statTest_fileItem_close():void {
+                                        http_write(socket, "\r\n0\r\n\r\n", true);
+                                    });
+                                    stream.on("data", function http_get_stat_statTest_fileItem_data(chunk:Buffer|string):void {
+                                        http_write(socket, `\r\n${Buffer.byteLength(chunk).toString(16)}\r\n`, false);
+                                        http_write(socket, chunk, false);
+                                    });
                                 }
                                 http_write(socket, headerText.join("\r\n"), false);
-                                stream.on("close", function http_get_stat_statTest_fileItem_close():void {
-                                    http_write(socket, "\r\n0\r\n\r\n", true);
-                                });
-                                stream.on("data", function http_get_stat_statTest_fileItem_data(chunk:Buffer|string):void {
-                                    http_write(socket, `\r\n${Buffer.byteLength(chunk).toString(16)}\r\n`, false);
-                                    http_write(socket, chunk, false);
-                                });
                             }
                         };
                         if (vars.environment.file === true) {

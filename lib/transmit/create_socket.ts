@@ -53,7 +53,9 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                 time: Date.now()
             });
             client.destroy();
-            config.callback(null, null, errorMessage);
+            if (typeof config.callback === "function") {
+                config.callback(null, null, errorMessage);
+            }
         },
         callbackReady = function transmit_createSocket_hash_ready():void {
             client.once("data", function transmit_createSocket_hash_ready_data(responseData:Buffer):void {
