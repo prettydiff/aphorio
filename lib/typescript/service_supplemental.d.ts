@@ -101,7 +101,7 @@ interface supplemental_server_config {
         [key:string]: store_string;
     };
     redirect_domain?: {
-        [key:string]: [string, number];
+        [key:string]: type_redirect_domain;
     };
     single_socket?: boolean;
     temporary?: boolean;

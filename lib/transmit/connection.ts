@@ -600,20 +600,27 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
             {
                 const blocked_host:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(store.origin) === true),
                     blocked_ip:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
-                    blocked:boolean = (flags.referer === true || blocked_host === true || blocked_ip === true),
-                    domain_redirect:boolean = (server.redirect_domain !== undefined && server.redirect_domain !== null && server.redirect_domain[store.origin] !== undefined && server.redirect_domain[store.origin] !== null);
+                    blocked:boolean = (flags.referer === true || blocked_host === true || blocked_ip === true || (domain_local.includes(store.origin) === false && socket.proxy === null)),
+                    redirect_domain:boolean = (server.redirect_domain !== undefined && server.redirect_domain !== null && server.redirect_domain[store.origin] !== undefined && server.redirect_domain[store.origin] !== null),
+                    redirect_tls:boolean = (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0),
+                    upgrade_tls:boolean = (flags.upgrade === true as boolean && flags.dashboard_http_test === false);
                 // origin is not in the socket's domain_local or redirect_domain lists
-                if (blocked === true || (domain_local.includes(store.origin) === false && socket.proxy === null)) {
+                if (blocked === true) {
                     socket.destroy();
                 // TLS data sent to open server - proxy the socket to the server's TLS port, if one is running
-                } else if (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0) {
+                } else if (redirect_tls === true) {
                     store.domain = `open_socket_tunnel-${vars.data.server[server_id].config.name}`;
                     proxy_create(address.local.address, vars.data.server[server_id].ports.secure, false);
                 // request indicates need for a proxy
-                } else if (domain_redirect === true) {
-                    const pair:[string, number] = (socket.encrypted === true)
+                } else if (redirect_domain === true) {
+                    const pair:type_redirect_domain = (socket.encrypted === true && server.redirect_domain[`${store.origin}.secure`] !== undefined)
                             ? server.redirect_domain[`${store.origin}.secure`]
                             : server.redirect_domain[store.origin],
+                        encryption:boolean = (pair[2] === "open")
+                            ? false
+                            : (pair[2] === "secure")
+                                ? true
+                                : socket.encrypted,
                         host:string = (pair[0] === undefined || pair[0] === null || pair[0] === "")
                             ? address.local.address
                             : pair[0],
@@ -628,9 +635,9 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             : host;
                     }
                     store.domain = `tls_socket_redirect-${vars.data.server[server_id].config.name}`;
-                    proxy_create(host, port, socket.encrypted);
+                    proxy_create(host, port, encryption);
                 // request is an HTTP upgrade
-                } else if (flags.upgrade === true as boolean && flags.dashboard_http_test === false) {
+                } else if (upgrade_tls) {
                     // * server option 'upgrade' must be true
                     // * must be http request with header 'upgrade-insecure-requests: 1'
                     // * requests from the dashboard http test tool are ignored
