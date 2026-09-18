@@ -379,6 +379,11 @@
                     </ul>
                     <p>If executing Docker on Windows these locations can only be accessed from within the Linux kernel via Windows Subsystem for Linux (WSL2).  Use this Window's command to insert a command into the Linux kernel: <code>wsl -e sh -c "linux command here"</code></p>
                 </div>
+                <div class="section">
+                    <h4>My docker containers server only unencrypted traffic but I use a third party proxy service for DNS and TLS that encrypts all traffic between them and the web server.  How can I get this docker service to work?</h4>
+                    <p>Sending HTTPS traffic to a docker service that does not listen for TLS will time out.  Instead the traffic needs to be proxied from the third party DNS provider to the desired docker service.  This is easily accomplished using a <em>domain_redirect</em> rule on any of the existing web servers.</p>
+                    <p>Such a rule would look like: <code class="inline">"domain_redirect": {"my_domain_name": ["", 3333, "open"]}</code> where the 3333 is the port number of the docker service.  See the Web Servers feature section for more information.</p>
+                </div>
             </div>
             <div class="section">
                 <h3>Terminal</h3>
@@ -1764,6 +1769,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <h3>Socket Creation</h3>
                 <p><button>Create Socket</button></p>
                 <p>Status: <em class="udp-socket-status">nothing</em></p>
+                <span class="clear"></span>
             </div>
         </div>
         <!-- udp-socket end-->

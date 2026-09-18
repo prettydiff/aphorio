@@ -19,7 +19,7 @@ const ui_ports_application = function ui_ports_application():void {
         receive: null,
         row: function dashboard_sections_portsApplication_row(record_item:type_lists, tr:HTMLElement):void {
             const record:supplemental_ports_application_item = record_item as supplemental_ports_application_item;
-            dashboard.tables.cell(tr, record.port.toString(), null);
+            dashboard.tables.cell(tr, (record.port === null) ? "null" : record.port.toString(), null);
             dashboard.tables.cell(tr, record.type, null);
             dashboard.tables.cell(tr, record.service, null);
             dashboard.tables.cell(tr, record.service_name, null);

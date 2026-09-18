@@ -97,78 +97,84 @@ const ui_udp_socket = function ui_udp_socket():void {
                 len:number = keys.length,
                 nodes:store_elements = dashboard.sections["udp-socket"].nodes,
                 events:store_function = dashboard.sections["udp-socket"].events;
-            if (len > 0) {
-                let index:number = 0,
-                    option:HTMLElement = null;
-                do {
-                    option = document.createElement("option");
-                    option.textContent = keys[index];
-                    if (dashboard.global.state.udp_socket !== null && dashboard.global.state.udp_socket !== undefined && keys[index] === dashboard.global.state.udp_socket.interfaces) {
-                        (nodes.interfaces as HTMLSelectElement).selectedIndex = index;
-                    }
-                    nodes.interfaces.appendChild(option);
-                    index = index + 1;
-                } while (index < len);
-            }
-            if (dashboard.global.state.udp_socket === null || dashboard.global.state.udp_socket === undefined) {
-                dashboard.global.state.udp_socket = {
-                    address_destination: "",
-                    address_source: "",
-                    interfaces: "",
-                    multicast_group: "",
-                    multicast_membership: "",
-                    multicast_source: "",
-                    port_destination: "",
-                    port_source: "",
-                    toggle_multicast: "none",
-                    toggle_role: "connect",
-                    toggle_type: "ipv6"
-                };
+            if (dashboard.global.payload.demo === true) {
+                const button:HTMLButtonElement = nodes.button_create as HTMLButtonElement;
+                button.disabled = true;
+                dashboard.sections["udp-socket"].nodes.status.textContent = "UDP socket creation is not available in demo mode.";
             } else {
-                if (dashboard.global.state.udp_socket.toggle_multicast === "membership") {
-                    (nodes.input_multicast_membership as HTMLInputElement).checked = true;
-                } else if (dashboard.global.state.udp_socket.toggle_multicast === "source") {
-                    (nodes.input_multicast_source as HTMLInputElement).checked = true;
-                } else {
-                    (nodes.input_multicast_none as HTMLInputElement).checked = true;
+                if (len > 0) {
+                    let index:number = 0,
+                        option:HTMLElement = null;
+                    do {
+                        option = document.createElement("option");
+                        option.textContent = keys[index];
+                        if (dashboard.global.state.udp_socket !== null && dashboard.global.state.udp_socket !== undefined && keys[index] === dashboard.global.state.udp_socket.interfaces) {
+                            (nodes.interfaces as HTMLSelectElement).selectedIndex = index;
+                        }
+                        nodes.interfaces.appendChild(option);
+                        index = index + 1;
+                    } while (index < len);
                 }
-                if (dashboard.global.state.udp_socket.toggle_role === "connect") {
-                    (nodes.input_role_client as HTMLInputElement).checked = true;
+                if (dashboard.global.state.udp_socket === null || dashboard.global.state.udp_socket === undefined) {
+                    dashboard.global.state.udp_socket = {
+                        address_destination: "",
+                        address_source: "",
+                        interfaces: "",
+                        multicast_group: "",
+                        multicast_membership: "",
+                        multicast_source: "",
+                        port_destination: "",
+                        port_source: "",
+                        toggle_multicast: "none",
+                        toggle_role: "connect",
+                        toggle_type: "ipv6"
+                    };
                 } else {
-                    (nodes.input_role_server as HTMLInputElement).checked = true;
+                    if (dashboard.global.state.udp_socket.toggle_multicast === "membership") {
+                        (nodes.input_multicast_membership as HTMLInputElement).checked = true;
+                    } else if (dashboard.global.state.udp_socket.toggle_multicast === "source") {
+                        (nodes.input_multicast_source as HTMLInputElement).checked = true;
+                    } else {
+                        (nodes.input_multicast_none as HTMLInputElement).checked = true;
+                    }
+                    if (dashboard.global.state.udp_socket.toggle_role === "connect") {
+                        (nodes.input_role_client as HTMLInputElement).checked = true;
+                    } else {
+                        (nodes.input_role_server as HTMLInputElement).checked = true;
+                    }
+                    if (dashboard.global.state.udp_socket.toggle_type === "ipv4") {
+                        (nodes.input_type_ipv4 as HTMLInputElement).checked = true;
+                    } else {
+                        (nodes.input_type_ipv6 as HTMLInputElement).checked = true;
+                    }
+                    (nodes.input_address_destination as HTMLInputElement).value = dashboard.global.state.udp_socket.address_destination;
+                    (nodes.input_address_source as HTMLInputElement).value = dashboard.global.state.udp_socket.address_source;
+                    (nodes.input_port_destination as HTMLInputElement).value = dashboard.global.state.udp_socket.port_destination;
+                    (nodes.input_port_source as HTMLInputElement).value = dashboard.global.state.udp_socket.port_source;
+                    nodes.multicast_group.getElementsByTagName("input")[0].value = dashboard.global.state.udp_socket.multicast_group;
+                    nodes.multicast_membership.getElementsByTagName("input")[0].value = dashboard.global.state.udp_socket.multicast_membership;
+                    nodes.multicast_source.getElementsByTagName("input")[0].value = dashboard.global.state.udp_socket.multicast_source;
                 }
-                if (dashboard.global.state.udp_socket.toggle_type === "ipv4") {
-                    (nodes.input_type_ipv4 as HTMLInputElement).checked = true;
-                } else {
-                    (nodes.input_type_ipv6 as HTMLInputElement).checked = true;
-                }
-                (nodes.input_address_destination as HTMLInputElement).value = dashboard.global.state.udp_socket.address_destination;
-                (nodes.input_address_source as HTMLInputElement).value = dashboard.global.state.udp_socket.address_source;
-                (nodes.input_port_destination as HTMLInputElement).value = dashboard.global.state.udp_socket.port_destination;
-                (nodes.input_port_source as HTMLInputElement).value = dashboard.global.state.udp_socket.port_source;
-                nodes.multicast_group.getElementsByTagName("input")[0].value = dashboard.global.state.udp_socket.multicast_group;
-                nodes.multicast_membership.getElementsByTagName("input")[0].value = dashboard.global.state.udp_socket.multicast_membership;
-                nodes.multicast_source.getElementsByTagName("input")[0].value = dashboard.global.state.udp_socket.multicast_source;
+                nodes.button_create.onclick = events.create;
+                nodes.input_multicast_membership.onclick = events.toggle_multicast;
+                nodes.input_multicast_none.onclick = events.toggle_multicast;
+                nodes.input_multicast_source.onclick = events.toggle_multicast;
+                nodes.input_role_client.onclick = events.toggle_role;
+                nodes.input_role_server.onclick = events.toggle_role;
+                nodes.input_type_ipv4.onclick = events.toggle_type;
+                nodes.input_type_ipv6.onclick = events.toggle_type;
+                nodes.input_address_destination.onblur = events.setState;
+                nodes.input_address_source.onblur = events.setState;
+                nodes.input_port_destination.onblur = events.setState;
+                nodes.input_port_source.onblur = events.setState;
+                nodes.interfaces.onchange = events.setState;
+                nodes.multicast_group.getElementsByTagName("input")[0].onblur = events.setState;
+                nodes.multicast_membership.getElementsByTagName("input")[0].onblur = events.setState;
+                nodes.multicast_source.getElementsByTagName("input")[0].onblur = events.setState;
+                events.toggle_multicast();
+                events.toggle_role();
+                events.toggle_type();
             }
-            nodes.button_create.onclick = events.create;
-            nodes.input_multicast_membership.onclick = events.toggle_multicast;
-            nodes.input_multicast_none.onclick = events.toggle_multicast;
-            nodes.input_multicast_source.onclick = events.toggle_multicast;
-            nodes.input_role_client.onclick = events.toggle_role;
-            nodes.input_role_server.onclick = events.toggle_role;
-            nodes.input_type_ipv4.onclick = events.toggle_type;
-            nodes.input_type_ipv6.onclick = events.toggle_type;
-            nodes.input_address_destination.onblur = events.setState;
-            nodes.input_address_source.onblur = events.setState;
-            nodes.input_port_destination.onblur = events.setState;
-            nodes.input_port_source.onblur = events.setState;
-            nodes.interfaces.onchange = events.setState;
-            nodes.multicast_group.getElementsByTagName("input")[0].onblur = events.setState;
-            nodes.multicast_membership.getElementsByTagName("input")[0].onblur = events.setState;
-            nodes.multicast_source.getElementsByTagName("input")[0].onblur = events.setState;
-            events.toggle_multicast();
-            events.toggle_role();
-            events.toggle_type();
         },
         nodes: {
             button_create: document.getElementById("udp-socket").getElementsByClassName("form")[1].getElementsByTagName("button")[0],
