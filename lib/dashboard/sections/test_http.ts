@@ -35,18 +35,23 @@ const ui_test_http = function ui_test_http():void {
             }
         },
         init: function dashboard_sections_testHttp_init():void {
-            // populate a default HTTP test value
-            dashboard.sections["test-http"].nodes.request.value = (dashboard.global.state.http === null || dashboard.global.state.http === undefined || typeof dashboard.global.state.http.request !== "string" || dashboard.global.state.http.request === "")
-                ? dashboard.global.payload.http_request
-                : dashboard.global.state.http.request;
-            dashboard.sections["test-http"].nodes.http_request.onclick = dashboard.sections["test-http"].events.request;
-            dashboard.sections["test-http"].nodes.responseBody.value = "";
-            dashboard.sections["test-http"].nodes.responseHeaders.value = "";
-            dashboard.sections["test-http"].nodes.responseURI.value = "";
-            if (dashboard.global.state.http !== null && dashboard.global.state.http !== undefined && dashboard.global.state.http.encryption === true) {
-                document.getElementById("test-http").getElementsByTagName("input")[1].checked =  true;
+            if (dashboard.global.payload.demo === true) {
+                dashboard.sections["test-http"].nodes.http_request.disabled = true;
+                dashboard.sections["test-http"].nodes.http_request.textContent = "Not available in demo mode.";
             } else {
-                document.getElementById("test-http").getElementsByTagName("input")[0].checked =  true;
+                // populate a default HTTP test value
+                dashboard.sections["test-http"].nodes.request.value = (dashboard.global.state.http === null || dashboard.global.state.http === undefined || typeof dashboard.global.state.http.request !== "string" || dashboard.global.state.http.request === "")
+                    ? dashboard.global.payload.http_request
+                    : dashboard.global.state.http.request;
+                dashboard.sections["test-http"].nodes.http_request.onclick = dashboard.sections["test-http"].events.request;
+                dashboard.sections["test-http"].nodes.responseBody.value = "";
+                dashboard.sections["test-http"].nodes.responseHeaders.value = "";
+                dashboard.sections["test-http"].nodes.responseURI.value = "";
+                if (dashboard.global.state.http !== null && dashboard.global.state.http !== undefined && dashboard.global.state.http.encryption === true) {
+                    document.getElementById("test-http").getElementsByTagName("input")[1].checked =  true;
+                } else {
+                    document.getElementById("test-http").getElementsByTagName("input")[0].checked =  true;
+                }
             }
         },
         nodes: {

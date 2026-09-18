@@ -609,7 +609,7 @@ declare global {
         };
         nodes: {
             encryption: HTMLInputElement;
-            http_request: HTMLElement;
+            http_request: HTMLButtonElement;
             request: HTMLTextAreaElement;
             responseBody: HTMLTextAreaElement;
             responseHeaders: HTMLTextAreaElement;
@@ -689,7 +689,7 @@ declare global {
             toggle_type: () => void;
         };
         nodes: {
-            button_create: HTMLElement;
+            button_create: HTMLButtonElement;
             input_address_destination: HTMLInputElement;
             input_address_source: HTMLInputElement;
             input_multicast_membership: HTMLInputElement;

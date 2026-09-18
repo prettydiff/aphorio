@@ -52,47 +52,52 @@ const ui_test_performance = function ui_test_performance():void {
             }
         },
         init: function dashboard_sections_testPerformance_init():void {
-            dashboard.sections["test-performance"].nodes.button_execute.onclick = dashboard.sections["test-performance"].events.submit;
-            if (dashboard.global.state.test_performance !== undefined) {
-                dashboard.sections["test-performance"].nodes.body.onblur = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.connect_address.onblur = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.connect_port.onblur = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.encrypt_false.onclick = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.encrypt_true.onclick = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.frame_body_size.onclick = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.measure_roundtrip.onclick = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.measure_send.onclick = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.quantity_tests.onblur = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.quantity_transmit.onblur = dashboard.utility.setState;
-                dashboard.sections["test-performance"].nodes.type_http.onclick = dashboard.sections["test-performance"].events.type;
-                dashboard.sections["test-performance"].nodes.type_websocket.onclick = dashboard.sections["test-performance"].events.type;
-                dashboard.sections["test-performance"].nodes.body.value = dashboard.global.state.test_performance.body;
-                dashboard.sections["test-performance"].nodes.connect_address.value = dashboard.global.state.test_performance.connect_address;
-                dashboard.sections["test-performance"].nodes.connect_port.value = String(dashboard.global.state.test_performance.connect_port);
-                if (dashboard.global.state.test_performance.encryption === true) {
-                    dashboard.sections["test-performance"].nodes.encrypt_true.checked = true;
-                } else {
-                    dashboard.sections["test-performance"].nodes.encrypt_false.checked = true;
+            if (dashboard.global.payload.demo === true) {
+                dashboard.sections["test-performance"].nodes.button_execute.disabled = true;
+                dashboard.sections["test-performance"].nodes.status.textContent = "Performance tests are not available in demo mode.";
+            } else {
+                dashboard.sections["test-performance"].nodes.button_execute.onclick = dashboard.sections["test-performance"].events.submit;
+                if (dashboard.global.state.test_performance !== undefined) {
+                    dashboard.sections["test-performance"].nodes.body.onblur = dashboard.utility.setState;
+                    dashboard.sections["test-performance"].nodes.connect_address.onblur = dashboard.utility.setState;
+                    dashboard.sections["test-performance"].nodes.connect_port.onblur = dashboard.utility.setState;
+                    dashboard.sections["test-performance"].nodes.encrypt_false.onclick = dashboard.utility.setState;
+                    dashboard.sections["test-performance"].nodes.encrypt_true.onclick = dashboard.utility.setState;
+                    dashboard.sections["test-performance"].nodes.frame_body_size.onclick = dashboard.utility.setState;
+                    dashboard.sections["test-performance"].nodes.measure_roundtrip.onclick = dashboard.utility.setState;
+                    dashboard.sections["test-performance"].nodes.measure_send.onclick = dashboard.utility.setState;
+                    dashboard.sections["test-performance"].nodes.quantity_tests.onblur = dashboard.utility.setState;
+                    dashboard.sections["test-performance"].nodes.quantity_transmit.onblur = dashboard.utility.setState;
+                    dashboard.sections["test-performance"].nodes.type_http.onclick = dashboard.sections["test-performance"].events.type;
+                    dashboard.sections["test-performance"].nodes.type_websocket.onclick = dashboard.sections["test-performance"].events.type;
+                    dashboard.sections["test-performance"].nodes.body.value = dashboard.global.state.test_performance.body;
+                    dashboard.sections["test-performance"].nodes.connect_address.value = dashboard.global.state.test_performance.connect_address;
+                    dashboard.sections["test-performance"].nodes.connect_port.value = String(dashboard.global.state.test_performance.connect_port);
+                    if (dashboard.global.state.test_performance.encryption === true) {
+                        dashboard.sections["test-performance"].nodes.encrypt_true.checked = true;
+                    } else {
+                        dashboard.sections["test-performance"].nodes.encrypt_false.checked = true;
+                    }
+                    dashboard.sections["test-performance"].nodes.frame_body_size.value = String(dashboard.global.state.test_performance.frame_body_size);
+                    dashboard.sections["test-performance"].nodes.quantity_tests.value = String(dashboard.global.state.test_performance.quantity_tests);
+                    dashboard.sections["test-performance"].nodes.quantity_transmit.value = String(dashboard.global.state.test_performance.quantity_transmit);
+                    if (dashboard.global.state.test_performance.measure === "roundtrip") {
+                        dashboard.sections["test-performance"].nodes.measure_roundtrip.checked = true;
+                    } else {
+                        dashboard.sections["test-performance"].nodes.measure_send.checked = true;
+                    }
+                    if (dashboard.global.state.test_performance.type === "http") {
+                        dashboard.sections["test-performance"].nodes.type_http.checked = true;
+                        dashboard.sections["test-performance"].nodes.measure_roundtrip.disabled = true;
+                        dashboard.sections["test-performance"].nodes.measure_send.disabled = true;
+                    } else {
+                        dashboard.sections["test-performance"].nodes.type_websocket.checked = true;
+                        dashboard.sections["test-performance"].nodes.measure_roundtrip.disabled = false;
+                        dashboard.sections["test-performance"].nodes.measure_send.disabled = false;
+                    }
+                    dashboard.sections["test-performance"].nodes.status.textContent = "Test not started.";
+                    dashboard.sections["test-performance"].nodes.button_execute.disabled = false;
                 }
-                dashboard.sections["test-performance"].nodes.frame_body_size.value = String(dashboard.global.state.test_performance.frame_body_size);
-                dashboard.sections["test-performance"].nodes.quantity_tests.value = String(dashboard.global.state.test_performance.quantity_tests);
-                dashboard.sections["test-performance"].nodes.quantity_transmit.value = String(dashboard.global.state.test_performance.quantity_transmit);
-                if (dashboard.global.state.test_performance.measure === "roundtrip") {
-                    dashboard.sections["test-performance"].nodes.measure_roundtrip.checked = true;
-                } else {
-                    dashboard.sections["test-performance"].nodes.measure_send.checked = true;
-                }
-                if (dashboard.global.state.test_performance.type === "http") {
-                    dashboard.sections["test-performance"].nodes.type_http.checked = true;
-                    dashboard.sections["test-performance"].nodes.measure_roundtrip.disabled = true;
-                    dashboard.sections["test-performance"].nodes.measure_send.disabled = true;
-                } else {
-                    dashboard.sections["test-performance"].nodes.type_websocket.checked = true;
-                    dashboard.sections["test-performance"].nodes.measure_roundtrip.disabled = false;
-                    dashboard.sections["test-performance"].nodes.measure_send.disabled = false;
-                }
-                dashboard.sections["test-performance"].nodes.status.textContent = "Test not started.";
-                dashboard.sections["test-performance"].nodes.button_execute.disabled = false;
             }
         },
         nodes: {

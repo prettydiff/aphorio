@@ -224,17 +224,9 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                 test_http();
             }
         };
-    if (typeof data.quantity_tests === "number" && typeof data.quantity_transmit === "number" && data.quantity_tests > 0 && data.quantity_transmit > 0) {
-        if (vars.options.demo === true) {
-            if (data.quantity_tests > 10) {
-                data.quantity_tests = 10;
-                output.quantity_tests = data.quantity_tests;
-            }
-            if (data.quantity_transmit > 1000) {
-                data.quantity_transmit = 1000;
-                output.quantity_transmit = data.quantity_transmit;
-            }
-        }
+    if (vars.options.demo === true) {
+        times("Performance testing is not available in demo mode.", true);
+    } else if (typeof data.quantity_tests === "number" && typeof data.quantity_transmit === "number" && data.quantity_tests > 0 && data.quantity_transmit > 0) {
         time_start = process.hrtime.bigint();
         test_type();
     } else {

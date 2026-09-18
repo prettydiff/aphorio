@@ -131,7 +131,7 @@ const ui_shared_services = function ui_shared_services():void {
                                     output.push(`"${property}": {`);
                                     do {
                                         if (property === "redirect_domain") {
-                                            output.push(`    "${sanitize(list[index])}": ${`["${sanitize(serverData.redirect_domain[list[index]][0])}", ${serverData.redirect_domain[list[index]][1]}]`},`);
+                                            output.push(`    "${sanitize(list[index])}": ${`["${sanitize(serverData.redirect_domain[list[index]][0])}", ${serverData.redirect_domain[list[index]][1]}, "${serverData.redirect_domain[list[index]][2]}"]`},`);
                                         } else {
                                             objValue(list[index]);
                                         }
