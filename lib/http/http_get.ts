@@ -222,46 +222,45 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                             if (method === "HEAD") {
                                 http_write(socket, headerText.join("\r\n"), true);
                             } else {
-                                let range:string = "",
-                                    stream:node_fs_ReadStream = null;
+                                let stream:node_fs_ReadStream = null;
                                 const status:string = (function http_get_stat_statTest_fileItem_partial():string {
-                                    let index:number = headerList.length;
-                                    do {
-                                        index = index - 1;
-                                        if (headerList[index].toLowerCase().indexOf("range:") === 0) {
-                                            range = headerList[index].toLowerCase().replace(/range:\s*bytes=/, "");
-                                            return "HTTP/1.1 206";
-                                        }
-                                    } while (index > 0);
-                                    return "HTTP/1.1 200";
-                                }());
+                                        let index:number = headerList.length;
+                                        do {
+                                            index = index - 1;
+                                            if (headerList[index].toLowerCase().indexOf("range:") === 0) {
+                                                const range:string = headerList[index].toLowerCase().replace(/range:\s*bytes=/, ""),
+                                                    ranges:string[] = range.split("-"),
+                                                    size:number = Number(stat.size),
+                                                    start:number = (ranges[0] === "")
+                                                        ? 0
+                                                        : Number(ranges[0]),
+                                                    end:number = (ranges[1] === "" || ranges[1] === undefined)
+                                                        ? Math.min(start + (1024 * 1024), size)
+                                                        : Number(ranges[1].split("/")[0]),
+                                                    empty:boolean = (end - start === 0);
+                                                    if (empty === true) {
+                                                        headerText[0] = "HTTP/1.1 200";
+                                                        headerText[2] = "content-length: 0";
+                                                    } else {
+                                                        if (end === size) {
+                                                            headerText.splice(2, 0, `content-range: bytes ${start}-${end - 1}/${size}`);
+                                                        } else {
+                                                            headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
+                                                        }
+                                                        stream = node.fs.createReadStream(input, {
+                                                            end: end,
+                                                            start: start
+                                                        });
+                                                    }
+                                                return "HTTP/1.1 206";
+                                            }
+                                        } while (index > 0);
+                                        stream = node.fs.createReadStream(input);
+                                        return "HTTP/1.1 200";
+                                    }());
                                 headerText[0] = status;
-                                if (status === "HTTP/1.1 206") {
-                                    const ranges:string[] = range.split("-"),
-                                        size:number = Number(stat.size),
-                                        start:number = (ranges[0] === "")
-                                            ? 0
-                                            : Number(ranges[0]),
-                                        end:number = (ranges[1] === "" || ranges[1] === undefined)
-                                            ? Math.min(start + (1024 * 1024), size)
-                                            : Number(ranges[1].split("/")[0]),
-                                        empty:boolean = (end - start === 0);
-                                    if (empty === true) {
-                                        headerText[0] = "HTTP/1.1 200";
-                                        headerText[2] = "content-length: 0";
-                                    } else {
-                                        stream = node.fs.createReadStream(input, {
-                                            end: end,
-                                            start: start
-                                        });
-                                        if (end === size) {
-                                            headerText.splice(2, 0, `content-range: bytes ${start}-${end - 1}/${size}`);
-                                        } else {
-                                            headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
-                                        }
-                                    }
-                                } else {
-                                    stream = node.fs.createReadStream(input);
+                                http_write(socket, headerText.join("\r\n"), false);
+                                if (stream !== null) {
                                     stream.on("close", function http_get_stat_statTest_fileItem_close():void {
                                         http_write(socket, "\r\n0\r\n\r\n", true);
                                     });
@@ -270,7 +269,6 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                                         http_write(socket, chunk, false);
                                     });
                                 }
-                                http_write(socket, headerText.join("\r\n"), false);
                             }
                         };
                         if (vars.environment.file === true) {
