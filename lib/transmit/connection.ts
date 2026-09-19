@@ -530,6 +530,18 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 }
                             }
                         };
+                    proxy.on("error", function transmit_connection_handshake_proxyCreate_error(proxy_error:node_error):void {
+                        log.application({
+                            error: proxy_error,
+                            message: "UDP connection error.",
+                            origin: `${host} ${port}`,
+                            section: "servers-web",
+                            status: "error",
+                            time: Date.now()
+                        });
+                        proxy.destroy();
+                        socket.destroy();
+                    });
                     proxy.once("ready", function transmit_connection_handshake_proxyCreate_ready():void {
                         // requested socket
                         socket_extension({
