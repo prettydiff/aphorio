@@ -233,12 +233,36 @@ const statistics:core_module_statistics_resources = {
                                 vars.stats.containers[identifier].disk_out.data.push(0);
                                 complete(identifier, "io");
                             },
-                            mem = function services_statisticsData_diskComplete_spawnPS_mem(file:Buffer, location:string, identifier:string):void {
+                            mem = function services_statisticsData_diskComplete_spawnPS_mem(stats:Buffer, location:string, identifier:string):void {
                                 if (vars.stats.containers[identifier] !== undefined && vars.stats.containers[identifier] !== null) {
-                                    const value:number = (file === null)
-                                        ? null
-                                        : Number(file.toString());
-                                    if (file === null) {
+                                    const raw:string[] = (stats === null)
+                                            ? []
+                                            : stats.toString().split("\n");
+                                    let index:number = raw.length,
+                                        anon:number = 0,
+                                        file:number = 0,
+                                        slab:number = 0,
+                                        sock:number = 0,
+                                        inactive_file:number = 0,
+                                        value:number = 0;
+                                    if (index > 0) {
+                                        do {
+                                            index = index - 1;
+                                            if (raw[index].indexOf("anon ") === 0) {
+                                                anon = Number(raw[index].replace("anon ", ""));
+                                            } else if (raw[index].indexOf("file ") === 0) {
+                                                file = Number(raw[index].replace("file ", ""));
+                                            } else if (raw[index].indexOf("slab ") === 0) {
+                                                slab = Number(raw[index].replace("slab ", ""));
+                                            } else if (raw[index].indexOf("sock ") === 0) {
+                                                sock = Number(raw[index].replace("sock ", ""));
+                                            } else if (raw[index].indexOf("inactive_file ") === 0) {
+                                                inactive_file = Number(raw[index].replace("inactive_file ", ""));
+                                            }
+                                        } while (index > 0);
+                                    }
+                                    value = (anon + file + slab + sock) - inactive_file;
+                                    if (stats === null) {
                                         vars.stats.containers[identifier].mem.data.push(0);
                                     } else {
                                         const per:number = Math.round((value / vars.os.main.machine.memory.total) * 10000) / 100;
@@ -321,7 +345,7 @@ const statistics:core_module_statistics_resources = {
                                             io(Buffer.from(out.stdout), "", identifier);
                                         }
                                     }, {type: id}).execute();
-                                    spawn(vars.commands.docker_read.replace("address", `${path_id}memory.current`), function services_statisticsData_diskComplete_spawnMem(out:core_spawn_output, identifier:string):void {
+                                    spawn(vars.commands.docker_read.replace("address", `${path_id}memory.stat`), function services_statisticsData_diskComplete_spawnMem(out:core_spawn_output, identifier:string):void {
                                         if (out.stdout.length > 0) {
                                             mem(Buffer.from(out.stdout), "", identifier);
                                         }
@@ -349,7 +373,7 @@ const statistics:core_module_statistics_resources = {
                                     file.read({
                                         callback: mem,
                                         identifier: id,
-                                        location: `${path_id}memory.current`,
+                                        location: `${path_id}memory.stat`,
                                         no_file: null,
                                         section: "statistics-resources"
                                     });
