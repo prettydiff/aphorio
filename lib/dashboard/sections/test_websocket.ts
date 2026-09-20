@@ -145,50 +145,54 @@ const ui_test_websocket = function ui_test_websocket():void {
                 emSecure:HTMLElement = document.createElement("em"),
                 port_open:number = dashboard.global.payload.server[dashboard.global.payload.id.dashboard_server].ports.open,
                 port_secure:number = dashboard.global.payload.server[dashboard.global.payload.id.dashboard_server].ports.secure;
-            dashboard.sections["test-websocket"].tools.handshake();
-            dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
-            dashboard.sections["test-websocket"].nodes.button_send.onclick = dashboard.sections["test-websocket"].events.message_send;
-            dashboard.sections["test-websocket"].nodes.encrypt_false.onclick = dashboard.sections["test-websocket"].events.encryption;
-            dashboard.sections["test-websocket"].nodes.encrypt_true.onclick = dashboard.sections["test-websocket"].events.encryption;
-            dashboard.sections["test-websocket"].nodes.message_send_body.onkeyup = dashboard.sections["test-websocket"].events.keyup_message;
-            dashboard.sections["test-websocket"].nodes.message_send_frame.onblur = dashboard.sections["test-websocket"].events.keyup_frame;
-            dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "";
-            // server socket status messaging
-            if (isNaN(port_open) === true) {
-                dashboard.sections["test-websocket"].nodes.encrypt_true.checked = true;
-                h4.style.display = "none";
-                scheme.style.display = "none";
-                emSecure.textContent = String(port_secure);
-                dashboard.sections["test-websocket"].nodes.handshake_label.appendText("secure - ");
-                dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
-            } else if (isNaN(port_secure) === true) {
-                dashboard.sections["test-websocket"].nodes.encrypt_false.checked = true;
-                h4.style.display = "none";
-                scheme.style.display = "none";
-                emOpen.textContent = String(port_open);
-                dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
-                dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
+            if (dashboard.global.payload.demo === true) {
+                dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "Websocket tests are disabled in demo mode.";
+                dashboard.sections["test-websocket"].nodes.button_handshake.disabled = true;
             } else {
-                emOpen.textContent = String(port_open);
-                emSecure.textContent = String(port_secure);
-                dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
-                dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
-                dashboard.sections["test-websocket"].nodes.handshake_label.appendText(", secure - ");
-                dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
-            }
-            dashboard.sections["test-websocket"].nodes.encrypt_false.onclick = dashboard.sections["test-websocket"].events.encryption;
-            dashboard.sections["test-websocket"].nodes.encrypt_true.onclick = dashboard.sections["test-websocket"].events.encryption;
-            dashboard.sections["test-websocket"].events.encryption(null);
-            if (dashboard.global.state.test_websocket === null || dashboard.global.state.test_websocket === undefined) {
-                dashboard.global.state.test_websocket = {
-                    request_timeout: "0",
-                    send_frame: "",
-                    send_message: ""
-                };
-            } else {
-                dashboard.sections["test-websocket"].nodes.handshake_timeout.value = dashboard.global.state.test_websocket.request_timeout;
-                if (dashboard.global.state.test_websocket.send_frame === "" || location.href.includes("test_browser") === true) {
-                    dashboard.sections["test-websocket"].nodes.message_send_frame.value = `{
+                dashboard.sections["test-websocket"].tools.handshake();
+                dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
+                dashboard.sections["test-websocket"].nodes.button_send.onclick = dashboard.sections["test-websocket"].events.message_send;
+                dashboard.sections["test-websocket"].nodes.encrypt_false.onclick = dashboard.sections["test-websocket"].events.encryption;
+                dashboard.sections["test-websocket"].nodes.encrypt_true.onclick = dashboard.sections["test-websocket"].events.encryption;
+                dashboard.sections["test-websocket"].nodes.message_send_body.onkeyup = dashboard.sections["test-websocket"].events.keyup_message;
+                dashboard.sections["test-websocket"].nodes.message_send_frame.onblur = dashboard.sections["test-websocket"].events.keyup_frame;
+                dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "";
+                // server socket status messaging
+                if (isNaN(port_open) === true) {
+                    dashboard.sections["test-websocket"].nodes.encrypt_true.checked = true;
+                    h4.style.display = "none";
+                    scheme.style.display = "none";
+                    emSecure.textContent = String(port_secure);
+                    dashboard.sections["test-websocket"].nodes.handshake_label.appendText("secure - ");
+                    dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
+                } else if (isNaN(port_secure) === true) {
+                    dashboard.sections["test-websocket"].nodes.encrypt_false.checked = true;
+                    h4.style.display = "none";
+                    scheme.style.display = "none";
+                    emOpen.textContent = String(port_open);
+                    dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
+                    dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
+                } else {
+                    emOpen.textContent = String(port_open);
+                    emSecure.textContent = String(port_secure);
+                    dashboard.sections["test-websocket"].nodes.handshake_label.appendText("open - ");
+                    dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emOpen);
+                    dashboard.sections["test-websocket"].nodes.handshake_label.appendText(", secure - ");
+                    dashboard.sections["test-websocket"].nodes.handshake_label.appendChild(emSecure);
+                }
+                dashboard.sections["test-websocket"].nodes.encrypt_false.onclick = dashboard.sections["test-websocket"].events.encryption;
+                dashboard.sections["test-websocket"].nodes.encrypt_true.onclick = dashboard.sections["test-websocket"].events.encryption;
+                dashboard.sections["test-websocket"].events.encryption(null);
+                if (dashboard.global.state.test_websocket === null || dashboard.global.state.test_websocket === undefined) {
+                    dashboard.global.state.test_websocket = {
+                        request_timeout: "0",
+                        send_frame: "",
+                        send_message: ""
+                    };
+                } else {
+                    dashboard.sections["test-websocket"].nodes.handshake_timeout.value = dashboard.global.state.test_websocket.request_timeout;
+                    if (dashboard.global.state.test_websocket.send_frame === "" || location.href.includes("test_browser") === true) {
+                        dashboard.sections["test-websocket"].nodes.message_send_frame.value = `{
     "extended": 0,
     "fin": false,
     "len": 0,
@@ -200,14 +204,15 @@ const ui_test_websocket = function ui_test_websocket():void {
     "rsv3": false,
     "startByte": 0,
 }`;
-                    dashboard.sections["test-websocket"].nodes.frame_validate.style.display = "block";
-                } else {
-                    dashboard.sections["test-websocket"].nodes.message_send_frame.value = dashboard.global.state.test_websocket.send_frame;
-                    if ((/frame\s*:\s*false/).test(dashboard.sections["test-websocket"].nodes.message_send_frame.value) === true) {
                         dashboard.sections["test-websocket"].nodes.frame_validate.style.display = "block";
+                    } else {
+                        dashboard.sections["test-websocket"].nodes.message_send_frame.value = dashboard.global.state.test_websocket.send_frame;
+                        if ((/frame\s*:\s*false/).test(dashboard.sections["test-websocket"].nodes.message_send_frame.value) === true) {
+                            dashboard.sections["test-websocket"].nodes.frame_validate.style.display = "block";
+                        }
                     }
+                    dashboard.sections["test-websocket"].nodes.message_send_body.value = dashboard.global.state.test_websocket.send_message;
                 }
-                dashboard.sections["test-websocket"].nodes.message_send_body.value = dashboard.global.state.test_websocket.send_message;
             }
         },
         nodes: {

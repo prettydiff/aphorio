@@ -1,5 +1,6 @@
 
 import hash from "../core/hash.ts";
+import log from "../core/log.ts";
 import node from "../core/node.ts";
 import socket_list_build from "./socket_list_build.ts";
 import vars from "../core/vars.ts";
@@ -85,6 +86,17 @@ const socket_udp:core_module_udp = {
                     };
                 hash(config_hash);
             };
+        dgram.on("error", function transmit_socketUDP_create_status(udp_error:node_error):void {
+            log.application({
+                error: udp_error,
+                message: "UDP connection error.",
+                origin: `${address} ${port}`,
+                section: "servers-web",
+                status: "error",
+                time: Date.now()
+            });
+            dgram.disconnect();
+        });
         if (data.role === "server") {
             // eslint-disable-next-line no-restricted-syntax
             dgram.bind({
