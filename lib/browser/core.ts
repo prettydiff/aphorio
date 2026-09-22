@@ -75,73 +75,6 @@ const core = function core(config:config_core):socket_object {
                         this.appendChild(document.createTextNode(text));
                     }
                 },
-                // bytes - converts a number into something like "501,789,753,344 bytes (467.3GiB), 10%"
-                bytes = function core_dom_bytes(this:number, input?:number):string {
-                    if (input === undefined) {
-                        input = Number(this);
-                    }
-                    //find the string length of input and divide into triplets
-                    let output:string = "",
-                        length:number = input.toString().length;
-
-                    const triples:number = (function terminal_common_prettyBytes_triples():number {
-                            if (length < 22) {
-                                return Math.floor((length - 1) / 3);
-                            }
-                            //it seems the maximum supported length of integer is 22
-                            return 8;
-                        }()),
-                        //each triplet is worth an exponent of 1024 (2 ^ 10)
-                        power:number   = (function terminal_common_prettyBytes_power():number {
-                            let a:number = triples - 1,
-                                b:number = 1024;
-                            if (triples === 0) {
-                                return 0;
-                            }
-                            if (triples === 1) {
-                                return 1024;
-                            }
-                            do {
-                                b = b * 1024;
-                                a = a - 1;
-                            } while (a > 0);
-                            return b;
-                        }()),
-                        //kilobytes, megabytes, and so forth...
-                        unit:string[] = [
-                            "",
-                            "KiB",
-                            "MiB",
-                            "GiB",
-                            "TiB",
-                            "PiB",
-                            "EiB",
-                            "ZiB",
-                            "YiB"
-                        ];
-
-                    if (typeof input !== "number" || Number.isNaN(input) === true || input < 0 || input % 1 > 0) {
-                        //input not a positive integer
-                        output = "0B";
-                    } else if (triples === 0) {
-                        //input less than 1000
-                        output = `${input}B`;
-                    } else {
-                        //for input greater than 999
-                        length = Math.floor((input / power) * 100) / 100;
-                        output = length.toFixed(1) + unit[triples];
-                    }
-                    return output;
-                },
-                // bytes - converts a number into a format like "1,000,000 bytes (0.9MiB)"
-                bytesLong = function core_dom_bytesLong(this:number):string {
-                    const input:number = Number(this);
-                    if (isNaN(input) === true) {
-                        return "0 bytes";
-                    }
-                    // @ts-expect-error Error ('this' context of type 'void' is not assignable to method's 'this' of type 'number') appears incorrect
-                    return `${input.commas()} bytes (${bytes(input)})`;
-                },
                 // getAncestor - A method to walk up the DOM towards the documentElement.
                 // * identifier: string - The string value to search for.
                 // * selector: "class", "id", "name" - The part of the element to compare the identifier against.
@@ -417,12 +350,13 @@ const core = function core(config:config_core):socket_object {
             Element.prototype.removeHighlight        = removeHighlight;
 
             BigInt.prototype.time_elapsed            = universal.time_elapsed;
-            Number.prototype.bytes                   = bytes;
-            Number.prototype.bytesLong               = bytesLong;
+            Number.prototype.bytes                   = universal.bytes;
+            Number.prototype.bytes_long              = universal.bytes_long;
             Number.prototype.commas                  = universal.commas;
             Number.prototype.dateTime                = universal.dateTime;
             Number.prototype.time_elapsed            = universal.time_elapsed;
 
+            String.prototype.bytes_numb              = universal.bytes_numb;
             String.prototype.capitalize              = universal.capitalize;
             String.prototype.file_sanitize           = universal.file_sanitize;
         };

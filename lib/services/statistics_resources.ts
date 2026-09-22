@@ -119,12 +119,12 @@ const statistics:core_module_statistics_resources = {
                                 disk = data[index].BlockIO.split(" / ");
                                 net_data = data[index].NetIO.split(" / ");
                                 vars.stats.containers[id].cpu.data.push(Number(data[index].CPUPerc.replace("%", "")));
-                                vars.stats.containers[id].disk_in.data.push(disk[0].bytes());
-                                vars.stats.containers[id].disk_out.data.push(disk[1].bytes());
-                                vars.stats.containers[id].mem.data.push(data[index].MemUsage.split(" / ")[0].bytes());
+                                vars.stats.containers[id].disk_in.data.push(disk[0].bytes_numb());
+                                vars.stats.containers[id].disk_out.data.push(disk[1].bytes_numb());
+                                vars.stats.containers[id].mem.data.push(data[index].MemUsage.split(" / ")[0].bytes_numb());
                                 vars.stats.containers[id].mem.data.push(Number(data[index].MemPerc.replace("%", "")));
-                                vars.stats.containers[id].net_in.data.push(net_data[0].bytes());
-                                vars.stats.containers[id].net_out.data.push(net_data[1].bytes());
+                                vars.stats.containers[id].net_in.data.push(net_data[0].bytes_numb());
+                                vars.stats.containers[id].net_out.data.push(net_data[1].bytes_numb());
                                 vars.stats.containers[id].threads.data.push(data[index].PIDs);
                                 vars.stats.containers[id].cpu.labels.push(time);
                                 vars.stats.containers[id].disk_in.labels.push(time);

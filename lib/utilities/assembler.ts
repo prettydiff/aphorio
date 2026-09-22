@@ -90,7 +90,7 @@ const assembler = function utilities_assembler(process_path:string, callback:() 
                     script = script.replace("\"services_test_browser\": null,", "\"services_test_browser\": dashboard.utility.test_browser,")
                         .replace(/dashboard\.global\.loaded\s*=\s*true;/, "dashboard.global.loaded=true;if(dashboard.global.state.test_automation!==null){dashboard.utility.test_browser({data:dashboard.global.state.test_automation,service:\"services_test_browser\"});}");
                 }
-                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_big:${universal.bytes_big.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time_elapsed:${universal.time_elapsed.toString()}};(${script}(${core.toString()}));`;
+                total_script = `${chart + xterm}const universal={bytes:${universal.bytes.toString()},bytes_long:${universal.bytes_long.toString()},bytes_numb:${universal.bytes_numb.toString()},capitalize:${universal.capitalize.toString()},commas:${universal.commas.toString()},dateTime:${universal.dateTime.toString()},time_elapsed:${universal.time_elapsed.toString()}};(${script}(${core.toString()}));`;
                 vars.environment.dashboard_page = vars.environment.dashboard_page
                     .replace(/Server Management Dashboard/g, `${vars.environment.name.capitalize()} Dashboard `)
                     .replace("replace_javascript", total_script)

@@ -149,6 +149,12 @@ interface core_module_peer {
     request_ui: (socket_data:socket_data) => void;
 }
 
+interface core_module_remoteShell {
+    init: (socket:websocket_client) => void;
+    prompt: string;
+    receiver: (data:Buffer) => void;
+}
+
 interface core_module_spawn {
     close: () => void;
     command: string;
@@ -180,8 +186,9 @@ interface core_module_udp {
 }
 
 interface core_module_universal {
-    bytes: () => number;
-    bytes_big: () => bigint;
+    bytes: (input?:number) => string;
+    bytes_long: () => string;
+    bytes_numb: () => number;
     capitalize: () => string;
     commas: () => string;
     dateTime: (date:boolean, timeZone_offset:number) => string;

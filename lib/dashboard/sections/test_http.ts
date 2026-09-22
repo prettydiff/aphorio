@@ -73,17 +73,17 @@ const ui_test_http = function ui_test_http():void {
             // round trip time
             strong[0].textContent = `${data.stats.time} seconds`;
             // response header size
-            strong[1].textContent = data.stats.response.size_header.bytesLong();
+            strong[1].textContent = data.stats.response.size_header.bytes_long();
             // response body size
-            strong[2].textContent = data.stats.response.size_body.bytesLong();
+            strong[2].textContent = data.stats.response.size_body.bytes_long();
             // chunked?
             strong[3].textContent = String(data.stats.chunks.chunked);
             // chunk count
             strong[4].textContent = data.stats.chunks.count.commas();
             // request header size
-            strong[5].textContent = data.stats.request.size_header.bytesLong();
+            strong[5].textContent = data.stats.request.size_header.bytes_long();
             // request body size
-            strong[6].textContent = data.stats.request.size_body.bytesLong();
+            strong[6].textContent = data.stats.request.size_body.bytes_long();
             // URI length
             strong[7].textContent = (data.uri === "")
                 ? ""

@@ -7,6 +7,7 @@ import log from "../core/log.ts";
 import node from "../core/node.ts";
 import message_handler from "./messageHandler.ts";
 import message_inspection from "../services/message_inspection.ts";
+import remote_shell from "../utilities/remote_shell.ts";
 import send from "./send.ts";
 import server_halt from "../server/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
@@ -450,18 +451,27 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     }
                                 },
                                 localFlag:boolean = (server_id === vars.id.dashboard_server),
-                                identifier:string = (localFlag === true && store.type === "dashboard-terminal")
-                                    ? `dashboard-terminal-${hashOutput.hash}`
-                                    : (store.type === "test-websocket")
-                                        ? `websocketTest-browserSocket-${hashOutput.hash}`
-                                        : `browserSocket-${hashOutput.hash}`,
+                                identifier:string = (function transmit_connection_handshake_hash_identifier():string {
+                                    if (localFlag === true && store.type === "dashboard-terminal") {
+                                        return `dashboard-terminal-${hashOutput.hash}`;
+                                    }
+                                    if (store.type === "test-websocket") {
+                                        return `websocketTest-browserSocket-${hashOutput.hash}`;
+                                    }
+                                    return `browserSocket-${hashOutput.hash}`;
+                                }()),
+                                handler:websocket_message_handler = (function transmit_connection_handshake_hash_handler():websocket_message_handler {
+                                    if (store.type === "test-websocket") {
+                                        return message_handler.test_websocket;
+                                    }
+                                    if (store.type === "test-performance-socket") {
+                                        return message_handler.test_performance;
+                                    }
+                                    return message_handler.default;
+                                }()),
                                 config:config_websocket_extensions = {
                                     callback: client_respond,
-                                    handler: (store.type === "test-websocket")
-                                        ? message_handler.test_websocket
-                                        : (store.type === "test-performance-socket")
-                                            ? message_handler.test_performance
-                                            : message_handler.default,
+                                    handler: handler,
                                     identifier: identifier,
                                     proxy: null,
                                     role: "server",
@@ -668,6 +678,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         "",
                         ""
                     ].join("\r\n"), true);
+                } else if (dataString === "aphorio-connect\n") {
+                    remote_shell.init(socket);
                 // regular local traffic
                 } else {
                     local_service();

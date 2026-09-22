@@ -1298,11 +1298,12 @@ const start_application = function utilities_startApplication(process_path:strin
         machine_id:boolean = false;
 
     BigInt.prototype.time_elapsed = universal.time_elapsed;
+    Number.prototype.bytes = universal.bytes;
+    Number.prototype.bytes_long = universal.bytes_long;
     Number.prototype.commas = universal.commas;
     Number.prototype.dateTime = universal.dateTime;
     Number.prototype.time_elapsed = universal.time_elapsed;
-    String.prototype.bytes = universal.bytes;
-    String.prototype.bytes_big = universal.bytes_big;
+    String.prototype.bytes_numb = universal.bytes_numb;
     String.prototype.capitalize = universal.capitalize;
     String.prototype.file_sanitize = universal.file_sanitize;
 

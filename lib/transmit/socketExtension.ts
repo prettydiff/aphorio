@@ -227,7 +227,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 ? (message_handler[config.server] === undefined)
                     ? config.handler
                     : message_handler[config.server]
-                : config.handler;   // assigns an event handler to process incoming messages
+                : config.handler;                  // assigns an event handler to process incoming messages
             if (config.type !== "http") {
                 if (config.socket.handler !== null && config.socket.handler !== undefined) {
                     config.socket.on("data", receiver);

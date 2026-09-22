@@ -32,15 +32,14 @@ declare global {
 
     interface Number {
         bytes: (input?:number) => string;
-        bytesLong: () => string;
+        bytes_long: () => string;
         commas: () => string;
         dateTime: (date:boolean, timezone_offset:number) => string;
         time_elapsed: (start?:bigint) => string;
     }
 
     interface String {
-        bytes: () => number;
-        bytes_big: () => bigint;
+        bytes_numb: () => number;
         capitalize: () => string;
         file_sanitize: () => string;
     }
