@@ -29,7 +29,7 @@ const demo:core_module_demo = {
         }
     },
     clock_self: function services_demo_clockSelf():void {
-        if (vars.options.demo === true) {
+        if (vars.options.mode === "demo") {
             const time_end:number = Date.now() + 600000,
                 payload:services_demo = {
                     port: vars.data.server[vars.id.dashboard_server].ports.open,

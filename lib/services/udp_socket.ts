@@ -4,7 +4,7 @@ import socket_udp from "../transmit/socket_udp.ts";
 import vars from "../core/vars.ts";
 
 const udp_socket = function services_udpSocket(socket_data:socket_data, transmit:transmit_socket):void {
-    if (vars.options.demo === false) {
+    if (vars.options.mode !== "demo") {
         const data:services_udp_socket = socket_data.data as services_udp_socket;
         data.handler = null;
         socket_udp.create(socket_data, function services_udpSocket_callback(socket_udp:transmit_udp):void {

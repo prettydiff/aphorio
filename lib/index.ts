@@ -11,9 +11,32 @@ vars.path.sep = node.path.sep;
     let process_path:string = "",
         index:number = process.argv.length,
         colonIndex:number = null,
-        arg:string = null,
-        value:string = null,
-        numb:number = null;
+        arg:type_options = null,
+        value:string = null;
+    const assign = function index_assign(key:type_options, value:string):void {
+        if (key === "mode" && (value === "certificate" || value === "demo" || value === "server" || value === "test")) {
+            vars.options.mode = value;
+        } else if (typeof vars.options[key] === "number") {
+            const numb:number = Number(value);
+            if (isNaN(numb) === false) {
+                const int:number = Math.floor(numb);
+                if (
+                    ((key === "port-open" || key === "port-secure") && int > -1 && int < 65536) ||
+                    (key !== "port-open" && key !== "port-secure")
+                ) {
+                    vars.options[key as "delay-intervals"] = int;
+                }
+            }
+        } else if (typeof vars.options[key] === "string" && typeof value === "string") {
+            vars.options[key as "list"] = value;
+        } else if (typeof vars.options[key] === "boolean") {
+            if (value === null || value === "true") {
+                vars.options[key as "no-color"] = true;
+            } else if (value === "false") {
+                vars.options[key as "no-color"] = false;
+            }
+        }
+    };
     if (vars.commands === undefined) {
         log.shell([`Operating system type ${process.platform} is not yet supported.`]);
         process.exit(1);
@@ -27,35 +50,17 @@ vars.path.sep = node.path.sep;
         } else {
             colonIndex = process.argv[index].indexOf(":");
             arg = (colonIndex > 0)
-                ? process.argv[index].slice(0, colonIndex).toLowerCase().replace(/^--/, "")
-                : process.argv[index].toLowerCase().replace(/^--/, "");
-            if (vars.options[arg as "test"] !== undefined || vars.options[arg.slice(0, arg.indexOf(":")) as "test"] !== undefined) {
-                value = (colonIndex > 0)
-                    ? process.argv[index].slice(colonIndex + 1)
-                    : null;
-                numb = Number(value);
-                if (arg.indexOf("browser") === 0) {
-                    vars.options["browser"] = value;
-                } else if (arg.indexOf("delay-intervals") === 0 && isNaN(numb) === false) {
-                    vars.options["delay-intervals"] = Math.floor(numb);
-                } else if (arg.indexOf("delay-time") === 0 && isNaN(numb) === false) {
-                    vars.options["delay-time"] = Math.floor(numb);
-                } else if (arg.indexOf("list") === 0) {
-                    vars.options["list"] = value;
-                } else if (arg.indexOf("port-open") === 0 && isNaN(numb) === false && numb > 0 && numb < 65536) {
-                    vars.options["port-open"] = Math.floor(numb);
-                } else if (arg.indexOf("port-secure") === 0 && isNaN(numb) === false && numb > 0 && numb < 65536) {
-                    vars.options["port-secure"] = Math.floor(numb);
-                } else {
-                    vars.options[arg as "test"] = true;
-                }
+                ? process.argv[index].slice(0, colonIndex).toLowerCase().replace(/^--/, "") as type_options
+                : process.argv[index].toLowerCase().replace(/^--/, "") as type_options;
+            value = (colonIndex > 0)
+                ? process.argv[index].slice(colonIndex + 1)
+                : null;
+            if (vars.options[arg as type_options] !== undefined) {
+                assign(arg, value);
             }
         }
     } while (index > 0);
-    if (process.argv.includes("certificate") === true) {
-        vars.options.certificate = true;
-    }
-    if (vars.options.test === true) {
+    if (vars.options.mode === "test") {
         vars.test.testing = true;
     }
 

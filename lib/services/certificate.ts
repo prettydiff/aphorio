@@ -39,11 +39,23 @@ const certificate = function services_certificate(config:config_certificate):voi
                                     }
                                     if (count > 1) {
                                         vars.data.server[config.id].certificates_client = store_cert;
-                                        vars.data.server[config.id].config.certificate_path = {
-                                            ca: `${vars.path.project}servers${vars.path.sep + config.id + vars.path.sep}certs${vars.path.sep}int.crt`,
-                                            cert: `${vars.path.project}servers${vars.path.sep + config.id + vars.path.sep}certs${vars.path.sep}server.crt`,
-                                            key: `${vars.path.project}servers${vars.path.sep + config.id + vars.path.sep}certs${vars.path.sep}server.key`
-                                        };
+                                        if (vars.data.server[config.id].config.certificate_path === undefined) {
+                                            vars.data.server[config.id].config.certificate_path = {
+                                                ca: `${vars.path.project}servers${vars.path.sep + config.id + vars.path.sep}certs${vars.path.sep}int.crt`,
+                                                cert: `${vars.path.project}servers${vars.path.sep + config.id + vars.path.sep}certs${vars.path.sep}server.crt`,
+                                                key: `${vars.path.project}servers${vars.path.sep + config.id + vars.path.sep}certs${vars.path.sep}server.key`
+                                            };
+                                        } else {
+                                            if (vars.data.server[config.id].config.certificate_path.ca === "" && vars.data.server[config.id].config.certificate_path.cert === "" && vars.data.server[config.id].config.certificate_path.key === "") {
+                                                vars.data.server[config.id].config.certificate_path.ca = `${vars.path.project}servers${vars.path.sep + config.id + vars.path.sep}certs${vars.path.sep}int.crt`;
+                                            }
+                                            if (vars.data.server[config.id].config.certificate_path.cert === "") {
+                                                vars.data.server[config.id].config.certificate_path.cert = `${vars.path.project}servers${vars.path.sep + config.id + vars.path.sep}certs${vars.path.sep}server.crt`;
+                                            }
+                                            if (vars.data.server[config.id].config.certificate_path.key === "") {
+                                                vars.data.server[config.id].config.certificate_path.key = `${vars.path.project}servers${vars.path.sep + config.id + vars.path.sep}certs${vars.path.sep}server.key`;
+                                            }
+                                        }
                                         save(config.callback, "servers-web");
                                     }
                                 };
@@ -233,7 +245,7 @@ const certificate = function services_certificate(config:config_certificate):voi
                 section: "servers-web"
             });
         };
-    if (vars.options.demo === true) {
+    if (vars.options.mode === "demo") {
         config.callback();
     } else {
         file.stat({

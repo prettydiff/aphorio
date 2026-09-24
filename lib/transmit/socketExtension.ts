@@ -131,7 +131,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     } while (index > 0);
 
                     // kill off an unused demo dashboard
-                    if (vars.options.demo === true && vars.data.server[socket.server_hash].sockets.length < 1 && socket.type !== "http-get") {
+                    if (vars.options.mode === "demo" && vars.data.server[socket.server_hash].sockets.length < 1 && socket.type !== "http-get") {
                         setTimeout(function transmit_socketExtension_demoKill():void {
                             if (vars.data.server[socket.server_hash].sockets.length < 1) {
                                 process.exit(0);

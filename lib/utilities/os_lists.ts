@@ -8,7 +8,7 @@ import vars from "../core/vars.ts";
 // cspell: words blockdevices, bootable, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, stcp, sudp, volu
 
 const os_list = function utilities_osList(type_os:type_os_services, callback:(output:socket_data) => void):void {
-    if (vars.options.demo === true) {
+    if (vars.options.mode === "demo") {
         os_demo(type_os, callback);
     } else {
         let cpu_max_number:number = null,

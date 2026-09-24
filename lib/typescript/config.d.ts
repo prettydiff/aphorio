@@ -119,6 +119,13 @@ declare global {
         time: number;
     }
 
+    interface config_log_start {
+        conflict: boolean;
+        name: string;
+        type: "open" | "secure" | "tcp" | "udp";
+        value: number;
+    }
+
     interface config_os_comparison {
         dict: boolean;
         lists: {

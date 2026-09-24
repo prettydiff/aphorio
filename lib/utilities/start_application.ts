@@ -297,7 +297,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                 }
                             } while (index_srv > 0);
                         }
-                        if (vars.options.certificate === true) {
+                        if (vars.options.mode === "certificate") {
                             let index:number = process.argv.length,
                                 id_test:boolean = false;
                             do {
@@ -350,7 +350,7 @@ const start_application = function utilities_startApplication(process_path:strin
                             }
                         }
                     };
-                    if (vars.options.demo === true) {
+                    if (vars.options.mode === "demo") {
                         callback(null);
                     } else {
                         file.read({
@@ -452,7 +452,7 @@ const start_application = function utilities_startApplication(process_path:strin
             cgroup: {
                 label: "Find Linux cgroup address for gathering precision docker performance metrics.",
                 task: function utilities_startApplication_cgroup():void {
-                    if (vars.options.demo === false && vars.environment.features["compose-containers"] === true && vars.environment.compose_status === "" && (vars.os.main.process.admin === true || process.platform === "win32")) {
+                    if (vars.options.mode !== "demo" && vars.environment.features["compose-containers"] === true && vars.environment.compose_status === "" && (vars.os.main.process.admin === true || process.platform === "win32")) {
                         const command:string = (process.platform === "win32")
                                 ? vars.commands.docker_read.replace("cat address", "systemctl status containerd")
                                 : "systemctl status containerd",
@@ -522,7 +522,7 @@ const start_application = function utilities_startApplication(process_path:strin
             compose_variables: {
                 label: "Gathering stored docker compose variables.",
                 task: function utilities_startApplication_composeVariables():void {
-                    if (vars.options.demo === true) {
+                    if (vars.options.mode === "demo") {
                         vars.data.compose_variables = {
                             APP_DISK: "/path_to_apps",
                             DATA_DISK: "/path_to_disk",
@@ -734,7 +734,7 @@ const start_application = function utilities_startApplication(process_path:strin
             server_audit: {
                 label: "Server audit removes directories of server artifacts no longer in the server inventory.",
                 task: function utilities_startApplication_serverAudit():void {
-                    if (vars.options.demo === true) {
+                    if (vars.options.mode === "demo") {
                         complete_tasks("server_audit");
                     } else {
                         node.fs.readdir(vars.path.servers, function utilities_startApplication_serverAudit_dirs(erd:node_error, dirs:string[]):void {
@@ -1057,7 +1057,7 @@ const start_application = function utilities_startApplication(process_path:strin
                             "127.0.0.1",
                             "::1"
                         ],
-                        encryption: (vars.options.demo === true)
+                        encryption: (vars.options.mode === "demo")
                             ? "open"
                             : "both",
                         id: "",
@@ -1090,7 +1090,7 @@ const start_application = function utilities_startApplication(process_path:strin
                                         versions:string = (bun === undefined)
                                             ? `${asterisk} Application executed from ${vars.text.green}Node.js${vars.text.none} at version ${vars.text.cyan + process.versions.node + vars.text.none}.`
                                             : `${asterisk} Application executed from ${vars.text.green}bun${vars.text.none} at Node.js API version ${vars.text.cyan + process.versions.node + vars.text.none} and bun version ${vars.text.cyan + bun + vars.text.none}.`,
-                                        demo_text:string = (vars.options.demo === true)
+                                        demo_text:string = (vars.options.mode === "demo")
                                             ? `${vars.text.angry}demo${vars.text.none}`
                                             : `${vars.text.green}service${vars.text.none}`,
                                         logs:string[] = [
@@ -1117,11 +1117,15 @@ const start_application = function utilities_startApplication(process_path:strin
                                             }
                                             return str;
                                         },
-                                        logItem = function utilities_startApplication_completeTasks_ready_start_serverCallback_logItem(name:string, encryption:"open"|"secure"|"tcp"|"udp", value:string):void {
-                                            const conflict:boolean = (value.indexOf(vars.text.angry) === 0),
-                                                str:string = `${asterisk} ${pad(name, 0, "right")} - ${pad(encryption, 1, "right")} - ${value}`;
-                                            if (conflict === true) {
-                                                if (Number(value.replace(vars.text.none, "").replace(vars.text.angry, "")) < 1025) {
+                                        log_start = function utilities_startApplication_completeTasks_ready_start_serverCallback_logStart(config:config_log_start):void {
+                                            const value:string = (config.type === "tcp" || config.type === "udp")
+                                                    ? vars.text.green + pad(config.value.toString(), 2, "left") + vars.text.none
+                                                    : (config.conflict === true)
+                                                        ? vars.text.angry + config.value + vars.text.none
+                                                        : vars.text.green + config.value + vars.text.none,
+                                                str:string = `${asterisk} ${pad(name, 0, "right")} - ${pad(config.type, 1, "right")} - ${value}`;
+                                            if (config.conflict === true) {
+                                                if (config.value < 1025) {
                                                     logs.push(`${str} (Server offline, typically due to insufficient access for reserved port or port conflict.)`);
                                                 } else {
                                                     logs.push(`${str} (Server offline, typically due to port conflict.)`);
@@ -1187,24 +1191,32 @@ const start_application = function utilities_startApplication(process_path:strin
                                         do {
                                             if (vars.data.server[servers[index]].ports !== undefined) {
                                                 if (vars.data.server[servers[index]].config.encryption === "both") {
-                                                    logItem(vars.data.server[servers[index]].config.name, "open", (vars.data.server[servers[index]].ports.open === 0)
-                                                        ? vars.text.angry + vars.data.server[servers[index]].config.ports.open + vars.text.none
-                                                        : vars.text.green + vars.data.server[servers[index]].ports.open + vars.text.none
-                                                    );
-                                                    logItem(vars.data.server[servers[index]].config.name, "secure", (vars.data.server[servers[index]].ports.secure === 0)
-                                                        ? vars.text.angry + vars.data.server[servers[index]].config.ports.secure + vars.text.none
-                                                        : vars.text.green + vars.data.server[servers[index]].ports.secure + vars.text.none
-                                                    );
+                                                    log_start({
+                                                        conflict: (vars.data.server[servers[index]].ports.open === 0),
+                                                        name: vars.data.server[servers[index]].config.name,
+                                                        type: "open",
+                                                        value: vars.data.server[servers[index]].ports.open
+                                                    });
+                                                    log_start({
+                                                        conflict: (vars.data.server[servers[index]].ports.secure === 0),
+                                                        name: vars.data.server[servers[index]].config.name,
+                                                        type: "secure",
+                                                        value: vars.data.server[servers[index]].ports.secure
+                                                    });
                                                 } else if (vars.data.server[servers[index]].config.encryption === "open") {
-                                                    logItem(vars.data.server[servers[index]].config.name, "open", (vars.data.server[servers[index]].ports.open === 0)
-                                                        ? vars.text.angry + vars.data.server[servers[index]].config.ports.open + vars.text.none
-                                                        : vars.text.green + vars.data.server[servers[index]].ports.open + vars.text.none
-                                                    );
+                                                    log_start({
+                                                        conflict: (vars.data.server[servers[index]].ports.open === 0),
+                                                        name: vars.data.server[servers[index]].config.name,
+                                                        type: "open",
+                                                        value: vars.data.server[servers[index]].ports.open
+                                                    });
                                                 } else if (vars.data.server[servers[index]].config.encryption === "secure") {
-                                                    logItem(vars.data.server[servers[index]].config.name, "secure", (vars.data.server[servers[index]].ports.secure === 0)
-                                                        ? vars.text.angry + vars.data.server[servers[index]].config.ports.secure + vars.text.none
-                                                        : vars.text.green + vars.data.server[servers[index]].ports.secure + vars.text.none
-                                                    );
+                                                    log_start({
+                                                        conflict: (vars.data.server[servers[index]].ports.secure === 0),
+                                                        name: vars.data.server[servers[index]].config.name,
+                                                        type: "secure",
+                                                        value: vars.data.server[servers[index]].ports.secure
+                                                    });
                                                 }
                                             }
                                             index = index + 1;
@@ -1248,14 +1260,19 @@ const start_application = function utilities_startApplication(process_path:strin
                                                     } while (index_ports < len_ports);
                                                     index_ports = 0;
                                                     do {
-                                                        logItem(vars.data.containers[keys[index]].name, ports[index_ports][1], vars.text.green + pad(ports[index_ports][0].toString(), 2, "left") + vars.text.none);
+                                                        log_start({
+                                                            conflict: false,
+                                                            name: vars.data.containers[keys[index]].name,
+                                                            type: ports[index_ports][1],
+                                                            value: ports[index_ports][0]
+                                                        });
                                                         index_ports = index_ports + 1;
                                                     } while (index_ports < len_ports);
                                                 }
                                                 index = index + 1;
                                             } while (index < len);
                                         }
-                                        if (vars.options.demo === true) {
+                                        if (vars.options.mode === "demo") {
                                             demo.clock_self();
                                         }
                                         log.shell(logs, true);
@@ -1333,7 +1350,7 @@ const start_application = function utilities_startApplication(process_path:strin
     String.prototype.capitalize = universal.capitalize;
     String.prototype.file_sanitize = universal.file_sanitize;
 
-    if (vars.options.certificate === true) {
+    if (vars.options.mode === "certificate") {
         prerequisite_tasks.servers.task();
     } else {
         vars.environment.hashes = node.crypto.getHashes();

@@ -36,7 +36,7 @@ const terminal:core_module_terminal = {
                 name: socket.server_hash,
                 rows: config.rows
             }),
-            demo:boolean = vars.options.demo,
+            demo:boolean = (vars.options.mode === "demo"),
             close = function services_terminalShell_close():void {
                 socket.pty = null;
                 socket.pty_status = "killed";

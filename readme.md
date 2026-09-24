@@ -1,5 +1,8 @@
 
 <!-- cspell: words buildx, containerd, dpkg, keyrings, kurkle, winget -->
+<style>
+table code{white-space:pre}
+</style>
 
 # Aphorio
 Like Windows Task Manager, but also works on Linux and displays web servers, docker containers, and more.
@@ -46,56 +49,134 @@ Determine which features to exclude by simply setting a boolean value in the `fe
 
 ## Nerd Stuff
 ### Shell commands
-* `npm run lint` - Executes ESLint for TypeScript to analyze the application against a bunch of custom draconian rules. This option is not available by default, and requires use of these steps:
-   1. Rename `package.json` to `package_x.json`.
-   1. Rename `package_dev.json` to `package.json`.
-   1. Execute `npm install` from the project directory.
-   1. Execute `npm run lint`.
-   1. Provide any suggested code changes and execute `npm run lint` as needed.
-   1. Rename `package.json` to `package_dev.json`.
-   1. Rename `package_x.json` to `package.json`.
-   1. Execute `npm install`.
-   1. Execute `git checkout node_modules/file`.
-   1. Execute `git checkout node_modules/@lydell`.
-* `npm run server-bun` or `bun ./lib/index.ts` - Executes the application with bun
-* `npm run server-node` or `node ./lib/index.ts` - Executes the application with Node.js
-* `npm run test-bun` or  `bun ./lib/index.ts test` - Runs the test automation with bun
-* `npm run test-node` or  `node ./lib/index.ts test` - Runs the test automation with Node.js
-* `npm run tsc` - Executes the TypeScript compiler to perform explicit type checking
+Please note that Docker support on Linux requires executing this application administratively, such as a systemd service or locally as: `sudo /home/user_id/.nvm/versions/node/v26.7.0/bin/node /home/user_id/aphorio/lib/index.ts`
 
-Please note that for Docker support the `npm run server` command must be executed using an administrative account and/or shell.
+#### NPM Scripted Commands
+<table>
+<thead><tr>
+   <td>Command</td><td>Description</td>
+</tr></thead><tbody>
+<tr>
+   <td><code>npm run lint</code></td>
+   <td>Executes ESLint for TypeScript to analyze the application against a bunch of custom draconian rules. This option is not available by default, and requires use of these steps:<ol>
+      <li>Rename <code>package.json</code> to <code>package_x.json</code>.</li>
+      <li>Rename <code>package_dev.json</code> to <code>package.json</code>.</li>
+      <li>Execute <code>npm install</code> from the project directory.</li>
+      <li>Execute <code>npm run lint</code>.</li>
+      <li>Provide any suggested code changes and execute <code>npm run lint</code> as needed.</li>
+      <li>Rename <code>package.json</code> to <code>package_dev.json</code>.</li>
+      <li>Rename <code>package_x.json</code> to <code>package.json</code>.</li>
+      <li>Execute <code>npm install</code>.</li>
+      <li>Execute <code>git checkout node_modules/file</code>.</li>
+      <li>Execute <code>git checkout node_modules/@lydell</code>.</li>
+   </ol></td>
+<tr>
+   <td><code>npm run server-bun</code><br>or<br><code>bun ./lib/index.ts</code></td>
+   <td>Executes the application with bun</td>
+</tr>
+<tr>
+   <td><code>npm run server-node</code><br>or<br><code>node ./lib/index.ts</code></td>
+   <td>Executes the application with Node.js</td>
+</tr>
+<tr>
+   <td><code>npm run test-bun</code><br>or<br><code>bun ./lib/index.ts mode:test</code></td>
+   <td>Runs the test automation with bun</td>
+</tr>
+<tr>
+   <td><code>npm run test-node</code><br>or<br><code>node ./lib/index.ts mode:test</code></td>
+   <td>Runs the test automation with Node.js</td>
+</tr>
+<tr>
+   <td><code>npm run tsc</code></td>
+   <td>Executes the TypeScript compiler to perform explicit type checking</td>
+</tr>
+</tbody></table>
 
-#### Supported shell command arguments
-All arguments are supported only on the server command, example: `npm run server test no-color`
+#### Execution Modes
+<table>
+<thead><tr>
+   <td>Command</td><td>Description</td>
+</tr></thead><tbody>
+<tr>
+   <td><code>mode:certificate &lt;server_id&gt;</code></td>
+   <td>Generates new certificate files for the specified server id. Generating new certificates will not modify the certificate path values of a server's configuration.</td>
+</tr>
+<tr>
+   <td><code>mode:demo</code></td>
+   <td>Runs the application in demo mode which is based upon server mode, but some functionality is disabled and no changes are written to disk.</td>
+</tr>
+<tr>
+   <td><code>mode:server</code></td>
+   <td>This is the applications's default behavior designed to execute the application as a service and report output to a web browser.</td>
+</tr>
+<tr>
+   <td><code>mode:test</code></td>
+   <td>Instructs the application to execute test automation.</td>
+</tr>
+</tbody></table>
 
-##### Execution Modes
-* `certificate <server_id>` - Generates new certificate files for the specified server id. *Warning: Use of this option will reset the certificate paths in the server's configuration to the default values.*
-* `demo`                    - Runs the application in demo mode where some functionality is disabled and no changes are written to disk.
-* `test`                    - Instructs the application to execute test automation.
+#### Universal Options
+<table>
+<thead><tr>
+   <td>Command</td><td>Description</td>
+</tr></thead><tbody>
+<tr>
+   <td><code>no-color</code></td>
+   <td>Eliminates use of ANSI color codes in terminal output.</td>
+</tr>
+<tr>
+   <td><code>port-open:&lt;port_number&gt;</code></td>
+   <td>Creates an insecure instance of the dashboard server on the specified insecure port, if that port is open.</td>
+</tr>
+<tr>
+   <td><code>port-secure:&lt;port_number&gt;</code></td>
+   <td>Creates a secure instance of the dashboard server on the specified insecure port, if that port is open.</td>
+</tr>
+</tbody></table>
 
-##### Test Options
-* `browser:<file_path>`      - Provides for an absolute file path for a web browser executable to test against.
-                               The file path value can be quoted, but if not quoted then spaces must be escaped according to the given shell's syntax rules.
-                               Any arguments following this argument will be passed directly to that web browser.
-* `delay-intervals:<number>` - A delay test will halt the test runner until the given test evaluates to true by default.
-                               The default delay values retry the test 250 times every 50 milliseconds before returning a failed test.
-                               This argument allows changing the number of retries.
-* `delay-time:<number>`      - Specifies the time between delay intervals in milliseconds from the default 50 milliseconds.
-* `list:<file_name>`         - Specifies a single test list file name to execute starting from the project's test directory at */lib/test*.
-* `no-exit`                  - Application remains actively available after completing test automation.
-* `stop-on-fail`             - Tells the test runner to stop processing further test lists after the first failed assertion.
+#### Test Mode Options
+<table>
+<thead><tr>
+   <td>Command</td><td>Description</td>
+</tr></thead><tbody>
+<tr>
+   <td><code>browser:&lt;file_path&gt;</code></td>
+   <td>Provides for an absolute file path for a web browser executable to test against.
+      The file path value can be quoted, but if not quoted then spaces must be escaped according to the given shell's syntax rules.
+      Any arguments following this argument will be passed directly to that web browser.</td>
+</tr>
+<tr>
+   <td><code>delay-interface:&lt;number&gt;</code></td>
+   <td>A delay test will halt the test runner until the given test evaluates to true by default.
+      The default delay values retry the test 250 times every 50 milliseconds before returning a failed test.
+      This argument allows changing the number of retries.</td>
+</tr>
+<tr>
+   <td><code>delay-time:&lt;number&gt;</code></td>
+   <td>Specifies the time between delay intervals in milliseconds from the default 50 milliseconds.</td>
+</tr>
+<tr>
+   <td><code>list:&lt;file_name&gt;</code></td>
+   <td>Specifies a single test list file name to execute starting from the project's test directory at */lib/test*.</td>
+</tr>
+<tr>
+   <td><code>no-exit</code></td>
+   <td>Application remains actively available after completing test automation.</td>
+</tr>
+<tr>
+   <td><code>stop-on-fail</code></td>
+   <td>Tells the test runner to stop processing further test lists after the first failed assertion.</td>
+</tr>
+</tbody></table>
 
-##### General Use Options
-* `no-color`                  - Eliminates use of ANSI color codes in terminal output.
-* `port-open:<port_number>`   - Creates an insecure instance of the dashboard server on the specified insecure port, if that port is open.
-* `port-secure:<port_number>` - Creates a secure instance of the dashboard server on the specified insecure port, if that port is open.
+#### Examples
 
-#### Run Time Examples
 * `npm run server-bun`
-* `npm run server-node`
+* `npm run server-node no-color`
+* `npm run test-bun`
+* `bun ./lib/index.ts mode:test delay-time:250`
 * `npm run test-node "browser:C:\Program Files\Mozilla Firefox\firefox.exe" "list:list_local_browser_fileSystem.ts" no-exit no-color`
-* `node lib\index.ts certificate 1234abcdef`
-* `npm run server-bun certificate 1234abcdef`
+* `node ./lib/index.ts mode:certificate 1234abcdef`
 * `sudo /home/user_id/.nvm/versions/node/v26.7.0/bin/node /home/user_id/aphorio/lib/index.ts no-color`
 
 ### Tested Platforms

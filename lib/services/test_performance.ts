@@ -224,7 +224,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                 test_http();
             }
         };
-    if (vars.options.demo === true) {
+    if (vars.options.mode === "demo") {
         times("Performance testing is not available in demo mode.", true);
     } else if (typeof data.quantity_tests === "number" && typeof data.quantity_transmit === "number" && data.quantity_tests > 0 && data.quantity_transmit > 0) {
         time_start = process.hrtime.bigint();

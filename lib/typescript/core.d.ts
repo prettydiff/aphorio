@@ -423,17 +423,15 @@ interface core_vars_id {
 
 interface core_vars_options {
     "browser": string;
-    "certificate": boolean;
     "delay-intervals": number;
     "delay-time": number;
-    "demo": boolean;
     "list": string;
+    "mode": type_mode;
     "no-color": boolean;
     "no-exit": boolean;
     "port-open": number;
     "port-secure": number;
     "stop-on-fail": boolean;
-    "test": boolean;
     "test-verbose": boolean;
 }
 

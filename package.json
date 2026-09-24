@@ -42,11 +42,11 @@
     "scripts": {
         "server-bun": "bun ./lib/index.ts",
         "server-node": "node ./lib/index.ts",
-        "test-bun":   "bun ./lib/index.ts test",
-        "test-node":   "node ./lib/index.ts test",
+        "test-bun":   "bun ./lib/index.ts mode:test",
+        "test-node":   "node ./lib/index.ts mode:test",
         "tsc":    "node ./node_modules/typescript/bin/tsc --pretty"
     },
     "types": "/lib/typescript",
     "type": "module",
-    "version": "0.6.7"
+    "version": "0.7.0"
 }

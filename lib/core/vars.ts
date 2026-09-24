@@ -246,17 +246,15 @@ const vars:core_vars = {
         // command line options for running this application
         options: {
             "browser": null,
-            "certificate": false,
             "delay-intervals": 250,
             "delay-time": 50,
-            "demo": false,
             "list": null,
+            "mode": "server",
             "no-color": false,
             "no-exit": false,
             "port-open": 0,
             "port-secure": 0,
             "stop-on-fail": false,
-            "test": false,
             "test-verbose": false
         },
         // raw OS data

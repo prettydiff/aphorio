@@ -46,7 +46,7 @@ const server_create = function services_serverCreate(data:services_server_action
                             time: Date.now()
                         });
                         // 4. launch servers
-                        if (config.activate === true && vars.options.demo === false && config.id !== vars.id.dashboard_server) {
+                        if (config.activate === true && vars.options.mode !== "demo" && config.id !== vars.id.dashboard_server) {
                             server_start(data.server.id, serverCallback);
                         } else if (callback !== null) {
                             callback();
@@ -83,7 +83,7 @@ const server_create = function services_serverCreate(data:services_server_action
                         key: `${vars.path.project}servers${config.id + vars.path.sep}certs${vars.path.sep}server.key`
                     };
                 }
-                if (vars.options.demo === true) {
+                if (vars.options.mode === "demo") {
                     if (Object.keys(vars.data.server).length > 2) {
                         return;
                     }
