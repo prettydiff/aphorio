@@ -47,9 +47,16 @@ Determine which features to exclude by simply setting a boolean value in the `fe
 ## Nerd Stuff
 ### Shell commands
 * `npm run lint` - Executes ESLint for TypeScript to analyze the application against a bunch of custom draconian rules. This option is not available by default, and requires use of these steps:
-   1. Rename `package.json` to something else.
+   1. Rename `package.json` to `package_x.json`.
    1. Rename `package_dev.json` to `package.json`.
    1. Execute `npm install` from the project directory.
+   1. Execute `npm run lint`.
+   1. Provide any suggested code changes and execute `npm run lint` as needed.
+   1. Rename `package.json` to `package_dev.json`.
+   1. Rename `package_x.json` to `package.json`.
+   1. Execute `npm install`.
+   1. Execute `git checkout node_modules/file`.
+   1. Execute `git checkout node_modules/@lydell`.
 * `npm run server-bun` or `bun ./lib/index.ts` - Executes the application with bun
 * `npm run server-node` or `node ./lib/index.ts` - Executes the application with Node.js
 * `npm run test-bun` or  `bun ./lib/index.ts test` - Runs the test automation with bun
