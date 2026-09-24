@@ -52,6 +52,9 @@ vars.path.sep = node.path.sep;
             }
         }
     } while (index > 0);
+    if (process.argv.includes("certificate") === true) {
+        vars.options.certificate = true;
+    }
     if (vars.options.test === true) {
         vars.test.testing = true;
     }

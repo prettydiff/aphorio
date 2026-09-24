@@ -46,15 +46,25 @@ Determine which features to exclude by simply setting a boolean value in the `fe
 
 ## Nerd Stuff
 ### Shell commands
-* `npm run lint` - Executes ESLint for TypeScript to analyze the application against a bunch of draconian rules
-* `npm run server` or `node ./lib/index.ts` - Executes the application
-* `npm run test` or  `node ./lib/index.ts test` - Runs the test automation
+* `npm run lint` - Executes ESLint for TypeScript to analyze the application against a bunch of custom draconian rules. This option is not available by default, and requires use of these steps:
+   1. Rename `package.json` to something else.
+   1. Rename `package_dev.json` to `package.json`.
+   1. Execute `npm install` from the project directory.
+* `npm run server-bun` or `bun ./lib/index.ts` - Executes the application with bun
+* `npm run server-node` or `node ./lib/index.ts` - Executes the application with Node.js
+* `npm run test-bun` or  `bun ./lib/index.ts test` - Runs the test automation with bun
+* `npm run test-node` or  `node ./lib/index.ts test` - Runs the test automation with Node.js
 * `npm run tsc` - Executes the TypeScript compiler to perform explicit type checking
 
 Please note that for Docker support the `npm run server` command must be executed using an administrative account and/or shell.
 
 #### Supported shell command arguments
 All arguments are supported only on the server command, example: `npm run server test no-color`
+
+##### Execution Modes
+* `certificate <server_id>` - Generates new certificate files for the specified server id. *Warning: Use of this option will reset the certificate paths in the server's configuration to the default values.*
+* `demo`                    - Runs the application in demo mode where some functionality is disabled and no changes are written to disk.
+* `test`                    - Instructs the application to execute test automation.
 
 ##### Test Options
 * `browser:<file_path>`      - Provides for an absolute file path for a web browser executable to test against.
@@ -67,15 +77,19 @@ All arguments are supported only on the server command, example: `npm run server
 * `list:<file_name>`         - Specifies a single test list file name to execute starting from the project's test directory at */lib/test*.
 * `no-exit`                  - Application remains actively available after completing test automation.
 * `stop-on-fail`             - Tells the test runner to stop processing further test lists after the first failed assertion.
-* `test`                     - If present this option instructs the application to execute test automation.
 
 ##### General Use Options
-* `demo`                      - Runs the application in demo mode where some functionality is disabled and no changes are written to disk.
 * `no-color`                  - Eliminates use of ANSI color codes in terminal output.
 * `port-open:<port_number>`   - Creates an insecure instance of the dashboard server on the specified insecure port, if that port is open.
 * `port-secure:<port_number>` - Creates a secure instance of the dashboard server on the specified insecure port, if that port is open.
 
-Example: `npm run test "browser:C:\Program Files\Mozilla Firefox\firefox.exe" "list:list_local_browser_fileSystem.ts" no-exit no-color`
+#### Run Time Examples
+* `npm run server-bun`
+* `npm run server-node`
+* `npm run test-node "browser:C:\Program Files\Mozilla Firefox\firefox.exe" "list:list_local_browser_fileSystem.ts" no-exit no-color`
+* `node lib\index.ts certificate 1234abcdef`
+* `npm run server-bun certificate 1234abcdef`
+* `sudo /home/user_id/.nvm/versions/node/v26.7.0/bin/node /home/user_id/aphorio/lib/index.ts no-color`
 
 ### Tested Platforms
 * Debian Linux 13

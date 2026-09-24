@@ -246,6 +246,7 @@ const vars:core_vars = {
         // command line options for running this application
         options: {
             "browser": null,
+            "certificate": false,
             "delay-intervals": 250,
             "delay-time": 50,
             "demo": false,

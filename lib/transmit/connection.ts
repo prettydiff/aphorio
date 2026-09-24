@@ -7,7 +7,6 @@ import log from "../core/log.ts";
 import node from "../core/node.ts";
 import message_handler from "./messageHandler.ts";
 import message_inspection from "../services/message_inspection.ts";
-import remote_shell from "../utilities/remote_shell.ts";
 import send from "./send.ts";
 import server_halt from "../server/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
@@ -627,7 +626,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     redirect_tls:boolean = (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0),
                     upgrade_tls:boolean = (flags.upgrade === true as boolean && flags.dashboard_http_test === false);
                 // origin is not in the socket's domain_local or redirect_domain lists
-                if (blocked === true) {
+                if (blocked === true || headerList.length < 3) {
                     socket.destroy();
                 // TLS data sent to open server - proxy the socket to the server's TLS port, if one is running
                 } else if (redirect_tls === true) {
@@ -659,7 +658,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     store.domain = `tls_socket_redirect-${vars.data.server[server_id].config.name}`;
                     proxy_create(host, port, encryption);
                 // request is an HTTP upgrade
-                } else if (upgrade_tls) {
+                } else if (upgrade_tls === true) {
                     // * server option 'upgrade' must be true
                     // * must be http request with header 'upgrade-insecure-requests: 1'
                     // * requests from the dashboard http test tool are ignored
@@ -678,8 +677,6 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         "",
                         ""
                     ].join("\r\n"), true);
-                } else if (dataString === "aphorio-connect\n") {
-                    remote_shell.init(socket);
                 // regular local traffic
                 } else {
                     local_service();

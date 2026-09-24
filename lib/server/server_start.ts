@@ -178,52 +178,59 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                     flag_error = true;
                 }
                 if (count === 3) {
-                    const read_cert = function server_start_statCallback_readCert():void {
-                        const read_callback = function server_start_statCallback_readCert_readCallback(file:Buffer, location:string, type_id:string):void {
-                            const type:"ca"|"cert"|"key" = type_id as "ca"|"cert"|"key";
-                            if (file === null && type_id !== "ca") {
-                                log.application({
-                                    error: new Error(),
-                                    message: `Required certificate files are missing for server named ${vars.data.server[id].config.name}.`,
-                                    origin: id,
-                                    section: "servers-web",
-                                    status: "error",
-                                    time: Date.now()
-                                });
+                    const missing:string = `Required certificate files are missing for server named ${vars.text.cyan + vars.data.server[id].config.name + vars.text.none}.`,
+                        missing_log:string[] = [
+                            missing,
+                            `Try generating new certificates: ${vars.text.cyan}node ${vars.path.project}lib${vars.path.sep}index.ts certificate ${id + vars.text.none}`
+                        ],
+                        read_cert = function server_start_statCallback_readCert():void {
+                            const read_callback = function server_start_statCallback_readCert_readCallback(file:Buffer, location:string, type_id:string):void {
+                                const type:type_encryption_file = type_id as type_encryption_file;
+                                if (file === null && type_id !== "ca") {
+                                    log.application({
+                                        error: new Error(),
+                                        message: missing,
+                                        origin: id,
+                                        section: "servers-web",
+                                        status: "error",
+                                        time: Date.now()
+                                    });
+                                    log.shell(missing_log, true);
+                                    process.exit(1);
+                                } else {
+                                    https.certificates[type] = (file === null)
+                                        ? null
+                                        : file.toString();
+                                    https.fileFlag[type] = true;
+                                    certCheck();
+                                }
+                            };
+                            if (path_ca === null || path_ca === "") {
+                                read_callback(null, "", "ca");
                             } else {
-                                https.certificates[type] = (file === null)
-                                    ? null
-                                    : file.toString();
-                                https.fileFlag[type] = true;
-                                certCheck();
+                                file.read({
+                                    callback: read_callback,
+                                    identifier: "ca",
+                                    location: vars.data.server[id].config.certificate_path.ca,
+                                    no_file: null,
+                                    section:  "servers-web"
+                                });
                             }
-                        };
-                        if (path_ca === null || path_ca === "") {
-                            read_callback(null, "", "ca");
-                        } else {
                             file.read({
                                 callback: read_callback,
-                                identifier: "ca",
-                                location: vars.data.server[id].config.certificate_path.ca,
+                                identifier: "cert",
+                                location: vars.data.server[id].config.certificate_path.cert,
                                 no_file: null,
                                 section:  "servers-web"
                             });
-                        }
-                        file.read({
-                            callback: read_callback,
-                            identifier: "cert",
-                            location: vars.data.server[id].config.certificate_path.cert,
-                            no_file: null,
-                            section:  "servers-web"
-                        });
-                        file.read({
-                            callback: read_callback,
-                            identifier: "key",
-                            location: vars.data.server[id].config.certificate_path.key,
-                            no_file: null,
-                            section:  "servers-web"
-                        });
-                    };
+                            file.read({
+                                callback: read_callback,
+                                identifier: "key",
+                                location: vars.data.server[id].config.certificate_path.key,
+                                no_file: null,
+                                section:  "servers-web"
+                            });
+                        };
                     count = 0;
                     if (flag_error === false) {
                         read_cert();
@@ -237,16 +244,14 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                     } else {
                         log.application({
                             error: error,
-                            message: `Required certificate files are missing for server named ${vars.data.server[id].config.name}.`,
+                            message: missing,
                             origin: id,
                             section: "servers-web",
                             status: "error",
                             time: Date.now()
                         });
-                        if (vars.environment.loading === true) {
-                            // eslint-disable-next-line no-console
-                            console.log(`Required certificate files are missing for server named ${vars.data.server[id].config.name}.`);
-                        }
+                        log.shell(missing_log, true);
+                        process.exit(1);
                     }
                 }
             },

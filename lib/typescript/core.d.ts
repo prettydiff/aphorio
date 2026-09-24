@@ -423,6 +423,7 @@ interface core_vars_id {
 
 interface core_vars_options {
     "browser": string;
+    "certificate": boolean;
     "delay-intervals": number;
     "delay-time": number;
     "demo": boolean;

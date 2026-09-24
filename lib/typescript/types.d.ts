@@ -33,6 +33,7 @@ type type_dns_types = "A" | "AAAA" | "CAA" | "CNAME" | "MX" | "NAPTR" | "NS" | "
 type type_docker_ports = [number, "tcp"|"udp"][];
 type type_docker_state = "created" | "dead" | "exited" | "paused" | "removing" | "restarting" | "running";
 type type_encryption = "both" | "open" | "secure";
+type type_encryption_file = "ca"|"cert"|"key";
 type type_external_port = [number, string, string, string];
 type type_file = "block_device" | "character_device" | "directory" | "fifo_pipe" | "file" | "socket" | "symbolic_link";
 type type_fileSystem_media = "application" | "audio" | "image" | "text" | "video";

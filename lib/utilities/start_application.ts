@@ -1,6 +1,7 @@
 
 import assembler from "./assembler.ts";
 import broadcast from "../transmit/broadcast.ts";
+import certificate from "../services/certificate.ts";
 import clock from "../services/clock.ts";
 import demo from "../services/demo.ts";
 import directory from "./directory.ts";
@@ -296,32 +297,57 @@ const start_application = function utilities_startApplication(process_path:strin
                                 }
                             } while (index_srv > 0);
                         }
-                        if (index_int > 0) {
+                        if (vars.options.certificate === true) {
+                            let index:number = process.argv.length,
+                                id_test:boolean = false;
                             do {
-                                index_int = index_int - 1;
-                                sub = interfaces[keys_int[index_int]].length;
-                                do {
-                                    sub = sub - 1;
-                                    includes(interfaces[keys_int[index_int]][sub].address);
-                                } while (sub > 0);
-                            } while (index_int > 0);
-                        }
-                        if (typeof vars.id.machine === "string" && vars.id.machine.length > 0) {
-                            start_prerequisites();
+                                index = index - 1;
+                                if (keys_srv.includes(process.argv[index]) === true) {
+                                    id_test = true;
+                                    certificate({
+                                        callback: function utilities_startApplication_servers_certificate():void {
+                                            log.shell([`Certificates created for server named ${vars.text.cyan + vars.data.server[process.argv[index]].config.name + vars.text.none}.`], true);
+                                            process.exit(0);
+                                        },
+                                        days: 65535,
+                                        id: process.argv[index],
+                                        selfSign: false
+                                    });
+                                    break;
+                                }
+                            } while (index > 0);
+                            if (id_test === false) {
+                                log.shell(["Either no server id was specified or the server at the specified id does not exist."], true);
+                                process.exit(1);
+                            }
                         } else {
-                            const cpu:os_node_cpu = node.os.cpus();
-                            hash({
-                                algorithm: "sha3-512",
-                                callback: function utilities_startApplication_servers_callback_hash(out:core_hash_output):void {
-                                    vars.id.machine = out.hash;
-                                    machine_id = true;
-                                    start_prerequisites();
-                                },
-                                digest: "hex",
-                                hash_input_type: "direct",
-                                section: "startup",
-                                source: `${process.hrtime.bigint()} ${process.pid} ${process.ppid} ${cpu[0].model} ${cpu[0].speed} ${process.platform} ${node.os.hostname()}`
-                            });
+                            if (index_int > 0) {
+                                do {
+                                    index_int = index_int - 1;
+                                    sub = interfaces[keys_int[index_int]].length;
+                                    do {
+                                        sub = sub - 1;
+                                        includes(interfaces[keys_int[index_int]][sub].address);
+                                    } while (sub > 0);
+                                } while (index_int > 0);
+                            }
+                            if (typeof vars.id.machine === "string" && vars.id.machine.length > 0) {
+                                start_prerequisites();
+                            } else {
+                                const cpu:os_node_cpu = node.os.cpus();
+                                hash({
+                                    algorithm: "sha3-512",
+                                    callback: function utilities_startApplication_servers_callback_hash(out:core_hash_output):void {
+                                        vars.id.machine = out.hash;
+                                        machine_id = true;
+                                        start_prerequisites();
+                                    },
+                                    digest: "hex",
+                                    hash_input_type: "direct",
+                                    section: "startup",
+                                    source: `${process.hrtime.bigint()} ${process.pid} ${process.ppid} ${cpu[0].model} ${cpu[0].speed} ${process.platform} ${node.os.hostname()}`
+                                });
+                            }
                         }
                     };
                     if (vars.options.demo === true) {
@@ -1307,63 +1333,66 @@ const start_application = function utilities_startApplication(process_path:strin
     String.prototype.capitalize = universal.capitalize;
     String.prototype.file_sanitize = universal.file_sanitize;
 
-    vars.environment.hashes = node.crypto.getHashes();
-
-    log.shell(["", heading("Executing start up tasks")]);
-
-    // update OS list of available shells
-    if (vars.environment.features["terminal"] === true) {
-        if (process.platform === "win32") {
-            const stats = function utilities_startApplication_tasksShell_shellWin(index:number):void {
-                node.fs.stat(vars.environment.terminal[index], function utilities_startApplication_tasksShell_shellWin_callback(err:node_error) {
-                    if (err !== null) {
-                        vars.environment.terminal.splice(index, 1);
-                    }
-                    if (index > 0) {
-                        utilities_startApplication_tasksShell_shellWin(index - 1);
-                    } else {
-                        start_prerequisites();
-                    }
-                });
-            };
-            stats(vars.environment.terminal.length - 1);
-        } else {
-            file.stat({
-                callback: function utilities_startApplication_tasksShell_shellStat(stat:node_fs_BigIntStats):void {
-                    if (stat === null) {
-                        vars.environment.terminal.push("/bin/sh");
-                    } else {
-                        file.read({
-                            callback: function utilities_startApplication_tasksShell_shellStat_shellRead(contents:Buffer):void {
-                                const lines:string[] = contents.toString().split("\n"),
-                                    len:number = lines.length;
-                                let index:number = 1;
-                                if (len > 1) {
-                                    do {
-                                        if (lines[index].indexOf("/bin/") === 0) {
-                                            vars.environment.terminal.push(lines[index]);
-                                        }
-                                        index = index + 1;
-                                    } while (index < len);
-                                }
-                                if (vars.environment.terminal.length < 1) {
-                                    vars.environment.terminal.push("/bin/sh");
-                                }
-                                start_prerequisites();
-                            },
-                            location: "/etc/shells",
-                            no_file: null,
-                            section: "startup"
-                        });
-                    }
-                },
-                location: "/etc/shells",
-                no_file: null,
-                section: "startup"
-            });
-        }
+    if (vars.options.certificate === true) {
+        prerequisite_tasks.servers.task();
     } else {
-        start_prerequisites();
+        vars.environment.hashes = node.crypto.getHashes();
+        log.shell(["", heading("Executing start up tasks")]);
+
+        // update OS list of available shells
+        if (vars.environment.features["terminal"] === true) {
+            if (process.platform === "win32") {
+                const stats = function utilities_startApplication_tasksShell_shellWin(index:number):void {
+                    node.fs.stat(vars.environment.terminal[index], function utilities_startApplication_tasksShell_shellWin_callback(err:node_error) {
+                        if (err !== null) {
+                            vars.environment.terminal.splice(index, 1);
+                        }
+                        if (index > 0) {
+                            utilities_startApplication_tasksShell_shellWin(index - 1);
+                        } else {
+                            start_prerequisites();
+                        }
+                    });
+                };
+                stats(vars.environment.terminal.length - 1);
+            } else {
+                file.stat({
+                    callback: function utilities_startApplication_tasksShell_shellStat(stat:node_fs_BigIntStats):void {
+                        if (stat === null) {
+                            vars.environment.terminal.push("/bin/sh");
+                        } else {
+                            file.read({
+                                callback: function utilities_startApplication_tasksShell_shellStat_shellRead(contents:Buffer):void {
+                                    const lines:string[] = contents.toString().split("\n"),
+                                        len:number = lines.length;
+                                    let index:number = 1;
+                                    if (len > 1) {
+                                        do {
+                                            if (lines[index].indexOf("/bin/") === 0) {
+                                                vars.environment.terminal.push(lines[index]);
+                                            }
+                                            index = index + 1;
+                                        } while (index < len);
+                                    }
+                                    if (vars.environment.terminal.length < 1) {
+                                        vars.environment.terminal.push("/bin/sh");
+                                    }
+                                    start_prerequisites();
+                                },
+                                location: "/etc/shells",
+                                no_file: null,
+                                section: "startup"
+                            });
+                        }
+                    },
+                    location: "/etc/shells",
+                    no_file: null,
+                    section: "startup"
+                });
+            }
+        } else {
+            start_prerequisites();
+        }
     }
 };
 

@@ -5,7 +5,7 @@ import save from "../utilities/save.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
-// cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey, keyid, passout, pathlen
+// cspell:word addstore, CAcreateserial, certutil, delstore, extfile, genpkey, keyid, passout, pathlen, pubout
 
 const certificate = function services_certificate(config:config_certificate):void {
     const cert_path:string = `${vars.path.servers + config.id + vars.path.sep}certs${vars.path.sep}`,
@@ -209,11 +209,20 @@ const certificate = function services_certificate(config:config_certificate):voi
                     if (config.selfSign === true) {
                         commands.push(`${root} -config "extensions.cnf" -extensions selfSign}`);
                     } else {
+                        // root CA cert
                         commands.push(root);
+                        // intermediate signing cert
                         cert("int", "root", "selfSign");
+                        // actual server certificate
                         cert("server", "int", "ca");
+                        // client certificate for mutual tls
                         cert(client as "client", "int", "ca");
+                        // client certificate format conversion to alternate PFX format
                         commands.push(`openssl pkcs12 -export -passout pass: -out ${client}.pfx -inkey ${client}.key -in ${client}.crt`);
+                        // create a SSH private key -> server
+                        // commands.push("ssh-keygen -t ed25519 -N \"\" -f server_ssh_private.key");
+                        // create a SSH public key -> client
+                        // commands.push("ssh-keygen -f server_ssh.key -N \"\" -y > server_ssh_public.key");
                     }
                     crypto();
                 };
