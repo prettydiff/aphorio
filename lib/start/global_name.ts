@@ -118,7 +118,7 @@ import vars from "./core/vars.ts";(${index.toString()}());`
                                 callback: function start_globalName_task_spawn_noFile_posix():void {
                                     spawn(`chmod 755 ${bin}`, function start_globalName_task_spawn_noFile_posix_callback():void {
                                         files();
-                                    });
+                                    }).execute();
                                 },
                                 location: bin,
                                 section: "startup"

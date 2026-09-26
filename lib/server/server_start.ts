@@ -178,10 +178,11 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                     flag_error = true;
                 }
                 if (count === 3) {
-                    const missing:string = `Required certificate files are missing for server named ${vars.text.cyan + vars.data.server[id].config.name + vars.text.none}.`,
+                    const missing:string = `Required certificate files are either missing or permission was denied reading them for server named ${vars.text.cyan + vars.data.server[id].config.name + vars.text.none}.`,
                         missing_log:string[] = [
                             missing,
-                            `Try generating new certificates: ${vars.text.cyan}node ${vars.path.project}lib${vars.path.sep}index.ts certificate ${id + vars.text.none}`
+                            "If the certificate files are present ensure the application is executed with the proper level of elevation or modify the permissions on the certificate files and their containing directory.",
+                            `Otherwise, try generating new certificates: ${vars.text.cyan}node ${vars.path.project}lib${vars.path.sep}index.ts mode:certificate ${id + vars.text.none}`
                         ],
                         read_cert = function server_start_statCallback_readCert():void {
                             const read_callback = function server_start_statCallback_readCert_readCallback(file:Buffer, location:string, type_id:string):void {
