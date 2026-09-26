@@ -194,7 +194,7 @@ const utilities:core_module_universal = {
     file_sanitize: function core_universal_fileSanitize(this:string):string {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let input:string = this;
-        if (process.platform === "win32") {
+        if (process.platform === "win32" || process.platform === "cygwin") {
             input = input.replace(/\\|:/g, "")
                 .replace(/[\u0001-\u001f]/g, "")
                 .replace(/(CON)|(PRN)|(AUX)|(NUL)/gi, "")

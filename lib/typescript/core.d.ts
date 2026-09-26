@@ -253,11 +253,13 @@ interface core_spawn_output {
     type: string;
 }
 
+interface core_start_task {
+    label: string;
+    task: () => void;
+}
+
 interface core_start_tasks {
-    [key:string]: {
-        label: string;
-        task: () => void;
-    };
+    [key:string]: core_start_task;
 }
 
 interface core_state_file {

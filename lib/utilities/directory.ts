@@ -273,7 +273,7 @@ const directory = function utilities_directory(args:config_directory):void {
                                         }
                                     }, {
                                         cwd: path,
-                                        shell: (process.platform === "win32")
+                                        shell: (process.platform === "win32" || process.platform === "cygwin")
                                             ? "powershell"
                                             : "bash"
                                     }).execute();

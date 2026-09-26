@@ -3,7 +3,7 @@ import file from "./file.ts";
 import vars from "../core/vars.ts";
 
 const save = function utilities_save(callback:() => void, section:type_dashboard_sections|"startup"):void {
-    if (vars.options.demo === true) {
+    if (vars.options.mode === "demo") {
         if (callback !== null) {
             callback();
         }

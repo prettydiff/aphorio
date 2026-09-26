@@ -13,7 +13,7 @@ import vars from "../core/vars.ts";
 
 const file:core_module_file = {
     mkdir: function utilities_fileDir(config:config_file_mkdir):void {
-        if (vars.options.demo === true) {
+        if (vars.options.mode === "demo") {
             if (config.callback !== null) {
                 config.callback(config.location, config.identifier);
             }
@@ -138,7 +138,7 @@ const file:core_module_file = {
         });
     },
     remove: function utilities_fileRemove(config:config_file_remove):void {
-        if (vars.options.demo === true) {
+        if (vars.options.mode === "demo") {
             if (config.callback !== null) {
                 config.callback(config.location, config.identifier);
             }
@@ -228,7 +228,7 @@ const file:core_module_file = {
         });
     },
     write: function utilities_fileWrite(config:config_file_write):void {
-        if (vars.options.demo === true) {
+        if (vars.options.mode === "demo") {
             if (config.callback !== null) {
                 config.callback(config.location, config.identifier);
             }

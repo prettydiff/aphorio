@@ -31,11 +31,11 @@ const docker:core_module_docker = {
                 callback();
             },
             now:number = Date.now();
-        if (vars.options.demo === true) {
+        if (vars.options.mode === "demo") {
             vars.data.containers = demo_containers;
             complete("");
         } else {
-            if (vars.os.main.process.admin === true || process.platform === "win32") {
+            if (vars.os.main.process.admin === true || process.platform === "win32" || process.platform === "cygwin") {
                 const child = function services_docker_list_child(output:core_spawn_output):void {
                     const stdout:string = output.stdout.trim();
                     if (stdout !== "" && (stdout.charAt(0) !== "{" || stdout.charAt(stdout.length - 1) !== "}")) {
@@ -265,7 +265,7 @@ const docker:core_module_docker = {
     },
     receive: function services_docker_receive(socket_data:socket_data, transmit:transmit_socket):void {
         const socket:websocket_client = transmit.socket as websocket_client;
-        if (vars.options.demo === true) {
+        if (vars.options.mode === "demo") {
             return;
         }
         if (socket_data.service === "services_compose_variables") {
@@ -355,7 +355,7 @@ const docker:core_module_docker = {
     },
     shell: null,
     shell_start: function services_docker_shell():void {
-        if (vars.options.demo === false && (vars.os.main.process.admin === true || process.platform === "win32")) {
+        if (vars.options.mode === "demo" && (vars.os.main.process.admin === true || process.platform === "win32")) {
             const shell:string = (process.env.SHELL === undefined)
                     ? vars.environment.terminal[0]
                     : process.env.SHELL,
@@ -396,7 +396,7 @@ const docker:core_module_docker = {
         }
     },
     variables: function services_docker_variables(variables:store_string, socket:websocket_client):void {
-        if (vars.options.demo === true) {
+        if (vars.options.mode === "demo") {
             return;
         }
         const list:string[] = Object.keys(variables),

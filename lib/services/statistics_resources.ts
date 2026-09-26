@@ -334,7 +334,7 @@ const statistics:core_module_statistics_resources = {
                                 path_id = (vars.path.cgroup.includes("system.slice") === true)
                                     ? `${vars.path.cgroup}docker-${id}.scope/`
                                     : `${vars.path.cgroup + id}/`;
-                                if (process.platform === "win32") {
+                                if (process.platform === "win32" || process.platform === "cygwin") {
                                     spawn(vars.commands.docker_read.replace("address", `${path_id}cpu.stat`), function services_statisticsData_diskComplete_spawnCPU(out:core_spawn_output, identifier:string):void {
                                         if (out.stdout.length > 0) {
                                             cpu(Buffer.from(out.stdout), "", identifier);

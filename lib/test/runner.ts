@@ -283,7 +283,7 @@ const test_runner:test_runner = {
                 };
             vars.test.browser_start = true;
             vars.test.browser_child = spawn(browserCommand(), null, {
-                shell: (process.platform === "win32")
+                shell: (process.platform === "win32" || process.platform === "cygwin")
                     ? "powershell"
                     : "bash"
             });

@@ -46,7 +46,7 @@ const ui_os_machine = function ui_os_machine():void {
             dashboard.sections["os-machine"].nodes_os.process.memoryProcess.textContent = `${dashboard.global.payload.os.main.process.memory.rss.bytes_long()}, ${((dashboard.global.payload.os.main.process.memory.rss / dashboard.global.payload.os.main.machine.memory.total) * 100).toFixed(2)}%`;
             dashboard.sections["os-machine"].nodes_os.process.memoryV8.textContent = dashboard.global.payload.os.main.process.memory.V8.bytes_long();
             dashboard.sections["os-machine"].nodes_os.process.memoryExternal.textContent = dashboard.global.payload.os.main.process.memory.external.bytes_long();
-            if (dashboard.global.payload.os.main.process.platform === "win32") {
+            if (dashboard.global.payload.os.main.process.platform === "win32" || dashboard.global.payload.os.main.process.platform === "cygwin") {
                 dashboard.sections["os-machine"].nodes_os.user.gid.parentNode.style.display = "none";
                 dashboard.sections["os-machine"].nodes_os.user.uid.parentNode.style.display = "none";
             } else {

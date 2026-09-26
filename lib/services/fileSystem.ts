@@ -155,7 +155,7 @@ const fileSystem = function services_fileSystem(socket_data:socket_data, transmi
             search: data.search,
             symbolic: true
         };
-    if (vars.options.demo === true) {
+    if (vars.options.mode === "demo") {
         if (config_parent.path.includes(vars.path.project) === false) {
             config_parent.path = vars.path.project;
             data.address = vars.path.project;

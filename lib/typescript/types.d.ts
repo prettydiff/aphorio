@@ -63,7 +63,7 @@ type type_server_property = "activate" | "block_list" | "domain_local" | "encryp
 
 type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_start_pre_tasks = "admin" | "compose" | "features" | "os_main" | "servers";
-type type_start_primary_tasks = "certificates" | "cgroup" | "compose_variables" | "file" | "git" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_stcp" | "os_sudp" | "os_user" | "server_audit" | "services_app" | "test_browser" | "test_list" | "version";
+type type_start_primary_tasks = "certificates" | "cgroup" | "compose_variables" | "file" | "git" | "global_name" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_stcp" | "os_sudp" | "os_user" | "server_audit" | "services_app" | "test_browser" | "test_list" | "version";
 
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";

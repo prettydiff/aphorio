@@ -12,8 +12,8 @@ const os_list = function utilities_osList(type_os:type_os_services, callback:(ou
         os_demo(type_os, callback);
     } else {
         let cpu_max_number:number = null,
-            cpu_max_test:boolean = (process.platform !== "win32");
-        const win32:boolean = (process.platform === "win32"),
+            cpu_max_test:boolean = (process.platform !== "win32" && process.platform !== "cygwin");
+        const win32:boolean = (process.platform === "win32" || process.platform === "cygwin"),
             shell:string = (win32 === true)
                 ? (vars.environment.terminal.includes("C:\\Program Files\\PowerShell\\7\\pwsh.exe") === true)
                     ? "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
@@ -898,7 +898,7 @@ const os_list = function utilities_osList(type_os:type_os_services, callback:(ou
                             env: process.env,
                             hostname: node.os.hostname(),
                             name: node.os.version(),
-                            path: (process.platform === "win32")
+                            path: (win32 === true)
                                 ? process.env.Path.split(";")
                                 : (process.env.PATH === undefined)
                                     ? []
