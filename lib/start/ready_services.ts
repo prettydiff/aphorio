@@ -64,7 +64,7 @@ const ready_services = function start_readServices(count_task:number):void {
                         : (config.conflict === true)
                             ? vars.text.angry + config.value + vars.text.none
                             : vars.text.green + config.value + vars.text.none,
-                    str:string = `${asterisk} ${pad(name, 0, "right")} - ${pad(config.type, 1, "right")} - ${value}`;
+                    str:string = `${asterisk} ${pad(config.name, 0, "right")} - ${pad(config.type, 1, "right")} - ${value}`;
                 if (config.conflict === true) {
                     if (config.value < 1025) {
                         logs.push(`${str} (Server offline, typically due to insufficient access for reserved port or port conflict.)`);
@@ -166,9 +166,22 @@ const ready_services = function start_readServices(count_task:number):void {
             index = 0;
             longest = [0, 3, 0];
             keys.sort();
+            // find the longest name and longest port
             do {
+                ports = vars.data.containers[keys[index]].ports;
+                len_ports = (ports === null)
+                    ? 0
+                    : ports.length;
                 if (vars.data.containers[keys[index]].name.length > longest[0]) {
                     longest[0] = vars.data.containers[keys[index]].name.length;
+                }
+                if (len_ports > 0) {
+                    index_ports = 0;
+                    do {
+                        if (ports[index_ports][0].toString().length > longest[2]) {
+                            longest[2] = ports[index_ports][0].toString().length;
+                        }
+                    } while (index_ports < len_ports);
                 }
                 index = index + 1;
             } while (index < len);
@@ -184,15 +197,7 @@ const ready_services = function start_readServices(count_task:number):void {
                         logs.push(heading("Container Ports"));
                         title = true;
                     }
-                    longest[2] = 0;
                     ports.sort(sort);
-                    index_ports = 0;
-                    do {
-                        if (ports[index_ports][0].toString().length > longest[2]) {
-                            longest[2] = ports[index_ports][0].toString().length;
-                        }
-                        index_ports = index_ports + 1;
-                    } while (index_ports < len_ports);
                     index_ports = 0;
                     do {
                         log_start({
