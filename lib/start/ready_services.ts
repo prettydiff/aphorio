@@ -62,8 +62,8 @@ const ready_services = function start_readServices(count_task:number):void {
                 const value:string = (config.type === "tcp" || config.type === "udp")
                         ? vars.text.green + pad(config.value.toString(), 2, "left") + vars.text.none
                         : (config.conflict === true)
-                            ? vars.text.angry + config.value + vars.text.none
-                            : vars.text.green + config.value + vars.text.none,
+                            ? vars.text.angry + pad(config.value.toString(), 2, "left") + vars.text.none
+                            : vars.text.green + pad(config.value.toString(), 2, "left") + vars.text.none,
                     str:string = `${asterisk} ${pad(config.name, 0, "right")} - ${pad(config.type, 1, "right")} - ${value}`;
                 if (config.conflict === true) {
                     if (config.value < 1025) {
