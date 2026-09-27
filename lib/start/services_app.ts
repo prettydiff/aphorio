@@ -88,7 +88,7 @@ const services_app = function start_servicesApp(complete_tasks:(task:type_start_
                         keys_code.push(location);
                         if (count === 0) {
                             const len_code:number = keys_code.length,
-                                dependency = function start_servicesApp_task_callbackDirectory_dependency(sample:[string, string], dep:core_services_internal_dependency):void {
+                                dependency = function start_servicesApp_task_callbackDirectory_read_dependency(sample:[string, string], dep:core_services_internal_dependency):void {
                                     const lines:string[] = sample[0].split("\n");
                                     let index_lines:number = lines.length,
                                         index_names:number = 0,

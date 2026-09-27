@@ -162,7 +162,7 @@ const servers = function start_servers(start_prerequisites:() => void, process_p
                             algorithm: "sha3-512",
                             callback: function start_servers_task_callback_hash(out:core_hash_output):void {
                                 vars.id.machine = out.hash;
-                                save(function start_servers_task_callback_hash():void {
+                                save(function start_servers_task_callback_hash_save():void {
                                     start_prerequisites();
                                 }, "startup");
                             },

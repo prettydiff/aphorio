@@ -20,7 +20,7 @@ const global_name = function start_globalName(complete_tasks:(task:type_start_pr
                         const binName:string = `${bin + vars.path.sep + commandName}.mjs`,
                             index_path:string = `${process_path}lib${vars.path.sep}index.ts`,
                             readEntry = function start_globalName_task_spawn_files_readEntry():void {
-                                const globalWrite = function start_globalName_task_spawn_files_readEntry_read_globalWrite():void {
+                                const globalWrite = function start_globalName_task_spawn_files_readEntry_globalWrite():void {
                                         fileCount = fileCount + 1;
                                         if (isWindows === false || (isWindows === true && fileCount === 4)) {
                                             complete_tasks("global_name");
@@ -68,13 +68,13 @@ import vars from "./core/vars.ts";(${index.toString()}());`
                                 node.fs.writeFile(binName, fileData, {
                                     encoding: "utf8",
                                     mode: 509
-                                }, function start_globalName_task_spawn_files_readEntry_read_write():void {
+                                }, function start_globalName_task_spawn_files_readEntry_write():void {
                                     if (isWindows === true) {
                                         globalWrite();
                                     } else {
                                         const link:string = node.path.resolve(`${output.stdout + vars.path.sep}..${vars.path.sep}..${vars.path.sep}bin${vars.path.sep + commandName}`);
                                         file.remove({
-                                            callback: function  start_globalName_task_spawn_files_readEntry_read_write_link():void {
+                                            callback: function  start_globalName_task_spawn_files_readEntry_write_link():void {
                                                 node.fs.symlink(binName, link, globalWrite);
                                             },
                                             exclusions: [],

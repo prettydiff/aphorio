@@ -85,8 +85,9 @@ const ready_services = function start_readServices(count_task:number):void {
         let index:number = 0,
             name:string = "",
             ports:type_docker_ports = null,
-            longest:number[] = [0, 0, 0],
-            len:number = servers.length;
+            longest:number[] = [0, 4, 0],
+            len:number = servers.length,
+            port:number = 0;
         servers.sort(function start_completeTasks_read_start_serverCallback_serverSort(a:string, b:string):-1|1 {
             if (a > b) {
                 return -1;
@@ -100,22 +101,26 @@ const ready_services = function start_readServices(count_task:number):void {
                 longest[0] = name.length;
             }
             if (vars.data.server[servers[index]].config.encryption === "both") {
-                if (vars.data.server[servers[index]].ports["secure"].toString().length > longest[2]) {
-                    longest[2] = vars.data.server[servers[index]].ports["secure"].toString().length;
-                }
-                if (vars.data.server[servers[index]].ports["open"].toString().length > longest[2]) {
-                    longest[3] = vars.data.server[servers[index]].ports["secure"].toString().length;
-                }
+                port = vars.data.server[servers[index]].ports["secure"].toString().length;
+                longest[2] = (port > longest[2])
+                    ? port
+                    : longest[2];
+                port = vars.data.server[servers[index]].ports["open"].toString().length;
+                longest[2] = (port > longest[2])
+                    ? port
+                    : longest[2];
                 longest[1] = 6;
             } else if (vars.data.server[servers[index]].config.encryption === "secure") {
-                if (vars.data.server[servers[index]].ports["secure"].toString().length > longest[2]) {
-                    longest[2] = vars.data.server[servers[index]].ports["secure"].toString().length;
-                }
+                port = vars.data.server[servers[index]].ports["secure"].toString().length;
+                longest[2] = (port > longest[2])
+                    ? port
+                    : longest[2];
                 longest[1] = 6;
             } else {
-                if (vars.data.server[servers[index]].ports["open"].toString().length > longest[2]) {
-                    longest[2] = vars.data.server[servers[index]].ports["secure"].toString().length;
-                }
+                port = vars.data.server[servers[index]].ports["open"].toString().length;
+                longest[2] = (port > longest[2])
+                    ? port
+                    : longest[2];
             }
             index = index + 1;
         } while (index < servers.length);
@@ -178,9 +183,11 @@ const ready_services = function start_readServices(count_task:number):void {
                 if (len_ports > 0) {
                     index_ports = 0;
                     do {
-                        if (ports[index_ports][0].toString().length > longest[2]) {
-                            longest[2] = ports[index_ports][0].toString().length;
-                        }
+                        port = ports[index_ports][0].toString().length;
+                        longest[2] = (port > longest[2])
+                            ? port
+                            : longest[2];
+                        index_ports = index_ports + 1;
                     } while (index_ports < len_ports);
                 }
                 index = index + 1;

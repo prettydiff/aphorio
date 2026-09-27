@@ -3,7 +3,7 @@ import file from "../utilities/file.ts";
 import node from "../core/node.ts";
 import vars from "../core/vars.ts";
 
-const server_audit = function start_serverAudi(complete_tasks:(task:type_start_primary_tasks) => void):core_start_task {
+const server_audit = function start_serverAudit(complete_tasks:(task:type_start_primary_tasks) => void):core_start_task {
     return {
         label: "Server audit removes directories of server artifacts no longer in the server inventory.",
         task: function start_serverAudit_task():void {

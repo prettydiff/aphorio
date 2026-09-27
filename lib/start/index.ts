@@ -44,7 +44,7 @@ const start = function start(process_path:string):void {
                 tasks[keys_tasks[index_tasks]].task();
             } while (index_tasks > 0);
         },
-        start_prerequisites = function start_startPrerequisites():void {
+        prerequisites = function start_prerequisites():void {
             if (keys_prerequisites[index_prerequisites] === undefined) {
                 start_tasks();
             } else {
@@ -127,11 +127,11 @@ const start = function start(process_path:string):void {
             }
         },
         prerequisite_tasks:core_start_tasks = {
-            admin: admin(start_prerequisites),
-            features: features(start_prerequisites, process_path),
-            os_main: os_main(start_prerequisites),
-            compose: compose(start_prerequisites),
-            servers: servers(start_prerequisites, process_path)
+            admin: admin(prerequisites),
+            features: features(prerequisites, process_path),
+            os_main: os_main(prerequisites),
+            compose: compose(prerequisites),
+            servers: servers(prerequisites, process_path)
         },
         tasks:core_start_tasks = {
             certificates: certificates(complete_tasks, process_path),
@@ -188,7 +188,7 @@ const start = function start(process_path:string):void {
                             }
                             return start_address;
                         }()),
-                        stat_browser = function start_testStat_stat(details:node_fs_BigIntStats):void {
+                        stat_browser = function start_testStat_statBrowser(details:node_fs_BigIntStats):void {
                             if (details === null) {
                                 tasks[property].label = `Testing file ${vars.text.angry}not${vars.text.none} found for: ${vars.text.red + address.replace(/\\\\/g, "\\") + vars.text.none}`;
                             } else {
@@ -202,7 +202,7 @@ const start = function start(process_path:string):void {
                                 vars.test.test_browser = address;
                                 complete_tasks("test_browser");
                             } else if (property === "test_list") {
-                                import(`file://${address.replace(/\\/g, "/")}`).then(function start_testStat_getValue_list(mod:object):void {
+                                import(`file://${address.replace(/\\/g, "/")}`).then(function start_testStat_statBrowser_list(mod:object):void {
                                     // @ts-expect-error - the Module type definition is not aware of the children exported upon a given module object.
                                     vars.test.list = mod.default;
                                     complete_tasks(property);
@@ -260,16 +260,16 @@ const start = function start(process_path:string):void {
         // update OS list of available shells
         if (vars.environment.features["terminal"] === true) {
             if (process.platform === "win32" || process.platform === "cygwin") {
-                const stats = function start_tasksShell_shellWin(index:number):void {
+                const stats = function start_shellWin(index:number):void {
                     file.stat({
-                        callback: function start_tasksShell_shellWin_callback(stat:node_fs_BigIntStats):void {
+                        callback: function start_shellWin_callback(stat:node_fs_BigIntStats):void {
                             if (stat === null) {
                                 vars.environment.terminal.splice(index, 1);
                             }
                             if (index > 0) {
-                                start_tasksShell_shellWin(index - 1);
+                                start_shellWin(index - 1);
                             } else {
-                                start_prerequisites();
+                                prerequisites();
                             }
                         },
                         location: vars.environment.terminal[index],
@@ -280,12 +280,12 @@ const start = function start(process_path:string):void {
                 stats(vars.environment.terminal.length - 1);
             } else {
                 file.stat({
-                    callback: function start_tasksShell_shellStat(stat:node_fs_BigIntStats):void {
+                    callback: function start_shellStat(stat:node_fs_BigIntStats):void {
                         if (stat === null) {
                             vars.environment.terminal.push("/bin/sh");
                         } else {
                             file.read({
-                                callback: function start_tasksShell_shellStat_shellRead(contents:Buffer):void {
+                                callback: function start_shellStat_shellRead(contents:Buffer):void {
                                     const lines:string[] = contents.toString().split("\n"),
                                         len:number = lines.length;
                                     let index:number = 1;
@@ -300,7 +300,7 @@ const start = function start(process_path:string):void {
                                     if (vars.environment.terminal.length < 1) {
                                         vars.environment.terminal.push("/bin/sh");
                                     }
-                                    start_prerequisites();
+                                    prerequisites();
                                 },
                                 location: "/etc/shells",
                                 no_file: null,
@@ -314,7 +314,7 @@ const start = function start(process_path:string):void {
                 });
             }
         } else {
-            start_prerequisites();
+            prerequisites();
         }
     }
 };

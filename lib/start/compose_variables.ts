@@ -7,7 +7,7 @@ import vars from "../core/vars.ts";
 const compose_variables = function start_composeVariables(complete_tasks:(task:type_start_primary_tasks) => void, process_path:string):core_start_task {
     return {
         label: "Gathering stored docker compose variables.",
-        task: function start_composeVariables():void {
+        task: function start_composeVariables_task():void {
             if (vars.options.mode === "demo") {
                 vars.data.compose_variables = {
                     APP_DISK: "/path_to_apps",
@@ -21,7 +21,7 @@ const compose_variables = function start_composeVariables(complete_tasks:(task:t
                 complete_tasks("compose_variables");
             } else {
                 file.read({
-                    callback: function start_composeVariables_read(raw:Buffer):void {
+                    callback: function start_composeVariables_task_read(raw:Buffer):void {
                         if (raw !== null) {
                             const lines:string[] = raw.toString().split("\n"),
                                 store:[string, string][] = [],
@@ -35,7 +35,7 @@ const compose_variables = function start_composeVariables(complete_tasks:(task:t
                                     store.push([lines[index].slice(0, lines[index].indexOf("=")), lines[index].slice(lines[index].indexOf("=") + 1)]);
                                 }
                             } while (index > 0);
-                            store.sort(function start_composeVariables_read_sort(a:[string, string], b:[string, string]):-1|1 {
+                            store.sort(function start_composeVariables_task_read_sort(a:[string, string], b:[string, string]):-1|1 {
                                 if (a[0] < b[0]) {
                                     return -1;
                                 }
