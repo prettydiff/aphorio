@@ -229,11 +229,13 @@ const start = function start(process_path:string):void {
             }
         },
         log_task = function start_logTask(list:"prerequisite"|"task", flag:type_start_pre_tasks | type_start_primary_tasks):void {
-            const label:string = (list === "task")
-                    ? tasks[flag].label
-                    : prerequisite_tasks[flag].label,
-                asterisk:string = `${vars.text.angry}*${vars.text.none}`;
-            log.shell([`${asterisk} ${vars.text.cyan}[${process.hrtime.bigint().time_elapsed(vars.environment.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${label}`]);
+            if (vars.options.mode === "demo" || vars.options.mode === "server" || vars.options.mode === "test") {
+                const label:string = (list === "task")
+                        ? tasks[flag].label
+                        : prerequisite_tasks[flag].label,
+                    asterisk:string = `${vars.text.angry}*${vars.text.none}`;
+                log.shell([`${asterisk} ${vars.text.cyan}[${process.hrtime.bigint().time_elapsed(vars.environment.start_time)}]${vars.text.none} ${vars.text.green + flag + vars.text.none} - ${label}`]);
+            }
         },
         keys_tasks:type_start_primary_tasks[] = Object.keys(tasks) as type_start_primary_tasks[],
         keys_prerequisites:type_start_pre_tasks[] = Object.keys(prerequisite_tasks) as type_start_pre_tasks[],

@@ -47,6 +47,9 @@ Determine which features to exclude by simply setting a boolean value in the `fe
    * bun - `bun ./aphorio/lib/index.ts`
 5. Access the dashboard in a browser on the specified random port.
 
+After running the application the first time it can then be executed using the command `aphorio`.
+For example: `aphorio test no-color no-exit`
+
 ## Nerd Stuff
 ### Shell commands
 Please note that Docker support on Linux requires executing this application administratively, such as a systemd service or locally as: `sudo /home/user_id/.nvm/versions/node/v26.7.0/bin/node /home/user_id/aphorio/lib/index.ts`

@@ -17,7 +17,11 @@ function index():void {
             arg:type_options = null,
             value:string = null;
         const assign = function index_assign(key:type_options, value:string):void {
-            if (key === "mode" && (value === "certificate" || value === "demo" || value === "server" || value === "test")) {
+            if (key === "feature") {
+                if (vars.environment.features[value as type_dashboard_features] !== undefined) {
+                    vars.options.feature = value as type_dashboard_features;
+                }
+            } else if (key === "mode" && (value === "certificate" || value === "demo" || value === "server" || value === "test")) {
                 vars.options.mode = value;
             } else if (typeof vars.options[key] === "number") {
                 const numb:number = Number(value);
@@ -65,6 +69,8 @@ function index():void {
         } while (index > 0);
         if (vars.options.mode === "test") {
             vars.test.testing = true;
+        } else if (vars.options.feature !== null) {
+            vars.options.mode = "shell";
         }
 
         vars.path.project = (vars.test.testing === true)
@@ -83,7 +89,9 @@ function index():void {
                 vars.text[keys[index]] = "";
             } while (index > 0);
         }
-        if (process.argv.includes("screenshot") === true || process.argv.includes("screenshots") === true) {
+        if (process.argv.includes("help") === true) {
+            help();
+        } else if (process.argv.includes("screenshot") === true || process.argv.includes("screenshots") === true) {
             screenshots();
         } else {
             start(process_path);

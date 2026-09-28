@@ -20,7 +20,7 @@ const ready_services = function start_readServices(count_task:number):void {
     }
     if (vars.test.testing === true) {
         test_index();
-    } else {
+    } else if (vars.options.mode === "demo" || vars.options.mode === "server" || vars.options.mode === "test") {
         const heading = function start_services_heading(message:string):string {
                 return vars.text.underline + message + vars.text.none;
             },

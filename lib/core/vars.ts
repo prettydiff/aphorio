@@ -248,6 +248,7 @@ const vars:core_vars = {
             "browser": null,
             "delay-intervals": 250,
             "delay-time": 50,
+            "feature": null,
             "list": null,
             "mode": "server",
             "no-color": false,
