@@ -1,6 +1,5 @@
 
 // changes to this module list must be reflected in the equivalent string in file:
-// lib/start/global_name.ts
 import log from "./core/log.ts";
 import node from "./core/node.ts";
 import screenshots from "./utilities/screenshots.ts";
@@ -89,9 +88,7 @@ function index():void {
                 vars.text[keys[index]] = "";
             } while (index > 0);
         }
-        if (process.argv.includes("help") === true) {
-            help();
-        } else if (process.argv.includes("screenshot") === true || process.argv.includes("screenshots") === true) {
+        if (process.argv.includes("screenshot") === true || process.argv.includes("screenshots") === true) {
             screenshots();
         } else {
             start(process_path);

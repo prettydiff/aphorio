@@ -266,6 +266,26 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     return null;
 
                 },
+                upgrade_tls = function transmit_connection_handshake_upgradeTLS():void {
+                    // * server option 'upgrade' must be true
+                    // * must be http request with header 'upgrade-insecure-requests: 1'
+                    // * requests from the dashboard http test tool are ignored
+                    const resource_first:string = headerList[0].slice(headerList[0].replace(/ +/, " ").indexOf(" ") + 1),
+                        resource_second:string = resource_first.replace(/\s+HTTP\/\d(\.\d)?/, ""),
+                        resource:string = resource_second.replace(/\/$/, ""),
+                        domain:string = (node.net.isIPv6(store.domain) === true)
+                            ? `[${store.domain}]`
+                            : store.domain;
+                    http_write(socket, [
+                        "HTTP/1.1 308",
+                        `location: https://${domain}:${vars.data.server[server_id].ports.secure + resource}`,
+                        "content-length: 5",
+                        "",
+                        "moved",
+                        "",
+                        ""
+                    ].join("\r\n"), true);
+                },
                 local_service = function transmit_connection_handshake_localService():void {
                     const redirect:Buffer = redirection();
                     if (socket.destroyed === true) {
@@ -619,21 +639,28 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
             });
 
             {
-                const blocked_host:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.host.includes(store.origin) === true),
-                    blocked_ip:boolean = (server.block_list !== null && server.block_list !== undefined && server.block_list.ip.includes(address.remote.address) === true),
-                    blocked:boolean = (flags.referer === true || blocked_host === true || blocked_ip === true || (domain_local.includes(store.origin) === false && socket.proxy === null)),
-                    redirect_domain:boolean = (server.redirect_domain !== undefined && server.redirect_domain !== null && server.redirect_domain[store.origin] !== undefined && server.redirect_domain[store.origin] !== null),
+                const block_list:store_flag = (server.block_list === null || server.block_list === undefined)
+                        ? {
+                            domain: (domain_local.includes(store.origin) === false && socket.proxy === null),
+                            host: false,
+                            ip: false
+                        }
+                        : {
+                            domain: (domain_local.includes(store.origin) === false && socket.proxy === null),
+                            host: server.block_list.host.includes(store.origin),
+                            ip: server.block_list.ip.includes(address.remote.address)
+                        },
+                    blocked:boolean = (headerList.length < 3 || flags.referer === true || block_list.host === true || block_list.ip === true || block_list.domain === true),
                     redirect_tls:boolean = (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0),
-                    upgrade_tls:boolean = (flags.upgrade === true as boolean && flags.dashboard_http_test === false);
-                // origin is not in the socket's domain_local or redirect_domain lists
-                if (blocked === true || headerList.length < 3) {
+                    redirect_domain_flag:boolean = (server.redirect_domain !== undefined && server.redirect_domain !== null && server.redirect_domain[store.origin] !== undefined && server.redirect_domain[store.origin] !== null),
+                    upgrade_tls_flag:boolean = (flags.upgrade === true as boolean && flags.dashboard_http_test === false);
+
+                if (blocked === true) {
                     socket.destroy();
-                // TLS data sent to open server - proxy the socket to the server's TLS port, if one is running
                 } else if (redirect_tls === true) {
                     store.domain = `open_socket_tunnel-${vars.data.server[server_id].config.name}`;
                     proxy_create(address.local.address, vars.data.server[server_id].ports.secure, false);
-                // request indicates need for a proxy
-                } else if (redirect_domain === true) {
+                } else if (redirect_domain_flag === true) {
                     const pair:type_redirect_domain = (socket.encrypted === true && server.redirect_domain[`${store.origin}.secure`] !== undefined)
                             ? server.redirect_domain[`${store.origin}.secure`]
                             : server.redirect_domain[store.origin],
@@ -657,27 +684,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     }
                     store.domain = `tls_socket_redirect-${vars.data.server[server_id].config.name}`;
                     proxy_create(host, port, encryption);
-                // request is an HTTP upgrade
-                } else if (upgrade_tls === true) {
-                    // * server option 'upgrade' must be true
-                    // * must be http request with header 'upgrade-insecure-requests: 1'
-                    // * requests from the dashboard http test tool are ignored
-                    const resource_first:string = headerList[0].slice(headerList[0].replace(/ +/, " ").indexOf(" ") + 1),
-                        resource_second:string = resource_first.replace(/\s+HTTP\/\d(\.\d)?/, ""),
-                        resource:string = resource_second.replace(/\/$/, ""),
-                        domain:string = (node.net.isIPv6(store.domain) === true)
-                            ? `[${store.domain}]`
-                            : store.domain;
-                    http_write(socket, [
-                        "HTTP/1.1 308",
-                        `location: https://${domain}:${vars.data.server[server_id].ports.secure + resource}`,
-                        "content-length: 5",
-                        "",
-                        "moved",
-                        "",
-                        ""
-                    ].join("\r\n"), true);
-                // regular local traffic
+                } else if (upgrade_tls_flag === true) {
+                    upgrade_tls();
                 } else {
                     local_service();
                 }
