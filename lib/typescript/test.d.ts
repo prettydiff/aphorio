@@ -97,7 +97,28 @@ interface test_item_dom {
     unit: test_assertion_dom[];
 }
 
+interface test_item_proxy {
+    config: {
+        encryption: boolean;
+        headers: string;
+        uri: string;
+    };
+    name: string;
+    output: {
+        origin: string;
+        pathname: string;
+        port: string;
+        response_body_raw: string;
+        response_headers: string;
+    };
+    type: "proxy";
+}
+
 interface test_list_dom extends Array<test_item_dom> {
+    name?: string;
+}
+
+interface test_list_proxy extends Array<test_item_proxy> {
     name?: string;
 }
 

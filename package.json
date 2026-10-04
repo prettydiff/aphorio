@@ -41,8 +41,8 @@
     "scripts": {
         "server-bun": "bun ./lib/index.ts",
         "server-node": "node ./lib/index.ts",
-        "test-bun":   "bun ./lib/index.ts mode:test",
-        "test-node":   "node ./lib/index.ts mode:test",
+        "test-bun":   "bun ./lib/index.ts mode:test-browser",
+        "test-node":   "node ./lib/index.ts mode:test-browser",
         "tsc":    "node ./node_modules/typescript/bin/tsc --pretty"
     },
     "types": "/lib/typescript",

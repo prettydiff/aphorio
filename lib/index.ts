@@ -20,7 +20,7 @@ function index():void {
                 if (vars.environment.features[value as type_dashboard_features] !== undefined) {
                     vars.options.feature = value as type_dashboard_features;
                 }
-            } else if (key === "mode" && (value === "certificate" || value === "demo" || value === "server" || value === "test")) {
+            } else if (key === "mode" && (value === "certificate" || value === "demo" || value === "server" || value === "test-browser")) {
                 vars.options.mode = value;
             } else if (typeof vars.options[key] === "number") {
                 const numb:number = Number(value);
@@ -66,7 +66,7 @@ function index():void {
                 }
             }
         } while (index > 0);
-        if (vars.options.mode === "test") {
+        if (vars.options.mode === "test-browser") {
             vars.test.testing = true;
         } else if (vars.options.feature !== null) {
             vars.options.mode = "shell";

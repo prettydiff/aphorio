@@ -229,7 +229,7 @@ const start = function start(process_path:string):void {
             }
         },
         log_task = function start_logTask(list:"prerequisite"|"task", flag:type_start_pre_tasks | type_start_primary_tasks):void {
-            if (vars.options.mode === "demo" || vars.options.mode === "server" || vars.options.mode === "test") {
+            if (vars.options.mode === "demo" || vars.options.mode === "server" || vars.options.mode === "test-browser") {
                 const label:string = (list === "task")
                         ? tasks[flag].label
                         : prerequisite_tasks[flag].label,

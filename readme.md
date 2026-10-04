@@ -82,12 +82,12 @@ Please note that Docker support on Linux requires executing this application adm
    <td>Executes the application with Node.js</td>
 </tr>
 <tr>
-   <td><code>npm run test-bun</code><br>or<br><code>bun ./lib/index.ts mode:test</code></td>
-   <td>Runs the test automation with bun</td>
+   <td><code>npm run test-bun</code><br>or<br><code>bun ./lib/index.ts mode:test-browser</code></td>
+   <td>Runs the dashboard test automation with bun</td>
 </tr>
 <tr>
-   <td><code>npm run test-node</code><br>or<br><code>node ./lib/index.ts mode:test</code></td>
-   <td>Runs the test automation with Node.js</td>
+   <td><code>npm run test-node</code><br>or<br><code>node ./lib/index.ts mode:test-browser</code></td>
+   <td>Runs the dashboard test automation with Node.js</td>
 </tr>
 <tr>
    <td><code>npm run tsc</code></td>
@@ -113,8 +113,8 @@ Please note that Docker support on Linux requires executing this application adm
    <td>This is the applications's default behavior designed to execute the application as a service and report output to a web browser.</td>
 </tr>
 <tr>
-   <td><code>mode:test</code></td>
-   <td>Instructs the application to execute test automation.</td>
+   <td><code>mode:test-browser</code></td>
+   <td>Instructs the application to execute test automation against the dashboard in a web browser.</td>
 </tr>
 </tbody></table>
 
@@ -137,7 +137,7 @@ Please note that Docker support on Linux requires executing this application adm
 </tr>
 </tbody></table>
 
-#### Test Mode Options
+#### Test-Browser Mode Options
 <table>
 <thead><tr>
    <td>Command</td><td>Description</td>
