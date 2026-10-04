@@ -1,7 +1,7 @@
 
 
-const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWebSocket():test_list {
-    const list:test_list = [
+const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWebSocket():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [

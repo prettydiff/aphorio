@@ -1,8 +1,8 @@
 
 // cspell: words bootable
 
-const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_list {
-    const list:test_list = [
+const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [

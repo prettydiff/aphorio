@@ -1,7 +1,7 @@
 
 
-const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():test_list {
-    const list:test_list = [
+const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [

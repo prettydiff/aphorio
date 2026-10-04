@@ -1,8 +1,8 @@
 
 import vars from "../core/vars.ts";
 
-const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses():test_list {
-    const list:test_list = [
+const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [

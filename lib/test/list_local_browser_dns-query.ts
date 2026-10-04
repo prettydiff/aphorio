@@ -1,7 +1,7 @@
 // cspell: words bxsw, docusign, onetrust, smime, tlds
 
-const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():test_list {
-    const list:test_list = [
+const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [

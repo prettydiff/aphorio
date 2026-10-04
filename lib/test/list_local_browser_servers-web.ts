@@ -1,7 +1,7 @@
 
 
-const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb():test_list {
-    const list:test_list = [
+const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [

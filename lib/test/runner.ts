@@ -167,7 +167,7 @@ const test_runner:test_runner = {
             send(payload, test_runner.socket, 3);
         }
     },
-    list: function test_runner_list(list:test_list, callback:(name:string) => void):void {
+    list: function test_runner_list(list:test_list_dom, callback:(name:string) => void):void {
         const len_list:number = list.length;
         log.shell(["", "", `Test list ${vars.text.cyan + list.name + vars.text.none}`]);
         vars.test.index = 0;

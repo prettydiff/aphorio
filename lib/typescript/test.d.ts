@@ -97,7 +97,7 @@ interface test_item_dom {
     unit: test_assertion_dom[];
 }
 
-interface test_list extends Array<test_item_dom> {
+interface test_list_dom extends Array<test_item_dom> {
     name?: string;
 }
 
@@ -109,7 +109,7 @@ interface test_runner {
     execution: {
         dom: () => void;
     };
-    list: (list:test_list, callback:(name:string) => void) => void;
+    list: (list:test_list_dom, callback:(name:string) => void) => void;
     logger: (assertions:test_assert[]) => void;
     logs: string[];
     receive: (socket_data:socket_data) => void;

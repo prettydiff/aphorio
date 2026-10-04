@@ -1,6 +1,6 @@
 
-const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserApplicationLogs():test_list {
-    const list:test_list = [
+const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserApplicationLogs():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [

@@ -1,8 +1,8 @@
 
 import vars from "../core/vars.ts";
 
-const test_listLocalSocketsOS_UDP = function test_listLocalSocketsOS_UDP():test_list {
-    const list:test_list = [
+const test_listLocalSocketsOS_UDP = function test_listLocalSocketsOS_UDP():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [

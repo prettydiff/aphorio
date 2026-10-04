@@ -32,7 +32,7 @@ import vars from "../core/vars.ts";
 
 const test_index = function test_index():void {
     let total_lists:number = 0;
-    const list:test_list[] = (vars.test.list === null)
+    const list:test_list_dom[] = (vars.test.list === null)
             ? [
                 test_listLocalBrowserStart(),
                 test_listLocalBrowserApplicationLogs(),

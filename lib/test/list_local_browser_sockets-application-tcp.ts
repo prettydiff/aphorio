@@ -1,7 +1,7 @@
 import vars from "../core/vars.ts";
 
-const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowserSocketsApplicationTCP():test_list {
-    const list:test_list = [
+const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowserSocketsApplicationTCP():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [

@@ -76,5 +76,5 @@ interface store_string_list {
 }
 
 interface store_test_list {
-    [key:string]: test_list;
+    [key:string]: test_list_dom;
 }

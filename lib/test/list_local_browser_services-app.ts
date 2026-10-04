@@ -1,7 +1,7 @@
 
 
-const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesApp():test_list {
-    const list:test_list = [
+const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesApp():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
