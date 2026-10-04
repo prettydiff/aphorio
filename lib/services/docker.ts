@@ -185,6 +185,8 @@ const docker:core_module_docker = {
                                                     complete("");
                                                 }
                                             } while (index > 0);
+                                        } else {
+                                            complete("");
                                         }
                                     };
                                 directory({

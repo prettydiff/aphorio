@@ -39,7 +39,7 @@ const certificate = function services_certificate(config:config_certificate):voi
                                     }
                                     if (count > 1) {
                                         vars.data.server[config.id].certificates_client = store_cert;
-                                        if (vars.data.server[config.id].config.certificate_path === undefined) {
+                                        if (vars.data.server[config.id].config.certificate_path === undefined || vars.data.server[config.id].config.certificate_path === null) {
                                             vars.data.server[config.id].config.certificate_path = {
                                                 ca: `${vars.path.project}servers${vars.path.sep + config.id + vars.path.sep}certs${vars.path.sep}int.crt`,
                                                 cert: `${vars.path.project}servers${vars.path.sep + config.id + vars.path.sep}certs${vars.path.sep}server.crt`,

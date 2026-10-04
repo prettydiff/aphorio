@@ -79,7 +79,7 @@ interface supplemental_server_config {
         ip: string[];
         referrer: string[];
     };
-    certificate_path: transmit_tlsCerts;
+    certificate_path?: transmit_tlsCerts;
     domain_local: string[];
     encryption: type_encryption;
     id: string;

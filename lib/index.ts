@@ -16,12 +16,15 @@ function index():void {
             arg:type_options = null,
             value:string = null;
         const assign = function index_assign(key:type_options, value:string):void {
+            const modes:type_mode[] = ["certificate", "demo", "server", "test-browser", "test-proxy"];
             if (key === "feature") {
                 if (vars.environment.features[value as type_dashboard_features] !== undefined) {
                     vars.options.feature = value as type_dashboard_features;
                 }
-            } else if (key === "mode" && (value === "certificate" || value === "demo" || value === "server" || value === "test-browser")) {
-                vars.options.mode = value;
+            } else if (modes.includes(key as type_mode) === true) {
+                vars.options.mode = key as type_mode;
+            } else if (key === "mode" && modes.includes(value as type_mode) === true) {
+                vars.options.mode = value as type_mode;
             } else if (typeof vars.options[key] === "number") {
                 const numb:number = Number(value);
                 if (isNaN(numb) === false) {

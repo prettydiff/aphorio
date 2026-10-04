@@ -115,6 +115,8 @@ const directory = function utilities_directory(args:config_directory):void {
             }
             if (output.length > 0) {
                 counter(parent);
+            } else {
+                complete(null);
             }
         },
         add_item = function utilities_directory_addItem(item:type_directory_item):void {
@@ -193,7 +195,7 @@ const directory = function utilities_directory(args:config_directory):void {
         stat_wrap = function utilities_directory_statWrap(path:string, parent_item:boolean, parent_index:number):void {
             method(path, function utilities_directory_statWrap_stat(ers:node_error, stat:node_fs_Stats):void {
                 if (ers === null) {
-                    const populate = function utilities_directory_statWrap_stat_populate(type:"block_device"|"character_device"|"directory"|"fifo_pipe"|"file"|"socket"|"symbolic_link"):void {
+                    const populate = function utilities_directory_statWrap_stat_populate(type:type_file):void {
                         const stat_obj:core_directory_data = {
                                 atimeMs: stat.atimeMs,
                                 ctimeMs: stat.ctimeMs,

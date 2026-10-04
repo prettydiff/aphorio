@@ -653,7 +653,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     blocked:boolean = (headerList.length < 3 || flags.referer === true || block_list.host === true || block_list.ip === true || block_list.domain === true),
                     redirect_tls:boolean = (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0),
                     redirect_domain_flag:boolean = (server.redirect_domain !== undefined && server.redirect_domain !== null && server.redirect_domain[store.origin] !== undefined && server.redirect_domain[store.origin] !== null),
-                    upgrade_tls_flag:boolean = (flags.upgrade === true as boolean && flags.dashboard_http_test === false);
+                    upgrade_tls_flag:boolean = (flags.upgrade === true && flags.dashboard_http_test === false && socket.encrypted !== true && vars.data.server[server_id].config.encryption === "both");
 
                 if (blocked === true) {
                     socket.destroy();

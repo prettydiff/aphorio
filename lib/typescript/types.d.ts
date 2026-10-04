@@ -47,7 +47,7 @@ type type_keys = "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "Backspa
 type type_list_services = services_os_devs | services_os_proc | services_os_serv | services_os_sock | services_os_user | services_ports_application | supplemental_socket_application_list;
 type type_lists = os_devs | os_proc | os_serv | os_sock | os_user | services_udp_socket | supplemental_ports_application_item | supplemental_socket_application_tcp;
 
-type type_mode = "certificate" | "demo" | "server" | "shell" | "test-browser";
+type type_mode = "certificate" | "demo" | "server" | "shell" | "test-browser" | "test-proxy";
 type type_options = "browser" | "delay-intervals" | "delay-time" | "feature" | "list" | "mode" | "no-color" | "no-exit" | "port-open" | "port-secure" | "stop-on-fail" | "test-verbose";
 
 type type_os_key = type_os_list_names_base | "disk" | "part" | "stcp" | "sudp" | "volu";
