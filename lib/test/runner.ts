@@ -256,9 +256,27 @@ const test_runner:test_runner = {
     },
     receive: function test_runner_receive(socket_data:socket_data):void {
         const data:services_test_browser = socket_data.data as services_test_browser,
-            results:test_assert[] = data.result;
+            results:test_assert[] = data.result,
+            interactions:test_event[] = vars.test.list[vars.test.index].interaction;
+        let index:number = (interactions === null)
+                ? 0
+                : interactions.length,
+            refresh:boolean = false;
+        if (index > 0) {
+            do {
+                index = index - 1;
+                if (interactions[index].event === "refresh") {
+                    refresh = true;
+                    break;
+                }
+            } while (index > 0);
+        }
         test_runner.logger(results);
-        test_runner.tools.next();
+        if (refresh === false) {
+            test_runner.tools.next();
+        } else {
+            test_runner.tools.get_socket(test_runner.tools.next);
+        }
     },
     socket: null,
     tools: {
@@ -272,14 +290,6 @@ const test_runner:test_runner = {
                         return `${vars.commands.open} "${vars.test.test_browser}" "${path}"`;
                     }
                     return `${vars.commands.open} "${path}"`;
-                },
-                call_dom = function test_runner_toolsBrowser_callDom():void {
-                    if (vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0] === undefined || vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0].queue === undefined) {
-                        setTimeout(test_runner_toolsBrowser_callDom, 50);
-                    } else {
-                        test_runner.socket = vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0];
-                        test_runner.execution.dom();
-                    }
                 };
             vars.test.browser_start = true;
             vars.test.browser_child = spawn(browserCommand(), null, {
@@ -288,9 +298,21 @@ const test_runner:test_runner = {
                     : "bash"
             });
             vars.test.browser_child.execute();
-            setTimeout(call_dom, 300);
+            setTimeout(function test_runner_toolsBrowser_delay():void {
+                test_runner.tools.get_socket(test_runner.execution.dom);
+            }, 300);
         },
         callback: null,
+        get_socket: function test_runner_getSocket(callback:() => void):void {
+            if (vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0] === undefined || vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0].queue === undefined || vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0].hash.indexOf("http-") === 0) {
+                setTimeout(function test_runner_getSocket_delay():void {
+                    test_runner_getSocket(callback);
+                }, 50);
+            } else {
+                test_runner.socket = vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0];
+                callback();
+            }
+        },
         get_value: function test_runner_getValue(value_actual:test_primitive, value_test:test_primitive|test_primitive[]):test_primitive {
             if (Array.isArray(value_test) === true) {
                 const index:number = (value_test as test_primitive[]).indexOf(value_actual);

@@ -432,7 +432,7 @@ const ui_servers_web = function ui_servers_web():void {
             dashboard.global.payload.server = data;
             dashboard.sections["servers-web"].nodes.service_new.onclick = dashboard.shared_services.create;
             list.sort(function dashboard_sections_serversWeb_receive_sort(a:string, b:string):-1|1 {
-                if (a < b) {
+                if (data[a].config.name < data[b].config.name) {
                     return -1;
                 }
                 return 1;

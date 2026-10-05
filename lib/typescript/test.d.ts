@@ -138,6 +138,7 @@ interface test_runner {
     tools: {
         browser_open: () => void;
         callback: (name:string) => void;
+        get_socket: (callback:() => void) => void;
         get_value: (value_actual:test_primitive, value_test:test_primitive|test_primitive[]) => test_primitive;
         next: () => void;
         time: () => string;

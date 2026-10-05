@@ -245,11 +245,11 @@ const vars:core_vars = {
         },
         // command line options for running this application
         options: {
-            "browser": null,
+            "browser": "",
             "delay-intervals": 250,
             "delay-time": 50,
-            "feature": null,
-            "list": null,
+            "feature": "",
+            "list": "",
             "mode": "server",
             "no-color": false,
             "no-exit": false,

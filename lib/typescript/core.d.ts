@@ -427,7 +427,7 @@ interface core_vars_options {
     "browser": string;
     "delay-intervals": number;
     "delay-time": number;
-    "feature": type_dashboard_features;
+    "feature": type_dashboard_features | "";
     "list": string;
     "mode": type_mode;
     "no-color": boolean;

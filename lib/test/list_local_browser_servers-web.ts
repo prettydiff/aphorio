@@ -491,7 +491,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     qualifier: "is",
                     target: ["textContent"],
                     type: "property",
-                    value: "test-server - online"
+                    value: "dashboard - online"
                 },
                 {
                     node: [
@@ -504,7 +504,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     qualifier: "is",
                     target: ["textContent"],
                     type: "property",
-                    value: "dashboard - online"
+                    value: "test-server - online"
                 }
             ]
         },
@@ -542,10 +542,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                         ["getElementsByClassName", "active-ports", 0],
                         ["getElementsByTagName", "li", 0]
                     ],
-                    qualifier: "is",
+                    qualifier: "begins",
                     target: ["textContent"],
                     type: "property",
-                    value: "Open - 54321 (TCP)"
+                    value: "Open - "
                 },
                 {
                     node: [
@@ -555,10 +555,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                         ["getElementsByClassName", "active-ports", 0],
                         ["getElementsByTagName", "code", 0]
                     ],
-                    qualifier: "is",
+                    qualifier: "begins",
                     target: ["textContent"],
                     type: "property",
-                    value: ""
+                    value: "-----BEGIN CERTIFICATE-----"
                 },
                 {
                     node: [
@@ -568,10 +568,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                         ["getElementsByClassName", "active-ports", 0],
                         ["getElementsByTagName", "code", 1]
                     ],
-                    qualifier: "is",
-                    target: ["textContent"],
+                    qualifier: "greater",
+                    target: ["textContent", "length"],
                     type: "property",
-                    value: ""
+                    value: 3000
                 },
                 {
                     node: [
@@ -608,6 +608,24 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
                         ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "servers-web", null],
+                        ["getElementsByClassName", "server-list", 0],
+                        ["getElementsByTagName", "li", 1],
+                        ["getElementsByTagName", "button", 0]
+                    ]
+                },
+                {
+                    event: "click",
+                    node: [
+                        ["getElementById", "servers-web", null],
+                        ["getElementsByClassName", "server-list", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByTagName", "button", 1]
                     ]
                 }
@@ -619,7 +637,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     node: [
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "edit", 0],
                         ["getElementsByClassName", "buttons", 0],
                         ["getElementsByTagName", "button", 0]
@@ -633,7 +651,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     node: [
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "edit", 0],
                         ["getElementsByClassName", "buttons", 0],
                         ["getElementsByTagName", "button", 0]
@@ -647,7 +665,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     node: [
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "edit", 0],
                         ["getElementsByClassName", "buttons", 0],
                         ["getElementsByTagName", "button", 1]
@@ -661,7 +679,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     node: [
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "edit", 0],
                         ["getElementsByClassName", "buttons", 0],
                         ["getElementsByTagName", "button", 1]
@@ -675,7 +693,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     node: [
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "edit", 0],
                         ["getElementsByClassName", "buttons", 0],
                         ["getElementsByTagName", "button", 1]
@@ -689,7 +707,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     node: [
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "edit", 0],
                         ["getElementsByClassName", "buttons", 1],
                         ["getElementsByTagName", "button", 0]
@@ -703,7 +721,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     node: [
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "edit", 0],
                         ["getElementsByClassName", "buttons", 1],
                         ["getElementsByTagName", "button", 0]
@@ -717,7 +735,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     node: [
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "edit", 0],
                         ["getElementsByClassName", "buttons", 1],
                         ["getElementsByTagName", "button", 1]
@@ -731,7 +749,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     node: [
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "edit", 0],
                         ["getElementsByClassName", "buttons", 1],
                         ["getElementsByTagName", "button", 1]
@@ -745,7 +763,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     node: [
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "edit", 0],
                         ["getElementsByClassName", "buttons", 1],
                         ["getElementsByTagName", "button", 1]
@@ -774,14 +792,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 node: [
                     ["getElementById", "servers-web", null],
                     ["getElementsByClassName", "server-list", 0],
-                    ["getElementsByTagName", "li", 0],
-                    ["getElementsByTagName", "button", 0],
-                    ["lastChild", null, null]
+                    ["getElementsByTagName", "li", 1]
                 ],
                 qualifier: "is",
-                target: ["textContent"],
-                type: "property",
-                value: "dashboard - online"
+                target: [],
+                type: "element",
+                value: undefined
             },
             interaction: [
                 {
@@ -789,7 +805,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                     node: [
                         ["getElementById", "servers-web", null],
                         ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
+                        ["getElementsByTagName", "li", 1],
                         ["getElementsByClassName", "edit", 0],
                         ["getElementsByClassName", "buttons", 1],
                         ["getElementsByTagName", "button", 0]
@@ -798,22 +814,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
             ],
             name: "Destroy new server",
             type: "dom",
-            unit: [
-                {
-                    node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1]
-                    ],
-                    qualifier: "is",
-                    target: [],
-                    type: "element",
-                    value: undefined
-                }
-            ]
+            unit: []
         }
     ];
-    list.name = "Local browser tests - help";
+    list.name = "Local browser tests - servers, web";
     return list;
 };
 

@@ -15,37 +15,35 @@ function index():void {
             colonIndex:number = null,
             arg:type_options = null,
             value:string = null;
-        const assign = function index_assign(key:type_options, value:string):void {
-            const modes:type_mode[] = ["certificate", "demo", "server", "test-browser", "test-proxy"];
-            if (key === "feature") {
-                if (vars.environment.features[value as type_dashboard_features] !== undefined) {
-                    vars.options.feature = value as type_dashboard_features;
-                }
-            } else if (modes.includes(key as type_mode) === true) {
-                vars.options.mode = key as type_mode;
-            } else if (key === "mode" && modes.includes(value as type_mode) === true) {
-                vars.options.mode = value as type_mode;
-            } else if (typeof vars.options[key] === "number") {
-                const numb:number = Number(value);
-                if (isNaN(numb) === false) {
-                    const int:number = Math.floor(numb);
-                    if (
-                        ((key === "port-open" || key === "port-secure") && int > -1 && int < 65536) ||
-                        (key !== "port-open" && key !== "port-secure")
-                    ) {
-                        vars.options[key as "delay-intervals"] = int;
+        const modes:type_mode[] = ["certificate", "demo", "server", "test-browser", "test-proxy"],
+            assign = function index_assign(key:type_options, value:string):void {
+                if (key === "feature") {
+                    if (vars.environment.features[value as type_dashboard_features] !== undefined) {
+                        vars.options.feature = value as type_dashboard_features;
+                    }
+                } else if (key === "mode" && modes.includes(value as type_mode) === true) {
+                    vars.options.mode = value as type_mode;
+                } else if (typeof vars.options[key] === "number") {
+                    const numb:number = Number(value);
+                    if (isNaN(numb) === false) {
+                        const int:number = Math.floor(numb);
+                        if (
+                            ((key === "port-open" || key === "port-secure") && int > -1 && int < 65536) ||
+                            (key !== "port-open" && key !== "port-secure")
+                        ) {
+                            vars.options[key as "delay-intervals"] = int;
+                        }
+                    }
+                } else if (typeof vars.options[key] === "string" && typeof value === "string") {
+                    vars.options[key as "list"] = value;
+                } else if (typeof vars.options[key] === "boolean") {
+                    if (value === null || value === "true") {
+                        vars.options[key as "no-color"] = true;
+                    } else if (value === "false") {
+                        vars.options[key as "no-color"] = false;
                     }
                 }
-            } else if (typeof vars.options[key] === "string" && typeof value === "string") {
-                vars.options[key as "list"] = value;
-            } else if (typeof vars.options[key] === "boolean") {
-                if (value === null || value === "true") {
-                    vars.options[key as "no-color"] = true;
-                } else if (value === "false") {
-                    vars.options[key as "no-color"] = false;
-                }
-            }
-        };
+            };
         if (vars.commands === undefined) {
             log.shell([`Operating system type ${process.platform} is not yet supported.`]);
             process.exit(1);
@@ -66,12 +64,14 @@ function index():void {
                     : null;
                 if (vars.options[arg as type_options] !== undefined) {
                     assign(arg, value);
+                } else if (modes.includes(arg as type_mode) === true) {
+                    vars.options.mode = arg as type_mode;
                 }
             }
         } while (index > 0);
         if (vars.options.mode === "test-browser") {
             vars.test.testing = true;
-        } else if (vars.options.feature !== null) {
+        } else if (vars.options.feature !== "") {
             vars.options.mode = "shell";
         }
 

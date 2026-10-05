@@ -98,12 +98,12 @@ const start = function start(process_path:string):void {
                             ? 1
                             : servers.length,
                         callback = function start_completeTasks_start_serverCallback():void {
-                            count = count + 1;
-                            if (count === total) {
+                            count_servers = count_servers + 1;
+                            if (count_servers === total) {
                                 ready_services(count_task);
                             }
                         };
-                    let count:number = 0,
+                    let count_servers:number = 0,
                         index:number = 0;
 
                     if (vars.test.testing === true) {
@@ -170,11 +170,9 @@ const start = function start(process_path:string):void {
                 const get_value = function start_testStat_getValue():void {
                     const arg:"browser"|"list" = property.replace("test_", "") as "browser"|"list",
                         address:string = (function start_testStat_getValue_address():string {
-                            let start_address:string = (vars.options[arg] === null)
-                                ? ""
-                                : vars.options[arg];
+                            let start_address:string = vars.options[arg];
                             const address_length:number = start_address.length;
-                            if (vars.options[arg] === null || vars.options[arg] === undefined) {
+                            if (vars.options[arg] === "") {
                                 return "";
                             }
                             if ((start_address.charAt(0) === "\"" && start_address.charAt(address_length - 1) === "\"") || (start_address.charAt(0) === "'" && start_address.charAt(address_length - 1) === "'")) {
@@ -239,9 +237,7 @@ const start = function start(process_path:string):void {
         },
         keys_tasks:type_start_primary_tasks[] = Object.keys(tasks) as type_start_primary_tasks[],
         keys_prerequisites:type_start_pre_tasks[] = Object.keys(prerequisite_tasks) as type_start_pre_tasks[],
-        len_tasks:number = (vars.test.testing === true)
-            ? keys_tasks.length - 1 // servers task is not run in test mode
-            : keys_tasks.length;
+        len_tasks:number = keys_tasks.length;
 
     BigInt.prototype.time_elapsed = universal.time_elapsed;
     Number.prototype.bytes = universal.bytes;

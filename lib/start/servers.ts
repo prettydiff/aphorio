@@ -174,7 +174,7 @@ const servers = function start_servers(start_prerequisites:() => void, process_p
                     }
                 }
             };
-            if (vars.options.mode === "demo") {
+            if (vars.options.mode === "demo" || vars.options.mode === "test-browser") {
                 callback(null);
             } else {
                 file.read({

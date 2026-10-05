@@ -203,6 +203,11 @@ const ui_shared_services = function ui_shared_services():void {
                                 output.push(`    "cert": "${server_path}certs${dashboard.global.payload.path.sep}server.crt",`.replace(/\\/g, "\\\\"));
                                 output.push(`    "key": "${server_path}certs${dashboard.global.payload.path.sep}server.key"`.replace(/\\/g, "\\\\"));
                                 output.push("},");
+                                dashboard.global.payload.server[serverData.id].config.certificate_path = {
+                                    ca: `${server_path}certs${dashboard.global.payload.path.sep}int.crt`,
+                                    cert: `${server_path}certs${dashboard.global.payload.path.sep}server.crt`,
+                                    key: `${server_path}certs${dashboard.global.payload.path.sep}server.key`
+                                };
                             } else {
                                 output.push("\"certificate_path\": {");
                                 output.push(`    "ca": "${serverData.certificate_path.ca}",`.replace(/\\/g, "\\\\"));
