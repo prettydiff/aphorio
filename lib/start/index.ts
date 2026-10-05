@@ -36,6 +36,10 @@ import vars from "../core/vars.ts";
 let index_tasks:number = 0,
     index_prerequisites:number = 0,
     count_task:number = 0;
+
+// process_path is used in place of vars.path.process because of test mode
+// * these start up steps must know the actual project path
+// * and yet test mode has a different path to allow writing without contamination
 const start = function start(process_path:string):void {
     // prerequisite tasks will execute first in the order presented
     const start_tasks = function start_startTasks():void {
@@ -116,7 +120,9 @@ const start = function start(process_path:string):void {
                     }
 
                 };
-                if (vars.test.testing === true || vars.data.server[vars.id.dashboard_server] === undefined) {
+                if (vars.options.mode === "test-proxy") {
+                    ready_services(count_task);
+                } else if (vars.options.mode === "test-browser" || vars.data.server[vars.id.dashboard_server] === undefined) {
                     server_create({
                         action: "add",
                         server: default_server
@@ -227,7 +233,7 @@ const start = function start(process_path:string):void {
             }
         },
         log_task = function start_logTask(list:"prerequisite"|"task", flag:type_start_pre_tasks | type_start_primary_tasks):void {
-            if (vars.options.mode === "demo" || vars.options.mode === "server" || vars.options.mode === "test-browser") {
+            if (vars.options.mode === "demo" || vars.options.mode === "server" || vars.options.mode === "test-browser" || vars.options.mode === "test-proxy") {
                 const label:string = (list === "task")
                         ? tasks[flag].label
                         : prerequisite_tasks[flag].label,

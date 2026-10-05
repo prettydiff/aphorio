@@ -8,7 +8,7 @@ const ui_servers_web = function ui_servers_web():void {
             message: function dashboard_sections_serversWeb_message(event:MouseEvent):void {
                 const target:HTMLElement = event.target,
                     edit:HTMLElement = target.getAncestor("edit", "class"),
-                    action:type_dashboard_action = target.getAttribute("class").replace("server-", "") as type_dashboard_action,
+                    action:type_server_action = target.getAttribute("class").replace("server-", "") as type_server_action,
                     cancel:HTMLElement = edit.getElementsByClassName("server-cancel")[0] as HTMLElement,
                     configuration:supplemental_server_config = (function dashboard_serverMessage_configuration():supplemental_server_config {
                         const textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],

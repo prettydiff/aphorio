@@ -10,7 +10,7 @@ interface services_compose {
 // Docker compose objects and their corresponding status
 
 interface services_compose_container {
-    action: type_dashboard_action;
+    action: type_server_action;
     compose: string;
     id: string;
     location: string;
@@ -259,7 +259,7 @@ interface services_ports_application {
 // TCP and UDP ports used by Docker containers and web servers created by this application
 
 interface services_server_action {
-    action: type_dashboard_action;
+    action: type_server_action;
     server: supplemental_server_config;
 }
 // A user requested action to activate, stop, remove, or modify a web server

@@ -11,7 +11,6 @@ type type_activation_status = ["amber" | "green" | "red", "deactivated" | "new" 
 type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window", string, number];
 type type_certKey = "ca" | "crt" | "key";
 type type_certName = "client" | "int" | "root" | "server";
-type type_dashboard_action = type_halt_action | "activate" | "add" | "update";
 type type_dashboard_list = "container" | "server";
 type type_dashboard_init = "application-logs" | "compose-containers" | "disks" | "dns-query" | "file-system" | "hash" | "interfaces" | "message-inspection" | "notes" | "os-machine" | "servers-web" | "services-app" | "statistics-resources" | "terminal" | "test-http" | "test-performance" | "test-websocket" | "udp-socket";
 type type_dashboard_features = type_dashboard_init | type_dashboard_tables;
@@ -40,7 +39,6 @@ type type_fileSystem_media = "application" | "audio" | "image" | "text" | "video
 type type_graph = "cpu" | "disk" | "mem" | "net" | "threads";
 type type_graph_datasets = [graph_dataset[], string[]];
 type type_graph_keys = "cpu" | "disk_in" | "disk_out" | "mem" | "net_in" | "net_out" | "threads";
-type type_halt_action = "deactivate" | "destroy" | "modify";
 type type_hash_input = "direct" | "file";
 type type_http_method = "connect" | "get" | "head" | "options" | "trace";
 type type_keys = "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "Backspace" | "c" | "Delete" | "Enter" | "v";
@@ -59,6 +57,9 @@ type type_paths = "storage" | "web_root";
 type type_redirect_domain = [string, number, "default" | "open" | "secure"];
 type type_search = "fragment" | "negation" | "regex";
 type type_selector = "class" | "id" | "tag";
+
+type type_server_action = type_server_action_halt | "activate" | "add" | "update";
+type type_server_action_halt = "deactivate" | "destroy" | "modify";
 type type_server_property = "activate" | "block_list" | "domain_local" | "encryption" | "id" | "method" | "name" | "ports" | "redirect_asset" | "redirect_domain" | "single_socket" | "temporary" | "upgrade";
 
 type type_socket_status = "closed" | "end" | "open" | "pending";
@@ -70,5 +71,4 @@ type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "r
 
 type http_action = (headerList:string[], socket:websocket_client, payload:Buffer) => void;
 type type_receiver = (socketData:socket_data, transmit:transmit_socket) => void;
-type type_server_action = (data:services_server_action, callback:() => void, halt?:type_halt_action) => void;
 type websocket_message_handler = (socket:websocket_client, resultBuffer:Buffer, frame:websocket_frame) => void;

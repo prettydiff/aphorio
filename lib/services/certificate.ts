@@ -12,10 +12,23 @@ const certificate = function services_certificate(config:config_certificate):voi
         cert = function services_certificate_cert():void {
             let index:number = 0;
             const commands:string[] = [],
-                domain:string = (vars.data.server[config.id].config.domain_local.length < 1)
-                    ? "localhost"
-                    : vars.data.server[config.id].config.domain_local[0],
-                client:string = `${vars.environment.name}_${domain}`,
+                // padding out the domain local list.  Lists less than 3 values result in cert commands that generate and then delete files in the cert chain
+                domain_local:string[] = (function services_certificate_domainLocal():string[] {
+                    const len:number = vars.data.server[config.id].config.domain_local.length,
+                        filler:string = `${vars.environment.name}.${vars.environment.name}`;
+                    if (len < 1) {
+                        return ["localhost", filler, filler];
+                    }
+                    if (len < 2) {
+                        return [vars.data.server[config.id].config.domain_local[0], filler, filler];
+                    }
+                    if (len < 3) {
+                        return [vars.data.server[config.id].config.domain_local[0], vars.data.server[config.id].config.domain_local[1], filler];
+                    }
+                    return vars.data.server[config.id].config.domain_local;
+                }()),
+                domain:string = domain_local[0],
+                client:string = `${vars.environment.name}_${domain}`.file_sanitize().replace(/\./g, "_").replace(/:/g, "_"),
                 crypto = function services_certificate_cert_crypto():void {
                     spawn(commands[index], function services_certificate_cert_crypto_child():void {
                         index = index + 1;
@@ -108,7 +121,7 @@ const certificate = function services_certificate(config:config_certificate):voi
                         total_keys:number = keys.length,
                         total_local:number = (server === null)
                             ? 0
-                            : server.domain_local.length,
+                            : domain_local.length,
                         // total_int:number = vars.interfaces.length,
                         list1:string[] = [],
                         list2:string[] = [],
@@ -139,15 +152,15 @@ const certificate = function services_certificate(config:config_certificate):voi
                         cert_index = 0;
                         do {
                             if (
-                                server.domain_local[cert_index] !== "" &&
-                                server.domain_local[cert_index].indexOf("[") < 0 &&
-                                node.net.isIPv4(server.domain_local[cert_index]) === false &&
-                                node.net.isIPv6(server.domain_local[cert_index]) === false &&
-                                values.includes(server.domain_local[cert_index]) === false
+                                domain_local[cert_index] !== "" &&
+                                domain_local[cert_index].indexOf("[") < 0 &&
+                                node.net.isIPv4(domain_local[cert_index]) === false &&
+                                node.net.isIPv6(domain_local[cert_index]) === false &&
+                                values.includes(domain_local[cert_index]) === false
                             ) {
-                                values.push(server.domain_local[cert_index]);
-                                list1.push(`        permitted;DNS.${line_index} = ${server.domain_local[cert_index]}`);
-                                list2.push(`        DNS.${line_index} = ${server.domain_local[cert_index]}`);
+                                values.push(domain_local[cert_index]);
+                                list1.push(`        permitted;DNS.${line_index} = ${domain_local[cert_index]}`);
+                                list2.push(`        DNS.${line_index} = ${domain_local[cert_index]}`);
                                 line_index = line_index + 1;
                             }
                             cert_index = cert_index + 1;
@@ -219,12 +232,12 @@ const certificate = function services_certificate(config:config_certificate):voi
                         root:string = `openssl req -x509 -new -newkey rsa:4096 -nodes -key ${mode[0]}.key -days ${config.days} -out ${mode[0]}.crt -subj "/CN=${mode[1] + org}"`;
                     commands.push("openssl genrsa -out root.key 4096");
                     if (config.selfSign === true) {
-                        commands.push(`${root} -config "extensions.cnf" -extensions selfSign}`);
+                        commands.push(`${root} -config "extensions.cnf" -extensions selfSign`);
                     } else {
                         // root CA cert
                         commands.push(root);
                         // intermediate signing cert
-                        cert("int", "root", "selfSign");
+                        cert("int", "root", "ca");
                         // actual server certificate
                         cert("server", "int", "ca");
                         // client certificate for mutual tls

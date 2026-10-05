@@ -235,7 +235,12 @@ const server_start = function server_start(id:string, callback:(name:string) => 
                     count = 0;
                     if (flag_error === false) {
                         read_cert();
-                    } else if (vars.data.server[id].config.certificate_path === undefined || vars.data.server[id].config.certificate_path === null || vars.data.server[id].config.certificate_path.cert === "" || vars.data.server[id].config.certificate_path.key === "") {
+                    } else if (
+                        vars.data.server[id].config.certificate_path === undefined ||
+                        vars.data.server[id].config.certificate_path === null ||
+                        vars.data.server[id].config.certificate_path.cert === "" ||
+                        vars.data.server[id].config.certificate_path.key === ""
+                    ) {
                         certificate({
                             callback: read_cert,
                             days: 65535,

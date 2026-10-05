@@ -240,7 +240,7 @@ const dashboard:dashboard = {
                 "message_variable": function(event:MouseEvent):void {},
                 "resize": function():void {},
                 "selection": function():void {},
-                "update": function():void {},
+                "update_list": function():void {},
                 "validate_containers": function(event:FocusEvent|KeyboardEvent):void {},
                 "validate_variables": function(event:FocusEvent|KeyboardEvent):void {}
             },

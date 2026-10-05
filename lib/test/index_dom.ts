@@ -1,5 +1,4 @@
 
-import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import test_listLocalBrowserApplicationLogs from "./list_local_browser_application-logs.ts";
 import test_listLocalBrowserComposeContainers from "./list_local_browser_compose-containers.ts";
@@ -68,33 +67,8 @@ const test_index_dom = function test_indexDOM():void {
         callback = function test_indexDOM_callback(name:string):void {
             total_lists = total_lists + 1;
             if (total_lists === len_list || (vars.options["stop-on-fail"] === true && vars.test.counts[name].assertions_fail > 0)) {
-                let count:number = 0;
-                const removed = function test_indexDOM_callback_removed():void {
-                    count = count + 1;
-                    if (count > 2) {
-                        vars.test.total_time_end = process.hrtime.bigint();
-                        test_summary(name, true);
-                    }
-                };
-                // in the context of testing vars.path.project is actually ${vars.path.project}test so removing files does not harm the project runtime
-                file.remove({
-                    callback: removed,
-                    exclusions: [],
-                    location: `${vars.path.project}compose`,
-                    section: "startup"
-                });
-                file.remove({
-                    callback: removed,
-                    exclusions: [],
-                    location: `${vars.path.project}servers`,
-                    section: "startup"
-                });
-                file.remove({
-                    callback: removed,
-                    exclusions: [],
-                    location: `${vars.path.project}servers.json`,
-                    section: "startup"
-                });
+                vars.test.total_time_end = process.hrtime.bigint();
+                test_summary(name, true);
             } else {
                 test_summary(name, false);
                 test_runner.list(list[total_lists], test_indexDOM_callback);

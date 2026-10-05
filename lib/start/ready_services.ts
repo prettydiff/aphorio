@@ -1,6 +1,7 @@
 
 import clock from "../services/clock.ts";
 import demo from "../services/demo.ts";
+import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import ports_application from "../services/ports_application.ts";
@@ -9,7 +10,39 @@ import test_index_dom from "../test/index_dom.ts";
 import test_index_proxy from "../test/index_proxy.ts";
 import vars from "../core/vars.ts";
 
-const ready_services = function start_readServices(count_task:number):void {
+const ready_services = function start_readyServices(count_task:number):void {
+    const test_remove = function start_readyServices_testRemove():void {
+        let count:number = 0;
+        const removed = function test_indexDOM_callback_removed():void {
+            count = count + 1;
+            if (count > 2) {
+                if (vars.options.mode === "test-browser") {
+                    test_index_dom();
+                } else if (vars.options.mode === "test-proxy") {
+                    test_index_proxy();
+                }
+            }
+        };
+        // in the context of testing vars.path.project is actually ${vars.path.project}test so removing files does not harm the project runtime
+        file.remove({
+            callback: removed,
+            exclusions: [],
+            location: `${vars.path.project}compose`,
+            section: "startup"
+        });
+        file.remove({
+            callback: removed,
+            exclusions: [],
+            location: `${vars.path.project}servers`,
+            section: "startup"
+        });
+        file.remove({
+            callback: removed,
+            exclusions: [],
+            location: `${vars.path.project}servers.json`,
+            section: "startup"
+        });
+    };
     vars.environment.hashes = node.crypto.getHashes();
     clock();
     statistics_resources.data();
@@ -19,12 +52,10 @@ const ready_services = function start_readServices(count_task:number):void {
     if (vars.options.mode === "demo") {
         demo.clock_self();
     }
-    if (vars.options.mode === "test-browser") {
-        test_index_dom();
-    } else if (vars.options.mode === "test-proxy") {
-        test_index_proxy();
+    if (vars.test.testing === true) {
+        test_remove();
     } else if (vars.options.mode === "demo" || vars.options.mode === "server") {
-        const heading = function start_services_heading(message:string):string {
+        const heading = function start_readyServices_heading(message:string):string {
                 return vars.text.underline + message + vars.text.none;
             },
             servers:string[] = Object.keys(vars.data.server),
@@ -47,7 +78,7 @@ const ready_services = function start_readServices(count_task:number):void {
                 "",
                 heading("Web Server Ports"),
             ],
-            pad = function start_completeTasks_ready_start_serverCallback_pad(str:string, num:number, dir:"left"|"right"):string {
+            pad = function start_readyServices_pad(str:string, num:number, dir:"left"|"right"):string {
                 let item:number = longest[num] - str.length;
                 if (item > 0) {
                     do {
@@ -61,7 +92,7 @@ const ready_services = function start_readServices(count_task:number):void {
                 }
                 return str;
             },
-            log_start = function start_completeTasks_ready_start_serverCallback_logStart(config:config_log_start):void {
+            log_start = function start_readyServices_logStart(config:config_log_start):void {
                 const value:string = (config.type === "tcp" || config.type === "udp")
                         ? vars.text.green + pad(config.value.toString(), 2, "left") + vars.text.none
                         : (config.conflict === true)
@@ -78,20 +109,14 @@ const ready_services = function start_readServices(count_task:number):void {
                     logs.push(str);
                 }
             },
-            keys:string[] = Object.keys(vars.data.containers),
-            sort = function start_completeTasks_ready_start_serverCallback_sort(a:[number, "tcp"|"udp"], b:[number, "tcp"|"udp"]):-1|1 {
-                if (a[0] < b[0] || (a[0] === b[0] && a[1] < b[1])) {
-                    return -1;
-                }
-                return 1;
-            };
+            keys:string[] = Object.keys(vars.data.containers);
         let index:number = 0,
             name:string = "",
             ports:type_docker_ports = null,
             longest:number[] = [0, 4, 0],
             len:number = servers.length,
             port:number = 0;
-        servers.sort(function start_completeTasks_read_start_serverCallback_serverSort(a:string, b:string):-1|1 {
+        servers.sort(function start_readyServices_serverSort(a:string, b:string):-1|1 {
             if (a > b) {
                 return -1;
             }
@@ -168,6 +193,12 @@ const ready_services = function start_readServices(count_task:number):void {
         // from containers
         len = keys.length;
         if (len > 0) {
+            const sort = function start_readyServices_sort(a:[number, "tcp"|"udp"], b:[number, "tcp"|"udp"]):-1|1 {
+                if (a[0] < b[0] || (a[0] === b[0] && a[1] < b[1])) {
+                    return -1;
+                }
+                return 1;
+            };
             let index_ports:number = 0,
                 len_ports:number = 0,
                 title:boolean = false;

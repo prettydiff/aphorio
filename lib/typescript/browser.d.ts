@@ -335,7 +335,7 @@ declare global {
             message_variable: (event:MouseEvent) => void;
             resize: () => void;
             selection: () => void;
-            update: () => void;
+            update_list: () => void;
             validate_containers: (event:FocusEvent|KeyboardEvent) => void;
             validate_variables: (event:FocusEvent|KeyboardEvent) => void;
         };

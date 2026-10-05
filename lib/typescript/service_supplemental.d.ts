@@ -2,7 +2,7 @@
 // cspell: words opencontainers, serv, TLSA
 
 interface supplemental_action_compose {
-    action: type_dashboard_action;
+    action: type_server_action;
     compose: string;
 }
 
@@ -82,7 +82,7 @@ interface supplemental_server_config {
     certificate_path?: transmit_tlsCerts;
     domain_local: string[];
     encryption: type_encryption;
-    id: string;
+    id?: string;
     message_segmentation: number;
     method?: {
         delete?: supplemental_server_method;

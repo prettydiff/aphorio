@@ -69,7 +69,7 @@ function index():void {
                 }
             }
         } while (index > 0);
-        if (vars.options.mode === "test-browser") {
+        if (vars.options.mode === "test-browser" || vars.options.mode === "test-proxy") {
             vars.test.testing = true;
         } else if (vars.options.feature !== "") {
             vars.options.mode = "shell";
