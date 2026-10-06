@@ -24,7 +24,6 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 }
             ],
             name: "Navigate to dns query",
-            type: "dom",
             unit: []
         },
         {
@@ -85,7 +84,6 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 }
             ],
             name: "Query google.com with A record type",
-            type: "dom",
             unit: [{
                 node: [
                     ["getElementById", "dns-query", null],
@@ -158,7 +156,6 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 }
             ],
             name: "Query google.com with AAAA record type",
-            type: "dom",
             unit: [{
                 node: [
                     ["getElementById", "dns-query", null],
@@ -231,7 +228,6 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 }
             ],
             name: "Query google.com with all record types",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -359,6 +355,7 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
         }
     ];
     list.name = "Local browser tests - dns";
+    list.type = "dom";
     return list;
 };
 

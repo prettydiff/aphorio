@@ -165,9 +165,10 @@ const test_runner:test_runner = {
                     service: "services_test_browser"
                 };
             send(payload, test_runner.socket, 3);
-        }
+        },
+        proxy: function test_runner_executionProxy():void {}
     },
-    list: function test_runner_list(list:test_list_dom, callback:(name:string) => void):void {
+    list: function test_runner_list(list:test_list_dom|test_list_proxy, callback:(name:string) => void):void {
         const len_list:number = list.length;
         log.shell(["", "", `Test list ${vars.text.cyan + list.name + vars.text.none}`]);
         vars.test.index = 0;
@@ -186,10 +187,17 @@ const test_runner:test_runner = {
         };
         test_runner.count = 0;
         test_runner.tools.callback = callback;
-        if (test_runner.execution[vars.test.list[vars.test.index].type] === undefined) {
+        if (test_runner.execution[vars.test.list.type] === undefined) {
+            test_runner.logger([{
+                assessment: `Test type not specified for test named '${vars.test.list.name}'.`,
+                location: "",
+                pass: false,
+                store: false,
+                value: ""
+            }]);
             test_runner.tools.next();
         } else {
-            test_runner.execution[vars.test.list[vars.test.index].type]();
+            test_runner.execution[vars.test.list.type]();
         }
     },
     logs: [],
@@ -256,8 +264,9 @@ const test_runner:test_runner = {
     },
     receive: function test_runner_receive(socket_data:socket_data):void {
         const data:services_test_browser = socket_data.data as services_test_browser,
+            current_test:test_item_dom = vars.test.list[vars.test.index] as test_item_dom,
             results:test_assert[] = data.result,
-            interactions:test_event[] = vars.test.list[vars.test.index].interaction;
+            interactions:test_event[] = current_test.interaction;
         let index:number = (interactions === null)
                 ? 0
                 : interactions.length,
@@ -340,8 +349,8 @@ const test_runner:test_runner = {
                 } else if (vars.test.list[vars.test.index] === undefined) {
                     test_runner_toolsNext();
                 } else {
-                    if (test_runner.execution[vars.test.list[vars.test.index].type] !== undefined) {
-                        test_runner.execution[vars.test.list[vars.test.index].type]();
+                    if (test_runner.execution[vars.test.list.type] !== undefined) {
+                        test_runner.execution[vars.test.list.type]();
                     }
                 }
             }

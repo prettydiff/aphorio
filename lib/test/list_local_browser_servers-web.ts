@@ -24,7 +24,6 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 }
             ],
             name: "Navigate to servers-web",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -51,7 +50,6 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 }
             ],
             name: "Expand dashboard server accordion",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -131,7 +129,6 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 }
             ],
             name: "Edit mode for a server",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -218,7 +215,6 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 }
             ],
             name: "Close and reopen server accordion",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -247,7 +243,6 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 }
             ],
             name: "Prepare new insecure server",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -340,7 +335,6 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 }
             ],
             name: "Define new insecure server",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -378,7 +372,6 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 }
             ],
             name: "Cancel new insecure server",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -468,7 +461,6 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
 
             ],
             name: "Create new insecure server",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -520,7 +512,6 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 }
             ],
             name: "Expand new open server accordion",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -631,7 +622,6 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 }
             ],
             name: "Open server accordion and edit",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -813,11 +803,11 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 }
             ],
             name: "Destroy new server",
-            type: "dom",
             unit: []
         }
     ];
     list.name = "Local browser tests - servers, web";
+    list.type = "dom";
     return list;
 };
 

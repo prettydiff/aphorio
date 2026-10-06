@@ -470,7 +470,7 @@ interface core_vars_test {
         [key:string]: test_counts;
     };
     index: number;
-    list: test_list_dom;
+    list: test_list_dom | test_list_proxy;
     magicString: string;
     store: test_primitive;
     test_browser: string;

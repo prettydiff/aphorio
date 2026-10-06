@@ -25,7 +25,6 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 }
             ],
             name: "Navigate to os",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -172,11 +171,11 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 }
             ],
             name: "Update OS content",
-            type: "dom",
             unit: []
         }
     ];
     list.name = "Local browser tests - os";
+    list.type = "dom";
     return list;
 };
 

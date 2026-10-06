@@ -25,7 +25,6 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                 }
             ],
             name: "Navigate to users",
-            type: "dom",
             unit: []
         },
         {
@@ -43,7 +42,6 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
             },
             interaction: [],
             name: "Check if users table is populated",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -143,7 +141,6 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                 }
             ],
             name: "Filter users",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -160,6 +157,7 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
         }
     ];
     list.name = "Local browser tests - users";
+    list.type = "dom";
     return list;
 };
 

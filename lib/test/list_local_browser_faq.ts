@@ -24,11 +24,11 @@ const test_listLocalBrowserFAQ = function test_listLocalBrowserFAQ():test_list_d
                 }
             ],
             name: "Navigate to faq",
-            type: "dom",
             unit: []
         }
     ];
     list.name = "Local browser tests - faq";
+    list.type = "dom";
     return list;
 };
 export default test_listLocalBrowserFAQ;

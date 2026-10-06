@@ -24,7 +24,6 @@ const test_listLocalBrowserComposeContainers = function test_listLocalBrowserCom
                 }
             ],
             name: "Navigate to compose",
-            type: "dom",
             unit: []
         }
     ];
@@ -33,7 +32,6 @@ const test_listLocalBrowserComposeContainers = function test_listLocalBrowserCom
             delay: null,
             interaction: null,
             name: "Display compose error message.",
-            type: "dom",
             unit: [{
                 node: [
                     ["getElementById", "compose-containers", null],
@@ -47,6 +45,7 @@ const test_listLocalBrowserComposeContainers = function test_listLocalBrowserCom
         });
     }
     list.name = "Local browser tests - compose";
+    list.type = "dom";
     return list;
 };
 

@@ -25,14 +25,12 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 }
             ],
             name: "Navigate to disks",
-            type: "dom",
             unit: []
         },
         {
             delay: null,
             interaction: [],
             name: "Check if disks list is populated",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -270,6 +268,7 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
         }
     ];
     list.name = "Local browser tests - disks";
+    list.type = "dom";
     return list;
 };
 

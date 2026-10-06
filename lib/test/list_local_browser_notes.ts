@@ -24,7 +24,6 @@ const test_listLocalBrowserNotes = function test_listLocalBrowserNotes():test_li
                 }
             ],
             name: "Navigate to notes",
-            type: "dom",
             unit: []
         },
         {
@@ -72,7 +71,6 @@ const test_listLocalBrowserNotes = function test_listLocalBrowserNotes():test_li
                 }
             ],
             name: "Refresh page and check notes value",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -88,6 +86,7 @@ const test_listLocalBrowserNotes = function test_listLocalBrowserNotes():test_li
         }
     ];
     list.name = "Local browser tests - notes";
+    list.type = "dom";
     return list;
 };
 export default test_listLocalBrowserNotes;

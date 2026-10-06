@@ -23,7 +23,6 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
                 }
             ],
             name: "Navigate to application-logs",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -84,6 +83,7 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
         }
     ];
     list.name = "Local browser tests - application logs";
+    list.type = "dom";
     return list;
 };
 

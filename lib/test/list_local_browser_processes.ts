@@ -25,7 +25,6 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
                 }
             ],
             name: "Navigate to processes",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -92,7 +91,6 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
             },
             interaction: [],
             name: "Check if processes table is populated",
-            type: "dom",
             unit: []
         },
         {
@@ -131,7 +129,6 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
                 }
             ],
             name: "Filter processes",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -148,6 +145,7 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
         }
     ];
     list.name = "Local browser tests - processes";
+    list.type = "dom";
     return list;
 };
 

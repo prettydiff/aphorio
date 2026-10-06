@@ -25,7 +25,6 @@ const test_listLocalSocketsOS_UDP = function test_listLocalSocketsOS_UDP():test_
                 }
             ],
             name: "Navigate to OS UDP Sockets",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -80,7 +79,6 @@ const test_listLocalSocketsOS_UDP = function test_listLocalSocketsOS_UDP():test_
             },
             interaction: [],
             name: "Check if sockets-os-udp table is populated",
-            type: "dom",
             unit: []
         },
         {
@@ -119,7 +117,6 @@ const test_listLocalSocketsOS_UDP = function test_listLocalSocketsOS_UDP():test_
                 }
             ],
             name: "Filter sockets-os-udp",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -136,6 +133,7 @@ const test_listLocalSocketsOS_UDP = function test_listLocalSocketsOS_UDP():test_
         }
     ];
     list.name = "Local browser tests - sockets-os-udp";
+    list.type = "dom";
     return list;
 };
 

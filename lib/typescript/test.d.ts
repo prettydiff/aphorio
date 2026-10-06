@@ -93,33 +93,23 @@ interface test_item_dom {
     delay?: test_assertion_dom;
     interaction: test_event[];
     name: string;
-    type: "dom";
     unit: test_assertion_dom[];
 }
 
 interface test_item_proxy {
-    config: {
-        encryption: boolean;
-        headers: string;
-        uri: string;
-    };
+    config: services_test_http;
     name: string;
-    output: {
-        origin: string;
-        pathname: string;
-        port: string;
-        response_body_raw: string;
-        response_headers: string;
-    };
-    type: "proxy";
+    output: config_http_request_output;
 }
 
 interface test_list_dom extends Array<test_item_dom> {
     name?: string;
+    type?: "dom";
 }
 
 interface test_list_proxy extends Array<test_item_proxy> {
     name?: string;
+    type?: "proxy";
 }
 
 interface test_runner {
@@ -129,6 +119,7 @@ interface test_runner {
     count: number;
     execution: {
         dom: () => void;
+        proxy: () => void;
     };
     list: (list:test_list_dom, callback:(name:string) => void) => void;
     logger: (assertions:test_assert[]) => void;

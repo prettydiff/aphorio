@@ -25,7 +25,6 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 }
             ],
             name: "Navigate to interfaces",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -174,11 +173,11 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 }
             ],
             name: "Update interfaces",
-            type: "dom",
             unit: []
         }
     ];
     list.name = "Local browser tests - interfaces";
+    list.type = "dom";
     return list;
 };
 

@@ -24,11 +24,11 @@ const test_listLocalBrowserHelp = function test_listLocalBrowserHelp():test_list
                 }
             ],
             name: "Navigate to help",
-            type: "dom",
             unit: []
         }
     ];
     list.name = "Local browser tests - help";
+    list.type = "dom";
     return list;
 };
 

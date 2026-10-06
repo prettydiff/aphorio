@@ -25,7 +25,6 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
                 }
             ],
             name: "Navigate to devices",
-            type: "dom",
             unit: []
         },
         {
@@ -43,7 +42,6 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
             },
             interaction: [],
             name: "Check if devices table is populated",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -119,7 +117,6 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
                 }
             ],
             name: "Filter devices",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -136,6 +133,7 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
         }
     ];
     list.name = "Local browser tests - devices";
+    list.type = "dom";
     return list;
 };
 

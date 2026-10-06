@@ -24,7 +24,6 @@ const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesA
                 }
             ],
             name: "Navigate to services-app",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -70,6 +69,7 @@ const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesA
         }
     ];
     list.name = "Local browser tests - services_app";
+    list.type = "dom";
     return list;
 };
 

@@ -25,7 +25,6 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 }
             ],
             name: "Navigate to file-system",
-            type: "dom",
             unit: []
         },
         {
@@ -79,7 +78,6 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 }
             ],
             name: "Navigate to project path",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -327,7 +325,6 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 }
             ],
             name: "Search for 'index' at depth '1'",
-            type: "dom",
             unit: []
         },
         {
@@ -381,7 +378,6 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 }
             ],
             name: "Search for 'index' at depth '2'",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -488,7 +484,6 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 }
             ],
             name: "Display absolute paths, no directory size",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -622,7 +617,6 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 }
             ],
             name: "Display absolute paths and directory size",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -743,7 +737,6 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 }
             ],
             name: "Display relative paths and directory size",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -788,6 +781,7 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
         }
     ];
     list.name = "Local browser tests - file system";
+    list.type = "dom";
     return list;
 };
 

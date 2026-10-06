@@ -25,7 +25,6 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
                 }
             ],
             name: "Navigate to ports-application",
-            type: "dom",
             unit: []
         },
         {
@@ -43,7 +42,6 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
             },
             interaction: [],
             name: "Check if ports-application table is populated",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -119,7 +117,6 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
                 }
             ],
             name: "Filter ports-application",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -181,7 +178,6 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
                 }
             ],
             name: "Remove filter ports-application",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -198,6 +194,7 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
         }
     ];
     list.name = "Local browser tests - ports-application";
+    list.type = "dom";
     return list;
 };
 

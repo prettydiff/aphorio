@@ -24,7 +24,6 @@ const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWeb
                 }
             ],
             name: "Navigate to websocket test",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -83,7 +82,6 @@ const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWeb
                 }
             ],
             name: "Open encrypted websocket",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -191,7 +189,6 @@ test secure socket`
                 }
             ],
             name: "Send encrypted message",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -252,7 +249,6 @@ test secure socket`
                 }
             ],
             name: "Close encrypted websocket",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -297,7 +293,6 @@ test secure socket`
                 }
             ],
             name: "Open insecure websocket",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -383,7 +378,6 @@ test insecure socket`
                 }
             ],
             name: "Send encrypted message",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -433,7 +427,6 @@ test insecure socket`
                 }
             ],
             name: "Close insecure websocket",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -450,6 +443,7 @@ test insecure socket`
         }
     ];
     list.name = "Local browser tests - web socket";
+    list.type = "dom";
     return list;
 };
 

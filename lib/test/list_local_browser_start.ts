@@ -16,7 +16,6 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
             },
             interaction: [],
             name: "Page load",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -79,7 +78,6 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
                 }
             ],
             name: "Clock Time 1",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -104,7 +102,6 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
                 }
             ],
             name: "Clock Time 2",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -120,6 +117,7 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
         }
     ];
     list.name = "Local browser tests - start";
+    list.type = "dom";
     return list;
 };
 export default test_listLocalBrowserStart;

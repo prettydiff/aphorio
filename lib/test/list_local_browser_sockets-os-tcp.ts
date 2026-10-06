@@ -25,7 +25,6 @@ const test_listLocalSocketsOS_TCP = function test_listLocalSocketsOS_TCP():test_
                 }
             ],
             name: "Navigate to OS TCP Sockets",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -80,7 +79,6 @@ const test_listLocalSocketsOS_TCP = function test_listLocalSocketsOS_TCP():test_
             },
             interaction: [],
             name: "Check if sockets-os-tcp table is populated",
-            type: "dom",
             unit: []
         },
         {
@@ -119,7 +117,6 @@ const test_listLocalSocketsOS_TCP = function test_listLocalSocketsOS_TCP():test_
                 }
             ],
             name: "Filter sockets-os-tcp",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -136,6 +133,7 @@ const test_listLocalSocketsOS_TCP = function test_listLocalSocketsOS_TCP():test_
         }
     ];
     list.name = "Local browser tests - sockets-os-tcp";
+    list.type = "dom";
     return list;
 };
 

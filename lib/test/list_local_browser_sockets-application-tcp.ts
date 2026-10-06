@@ -24,7 +24,6 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 }
             ],
             name: "Navigate to sockets",
-            type: "dom",
             unit: []
         },
         {
@@ -42,7 +41,6 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
             },
             interaction: [],
             name: "Check if application socket table is populated",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -202,7 +200,6 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 }
             ],
             name: "Filter application sockets",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -241,11 +238,11 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 }
             ],
             name: "Update os sockets",
-            type: "dom",
             unit: null
         }
     ];
     list.name = "Local browser tests - sockets-application-tcp";
+    list.type = "dom";
     return list;
 };
 

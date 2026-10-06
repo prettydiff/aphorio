@@ -24,7 +24,6 @@ const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():t
                 }
             ],
             name: "Navigate to terminal",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -80,6 +79,7 @@ const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():t
         }
     ];
     list.name = "Local browser tests - terminal";
+    list.type = "dom";
     return list;
 };
 

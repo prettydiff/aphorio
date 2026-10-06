@@ -25,7 +25,6 @@ const test_listLocalBrowserServicesOS = function test_listLocalBrowserServicesOS
                 }
             ],
             name: "Navigate to services",
-            type: "dom",
             unit: []
         },
         {
@@ -43,7 +42,6 @@ const test_listLocalBrowserServicesOS = function test_listLocalBrowserServicesOS
             },
             interaction: [],
             name: "Check if services table is populated",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -119,7 +117,6 @@ const test_listLocalBrowserServicesOS = function test_listLocalBrowserServicesOS
                 }
             ],
             name: "Filter services",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -136,6 +133,7 @@ const test_listLocalBrowserServicesOS = function test_listLocalBrowserServicesOS
         }
     ];
     list.name = "Local browser tests - services";
+    list.type = "dom";
     return list;
 };
 

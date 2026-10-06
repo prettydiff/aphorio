@@ -24,7 +24,6 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
                 }
             ],
             name: "Navigate to http test",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -71,7 +70,6 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
                 }
             ],
             name: "Send HTTP request",
-            type: "dom",
             unit: [
                 {
                     node: [
@@ -110,6 +108,7 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
         }
     ];
     list.name = "Local browser tests - http";
+    list.type = "dom";
     return list;
 };
 
