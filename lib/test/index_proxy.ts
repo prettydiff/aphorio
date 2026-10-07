@@ -1,8 +1,7 @@
 
-import http_request from "../http/http_request.ts";
 import server_create from "../server/server_create.ts";
 import test_runner from "./runner.ts";
-import test_summary from "./summary.ts";
+// import test_summary from "./summary.ts";
 import vars from "../core/vars.ts";
 
 const index_proxy = function test_indexProxy():void {
@@ -35,7 +34,7 @@ const index_proxy = function test_indexProxy():void {
             },
             upgrade: true
         },
-        list:test_list_proxy = [
+        list:test_list_proxy = Object.assign([
             {
                 config: {
                     body: "test body",
@@ -66,21 +65,35 @@ const index_proxy = function test_indexProxy():void {
                 }
             }
         ],
+        {
+            id_1: "",
+            id_2: "",
+            name: "proxy",
+            port_1_open: 0,
+            port_2_open: 0,
+            port_1_secure: 0,
+            port_2_secure: 0,
+            type: "proxy" as type_test_type
+        }),
         test_server = function test_indexProxy_testServer(id:string):void {
-            list[count_test].config.headers = list[count_test].config.headers.replace("Host: host-value", `Host: localhost:${vars.data.server[id].ports.open}`);
-            http_request(list[count_test].config, callback_test);
+            //list[count_test].config.headers = list[count_test].config.headers.replace("Host: host-value", `Host: localhost:${vars.data.server[id].ports.open}`);
+            //http_request(list[count_test].config, callback_test);
         },
         callback_server = function test_indexProxy_callbackServer(id:string):void {
             count_server = count_server + 1;
             if (vars.data.server[id].config.name === "server_1") {
-                id_1 = id;
+                list.id_1 = id;
+                list.port_1_open = vars.data.server[id].ports.open;
+                list.port_1_secure = vars.data.server[id].ports.secure;
             } else {
-                id_2 = id;
+                list.id_2 = id;
+                list.port_2_open = vars.data.server[id].ports.open;
+                list.port_2_secure = vars.data.server[id].ports.secure;
             }
             if (count_server > 1) {
                 test_runner.list(list, test_server)
             }
-        },
+        };
         // callback_test = function test_indexProxy_callbackTest(output:config_http_request_output):void {console.log(output);
         //     count_test = count_test + 1;
         //     if (count_test === len_list) {
@@ -89,12 +102,8 @@ const index_proxy = function test_indexProxy():void {
         //         test_summary(list[count_test - 1].name, false);
         //         test_server(id_1);
         //     }
-        // },
-        len_list:number = list.length;
-    let count_server:number = 0,
-        count_test:number = 0,
-        id_1:string = "",
-        id_2:string = "";
+        // };
+    let count_server:number = 0;
     list.name = "proxy";
     list.type = "proxy";
     server_create({

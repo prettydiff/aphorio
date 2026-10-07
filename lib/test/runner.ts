@@ -1,4 +1,5 @@
 
+import http_request from "../http/http_request.ts";
 import log from "../core/log.ts";
 import send from "../transmit/send.ts";
 import spawn from "../core/spawn.ts";
@@ -166,7 +167,12 @@ const test_runner:test_runner = {
                 };
             send(payload, test_runner.socket, 3);
         },
-        proxy: function test_runner_executionProxy():void {}
+        proxy: function test_runner_executionProxy():void {
+            const proxy_list:test_list_proxy = vars.test.list as test_list_proxy,
+                config:services_test_http = proxy_list[vars.test.index].config;
+            config.headers = config.headers.replace("Host: host-value", `Host: localhost:${proxy_list.port_1_open}`);
+            http_request(config, function (output){console.log(output);});
+        }
     },
     list: function test_runner_list(list:test_list_dom|test_list_proxy, callback:(name:string) => void):void {
         const len_list:number = list.length;

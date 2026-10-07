@@ -104,12 +104,18 @@ interface test_item_proxy {
 
 interface test_list_dom extends Array<test_item_dom> {
     name?: string;
-    type?: "dom";
+    type?: type_test_type;
 }
 
 interface test_list_proxy extends Array<test_item_proxy> {
-    name?: string;
-    type?: "proxy";
+    id_1: string;
+    id_2: string;
+    name: string;
+    port_1_open: number;
+    port_1_secure: number;
+    port_2_open: number;
+    port_2_secure: number;
+    type: type_test_type;
 }
 
 interface test_runner {
@@ -121,7 +127,7 @@ interface test_runner {
         dom: () => void;
         proxy: () => void;
     };
-    list: (list:test_list_dom, callback:(name:string) => void) => void;
+    list: (list:test_list_dom|test_list_proxy, callback:(name:string) => void) => void;
     logger: (assertions:test_assert[]) => void;
     logs: string[];
     receive: (socket_data:socket_data) => void;
