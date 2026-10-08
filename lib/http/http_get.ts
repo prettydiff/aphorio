@@ -12,7 +12,7 @@ import vars from "../core/vars.ts";
 
 /* cspell: words msvideo, nofollow, onnection, prettydiff */
 
-const http_get:http_action = function http_get(headerList:string[], socket:websocket_client):void {
+const http_get:type_http_action = function http_get(headerList:string[], socket:websocket_client):void {
     const index0:string[] = headerList[0].replace(/^\s+/, "").replace(/\s+/, " ").split(" "),
         method:"GET"|"HEAD" = (index0.indexOf("HEAD") === 0)
             ? "HEAD"

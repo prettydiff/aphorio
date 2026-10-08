@@ -317,7 +317,7 @@ interface services_test_browser {
     index: number;
     magicString: string;
     result: test_assert[];
-    store: test_primitive;
+    store: type_test_primitive;
     suite_name: string;
     test: test_browserItem;
 }

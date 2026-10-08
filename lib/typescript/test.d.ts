@@ -4,36 +4,36 @@ interface test_assert {
     location: string;
     pass: boolean;
     store: boolean;
-    value: test_primitive;
+    value: type_test_primitive;
 }
 
 interface test_assertion_command {
     format?: "csv" | "json" | "lines" | "string";
     nullable?: boolean;
     properties?: (number|string)[];
-    qualifier: test_qualifier;
+    qualifier: type_test_qualifier;
     store?: boolean;
     type: "stderr" | "stdout";
-    value: test_primitive;
+    value: type_test_primitive;
 }
 
 interface test_assertion_dom {
     node: test_browserDOM;
     nullable?: boolean;
-    qualifier: test_qualifier;
+    qualifier: type_test_qualifier;
     store?: boolean;
     target: string[];
     type: "attribute" | "element" | "property";
-    value: test_primitive | test_primitive[];
+    value: type_test_primitive | type_test_primitive[];
 }
 
-interface test_browserDOM extends Array<type_browserDOM> {
+interface test_browserDOM extends Array<type_test_browserDOM> {
     nodeString?: string;
 }
 
 interface test_browserEvent {
     coords?: [number, number];
-    event: test_eventName;
+    event: type_test_eventName;
     node: test_browserDOM;
     value?: string;
 }
@@ -84,7 +84,7 @@ interface test_counts {
 
 interface test_event {
     coords?: [number, number];
-    event: test_eventName;
+    event: type_test_eventName;
     node: test_browserDOM;
     value?: string;
 }
@@ -136,7 +136,7 @@ interface test_runner {
         browser_open: () => void;
         callback: (name:string) => void;
         get_socket: (callback:() => void) => void;
-        get_value: (value_actual:test_primitive, value_test:test_primitive|test_primitive[]) => test_primitive;
+        get_value: (value_actual:type_test_primitive, value_test:type_test_primitive|type_test_primitive[]) => type_test_primitive;
         next: () => void;
         time: () => string;
     };

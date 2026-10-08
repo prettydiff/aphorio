@@ -5,7 +5,7 @@ import vars from "../core/vars.ts";
 
 // cspell: words prettydiff
 
-const http_connect:http_action = function http_connect(headerList:string[], socket:websocket_client):void {
+const http_connect:type_http_action = function http_connect(headerList:string[], socket:websocket_client):void {
     const destination:string = headerList[0].replace(/\s+/g, " ").split(" ")[1],
         index_colon:number = destination.lastIndexOf(":"),
         index_brace:number = destination.lastIndexOf("]"),

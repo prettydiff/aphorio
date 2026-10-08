@@ -136,7 +136,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                     qualifier: "is",
                     target: ["textContent"],
                     type: "property",
-                    value: ["127.0.0.1", "::1"] as test_primitive[]
+                    value: ["127.0.0.1", "::1"] as type_test_primitive[]
                 },
                 {
                     node: [

@@ -2,13 +2,7 @@
 // cspell: words serv, Tlsa, stcp, sudp, volu
 
 
-type test_domMethod = "activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window";
-type test_eventName = "blur" | "click" | "command" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
-type test_primitive = bigint | boolean | number | string | null | undefined;
-type test_qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not contains" | "not" | "numeric";
-
 type type_activation_status = ["amber" | "green" | "red", "deactivated" | "new" | "offline" | "online" | "partially online"];
-type type_browserDOM = ["activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window", string, number];
 type type_certKey = "ca" | "crt" | "key";
 type type_certName = "client" | "int" | "root" | "server";
 type type_dashboard_list = "container" | "server";
@@ -66,10 +60,16 @@ type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_start_pre_tasks = "admin" | "compose" | "features" | "os_main" | "servers";
 type type_start_primary_tasks = "certificates" | "cgroup" | "compose_variables" | "file" | "git" | "global_name" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_stcp" | "os_sudp" | "os_user" | "server_audit" | "services_app" | "test_browser" | "test_list" | "version";
 
+type type_test_browserDOM = [type_test_domMethod, string, number];
+type type_test_domMethod = "activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window";
+type type_test_eventName = "blur" | "click" | "command" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
+type type_test_primitive = bigint | boolean | number | string | null | undefined;
+type type_test_qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not contains" | "not" | "numeric";
 type type_test_type = "dom" | "proxy";
+
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";
 
-type http_action = (headerList:string[], socket:websocket_client, payload:Buffer) => void;
+type type_http_action = (headerList:string[], socket:websocket_client, payload:Buffer) => void;
 type type_receiver = (socketData:socket_data, transmit:transmit_socket) => void;
 type websocket_message_handler = (socket:websocket_client, resultBuffer:Buffer, frame:websocket_frame) => void;

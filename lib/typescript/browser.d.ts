@@ -286,7 +286,7 @@ declare global {
         error: (message:string, source:string, line:number, col:number, error:Error) => void;
         evaluate: (test:test_assertion_dom) => test_assert;
         event: (item:services_test_browser, pageLoad:boolean) => void;
-        getProperty: (test:test_assertion_dom) => [HTMLElement, test_primitive];
+        getProperty: (test:test_assertion_dom) => [HTMLElement, type_test_primitive];
         index: number;
         keyAlt: boolean;
         keyControl: boolean;
@@ -295,8 +295,8 @@ declare global {
         node: (dom:test_browserDOM, property:string) => HTMLElement;
         report: (delay:test_assertion_dom, test:test_assertion_dom[], index:number) => void;
         sendTest: (payload:test_assert[], index:number) => services_test_browser;
-        store: HTMLElement | test_primitive;
-        stringify: (primitive:test_primitive) => string;
+        store: HTMLElement | type_test_primitive;
+        stringify: (primitive:type_test_primitive) => string;
         suite_name: string;
         test_item: services_test_browser;
     }

@@ -66,14 +66,14 @@ const test_browser = function testBrowser(socketData:socket_data):void {
 
         /* Determine whether a given test item is pass or fail */
         evaluate: function testBrowser_evaluate(unit:test_assertion_dom):test_assert {
-            const rawValue:[HTMLElement, test_primitive] = remote.getProperty(unit),
-                value_actual:HTMLElement|test_primitive = (unit.type === "element")
+            const rawValue:[HTMLElement, type_test_primitive] = remote.getProperty(unit),
+                value_actual:HTMLElement|type_test_primitive = (unit.type === "element")
                     ? rawValue[0]
                     : rawValue[1],
-                value_test:test_primitive = (unit.value === remote.magicString)
-                    ? remote.store as test_primitive
-                    : unit.value as test_primitive,
-                qualifier:test_qualifier = unit.qualifier,
+                value_test:type_test_primitive = (unit.value === remote.magicString)
+                    ? remote.store as type_test_primitive
+                    : unit.value as type_test_primitive,
+                qualifier:type_test_qualifier = unit.qualifier,
                 test_nullable:boolean = (unit.nullable === true),
                 highlight = function testBrowser_evaluate_highlight():void {
                     if (unit !== remote.test_item.test.delay && rawValue[0] !== null && rawValue[0] !== undefined && rawValue[0].nodeType === 1) {
@@ -206,9 +206,9 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "is") {
-                const value:test_primitive = (Array.isArray(value_test) === true)
-                        ? (value_test as test_primitive[]).includes(value_actual as test_primitive)
-                            ? value_test[value_test.indexOf(value_actual as test_primitive)]
+                const value:type_test_primitive = (Array.isArray(value_test) === true)
+                        ? (value_test as type_test_primitive[]).includes(value_actual as type_test_primitive)
+                            ? value_test[value_test.indexOf(value_actual as type_test_primitive)]
                             : JSON.stringify(value_test)
                         : value_test,
                     test:boolean = (value_actual === value),
@@ -255,9 +255,9 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "not") {
-                const value:test_primitive = (Array.isArray(value_test) === true)
-                        ? (value_test as test_primitive[]).includes(value_actual as test_primitive)
-                            ? value_test[value_test.indexOf(value_actual as test_primitive)]
+                const value:type_test_primitive = (Array.isArray(value_test) === true)
+                        ? (value_test as type_test_primitive[]).includes(value_actual as type_test_primitive)
+                            ? value_test[value_test.indexOf(value_actual as type_test_primitive)]
                             : JSON.stringify(value_test)
                         : value_test,
                     test:boolean = (value_actual !== value),
@@ -334,7 +334,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 location: unit.node.nodeString,
                 pass: false,
                 store: false,
-                value: remote.stringify(value_actual as test_primitive)
+                value: remote.stringify(value_actual as type_test_primitive)
             };
         },
 
@@ -494,13 +494,13 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         },
 
         /* Get the value of the specified property/attribute */
-        getProperty: function testBrowser_getProperty(unit:test_assertion_dom):[HTMLElement, test_primitive] {
+        getProperty: function testBrowser_getProperty(unit:test_assertion_dom):[HTMLElement, type_test_primitive] {
             let type:boolean = false;
             const element:HTMLElement = (unit.node.length > 0)
                     ? remote.node(unit.node, unit.target[0])
                     : null,
                 pLength:number = unit.target.length,
-                property = function testBrowser_getProperty_property(origin:HTMLElement|Window):test_primitive {
+                property = function testBrowser_getProperty_property(origin:HTMLElement|Window):type_test_primitive {
                     let index_prop:number = 0,
                         prop:number|string = null,
                         method:string = null,
@@ -578,7 +578,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         /* Gather a DOM node using instructions from a data structure */
         node: function testBrowser_node(dom:test_browserDOM, property:string):HTMLElement {
             let element:Document|HTMLElement = document,
-                node:[test_domMethod, string, number],
+                node:type_test_browserDOM,
                 a:number = 0,
                 fail:string = "";
             const nodeLength:number = dom.length,
@@ -716,7 +716,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         suite_name: null,
 
         /* Converts a primitive of any type into a string for presentation */
-        stringify: function testBrowser_raw(primitive:test_primitive):string {
+        stringify: function testBrowser_raw(primitive:type_test_primitive):string {
             return (typeof primitive === "string")
                 ? `"${primitive.replace(/"/g, "\\\"")}"`
                 : String(primitive);

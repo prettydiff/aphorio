@@ -9,7 +9,7 @@ const test_runner:test_runner = {
     assert: {
         "begins": function test_runner_execCommand_assertBegins(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
             const nullable:boolean = (unit.nullable === true && value_actual === null),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 test:boolean = (String(value_actual).indexOf(String(value_test)) === 0);
             return {
                 assessment: (nullable === true)
@@ -25,7 +25,7 @@ const test_runner:test_runner = {
         },
         "contains": function test_runner_execCommand_assertContains(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
             const s_value:string = String(value_actual),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (String(value_actual).includes(String(value_test)) === true);
@@ -43,7 +43,7 @@ const test_runner:test_runner = {
         },
         "ends": function test_runner_execCommand_assertEnds(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
             const str_value:string = String(value_actual),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 str_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (str_value.indexOf(str_unit) === str_value.length - str_unit.length);
@@ -61,7 +61,7 @@ const test_runner:test_runner = {
         },
         "greater": function test_runner_execCommand_assertGreater(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
             const nullable:boolean = (unit.nullable === true && value_actual === null),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 test:boolean = (((typeof value_actual === "bigint" || (typeof value_actual === "string" && (/^\d+n$/).test(String(value_actual)) === true)) && BigInt(value_actual as string) > BigInt(value_test)) || Number(value_actual) > Number(value_test));
             return {
                 assessment: (nullable === true)
@@ -77,7 +77,7 @@ const test_runner:test_runner = {
         },
         "is": function test_runner_execCommand_assertIs(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
             const s_value:string = String(value_actual),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (value_actual === value_test);
@@ -95,7 +95,7 @@ const test_runner:test_runner = {
         },
         "lesser": function test_runner_execCommand_assertLesser(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
             const nullable:boolean = (unit.nullable === true && value_actual === null),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 test:boolean = (((typeof value_actual === "bigint" || (typeof value_actual === "string" && (/^\d+n$/).test(String(value_actual)) === true)) && BigInt(value_actual as string) < BigInt(value_test)) || Number(value_actual) < Number(value_test));
             return {
                 assessment: (nullable === true)
@@ -111,7 +111,7 @@ const test_runner:test_runner = {
         },
         "not": function test_runner_execCommand_assertBegins(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
             const s_value:string = String(value_actual),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (value_actual !== value_test);
@@ -129,7 +129,7 @@ const test_runner:test_runner = {
         },
         "not contains": function test_runner_execCommand_assertNotContains(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
             const s_value:string = String(value_actual),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (String(value_actual).includes(String(value_test)) === false);
@@ -328,15 +328,15 @@ const test_runner:test_runner = {
                 callback();
             }
         },
-        get_value: function test_runner_getValue(value_actual:test_primitive, value_test:test_primitive|test_primitive[]):test_primitive {
+        get_value: function test_runner_getValue(value_actual:type_test_primitive, value_test:type_test_primitive|type_test_primitive[]):type_test_primitive {
             if (Array.isArray(value_test) === true) {
-                const index:number = (value_test as test_primitive[]).indexOf(value_actual);
+                const index:number = (value_test as type_test_primitive[]).indexOf(value_actual);
                 if (index > -1) {
                     return value_test[index];
                 }
                 return JSON.stringify(value_test);
             }
-            return value_test as test_primitive;
+            return value_test as type_test_primitive;
         },
         next: function test_runner_toolsNext():void {
             vars.test.index = vars.test.index + 1;

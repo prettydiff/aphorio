@@ -472,7 +472,7 @@ interface core_vars_test {
     index: number;
     list: test_list_dom | test_list_proxy;
     magicString: string;
-    store: test_primitive;
+    store: type_test_primitive;
     test_browser: string;
     testing: boolean;
     total_assertions: number;
