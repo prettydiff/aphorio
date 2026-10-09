@@ -20,7 +20,8 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
             ? "green"
             : "angry",
         list:test_counts = vars.test.counts[name],
-        exit:boolean = (vars.options["no-exit"] === false);
+        exit:boolean = (vars.options["no-exit"] === false),
+        dashboard_server:core_vars_data_server = vars.data_store.server[vars.id.dashboard_server];
     if (vars.options["test-verbose"] === true) {
         summary.push("");
         summary.push(`${vars.text.underline}Testing complete for list ${vars.text.cyan + name + vars.text.none}`);
@@ -37,21 +38,28 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         const total_color:"angry"|"green" = (vars.test.total_assertions_fail === 0)
             ? "green"
             : "angry";
+        vars.test.total_time_end = process.hrtime.bigint();
         summary.push("");
         summary.push("___________________________________________________");
         summary.push("");
         summary.push(`${vars.text.underline}Test settings${vars.text.none}`);
-        summary.push(`    ${vars.text.angry}*${vars.text.none} browser                  : ${vars.options["browser"]}`);
+        if (vars.options.mode === "test-browser" && vars.options.browser !== "") {
+            summary.push(`    ${vars.text.angry}*${vars.text.none} browser              : ${vars.options["browser"]}`);
+        }
+        if (vars.options.list !== "") {
+            summary.push(`    ${vars.text.angry}*${vars.text.none} list                 : ${vars.options["list"]}`);
+        }
         summary.push(`    ${vars.text.angry}*${vars.text.none} delay-intervals          : ${vars.options["delay-intervals"]}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} delay-time               : ${vars.options["delay-time"]} milliseconds`);
-        summary.push(`    ${vars.text.angry}*${vars.text.none} list                     : ${vars.options["list"]}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} no-exit                  : ${vars.options["no-exit"]}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} stop-on-fail             : ${vars.options["stop-on-fail"]}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} test-verbose             : ${vars.options["test-verbose"]}`);
         summary.push("");
         summary.push(`${vars.text.underline}Totals from all test lists${vars.text.none}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total time               : ${vars.text.cyan + vars.test.total_time_end.time_elapsed(vars.test.total_time_start) + vars.text.none}`);
-        summary.push(`    ${vars.text.angry}*${vars.text.none} Total lists              : ${pad_right(18, vars.test.total_lists.commas())}`);
+        if (vars.options.mode !== "test-proxy") {
+            summary.push(`    ${vars.text.angry}*${vars.text.none} Total lists          : ${pad_right(18, vars.test.total_lists.commas())}`);
+        }
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total tests              : ${pad_right(18, vars.test.total_tests.commas())}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total assertions         : ${pad_right(18, vars.test.total_assertions.commas())}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total skipped tests      : ${pad_right(18, vars.test.total_tests_skipped.commas())}`);
@@ -62,20 +70,22 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
     }
     log.shell(summary, complete);
     if (complete === true && exit === true) {
-        const item_service:services_test_browser = {
-                index: -10,
-                magicString: null,
-                result: null,
-                store: null,
-                suite_name: null,
-                test: null
-            },
-            socket:websocket_client = vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0],
-            payload:socket_data = {
-                data: item_service,
-                service: "services_test_browser"
-            };
-        send(payload, socket, 3);
+        if (dashboard_server !== undefined) {
+            const item_service:services_test_browser = {
+                    index: -10,
+                    magicString: null,
+                    result: null,
+                    store: null,
+                    suite_name: null,
+                    test: null
+                },
+                socket:websocket_client = dashboard_server.sockets_tcp.open[0],
+                payload:socket_data = {
+                    data: item_service,
+                    service: "services_test_browser"
+                };
+            send(payload, socket, 3);
+        }
         if (vars.test.total_assertions_fail > 1) {
             process.exit(1);
         } else {

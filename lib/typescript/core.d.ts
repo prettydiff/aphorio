@@ -339,22 +339,24 @@ interface core_vars_data_primary {
     sockets_udp: services_udp_socket[];
 }
 
+interface core_vars_data_server {
+    // server certificates
+    server_certs: transmit_tlsCerts;
+    // storage of actual web server objects
+    server_object: {
+        open: core_server_instance;
+        secure: core_server_instance;
+    };
+    // storage of application managed tcp sockets
+    sockets_tcp: {
+        open: websocket_client[];
+        secure: websocket_client[];
+    };
+}
+
 interface core_vars_data_store {
     server: {
-        [key:string]: {
-            // server certificates
-            server_certs: transmit_tlsCerts;
-            // storage of actual web server objects
-            server_object: {
-                open: core_server_instance;
-                secure: core_server_instance;
-            };
-            // storage of application managed tcp sockets
-            sockets_tcp: {
-                open: websocket_client[];
-                secure: websocket_client[];
-            };
-        };
+        [key:string]: core_vars_data_server;
     };
     // storage of application managed udp sockets
     sockets_udp: transmit_udp[];

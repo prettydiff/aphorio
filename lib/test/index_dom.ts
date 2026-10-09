@@ -67,7 +67,6 @@ const test_index_dom = function test_indexDOM():void {
         callback = function test_indexDOM_callback(name:string):void {
             total_lists = total_lists + 1;
             if (total_lists === len_list || (vars.options["stop-on-fail"] === true && vars.test.counts[name].assertions_fail > 0)) {
-                vars.test.total_time_end = process.hrtime.bigint();
                 test_summary(name, true);
             } else {
                 test_summary(name, false);

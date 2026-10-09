@@ -1,48 +1,15 @@
 
 import clock from "../services/clock.ts";
 import demo from "../services/demo.ts";
-import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import ports_application from "../services/ports_application.ts";
 import statistics_resources from "../services/statistics_resources.ts";
 import test_index_dom from "../test/index_dom.ts";
-import test_index_proxy from "../test/index_proxy.ts";
+import test_remove from "../test/remove.ts";
 import vars from "../core/vars.ts";
 
 const ready_services = function start_readyServices(count_task:number):void {
-    const test_remove = function start_readyServices_testRemove():void {
-        let count:number = 0;
-        const removed = function test_indexDOM_callback_removed():void {
-            count = count + 1;
-            if (count > 2) {
-                if (vars.options.mode === "test-browser") {
-                    test_index_dom();
-                } else if (vars.options.mode === "test-proxy") {
-                    test_index_proxy();
-                }
-            }
-        };
-        // in the context of testing vars.path.project is actually ${vars.path.project}test so removing files does not harm the project runtime
-        file.remove({
-            callback: removed,
-            exclusions: [],
-            location: `${vars.path.project}compose`,
-            section: "startup"
-        });
-        file.remove({
-            callback: removed,
-            exclusions: [],
-            location: `${vars.path.project}servers`,
-            section: "startup"
-        });
-        file.remove({
-            callback: removed,
-            exclusions: [],
-            location: `${vars.path.project}servers.json`,
-            section: "startup"
-        });
-    };
     vars.environment.hashes = node.crypto.getHashes();
     clock();
     statistics_resources.data();
@@ -53,7 +20,7 @@ const ready_services = function start_readyServices(count_task:number):void {
         demo.clock_self();
     }
     if (vars.test.testing === true) {
-        test_remove();
+        test_remove(vars.path.project, test_index_dom);
     } else if (vars.options.mode === "demo" || vars.options.mode === "server") {
         const heading = function start_readyServices_heading(message:string):string {
                 return vars.text.underline + message + vars.text.none;

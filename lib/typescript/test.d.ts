@@ -7,24 +7,27 @@ interface test_assert {
     value: type_test_primitive;
 }
 
-interface test_assertion_command {
-    format?: "csv" | "json" | "lines" | "string";
+interface test_assertion_base {
     nullable?: boolean;
-    properties?: (number|string)[];
     qualifier: type_test_qualifier;
     store?: boolean;
-    type: "stderr" | "stdout";
-    value: type_test_primitive;
+    value: type_test_primitive | type_test_primitive[];
 }
 
-interface test_assertion_dom {
+interface test_assertion_command extends test_assertion_base {
+    format?: "csv" | "json" | "lines" | "string";
+    properties?: (number|string)[];
+    type: "stderr" | "stdout";
+}
+
+interface test_assertion_dom extends test_assertion_base {
     node: test_browserDOM;
-    nullable?: boolean;
-    qualifier: type_test_qualifier;
-    store?: boolean;
     target: string[];
     type: "attribute" | "element" | "property";
-    value: type_test_primitive | type_test_primitive[];
+}
+
+interface test_assertion_proxy extends test_assertion_base {
+    property: "chunked" | "chunks" | "error" | "response_body_raw" | "response_headers" | "url";
 }
 
 interface test_browserDOM extends Array<type_test_browserDOM> {
@@ -97,9 +100,17 @@ interface test_item_dom {
 }
 
 interface test_item_proxy {
-    config: services_test_http;
     name: string;
-    output: config_http_request_output;
+    request: {
+        body: string;
+        encryption: boolean;
+        host: string;
+        method: string;
+        port?: number | "server_1" | "server_2";
+        resource: string;
+        timeout?: number;
+    };
+    unit: test_assertion_proxy[];
 }
 
 interface test_list_dom extends Array<test_item_dom> {
@@ -120,7 +131,7 @@ interface test_list_proxy extends Array<test_item_proxy> {
 
 interface test_runner {
     assert: {
-        [key:string]: (value:string, unit:test_assertion_command|test_assertion_dom, location:string) => test_assert;
+        [key:string]: (value:type_test_primitive, unit:test_assertion_command|test_assertion_proxy, location:string) => test_assert;
     };
     count: number;
     execution: {

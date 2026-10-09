@@ -7,6 +7,7 @@ import vars from "../core/vars.ts";
 // processes HTTP tests from the dashboard UI
 const http_request = function http_request(config:services_test_http, callback:(output:config_http_request_output) => void, address_input?:[string, number]):void {
     const req:string = config.headers,
+        dashboard_server:supplemental_server = vars.data.server[vars.id.dashboard_server],
         header:string = req.split("\r\n\r\n")[0].replace(/\s+$/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n"),
         headers:string[] = header.split("\n"),
         bodyRaw:string = req.split("\r\n\r\n")[1],
@@ -27,7 +28,9 @@ const http_request = function http_request(config:services_test_http, callback:(
         chunkCount:number = 0;
     if (vars.options.mode === "demo") {
         host = "127.0.0.1";
-        port = vars.data.server[vars.id.dashboard_server].ports.open;
+        port = (dashboard_server === undefined)
+            ? 80
+            : dashboard_server.ports.open;
         config.encryption = false;
     } else if (address_input === null || address_input === undefined) {
         do {
@@ -169,7 +172,7 @@ const http_request = function http_request(config:services_test_http, callback:(
             fragment:string = "",
             bodyIndex:number = -1,
             contentLength:number = -1;
-        if (vars.data.server[vars.id.dashboard_server].config.domain_local.indexOf(host) > -1 || vars.environment.interfaces.indexOf(host) > -1) {
+        if ((dashboard_server !== undefined && dashboard_server.config.domain_local.indexOf(host) > -1) || vars.environment.interfaces.indexOf(host) > -1) {
             headers.push("services_http_test: true");
         }
         headers.push("");

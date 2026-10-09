@@ -28,6 +28,8 @@ import log from "../core/log.ts";
 import ready_services from "./ready_services.ts";
 import server_create from "../server/server_create.ts";
 import server_start from "../server/server_start.ts";
+import test_index_proxy from "../test/index_proxy.ts";
+import test_remove from "../test/remove.ts";
 import universal from "../core/universal.ts";
 import vars from "../core/vars.ts";
 
@@ -256,10 +258,16 @@ const start = function start(process_path:string):void {
     String.prototype.file_sanitize = universal.file_sanitize;
 
     index_tasks = keys_tasks.length;
-    if (vars.options.mode === "certificate") {
+    log.shell([
+        "",
+        `${vars.text.underline + vars.environment.name.capitalize()} mode: ${vars.options.mode + vars.text.none}`
+    ]);
+    if (vars.options.mode === "test-proxy") {
+        test_remove(vars.path.project, test_index_proxy);
+    } else if (vars.options.mode === "certificate") {
         prerequisite_tasks.servers.task();
     } else {
-        log.shell([`${vars.text.underline}Executing start up tasks${vars.text.none}`]);
+        log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);
 
         // update OS list of available shells
         if (vars.environment.features["terminal"] === true) {
