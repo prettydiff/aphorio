@@ -580,54 +580,79 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             let element:Document|HTMLElement = document,
                 node:type_test_browserDOM,
                 a:number = 0,
-                fail:string = "";
+                fail:string = "",
+                method:type_test_domMethod_standard = null;
             const nodeLength:number = dom.length,
-                str:string[] = ["document"];
+                str:string[] = ["document"],
+                method_map:store_dom = {
+                    active   : "activeElement",
+                    add      : "addClass",
+                    ancestor : "getAncestor",
+                    attribute: "getElementsByAttribute",
+                    child    : "childNodes",
+                    class    : "getElementsByClassName",
+                    document : "documentElement",
+                    first    : "firstChild",
+                    id       : "getElementById",
+                    last     : "lastChild",
+                    name     : "getElementsByName",
+                    next     : "nextSibling",
+                    parent   : "parentNode",
+                    previous : "previousSibling",
+                    remove   : "removeClass",
+                    tag      : "getElementsByTagName",
+                    text     : "getElementsByText",
+                    type     : "getNodesByType",
+                    window   : "window"
+                };
             if (dom === null || dom === undefined) {
                 return null;
             }
             do {
                 node = dom[a];
-                if (node[0] === "getElementById" && a > 0) {
+                method = (method_map[node[0]] === undefined)
+                    ? node[0] as type_test_domMethod_standard
+                    : method_map[node[0]];
+                if (method === "getElementById" && a > 0) {
                     fail = "Bad test. Method 'getElementById' must only occur as the first DOM method.";
                 }
-                if (node[2] === null && (node[0] === "childNodes" || node[0] === "getElementsByAttribute" || node[0] === "getElementsByClassName" || node[0] === "getElementsByName" || node[0] === "getElementsByTagName" || node[0] === "getElementsByText" || node[0] === "getModalsByModalType" || node[0] === "getNodesByType")) {
+                if (node[2] === null && (method === "childNodes" || method === "getElementsByAttribute" || method === "getElementsByClassName" || method === "getElementsByName" || method === "getElementsByTagName" || method === "getElementsByText" || method === "getNodesByType")) {
                     if (property !== "length" && a !== nodeLength - 1) {
                         fail = `Bad test. Property '${node[0]}' requires an index value as the third data point of a DOM item: ["${node[0]}", "${node[1]}", ${node[2]}]`;
                     }
                 }
-                if (node[0] === "childNodes" && node[2] !== null) {
+                if (method === "childNodes" && node[2] !== null) {
                     if (fail === "") {
                         element = element.childNodes[node[2]] as HTMLElement;
                     }
                     str.push(".childNodes[");
                     str.push(String(node[2]));
                     str.push("]");
-                } else if (node[1] === "" || node[1] === null || node[0] === "activeElement" || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
+                } else if (node[1] === "" || node[1] === null || method === "activeElement" || method === "documentElement" || method === "firstChild" || method === "lastChild" || method === "nextSibling" || method === "parentNode" || method === "previousSibling") {
                     if (fail === "") {
                         // @ts-expect-error - TypeScript's DOM types do not understand custom extensions to the Document object
-                        element = element[node[0]];
+                        element = element[method];
                     }
                     str.push(".");
-                    str.push(node[0]);
-                } else if (node[2] === null || node[0] === "getElementById") {
+                    str.push(method);
+                } else if (node[2] === null || method === "getElementById") {
                     if (fail === "") {
                         // @ts-expect-error - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
-                        element = element[node[0]](node[1]);
+                        element = element[method](node[1]);
                     }
                     str.push(".");
-                    str.push(node[0]);
+                    str.push(method);
                     str.push("(\"");
                     str.push(node[1]);
                     str.push("\")");
                 } else {
                     // @ts-expect-error - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
-                    const el:HTMLElement[] = element[node[0]](node[1]),
+                    const el:HTMLElement[] = element[method](node[1]),
                         len:number = (el === null || el.length < 1)
                             ? -1
                             : el.length;
                     str.push(".");
-                    str.push(node[0]);
+                    str.push(method);
                     str.push("(\"");
                     str.push(node[1]);
                     str.push("\")");
