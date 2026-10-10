@@ -5,8 +5,8 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
         {
             delay: {
                 node: [
-                    ["getElementById", "servers-web", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "servers-web", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -17,9 +17,9 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -27,9 +27,9 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
             unit: [
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -43,9 +43,9 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -53,10 +53,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
             unit: [
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "greater",
                     target: ["offsetTop"],
@@ -65,11 +65,11 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByClassName", "active-ports", 0],
-                        ["getElementsByTagName", "li", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["class", "active-ports", 0],
+                        ["tag", "li", 1]
                     ],
                     qualifier: "begins",
                     target: ["textContent"],
@@ -78,11 +78,11 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByClassName", "active-ports", 0],
-                        ["getElementsByTagName", "code", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["class", "active-ports", 0],
+                        ["tag", "code", 0]
                     ],
                     qualifier: "begins",
                     target: ["textContent"],
@@ -91,11 +91,11 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByClassName", "active-ports", 0],
-                        ["getElementsByTagName", "code", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["class", "active-ports", 0],
+                        ["tag", "code", 1]
                     ],
                     qualifier: "greater",
                     target: ["textContent", "length"],
@@ -104,10 +104,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "button", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -121,10 +121,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "button", 1]
                     ]
                 }
             ],
@@ -132,10 +132,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
             unit: [
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "button", 1]
                     ],
                     qualifier: "is",
                     target: ["disabled"],
@@ -144,10 +144,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "button", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -156,10 +156,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "h5", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "h5", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -168,10 +168,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByClassName", "edit-summary", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["class", "edit-summary", 0]
                     ],
                     qualifier: "is",
                     target: ["lastChild", "textContent"],
@@ -180,11 +180,11 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByClassName", "edit-summary", 0],
-                        ["lastChild", null, null]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["class", "edit-summary", 0],
+                        ["last", null, null]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -198,19 +198,19 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "button", 0]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -218,10 +218,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
             unit: [
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "button", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -235,10 +235,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["parentNode", null, null],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["parent", null, null],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -246,10 +246,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
             unit: [
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "edit-summary", 0],
-                        ["getElementsByClassName", "pass-warn", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["class", "edit-summary", 0],
+                        ["class", "pass-warn", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -258,10 +258,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "edit-summary", 0],
-                        ["getElementsByClassName", "pass-warn", 1]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["class", "edit-summary", 0],
+                        ["class", "pass-warn", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -270,10 +270,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["parentNode", null, null],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["parent", null, null],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["disabled"],
@@ -287,17 +287,17 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["tag", "textarea", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["tag", "textarea", 0]
                     ],
                     value: `{
     "activate": true,
@@ -318,18 +318,18 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "keydown",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["tag", "textarea", 0]
                     ],
                     value: "shift"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["tag", "textarea", 0]
                     ],
                     value: "shift"
                 }
@@ -338,10 +338,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
             unit: [
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "edit-summary", 0],
-                        ["getElementsByClassName", "pass-warn", null]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["class", "edit-summary", 0],
+                        ["class", "pass-warn", null]
                     ],
                     qualifier: "is",
                     target: ["length"],
@@ -353,8 +353,8 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
         {
             delay: {
                 node: [
-                    ["getElementById", "servers-web", null],
-                    ["getElementsByClassName", "edit", null]
+                    ["id", "servers-web", null],
+                    ["class", "edit", null]
                 ],
                 qualifier: "is",
                 target: ["length"],
@@ -365,9 +365,9 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "server-cancel", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["class", "server-cancel", 0]
                     ]
                 }
             ],
@@ -375,10 +375,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
             unit: [
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["parentNode", null, null],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["parent", null, null],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["disabled"],
@@ -392,24 +392,24 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-new", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-new", 0]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["tag", "textarea", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["tag", "textarea", 0]
                     ],
                     value: `{
     "activate": true,
@@ -430,27 +430,27 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "keydown",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["tag", "textarea", 0]
                     ],
                     value: "shift"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["tag", "textarea", 0]
                     ],
                     value: "shift"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "server-add", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["class", "server-add", 0]
                     ]
                 },
                 {
@@ -464,8 +464,8 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
             unit: [
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", null]
+                        ["id", "servers-web", null],
+                        ["class", "edit", null]
                     ],
                     qualifier: "is",
                     target: ["length"],
@@ -474,11 +474,11 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 0],
-                        ["lastChild", null, null]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "button", 0],
+                        ["last", null, null]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -487,11 +487,11 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByTagName", "button", 0],
-                        ["lastChild", null, null]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["tag", "button", 0],
+                        ["last", null, null]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -505,9 +505,9 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -515,10 +515,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
             unit: [
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "greater",
                     target: ["offsetTop"],
@@ -527,11 +527,11 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByClassName", "active-ports", 0],
-                        ["getElementsByTagName", "li", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["class", "active-ports", 0],
+                        ["tag", "li", 0]
                     ],
                     qualifier: "begins",
                     target: ["textContent"],
@@ -540,11 +540,11 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByClassName", "active-ports", 0],
-                        ["getElementsByTagName", "code", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["class", "active-ports", 0],
+                        ["tag", "code", 0]
                     ],
                     qualifier: "begins",
                     target: ["textContent"],
@@ -553,11 +553,11 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByClassName", "active-ports", 0],
-                        ["getElementsByTagName", "code", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["class", "active-ports", 0],
+                        ["tag", "code", 1]
                     ],
                     qualifier: "greater",
                     target: ["textContent", "length"],
@@ -566,10 +566,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "button", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -578,11 +578,11 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByClassName", "edit-summary", 0],
-                        ["getElementsByClassName", "pass-warn", null]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["class", "edit-summary", 0],
+                        ["class", "pass-warn", null]
                     ],
                     qualifier: "is",
                     target: ["length"],
@@ -596,28 +596,28 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 0],
+                        ["tag", "button", 0]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["tag", "button", 0]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["tag", "button", 1]
                     ]
                 }
             ],
@@ -625,12 +625,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
             unit: [
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "buttons", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["class", "edit", 0],
+                        ["class", "buttons", 0],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -639,12 +639,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "buttons", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["class", "edit", 0],
+                        ["class", "buttons", 0],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -653,12 +653,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "buttons", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["class", "edit", 0],
+                        ["class", "buttons", 0],
+                        ["tag", "button", 1]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -667,12 +667,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "buttons", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["class", "edit", 0],
+                        ["class", "buttons", 0],
+                        ["tag", "button", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -681,12 +681,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "buttons", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["class", "edit", 0],
+                        ["class", "buttons", 0],
+                        ["tag", "button", 1]
                     ],
                     qualifier: "is",
                     target: ["disabled"],
@@ -695,12 +695,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "buttons", 1],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["class", "edit", 0],
+                        ["class", "buttons", 1],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -709,12 +709,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "buttons", 1],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["class", "edit", 0],
+                        ["class", "buttons", 1],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -723,12 +723,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "buttons", 1],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["class", "edit", 0],
+                        ["class", "buttons", 1],
+                        ["tag", "button", 1]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -737,12 +737,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "buttons", 1],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["class", "edit", 0],
+                        ["class", "buttons", 1],
+                        ["tag", "button", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -751,12 +751,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "buttons", 1],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["class", "edit", 0],
+                        ["class", "buttons", 1],
+                        ["tag", "button", 1]
                     ],
                     qualifier: "is",
                     target: ["disabled"],
@@ -765,10 +765,10 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "edit-summary", 0],
-                        ["getElementsByClassName", "pass-false", 0]
+                        ["id", "servers-web", null],
+                        ["class", "edit", 0],
+                        ["class", "edit-summary", 0],
+                        ["class", "pass-false", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -780,9 +780,9 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
         {
             delay: {
                 node: [
-                    ["getElementById", "servers-web", null],
-                    ["getElementsByClassName", "server-list", 0],
-                    ["getElementsByTagName", "li", 1]
+                    ["id", "servers-web", null],
+                    ["class", "server-list", 0],
+                    ["tag", "li", 1]
                 ],
                 qualifier: "is",
                 target: [],
@@ -793,12 +793,12 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByClassName", "server-list", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByClassName", "edit", 0],
-                        ["getElementsByClassName", "buttons", 1],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "servers-web", null],
+                        ["class", "server-list", 0],
+                        ["tag", "li", 1],
+                        ["class", "edit", 0],
+                        ["class", "buttons", 1],
+                        ["tag", "button", 0]
                     ]
                 }
             ],

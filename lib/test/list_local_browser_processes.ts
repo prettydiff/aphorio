@@ -6,8 +6,8 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
         {
             delay: {
                 node: [
-                    ["getElementById", "processes", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "processes", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -18,9 +18,9 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 3],
-                        ["getElementsByTagName", "button", 3]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 3],
+                        ["tag", "button", 3]
                     ]
                 }
             ],
@@ -28,10 +28,10 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
             unit: [
                 {
                     node: [
-                        ["getElementById", "processes", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 0]
+                        ["id", "processes", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent", "typeof"],
@@ -40,10 +40,10 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
                 },
                 {
                     node: [
-                        ["getElementById", "processes", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 1]
+                        ["id", "processes", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 1]
                     ],
                     qualifier: "greater",
                     target: ["textContent"],
@@ -52,10 +52,10 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
                 },
                 {
                     node: [
-                        ["getElementById", "processes", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "processes", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "greater",
                     target: ["data-raw"],
@@ -64,10 +64,10 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
                 },
                 {
                     node: [
-                        ["getElementById", "sockets", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 3]
+                        ["id", "sockets", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 3]
                     ],
                     qualifier: "greater",
                     target: ["data-raw"],
@@ -79,9 +79,9 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
         {
             delay: {
                 node: [
-                    ["getElementById", "processes", null],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", null]
+                    ["id", "processes", null],
+                    ["tag", "tbody", 0],
+                    ["tag", "tr", null]
                 ],
                 qualifier: "greater",
                 store: true,
@@ -99,26 +99,26 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "processes", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "processes", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "processes", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "processes", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "running"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "processes", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "processes", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "Enter"
                 },
@@ -132,9 +132,9 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
             unit: [
                 {
                     node: [
-                        ["getElementById", "processes", null],
-                        ["getElementsByClassName", "table-stats", 0],
-                        ["getElementsByTagName", "em", 1]
+                        ["id", "processes", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "em", 1]
                     ],
                     qualifier: "lesser",
                     target: ["textContent"],

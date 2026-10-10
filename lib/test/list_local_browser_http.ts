@@ -5,8 +5,8 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
         {
             delay: {
                 node: [
-                    ["getElementById", "test-http", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "test-http", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -17,9 +17,9 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 5],
-                        ["getElementsByTagName", "button", 0]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 5],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -27,9 +27,9 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
             unit: [
                 {
                     node: [
-                        ["getElementById", "test-http", 0],
-                        ["getElementsByClassName", "summary-stats", 0],
-                        ["getElementsByTagName", "strong", 0]
+                        ["id", "test-http", 0],
+                        ["class", "summary-stats", 0],
+                        ["tag", "strong", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -41,9 +41,9 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
         {
             delay: {
                 node: [
-                    ["getElementById", "test-http", 0],
-                    ["getElementsByClassName", "form", 1],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "test-http", 0],
+                    ["class", "form", 1],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "begins",
                 target: ["value"],
@@ -55,17 +55,17 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-http", 0],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "test-http", 0],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-http", 0],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "test-http", 0],
+                        ["class", "form", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -73,9 +73,9 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
             unit: [
                 {
                     node: [
-                        ["getElementById", "test-http", 0],
-                        ["getElementsByClassName", "form", 1],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-http", 0],
+                        ["class", "form", 1],
+                        ["tag", "textarea", 1]
                     ],
                     qualifier: "begins",
                     target: ["value"],
@@ -84,9 +84,9 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
                 },
                 {
                     node: [
-                        ["getElementById", "test-http", 0],
-                        ["getElementsByClassName", "form", 1],
-                        ["getElementsByTagName", "textarea", 2]
+                        ["id", "test-http", 0],
+                        ["class", "form", 1],
+                        ["tag", "textarea", 2]
                     ],
                     qualifier: "begins",
                     target: ["value"],
@@ -95,9 +95,9 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
                 },
                 {
                     node: [
-                        ["getElementById", "test-http", 0],
-                        ["getElementsByClassName", "summary-stats", 0],
-                        ["getElementsByTagName", "strong", 0]
+                        ["id", "test-http", 0],
+                        ["class", "summary-stats", 0],
+                        ["tag", "strong", 0]
                     ],
                     qualifier: "not",
                     target: ["textContent"],

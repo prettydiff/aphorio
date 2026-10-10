@@ -6,8 +6,8 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
         {
             delay: {
                 node: [
-                    ["getElementById", "hash", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "hash", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -18,9 +18,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 4],
-                        ["getElementsByTagName", "button", 3]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 4],
+                        ["tag", "button", 3]
                     ]
                 }
             ],
@@ -30,9 +30,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
         {
             delay: {
                 node: [
-                    ["getElementById", "hash", null],
-                    ["getElementsByClassName", "form", 1],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "hash", null],
+                    ["class", "form", 1],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "is",
                 target: ["value"],
@@ -43,18 +43,18 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "textarea", 0]
                     ],
                     value: "hello test automation!"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -64,9 +64,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
         {
             delay: {
                 node: [
-                    ["getElementById", "hash", null],
-                    ["getElementsByClassName", "form", 1],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "hash", null],
+                    ["class", "form", 1],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "is",
                 target: ["value"],
@@ -77,17 +77,17 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 5]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 5]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -97,9 +97,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
         {
             delay: {
                 node: [
-                    ["getElementById", "hash", null],
-                    ["getElementsByClassName", "form", 1],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "hash", null],
+                    ["class", "form", 1],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "is",
                 target: ["value"],
@@ -110,17 +110,17 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -128,9 +128,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
             unit: [
                 {
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 4]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 4]
                     ],
                     qualifier: "is",
                     target: ["disabled"],
@@ -139,9 +139,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
                 },
                 {
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 5]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 5]
                     ],
                     qualifier: "is",
                     target: ["disabled"],
@@ -153,9 +153,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
         {
             delay: {
                 node: [
-                    ["getElementById", "hash", null],
-                    ["getElementsByClassName", "form", 1],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "hash", null],
+                    ["class", "form", 1],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "is",
                 target: ["value"],
@@ -166,26 +166,26 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "textarea", 0]
                     ],
                     value: `${vars.path.project.replace("test", "")}bin${vars.path.sep}aphorio.js`
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 3]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 3]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -193,9 +193,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
             unit: [
                 {
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 4]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 4]
                     ],
                     qualifier: "is",
                     target: ["disabled"],
@@ -204,9 +204,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
                 },
                 {
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 5]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 5]
                     ],
                     qualifier: "is",
                     target: ["disabled"],
@@ -218,9 +218,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
         {
             delay: {
                 node: [
-                    ["getElementById", "hash", null],
-                    ["getElementsByClassName", "form", 1],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "hash", null],
+                    ["class", "form", 1],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "is",
                 target: ["value"],
@@ -231,17 +231,17 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -249,9 +249,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
             unit: [
                 {
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 4]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 4]
                     ],
                     qualifier: "is",
                     target: ["disabled"],
@@ -260,9 +260,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
                 },
                 {
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 5]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 5]
                     ],
                     qualifier: "is",
                     target: ["disabled"],
@@ -274,9 +274,9 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
         {
             delay: {
                 node: [
-                    ["getElementById", "hash", null],
-                    ["getElementsByClassName", "form", 1],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "hash", null],
+                    ["class", "form", 1],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "is",
                 target: ["value"],
@@ -287,26 +287,26 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 4]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 4]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "select", 0]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "select", 0]
                     ],
                     value: "md5-sha1"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "hash", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "hash", null],
+                        ["class", "form", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],

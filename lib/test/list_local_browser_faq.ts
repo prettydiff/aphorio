@@ -5,8 +5,8 @@ const test_listLocalBrowserFAQ = function test_listLocalBrowserFAQ():test_list_d
         {
             delay: {
                 node: [
-                    ["getElementById", "faq", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "faq", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -17,9 +17,9 @@ const test_listLocalBrowserFAQ = function test_listLocalBrowserFAQ():test_list_d
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 6],
-                        ["getElementsByTagName", "button", 2]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 6],
+                        ["tag", "button", 2]
                     ]
                 }
             ],

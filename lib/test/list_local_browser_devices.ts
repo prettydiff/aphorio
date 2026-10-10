@@ -6,8 +6,8 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
         {
             delay: {
                 node: [
-                    ["getElementById", "devices", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "devices", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -18,9 +18,9 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 3],
-                        ["getElementsByTagName", "button", 1]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 3],
+                        ["tag", "button", 1]
                     ]
                 }
             ],
@@ -30,9 +30,9 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
         {
             delay: {
                 node: [
-                    ["getElementById", "devices", null],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", null]
+                    ["id", "devices", null],
+                    ["tag", "tbody", 0],
+                    ["tag", "tr", null]
                 ],
                 qualifier: "greater",
                 store: true,
@@ -45,10 +45,10 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
             unit: [
                 {
                     node: [
-                        ["getElementById", "devices", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 0]
+                        ["id", "devices", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent", "typeof"],
@@ -57,10 +57,10 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
                 },
                 {
                     node: [
-                        ["getElementById", "devices", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 1]
+                        ["id", "devices", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent", "typeof"],
@@ -69,10 +69,10 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
                 },
                 {
                     node: [
-                        ["getElementById", "devices", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "devices", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "is",
                     target: ["textContent", "typeof"],
@@ -87,26 +87,26 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "devices", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "devices", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "devices", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "devices", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "USB"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "devices", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "devices", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "Enter"
                 },
@@ -120,9 +120,9 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
             unit: [
                 {
                     node: [
-                        ["getElementById", "devices", null],
-                        ["getElementsByClassName", "table-stats", 0],
-                        ["getElementsByTagName", "em", 1]
+                        ["id", "devices", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "em", 1]
                     ],
                     qualifier: "lesser",
                     target: ["textContent"],

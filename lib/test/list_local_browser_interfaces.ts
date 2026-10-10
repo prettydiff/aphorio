@@ -6,8 +6,8 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
         {
             delay: {
                 node: [
-                    ["getElementById", "interfaces", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "interfaces", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -18,9 +18,9 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 2],
-                        ["getElementsByTagName", "button", 0]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 2],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
@@ -28,10 +28,10 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
             unit: [
                 {
                     node: [
-                        ["getElementById", "interfaces", null],
-                        ["getElementsByClassName", "table-stats", 0],
-                        ["getElementsByTagName", "p", 2],
-                        ["getElementsByTagName", "time", 0]
+                        ["id", "interfaces", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "p", 2],
+                        ["tag", "time", 0]
                     ],
                     qualifier: "not",
                     store: true,
@@ -41,10 +41,10 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 },
                 {
                     node: [
-                        ["getElementById", "interfaces", null],
-                        ["getElementsByClassName", "item-list", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "h2", 0]
+                        ["id", "interfaces", null],
+                        ["class", "item-list", 0],
+                        ["class", "section", 0],
+                        ["tag", "h2", 0]
                     ],
                     qualifier: "not",
                     target: ["textContent"],
@@ -53,10 +53,10 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 },
                 {
                     node: [
-                        ["getElementById", "interfaces", null],
-                        ["getElementsByClassName", "item-list", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "h3", 0]
+                        ["id", "interfaces", null],
+                        ["class", "item-list", 0],
+                        ["class", "section", 0],
+                        ["tag", "h3", 0]
                     ],
                     qualifier: "not",
                     target: ["textContent"],
@@ -65,10 +65,10 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 },
                 {
                     node: [
-                        ["getElementById", "interfaces", null],
-                        ["getElementsByClassName", "item-list", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "ul", null]
+                        ["id", "interfaces", null],
+                        ["class", "item-list", 0],
+                        ["class", "section", 0],
+                        ["tag", "ul", null]
                     ],
                     qualifier: "greater",
                     target: ["length"],
@@ -77,10 +77,10 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 },
                 {
                     node: [
-                        ["getElementById", "interfaces", null],
-                        ["getElementsByClassName", "item-list", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "strong", 0]
+                        ["id", "interfaces", null],
+                        ["class", "item-list", 0],
+                        ["class", "section", 0],
+                        ["tag", "strong", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -89,10 +89,10 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 },
                 {
                     node: [
-                        ["getElementById", "interfaces", null],
-                        ["getElementsByClassName", "item-list", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "strong", 1]
+                        ["id", "interfaces", null],
+                        ["class", "item-list", 0],
+                        ["class", "section", 0],
+                        ["tag", "strong", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -101,10 +101,10 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 },
                 {
                     node: [
-                        ["getElementById", "interfaces", null],
-                        ["getElementsByClassName", "item-list", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "strong", 2]
+                        ["id", "interfaces", null],
+                        ["class", "item-list", 0],
+                        ["class", "section", 0],
+                        ["tag", "strong", 2]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -113,10 +113,10 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 },
                 {
                     node: [
-                        ["getElementById", "interfaces", null],
-                        ["getElementsByClassName", "item-list", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "strong", 3]
+                        ["id", "interfaces", null],
+                        ["class", "item-list", 0],
+                        ["class", "section", 0],
+                        ["tag", "strong", 3]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -125,10 +125,10 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 },
                 {
                     node: [
-                        ["getElementById", "interfaces", null],
-                        ["getElementsByClassName", "item-list", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "strong", 4]
+                        ["id", "interfaces", null],
+                        ["class", "item-list", 0],
+                        ["class", "section", 0],
+                        ["tag", "strong", 4]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -137,10 +137,10 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
                 },
                 {
                     node: [
-                        ["getElementById", "interfaces", null],
-                        ["getElementsByClassName", "item-list", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "strong", 5]
+                        ["id", "interfaces", null],
+                        ["class", "item-list", 0],
+                        ["class", "section", 0],
+                        ["tag", "strong", 5]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -152,10 +152,10 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
         {
             delay: {
                 node: [
-                    ["getElementById", "interfaces", null],
-                    ["getElementsByClassName", "table-stats", 0],
-                    ["getElementsByTagName", "p", 2],
-                    ["getElementsByTagName", "time", 0]
+                    ["id", "interfaces", null],
+                    ["class", "table-stats", 0],
+                    ["tag", "p", 2],
+                    ["tag", "time", 0]
                 ],
                 qualifier: "not",
                 target: ["textContent"],
@@ -165,9 +165,9 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
             interaction: [
                 {
                     node: [
-                        ["getElementById", "interfaces", null],
-                        ["getElementsByClassName", "table-stats", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "interfaces", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "button", 0]
                     ],
                     event: "click"
                 }

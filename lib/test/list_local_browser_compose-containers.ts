@@ -6,8 +6,8 @@ const test_listLocalBrowserComposeContainers = function test_listLocalBrowserCom
         {
             delay: {
                 node: [
-                    ["getElementById", "compose-containers", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "compose-containers", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -18,8 +18,8 @@ const test_listLocalBrowserComposeContainers = function test_listLocalBrowserCom
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["tag", "nav", 0],
+                        ["tag", "button", 1]
                     ]
                 }
             ],
@@ -34,8 +34,8 @@ const test_listLocalBrowserComposeContainers = function test_listLocalBrowserCom
             name: "Display compose error message.",
             unit: [{
                 node: [
-                    ["getElementById", "compose-containers", null],
-                    ["getElementsByTagName", "p", 1]
+                    ["id", "compose-containers", null],
+                    ["tag", "p", 1]
                 ],
                 qualifier: "is",
                 target: ["textContent"],

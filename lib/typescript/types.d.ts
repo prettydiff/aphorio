@@ -60,8 +60,31 @@ type type_socket_status = "closed" | "end" | "open" | "pending";
 type type_start_pre_tasks = "admin" | "compose" | "features" | "os_main" | "servers";
 type type_start_primary_tasks = "certificates" | "cgroup" | "compose_variables" | "file" | "git" | "global_name" | "html" | "os_devs" | "os_disk" | "os_intr" | "os_proc" | "os_serv" | "os_stcp" | "os_sudp" | "os_user" | "server_audit" | "services_app" | "test_browser" | "test_list" | "version";
 
-type type_test_browserDOM = [type_test_domMethod, string, number];
-type type_test_domMethod = "activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getModalsByModalType" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window";
+type type_test_browserDOM = [type_test_domMethod_short, string, number];
+
+// shorthand mapping:
+// active   : activeElement
+// add      : addClass
+// ancestor : getAncestor
+// attribute: getElementsByAttribute
+// child    : childNodes
+// class    : getElementsByClassName
+// document : documentElement
+// first    : firstChild
+// id       : getElementById
+// last     : lastChild
+// name     : getElementsByName
+// next     : nextSibling
+// parent   : parentNode
+// previous : previousSibling
+// remove   : removeClass
+// tag      : getElementsByTagName
+// text     : getElementsByText
+// type     : getNodesByType
+// window   : window
+type type_test_domMethod_short = "active" | "add" | "ancestor" | "attribute" | "child" | "class" | "document" | "first" | "id" | "last" | "name" | "next" | "parent" | "previous" | "remove" | "tag" | "text" | "type" | "window";
+type type_test_domMethod_standard = "activeElement" | "addClass" | "childNodes" | "documentElement" | "firstChild" | "getAncestor" | "getElementById" | "getElementsByAttribute" | "getElementsByClassName" | "getElementsByName" | "getElementsByTagName" | "getElementsByText" | "getNodesByType" | "lastChild" | "nextSibling" | "parentNode" | "previousSibling" | "removeClass" | "window";
+
 type type_test_eventName = "blur" | "click" | "command" | "contextmenu" | "dblclick" | "focus" | "keydown" | "keyup" | "mousedown" | "mouseenter" | "mouseleave" | "mousemove" | "mouseout" | "mouseover" | "mouseup" | "move" | "refresh" | "resize" | "select" | "setValue" | "touchend" | "touchstart" | "wait";
 type type_test_primitive = bigint | boolean | number | string | null | undefined;
 type type_test_qualifier = "begins" | "contains" | "ends" | "greater" | "is" | "lesser" | "not contains" | "not" | "numeric";
