@@ -93,6 +93,7 @@ interface supplemental_server_config {
     mutual_tls: boolean;
     name: string;
     ports: core_server_ports;
+    proxy?: supplemental_server_proxy[];
     redirect_asset?: {
         [key:string]: store_string;
     };
@@ -107,6 +108,21 @@ interface supplemental_server_config {
 interface supplemental_server_method {
     address: string;
     port: number;
+}
+
+interface supplemental_server_proxy {
+    address: string;
+    description: string;
+    incoming: supplemental_server_proxy_identity;
+    outgoing: supplemental_server_proxy_identity;
+    type: "asset" | "proxy";
+}
+
+interface supplemental_server_proxy_identity {
+    domain?: string;
+    encryption?: "both" | "open" | "secure";
+    port?: number;
+    resource?: string;
 }
 
 interface supplemental_socket_application_list {

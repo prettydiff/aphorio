@@ -220,10 +220,10 @@ const ready_services = function start_readyServices(count_task:number):void {
                 index = index + 1;
             } while (index < len);
         }
-        logs.push("");
-        logs.push(heading("Help"));
-        logs.push(`${vars.environment.name.capitalize()} also supports shell interactions.`);
-        logs.push(`Execute with shell argument '${vars.text.cyan}help${vars.text.none}' to see a command list.`);
+        // logs.push("");
+        // logs.push(heading("Help"));
+        // logs.push(`${vars.environment.name.capitalize()} also supports shell interactions.`);
+        // logs.push(`Execute with shell argument '${vars.text.cyan}help${vars.text.none}' to see a command list.`);
         log.shell(logs, true);
     }
     vars.environment.loading = false;

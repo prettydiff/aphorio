@@ -196,6 +196,13 @@ interface core_module_universal {
     time_elapsed: () => string;
 }
 
+interface core_package_json {
+    bugs: {
+        url: string;
+    };
+    version: string;
+}
+
 interface core_server_child_input {
     encryption: boolean;
     id: string;
@@ -412,6 +419,7 @@ interface core_vars_environment {
     };
     name: string;
     repository: string;
+    runtime: string;
     services_app: core_service_internal[];
     start_date: number;
     start_time: bigint;

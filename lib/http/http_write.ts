@@ -4,7 +4,7 @@ import message_inspection from "../services/message_inspection.ts";
 const http_write = function http_write(socket:websocket_client, payload:Buffer|string, final:boolean):void {
     socket.write(payload);
     if (final === true) {
-        setTimeout(function http_get_write_destroy():void {
+        setTimeout(function http_write_destroy():void {
             socket.destroy();
         }, 500);
     }

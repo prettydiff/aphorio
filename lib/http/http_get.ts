@@ -12,18 +12,13 @@ import vars from "../core/vars.ts";
 
 /* cspell: words msvideo, nofollow, onnection, prettydiff */
 
-const http_get:type_http_action = function http_get(headerList:string[], socket:websocket_client):void {
-    const index0:string[] = headerList[0].replace(/^\s+/, "").replace(/\s+/, " ").split(" "),
-        method:"GET"|"HEAD" = (index0.indexOf("HEAD") === 0)
-            ? "HEAD"
-            : "GET",
-        server_id:string = socket.server_hash,
-        resource:string = index0[1],
-        asset:string[] = resource.split("/"),
+const http_get:type_http_action = function http_get(config:config_http, socket:websocket_client):void {
+    const server_id:string = socket.server_hash,
+        asset:string[] = config.resource.split("/"),
         path:string = `${vars.path.servers + server_id + vars.path.sep}assets${vars.path.sep}`,
         fileFragment:string = asset.join(vars.path.sep).replace(/^(\\|\/)/, ""),
         payload = function http_get_payload(heading:string[], body:string):string {
-            if (method === "HEAD") {
+            if (config.method === "head") {
                 return heading.join("\r\n");
             }
             return heading.join("\r\n") + body;
@@ -137,7 +132,7 @@ const http_get:type_http_action = function http_get(headerList:string[], socket:
                                         dtg:string[] = null,
                                         address:string = "";
                                     const content:string[] = [
-                                            `<h2>Directory List - ${decodeURI(index0[1])}</h2>`,
+                                            `<h2>Directory List - ${decodeURI(config.resource)}</h2>`,
                                             "<table class=\"file-list\"><thead><tr><th><button data-dir=\"1\">object</button></th><th><button data-dir=\"1\">type</button></th><th><button data-dir=\"1\">size</button></th><th><button data-dir=\"1\">modified date</button></th><th><button data-dir=\"1\">modified time</button></th><th><button data-dir=\"1\">permissions</button></th><th><button data-dir=\"1\">children</button></th></tr></thead><tbody>"
                                         ],
                                         total:number = list.length,
@@ -152,23 +147,7 @@ const http_get:type_http_action = function http_get(headerList:string[], socket:
                                         },
                                         scheme:"http"|"https" = (socket.encrypted === true)
                                             ? "https"
-                                            : "http",
-                                        host:string = (function http_get_host():string {
-                                            let index:number = headerList.length,
-                                                value:string = "";
-                                            do {
-                                                index = index - 1;
-                                                if (typeof headerList[index] === "string") {
-                                                    if (headerList[index].toLowerCase().indexOf("host:") === 0) {
-                                                        value = headerList[index].slice(headerList[index].indexOf(":") + 1).replace(/\s+/g, "");
-                                                    } else if (headerList[index].toLowerCase().indexOf("connection:") === 0) {
-                                                        headerList.splice(index, 1);
-                                                        index = index + 1;
-                                                    }
-                                                }
-                                            } while (index > 0);
-                                            return value;
-                                        }());
+                                            : "http";
                                     list.sort(function http_get_stat_statTest_directoryItem_noFile_directory_sort(a:type_directory_item, b:type_directory_item):-1|1 {
                                         if (a[1] < b[1]) {
                                             return -1;
@@ -177,7 +156,7 @@ const http_get:type_http_action = function http_get(headerList:string[], socket:
                                     });
                                     do {
                                         if (list[index_item][2] === 0 && list[index_item][0].indexOf(input) !== list[index_item][0].length - input.length) {
-                                            address = `${scheme}://${host + index0[1].replace(/\/$/, "") + vars.path.sep + list[index_item][5]}`;
+                                            address = `${scheme}://${config.origin + config.resource.replace(/\/$/, "") + vars.path.sep + list[index_item][5]}`;
                                             dtg = list[index_item][4].mtimeMs.dateTime(true, null).split(", ");
                                             content.push(`<tr class="${(index_item % 2 === 0) ? "even" : "odd"}"><td class="file-name"><span class="icon">${icon[list[index_item][1]]}</span> <a href="${address}">${list[index_item][5]}</a></td><td>${list[index_item][1]}</td><td data-raw="${list[index_item][4].size}">${list[index_item][4].size.commas()}</td><td data-raw="${list[index_item][4].mtimeMs}">${dtg[0]}</td><td>${dtg[1]}</td><td>${list[index_item][4].mode === null ? "" : (list[index_item][4].mode & parseInt("777", 8)).toString(8)}</td><td data-raw="${list[index_item][3]}">${list[index_item][3].commas()}</td></tr>`);
                                         }
@@ -188,7 +167,7 @@ const http_get:type_http_action = function http_get(headerList:string[], socket:
                                         content: content,
                                         content_type: "text/html; utf8",
                                         core: true,
-                                        page_title: index0[1],
+                                        page_title: config.resource,
                                         status: 200,
                                         template: true,
                                         script: file_list
@@ -219,45 +198,40 @@ const http_get:type_http_action = function http_get(headerList:string[], socket:
                                 "accept-ranges: bytes",
                                 ""
                             ];
-                            if (method === "HEAD") {
+                            if (config.method === "head") {
                                 http_write(socket, headerText.join("\r\n"), true);
                             } else {
                                 let stream:node_fs_ReadStream = null;
                                 const status:string = (function http_get_stat_statTest_fileItem_partial():string {
-                                        let index:number = headerList.length;
-                                        do {
-                                            index = index - 1;
-                                            if (headerList[index].toLowerCase().indexOf("range:") === 0) {
-                                                const range:string = headerList[index].toLowerCase().replace(/range:\s*bytes=/, ""),
-                                                    ranges:string[] = range.split("-"),
-                                                    size:number = Number(stat.size),
-                                                    start:number = (ranges[0] === "")
-                                                        ? 0
-                                                        : Number(ranges[0]),
-                                                    end:number = (ranges[1] === "" || ranges[1] === undefined)
-                                                        ? Math.min(start + (1024 * 1024), size)
-                                                        : Number(ranges[1].split("/")[0]),
-                                                    empty:boolean = (end - start === 0);
-                                                    if (empty === true) {
-                                                        headerText[0] = "HTTP/1.1 200";
-                                                        headerText[2] = "content-length: 0";
-                                                    } else {
-                                                        if (end === size) {
-                                                            headerText.splice(2, 0, `content-range: bytes ${start}-${end - 1}/${size}`);
-                                                        } else {
-                                                            headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
-                                                        }
-                                                        stream = node.fs.createReadStream(input, {
-                                                            end: end,
-                                                            start: start
-                                                        });
-                                                    }
-                                                return "HTTP/1.1 206";
-                                            }
-                                        } while (index > 0);
+                                    if (config.range === "") {
                                         stream = node.fs.createReadStream(input);
                                         return "HTTP/1.1 200";
-                                    }());
+                                    }
+                                    const ranges:string[] = config.range.replace(/\s*bytes=/, "").split("-"),
+                                        size:number = Number(stat.size),
+                                        start:number = (ranges[0] === "")
+                                            ? 0
+                                            : Number(ranges[0]),
+                                        end:number = (ranges[1] === "" || ranges[1] === undefined)
+                                            ? Math.min(start + (1024 * 1024), size)
+                                            : Number(ranges[1].split("/")[0]),
+                                        empty:boolean = (end - start === 0);
+                                        if (empty === true) {
+                                            headerText[0] = "HTTP/1.1 200";
+                                            headerText[2] = "content-length: 0";
+                                        } else {
+                                            if (end === size) {
+                                                headerText.splice(2, 0, `content-range: bytes ${start}-${end - 1}/${size}`);
+                                            } else {
+                                                headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
+                                            }
+                                            stream = node.fs.createReadStream(input, {
+                                                end: end,
+                                                start: start
+                                            });
+                                        }
+                                    return "HTTP/1.1 206";
+                                }());
                                 headerText[0] = status;
                                 http_write(socket, headerText.join("\r\n"), false);
                                 if (stream !== null) {
@@ -336,7 +310,7 @@ const http_get:type_http_action = function http_get(headerList:string[], socket:
                     } else {
                         const headers:string[] = [
                             "HTTP/1.1 308 Permanent Redirect",
-                            `Location: ${resource}/`,
+                            `Location: ${config.resource}/`,
                             "Content-Type: text/html; charset=UTF-8",
                             "Content-Length: 0",
                             "",
@@ -365,20 +339,18 @@ const http_get:type_http_action = function http_get(headerList:string[], socket:
             return;
         }
         if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
-            const list:string = headerList.join("\n"),
-                dashboard:string = vars.environment.dashboard_page.replace("request: \"\"", `request: \`${list}\``),
-                headers:string[] = [
-                    "HTTP/1.1 200",
-                    "content-type: text/html",
-                    `content-length: ${Buffer.byteLength(dashboard)}`,
-                    `server: prettydiff/${vars.environment.name}`,
-                    "accept-ranges: bytes",
-                    "",
-                    ""
-                ];
-            if (method === "GET") {
-                http_write(socket, headers.join("\r\n") + dashboard, true);
-            } else if (method === "HEAD") {
+            const headers:string[] = [
+                "HTTP/1.1 200",
+                "content-type: text/html",
+                `content-length: ${Buffer.byteLength(vars.environment.dashboard_page)}`,
+                `server: prettydiff/${vars.environment.name}`,
+                "accept-ranges: bytes",
+                "",
+                ""
+            ];
+            if (config.method === "get") {
+                http_write(socket, headers.join("\r\n") + vars.environment.dashboard_page, true);
+            } else if (config.method === "head") {
                 http_write(socket, headers.join("\r\n"), true);
             }
             return;

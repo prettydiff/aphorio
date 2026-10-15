@@ -5,18 +5,8 @@ import vars from "../core/vars.ts";
 
 // cspell: words prettydiff
 
-const http_connect:type_http_action = function http_connect(headerList:string[], socket:websocket_client):void {
-    const destination:string = headerList[0].replace(/\s+/g, " ").split(" ")[1],
-        index_colon:number = destination.lastIndexOf(":"),
-        index_brace:number = destination.lastIndexOf("]"),
-        portString:string = (index_colon > 0 && (index_brace < 0 || (index_brace > 0 && index_brace < index_colon)))
-            ? destination.slice(index_colon + 1)
-            : "",
-        ip:string = (portString === "")
-            ? destination
-            : destination.split(`:${portString}`)[0],
-        port:number = Number(portString);
-    if (isNaN(port) === true) {
+const http_connect:type_http_action = function http_connect(config:config_http, socket:websocket_client):void {
+    if (isNaN(config.port) === true) {
         const headers:string[] = [
             "HTTP/1.1 400",
             `server: prettydiff/${vars.environment.name}`,
@@ -37,8 +27,8 @@ const http_connect:type_http_action = function http_connect(headerList:string[],
             callback: null,
             handler: null,
             hash: `${socket.server_hash}-connect-${process.hrtime.bigint().toString()}`,
-            ip: ip,
-            port: port,
+            ip: config.domain,
+            port: config.port,
             headers: [],
             proxy: socket,
             resource: null,

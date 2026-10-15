@@ -9,7 +9,9 @@ const version = function start_version(complete_tasks:(task:type_start_primary_t
         task: function start_version_task():void {
             file.read({
                 callback: function start_version_task_callback(file_contents:Buffer):void {
-                    vars.environment.version = JSON.parse(file_contents.toString()).version;
+                    const package_json:core_package_json = JSON.parse(file_contents.toString());
+                    vars.environment.repository = package_json.bugs.url.replace("/issues", "");
+                    vars.environment.version = package_json.version;
                     complete_tasks("version");
                 },
                 location: `${process_path}package.json`,

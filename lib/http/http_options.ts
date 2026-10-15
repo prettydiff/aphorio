@@ -1,7 +1,7 @@
 
 import http_write from "./http_write.ts";
 
-const http_options = function http_trace(headerList:string[], socket:websocket_client):void {
+const http_options = function http_trace(config:config_http, socket:websocket_client):void {
     const options:string[] = ["GET", "CONNECT", "OPTIONS", "TRACE"],
         output:string[] = [
             "HTTP/1.1 200 OK",

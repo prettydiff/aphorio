@@ -93,6 +93,6 @@ type type_test_type = "dom" | "proxy";
 type type_ui_control = "select" | "text";
 type type_vars = "block_list" | "domain_local" | "ports" | "redirect_asset" | "redirect_domain" | "server_name";
 
-type type_http_action = (headerList:string[], socket:websocket_client, payload:Buffer) => void;
+type type_http_action = (config:config_http, socket:websocket_client) => void;
 type type_receiver = (socketData:socket_data, transmit:transmit_socket) => void;
 type websocket_message_handler = (socket:websocket_client, resultBuffer:Buffer, frame:websocket_frame) => void;

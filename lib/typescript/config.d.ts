@@ -101,6 +101,27 @@ declare global {
         template: boolean;
     }
 
+    interface config_http {
+        accept: string;
+        body: Buffer;
+        domain: string;
+        fragment: string;
+        header_count: number;
+        http_test: boolean;
+        http_upgrade: boolean;
+        method: type_http_method;
+        origin: string;
+        port: number;
+        query: string;
+        range: string;
+        referrer: string;
+        resource: string;
+        user_agent: string;
+        websocket_key: string;
+        websocket_nonce: string;
+        websocket_type: string;
+    }
+
     interface config_http_request_output {
         chunked: boolean;
         chunks: number;
@@ -147,6 +168,14 @@ declare global {
             child: string;
             parent: string;
         };
+    }
+
+    interface config_proxy {
+        domain: string;
+        encryption: boolean;
+        port: number;
+        resource: string;
+        server: supplemental_server_config;
     }
 
     interface config_resize {

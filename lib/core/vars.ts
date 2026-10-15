@@ -212,7 +212,11 @@ const vars:core_vars = {
             // this application's name
             name: "aphorio",
             // where the source code lives
-            repository: "https://github.com/prettydiff/aphorio",
+            repository: "",
+            // the language runtime executing the application code: bun or node
+            runtime: (process.versions.bun === undefined)
+                ? "node"
+                : "bun",
             // a list of data service definitions used by this application
             services_app: [],
             // a start date time value for use in the browser
