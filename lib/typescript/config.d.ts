@@ -105,6 +105,7 @@ declare global {
         accept: string;
         body: Buffer;
         domain: string;
+        encryption: "open" | "secure";
         fragment: string;
         header_count: number;
         http_test: boolean;
@@ -168,14 +169,6 @@ declare global {
             child: string;
             parent: string;
         };
-    }
-
-    interface config_proxy {
-        domain: string;
-        encryption: boolean;
-        port: number;
-        resource: string;
-        server: supplemental_server_config;
     }
 
     interface config_resize {
