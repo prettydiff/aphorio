@@ -128,6 +128,7 @@ const dashboard:dashboard = {
                 "time": 0
             },
             "repository": "",
+            "runtime": "",
             "server": {},
             "services_app": [],
             "sockets": {

@@ -44,6 +44,7 @@ interface services_dashboard_open {
     path: core_vars_path;
     "ports-application": services_ports_application;
     repository: string;
+    runtime: string;
     server: services_server_update;
     services_app: core_service_internal[];
     sockets: services_socket_application;

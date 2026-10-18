@@ -409,7 +409,6 @@ interface core_vars_environment {
     file: boolean;
     git_hash: string;
     hashes: string[];
-    http_request: string;
     interfaces: string[];
     license: string;
     loading: boolean;
@@ -419,6 +418,8 @@ interface core_vars_environment {
     };
     name: string;
     repository: string;
+    request_http: string;
+    request_ws: string;
     runtime: string;
     services_app: core_service_internal[];
     start_date: number;

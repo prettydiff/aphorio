@@ -89,11 +89,6 @@ const start = function start(process_path:string):void {
                         open: vars.options["port-open"],
                         secure: vars.options["port-secure"]
                     },
-                    redirect_asset: {
-                        "localhost": {
-                            "/lib/assets/*": "/lib/dashboard/*"
-                        }
-                    },
                     single_socket: false,
                     temporary: false,
                     upgrade: false

@@ -127,7 +127,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
             http_request({
                 body: data.body,
                 encryption: data.encryption,
-                headers: vars.environment.http_request,
+                headers: vars.environment.request_http,
                 stats: null,
                 timeout: 1000,
                 uri: ""

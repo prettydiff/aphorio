@@ -66,10 +66,12 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             method: list[0].slice(0, list[0].indexOf(" ")).toLowerCase() as type_http_method,
                             origin: "",
                             port: 0,
+                            proxy_type: "none",
                             query: "",
                             range: "",
                             referrer: "",
                             resource: list[0].slice(list[0].replace(/ +/, " ").indexOf(" ") + 1).replace(/\s+HTTP\/\d(\.\d)?/, ""),
+                            resource_absolute: "",
                             user_agent: "",
                             websocket_key: "",
                             websocket_nonce: "",
@@ -91,8 +93,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             config.origin = header.replace(/:80$/, "").replace(/:443$/, ".secure");
                         },
                         pair = function transmit_connection_handshake_headerList_pair(input:string):[string, string] {
-                            const lower:string = input.toLowerCase();
-                            return [lower.slice(0, lower.indexOf(":")).trim(), lower.slice(lower.indexOf(":") + 1).trim()];
+                            return [input.slice(0, input.indexOf(":")).trim().toLowerCase(), input.slice(input.indexOf(":") + 1).trim()];
                         };
                     list.forEach(function transmit_connection_handshake_headerList_each(header:string):void {
                         const values:[string, string] = pair(header);
@@ -132,7 +133,11 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         ? "/"
                         : config.resource.replace(/\/$/, "");
                     if (config.method === "get" && server_id === vars.id.dashboard_server && config.resource === "/") {
-                        vars.environment.http_request = headerString;
+                        if (config.websocket_key === "") {
+                            vars.environment.request_http = headerString;
+                        } else {
+                            vars.environment.request_ws = headerString;
+                        }
                     }
                     if (headerIndex > 1) {
                         config.body = data.subarray(Buffer.byteLength(headerString) + 4);
@@ -284,7 +289,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                     ? vars.environment.hashes
                                                     : null,
                                                 http_request: (vars.environment.features["test-http"] === true)
-                                                    ? vars.environment.http_request
+                                                    ? vars.environment.request_http
                                                     : null,
                                                 id: vars.id,
                                                 logs: (vars.environment.features["application-logs"] === true)
@@ -305,6 +310,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                     time: vars.data_meta.ports_application
                                                 },
                                                 repository: vars.environment.repository,
+                                                runtime: vars.environment.runtime,
                                                 server: (vars.environment.features["servers-web"] === true)
                                                     ? vars.data.server
                                                     : null,

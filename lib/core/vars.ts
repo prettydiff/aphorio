@@ -191,8 +191,6 @@ const vars:core_vars = {
             git_hash: "",
             // list of supported hash algorithm names
             hashes: [],
-            // the HTTP request header of the dashboard page request, used as a default value for the dashboard's http test tool
-            http_request: "",
             // a list of local network addresses as determined from active network interfaces on the OS
             interfaces: [
                 "localhost",
@@ -213,6 +211,10 @@ const vars:core_vars = {
             name: "aphorio",
             // where the source code lives
             repository: "",
+            // the request header of the dashboard page HTTP request, used as a default value for the dashboard's various http features
+            request_http: "",
+            // the request header of the dashboard page websocket handshake, used as a default value for the dashboard's various websocket features
+            request_ws: "",
             // the language runtime executing the application code: bun or node
             runtime: (process.versions.bun === undefined)
                 ? "node"

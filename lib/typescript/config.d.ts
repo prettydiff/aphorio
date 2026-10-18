@@ -113,10 +113,12 @@ declare global {
         method: type_http_method;
         origin: string;
         port: number;
+        proxy_type: "encryption" | "none" | "proxy_resource" | "proxy_server" | "resource";
         query: string;
         range: string;
         referrer: string;
         resource: string;
+        resource_absolute: string;
         user_agent: string;
         websocket_key: string;
         websocket_nonce: string;
