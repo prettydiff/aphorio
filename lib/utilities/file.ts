@@ -206,7 +206,7 @@ const file:core_module_file = {
                 if (config.no_file !== null) {
                     config.no_file(config.location, config.identifier);
                 } else if (config.callback !== null) {
-                    config.callback(stat, config.location, config.identifier);
+                    config.callback(null, config.location, config.identifier);
                 }
             } else if (ers === null) {
                 if (config.callback !== null) {
