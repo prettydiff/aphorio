@@ -380,6 +380,7 @@ const vars:core_vars = {
             index: 0,
             list: null,
             magicString: "AW#E$RF1SA9DFY^HDfg4hw5se45tDA234",
+            servers: [],
             store: null,
             test_browser: null,
             testing: false,

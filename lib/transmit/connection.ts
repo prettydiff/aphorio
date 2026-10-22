@@ -7,6 +7,7 @@ import log from "../core/log.ts";
 import node from "../core/node.ts";
 import message_handler from "./messageHandler.ts";
 import message_inspection from "../services/message_inspection.ts";
+import proxy from "./proxy.ts";
 import send from "./send.ts";
 import server_halt from "../server/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
@@ -487,7 +488,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     }
                     return false;
                 }());
-
+proxy(config_http, server);
             {
                 const redirect_tls:boolean = (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0),
                     redirect_domain_flag:boolean = (server.redirect_domain !== undefined && server.redirect_domain !== null && server.redirect_domain[config_http.origin] !== undefined && server.redirect_domain[config_http.origin] !== null),

@@ -111,11 +111,9 @@ interface supplemental_server_method {
 }
 
 interface supplemental_server_proxy {
-    address: string;
     description: string;
     incoming: supplemental_server_proxy_identity;
     outgoing: supplemental_server_proxy_identity;
-    type: "asset" | "proxy";
 }
 
 interface supplemental_server_proxy_identity {

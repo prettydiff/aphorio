@@ -1,12 +1,23 @@
 
-import list from "./list_proxy.ts";
+import list_proxy from "./list_proxy.ts";
+import list_proxy_legacy from "./list_proxy_legacy.ts";
 import server_create from "../server/server_create.ts";
 import test_runner from "./runner.ts";
 import test_summary from "./summary.ts";
 import vars from "../core/vars.ts";
 
 const index_proxy = function test_indexProxy():void {
-    const server_config_1:supplemental_server_config = {
+    let total_lists:number = 0;
+    const list:test_list_proxy[] = (vars.test.list === null)
+            ? [
+                list_proxy(),
+                list_proxy_legacy()
+            ]
+            : [
+                vars.test.list as test_item_proxy[]
+            ],
+        len_list:number = list.length,
+        server_config_1:supplemental_server_config = {
             activate: true,
             domain_local: [
                 "127.0.0.1",
@@ -20,9 +31,20 @@ const index_proxy = function test_indexProxy():void {
                 open: 0,
                 secure: 0
             },
+            proxy: [
+                {
+                    "description": "",
+                    incoming: {
+                        resource: "/"
+                    },
+                    outgoing: {
+                        resource: "/lib"
+                    }
+                }
+            ],
             redirect_asset: {
                 "localhost": {
-                    "/lib/assets/dashboard/*": "/lib/dashboard/*"
+                    "/*": "/lib/dashboard/*"
                 }
             },
             upgrade: true
@@ -40,32 +62,32 @@ const index_proxy = function test_indexProxy():void {
             },
             upgrade: true
         },
-        list_object:test_list_proxy = Object.assign(list, {
-            id_1: "",
-            id_2: "",
-            name: "proxy",
-            port_1_open: 0,
-            port_2_open: 0,
-            port_1_secure: 0,
-            port_2_secure: 0,
-            type: "proxy" as type_test_type
-        }),
-        test_server = function test_indexProxy_testServer():void {
-            test_summary(list_object.name, true);
+        test_server = function test_indexProxy_testServer(name:string):void {
+            total_lists = total_lists + 1;
+            if (total_lists === len_list || (vars.options["stop-on-fail"] === true && vars.test.counts[name].assertions_fail > 0)) {
+                test_summary(name, true);
+            } else {
+                test_summary(name, false);
+                test_runner.list(list[total_lists], test_indexProxy_testServer);
+            }
         },
         callback_server = function test_indexProxy_callbackServer(id:string):void {
             count_server = count_server + 1;
             if (vars.data.server[id].config.name === "server_1") {
-                list_object.id_1 = id;
-                list_object.port_1_open = vars.data.server[id].ports.open;
-                list_object.port_1_secure = vars.data.server[id].ports.secure;
+                vars.test.servers[0] = {
+                    id: id,
+                    port_open: vars.data.server[id].ports.open,
+                    port_secure: vars.data.server[id].ports.secure
+                };
             } else {
-                list_object.id_2 = id;
-                list_object.port_2_open = vars.data.server[id].ports.open;
-                list_object.port_2_secure = vars.data.server[id].ports.secure;
+                vars.test.servers[1] = {
+                    id: id,
+                    port_open: vars.data.server[id].ports.open,
+                    port_secure: vars.data.server[id].ports.secure
+                };
             }
             if (count_server > 1) {
-                test_runner.list(list_object, test_server)
+                test_runner.list(list[total_lists], test_server);
             }
         };
     let count_server:number = 0;

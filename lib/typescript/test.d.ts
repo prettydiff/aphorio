@@ -119,6 +119,11 @@ interface test_list_dom extends Array<test_item_dom> {
 }
 
 interface test_list_proxy extends Array<test_item_proxy> {
+    name?: string;
+    type?: type_test_type;
+}
+
+interface test_list_proxy_properties {
     id_1: string;
     id_2: string;
     name: string;

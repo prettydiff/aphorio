@@ -44,10 +44,10 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         summary.push("");
         summary.push(`${vars.text.underline}Test settings${vars.text.none}`);
         if (vars.options.mode === "test-browser" && vars.options.browser !== "") {
-            summary.push(`    ${vars.text.angry}*${vars.text.none} browser              : ${vars.options["browser"]}`);
+            summary.push(`    ${vars.text.angry}*${vars.text.none} browser                  : ${vars.options["browser"]}`);
         }
         if (vars.options.list !== "") {
-            summary.push(`    ${vars.text.angry}*${vars.text.none} list                 : ${vars.options["list"]}`);
+            summary.push(`    ${vars.text.angry}*${vars.text.none} list                     : ${vars.options["list"]}`);
         }
         summary.push(`    ${vars.text.angry}*${vars.text.none} delay-intervals          : ${vars.options["delay-intervals"]}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} delay-time               : ${vars.options["delay-time"]} milliseconds`);
@@ -57,9 +57,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         summary.push("");
         summary.push(`${vars.text.underline}Totals from all test lists${vars.text.none}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total time               : ${vars.text.cyan + vars.test.total_time_end.time_elapsed(vars.test.total_time_start) + vars.text.none}`);
-        if (vars.options.mode !== "test-proxy") {
-            summary.push(`    ${vars.text.angry}*${vars.text.none} Total lists          : ${pad_right(18, vars.test.total_lists.commas())}`);
-        }
+        summary.push(`    ${vars.text.angry}*${vars.text.none} Total lists              : ${pad_right(18, vars.test.total_lists.commas())}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total tests              : ${pad_right(18, vars.test.total_tests.commas())}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total assertions         : ${pad_right(18, vars.test.total_assertions.commas())}`);
         summary.push(`    ${vars.text.angry}*${vars.text.none} Total skipped tests      : ${pad_right(18, vars.test.total_tests_skipped.commas())}`);

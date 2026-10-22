@@ -194,15 +194,15 @@ const test_runner:test_runner = {
                         port_value:number = Math.floor(Number(test_item.request.port));
                     if (test_item.request.port === "server_1") {
                         if (encrypt === true) {
-                            return proxy_list.port_1_secure;
+                            return vars.test.servers[0].port_secure;
                         }
-                        return proxy_list.port_1_open;
+                        return vars.test.servers[0].port_open;
                     }
                     if (test_item.request.port === "server_2") {
                         if (encrypt === true) {
-                            return proxy_list.port_2_secure;
+                            return vars.test.servers[1].port_secure;
                         }
-                        return proxy_list.port_2_open;
+                        return vars.test.servers[1].port_open;
                     }
                     if (test_item.request.port === undefined) {
                         return null;
