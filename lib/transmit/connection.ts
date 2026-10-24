@@ -1,5 +1,6 @@
 
 import get_address from "../core/get_address.ts";
+import file from "../utilities/file.ts";
 import hash from "../core/hash.ts";
 import http from "../http/index.ts";
 import http_write from "../http/http_write.ts";
@@ -7,7 +8,7 @@ import log from "../core/log.ts";
 import node from "../core/node.ts";
 import message_handler from "./messageHandler.ts";
 import message_inspection from "../services/message_inspection.ts";
-import proxy from "./proxy.ts";
+import proxy_create from "./proxy_create.ts";
 import send from "./send.ts";
 import server_halt from "../server/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
@@ -51,8 +52,9 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             ? dataString.replace(/^\s+/, "").slice(0, headerIndex)
                             : dataString.replace(/^\s+/, ""),
                         list:string[] = headerString.split("\r\n"),
-                        query:number = list[0].indexOf("?"),
-                        fragment:number = list[0].indexOf("#"),
+                        list0:string[] = list[0].split(" "),
+                        query:number = list0[1].indexOf("?"),
+                        fragment:number = list0[1].indexOf("#"),
                         config:config_http = {
                             accept: "",
                             body: null,
@@ -61,7 +63,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 ? "secure"
                                 : "open",
                             fragment: "",
-                            header_count: list.length,
+                            headers: list,
+                            host_index: 0,
                             http_test: false,
                             http_upgrade: false,
                             method: list[0].slice(0, list[0].indexOf(" ")).toLowerCase() as type_http_method,
@@ -73,6 +76,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             referrer: "",
                             resource: list[0].slice(list[0].replace(/ +/, " ").indexOf(" ") + 1).replace(/\s+HTTP\/\d(\.\d)?/, ""),
                             resource_absolute: "",
+                            resource_size: 0,
+                            resource_type: "other",
                             user_agent: "",
                             websocket_key: "",
                             websocket_nonce: "",
@@ -96,7 +101,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         pair = function transmit_connection_handshake_headerList_pair(input:string):[string, string] {
                             return [input.slice(0, input.indexOf(":")).trim().toLowerCase(), input.slice(input.indexOf(":") + 1).trim()];
                         };
-                    list.forEach(function transmit_connection_handshake_headerList_each(header:string):void {
+                    list.forEach(function transmit_connection_handshake_headerList_each(header:string, index:number):void {
                         const values:[string, string] = pair(header);
                         if (values[0] === "sec-websocket-key") {
                             config.websocket_key = values[1] + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -104,6 +109,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             config.accept = values[1];
                         } else if (values[0] === "host") {
                             get_domain(values[1]);
+                            config.host_index = index;
                         } else if (values[0] === "range") {
                             config.range = values[1];
                         } else if (values[0] === "referer:") {
@@ -123,12 +129,12 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         }
                     });
                     if (fragment > 0) {
-                        config.resource = config.resource.slice(0, fragment);
                         config.fragment = config.resource.slice(fragment + 1);
+                        config.resource = config.resource.slice(0, fragment);
                     }
                     if (query > 0) {
-                        config.resource = config.resource.slice(0, query);
                         config.query = config.resource.slice(query + 1);
+                        config.resource = config.resource.slice(0, query);
                     }
                     config.resource = (config.resource === "/")
                         ? "/"
@@ -145,6 +151,9 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     }
                     if (server.id === vars.id.dashboard_server) {
                         vars.environment.dashboard_page.replace("request: \"\"", `request: \`${headerString}\``);
+                    }
+                    if (config.http_upgrade === true && config.http_test === true) {
+                        config.http_upgrade = false;
                     }
                     socket.addresses = get_address(socket);
                     config.port = socket.addresses.local.port;
@@ -193,7 +202,15 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     do {
                                         index = index - 1;
                                         if (keys[index].toLowerCase() === config_http.method) {
-                                            proxy_create(server.method[config_http.method as "delete"].address, server.method[config_http.method as "delete"].port, socket.encrypted);
+                                            proxy_create({
+                                                data: data,
+                                                encrypted: socket.encrypted,
+                                                host: server.method[config_http.method as "delete"].address,
+                                                identifier: config_http.origin,
+                                                port: server.method[config_http.method as "delete"].port,
+                                                socket: socket,
+                                                user_agent: config_http.user_agent
+                                            });
                                             return;
                                         }
                                     } while (index > 0);
@@ -272,7 +289,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                     rows: (Number.isNaN(rows) === true)
                                                         ? 50
                                                         : rows,
-                                                    shell: params[0].split("=")[1].replace(/%20/g, " ")
+                                                    shell: decodeURIComponent(params[0].split("=")[1])
                                                 };
                                             terminal.shell(socket as websocket_pty, term);
                                         } else if (config_http.websocket_type === "dashboard") {
@@ -288,9 +305,6 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                 demo: (vars.options.mode === "demo"),
                                                 hashes: (vars.environment.features["hash"] === true)
                                                     ? vars.environment.hashes
-                                                    : null,
-                                                http_request: (vars.environment.features["test-http"] === true)
-                                                    ? vars.environment.request_http
                                                     : null,
                                                 id: vars.id,
                                                 logs: (vars.environment.features["application-logs"] === true)
@@ -311,6 +325,12 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                     time: vars.data_meta.ports_application
                                                 },
                                                 repository: vars.environment.repository,
+                                                request_http: (vars.environment.features["test-http"] === true)
+                                                    ? vars.environment.request_http
+                                                    : null,
+                                                request_ws: (vars.environment.features["test-websocket"] === true)
+                                                    ? vars.environment.request_ws
+                                                    : null,
                                                 runtime: vars.environment.runtime,
                                                 server: (vars.environment.features["servers-web"] === true)
                                                     ? vars.data.server
@@ -393,78 +413,11 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         });
                     }
                 },
-                proxy_create = function transmit_connection_handshake_proxyCreate(host:string, port:number, encrypted:boolean):void {
-                    let count:number = 0;
-                    const proxy:websocket_client = (encrypted === true)
-                            ?  node.tls.connect({
-                                host: host,
-                                port: port,
-                                rejectUnauthorized: false
-                            }) as websocket_client
-                            : node.net.connect({
-                                host: host,
-                                port: port
-                            }) as websocket_client,
-                        now:string = process.hrtime.bigint().toString(),
-                        callback = function transmit_connection_handshake_proxyCreate_callback():void {
-                            count = count + 1;
-                            if (count > 1) {
-                                proxy.pipe(socket);
-                                socket.pipe(proxy);
-                                proxy.write(data);
-                            }
-                        };
-                    proxy.on("error", function transmit_connection_handshake_proxyCreate_error(proxy_error:node_error):void {
-                        log.application({
-                            error: proxy_error,
-                            message: "UDP connection error.",
-                            origin: `${host} ${port}`,
-                            section: "servers-web",
-                            status: "error",
-                            time: Date.now()
-                        });
-                        proxy.destroy();
-                        socket.destroy();
-                    });
-                    proxy.once("ready", function transmit_connection_handshake_proxyCreate_ready():void {
-                        // requested socket
-                        socket_extension({
-                            callback: callback,
-                            handler: null,
-                            identifier: `${config_http.origin}-${now}`,
-                            proxy: proxy,
-                            role: "server",
-                            server: server_id,
-                            single_socket: false,
-                            socket: socket,
-                            temporary: false,
-                            timeout: null,
-                            type: "relay",
-                            userAgent: config_http.user_agent
-                        });
-                        proxy.addresses = get_address(proxy);
-                        // proxy socket
-                        socket_extension({
-                            callback: callback,
-                            handler: null,
-                            identifier: `${config_http.origin}-${now}-proxy`,
-                            proxy: socket,
-                            role: "client",
-                            server: server_id,
-                            single_socket: false,
-                            socket: proxy,
-                            temporary: false,
-                            timeout: null,
-                            type: "proxy",
-                            userAgent: config_http.user_agent
-                        });
-                    });
-                },
                 blocked:boolean = (function transmit_connection_handshake_blocked():boolean {
                     let index:number = (server.block_list === null || server.block_list === undefined)
                         ? 0
                         : server.block_list.referrer.length;
-                    if (config_http.header_count < 3) {
+                    if (config_http.headers.length < 3) {
                         return true;
                     }
                     if (domain_local.includes(config_http.origin) === false && socket.proxy === null) {
@@ -487,45 +440,213 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         } while (index > 0);
                     }
                     return false;
-                }());
-proxy(config_http, server);
-            {
-                const redirect_tls:boolean = (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0),
-                    redirect_domain_flag:boolean = (server.redirect_domain !== undefined && server.redirect_domain !== null && server.redirect_domain[config_http.origin] !== undefined && server.redirect_domain[config_http.origin] !== null),
-                    upgrade_tls_flag:boolean = (config_http.http_upgrade === true && config_http.http_test === false && socket.encrypted !== true && vars.data.server[server_id].config.encryption === "both");
+                }()),
+                redirect_tls:boolean = (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0);
+            if (blocked === true) {
+                socket.destroy();
+            } else if (redirect_tls === true) {
+                config_http.domain = `open_socket_tunnel-${vars.data.server[server_id].config.name}`;
+                proxy_create({
+                    data: data,
+                    encrypted: false,
+                    host: socket.addresses.local.address,
+                    identifier: config_http.origin,
+                    port: vars.data.server[server_id].ports.secure,
+                    socket: socket,
+                    user_agent: config_http.user_agent
+                });
+            } else if (config_http.http_upgrade === true) {
+                upgrade_tls();
+            } else {
+                let domain:string = "",
+                    encryption:boolean = null,
+                    port:number = 0,
+                    resource:string = "";
+                const resource_stat = function transmit_proxy_resourceStat(incoming:string, callback:() => void):void {
+                    if (typeof incoming === "string" && incoming !== "") {
+                        // scenario 1 - resource path change
+                        if (domain === "" && port === 0 && resource !== "") {
+                            const resource_absolute:string = resource.replace(/(\/|\\)$/, ""),
+                                resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "")}`,
+                                stat_callback = function transmit_proxy_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
+                                    if (stats !== null) {
+                                        config_http.resource_absolute = location;
+                                        if (stats.isFile() === true) {
+                                            config_http.resource_size = Number(stats.size);
+                                            config_http.resource_type = "file";
+                                        } else if (stats.isDirectory() === true) {
+                                            config_http.resource_type = "directory";
+                                        }
+                                        callback();
+                                    }
 
-                if (blocked === true) {
-                    socket.destroy();
-                } else if (redirect_tls === true) {
-                    config_http.domain = `open_socket_tunnel-${vars.data.server[server_id].config.name}`;
-                    proxy_create(socket.addresses.local.address, vars.data.server[server_id].ports.secure, false);
-                } else if (redirect_domain_flag === true) {
-                    const pair:type_redirect_domain = (socket.encrypted === true && server.redirect_domain[`${config_http.origin}.secure`] !== undefined)
-                            ? server.redirect_domain[`${config_http.origin}.secure`]
-                            : server.redirect_domain[config_http.origin],
-                        encryption:boolean = (pair[2] === "open")
-                            ? false
-                            : (pair[2] === "secure")
-                                ? true
-                                : socket.encrypted,
-                        host:string = (pair[0] === undefined || pair[0] === null || pair[0] === "")
-                            ? socket.addresses.local.address
-                            : pair[0],
-                        port:number = (typeof pair[1] === "number")
-                            ? pair[1]
-                            : (socket.encrypted === true)
-                                ? server.ports.secure
-                                : server.ports.open;
-                    if (config_http.domain === "") {
-                        config_http.domain = (host === "127.0.0.1" || host === "::1" || host === "::" || host === "[::1]")
-                            ? "localhost"
-                            : host;
+                                };
+                            // 1. specific, fs absolute          - outgoing
+                            // 2. specific, relative to web root - project_path/servers/server/assets/outgoing
+                            // 3. wildcard, fs absolute          - (outgoing + config.resource without match)
+                            // 4. wildcard, relative to web root - project_path/servers/server/assets/(outgoing + config.resource without match)
+                            file.stat({
+                                // fs absolute
+                                callback: stat_callback,
+                                location: resource_relative,
+                                no_file: function () {
+                                    // fs relative to web root
+                                    file.stat({
+                                        callback: stat_callback,
+                                        location: resource_absolute,
+                                        no_file: null,
+                                        section: "servers-web"
+                                    });
+                                },
+                                section: "servers-web"
+                            });
+                        }
                     }
-                    config_http.domain = `tls_socket_redirect-${vars.data.server[server_id].config.name}`;
-                    proxy_create(host, port, encryption);
-                } else if (upgrade_tls_flag === true) {
-                    upgrade_tls();
+                };
+                // legacy asset redirection
+                if (server.redirect_asset !== null && server.redirect_asset !== undefined) {
+                    const keys:string[] = Object.keys(server.redirect_asset),
+                        len:number = keys.length;
+                    let index_domains:number = 0,
+                        index_res:number = 0,
+                        index_wild:number = 0,
+                        longest:number = 0,
+                        domain_keys:string[] = null;
+                    if (len > 0) {
+                        do {
+                            if (keys[index_domains] === config_http.domain) {
+                                domain_keys = Object.keys(server.redirect_asset[config_http.domain]);
+                                index_res = domain_keys.length;
+                                longest = 0;
+                                do {
+                                    index_res = index_res - 1;
+                                    // non-wildcard keys must match exactly and are dominate
+                                    if (domain_keys[index_res].replace(/(\/|\\)$/, "") === config_http.resource.replace(/(\/|\\)$/, "")) {
+                                        resource = server.redirect_asset[config_http.domain][domain_keys[index_res]];
+                                        longest = -1;
+                                        break;
+                                    }
+                                    // find the most specific wildcard match by key length
+                                    if (config_http.resource.indexOf(domain_keys[index_res].replace(/\/\*$/, "")) === 0 && domain_keys[index_res].length > longest) {
+                                        longest = domain_keys[index_res].length;
+                                        index_wild = index_res;
+                                    }
+                                } while (index_res > 0);
+                                if (longest > 0) {
+                                    resource = server.redirect_asset[config_http.domain][domain_keys[index_wild]].replace(/(\\|\/)$/, "").replace(/(\\|\/)/g, vars.path.sep) + vars.path.sep + config_http.resource.replace(domain_keys[index_wild].replace(/\/\*$/, ""), "").replace(/^\//, "").replace(/(\\|\/)/g, vars.path.sep);
+                                }
+                                break;
+                            }
+                            index_domains = index_domains + 1;
+                        } while (index_domains < len);
+                    }
+                }
+                // legacy domain redirection
+                if (server.redirect_domain !== null && server.redirect_domain !== undefined && server.redirect_domain[config_http.origin] !== null && server.redirect_domain[config_http.origin] !== undefined) {
+                    domain = server.redirect_domain[config_http.origin][0];
+                    port = server.redirect_domain[config_http.origin][1];
+                    if (server.redirect_domain[config_http.origin][2] === "default") {
+                        encryption = (config_http.encryption === "secure");
+                    } else if (server.redirect_domain[config_http.origin][2] === "secure") {
+                        encryption = true;
+                    } else {
+                        encryption = false;
+                    }
+                }
+                if (domain === "" && port === 0 && resource !== "" && config_http.websocket_key === "") {
+                    resource_stat(resource, local_service);
+                } else if (domain !== "" || port > 0) {
+                    // const port_value:number = (port > 0)
+                    //     ? port
+                    //     : ()
+                    // config_http.headers[config_http.host_index] = (node.net.isIPv6(config_http.domain) === true)
+                    //     ? `Host: [${config_http.domain}]:${port_value}`
+                    //     : `Host: ${config_http.o}`;
+                    // proxy_create({
+                    //     data: null,
+                    //     encrypted: encryption,
+                    //     host: domain,
+                    //     identifier: "",
+                    //     port: null,
+                    //     socket: socket,
+                    //     user_agent: config_http.user_agent
+                    // });
                 } else {
+                    // universal proxy model
+                    // if (server.proxy !== null && server.proxy !== undefined) {
+                    //     const matches:[number, number, string, boolean][] = [],
+                    //         resource_match = function transmit_proxy_resourceMatch(resource:string, index:number):void {
+                    //             resource = resource.trim();
+                    //             const wildcard:boolean = (/\/\*$/).test(resource) === true;
+                    //             if (config_http.resource === resource) {
+                    //                 count = count + 1;
+                    //                 matches.push([index, count, resource, wildcard]);
+                    //             } else if (wildcard === true && config_http.resource.indexOf(resource.replace(/\/\*$/, "")) === 0) {
+                    //                 count = count + 1;
+                    //                 matches.push([index, count, resource, wildcard]);
+                    //             } else {
+                    //                 matches.push([index, count, "", false]);
+                    //             }
+                    //         },
+                    //         len:number = server.proxy.length;
+                    //     let index:number = 0,
+                    //         count:number = 0;
+                    //     // grade matching rule sets to determine the best rule set to apply
+                    //     if (len > 0) {
+                    //         do {
+                    //             count = 0;
+                    //             if (server.proxy[index].incoming.port === config_http.port) {
+                    //                 count = count + 1;
+                    //             }
+                    //             if (server.proxy[index].incoming.domain === config_http.domain) {
+                    //                 count = count + 1;
+                    //             }
+                    //             if (server.proxy[index].incoming.encryption === "both" || (server.proxy[index].incoming.encryption === config_http.encryption)) {
+                    //                 count = count + 1;
+                    //             }
+                    //             resource_match(server.proxy[index].incoming.resource, index);
+                    //             index = index + 1;
+                    //         } while (index < len);
+                    //     }
+
+                    //     if (matches.length > 0) {
+                    //         // use sorting to filter the best rule
+                    //         // 1. sort first by most matching rules
+                    //         // 2. preference exact resource matches over wildcard matches
+                    //         const index:number = matches.sort(function transmit_proxy_sort(a:[number, number, string, boolean], b:[number, number, string, boolean]):-1|0|1 {
+                    //                 // greatest matches
+                    //                 if (a[1] > b[1]) {
+                    //                     return -1;
+                    //                 }
+                    //                 // preference the rule without a wildcard resource match if both rule sets have the a resource rule
+                    //                 if (a[1] === b[1]) {
+                    //                     if (a[2] !== "" && b[2] !== "") {
+                    //                         if ((/\/\*$/).test(a[2]) === false && (/\/\*$/).test(b[2]) === true) {
+                    //                             return -1;
+                    //                         }
+                    //                         if ((/\/\*$/).test(a[2]) === true && (/\/\*$/).test(b[2]) === true && a[2].length > b[2].length) {
+                    //                             return -1;
+                    //                         }
+                    //                         return 1;
+                    //                     }
+                    //                     return 0;
+                    //                 }
+                    //                 return 1;
+                    //             })[0][0],
+                    //             incoming:supplemental_server_proxy_identity = server.proxy[index].incoming,
+                    //             outgoing:supplemental_server_proxy_identity = server.proxy[index].outgoing;
+                    //         domain = (typeof outgoing.domain === "string" && outgoing.domain !== "")
+                    //             ? outgoing.domain
+                    //             : null,
+                    //         port = (typeof outgoing.port === "number" && outgoing.port > 0 && outgoing.port < 65536)
+                    //             ? outgoing.port
+                    //             : null,
+                    //         resource = (typeof outgoing.resource === "string" && outgoing.resource !== "")
+                    //             ? outgoing.resource.replace(/\/|\\/g, vars.path.sep)
+                    //             : null;
+                    //         resource_stat(incoming.resource, matches[0][3]);
+                    //     }
+                    // }
                     local_service();
                 }
             }

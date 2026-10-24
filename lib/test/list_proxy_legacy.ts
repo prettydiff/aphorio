@@ -1,99 +1,120 @@
 
+
 const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
     const list_proxy_legacy:test_list_proxy = [
         {
-            name: "Expecting a 404, no page in assets directory of test server",
+            name: "Redirect to project lib/dashboard/styles.css, no trailing slash",
             request: {
                 body: "test body",
                 encryption: false,
                 host: "localhost",
                 method: "GET",
                 port: "server_1",
-                resource: "/",
+                resource: "/redirect_asset_1",
                 timeout: 1000
             },
             unit: [
                 {
                     property: "response_headers",
                     qualifier: "contains",
-                    value: "404 NOT FOUND"
+                    value: "HTTP/1.1 200"
                 },
                 {
                     property: "response_body_raw",
-                    qualifier: "lesser",
-                    value: 2000
+                    qualifier: "greater",
+                    value: 250000
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
                 }
             ]
         },
         {
-            name: "Redirect asset from /dashboard to the actual dashboard html file",
+            name: "Redirect to project lib/dashboard/styles.css, with trailing slash",
             request: {
                 body: "test body",
                 encryption: false,
                 host: "localhost",
                 method: "GET",
                 port: "server_1",
-                resource: "/dashboard",
+                resource: "/redirect_asset_1/",
                 timeout: 1000
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "response_headers",
                     qualifier: "contains",
-                    value: " Dashboard"
+                    value: "HTTP/1.1 200"
                 },
                 {
                     property: "response_body_raw",
                     qualifier: "greater",
-                    value: 1e5
+                    value: 250000
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
                 }
             ]
         },
         {
-            name: "Redirect asset from /google to google.com",
+            name: "Redirect to project lib/dashboard/styles.css, using wildcard '/redirect_wild_1/*'",
             request: {
                 body: "test body",
                 encryption: false,
                 host: "localhost",
                 method: "GET",
                 port: "server_1",
-                resource: "/google",
+                resource: "/redirect_wild_1/styles.css",
                 timeout: 1000
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "response_headers",
                     qualifier: "contains",
-                    value: " Dashboard"
+                    value: "HTTP/1.1 200"
                 },
                 {
                     property: "response_body_raw",
                     qualifier: "greater",
-                    value: 1e5
+                    value: 250000
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
                 }
             ]
         },
         {
-            name: "Redirect request for blog.localhost to /blog",
+            name: "Redirect to project lib/dashboard/styles.css, using wildcard '/redirect_wild_2/*', no terminating slash",
             request: {
                 body: "test body",
                 encryption: false,
-                host: "blog.localhost",
+                host: "localhost",
                 method: "GET",
                 port: "server_1",
-                resource: "/",
+                resource: "/redirect_wild_2/styles.css",
                 timeout: 1000
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "response_headers",
                     qualifier: "contains",
-                    value: " Dashboard"
+                    value: "HTTP/1.1 200"
                 },
                 {
                     property: "response_body_raw",
                     qualifier: "greater",
-                    value: 1e5
+                    value: 250000
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
                 }
             ]
         }

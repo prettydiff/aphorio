@@ -17,7 +17,6 @@ const dashboard:dashboard = {
             },
             "demo": false,
             "hashes": [""],
-            "http_request": "",
             id: {
                 dashboard_server: "",
                 machine: ""
@@ -128,6 +127,8 @@ const dashboard:dashboard = {
                 "time": 0
             },
             "repository": "",
+            "request_http": "",
+            "request_ws": "",
             "runtime": "",
             "server": {},
             "services_app": [],
@@ -780,7 +781,6 @@ const dashboard:dashboard = {
             "receive": function():void {},
             "timeout": 0,
             "tools": {
-                "handshake": function():void {},
                 "parse_frame": function():websocket_frame {
                     return {
                         "extended": 0,

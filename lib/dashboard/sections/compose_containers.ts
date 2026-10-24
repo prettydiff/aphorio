@@ -118,7 +118,9 @@ const ui_compose_containers = function ui_compose_containers():void {
                 dashboard.message.send({data: message, service: "services_compose_container"});
             },
             validate_containers: function dashboard_sections_composeContainers_validateContainers(event:FocusEvent|KeyboardEvent):void {
-                const target:HTMLElement = event.target,
+                const target:HTMLElement = (event.false_target === undefined)
+                        ? event.target
+                        : event.false_target,
                     id:string = target.getAncestor("li", "tag").dataset.id,
                     section:HTMLElement = target.getAncestor("edit", "class"),
                     newItem:boolean = (section.parentNode.getAttribute("class") === "section"),

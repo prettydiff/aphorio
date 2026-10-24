@@ -107,7 +107,8 @@ declare global {
         domain: string;
         encryption: "open" | "secure";
         fragment: string;
-        header_count: number;
+        headers: string[];
+        host_index: number;
         http_test: boolean;
         http_upgrade: boolean;
         method: type_http_method;
@@ -119,6 +120,8 @@ declare global {
         referrer: string;
         resource: string;
         resource_absolute: string;
+        resource_size: number;
+        resource_type: "directory" | "file" | "other";
         user_agent: string;
         websocket_key: string;
         websocket_nonce: string;
@@ -171,6 +174,16 @@ declare global {
             child: string;
             parent: string;
         };
+    }
+
+    interface config_proxy_create {
+        data: Buffer;
+        encrypted: boolean;
+        host: string;
+        identifier: string;
+        port: number;
+        socket: websocket_client;
+        user_agent: string;
     }
 
     interface config_resize {

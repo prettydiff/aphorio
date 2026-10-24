@@ -41,7 +41,7 @@ const ui_test_http = function ui_test_http():void {
             } else {
                 // populate a default HTTP test value
                 dashboard.sections["test-http"].nodes.request.value = (dashboard.global.state.http === null || dashboard.global.state.http === undefined || typeof dashboard.global.state.http.request !== "string" || dashboard.global.state.http.request === "")
-                    ? dashboard.global.payload.http_request
+                    ? dashboard.global.payload.request_http
                     : dashboard.global.state.http.request;
                 dashboard.sections["test-http"].nodes.http_request.onclick = dashboard.sections["test-http"].events.request;
                 dashboard.sections["test-http"].nodes.responseBody.value = "";

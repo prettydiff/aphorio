@@ -483,6 +483,7 @@ interface core_vars_test {
     index: number;
     list: test_list_dom | test_list_proxy;
     magicString: string;
+    servers: core_vars_test_server[];
     store: type_test_primitive;
     test_browser: string;
     testing: boolean;
@@ -494,6 +495,12 @@ interface core_vars_test {
     total_tests_skipped: number;
     total_time_end: bigint;
     total_time_start: bigint;
+}
+
+interface core_vars_test_server {
+    id: string;
+    port_open: number;
+    port_secure: number;
 }
 
 interface core_windows_drives {

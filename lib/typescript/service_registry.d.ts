@@ -31,7 +31,6 @@ interface services_dashboard_open {
     compose: services_compose;
     demo: boolean;
     hashes: string[];
-    http_request: string;
     id: core_vars_id;
     logs: {
         entries: config_log[];
@@ -44,6 +43,8 @@ interface services_dashboard_open {
     path: core_vars_path;
     "ports-application": services_ports_application;
     repository: string;
+    request_http: string;
+    request_ws: string;
     runtime: string;
     server: services_server_update;
     services_app: core_service_internal[];

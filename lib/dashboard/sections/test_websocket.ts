@@ -149,7 +149,10 @@ const ui_test_websocket = function ui_test_websocket():void {
                 dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "Websocket tests are disabled in demo mode.";
                 dashboard.sections["test-websocket"].nodes.button_handshake.disabled = true;
             } else {
-                dashboard.sections["test-websocket"].tools.handshake();
+                const key:string = window.btoa((Math.random().toString() + Math.random().toString()).slice(2, 18));
+                dashboard.sections["test-websocket"].nodes.handshake.value = dashboard.global.payload.request_ws
+                    .replace(/Sec-WebSocket-Key\s*:\s*\S+/i, `Sec-WebSocket-Key: ${key}`)
+                    .replace(/Sec-WebSocket-Protocol\s*:\s*dashboard/i, "Sec-WebSocket-Protocol: test-websocket");
                 dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
                 dashboard.sections["test-websocket"].nodes.button_send.onclick = dashboard.sections["test-websocket"].events.message_send;
                 dashboard.sections["test-websocket"].nodes.encrypt_false.onclick = dashboard.sections["test-websocket"].events.encryption;
@@ -235,19 +238,6 @@ const ui_test_websocket = function ui_test_websocket():void {
         receive: null,
         timeout: 0,
         tools: {
-            handshake: function dashboard_sections_WebsocketTest_handshake():void {
-                const handshakeString:string[] = [],
-                    key:string = window.btoa((Math.random().toString() + Math.random().toString()).slice(2, 18));
-                handshakeString.push("GET / HTTP/1.1");
-                handshakeString.push(`Host: ${location.host}`);
-                handshakeString.push("Upgrade: websocket");
-                handshakeString.push("Connection: Upgrade");
-                handshakeString.push(`Sec-WebSocket-Key: ${key}`);
-                handshakeString.push(`Origin: ${location.origin}`);
-                handshakeString.push("Sec-WebSocket-Protocol: test-websocket");
-                handshakeString.push("Sec-WebSocket-Version: 13");
-                dashboard.sections["test-websocket"].nodes.handshake.value = handshakeString.join("\n");
-            },
             parse_frame: function dashboard_sections_websocketTest_parseFrame():websocket_frame {
                 return JSON.parse(dashboard.sections["test-websocket"].nodes.message_send_frame.value
                     .replace(/",\s+/g, "\",")

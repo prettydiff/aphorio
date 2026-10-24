@@ -10,58 +10,66 @@ const index_proxy = function test_indexProxy():void {
     let total_lists:number = 0;
     const list:test_list_proxy[] = (vars.test.list === null)
             ? [
-                list_proxy(),
+                // list_proxy(),
                 list_proxy_legacy()
             ]
             : [
                 vars.test.list as test_item_proxy[]
             ],
         len_list:number = list.length,
-        server_config_1:supplemental_server_config = {
-            activate: true,
-            domain_local: [
-                "127.0.0.1",
-                "::1"
-            ],
-            encryption: "both",
-            message_segmentation: 1e6,
-            mutual_tls: false,
-            name: "server_1",
-            ports: {
-                open: 0,
-                secure: 0
-            },
-            proxy: [
-                {
-                    "description": "",
-                    incoming: {
-                        resource: "/"
-                    },
-                    outgoing: {
-                        resource: "/lib"
+        project_path:string = vars.path.project.replace(/test(\\|\/)$/, ""),
+        servers:supplemental_server_config[] = [
+            {
+                activate: true,
+                domain_local: [
+                    "127.0.0.1",
+                    "::1"
+                ],
+                encryption: "both",
+                message_segmentation: 1e6,
+                mutual_tls: false,
+                name: "server_0",
+                ports: {
+                    open: 0,
+                    secure: 0
+                },
+                proxy: [
+                    {
+                        "description": "",
+                        incoming: {
+                            resource: "/"
+                        },
+                        outgoing: {
+                            resource: "/lib"
+                        }
                     }
-                }
-            ],
-            redirect_asset: {
-                "localhost": {
-                    "/*": "/lib/dashboard/*"
-                }
+                ],
+                redirect_asset: {
+                    "localhost": {
+                        "/redirect_asset_1/": `${project_path}lib/dashboard/styles.css`.replace(/(\/|\\)/g, vars.path.sep),
+                        "/redirect_wild_1/*": `${project_path}lib/dashboard/`,
+                        "/redirect_wild_2/*": `${project_path}lib/dashboard`
+                    }
+                },
+                upgrade: true
             },
-            upgrade: true
-        },
-        server_config_2:supplemental_server_config = {
-            activate: true,
-            domain_local: ["::1", "127.0.0.1"],
-            encryption: "both",
-            message_segmentation: 1e6,
-            mutual_tls: false,
-            name: "server_2",
-            ports: {
-                open: 0,
-                secure: 0
-            },
-            upgrade: true
-        },
+            {
+                activate: true,
+                domain_local: ["::1", "127.0.0.1"],
+                encryption: "both",
+                message_segmentation: 1e6,
+                mutual_tls: false,
+                name: "server_1",
+                ports: {
+                    open: 0,
+                    secure: 0
+                },
+                redirect_domain: {
+                    "localhost": ["localhost", 0, "default"]
+                },
+                upgrade: true
+            }
+        ],
         test_server = function test_indexProxy_testServer(name:string):void {
             total_lists = total_lists + 1;
             if (total_lists === len_list || (vars.options["stop-on-fail"] === true && vars.test.counts[name].assertions_fail > 0)) {
@@ -72,34 +80,29 @@ const index_proxy = function test_indexProxy():void {
             }
         },
         callback_server = function test_indexProxy_callbackServer(id:string):void {
+            const index:number = Number(vars.data.server[id].config.name.split("_")[1]);
             count_server = count_server + 1;
-            if (vars.data.server[id].config.name === "server_1") {
-                vars.test.servers[0] = {
-                    id: id,
-                    port_open: vars.data.server[id].ports.open,
-                    port_secure: vars.data.server[id].ports.secure
-                };
-            } else {
-                vars.test.servers[1] = {
-                    id: id,
-                    port_open: vars.data.server[id].ports.open,
-                    port_secure: vars.data.server[id].ports.secure
-                };
-            }
-            if (count_server > 1) {
+            vars.test.servers[index] = {
+                id: id,
+                port_open: vars.data.server[id].ports.open,
+                port_secure: vars.data.server[id].ports.secure
+            };
+            if (count_server === servers.length) {
+                // server to server alignment here:
+                vars.data.server[vars.test.servers[1].id].config.redirect_domain["localhost"][1] = vars.data.server[vars.test.servers[0].id].ports.open;
+
+                // start testing here
                 test_runner.list(list[total_lists], test_server);
             }
         };
     let count_server:number = 0;
     vars.test.total_time_start = process.hrtime.bigint();
-    server_create({
-        action: "add",
-        server: server_config_1
-    }, callback_server, false);
-    server_create({
-        action: "add",
-        server: server_config_2
-    }, callback_server, false);
+    servers.forEach(function test_indexProxy_serversEach(value:supplemental_server_config):void {
+        server_create({
+            action: "add",
+            server: value
+        }, callback_server, false);
+    });
 };
 
 export default index_proxy;

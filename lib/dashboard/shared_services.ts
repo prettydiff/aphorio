@@ -420,15 +420,17 @@ const ui_shared_services = function ui_shared_services():void {
                 note.setAttribute("class", "note");
                 p.parentNode.appendChild(note);
             }
+            event.false_target = textArea;
             if (dashboard.global.section === "compose-containers") {
                 textArea.onkeyup = dashboard.sections["compose-containers"].events.validate_containers;
                 textArea.onfocus = dashboard.sections["compose-containers"].events.validate_containers;
+                dashboard.sections["compose-containers"].events.validate_containers(event);
             } else {
                 textArea.onkeyup = dashboard.sections["servers-web"].events.validate;
                 textArea.onfocus = dashboard.sections["servers-web"].events.validate;
+                dashboard.sections["servers-web"].events.validate(event);
             }
             textArea.readOnly = false;
-            textArea.focus();
         },
         shellResize: function dashboard_sharedServices_shellResize(config:config_resize):void {
             dashboard.sections[config.section as "terminal"].events.resize = function dashboard_shareServices_shellResize_instance():void {

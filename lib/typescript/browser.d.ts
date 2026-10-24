@@ -57,12 +57,15 @@ declare global {
     }
 
     interface FocusEvent {
+        false_target: HTMLElement;
         target: HTMLElement;
     }
     interface KeyboardEvent {
+        false_target: HTMLElement;
         target: HTMLElement;
     }
     interface MouseEvent {
+        false_target: HTMLElement;
         target: HTMLElement;
     }
     interface TouchEvent {
@@ -673,7 +676,6 @@ declare global {
         };
         timeout: number;
         tools: {
-            handshake: () => void;
             parse_frame: () => websocket_frame;
         };
         transmit: map_messages;

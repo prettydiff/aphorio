@@ -31,7 +31,9 @@ const ui_servers_web = function ui_servers_web():void {
                 }
             },
             validate: function dashboard_sections_serversWeb_validate(event:FocusEvent|KeyboardEvent):void {
-                const target:HTMLTextAreaElement = event.target as HTMLTextAreaElement,
+                const target:HTMLTextAreaElement = (event.false_target === undefined)
+                        ? event.target as HTMLTextAreaElement
+                        : event.false_target as HTMLTextAreaElement,
                     listItem:HTMLElement = target.getAncestor("li", "tag"),
                     id:string = listItem.dataset.id,
                     value:string = target.value,
