@@ -8,7 +8,7 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 encryption: false,
                 host: "localhost",
                 method: "GET",
-                port: "server_1",
+                port: "server_0",
                 resource: "/",
                 timeout: 1000
             },
@@ -32,7 +32,7 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 encryption: false,
                 host: "localhost",
                 method: "GET",
-                port: "server_1",
+                port: "server_0",
                 resource: "/dashboard",
                 timeout: 1000
             },
@@ -56,7 +56,7 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 encryption: false,
                 host: "localhost",
                 method: "GET",
-                port: "server_1",
+                port: "server_0",
                 resource: "/google",
                 timeout: 1000
             },
@@ -80,7 +80,7 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 encryption: false,
                 host: "blog.localhost",
                 method: "GET",
-                port: "server_1",
+                port: "server_0",
                 resource: "/",
                 timeout: 1000
             },

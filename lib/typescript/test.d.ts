@@ -106,7 +106,7 @@ interface test_item_proxy {
         encryption: boolean;
         host: string;
         method: string;
-        port?: number | "server_1" | "server_2";
+        port?: number | string;
         resource: string;
         timeout?: number;
     };

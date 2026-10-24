@@ -192,17 +192,12 @@ const test_runner:test_runner = {
                 port:number = (function test_runner_executionProxy_port():number {
                     const encrypt:boolean = test_item.request.encryption,
                         port_value:number = Math.floor(Number(test_item.request.port));
-                    if (test_item.request.port === "server_1") {
+                    if (typeof test_item.request.port === "string") {
+                        const server_index:number = Number(test_item.request.port.split("_")[1]);
                         if (encrypt === true) {
-                            return vars.test.servers[0].port_secure;
+                            return vars.test.servers[server_index].port_secure;
                         }
-                        return vars.test.servers[0].port_open;
-                    }
-                    if (test_item.request.port === "server_2") {
-                        if (encrypt === true) {
-                            return vars.test.servers[1].port_secure;
-                        }
-                        return vars.test.servers[1].port_open;
+                        return vars.test.servers[server_index].port_open;
                     }
                     if (test_item.request.port === undefined) {
                         return null;

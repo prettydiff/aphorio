@@ -9,7 +9,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 encryption: false,
                 host: "localhost",
                 method: "GET",
-                port: "server_1",
+                port: "server_0",
                 resource: "/redirect_asset_1",
                 timeout: 1000
             },
@@ -38,7 +38,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 encryption: false,
                 host: "localhost",
                 method: "GET",
-                port: "server_1",
+                port: "server_0",
                 resource: "/redirect_asset_1/",
                 timeout: 1000
             },
@@ -67,7 +67,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 encryption: false,
                 host: "localhost",
                 method: "GET",
-                port: "server_1",
+                port: "server_0",
                 resource: "/redirect_wild_1/styles.css",
                 timeout: 1000
             },
@@ -96,7 +96,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 encryption: false,
                 host: "localhost",
                 method: "GET",
-                port: "server_1",
+                port: "server_0",
                 resource: "/redirect_wild_2/styles.css",
                 timeout: 1000
             },
