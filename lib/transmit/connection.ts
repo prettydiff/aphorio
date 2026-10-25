@@ -208,6 +208,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                 host: server.method[config_http.method as "delete"].address,
                                                 identifier: config_http.origin,
                                                 port: server.method[config_http.method as "delete"].port,
+                                                server_hash: server_id,
                                                 socket: socket,
                                                 user_agent: config_http.user_agent
                                             });
@@ -452,6 +453,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     host: socket.addresses.local.address,
                     identifier: config_http.origin,
                     port: vars.data.server[server_id].ports.secure,
+                    server_hash: server_id,
                     socket: socket,
                     user_agent: config_http.user_agent
                 });
@@ -462,13 +464,13 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     encryption:boolean = null,
                     port:number = 0,
                     resource:string = "";
-                const resource_stat = function transmit_proxy_resourceStat(incoming:string, callback:() => void):void {
+                const resource_stat = function transmit_connection_handshake_resourceStat(incoming:string, callback:() => void):void {
                     if (typeof incoming === "string" && incoming !== "") {
                         // scenario 1 - resource path change
                         if (domain === "" && port === 0 && resource !== "") {
                             const resource_absolute:string = resource.replace(/(\/|\\)$/, ""),
                                 resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "")}`,
-                                stat_callback = function transmit_proxy_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
+                                stat_callback = function transmit_connection_handshake_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
                                     if (stats !== null) {
                                         config_http.resource_absolute = location;
                                         if (stats.isFile() === true) {
@@ -542,35 +544,46 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     }
                 }
                 // legacy domain redirection
-                if (server.redirect_domain !== null && server.redirect_domain !== undefined && server.redirect_domain[config_http.origin] !== null && server.redirect_domain[config_http.origin] !== undefined) {
-                    domain = server.redirect_domain[config_http.origin][0];
-                    port = server.redirect_domain[config_http.origin][1];
-                    if (server.redirect_domain[config_http.origin][2] === "default") {
-                        encryption = (config_http.encryption === "secure");
-                    } else if (server.redirect_domain[config_http.origin][2] === "secure") {
-                        encryption = true;
-                    } else {
-                        encryption = false;
+                if (server.redirect_domain !== null && server.redirect_domain !== undefined) {
+                    const select_rule = function transmit_connection_handshake_redirectDomain(rule:string):void {
+                        domain = server.redirect_domain[rule][0];
+                        port = server.redirect_domain[rule][1];
+                        if (server.redirect_domain[rule][2] === "default") {
+                            encryption = (config_http.encryption === "secure");
+                        } else if (server.redirect_domain[rule][2] === "secure") {
+                            encryption = true;
+                        } else {
+                            encryption = false;
+                        }
+                    };
+                    if (server.redirect_domain[config_http.origin] !== null && server.redirect_domain[config_http.origin] !== undefined) {
+                        select_rule(config_http.origin);
+                    } else if (server.redirect_domain[config_http.domain] !== null && server.redirect_domain[config_http.domain] !== undefined) {
+                        select_rule(config_http.domain);
                     }
+                    // .secure rule
                 }
                 if (domain === "" && port === 0 && resource !== "" && config_http.websocket_key === "") {
                     resource_stat(resource, local_service);
                 } else if (domain !== "" || port > 0) {
-                    // const port_value:number = (port > 0)
-                    //     ? port
-                    //     : ()
-                    // config_http.headers[config_http.host_index] = (node.net.isIPv6(config_http.domain) === true)
-                    //     ? `Host: [${config_http.domain}]:${port_value}`
-                    //     : `Host: ${config_http.o}`;
-                    // proxy_create({
-                    //     data: null,
-                    //     encrypted: encryption,
-                    //     host: domain,
-                    //     identifier: "",
-                    //     port: null,
-                    //     socket: socket,
-                    //     user_agent: config_http.user_agent
-                    // });
+                    const port_value:number = (port > 0)
+                        ? port
+                        : (encryption === true)
+                            ? 443
+                            : 80;
+                    config_http.headers[config_http.host_index] = (node.net.isIPv6(config_http.domain) === true)
+                        ? `Host: [${config_http.domain}]:${port_value}`
+                        : `Host: ${config_http.domain}:${port_value}`;
+                    proxy_create({
+                        data: data,
+                        encrypted: encryption,
+                        host: domain,
+                        identifier: "",
+                        port: port_value,
+                        server_hash: server_id,
+                        socket: socket,
+                        user_agent: config_http.user_agent
+                    });
                 } else {
                     // universal proxy model
                     // if (server.proxy !== null && server.proxy !== undefined) {

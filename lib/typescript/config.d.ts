@@ -182,6 +182,7 @@ declare global {
         host: string;
         identifier: string;
         port: number;
+        server_hash: string;
         socket: websocket_client;
         user_agent: string;
     }

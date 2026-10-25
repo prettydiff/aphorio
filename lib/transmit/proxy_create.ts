@@ -4,7 +4,7 @@ import log from "../core/log.ts";
 import node from "../core/node.ts";
 import socket_extension from "./socketExtension.ts";
 
-const proxy_create = function transmit_connection_handshake_proxyCreate(config:config_proxy_create):void {
+const proxy_create = function transmit_proxyCreate(config:config_proxy_create):void {
     let count:number = 0;
     const proxy:websocket_client = (config.encrypted === true)
             ?  node.tls.connect({
@@ -17,7 +17,7 @@ const proxy_create = function transmit_connection_handshake_proxyCreate(config:c
                 port: config.port
             }) as websocket_client,
         now:string = process.hrtime.bigint().toString(),
-        callback = function transmit_connection_handshake_proxyCreate_callback():void {
+        callback = function transmit_proxyCreate_callback():void {
             count = count + 1;
             if (count > 1) {
                 proxy.pipe(config.socket);
@@ -25,7 +25,7 @@ const proxy_create = function transmit_connection_handshake_proxyCreate(config:c
                 proxy.write(config.data);
             }
         };
-    proxy.on("error", function transmit_connection_handshake_proxyCreate_error(proxy_error:node_error):void {
+    proxy.on("error", function transmit_proxyCreate_error(proxy_error:node_error):void {
         log.application({
             error: proxy_error,
             message: "UDP connection error.",
@@ -37,7 +37,7 @@ const proxy_create = function transmit_connection_handshake_proxyCreate(config:c
         proxy.destroy();
         config.socket.destroy();
     });
-    proxy.once("ready", function transmit_connection_handshake_proxyCreate_ready():void {
+    proxy.once("ready", function transmit_proxyCreate_ready():void {
         // requested socket
         socket_extension({
             callback: callback,
@@ -45,7 +45,7 @@ const proxy_create = function transmit_connection_handshake_proxyCreate(config:c
             identifier: `${config.identifier}-${now}`,
             proxy: proxy,
             role: "server",
-            server: config.socket.server_hash,
+            server: config.server_hash,
             single_socket: false,
             socket: config.socket,
             temporary: false,
@@ -61,7 +61,7 @@ const proxy_create = function transmit_connection_handshake_proxyCreate(config:c
             identifier: `${config.identifier}-${now}-proxy`,
             proxy: config.socket,
             role: "client",
-            server: config.socket.server_hash,
+            server: config.server_hash,
             single_socket: false,
             socket: proxy,
             temporary: false,
