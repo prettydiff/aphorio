@@ -28,7 +28,7 @@ const index_proxy = function test_indexProxy():void {
                 encryption: "both",
                 message_segmentation: 1e6,
                 mutual_tls: false,
-                name: "server_0",
+                name: "",
                 ports: {
                     open: 0,
                     secure: 0
@@ -59,13 +59,29 @@ const index_proxy = function test_indexProxy():void {
                 encryption: "both",
                 message_segmentation: 1e6,
                 mutual_tls: false,
-                name: "server_1",
+                name: "",
                 ports: {
                     open: 0,
                     secure: 0
                 },
                 redirect_domain: {
                     "localhost": ["localhost", 0, "default"]
+                },
+                upgrade: true
+            },
+            {
+                activate: true,
+                domain_local: ["::1", "127.0.0.1"],
+                encryption: "both",
+                message_segmentation: 1e6,
+                mutual_tls: false,
+                name: "",
+                ports: {
+                    open: 0,
+                    secure: 0
+                },
+                redirect_domain: {
+                    "localhost.secure": ["localhost", 0, "default"]
                 },
                 upgrade: true
             }
@@ -90,6 +106,7 @@ const index_proxy = function test_indexProxy():void {
             if (count_server === servers.length) {
                 // server to server alignment here:
                 vars.data.server[vars.test.servers[1].id].config.redirect_domain["localhost"][1] = vars.data.server[vars.test.servers[0].id].ports.open;
+                vars.data.server[vars.test.servers[2].id].config.redirect_domain["localhost.secure"][1] = vars.data.server[vars.test.servers[0].id].ports.secure;
 
                 // start testing here
                 test_runner.list(list[total_lists], test_server);
@@ -97,7 +114,8 @@ const index_proxy = function test_indexProxy():void {
         };
     let count_server:number = 0;
     vars.test.total_time_start = process.hrtime.bigint();
-    servers.forEach(function test_indexProxy_serversEach(value:supplemental_server_config):void {
+    servers.forEach(function test_indexProxy_serversEach(value:supplemental_server_config, index:number):void {
+        value.name = `server_${index}`;
         server_create({
             action: "add",
             server: value

@@ -545,23 +545,26 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 }
                 // legacy domain redirection
                 if (server.redirect_domain !== null && server.redirect_domain !== undefined) {
-                    const select_rule = function transmit_connection_handshake_redirectDomain(rule:string):void {
-                        domain = server.redirect_domain[rule][0];
-                        port = server.redirect_domain[rule][1];
-                        if (server.redirect_domain[rule][2] === "default") {
-                            encryption = (config_http.encryption === "secure");
-                        } else if (server.redirect_domain[rule][2] === "secure") {
-                            encryption = true;
-                        } else {
-                            encryption = false;
+                    let test:boolean = false;
+                    const select_rule = function transmit_connection_handshake_redirectDomain(rule:string,):void {
+                        if (test === false && server.redirect_domain[rule] !== null && server.redirect_domain[rule] !== undefined) {
+                            test = true;
+                            domain = server.redirect_domain[rule][0];
+                            port = server.redirect_domain[rule][1];
+                            if ((/\.secure$/).test(rule) === true) {
+                                encryption = true;
+                            } else if (server.redirect_domain[rule][2] === "default") {
+                                encryption = (config_http.encryption === "secure");
+                            } else if (server.redirect_domain[rule][2] === "secure") {
+                                encryption = true;
+                            } else {
+                                encryption = false;
+                            }
                         }
                     };
-                    if (server.redirect_domain[config_http.origin] !== null && server.redirect_domain[config_http.origin] !== undefined) {
-                        select_rule(config_http.origin);
-                    } else if (server.redirect_domain[config_http.domain] !== null && server.redirect_domain[config_http.domain] !== undefined) {
-                        select_rule(config_http.domain);
-                    }
-                    // .secure rule
+                    select_rule(config_http.origin);
+                    select_rule(config_http.domain);
+                    select_rule(`${config_http.domain}.secure`);
                 }
                 if (domain === "" && port === 0 && resource !== "" && config_http.websocket_key === "") {
                     resource_stat(resource, local_service);
