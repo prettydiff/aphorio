@@ -332,30 +332,11 @@ const http_get:type_http_action = function http_get(config:config_http, socket:w
         if (config.resource_type === "file") {
             fileItem();
         } else if (config.resource_type === "directory") {
-            if (config.resource_absolute.charAt(config.resource_absolute.length - 1) === vars.path.sep) {
-                directory_item();
-            } else {
-                const headers:string[] = [
-                    "HTTP/1.1 308 Permanent Redirect",
-                    `Location: ${config.resource}/`,
-                    "Content-Type: text/html; charset=UTF-8",
-                    "Content-Length: 0",
-                    "",
-                    ""
-                ];
-                http_write(socket, headers.join("\r\n"), true);
-            }
+            directory_item();
         } else {
             notFound();
         }
     }
-    //  else if (fileFragment === "") {
-    //     // server root html file takes the name of the server, not index.html
-    //     stat(`${path}index.html`);
-    // } else {
-    //     // all other HTTP requests
-    //     stat(path + decoded);
-    // }
 };
 
 export default http_get;
