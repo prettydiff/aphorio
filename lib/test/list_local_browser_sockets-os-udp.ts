@@ -130,6 +130,78 @@ const test_listLocalSocketsOS_UDP = function test_listLocalSocketsOS_UDP():test_
                     value: vars.test.magicString
                 }
             ]
+        },
+        {
+            delay: null,
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["id", "sockets-os-udp", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["id", "sockets-os-udp", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
+                    ],
+                    value: ""
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["id", "sockets-os-udp", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "wait",
+                    node: [],
+                    value: "50"
+                }
+            ],
+            name: "Remove filter on sockets-os-udp",
+            unit: [
+                {
+                    node: [
+                        ["id", "sockets-os-udp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", null]
+                    ],
+                    qualifier: "greater",
+                    target: ["length"],
+                    type: "property",
+                    value: 10
+                },
+                {
+                    node: [
+                        ["id", "sockets-os-udp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["style", "display"],
+                    type: "property",
+                    value: "table-row"
+                },
+                {
+                    node: [
+                        ["id", "sockets-os-udp", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "em", 1]
+                    ],
+                    qualifier: "greater",
+                    target: ["textContent"],
+                    type: "property",
+                    value: 10
+                }
+            ]
         }
     ];
     list.name = "Local browser tests - sockets-os-udp";

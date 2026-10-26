@@ -142,6 +142,78 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
                     value: vars.test.magicString
                 }
             ]
+        },
+        {
+            delay: null,
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["id", "processes", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["id", "processes", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
+                    ],
+                    value: ""
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["id", "processes", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "wait",
+                    node: [],
+                    value: "50"
+                }
+            ],
+            name: "Remove process filter",
+            unit: [
+                {
+                    node: [
+                        ["id", "processes", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", null]
+                    ],
+                    qualifier: "greater",
+                    target: ["length"],
+                    type: "property",
+                    value: 20
+                },
+                {
+                    node: [
+                        ["id", "processes", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["style", "display"],
+                    type: "property",
+                    value: "table-row"
+                },
+                {
+                    node: [
+                        ["id", "processes", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "em", 1]
+                    ],
+                    qualifier: "greater",
+                    target: ["textContent"],
+                    type: "property",
+                    value: 20
+                }
+            ]
         }
     ];
     list.name = "Local browser tests - processes";

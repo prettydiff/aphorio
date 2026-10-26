@@ -241,6 +241,7 @@ const test_runner:test_runner = {
                     const unit:test_assertion_proxy[] = proxy_list[vars.test.index].unit,
                         len:number = unit.length,
                         assertions:test_assert[] = [];
+                    // loop through assertions
                     do {
                         value = (unit[index].property === "url")
                             ? output.url.href
