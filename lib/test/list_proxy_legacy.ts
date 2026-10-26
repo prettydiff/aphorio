@@ -138,6 +138,64 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
             ]
         },
         {
+            name: "Resolve to a directory without an index.html file, with trailing slash",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "GET",
+                port: "server_0",
+                resource: "/redirect_wild_3/",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "response_headers",
+                    qualifier: "contains",
+                    value: "HTTP/1.1 200 OK"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "dom = function core_dom()"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "<h2>Directory List - /redirect_wild_3</h2>"
+                }
+            ]
+        },
+        {
+            name: "Resolve to a directory without an index.html file, without trailing slash",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "GET",
+                port: "server_0",
+                resource: "/redirect_wild_3",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "response_headers",
+                    qualifier: "contains",
+                    value: "HTTP/1.1 200 OK"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "dom = function core_dom()"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "<h2>Directory List - /redirect_wild_3</h2>"
+                }
+            ]
+        },
+        {
             name: "Redirecting to a different server, by domain, on a path the other server redirects",
             request: {
                 body: "test body",

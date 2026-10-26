@@ -48,7 +48,8 @@ const index_proxy = function test_indexProxy():void {
                     "localhost": {
                         "/redirect_asset_1/": `${project_path}lib/dashboard/styles.css`.replace(/(\/|\\)/g, vars.path.sep),
                         "/redirect_wild_1/*": `${project_path}lib/dashboard/`,
-                        "/redirect_wild_2/*": `${project_path}lib/dashboard`
+                        "/redirect_wild_2/*": `${project_path}lib/dashboard`,
+                        "/redirect_wild_3/": `${project_path}lib/transmit/`
                     }
                 },
                 upgrade: true

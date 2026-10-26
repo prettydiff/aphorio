@@ -479,9 +479,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                         } else if (stats.isDirectory() === true) {
                                             config_http.resource_type = "directory";
                                         }
-                                        callback();
                                     }
-
+                                    callback();
                                 };
                             // 1. specific, fs absolute          - outgoing
                             // 2. specific, relative to web root - project_path/servers/server/assets/outgoing
