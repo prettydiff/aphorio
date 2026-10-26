@@ -663,7 +663,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     //         resource_stat(incoming.resource, matches[0][3]);
                     //     }
                     // }
-                    local_service();
+                    resource = config_http.resource;
+                    resource_stat(resource, local_service);
                 }
             }
         };
