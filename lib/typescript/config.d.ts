@@ -177,11 +177,14 @@ declare global {
     }
 
     interface config_proxy_create {
-        data: Buffer;
+        body: Buffer;
         encrypted: boolean;
+        headers: string[];
         host: string;
+        host_index: number;
         identifier: string;
         port: number;
+        resource: string;
         server_hash: string;
         socket: websocket_client;
         user_agent: string;

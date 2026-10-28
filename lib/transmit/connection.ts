@@ -1,4 +1,5 @@
 
+import create_proxy from "./create_proxy.ts";
 import get_address from "../core/get_address.ts";
 import file from "../utilities/file.ts";
 import hash from "../core/hash.ts";
@@ -8,7 +9,6 @@ import log from "../core/log.ts";
 import node from "../core/node.ts";
 import message_handler from "./messageHandler.ts";
 import message_inspection from "../services/message_inspection.ts";
-import proxy_create from "./proxy_create.ts";
 import send from "./send.ts";
 import server_halt from "../server/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
@@ -202,12 +202,15 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     do {
                                         index = index - 1;
                                         if (keys[index].toLowerCase() === config_http.method) {
-                                            proxy_create({
-                                                data: data,
+                                            create_proxy({
+                                                body: config_http.body,
                                                 encrypted: socket.encrypted,
+                                                headers: config_http.headers,
                                                 host: server.method[config_http.method as "delete"].address,
+                                                host_index: config_http.host_index,
                                                 identifier: config_http.origin,
                                                 port: server.method[config_http.method as "delete"].port,
+                                                resource: config_http.headers[0].replace(/\u0020+/g, " ").split(" ")[1],
                                                 server_hash: server_id,
                                                 socket: socket,
                                                 user_agent: config_http.user_agent
@@ -447,12 +450,15 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 socket.destroy();
             } else if (redirect_tls === true) {
                 config_http.domain = `open_socket_tunnel-${vars.data.server[server_id].config.name}`;
-                proxy_create({
-                    data: data,
+                create_proxy({
+                    body: config_http.body,
                     encrypted: false,
+                    headers: config_http.headers,
                     host: socket.addresses.local.address,
+                    host_index: config_http.host_index,
                     identifier: config_http.origin,
                     port: vars.data.server[server_id].ports.secure,
+                    resource: config_http.headers[0].replace(/\u0020+/g, " ").split(" ")[1],
                     server_hash: server_id,
                     socket: socket,
                     user_agent: config_http.user_agent
@@ -465,44 +471,39 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     port:number = 0,
                     resource:string = "";
                 const resource_stat = function transmit_connection_handshake_resourceStat(incoming:string, callback:() => void):void {
-                    if (typeof incoming === "string" && incoming !== "") {
-                        // scenario 1 - resource path change
-                        if (domain === "" && port === 0 && resource !== "") {
-                            const resource_absolute:string = resource.replace(/(\/|\\)$/, ""),
-                                resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "")}`,
-                                stat_callback = function transmit_connection_handshake_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
-                                    if (stats !== null) {
-                                        config_http.resource_absolute = location;
-                                        if (stats.isFile() === true) {
-                                            config_http.resource_size = Number(stats.size);
-                                            config_http.resource_type = "file";
-                                        } else if (stats.isDirectory() === true) {
-                                            config_http.resource_type = "directory";
-                                        }
-                                    }
-                                    callback();
-                                };
-                            // 1. specific, fs absolute          - outgoing
-                            // 2. specific, relative to web root - project_path/servers/server/assets/outgoing
-                            // 3. wildcard, fs absolute          - (outgoing + config.resource without match)
-                            // 4. wildcard, relative to web root - project_path/servers/server/assets/(outgoing + config.resource without match)
+                    const resource_absolute:string = incoming.replace(/(\/|\\)$/, ""),
+                        resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "")}`,
+                        stat_callback = function transmit_connection_handshake_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
+                            if (stats !== null) {
+                                config_http.resource_absolute = location;
+                                if (stats.isFile() === true) {
+                                    config_http.resource_size = Number(stats.size);
+                                    config_http.resource_type = "file";
+                                } else if (stats.isDirectory() === true) {
+                                    config_http.resource_type = "directory";
+                                }
+                            }
+                            callback();
+                        };
+                    // 1. specific, fs absolute          - outgoing
+                    // 2. specific, relative to web root - project_path/servers/server/assets/outgoing
+                    // 3. wildcard, fs absolute          - (outgoing + config.resource without match)
+                    // 4. wildcard, relative to web root - project_path/servers/server/assets/(outgoing + config.resource without match)
+                    file.stat({
+                        // fs absolute
+                        callback: stat_callback,
+                        location: resource_relative,
+                        no_file: function () {
+                            // fs relative to web root
                             file.stat({
-                                // fs absolute
                                 callback: stat_callback,
-                                location: resource_relative,
-                                no_file: function () {
-                                    // fs relative to web root
-                                    file.stat({
-                                        callback: stat_callback,
-                                        location: resource_absolute,
-                                        no_file: null,
-                                        section: "servers-web"
-                                    });
-                                },
+                                location: resource_absolute,
+                                no_file: null,
                                 section: "servers-web"
                             });
-                        }
-                    }
+                        },
+                        section: "servers-web"
+                    });
                 };
                 // legacy asset redirection
                 if (server.redirect_asset !== null && server.redirect_asset !== undefined) {
@@ -512,29 +513,29 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         index_res:number = 0,
                         index_wild:number = 0,
                         longest:number = 0,
-                        domain_keys:string[] = null;
+                        asset_keys:string[] = null;
                     if (len > 0) {
                         do {
                             if (keys[index_domains] === config_http.domain) {
-                                domain_keys = Object.keys(server.redirect_asset[config_http.domain]);
-                                index_res = domain_keys.length;
+                                asset_keys = Object.keys(server.redirect_asset[config_http.domain]);
+                                index_res = asset_keys.length;
                                 longest = 0;
                                 do {
                                     index_res = index_res - 1;
                                     // non-wildcard keys must match exactly and are dominate
-                                    if (domain_keys[index_res].replace(/(\/|\\)$/, "") === config_http.resource.replace(/(\/|\\)$/, "")) {
-                                        resource = server.redirect_asset[config_http.domain][domain_keys[index_res]];
+                                    if (asset_keys[index_res].replace(/(\/|\\)$/, "") === config_http.resource.replace(/(\/|\\)$/, "")) {
+                                        resource = server.redirect_asset[config_http.domain][asset_keys[index_res]];
                                         longest = -1;
                                         break;
                                     }
                                     // find the most specific wildcard match by key length
-                                    if (config_http.resource.indexOf(domain_keys[index_res].replace(/\/\*$/, "")) === 0 && domain_keys[index_res].length > longest) {
-                                        longest = domain_keys[index_res].length;
+                                    if (config_http.resource.indexOf(asset_keys[index_res].replace(/\/\*$/, "")) === 0 && asset_keys[index_res].length > longest) {
+                                        longest = asset_keys[index_res].length;
                                         index_wild = index_res;
                                     }
                                 } while (index_res > 0);
                                 if (longest > 0) {
-                                    resource = server.redirect_asset[config_http.domain][domain_keys[index_wild]].replace(/(\\|\/)$/, "").replace(/(\\|\/)/g, vars.path.sep) + vars.path.sep + config_http.resource.replace(domain_keys[index_wild].replace(/\/\*$/, ""), "").replace(/^\//, "").replace(/(\\|\/)/g, vars.path.sep);
+                                    resource = server.redirect_asset[config_http.domain][asset_keys[index_wild]].replace(/(\\|\/)$/, "").replace(/(\\|\/)/g, vars.path.sep) + vars.path.sep + config_http.resource.replace(asset_keys[index_wild].replace(/\/\*$/, ""), "").replace(/^\//, "");
                                 }
                                 break;
                             }
@@ -565,105 +566,136 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     select_rule(config_http.domain);
                     select_rule(`${config_http.domain}.secure`);
                 }
-                if (domain === "" && port === 0 && resource !== "" && config_http.websocket_key === "") {
+                // For testing legacy redirection criteria:
+                // log.shell([domain+" "+port+" "+resource+" "+config_http.resource]);
+                if (domain === "" && port === 0 && typeof resource === "string" && resource !== "" && config_http.websocket_key === "") {
+                    // resolve a resource from the local file system due to legacy redirect_asset rules
+                    resource = resource.replace(/(\\|\/)g/, vars.path.sep);
                     resource_stat(resource, local_service);
-                } else if (domain !== "" || port > 0) {
-                    const port_value:number = (port > 0)
-                        ? port
-                        : (encryption === true)
-                            ? 443
-                            : 80;
-                    config_http.headers[config_http.host_index] = (node.net.isIPv6(config_http.domain) === true)
-                        ? `Host: [${config_http.domain}]:${port_value}`
-                        : `Host: ${config_http.domain}:${port_value}`;
-                    proxy_create({
-                        data: data,
+                } else if (domain !== "" || port > 0) { 
+                    // proxy to a different server due to legacy redirect_domain rules
+                    create_proxy({
+                        body: config_http.body,
                         encrypted: encryption,
+                        headers: config_http.headers,
                         host: domain,
+                        host_index: config_http.host_index,
                         identifier: "",
-                        port: port_value,
+                        port: port,
+                        resource: resource,
                         server_hash: server_id,
                         socket: socket,
                         user_agent: config_http.user_agent
                     });
                 } else {
                     // universal proxy model
-                    // if (server.proxy !== null && server.proxy !== undefined) {
-                    //     const matches:[number, number, string, boolean][] = [],
-                    //         resource_match = function transmit_proxy_resourceMatch(resource:string, index:number):void {
-                    //             resource = resource.trim();
-                    //             const wildcard:boolean = (/\/\*$/).test(resource) === true;
-                    //             if (config_http.resource === resource) {
-                    //                 count = count + 1;
-                    //                 matches.push([index, count, resource, wildcard]);
-                    //             } else if (wildcard === true && config_http.resource.indexOf(resource.replace(/\/\*$/, "")) === 0) {
-                    //                 count = count + 1;
-                    //                 matches.push([index, count, resource, wildcard]);
-                    //             } else {
-                    //                 matches.push([index, count, "", false]);
-                    //             }
-                    //         },
-                    //         len:number = server.proxy.length;
-                    //     let index:number = 0,
-                    //         count:number = 0;
-                    //     // grade matching rule sets to determine the best rule set to apply
-                    //     if (len > 0) {
-                    //         do {
-                    //             count = 0;
-                    //             if (server.proxy[index].incoming.port === config_http.port) {
-                    //                 count = count + 1;
-                    //             }
-                    //             if (server.proxy[index].incoming.domain === config_http.domain) {
-                    //                 count = count + 1;
-                    //             }
-                    //             if (server.proxy[index].incoming.encryption === "both" || (server.proxy[index].incoming.encryption === config_http.encryption)) {
-                    //                 count = count + 1;
-                    //             }
-                    //             resource_match(server.proxy[index].incoming.resource, index);
-                    //             index = index + 1;
-                    //         } while (index < len);
-                    //     }
+                    if (server.proxy !== null && server.proxy !== undefined) {
+                        const matches:[number, number, string, boolean][] = [],
+                            resource_match = function transmit_proxy_resourceMatch(resource_input:string, index:number):void {
+                                resource_input = resource_input.trim();
+                                const wildcard:boolean = (/\/\*$/).test(resource_input) === true;
+                                if (config_http.resource.replace(/(\/|\\)$/, "") === resource_input.replace(/(\/|\\)$/, "")) {
+                                    count = count + 1;
+                                    matches.push([index, count, resource_input, false]);
+                                } else if (wildcard === true && config_http.resource.indexOf(resource_input.replace(/\/\*$/, "")) === 0) {
+                                    count = count + 1;
+                                    matches.push([index, count, resource_input, true]);
+                                } else {
+                                    matches.push([index, count, "", false]);
+                                }
+                            },
+                            len:number = server.proxy.length;
+                        let index:number = 0,
+                            count:number = 0;
+                        // grade matching rule sets to determine the best rule set to apply
+                        if (len > 0) {
+                            do {
+                                count = 0;
+                                if (server.proxy[index].incoming.port === config_http.port) {
+                                    port = config_http.port;
+                                    count = count + 1;
+                                }
+                                if (server.proxy[index].incoming.domain === config_http.domain) {
+                                    domain = config_http.domain;
+                                    count = count + 1;
+                                }
+                                if (server.proxy[index].incoming.encryption === "both" || (server.proxy[index].incoming.encryption === config_http.encryption)) {
+                                    encryption = (config_http.encryption === "secure");
+                                    count = count + 1;
+                                }
+                                resource_match(server.proxy[index].incoming.resource, index);
+                                index = index + 1;
+                            } while (index < len);
+                        }
 
-                    //     if (matches.length > 0) {
-                    //         // use sorting to filter the best rule
-                    //         // 1. sort first by most matching rules
-                    //         // 2. preference exact resource matches over wildcard matches
-                    //         const index:number = matches.sort(function transmit_proxy_sort(a:[number, number, string, boolean], b:[number, number, string, boolean]):-1|0|1 {
-                    //                 // greatest matches
-                    //                 if (a[1] > b[1]) {
-                    //                     return -1;
-                    //                 }
-                    //                 // preference the rule without a wildcard resource match if both rule sets have the a resource rule
-                    //                 if (a[1] === b[1]) {
-                    //                     if (a[2] !== "" && b[2] !== "") {
-                    //                         if ((/\/\*$/).test(a[2]) === false && (/\/\*$/).test(b[2]) === true) {
-                    //                             return -1;
-                    //                         }
-                    //                         if ((/\/\*$/).test(a[2]) === true && (/\/\*$/).test(b[2]) === true && a[2].length > b[2].length) {
-                    //                             return -1;
-                    //                         }
-                    //                         return 1;
-                    //                     }
-                    //                     return 0;
-                    //                 }
-                    //                 return 1;
-                    //             })[0][0],
-                    //             incoming:supplemental_server_proxy_identity = server.proxy[index].incoming,
-                    //             outgoing:supplemental_server_proxy_identity = server.proxy[index].outgoing;
-                    //         domain = (typeof outgoing.domain === "string" && outgoing.domain !== "")
-                    //             ? outgoing.domain
-                    //             : null,
-                    //         port = (typeof outgoing.port === "number" && outgoing.port > 0 && outgoing.port < 65536)
-                    //             ? outgoing.port
-                    //             : null,
-                    //         resource = (typeof outgoing.resource === "string" && outgoing.resource !== "")
-                    //             ? outgoing.resource.replace(/\/|\\/g, vars.path.sep)
-                    //             : null;
-                    //         resource_stat(incoming.resource, matches[0][3]);
-                    //     }
-                    // }
-                    resource = config_http.resource;
-                    resource_stat(resource, local_service);
+                        if (matches.length > 0) {
+                            // use sorting to filter the best rule
+                            // 1. sort first by most matching rules
+                            // 2. preference exact resource matches over wildcard matches
+                            const ordered:number = matches.sort(function transmit_proxy_sort(a:[number, number, string, boolean], b:[number, number, string, boolean]):-1|0|1 {
+                                    // greatest matches
+                                    if (a[1] > b[1]) {
+                                        return -1;
+                                    }
+                                    // preference the rule without a wildcard resource match if both rule sets have the a resource rule
+                                    if (a[1] === b[1]) {
+                                        if (a[2] !== "" && b[2] !== "") {
+                                            if ((/\/\*$/).test(a[2]) === false && (/\/\*$/).test(b[2]) === true) {
+                                                return -1;
+                                            }
+                                            if ((/\/\*$/).test(a[2]) === true && (/\/\*$/).test(b[2]) === true && a[2].length > b[2].length) {
+                                                return -1;
+                                            }
+                                            return 1;
+                                        }
+                                        return 0;
+                                    }
+                                    return 1;
+                                })[0][0];
+                            if (matches[0][1] > 0) {
+                                const outgoing:supplemental_server_proxy_identity = server.proxy[ordered].outgoing;
+                                resource = (typeof outgoing.resource === "string" && outgoing.resource !== "")
+                                    ? (matches[0][3] === true)
+                                        ? outgoing.resource.replace(/(\\|\/)$/, "").replace(/(\\|\/)/g, vars.path.sep) + vars.path.sep + config_http.resource.replace(matches[0][2].replace(/\/\*$/, ""), "").replace(/^\//, "")
+                                        : outgoing.resource
+                                    : "";
+                                domain = (typeof outgoing.domain === "string" && outgoing.domain !== "")
+                                    ? outgoing.domain.replace(/(\/|\\)$/, "")
+                                    : "";
+                                port = (typeof outgoing.port === "number" && outgoing.port > 0 && outgoing.port < 65536)
+                                    ? outgoing.port
+                                    : 0;
+                            }
+                        }
+                        // For testing universal redirection criteria:
+                        // log.shell([domain+" "+port+" "+resource+" "+config_http.resource]);
+                        if (domain === "" && port === 0 && typeof resource === "string" && resource !== "" && config_http.websocket_key === "") {
+                            // resolve a resource from the local file system due to most well matched proxy rule
+                            resource = resource.replace(/(\\|\/)g/, vars.path.sep);
+                            resource_stat(resource, local_service);
+                        } else if (domain !== "" || port > 0) {
+                            // proxy to a different server
+                            create_proxy({
+                                body: config_http.body,
+                                encrypted: encryption,
+                                headers: config_http.headers,
+                                host: domain,
+                                host_index: config_http.host_index,
+                                identifier: "",
+                                port: port,
+                                resource: resource,
+                                server_hash: server_id,
+                                socket: socket,
+                                user_agent: config_http.user_agent
+                            });
+                        } else {
+                            resource = config_http.resource;
+                            resource_stat(resource, local_service);
+                        }
+                    } else {
+                        resource = config_http.resource;
+                        resource_stat(resource, local_service);
+                    }
                 }
             }
         };

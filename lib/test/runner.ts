@@ -18,6 +18,7 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` begins with ${typeof value_test}\n${value_test}`
                         : ` begins with ${typeof value_test}\n${value_actual.toString().slice(0, String(value_test).length)}\nnot ${typeof value_test}\n${value_test}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -36,6 +37,7 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${s_value}\nwhich contains\n${s_unit}`
                         : ` is ${typeof value_actual}\n${s_value}\nwhich does not contain ${typeof value_test}\n${s_unit}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -54,6 +56,7 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${str_value}\nwhich ends with ${typeof value_test}\n${str_unit}`
                         :  ` ends with\n${str_value.slice(str_value.length - str_unit.length)}\nnot ${typeof value_test}\n${str_unit}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -70,6 +73,7 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${value_actual}\nwhich is greater than\n${value_test}`
                         : ` is ${typeof value_actual}\n${value_actual}\nwhich is not greater than ${typeof value_test}\n${value_test}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -88,6 +92,7 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is exactly ${typeof value_test}\n${s_unit}`
                         : ` is ${typeof value_actual}\n${s_value}\nwhich is not ${typeof value_test}\n${s_unit}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -104,6 +109,7 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${value_actual}\nwhich is lesser than ${typeof value_test}\n${value_test}`
                         : ` is ${typeof value_actual}\n${value_actual}\nwhich is not lesser than ${typeof value_test}\n${value_test}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -122,6 +128,7 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${s_value}\nnot ${typeof value_test}\n${s_unit}`
                         : ` is exactly ${typeof value_actual}\n${s_value}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -140,6 +147,7 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${s_value}\nwhich does not contain ${typeof value_test}\n${s_unit}`
                         : ` is ${typeof value_actual}\n${s_value}\nwhich contains ${typeof value_test}\n${s_unit}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -158,6 +166,7 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\nis numeric`
                         : ` is ${typeof value_actual}\nis not numeric`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -242,22 +251,33 @@ const test_runner:test_runner = {
                         len:number = unit.length,
                         assertions:test_assert[] = [];
                     // loop through assertions
-                    do {
-                        value = (unit[index].property === "url")
-                            ? output.url.href
-                            : output[unit[index].property] as string;
-                        value = value.replace(/servers(\\|\/)server_\d/, function test_runner_executionProxy_handler_fileSystem(input:string):string {
-                            const server_index:number = Number(input.split("_")[1]),
-                                id:string = vars.test.servers[server_index].id;
-                            return `servers${vars.path.sep + id}`;
+                    if (output.error === null) {
+                        do {
+                            value = (unit[index].property === "url")
+                                ? output.url.href
+                                : output[unit[index].property] as string;
+                            value = value.replace(/servers(\\|\/)server_\d/, function test_runner_executionProxy_handler_fileSystem(input:string):string {
+                                const server_index:number = Number(input.split("_")[1]),
+                                    id:string = vars.test.servers[server_index].id;
+                                return `servers${vars.path.sep + id}`;
+                            });
+                            if (unit[index].qualifier === "greater" || unit[index].qualifier === "lesser") {
+                                assertions.push(test_runner.assert[unit[index].qualifier](value.length, unit[index], ""));
+                            } else {
+                                assertions.push(test_runner.assert[unit[index].qualifier](value, unit[index], ""));
+                            }
+                            index = index + 1;
+                        } while (index < len);
+                    } else {
+                        assertions.push({
+                            assessment: "",
+                            error: output.error,
+                            location: "",
+                            pass: false,
+                            store: false,
+                            value: "Error"
                         });
-                        if (unit[index].qualifier === "greater" || unit[index].qualifier === "lesser") {
-                            assertions.push(test_runner.assert[unit[index].qualifier](value.length, unit[index], ""));
-                        } else {
-                            assertions.push(test_runner.assert[unit[index].qualifier](value, unit[index], ""));
-                        }
-                        index = index + 1;
-                    } while (index < len);
+                    }
                     test_runner.logger(assertions);
                     test_runner.tools.next();
                 };
@@ -286,6 +306,7 @@ const test_runner:test_runner = {
         if (test_runner.execution[vars.test.list.type] === undefined) {
             test_runner.logger([{
                 assessment: `Test type not specified for test named '${vars.test.list.name}'.`,
+                error: null,
                 location: "",
                 pass: false,
                 store: false,
@@ -329,13 +350,19 @@ const test_runner:test_runner = {
                 // pass or fail report text
                 if (assertions[index].pass === true) {
                     logs.push(star + vars.text.green + assertions[index].location + assertions[index].assessment + vars.text.none);
-                } else {
+                } else if (assertions[index].error === null) {
                     fail_test = true;
                     if (assertions[index].assessment === "failed to parse output into JSON") {
                         logs.push(`${star + vars.text.red + assertions[index].assessment + vars.text.none}\n${assertions[index].location}`);
                     } else {
                         logs.push(star + vars.text.red + assertions[index].location + assertions[index].assessment + vars.text.none);
                     }
+                    vars.test.total_assertions_fail = vars.test.total_assertions_fail + 1;
+                    vars.test.counts[vars.test.list.name].assertions_fail = vars.test.counts[vars.test.list.name].assertions_fail + 1;
+                } else {
+                    fail_test = true;
+                    logs.push(star + vars.text.red + assertions[index].error.message + vars.text.none);
+                    logs.push(assertions[index].error.stack.replace(assertions[index].error.message, ""));
                     vars.test.total_assertions_fail = vars.test.total_assertions_fail + 1;
                     vars.test.counts[vars.test.list.name].assertions_fail = vars.test.counts[vars.test.list.name].assertions_fail + 1;
                 }

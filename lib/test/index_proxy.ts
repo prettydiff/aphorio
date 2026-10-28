@@ -8,10 +8,11 @@ import vars from "../core/vars.ts";
 
 const index_proxy = function test_indexProxy():void {
     let total_lists:number = 0;
-    const list:test_list_proxy[] = (vars.test.list === null)
+    const list_proxy_tests:test_list_proxy = list_proxy(),
+        list:test_list_proxy[] = (vars.test.list === null)
             ? [
-                // list_proxy(),
-                list_proxy_legacy()
+                // list_proxy_legacy(),
+                list_proxy_tests
             ]
             : [
                 vars.test.list as test_item_proxy[]
@@ -35,12 +36,52 @@ const index_proxy = function test_indexProxy():void {
                 },
                 proxy: [
                     {
-                        "description": "",
+                        "description": "directory list of project lib directory",
                         incoming: {
                             resource: "/"
                         },
                         outgoing: {
-                            resource: "/lib"
+                            resource: `${project_path}lib`
+                        }
+                    },
+                    {
+                        "description": "Redirect to google without scheme or slash",
+                        incoming: {
+                            resource: "/google_1/*"
+                        },
+                        outgoing: {
+                            domain: "google.com",
+                            resource: "/"
+                        }
+                    },
+                    {
+                        "description": "Redirect to google without slash",
+                        incoming: {
+                            resource: "/google_2/*"
+                        },
+                        outgoing: {
+                            domain: "http://google.com",
+                            resource: "/"
+                        }
+                    },
+                    {
+                        "description": "Redirect to google",
+                        incoming: {
+                            resource: "/google_3/*"
+                        },
+                        outgoing: {
+                            domain: "http://google.com/",
+                            resource: "/"
+                        }
+                    },
+                    {
+                        "description": "Redirect to encrypted google",
+                        incoming: {
+                            resource: "/google_4/*"
+                        },
+                        outgoing: {
+                            domain: "https://google.com/",
+                            resource: "/"
                         }
                     }
                 ],
@@ -108,6 +149,7 @@ const index_proxy = function test_indexProxy():void {
                 // server to server alignment here:
                 vars.data.server[vars.test.servers[1].id].config.redirect_domain["localhost"][1] = vars.data.server[vars.test.servers[0].id].ports.open;
                 vars.data.server[vars.test.servers[2].id].config.redirect_domain["localhost.secure"][1] = vars.data.server[vars.test.servers[0].id].ports.secure;
+                list_proxy_tests[1].unit[1].value = (list_proxy_tests[1].unit[1].value as string).replace("port_open", vars.test.servers[0].port_open.toString());
 
                 // start testing here
                 test_runner.list(list[total_lists], test_server);

@@ -1,6 +1,7 @@
 
 interface test_assert {
     assessment: string;
+    error: node_error;
     location: string;
     pass: boolean;
     store: boolean;

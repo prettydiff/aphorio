@@ -1,4 +1,6 @@
 
+import vars from "../core/vars.ts";
+
 const test_listProxy = function test_listProxy():test_list_proxy {
     const list_proxy:test_list_proxy = [
         {
@@ -9,7 +11,7 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 host: "localhost",
                 method: "GET",
                 port: "server_0",
-                resource: "/",
+                resource: "/no_file_here.txt",
                 timeout: 1000
             },
             unit: [
@@ -26,59 +28,11 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             ]
         },
         {
-            name: "Redirect asset from /dashboard to the actual dashboard html file",
+            name: "Request directory list of root",
             request: {
                 body: "test body",
                 encryption: false,
                 host: "localhost",
-                method: "GET",
-                port: "server_0",
-                resource: "/dashboard",
-                timeout: 1000
-            },
-            unit: [
-                {
-                    property: "response_body_raw",
-                    qualifier: "contains",
-                    value: " Dashboard"
-                },
-                {
-                    property: "response_body_raw",
-                    qualifier: "greater",
-                    value: 1e5
-                }
-            ]
-        },
-        {
-            name: "Redirect asset from /google to google.com",
-            request: {
-                body: "test body",
-                encryption: false,
-                host: "localhost",
-                method: "GET",
-                port: "server_0",
-                resource: "/google",
-                timeout: 1000
-            },
-            unit: [
-                {
-                    property: "response_body_raw",
-                    qualifier: "contains",
-                    value: " Dashboard"
-                },
-                {
-                    property: "response_body_raw",
-                    qualifier: "greater",
-                    value: 1e5
-                }
-            ]
-        },
-        {
-            name: "Redirect request for blog.localhost to /blog",
-            request: {
-                body: "test body",
-                encryption: false,
-                host: "blog.localhost",
                 method: "GET",
                 port: "server_0",
                 resource: "/",
@@ -88,12 +42,113 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 {
                     property: "response_body_raw",
                     qualifier: "contains",
-                    value: " Dashboard"
+                    value: "<h2>Directory List - /</h2>"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "<td class=\"file-name\"><span class=\"icon\">📁</span> <a href=\"http://localhost:port_open/browser\">browser</a></td><td>directory</td>"
                 },
                 {
                     property: "response_body_raw",
                     qualifier: "greater",
-                    value: 1e5
+                    value: 20000
+                }
+            ]
+        },
+        {
+            name: "Redirect asset from /google to google.com without the scheme or slash",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "GET",
+                port: "server_0",
+                resource: "/google_1",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "lesser",
+                    value: 1e3
+                }
+            ]
+        },
+        {
+            name: "Redirect asset from /google to google.com without slash",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "GET",
+                port: "server_0",
+                resource: "/google_2",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "lesser",
+                    value: 1e3
+                }
+            ]
+        },
+        {
+            name: "Redirect asset from /google to google.com with scheme and slash",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "GET",
+                port: "server_0",
+                resource: "/google_3",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "lesser",
+                    value: 1e3
+                }
+            ]
+        },
+        {
+            name: "Redirect asset from /google to google.com with scheme and slash and encryption",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "GET",
+                port: "server_0",
+                resource: "/google_4",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "lesser",
+                    value: 1e3
                 }
             ]
         }

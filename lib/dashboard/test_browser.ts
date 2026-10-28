@@ -49,6 +49,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         error: function testBrowser_error(message:string, source:string, line:number, col:number, error:Error):void {
             remote.sendTest([{
                 assessment: message,
+                error: error,
                 location: "",
                 pass: false,
                 store: false,
@@ -109,6 +110,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` begins with ${typeof value_actual}\n${s_unit}`
                             : ` begins with ${typeof value_actual}\n${value_actual.toString().slice(0, String(value_test).length)}\nnot ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -139,6 +141,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nwhich contains\n${s_unit}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich does not contain ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -170,6 +173,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nwhich ends with\n${test[1]}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich does not end with ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -199,6 +203,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nwhich is greater than\n${s_unit}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich is not greater than ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -219,6 +224,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test === true)
                             ? ` is exactly ${typeof value_actual}\n${s_actual}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich is not ${typeof value_test}\n${(value === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,
@@ -248,6 +254,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nwhich is lesser than ${typeof test[1]}\n${s_unit}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich is not lesser than ${typeof test[1]}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -268,6 +275,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nnot ${typeof value_test}\n${(value === null) ? JSON.stringify(value_test) : s_unit}`
                             : ` is exactly ${typeof value_actual}\n${s_actual}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,
@@ -298,6 +306,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nwhich does not contain ${typeof test[1]}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich contains ${typeof test[1]}\n${s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -312,6 +321,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : ((value_test === false && test === false) || test === true)
                             ? ` is\n${s_actual}\nwhich is a numeric value`
                             : ` is\n${s_actual}\nwhich is not a numeric value`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,
@@ -322,6 +332,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 highlight();
                 return {
                     assessment: " value is of type dom element",
+                    error: null,
                     location: unit.node.nodeString.replace(/\s?highlight/, ""),
                     pass: false,
                     store: false,
@@ -331,6 +342,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             highlight();
             return {
                 assessment: " value does not match other assertion criteria",
+                error: null,
                 location: unit.node.nodeString,
                 pass: false,
                 store: false,
@@ -377,6 +389,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                                 if (config.coords === undefined || config.coords === null || config.coords.length !== 2 || isNaN(Number(config.coords[0])) === true || isNaN(Number(config.coords[0])) === true) {
                                     remote.sendTest([{
                                         assessment: " event error on resize",
+                                        error: null,
                                         location: config.node.nodeString,
                                         pass: false,
                                         store: false,
@@ -395,6 +408,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                                 if (element === null || element === undefined) {
                                     remote.sendTest([{
                                         assessment: ` node is ${element}`,
+                                        error: null,
                                         location: config.node.nodeString,
                                         pass: false,
                                         store: false,
@@ -683,6 +697,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             if (fail !== "") {
                 remote.sendTest([{
                     assessment: fail,
+                    error: null,
                     location: dom.nodeString,
                     pass: false,
                     store: false,
