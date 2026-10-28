@@ -38,7 +38,7 @@ const index_proxy = function test_indexProxy():void {
                     {
                         "description": "directory list of project lib directory",
                         incoming: {
-                            resource: "/"
+                            resource: "/path/"
                         },
                         outgoing: {
                             resource: `${project_path}lib`
@@ -88,6 +88,31 @@ const index_proxy = function test_indexProxy():void {
                         "description": "Redirect to encrypted google using rule",
                         incoming: {
                             resource: "/google_5/*"
+                        },
+                        outgoing: {
+                            domain: "google.com/",
+                            encryption: "secure",
+                            resource: "/"
+                        }
+                    },
+                    {
+                        "description": "Redirect to encrypted yahoo",
+                        incoming: {
+                            domain: "localhost",
+                            resource: "/google_6/*"
+                        },
+                        outgoing: {
+                            domain: "yahoo.com/",
+                            encryption: "secure",
+                            resource: "/"
+                        }
+                    },
+                    {
+                        "description": "Redirect to encrypted google using multiple criteria",
+                        incoming: {
+                            domain: "localhost",
+                            port: 0,
+                            resource: "/google_6/*"
                         },
                         outgoing: {
                             domain: "google.com/",
@@ -158,6 +183,7 @@ const index_proxy = function test_indexProxy():void {
             };
             if (count_server === servers.length) {
                 // server to server alignment here:
+                vars.data.server[vars.test.servers[0].id].config.proxy[7].incoming.port = vars.data.server[vars.test.servers[0].id].ports.open;
                 vars.data.server[vars.test.servers[1].id].config.redirect_domain["localhost"][1] = vars.data.server[vars.test.servers[0].id].ports.open;
                 vars.data.server[vars.test.servers[2].id].config.redirect_domain["localhost.secure"][1] = vars.data.server[vars.test.servers[0].id].ports.secure;
                 list_proxy_tests[1].unit[1].value = (list_proxy_tests[1].unit[1].value as string).replace("port_open", vars.test.servers[0].port_open.toString());

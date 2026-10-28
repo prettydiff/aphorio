@@ -600,7 +600,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 } else if (wildcard === true && config_http.resource.indexOf(resource_input.replace(/\/\*$/, "")) === 0) {
                                     count = count + 1;
                                     matches.push([index, count, resource_input, true]);
-                                } else {
+                                } else if (count > 0 && (resource_input === null || resource_input === undefined || resource_input === "")) {
                                     matches.push([index, count, "", false]);
                                 }
                             },
@@ -626,71 +626,76 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 resource_match(server.proxy[index].incoming.resource, index);
                                 index = index + 1;
                             } while (index < len);
-                        }
-
-                        if (matches.length > 0) {
-                            // use sorting to filter the best rule
-                            // 1. sort first by most matching rules
-                            // 2. preference exact resource matches over wildcard matches
-                            const ordered:number = matches.sort(function transmit_proxy_sort(a:[number, number, string, boolean], b:[number, number, string, boolean]):-1|0|1 {
-                                    // greatest matches
-                                    if (a[1] > b[1]) {
-                                        return -1;
-                                    }
-                                    // preference the rule without a wildcard resource match if both rule sets have the a resource rule
-                                    if (a[1] === b[1]) {
-                                        if (a[2] !== "" && b[2] !== "") {
-                                            if ((/\/\*$/).test(a[2]) === false && (/\/\*$/).test(b[2]) === true) {
-                                                return -1;
-                                            }
-                                            if ((/\/\*$/).test(a[2]) === true && (/\/\*$/).test(b[2]) === true && a[2].length > b[2].length) {
-                                                return -1;
-                                            }
-                                            return 1;
+                            if (matches.length > 0) {
+                                // use sorting to filter the best rule
+                                // 1. sort first by most matching rules
+                                // 2. preference exact resource matches over wildcard matches
+                                const ordered:number = matches.sort(function transmit_proxy_sort(a:[number, number, string, boolean], b:[number, number, string, boolean]):-1|0|1 {
+                                        // greatest matches
+                                        if (a[1] > b[1]) {
+                                            return -1;
                                         }
-                                        return 0;
-                                    }
-                                    return 1;
-                                })[0][0];
-                            if (matches[0][1] > 0) {
-                                const outgoing:supplemental_server_proxy_identity = server.proxy[ordered].outgoing;
-                                domain = (typeof outgoing.domain === "string" && outgoing.domain !== "")
-                                    ? outgoing.domain.replace(/(\/|\\)$/, "")
-                                    : "";
-                                encryption = (outgoing.encryption === "secure" || (outgoing.encryption === "both" && socket.encrypted === true))
-                                    ? true
-                                    : false;
-                                port = (typeof outgoing.port === "number" && outgoing.port > 0 && outgoing.port < 65536)
-                                    ? outgoing.port
-                                    : 0;
-                                resource = (typeof outgoing.resource === "string" && outgoing.resource !== "")
-                                    ? (matches[0][3] === true)
-                                        ? outgoing.resource.replace(/(\\|\/)$/, "").replace(/(\\|\/)/g, vars.path.sep) + vars.path.sep + config_http.resource.replace(matches[0][2].replace(/\/\*$/, ""), "").replace(/^\//, "")
-                                        : outgoing.resource
-                                    : "";
+                                        // preference the rule without a wildcard resource match if both rule sets have the a resource rule
+                                        if (a[1] === b[1]) {
+                                            if (a[2] !== "" && b[2] !== "") {
+                                                if ((/\/\*$/).test(a[2]) === false && (/\/\*$/).test(b[2]) === true) {
+                                                    return -1;
+                                                }
+                                                if ((/\/\*$/).test(a[2]) === true && (/\/\*$/).test(b[2]) === true && a[2].length > b[2].length) {
+                                                    return -1;
+                                                }
+                                                return 1;
+                                            }
+                                            return 0;
+                                        }
+                                        return 1;
+                                    })[0][0];
+                                if (matches[0][1] > 0) {
+                                    const outgoing:supplemental_server_proxy_identity = server.proxy[ordered].outgoing;
+                                    domain = (typeof outgoing.domain === "string" && outgoing.domain !== "")
+                                        ? outgoing.domain.replace(/(\/|\\)$/, "")
+                                        : "";
+                                    encryption = (outgoing.encryption === "secure" || (outgoing.encryption === "both" && socket.encrypted === true))
+                                        ? true
+                                        : false;
+                                    port = (typeof outgoing.port === "number" && outgoing.port > 0 && outgoing.port < 65536)
+                                        ? outgoing.port
+                                        : 0;
+                                    resource = (typeof outgoing.resource === "string" && outgoing.resource !== "")
+                                        ? (matches[0][3] === true)
+                                            ? outgoing.resource.replace(/(\\|\/)$/, "").replace(/(\\|\/)/g, vars.path.sep) + vars.path.sep + config_http.resource.replace(matches[0][2].replace(/\/\*$/, ""), "").replace(/^\//, "")
+                                            : outgoing.resource
+                                        : "";
+                                }
+                                // For testing universal redirection criteria:
+                                // log.shell([domain+" "+port+" "+resource+" "+config_http.resource]);
+                                if (domain === "" && port === 0 && typeof resource === "string" && resource !== "" && config_http.websocket_key === "") {
+                                    // resolve a resource from the local file system due to most well matched proxy rule
+                                    resource = resource.replace(/(\\|\/)g/, vars.path.sep);
+                                    resource_stat(resource, local_service);
+                                } else if (domain !== "" || port > 0) {
+                                    // proxy to a different server
+                                    create_proxy({
+                                        body: config_http.body,
+                                        encrypted: encryption,
+                                        headers: config_http.headers,
+                                        host: domain,
+                                        host_index: config_http.host_index,
+                                        identifier: "",
+                                        port: port,
+                                        resource: resource,
+                                        server_hash: server_id,
+                                        socket: socket,
+                                        user_agent: config_http.user_agent
+                                    });
+                                } else {
+                                    resource = config_http.resource;
+                                    resource_stat(resource, local_service);
+                                }
+                            } else {
+                                resource = config_http.resource;
+                                resource_stat(resource, local_service);
                             }
-                        }
-                        // For testing universal redirection criteria:
-                        // log.shell([domain+" "+port+" "+resource+" "+config_http.resource]);
-                        if (domain === "" && port === 0 && typeof resource === "string" && resource !== "" && config_http.websocket_key === "") {
-                            // resolve a resource from the local file system due to most well matched proxy rule
-                            resource = resource.replace(/(\\|\/)g/, vars.path.sep);
-                            resource_stat(resource, local_service);
-                        } else if (domain !== "" || port > 0) {
-                            // proxy to a different server
-                            create_proxy({
-                                body: config_http.body,
-                                encrypted: encryption,
-                                headers: config_http.headers,
-                                host: domain,
-                                host_index: config_http.host_index,
-                                identifier: "",
-                                port: port,
-                                resource: resource,
-                                server_hash: server_id,
-                                socket: socket,
-                                user_agent: config_http.user_agent
-                            });
                         } else {
                             resource = config_http.resource;
                             resource_stat(resource, local_service);
