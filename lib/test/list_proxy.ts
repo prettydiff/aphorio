@@ -129,7 +129,7 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             ]
         },
         {
-            name: "Redirect asset from /google to google.com with scheme and slash and encryption",
+            name: "Redirect asset from /google to google.com with scheme and slash and encryption from scheme",
             request: {
                 body: "test body",
                 encryption: false,
@@ -149,6 +149,40 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                     property: "response_body_raw",
                     qualifier: "lesser",
                     value: 1e3
+                },
+                {
+                    property: "encrypted_proxy",
+                    qualifier: "is",
+                    value: true
+                }
+            ]
+        },
+        {
+            name: "Redirect asset from /google to google.com with scheme and slash and encryption from rule",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "GET",
+                port: "server_0",
+                resource: "/google_5",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "lesser",
+                    value: 1e3
+                },
+                {
+                    property: "encrypted_proxy",
+                    qualifier: "is",
+                    value: true
                 }
             ]
         }

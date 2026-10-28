@@ -377,6 +377,7 @@ const vars:core_vars = {
             browser_child: null,
             browser_start: false,
             counts: {},
+            encrypted_proxy: false,
             index: 0,
             list: null,
             magicString: "AW#E$RF1SA9DFY^HDfg4hw5se45tDA234",

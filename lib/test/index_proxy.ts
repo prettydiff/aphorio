@@ -75,12 +75,23 @@ const index_proxy = function test_indexProxy():void {
                         }
                     },
                     {
-                        "description": "Redirect to encrypted google",
+                        "description": "Redirect to encrypted google using scheme",
                         incoming: {
                             resource: "/google_4/*"
                         },
                         outgoing: {
                             domain: "https://google.com/",
+                            resource: "/"
+                        }
+                    },
+                    {
+                        "description": "Redirect to encrypted google using rule",
+                        incoming: {
+                            resource: "/google_5/*"
+                        },
+                        outgoing: {
+                            domain: "google.com/",
+                            encryption: "secure",
                             resource: "/"
                         }
                     }

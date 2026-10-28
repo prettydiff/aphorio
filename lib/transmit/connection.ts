@@ -467,7 +467,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 upgrade_tls();
             } else {
                 let domain:string = "",
-                    encryption:boolean = null,
+                    encryption:boolean = false,
                     port:number = 0,
                     resource:string = "";
                 const resource_stat = function transmit_connection_handshake_resourceStat(incoming:string, callback:() => void):void {
@@ -654,17 +654,20 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 })[0][0];
                             if (matches[0][1] > 0) {
                                 const outgoing:supplemental_server_proxy_identity = server.proxy[ordered].outgoing;
+                                domain = (typeof outgoing.domain === "string" && outgoing.domain !== "")
+                                    ? outgoing.domain.replace(/(\/|\\)$/, "")
+                                    : "";
+                                encryption = (outgoing.encryption === "secure" || (outgoing.encryption === "both" && socket.encrypted === true))
+                                    ? true
+                                    : false;
+                                port = (typeof outgoing.port === "number" && outgoing.port > 0 && outgoing.port < 65536)
+                                    ? outgoing.port
+                                    : 0;
                                 resource = (typeof outgoing.resource === "string" && outgoing.resource !== "")
                                     ? (matches[0][3] === true)
                                         ? outgoing.resource.replace(/(\\|\/)$/, "").replace(/(\\|\/)/g, vars.path.sep) + vars.path.sep + config_http.resource.replace(matches[0][2].replace(/\/\*$/, ""), "").replace(/^\//, "")
                                         : outgoing.resource
                                     : "";
-                                domain = (typeof outgoing.domain === "string" && outgoing.domain !== "")
-                                    ? outgoing.domain.replace(/(\/|\\)$/, "")
-                                    : "";
-                                port = (typeof outgoing.port === "number" && outgoing.port > 0 && outgoing.port < 65536)
-                                    ? outgoing.port
-                                    : 0;
                             }
                         }
                         // For testing universal redirection criteria:

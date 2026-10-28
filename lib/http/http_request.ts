@@ -50,9 +50,11 @@ const http_request = function http_request(config:services_test_http, callback:(
             url = new URL(address);
         } catch {
             callback({
-                error: new Error(`Error: Invalid address - ${address}`),
                 chunked: null,
                 chunks: 0,
+                encrypted_proxy: false,
+                encrypted_self: false,
+                error: new Error(`Error: Invalid address - ${address}`),
                 response_body_raw: "",
                 response_headers: "",
                 url: null
@@ -68,9 +70,11 @@ const http_request = function http_request(config:services_test_http, callback:(
         host = url.hostname.replace("[", "").replace("]", "");
         if (isNaN(port) === true) {
             callback({
-                error: new Error(`Error: Port value is not a number, ${host.slice(host.indexOf(":") + 1)}`),
                 chunked: null,
                 chunks: 0,
+                encrypted_proxy: false,
+                encrypted_self: false,
+                error: new Error(`Error: Port value is not a number, ${host.slice(host.indexOf(":") + 1)}`),
                 response_body_raw: "",
                 response_headers: "",
                 url: null
@@ -79,9 +83,11 @@ const http_request = function http_request(config:services_test_http, callback:(
         }
         if (url.hostname === undefined) {
             callback({
-                error: new Error(`Error: Host value does not appear valid: ${host}`),
                 chunked: null,
                 chunks: 0,
+                encrypted_proxy: false,
+                encrypted_self: false,
+                error: new Error(`Error: Host value does not appear valid: ${host}`),
                 response_body_raw: "",
                 response_headers: "",
                 url: null
@@ -94,9 +100,11 @@ const http_request = function http_request(config:services_test_http, callback:(
     }
     if (typeof host !== "string" || host === "") {
         callback({
-            error: new Error(`Error: Host value does not appear valid: ${host}`),
             chunked: null,
             chunks: 0,
+                encrypted_proxy: false,
+                encrypted_self: false,
+            error: new Error(`Error: Host value does not appear valid: ${host}`),
             response_body_raw: "",
             response_headers: "",
             url: null
@@ -109,9 +117,11 @@ const http_request = function http_request(config:services_test_http, callback:(
             index = index - 1;
             if (vars.data.ports_application[index].port === port && vars.data.ports_application[index].type === "tcp" && vars.data.server[vars.data.ports_application[index].hash].ports.open === port) {
                 callback({
-                    error: new Error("Error: Encrypted connections not allowed to unencrypted servers."),
                     chunked: null,
                     chunks: 0,
+                encrypted_proxy: false,
+                encrypted_self: false,
+                    error: new Error("Error: Encrypted connections not allowed to unencrypted servers."),
                     response_body_raw: "",
                     response_headers: "",
                     url: null
@@ -133,18 +143,22 @@ const http_request = function http_request(config:services_test_http, callback:(
     socket.once("error", function http_request_error(error:node_error):void {
         if (error.code === "EPROTO" && error.syscall === "write") {
             callback({
-                error: new Error(`The EPROTO error is a protocol negotiation error that occurs for one of three reasons:\n1. Remote server is using outdated TLSv1.1 which is not supported by OpenSSL3 used by Node.js since version 17.\n2. There is a defect in this application.\n3. The most likely cause is a defect in Node.js.\n\nKnown domains causing this error:\n* prettydiff.com\n* www.army.mil\n* www.treasury.gov\n\n${JSON.stringify(error)}\n\nscheme: ${(config.encryption === true) ? "https (tls)" : "http"}\nhost: ${host}\nport: ${port}`),
                 chunked: null,
                 chunks: 0,
+                encrypted_proxy: false,
+                encrypted_self: false,
+                error: new Error(`The EPROTO error is a protocol negotiation error that occurs for one of three reasons:\n1. Remote server is using outdated TLSv1.1 which is not supported by OpenSSL3 used by Node.js since version 17.\n2. There is a defect in this application.\n3. The most likely cause is a defect in Node.js.\n\nKnown domains causing this error:\n* prettydiff.com\n* www.army.mil\n* www.treasury.gov\n\n${JSON.stringify(error)}\n\nscheme: ${(config.encryption === true) ? "https (tls)" : "http"}\nhost: ${host}\nport: ${port}`),
                 response_body_raw: "",
                 response_headers: "",
                 url: null
             });
         } else {
             callback({
-                error: new Error(JSON.stringify(error)),
                 chunked: null,
                 chunks: 0,
+                encrypted_proxy: false,
+                encrypted_self: false,
+                error: new Error(JSON.stringify(error)),
                 response_body_raw: "",
                 response_headers: "",
                 url: null
@@ -155,9 +169,11 @@ const http_request = function http_request(config:services_test_http, callback:(
         socket.setTimeout(config.timeout, function http_request_timeout():void {
             if (socket.writable === true) {
                 callback({
-                    error: new Error(`Error: request exceeded a ${config.timeout / 1000} second timeout.`),
                     chunked: null,
                     chunks: 0,
+                encrypted_proxy: false,
+                encrypted_self: false,
+                    error: new Error(`Error: request exceeded a ${config.timeout / 1000} second timeout.`),
                     response_body_raw: "",
                     response_headers: "",
                     url: null
@@ -216,18 +232,22 @@ const http_request = function http_request(config:services_test_http, callback:(
         socket.once("end", function http_request_end():void {
             if (chunks.length < 1) {
                 callback({
-                    error: new Error("Error: message ended with no data, which indicates no web server or connection refused."),
                     chunked: null,
                     chunks: 0,
+                    encrypted_proxy: vars.test.encrypted_proxy,
+                    encrypted_self: config.encryption,
+                    error: new Error("Error: message ended with no data, which indicates no web server or connection refused."),
                     response_body_raw: "",
                     response_headers: "",
                     url: null
                 });
             } else {
                 callback({
-                    error: null,
                     chunked: chunked,
                     chunks: chunkCount,
+                    encrypted_proxy: vars.test.encrypted_proxy,
+                    encrypted_self: config.encryption,
+                    error: null,
                     response_body_raw: chunks.slice(bodyIndex),
                     response_headers: chunks.slice(0, bodyIndex),
                     url: url

@@ -250,21 +250,24 @@ const test_runner:test_runner = {
                     const unit:test_assertion_proxy[] = proxy_list[vars.test.index].unit,
                         len:number = unit.length,
                         assertions:test_assert[] = [];
+                    vars.test.encrypted_proxy = false;
                     // loop through assertions
                     if (output.error === null) {
                         do {
                             value = (unit[index].property === "url")
                                 ? output.url.href
                                 : output[unit[index].property] as string;
-                            value = value.replace(/servers(\\|\/)server_\d/, function test_runner_executionProxy_handler_fileSystem(input:string):string {
-                                const server_index:number = Number(input.split("_")[1]),
-                                    id:string = vars.test.servers[server_index].id;
-                                return `servers${vars.path.sep + id}`;
-                            });
+                            if (typeof value === "string") {
+                                value = value.replace(/servers(\\|\/)server_\d/, function test_runner_executionProxy_handler_fileSystem(input:string):string {
+                                    const server_index:number = Number(input.split("_")[1]),
+                                        id:string = vars.test.servers[server_index].id;
+                                    return `servers${vars.path.sep + id}`;
+                                });
+                            }
                             if (unit[index].qualifier === "greater" || unit[index].qualifier === "lesser") {
-                                assertions.push(test_runner.assert[unit[index].qualifier](value.length, unit[index], ""));
+                                assertions.push(test_runner.assert[unit[index].qualifier](value.length, unit[index], unit[index].property));
                             } else {
-                                assertions.push(test_runner.assert[unit[index].qualifier](value, unit[index], ""));
+                                assertions.push(test_runner.assert[unit[index].qualifier](value, unit[index], unit[index].property));
                             }
                             index = index + 1;
                         } while (index < len);

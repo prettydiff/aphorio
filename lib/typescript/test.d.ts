@@ -28,7 +28,7 @@ interface test_assertion_dom extends test_assertion_base {
 }
 
 interface test_assertion_proxy extends test_assertion_base {
-    property: "chunked" | "chunks" | "error" | "response_body_raw" | "response_headers" | "url";
+    property: "chunked" | "chunks" | "encrypted_proxy" | "encrypted_self" | "error" | "response_body_raw" | "response_headers" | "url";
 }
 
 interface test_browserDOM extends Array<type_test_browserDOM> {

@@ -131,6 +131,8 @@ declare global {
     interface config_http_request_output {
         chunked: boolean;
         chunks: number;
+        encrypted_proxy: boolean;
+        encrypted_self: boolean;
         error: node_error;
         response_body_raw: string;
         response_headers: string;

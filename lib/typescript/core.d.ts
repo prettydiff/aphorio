@@ -480,6 +480,7 @@ interface core_vars_test {
     counts: {
         [key:string]: test_counts;
     };
+    encrypted_proxy: boolean;
     index: number;
     list: test_list_dom | test_list_proxy;
     magicString: string;

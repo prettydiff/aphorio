@@ -3,15 +3,11 @@ import get_address from "../core/get_address.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import socket_extension from "./socketExtension.ts";
+import vars from "../core/vars.ts";
 
 const create_proxy = function transmit_createProxy(config:config_proxy_create):void {
     let count:number = 0;
-    const port_value:number = (typeof config.port === "number" && config.port > 0)
-            ? config.port
-            : (config.encrypted === true)
-                ? 443
-                : 80,
-        host:string = (function transmit_createProxy_scheme():string {
+    const host:string = (function transmit_createProxy_scheme():string {
             const hosts:string[] = (config.host.includes("://") === true)
                 ? config.host.split("://")
                 : ["", config.host]
@@ -20,6 +16,11 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
             }
             return hosts[1];
         }()),
+        port_value:number = (typeof config.port === "number" && config.port > 0)
+            ? config.port
+            : (config.encrypted === true)
+                ? 443
+                : 80,
         proxy:websocket_client = (config.encrypted === true)
             ?  node.tls.connect({
                 host: host,
@@ -55,9 +56,15 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
             }
         };
     proxy.on("error", function transmit_createProxy_error(proxy_error:node_error):void {
+        if (vars.test.testing === true) {
+            log.shell([
+                "Error on establishing proxy connection.",
+                proxy_error.stack
+            ]);
+        }
         log.application({
             error: proxy_error,
-            message: "UDP connection error.",
+            message: "proxy connection error.",
             origin: `${config.host} ${port_value}`,
             section: "servers-web",
             status: "error",
@@ -66,6 +73,7 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
         proxy.destroy();
         config.socket.destroy();
     });
+    vars.test.encrypted_proxy = (config.encrypted === true);
     proxy.once("ready", function transmit_createProxy_ready():void {
         // requested socket
         socket_extension({
