@@ -11,7 +11,7 @@ const index_proxy = function test_indexProxy():void {
     const list_proxy_tests:test_list_proxy = list_proxy(),
         list:test_list_proxy[] = (vars.test.list === null)
             ? [
-                // list_proxy_legacy(),
+                list_proxy_legacy(),
                 list_proxy_tests
             ]
             : [

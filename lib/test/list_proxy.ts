@@ -1,5 +1,4 @@
 
-import vars from "../core/vars.ts";
 
 const test_listProxy = function test_listProxy():test_list_proxy {
     const list_proxy:test_list_proxy = [
