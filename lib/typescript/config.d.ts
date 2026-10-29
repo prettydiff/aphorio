@@ -214,11 +214,11 @@ declare global {
     }
 
     interface config_validate_serverKeys {
-        name: "block_list" | "method" | "ports" | "proxy" | "redirect_asset" | "redirect_domain";
+        name: number | "block_list" | "method" | "ports" | "redirect_asset" | "redirect_domain";
         required_name: boolean;
         required_property: boolean;
         supported: string[];
-        type: "array" | "method" | "number" | "store" | "string";
+        type: "array" | "method" | "number" | "proxy" | "store" | "string";
     }
 
     interface config_websocket_create {

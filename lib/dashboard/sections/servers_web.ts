@@ -84,25 +84,89 @@ const ui_servers_web = function ui_servers_web():void {
                             populate(true, "The server configuration is valid.");
                         }
                     },
-                    array_string = function dashboard_sections_serversWeb_validate_arrayString(required:boolean, name:string, property:string[]):boolean {
-                        let index:number = (property === null || property === undefined)
-                                ? 0
-                                : property.length;
+                    array_type = function dashboard_sections_serversWeb_validate_arrayType(required:boolean, name:string):boolean {
+                        let property:string[] = serverData[name as "domain_local"] as string[],
+                            index:number = 0,
+                            fail:boolean = false;
                         const requirement:string = (required === true)
                                 ? "Required"
-                                : "Optional";
-                        if (index > 0) {
+                                : "Optional",
+                            len:number = (property === null || property === undefined)
+                                ? 0
+                                : property.length;
+                        if (Array.isArray(property) === false && name.includes(".") === false && (required === true || (required === false && property !== undefined && property !== null))) {
+                            populate(false, `${requirement} property ${name} is not an array.`);
+                            return false;
+                        }
+                        if (len > 0) {
                             do {
-                                index = index - 1;
-                                if (typeof property[index] !== "string") {
+                                if (name === "proxy") {
+                                    if (typeof serverData.proxy[index].description !== "string") {
+                                        populate(false, `Proxy rule index ${index} is missing property "description" or the value is not a string.`);
+                                        fail = true;
+                                    }
+                                    if (typeof serverData.proxy[index].incoming !== "object" || serverData.proxy[index].incoming === null) {
+                                        populate(false, `Proxy rule index ${index} is missing property "incoming" or the value is not an object.`);
+                                        fail = true;
+                                    } else {
+                                        if (serverData.proxy[index].incoming.domain !== undefined && serverData.proxy[index].incoming.domain !== null && typeof serverData.proxy[index].incoming.domain !== "string") {
+                                            populate(false, `Proxy optional rule value [${index}].incoming.domain is not a string.`);
+                                            fail = true;
+                                        }
+                                        if (serverData.proxy[index].incoming.encryption !== undefined && serverData.proxy[index].incoming.encryption !== null && serverData.proxy[index].incoming.encryption !== "both" && serverData.proxy[index].incoming.encryption !== "open" && serverData.proxy[index].incoming.encryption !== "secure") {
+                                            populate(false, `Proxy optional rule value [${index}].incoming.encryption is not a supported string value: "both", "open", "secure".`);
+                                            fail = true;
+                                        }
+                                        if (serverData.proxy[index].incoming.method !== undefined && serverData.proxy[index].incoming.method !== null && serverData.proxy[index].incoming.method !== "CONNECT" && serverData.proxy[index].incoming.method !== "DELETE" && serverData.proxy[index].incoming.method !== "GET" && serverData.proxy[index].incoming.method !== "HEAD" && serverData.proxy[index].incoming.method !== "OPTIONS" && serverData.proxy[index].incoming.method !== "PATCH" && serverData.proxy[index].incoming.method !== "POST" && serverData.proxy[index].incoming.method !== "PUT" && serverData.proxy[index].incoming.method !== "QUERY" && serverData.proxy[index].incoming.method !== "TRACE") {
+                                            populate(false, `Proxy optional rule value [${index}].incoming.method is not a supported string value: "CONNECT", "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "QUERY", "TRACE".`);
+                                            fail = true;
+                                        }
+                                        if (serverData.proxy[index].incoming.port !== undefined && serverData.proxy[index].incoming.port !== null && (typeof serverData.proxy[index].incoming.port !== "number" || serverData.proxy[index].incoming.port < 0 || serverData.proxy[index].incoming.port > 65535)) {
+                                            populate(false, `Proxy optional rule value [${index}].incoming.port is not an integer number value 0 - 65535.`);
+                                            fail = true;
+                                        }
+                                        if (serverData.proxy[index].incoming.resource !== undefined && serverData.proxy[index].incoming.resource !== null && (typeof serverData.proxy[index].incoming.resource !== "string" || serverData.proxy[index].incoming.resource.includes("\\") === true)) {
+                                            populate(false, `Proxy optional rule value [${index}].incoming.resource is not a string or contains backslash characters.`);
+                                            fail = true;
+                                        }
+                                    }
+                                    if (typeof serverData.proxy[index].outgoing !== "object" || serverData.proxy[index].outgoing === null) {
+                                        populate(false, `Proxy rule index ${index} is missing property "outgoing" or the value is not an object.`);
+                                        fail = true;
+                                    } else {
+                                        if (serverData.proxy[index].outgoing.domain !== undefined && serverData.proxy[index].outgoing.domain !== null && typeof serverData.proxy[index].outgoing.domain !== "string") {
+                                            populate(false, `Proxy optional rule value [${index}].outgoing.domain is not a string.`);
+                                            fail = true;
+                                        }
+                                        if (serverData.proxy[index].outgoing.encryption !== undefined && serverData.proxy[index].outgoing.encryption !== null && serverData.proxy[index].outgoing.encryption !== "both" && serverData.proxy[index].outgoing.encryption !== "open" && serverData.proxy[index].outgoing.encryption !== "secure") {
+                                            populate(false, `Proxy optional rule value [${index}].outgoing.encryption is not a supported string value: "both", "open", "secure".`);
+                                            fail = true;
+                                        }
+                                        if (serverData.proxy[index].outgoing.method !== undefined && serverData.proxy[index].outgoing.method !== null && serverData.proxy[index].outgoing.method !== "CONNECT" && serverData.proxy[index].outgoing.method !== "DELETE" && serverData.proxy[index].outgoing.method !== "GET" && serverData.proxy[index].outgoing.method !== "HEAD" && serverData.proxy[index].outgoing.method !== "OPTIONS" && serverData.proxy[index].outgoing.method !== "PATCH" && serverData.proxy[index].outgoing.method !== "POST" && serverData.proxy[index].outgoing.method !== "PUT" && serverData.proxy[index].outgoing.method !== "QUERY" && serverData.proxy[index].outgoing.method !== "TRACE") {
+                                            populate(false, `Proxy optional rule value [${index}].outgoing.method is not a supported string value: "CONNECT", "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "QUERY", "TRACE".`);
+                                            fail = true;
+                                        }
+                                        if (serverData.proxy[index].outgoing.port !== undefined && serverData.proxy[index].outgoing.port !== null && (typeof serverData.proxy[index].outgoing.port !== "number" || serverData.proxy[index].outgoing.port < 0 || serverData.proxy[index].outgoing.port > 65535)) {
+                                            populate(false, `Proxy optional rule value [${index}].outgoing.port is not an integer number value 0 - 65535.`);
+                                            fail = true;
+                                        }
+                                        if (serverData.proxy[index].outgoing.resource !== undefined && serverData.proxy[index].outgoing.resource !== null && (typeof serverData.proxy[index].outgoing.resource !== "string" || serverData.proxy[index].outgoing.resource.includes("\\") === true)) {
+                                            populate(false, `Proxy optional rule value [${index}].outgoing.resource is not a string or contains backslash characters.`);
+                                            fail = true;
+                                        }
+                                    }
+                                } else if (typeof property[index] !== "string") {
                                     const requirement_lower:string = (required === true)
                                         ? "required"
                                         : "optional";
                                     populate(false, `Index ${index} of ${requirement_lower} property ${name} is not a string.`);
                                     return false;
                                 }
-                            } while (index > 0);
-                            if (name.includes(".") === false) {
+                                index = index + 1;
+                            } while (index < len);
+                            if (name === "proxy" && fail === false) {
+                                populate(true, `${requirement} property proxy is properly formatted.`);
+                            } else if (name.includes(".") === false) {
                                 populate(true, `${requirement} property '${name}' is an array only containing strings.`);
                                 return true;
                             }
@@ -124,16 +188,16 @@ const ui_servers_web = function ui_servers_web():void {
                                 : "Optional",
                             keys:string[] = (config.name === null)
                                 ? Object.keys(serverData)
-                                : (serverData[config.name] === null || serverData[config.name] === undefined)
+                                : (serverData[config.name as "method"] === null || serverData[config.name as "method"] === undefined)
                                     ? []
-                                    : Object.keys(serverData[config.name]);
+                                    : Object.keys(serverData[config.name as "method"]);
                         let value:string = null,
                             redirect:type_redirect_domain = null,
                             indexActual:number = keys.length,
                             indexSupported:number = 0,
                             pass:boolean = true;
                         if (config.name !== null) {
-                            if (serverData[config.name] === null) {
+                            if (serverData[config.name as "method"] === null) {
                                 if (config.required_name === true) {
                                     populate(false, `${requirement_parent} property '${config.name}' is null, but is required.`);
                                 } else {
@@ -141,7 +205,7 @@ const ui_servers_web = function ui_servers_web():void {
                                 }
                                 return;
                             }
-                            if (serverData[config.name] === undefined) {
+                            if (serverData[config.name as "method"] === undefined) {
                                 if (config.required_name === true) {
                                     populate(false, `${requirement_parent} property '${config.name}' is undefined, but is required.`);
                                 } else {
@@ -154,7 +218,7 @@ const ui_servers_web = function ui_servers_web():void {
                             do {
                                 indexActual = indexActual - 1;
                                 indexSupported = config.supported.length;
-                                value = (serverData[config.name] === undefined || serverData[config.name] === null)
+                                value = (serverData[config.name as "method"] === undefined || serverData[config.name as "method"] === null)
                                     ? null
                                     // @ts-expect-error - The following line forces an implicit any, but we don't care because we are only evaluating for data type not value or assignment
                                     : serverData[config.name][keys[indexActual]];
@@ -176,8 +240,7 @@ const ui_servers_web = function ui_servers_web():void {
                                             pass = false;
                                         }
                                     } else {
-                                        // @ts-expect-error - The last argument expects a string[] but variable value is superficially typed as string
-                                        if (array_string(config.required_property, `${config.name}.${keys[indexActual]}`, value) === false) {
+                                        if (array_type(config.required_property, `${config.name}.${keys[indexActual]}`) === false) {
                                             pass = false;
                                         }
                                     }
@@ -230,16 +293,17 @@ const ui_servers_web = function ui_servers_web():void {
                                         } else if (config.name === "ports" && ((serverData.encryption === "open" && config.supported[indexSupported] === "secure") || (serverData.encryption === "secure" && config.supported[indexSupported] === "open"))) {
                                             config.supported.splice(indexSupported, 1);
                                         } else if (
+                                            // config.name === null is for primary keys
                                             config.name === null &&
                                             keys.includes(config.supported[indexSupported]) === false && (
                                                 config.supported[indexSupported] === "block_list" ||
-                                                config.supported[indexSupported] === "domain_local" ||
                                                 config.supported[indexSupported] === "method" ||
+                                                config.supported[indexSupported] === "proxy" ||
+                                                config.supported[indexSupported] === "redirect_asset" ||
                                                 config.supported[indexSupported] === "redirect_domain" ||
-                                                config.supported[indexSupported] === "redirect_asset"
-                                            ) ||
-                                            config.supported[indexSupported] === "single_socket" ||
-                                            config.supported[indexSupported] === "temporary"
+                                                config.supported[indexSupported] === "single_socket" ||
+                                                config.supported[indexSupported] === "temporary"
+                                            )
                                         ) {
                                             config.supported.splice(indexSupported, 1);
                                         }
@@ -254,7 +318,7 @@ const ui_servers_web = function ui_servers_web():void {
                         } else {
                             if (keys.length === 0 && config.supported.length === 0) {
                                 if (config.name === null) {
-                                    populate(true, "Configuration contains only optional property names and all required primary property names.");
+                                    populate(true, "Configuration contains all required primary property names and only specified optional properties.");
                                 } else {
                                     populate(true, `${requirement_parent} property '${config.name}' contains only the ${requirement_child} property names.`);
                                 }
@@ -311,7 +375,7 @@ const ui_servers_web = function ui_servers_web():void {
                     populate(false, "Required property 'certificate_path' is either not an object or the 3 required child properties are not a string value.  The three child properties are: ca, cert, and key.");
                 }
                 // domain_local
-                array_string(false, "domain_local", serverData.domain_local);
+                array_type(true, "domain_local");
                 // encryption
                 if (serverData.encryption === "both" || serverData.encryption === "open" || serverData.encryption === "secure") {
                     populate(true, "Required property 'encryption' has an appropriate value of: \"both\", \"open\", or \"secure\".");
@@ -376,13 +440,7 @@ const ui_servers_web = function ui_servers_web():void {
                     type: "number"
                 });
                 // proxy
-                key_test({
-                    name: "proxy",
-                    required_name: false,
-                    required_property: false,
-                    supported: [],
-                    type: "array"
-                });
+                array_type(false, "proxy");
                 // redirect_asset
                 key_test({
                     name: "redirect_asset",
