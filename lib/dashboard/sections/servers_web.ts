@@ -84,7 +84,7 @@ const ui_servers_web = function ui_servers_web():void {
                             populate(true, "The server configuration is valid.");
                         }
                     },
-                    stringArray = function dashboard_sections_serversWeb_validate_stringArray(required:boolean, name:string, property:string[]):boolean {
+                    array_string = function dashboard_sections_serversWeb_validate_arrayString(required:boolean, name:string, property:string[]):boolean {
                         let index:number = (property === null || property === undefined)
                                 ? 0
                                 : property.length;
@@ -107,7 +107,7 @@ const ui_servers_web = function ui_servers_web():void {
                                 return true;
                             }
                         } else if (name.includes(".") === false) {
-                            if (serverData.domain_local === null) {
+                            if (serverData[name as "domain_local"] === null) {
                                 populate(required, `${requirement} property '${name}' is null.`);
                             } else if (serverData.domain_local === undefined) {
                                 populate(required, `${requirement} property '${name}' is undefined.`);
@@ -177,7 +177,7 @@ const ui_servers_web = function ui_servers_web():void {
                                         }
                                     } else {
                                         // @ts-expect-error - The last argument expects a string[] but variable value is superficially typed as string
-                                        if (stringArray(config.required_property, `${config.name}.${keys[indexActual]}`, value) === false) {
+                                        if (array_string(config.required_property, `${config.name}.${keys[indexActual]}`, value) === false) {
                                             pass = false;
                                         }
                                     }
@@ -229,7 +229,18 @@ const ui_servers_web = function ui_servers_web():void {
                                             indexActual = indexActual - 1;
                                         } else if (config.name === "ports" && ((serverData.encryption === "open" && config.supported[indexSupported] === "secure") || (serverData.encryption === "secure" && config.supported[indexSupported] === "open"))) {
                                             config.supported.splice(indexSupported, 1);
-                                        } else if (config.name === null && keys.includes(config.supported[indexSupported]) === false && (config.supported[indexSupported] === "block_list" || config.supported[indexSupported] === "domain_local" || config.supported[indexSupported] === "method" || config.supported[indexSupported] === "redirect_domain" || config.supported[indexSupported] === "redirect_asset") || config.supported[indexSupported] === "single_socket" || config.supported[indexSupported] === "temporary") {
+                                        } else if (
+                                            config.name === null &&
+                                            keys.includes(config.supported[indexSupported]) === false && (
+                                                config.supported[indexSupported] === "block_list" ||
+                                                config.supported[indexSupported] === "domain_local" ||
+                                                config.supported[indexSupported] === "method" ||
+                                                config.supported[indexSupported] === "redirect_domain" ||
+                                                config.supported[indexSupported] === "redirect_asset"
+                                            ) ||
+                                            config.supported[indexSupported] === "single_socket" ||
+                                            config.supported[indexSupported] === "temporary"
+                                        ) {
                                             config.supported.splice(indexSupported, 1);
                                         }
                                     } while (indexSupported > 0);
@@ -265,7 +276,7 @@ const ui_servers_web = function ui_servers_web():void {
                             }
                         }
                     },
-                    rootProperties:string[] = ["activate", "block_list", "certificate_path", "domain_local", "encryption", "id", "method", "message_segmentation", "mutual_tls", "name", "ports", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
+                    rootProperties:string[] = ["activate", "block_list", "certificate_path", "domain_local", "encryption", "id", "method", "message_segmentation", "mutual_tls", "name", "ports", "proxy", "redirect_asset", "redirect_domain", "single_socket", "temporary", "upgrade"];
                 let serverData:supplemental_server_config = null,
                     failures:number = 0;
                 ul.textContent = "";
@@ -300,7 +311,7 @@ const ui_servers_web = function ui_servers_web():void {
                     populate(false, "Required property 'certificate_path' is either not an object or the 3 required child properties are not a string value.  The three child properties are: ca, cert, and key.");
                 }
                 // domain_local
-                stringArray(false, "domain_local", serverData.domain_local);
+                array_string(false, "domain_local", serverData.domain_local);
                 // encryption
                 if (serverData.encryption === "both" || serverData.encryption === "open" || serverData.encryption === "secure") {
                     populate(true, "Required property 'encryption' has an appropriate value of: \"both\", \"open\", or \"secure\".");
@@ -356,12 +367,21 @@ const ui_servers_web = function ui_servers_web():void {
                 ) {
                     populate(null, "A port value of 0 will assign a randomly available port from the local machine. A number greater than 0 and less than 65535 is preferred.");
                 }
+                // ports
                 key_test({
                     name: "ports",
                     required_name: true,
                     required_property: true,
                     supported: ["open", "secure"],
                     type: "number"
+                });
+                // proxy
+                key_test({
+                    name: "proxy",
+                    required_name: false,
+                    required_property: false,
+                    supported: [],
+                    type: "array"
                 });
                 // redirect_asset
                 key_test({

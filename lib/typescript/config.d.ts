@@ -185,6 +185,7 @@ declare global {
         host: string;
         host_index: number;
         identifier: string;
+        method: type_http_method | "";
         port: number;
         resource: string;
         server_hash: string;
@@ -213,7 +214,7 @@ declare global {
     }
 
     interface config_validate_serverKeys {
-        name: "block_list" | "method" | "ports" | "redirect_asset" | "redirect_domain";
+        name: "block_list" | "method" | "ports" | "proxy" | "redirect_asset" | "redirect_domain";
         required_name: boolean;
         required_property: boolean;
         supported: string[];

@@ -139,7 +139,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     config.resource = (config.resource === "/")
                         ? "/"
                         : config.resource.replace(/\/$/, "");
-                    if (config.method === "get" && server_id === vars.id.dashboard_server && config.resource === "/") {
+                    if (config.method.toLowerCase() === "get" && server_id === vars.id.dashboard_server && config.resource === "/") {
                         if (config.websocket_key === "") {
                             vars.environment.request_http = headerString;
                         } else {
@@ -209,6 +209,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                 host: server.method[config_http.method as "delete"].address,
                                                 host_index: config_http.host_index,
                                                 identifier: config_http.origin,
+                                                method: null,
                                                 port: server.method[config_http.method as "delete"].port,
                                                 resource: config_http.headers[0].replace(/\u0020+/g, " ").split(" ")[1],
                                                 server_hash: server_id,
@@ -219,11 +220,11 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                         }
                                     } while (index > 0);
                                 }
-                                if (http[config_http.method] === undefined) {
+                                if (http[config_http.method.toLowerCase() as type_http_method_function] === undefined) {
                                     // unsupported HTTP methods result in socket destruction
                                     socket.destroy();
                                 } else {
-                                    http[config_http.method](config_http, socket);
+                                    http[config_http.method.toLowerCase() as type_http_method_function](config_http, socket);
                                     if (server.single_socket === true) {
                                         const terminate = function transmit_connection_handshake_localService_httpAction_terminate(this:websocket_client):void {
                                             this.destroy();
@@ -457,6 +458,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     host: socket.addresses.local.address,
                     host_index: config_http.host_index,
                     identifier: config_http.origin,
+                    method: null,
                     port: vars.data.server[server_id].ports.secure,
                     resource: config_http.headers[0].replace(/\u0020+/g, " ").split(" ")[1],
                     server_hash: server_id,
@@ -468,6 +470,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
             } else {
                 let domain:string = "",
                     encryption:boolean = false,
+                    method:type_http_method | "",
                     port:number = 0,
                     resource:string = "";
                 const resource_stat = function transmit_connection_handshake_resourceStat(incoming:string, callback:() => void):void {
@@ -581,6 +584,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         host: domain,
                         host_index: config_http.host_index,
                         identifier: "",
+                        method: null,
                         port: port,
                         resource: resource,
                         server_hash: server_id,
@@ -617,6 +621,10 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 }
                                 if (server.proxy[index].incoming.domain === config_http.domain) {
                                     domain = config_http.domain;
+                                    count = count + 1;
+                                }
+                                if (typeof server.proxy[index].incoming.method === "string" && server.proxy[index].incoming.method.toLowerCase() === config_http.method.toLowerCase()) {
+                                    method = config_http.method;
                                     count = count + 1;
                                 }
                                 if (server.proxy[index].incoming.encryption === "both" || (server.proxy[index].incoming.encryption === config_http.encryption)) {
@@ -658,6 +666,9 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     encryption = (outgoing.encryption === "secure" || (outgoing.encryption === "both" && socket.encrypted === true))
                                         ? true
                                         : false;
+                                    method = (typeof outgoing.method === "string" && outgoing.method !== "" as type_http_method)
+                                        ? outgoing.method
+                                        : "";
                                     port = (typeof outgoing.port === "number" && outgoing.port > 0 && outgoing.port < 65536)
                                         ? outgoing.port
                                         : 0;
@@ -682,6 +693,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                         host: domain,
                                         host_index: config_http.host_index,
                                         identifier: "",
+                                        method: method,
                                         port: port,
                                         resource: resource,
                                         server_hash: server_id,

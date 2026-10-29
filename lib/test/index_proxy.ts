@@ -119,6 +119,19 @@ const index_proxy = function test_indexProxy():void {
                             encryption: "secure",
                             resource: "/"
                         }
+                    },
+                    {
+                        "description": "Redirect to encrypted google from method POST to method GET",
+                        incoming: {
+                            method: "POST",
+                            resource: "/google_7/*"
+                        },
+                        outgoing: {
+                            domain: "google.com/",
+                            encryption: "secure",
+                            method: "GET",
+                            resource: "/"
+                        }
                     }
                 ],
                 redirect_asset: {

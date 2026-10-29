@@ -50,9 +50,14 @@ interface supplemental_dns_callback {
 
 interface supplemental_http {
     connect: type_http_action;
+    // delete: type_http_action;
     get: type_http_action;
     head: type_http_action;
     options: type_http_action;
+    // query: type_http_action;
+    // patch: type_http_action;
+    // post: type_http_action;
+    // put: type_http_action;
     trace: type_http_action;
 }
 
@@ -119,6 +124,7 @@ interface supplemental_server_proxy {
 interface supplemental_server_proxy_identity {
     domain?: string;
     encryption?: "both" | "open" | "secure";
+    method?: type_http_method;
     port?: number;
     resource?: string;
 }

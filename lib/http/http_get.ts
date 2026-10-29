@@ -15,7 +15,7 @@ import vars from "../core/vars.ts";
 const http_get:type_http_action = function http_get(config:config_http, socket:websocket_client):void {
     const server_id:string = socket.server_hash,
         payload = function http_get_payload(heading:string[], body:string):string {
-            if (config.method === "head") {
+            if (config.method.toLowerCase() === "head") {
                 return heading.join("\r\n");
             }
             return heading.join("\r\n") + body;
@@ -193,7 +193,7 @@ const http_get:type_http_action = function http_get(config:config_http, socket:w
                     "accept-ranges: bytes",
                     ""
                 ];
-                if (config.method === "head") {
+                if (config.method.toLowerCase() === "head") {
                     http_write(socket, headerText.join("\r\n"), true);
                 } else {
                     let stream:node_fs_ReadStream = null;
@@ -312,9 +312,9 @@ const http_get:type_http_action = function http_get(config:config_http, socket:w
                 "",
                 ""
             ];
-            if (config.method === "get") {
+            if (config.method.toLowerCase() === "get") {
                 http_write(socket, headers.join("\r\n") + vars.environment.dashboard_page, true);
-            } else if (config.method === "head") {
+            } else if (config.method.toLowerCase() === "head") {
                 http_write(socket, headers.join("\r\n"), true);
             }
             return;

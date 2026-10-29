@@ -228,6 +228,40 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                     value: false
                 }
             ]
+        },
+        {
+            name: "Redirect POST method for google to GET at google",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "POST",
+                port: "server_0",
+                resource: "/google_7",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "lesser",
+                    value: 1e3
+                },
+                {
+                    property: "encrypted_proxy",
+                    qualifier: "is",
+                    value: true
+                },
+                {
+                    property: "encrypted_self",
+                    qualifier: "is",
+                    value: false
+                }
+            ]
         }
     ];
     list_proxy.name = "proxy object";
