@@ -83,66 +83,59 @@ const ui_shared_services = function ui_shared_services():void {
                     label:HTMLElement = document.createElement("label"),
                     textArea:HTMLTextAreaElement = document.createElement("textarea"),
                     span:HTMLElement = document.createElement("span"),
+                    step:string = "\u0020\u0020\u0020\u0020",
                     value:string = (dashboard.global.section === "servers-web")
                         ? (function dashboard_shareServices_details_serversWeb():string {
                             const array = function dashboard_shareServices_details_serversWeb_array(indent:boolean, name:string, property:supplemental_server_proxy[]|string[]):void {
                                     const ind:string = (indent === true)
-                                        ? "    "
+                                        ? step
                                         : "";
                                     if (property === null || property === undefined || property.length < 1) {
                                         output.push(`${ind}"${name}": [],`);
                                     } else {
-                                        if (name === "proxy") {
-                                            output.push(`"${name}": [`);
-                                        } else {
-                                            output.push(`${ind}"${name}": [`);
-                                        }
+                                        output.push(`${ind}"${name}": [`);
                                         if (name === "proxy") {
                                             const proxy_rules = function dashboard_shareServices_details_serversWeb_array_proxyRules(value:supplemental_server_proxy, key:"incoming"|"outgoing"):void {
                                                 const final_comma:string = (key === "incoming")
                                                     ? ","
                                                     : "";
-                                                output.push(`${ind + ind}"${key}": {`);
+                                                output.push(`${step + step}"${key}": {`);
                                                 if (value[key].domain !== undefined) {
-                                                    output.push(`${ind + ind + ind}"domain": "${value[key].domain}",`);
+                                                    output.push(`${step + step + step}"domain": "${value[key].domain}",`);
                                                 }
                                                 if (value[key].encryption !== undefined) {
-                                                    output.push(`${ind + ind + ind}"encryption": ${value[key].encryption},`);
+                                                    output.push(`${step + step + step}"encryption": ${value[key].encryption},`);
                                                 }
                                                 if (value[key].method !== undefined) {
-                                                    output.push(`${ind + ind + ind}"method": "${value[key].method}",`);
+                                                    output.push(`${step + step + step}"method": "${value[key].method}",`);
                                                 }
                                                 if (value[key].port !== undefined) {
-                                                    output.push(`${ind + ind + ind}"port": ${value[key].port},`);
+                                                    output.push(`${step + step + step}"port": ${value[key].port},`);
                                                 }
                                                 if (value[key].resource !== undefined) {
-                                                    output.push(`${ind + ind + ind}"resource": "${value[key].resource}"`);
+                                                    output.push(`${step + step + step}"resource": "${value[key].resource}"`);
                                                 }
-                                                if (output[output.length - 1] === `${ind + ind}"${key}": {`) {
-                                                    output[output.length - 1] = `${ind + ind}"${key}": {}${final_comma}`;
+                                                if (output[output.length - 1] === `${step + step}"${key}": {`) {
+                                                    output[output.length - 1] = `${step + step}"${key}": {}${final_comma}`;
                                                 } else {
                                                     output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
-                                                    output.push(`${ind + ind}}${final_comma}`);
+                                                    output.push(`${step + step}}${final_comma}`);
                                                 }
                                             };
                                             (property as supplemental_server_proxy[]).forEach(function dashboard_shareServices_details_serversWeb_array_eachProxy(value:supplemental_server_proxy):void {
-                                                output.push(`${ind}{`);
-                                                output.push(`${ind + ind}"description": "${value.description}",`);
+                                                output.push(`${step}{`);
+                                                output.push(`${step + step}"description": "${value.description}",`);
                                                 proxy_rules(value, "incoming");
                                                 proxy_rules(value, "outgoing");
-                                                output.push(`${ind}},`);
+                                                output.push(`${step}},`);
                                             });
                                         } else {
                                             (property as string[]).forEach(function dashboard_shareServices_details_serversWeb_array_eachString(value:string):void {
-                                                output.push(`${ind}    "${sanitize(value)}",`);
+                                                output.push(`${ind + step}"${sanitize(value)}",`);
                                             });
                                         }
                                         output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
-                                        if (name === "proxy") {
-                                            output.push("],");
-                                        } else {
-                                            output.push(`${ind}],`);
-                                        }
+                                        output.push(`${ind}],`);
                                     }
                                 },
                                 object = function dashboard_shareServices_details_serversWeb_object(property:"redirect_asset"|"redirect_domain"):void {
@@ -244,9 +237,9 @@ const ui_shared_services = function ui_shared_services():void {
                             }
                             if (serverData.certificate_path === null || serverData.certificate_path === undefined) {
                                 output.push("\"certificate_path\": {");
-                                output.push(`    "ca": "${server_path}certs${dashboard.global.payload.path.sep}int.crt",`.replace(/\\/g, "\\\\"));
-                                output.push(`    "cert": "${server_path}certs${dashboard.global.payload.path.sep}server.crt",`.replace(/\\/g, "\\\\"));
-                                output.push(`    "key": "${server_path}certs${dashboard.global.payload.path.sep}server.key"`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"ca": "${server_path}certs${dashboard.global.payload.path.sep}int.crt",`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"cert": "${server_path}certs${dashboard.global.payload.path.sep}server.crt",`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"key": "${server_path}certs${dashboard.global.payload.path.sep}server.key"`.replace(/\\/g, "\\\\"));
                                 output.push("},");
                                 dashboard.global.payload.server[serverData.id].config.certificate_path = {
                                     ca: `${server_path}certs${dashboard.global.payload.path.sep}int.crt`,
@@ -255,9 +248,9 @@ const ui_shared_services = function ui_shared_services():void {
                                 };
                             } else {
                                 output.push("\"certificate_path\": {");
-                                output.push(`    "ca": "${serverData.certificate_path.ca}",`.replace(/\\/g, "\\\\"));
-                                output.push(`    "cert": "${serverData.certificate_path.cert}",`.replace(/\\/g, "\\\\"));
-                                output.push(`    "key": "${serverData.certificate_path.key}"`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"ca": "${serverData.certificate_path.ca}",`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"cert": "${serverData.certificate_path.cert}",`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"key": "${serverData.certificate_path.key}"`.replace(/\\/g, "\\\\"));
                                 output.push("},");
                             }
                             array(false, "domain_local", serverData.domain_local);
@@ -285,19 +278,19 @@ const ui_shared_services = function ui_shared_services():void {
                             }
                             output.push("\"ports\": {");
                             if (serverData.encryption === "both") {
-                                output.push(`    "open": ${serverData.ports.open},`);
-                                output.push(`    "secure": ${serverData.ports.secure}`);
+                                output.push(`${step}"open": ${serverData.ports.open},`);
+                                output.push(`${step}"secure": ${serverData.ports.secure}`);
                             } else if (serverData.encryption === "open") {
-                                output.push(`    "open": ${serverData.ports.open}`);
+                                output.push(`${step}"open": ${serverData.ports.open}`);
                             } else {
-                                output.push(`    "secure": ${serverData.ports.secure}`);
+                                output.push(`${step}"secure": ${serverData.ports.secure}`);
                             }
                             output.push("},");
                             if (serverData.proxy !== undefined) {
                                 if (serverData.proxy === null) {
                                     output.push("\"proxy\": null,");
                                 } else {
-                                    array(true, "proxy", serverData.proxy);
+                                    array(false, "proxy", serverData.proxy);
                                 }
                             }
                             if (serverData.redirect_asset !== undefined && serverData.redirect_asset !== null) {
@@ -326,7 +319,7 @@ const ui_shared_services = function ui_shared_services():void {
                                 output.push("\"upgrade\": false");
                             }
                             output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
-                            return `${output.join("\n    ")}\n}`;
+                            return `${output.join("\n\u0020\u0020\u0020\u0020")}\n}`;
                         }())
                         : (newFlag === true || dashboard.global.payload.compose === null)
                             ? ""
