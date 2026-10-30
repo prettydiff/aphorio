@@ -1,80 +1,103 @@
 
+// changes to this module list must be reflected in the equivalent string in file:
 import log from "./core/log.ts";
 import node from "./core/node.ts";
 import screenshots from "./utilities/screenshots.ts";
-import start_application from "./utilities/start_application.ts";
+import start from "./start/index.ts";
 import vars from "./core/vars.ts";
 
-vars.path.sep = node.path.sep;
+function index():void {
+    vars.path.sep = node.path.sep;
 
-{
-    let process_path:string = "",
-        index:number = process.argv.length,
-        colonIndex:number = null,
-        arg:string = null,
-        value:string = null,
-        numb:number = null;
-    if (vars.commands === undefined) {
-        log.shell([`Operating system type ${process.platform} is not yet supported.`]);
-        process.exit(1);
-    }
-    do {
-        index = index - 1;
-        if (process.argv[index].includes(`${vars.path.sep}node`) === true && vars.path.node === "") {
-            vars.path.node = process.argv[index];
-        } else if (process.argv[index].includes(`${vars.path.sep}lib${vars.path.sep}index.ts`) === true && vars.path.project === "") {
-            process_path = process.argv[index].replace(`lib${vars.path.sep}index.ts`, "");
-        } else {
-            colonIndex = process.argv[index].indexOf(":");
-            arg = (colonIndex > 0)
-                ? process.argv[index].slice(0, colonIndex).toLowerCase().replace(/^--/, "")
-                : process.argv[index].toLowerCase().replace(/^--/, "");
-            if (vars.options[arg as "test"] !== undefined || vars.options[arg.slice(0, arg.indexOf(":")) as "test"] !== undefined) {
+    {
+        let process_path:string = "",
+            index:number = process.argv.length,
+            colonIndex:number = null,
+            arg:type_options = null,
+            value:string = null;
+        const modes:type_mode[] = ["certificate", "demo", "server", "test-browser", "test-proxy"],
+            assign = function index_assign(key:type_options, value:string):void {
+                if (key === "feature") {
+                    if (vars.environment.features[value as type_dashboard_features] !== undefined) {
+                        vars.options.feature = value as type_dashboard_features;
+                    }
+                } else if (key === "mode" && modes.includes(value as type_mode) === true) {
+                    vars.options.mode = value as type_mode;
+                } else if (typeof vars.options[key] === "number") {
+                    const numb:number = Number(value);
+                    if (isNaN(numb) === false) {
+                        const int:number = Math.floor(numb);
+                        if (
+                            ((key === "port-open" || key === "port-secure") && int > -1 && int < 65536) ||
+                            (key !== "port-open" && key !== "port-secure")
+                        ) {
+                            vars.options[key as "delay-intervals"] = int;
+                        }
+                    }
+                } else if (typeof vars.options[key] === "string" && typeof value === "string") {
+                    vars.options[key as "list"] = value;
+                } else if (typeof vars.options[key] === "boolean") {
+                    if (value === null || value === "true") {
+                        vars.options[key as "no-color"] = true;
+                    } else if (value === "false") {
+                        vars.options[key as "no-color"] = false;
+                    }
+                }
+            };
+        if (vars.commands === undefined) {
+            log.shell([`Operating system type ${process.platform} is not yet supported.`]);
+            process.exit(1);
+        }
+        do {
+            index = index - 1;
+            if (process.argv[index].includes(`${vars.path.sep}node`) === true && vars.path.node === "") {
+                vars.path.node = process.argv[index];
+            } else if (process.argv[index].includes(`${vars.path.sep}lib${vars.path.sep}index.ts`) === true && vars.path.project === "") {
+                process_path = process.argv[index].replace(`lib${vars.path.sep}index.ts`, "");
+            } else {
+                colonIndex = process.argv[index].indexOf(":");
+                arg = (colonIndex > 0)
+                    ? process.argv[index].slice(0, colonIndex).toLowerCase().replace(/^--/, "") as type_options
+                    : process.argv[index].toLowerCase().replace(/^--/, "") as type_options;
                 value = (colonIndex > 0)
                     ? process.argv[index].slice(colonIndex + 1)
                     : null;
-                numb = Number(value);
-                if (arg.indexOf("browser") === 0) {
-                    vars.options["browser"] = value;
-                } else if (arg.indexOf("delay-intervals") === 0 && isNaN(numb) === false) {
-                    vars.options["delay-intervals"] = Math.floor(numb);
-                } else if (arg.indexOf("delay-time") === 0 && isNaN(numb) === false) {
-                    vars.options["delay-time"] = Math.floor(numb);
-                } else if (arg.indexOf("list") === 0) {
-                    vars.options["list"] = value;
-                } else if (arg.indexOf("port-open") === 0 && isNaN(numb) === false && numb > 0 && numb < 65536) {
-                    vars.options["port-open"] = Math.floor(numb);
-                } else if (arg.indexOf("port-secure") === 0 && isNaN(numb) === false && numb > 0 && numb < 65536) {
-                    vars.options["port-secure"] = Math.floor(numb);
-                } else {
-                    vars.options[arg as "test"] = true;
+                if (vars.options[arg as type_options] !== undefined) {
+                    assign(arg, value);
+                } else if (modes.includes(arg as type_mode) === true) {
+                    vars.options.mode = arg as type_mode;
                 }
             }
-        }
-    } while (index > 0);
-    if (vars.options.test === true) {
-        vars.test.testing = true;
-    }
-
-    vars.path.project = (vars.test.testing === true)
-        ? `${process_path}test${vars.path.sep}`
-        : process_path;
-    vars.path.compose_empty = `${process_path}compose${vars.path.sep}empty.yml`;
-    vars.path.compose = `${vars.path.project}compose${vars.path.sep}`;
-    vars.path.servers = `${vars.path.project}servers${vars.path.sep}`;
-    vars.commands.compose_empty = `${vars.commands.compose} -f ${vars.path.compose_empty}`;
-
-    if (vars.options["no-color"] === true) {
-        const keys:string[] = Object.keys(vars.text);
-        index = keys.length;
-        do {
-            index = index - 1;
-            vars.text[keys[index]] = "";
         } while (index > 0);
-    }
-    if (process.argv.includes("screenshot") === true || process.argv.includes("screenshots") === true) {
-        screenshots();
-    } else {
-        start_application(process_path);
+        if (vars.options.mode === "test-browser" || vars.options.mode === "test-proxy") {
+            vars.test.testing = true;
+        } else if (vars.options.feature !== "") {
+            vars.options.mode = "shell";
+        }
+
+        vars.path.project = (vars.test.testing === true)
+            ? `${process_path}test${vars.path.sep}`
+            : process_path;
+        vars.path.compose_empty = `${process_path}compose${vars.path.sep}empty.yml`;
+        vars.path.compose = `${vars.path.project}compose${vars.path.sep}`;
+        vars.path.servers = `${vars.path.project}servers${vars.path.sep}`;
+        vars.commands.compose_empty = `${vars.commands.compose} -f ${vars.path.compose_empty}`;
+
+        if (vars.options["no-color"] === true) {
+            const keys:string[] = Object.keys(vars.text);
+            index = keys.length;
+            do {
+                index = index - 1;
+                vars.text[keys[index]] = "";
+            } while (index > 0);
+        }
+        if (process.argv.includes("screenshot") === true || process.argv.includes("screenshots") === true) {
+            screenshots();
+        } else {
+            start(process_path);
+        }
     }
 }
+index();
+
+export default index;

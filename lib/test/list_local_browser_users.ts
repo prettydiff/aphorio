@@ -1,13 +1,13 @@
 
 import vars from "../core/vars.ts";
 
-const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_list {
-    const list:test_list = [
+const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "users", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "users", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -18,22 +18,21 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 3],
-                        ["getElementsByTagName", "button", 5]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 3],
+                        ["tag", "button", 5]
                     ]
                 }
             ],
             name: "Navigate to users",
-            type: "dom",
             unit: []
         },
         {
             delay: {
                 node: [
-                    ["getElementById", "users", null],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", null]
+                    ["id", "users", null],
+                    ["tag", "tbody", 0],
+                    ["tag", "tr", null]
                 ],
                 qualifier: "greater",
                 store: true,
@@ -43,14 +42,13 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
             },
             interaction: [],
             name: "Check if users table is populated",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "users", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 0]
+                        ["id", "users", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent", "typeof"],
@@ -59,10 +57,10 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "users", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 1]
+                        ["id", "users", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 1]
                     ],
                     qualifier: "greater",
                     target: ["textContent"],
@@ -71,10 +69,10 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "users", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "users", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "greater",
                     target: ["data-raw"],
@@ -83,10 +81,10 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "users", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 3]
+                        ["id", "users", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 3]
                     ],
                     qualifier: "greater",
                     target: ["data-raw"],
@@ -95,10 +93,10 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "users", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 4]
+                        ["id", "users", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 4]
                     ],
                     qualifier: "is",
                     target: ["textContent", "typeof"],
@@ -113,26 +111,26 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "users", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "users", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "users", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "users", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "system"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "users", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "users", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "Enter"
                 },
@@ -143,13 +141,12 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
                 }
             ],
             name: "Filter users",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "users", null],
-                        ["getElementsByClassName", "table-stats", 0],
-                        ["getElementsByTagName", "em", 1]
+                        ["id", "users", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "em", 1]
                     ],
                     qualifier: "lesser",
                     target: ["textContent"],
@@ -160,6 +157,7 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
         }
     ];
     list.name = "Local browser tests - users";
+    list.type = "dom";
     return list;
 };
 

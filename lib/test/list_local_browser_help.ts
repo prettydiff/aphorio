@@ -1,12 +1,12 @@
 
 
-const test_listLocalBrowserHelp = function test_listLocalBrowserHelp():test_list {
-    const list:test_list = [
+const test_listLocalBrowserHelp = function test_listLocalBrowserHelp():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "help", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "help", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -17,18 +17,18 @@ const test_listLocalBrowserHelp = function test_listLocalBrowserHelp():test_list
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 6],
-                        ["getElementsByTagName", "button", 3]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 6],
+                        ["tag", "button", 3]
                     ]
                 }
             ],
             name: "Navigate to help",
-            type: "dom",
             unit: []
         }
     ];
     list.name = "Local browser tests - help";
+    list.type = "dom";
     return list;
 };
 

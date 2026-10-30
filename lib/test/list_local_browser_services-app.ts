@@ -1,12 +1,12 @@
 
 
-const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesApp():test_list {
-    const list:test_list = [
+const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesApp():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "services-app", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "services-app", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -17,19 +17,18 @@ const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesA
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 6],
-                        ["getElementsByTagName", "button", 1]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 6],
+                        ["tag", "button", 1]
                     ]
                 }
             ],
             name: "Navigate to services-app",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "services-app", null],
-                        ["getElementsByTagName", "h3", 0]
+                        ["id", "services-app", null],
+                        ["tag", "h3", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -38,8 +37,8 @@ const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesA
                 },
                 {
                     node: [
-                        ["getElementById", "services-app", null],
-                        ["getElementsByTagName", "h3", 1]
+                        ["id", "services-app", null],
+                        ["tag", "h3", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -48,8 +47,8 @@ const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesA
                 },
                 {
                     node: [
-                        ["getElementById", "services-app", null],
-                        ["getElementsByTagName", "h4", 0]
+                        ["id", "services-app", null],
+                        ["tag", "h4", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -58,8 +57,8 @@ const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesA
                 },
                 {
                     node: [
-                        ["getElementById", "services-app", null],
-                        ["getElementsByTagName", "h4", 1]
+                        ["id", "services-app", null],
+                        ["tag", "h4", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -70,6 +69,7 @@ const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesA
         }
     ];
     list.name = "Local browser tests - services_app";
+    list.type = "dom";
     return list;
 };
 

@@ -1,39 +1,43 @@
 
 interface test_assert {
     assessment: string;
+    error: node_error;
     location: string;
     pass: boolean;
     store: boolean;
-    value: test_primitive;
+    value: type_test_primitive;
 }
 
-interface test_assertion_command {
+interface test_assertion_base {
+    nullable?: boolean;
+    qualifier: type_test_qualifier;
+    store?: boolean;
+    value: type_test_primitive | type_test_primitive[];
+}
+
+interface test_assertion_command extends test_assertion_base {
     format?: "csv" | "json" | "lines" | "string";
-    nullable?: boolean;
     properties?: (number|string)[];
-    qualifier: test_qualifier;
-    store?: boolean;
     type: "stderr" | "stdout";
-    value: test_primitive;
 }
 
-interface test_assertion_dom {
+interface test_assertion_dom extends test_assertion_base {
     node: test_browserDOM;
-    nullable?: boolean;
-    qualifier: test_qualifier;
-    store?: boolean;
     target: string[];
     type: "attribute" | "element" | "property";
-    value: test_primitive | test_primitive[];
 }
 
-interface test_browserDOM extends Array<type_browserDOM> {
+interface test_assertion_proxy extends test_assertion_base {
+    property: "chunked" | "chunks" | "encrypted_proxy" | "encrypted_self" | "error" | "response_body_raw" | "response_headers" | "url";
+}
+
+interface test_browserDOM extends Array<type_test_browserDOM> {
     nodeString?: string;
 }
 
 interface test_browserEvent {
     coords?: [number, number];
-    event: test_eventName;
+    event: type_test_eventName;
     node: test_browserDOM;
     value?: string;
 }
@@ -84,7 +88,7 @@ interface test_counts {
 
 interface test_event {
     coords?: [number, number];
-    event: test_eventName;
+    event: type_test_eventName;
     node: test_browserDOM;
     value?: string;
 }
@@ -93,23 +97,54 @@ interface test_item_dom {
     delay?: test_assertion_dom;
     interaction: test_event[];
     name: string;
-    type: "dom";
     unit: test_assertion_dom[];
 }
 
-interface test_list extends Array<test_item_dom> {
+interface test_item_proxy {
+    name: string;
+    request: {
+        body: string;
+        encryption: boolean;
+        host: string;
+        method: string;
+        port?: number | string;
+        resource: string;
+        timeout?: number;
+    };
+    unit: test_assertion_proxy[];
+}
+
+interface test_list_dom extends Array<test_item_dom> {
     name?: string;
+    type?: type_test_type;
+}
+
+interface test_list_proxy extends Array<test_item_proxy> {
+    name?: string;
+    type?: type_test_type;
+}
+
+interface test_list_proxy_properties {
+    id_1: string;
+    id_2: string;
+    name: string;
+    port_1_open: number;
+    port_1_secure: number;
+    port_2_open: number;
+    port_2_secure: number;
+    type: type_test_type;
 }
 
 interface test_runner {
     assert: {
-        [key:string]: (value:string, unit:test_assertion_command|test_assertion_dom, location:string) => test_assert;
+        [key:string]: (value:type_test_primitive, unit:test_assertion_command|test_assertion_proxy, location:string) => test_assert;
     };
     count: number;
     execution: {
         dom: () => void;
+        proxy: () => void;
     };
-    list: (list:test_list, callback:(name:string) => void) => void;
+    list: (list:test_list_dom|test_list_proxy, callback:(name:string) => void) => void;
     logger: (assertions:test_assert[]) => void;
     logs: string[];
     receive: (socket_data:socket_data) => void;
@@ -117,7 +152,8 @@ interface test_runner {
     tools: {
         browser_open: () => void;
         callback: (name:string) => void;
-        get_value: (value_actual:test_primitive, value_test:test_primitive|test_primitive[]) => test_primitive;
+        get_socket: (callback:() => void) => void;
+        get_value: (value_actual:type_test_primitive, value_test:type_test_primitive|type_test_primitive[]) => type_test_primitive;
         next: () => void;
         time: () => string;
     };

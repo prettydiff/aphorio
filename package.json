@@ -4,7 +4,6 @@
     "bugs": {
         "url": "https://github.com/prettydiff/aphorio/issues"
     },
-    "command": "share",
     "cspell": {
         "dictionaryDefinitions": [
             {
@@ -42,11 +41,11 @@
     "scripts": {
         "server-bun": "bun ./lib/index.ts",
         "server-node": "node ./lib/index.ts",
-        "test-bun":   "bun ./lib/index.ts test",
-        "test-node":   "node ./lib/index.ts test",
+        "test-bun":   "bun ./lib/index.ts mode:test-browser",
+        "test-node":   "node ./lib/index.ts mode:test-browser",
         "tsc":    "node ./node_modules/typescript/bin/tsc --pretty"
     },
     "types": "/lib/typescript",
     "type": "module",
-    "version": "0.6.6"
+    "version": "0.7.0"
 }

@@ -25,8 +25,10 @@ const directory = function utilities_directory(args:config_directory):void {
     // 5. alternate path, such as a relative path
     // * property "failures" is a list of file paths that could not be read or opened
     let dir_start:boolean = false;
-    const output:core_directory_list = [],
-        failures:string[] = [],
+    const output:core_directory_list = Object.assign([], {
+            failures: [],
+            parent: null
+        }),
         sep:string = node.path.sep,
         driveSize:store_number = {},
         dir_store:store_number = {},
@@ -85,36 +87,40 @@ const directory = function utilities_directory(args:config_directory):void {
                                 : item[0].replace(args.path, "").split(sep),
                             name:string = dirs.pop();
                         if (search_type === "regex" && search_reg.test(name) === true) {
-                            list.push(item);
+                            search_list.push(item);
                         }
                         if (search_type === "negation" && name.includes(search_value) === false) {
-                            list.push(item);
+                            search_list.push(item);
                         }
                         if (search_type === "fragment" && name.includes(search_value) === true) {
-                            list.push(item);
+                            search_list.push(item);
                         }
                     },
-                    list:core_directory_list = [];
+                    search_list:core_directory_list = Object.assign([], {
+                        failures: null,
+                        parent: null
+                    });
                 let index:number = 0;
                 do {
                     include(output[index]);
                     index = index + 1;
                 } while (index < len);
-                list.failures = failures;
-                list.parent = output[0];
-                args.callback(list);
+                search_list.failures = output.failures;
+                search_list.parent = output[0];
+                args.callback(search_list);
                 return;
             }
-            output.failures = failures;
             output.parent = parent;
             args.callback(output);
         },
         fail = function utilities_directory_fail(error:node_error, path:string, parent:number):void {
             if (error !== null && path !== null) {
-                failures.push(`${error.code} - ${path}`);
+                output.failures.push(`${error.code} - ${path}`);
             }
             if (output.length > 0) {
                 counter(parent);
+            } else {
+                complete(null);
             }
         },
         add_item = function utilities_directory_addItem(item:type_directory_item):void {
@@ -193,7 +199,7 @@ const directory = function utilities_directory(args:config_directory):void {
         stat_wrap = function utilities_directory_statWrap(path:string, parent_item:boolean, parent_index:number):void {
             method(path, function utilities_directory_statWrap_stat(ers:node_error, stat:node_fs_Stats):void {
                 if (ers === null) {
-                    const populate = function utilities_directory_statWrap_stat_populate(type:"block_device"|"character_device"|"directory"|"fifo_pipe"|"file"|"socket"|"symbolic_link"):void {
+                    const populate = function utilities_directory_statWrap_stat_populate(type:type_file):void {
                         const stat_obj:core_directory_data = {
                                 atimeMs: stat.atimeMs,
                                 ctimeMs: stat.ctimeMs,
@@ -273,7 +279,7 @@ const directory = function utilities_directory(args:config_directory):void {
                                         }
                                     }, {
                                         cwd: path,
-                                        shell: (process.platform === "win32")
+                                        shell: (process.platform === "win32" || process.platform === "cygwin")
                                             ? "powershell"
                                             : "bash"
                                     }).execute();
@@ -350,7 +356,7 @@ const directory = function utilities_directory(args:config_directory):void {
                 }
             }, {
                 error: function utilities_directory_indowsRootError(erw:node_childProcess_ExecException):void {
-                    failures.push(`${erw.code} - \\`);
+                    output.failures.push(`${erw.code} - \\`);
                     complete(null);
                 },
                 shell: "powershell"

@@ -115,10 +115,10 @@ const ui_statistics_resources = function ui_statistics_resources():void {
             dashboard.sections["statistics-resources"].nodes.graph_display.onchange = dashboard.sections["statistics-resources"].events.change_display;
             dashboard.sections["statistics-resources"].nodes.graph_type.onchange = dashboard.sections["statistics-resources"].events.change_type;
             dashboard.sections["statistics-resources"].nodes.graph_display.selectedIndex = (dashboard.global.state.graph_display === null || dashboard.global.state.graph_display === undefined)
-                ? 0
+                ? 1
                 : dashboard.global.state.graph_display;
             dashboard.sections["statistics-resources"].nodes.graph_type.selectedIndex = (dashboard.global.state.graph_type === null || dashboard.global.state.graph_type === undefined)
-                ? 0
+                ? 1
                 : dashboard.global.state.graph_type;
             dashboard.sections["statistics-resources"].nodes.graphs.setAttribute("data-type", dashboard.sections["statistics-resources"].nodes.graph_display.value);
             dashboard.sections["statistics-resources"].nodes.records.onblur = dashboard.sections["statistics-resources"].events.definitions;

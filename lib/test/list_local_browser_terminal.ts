@@ -1,12 +1,12 @@
 
 
-const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():test_list {
-    const list:test_list = [
+const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "terminal", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "terminal", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -17,19 +17,18 @@ const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():t
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 4],
-                        ["getElementsByTagName", "button", 0]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 4],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
             name: "Navigate to terminal",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "terminal", null],
-                        ["getElementsByClassName", "terminal-output", 0]
+                        ["id", "terminal", null],
+                        ["class", "terminal-output", 0]
                     ],
                     qualifier: "contains",
                     target: ["data-info"],
@@ -38,8 +37,8 @@ const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():t
                 },
                 {
                     node: [
-                        ["getElementById", "terminal", null],
-                        ["getElementsByClassName", "terminal-output", 0]
+                        ["id", "terminal", null],
+                        ["class", "terminal-output", 0]
                     ],
                     qualifier: "contains",
                     target: ["data-info"],
@@ -48,8 +47,8 @@ const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():t
                 },
                 {
                     node: [
-                        ["getElementById", "terminal", null],
-                        ["getElementsByClassName", "terminal-output", 0]
+                        ["id", "terminal", null],
+                        ["class", "terminal-output", 0]
                     ],
                     qualifier: "contains",
                     target: ["data-info"],
@@ -58,8 +57,8 @@ const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():t
                 },
                 {
                     node: [
-                        ["getElementById", "terminal", null],
-                        ["getElementsByClassName", "terminal-output", 0]
+                        ["id", "terminal", null],
+                        ["class", "terminal-output", 0]
                     ],
                     qualifier: "contains",
                     target: ["data-info"],
@@ -68,8 +67,8 @@ const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():t
                 },
                 {
                     node: [
-                        ["getElementById", "terminal", null],
-                        ["getElementsByClassName", "terminal-output", 0]
+                        ["id", "terminal", null],
+                        ["class", "terminal-output", 0]
                     ],
                     qualifier: "contains",
                     target: ["data-info"],
@@ -80,6 +79,7 @@ const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():t
         }
     ];
     list.name = "Local browser tests - terminal";
+    list.type = "dom";
     return list;
 };
 

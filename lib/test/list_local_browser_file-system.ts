@@ -1,13 +1,13 @@
 
 import vars from "../core/vars.ts";
 
-const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem():test_list {
-    const list:test_list = [
+const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "file-system", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "file-system", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -18,23 +18,22 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 4],
-                        ["getElementsByTagName", "button", 1]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 4],
+                        ["tag", "button", 1]
                     ]
                 }
             ],
             name: "Navigate to file-system",
-            type: "dom",
             unit: []
         },
         {
             delay: {
                 node: [
-                    ["getElementById", "file-system", null],
-                    ["getElementsByClassName", "file-list", 0],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", null]
+                    ["id", "file-system", null],
+                    ["class", "file-list", 0],
+                    ["tag", "tbody", 0],
+                    ["tag", "tr", null]
                 ],
                 qualifier: "greater",
                 target: ["length"],
@@ -45,47 +44,46 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: vars.path.project.replace(`${vars.path.sep}test`, "").replace(/(\\|\/)$/, "")
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "Enter"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "Enter"
                 }
             ],
             name: "Navigate to project path",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", null]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", null]
                     ],
                     qualifier: "is",
                     target: ["length"],
@@ -94,9 +92,9 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     qualifier: "ends",
                     target: ["value"],
@@ -105,9 +103,9 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -116,9 +114,9 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -127,10 +125,10 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "select", 0],
-                        ["getElementsByTagName", "option", null]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "select", 0],
+                        ["tag", "option", null]
                     ],
                     qualifier: "is",
                     target: ["length"],
@@ -139,10 +137,10 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", null]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", null]
                     ],
                     qualifier: "greater",
                     target: ["length"],
@@ -151,9 +149,9 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -162,9 +160,9 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -173,9 +171,9 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "select", 0]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "select", 0]
                     ],
                     qualifier: "is",
                     target: ["selectedIndex"],
@@ -184,9 +182,9 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "select", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "select", 1]
                     ],
                     qualifier: "is",
                     target: ["selectedIndex"],
@@ -195,11 +193,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["lastChild", "textContent"],
@@ -208,11 +206,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 1],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 1],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["lastChild", "textContent"],
@@ -221,11 +219,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 2],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 2],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["lastChild", "textContent"],
@@ -234,11 +232,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 2],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 2],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -247,11 +245,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 3],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 3],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -263,9 +261,9 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
         {
             delay: {
                 node: [
-                    ["getElementById", "file-system", null],
-                    ["getElementsByClassName", "section", 0],
-                    ["getElementsByClassName", "file-system-failures", 0]
+                    ["id", "file-system", null],
+                    ["class", "section", 0],
+                    ["class", "file-system-failures", 0]
                 ],
                 qualifier: "is",
                 target: ["textContent"],
@@ -276,67 +274,66 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "1"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ],
                     value: "index"
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ],
                     value: "Enter"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ],
                     value: "Enter"
                 }
             ],
             name: "Search for 'index' at depth '1'",
-            type: "dom",
             unit: []
         },
         {
             delay: {
                 node: [
-                    ["getElementById", "file-system", null],
-                    ["getElementsByClassName", "file-list", 0],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", null]
+                    ["id", "file-system", null],
+                    ["class", "file-list", 0],
+                    ["tag", "tbody", 0],
+                    ["tag", "tr", null]
                 ],
                 qualifier: "is",
                 target: ["length"],
@@ -347,49 +344,48 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "2"
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "Enter"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "Enter"
                 }
             ],
             name: "Search for 'index' at depth '2'",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["lastChild", "textContent"],
@@ -398,11 +394,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 1],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 1],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["lastChild", "textContent"],
@@ -414,10 +410,10 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
         {
             delay: {
                 node: [
-                    ["getElementById", "file-system", null],
-                    ["getElementsByClassName", "file-list", 0],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", null]
+                    ["id", "file-system", null],
+                    ["class", "file-list", 0],
+                    ["tag", "tbody", 0],
+                    ["tag", "tr", null]
                 ],
                 qualifier: "greater",
                 target: ["length"],
@@ -428,75 +424,74 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "select", 0]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "select", 0]
                     ],
                     value: "Absolute"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ],
                     value: ""
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "1"
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "Enter"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "Enter"
                 }
             ],
             name: "Display absolute paths, no directory size",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 2],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 2],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "ends",
                     target: ["lastChild", "textContent"],
@@ -505,11 +500,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 2],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 2],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -518,11 +513,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 3],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 3],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "ends",
                     target: ["lastChild", "textContent"],
@@ -531,11 +526,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 3],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 3],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -547,11 +542,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
         {
             delay: {
                 node: [
-                    ["getElementById", "file-system", null],
-                    ["getElementsByClassName", "file-list", 0],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", 2],
-                    ["getElementsByTagName", "button", 0]
+                    ["id", "file-system", null],
+                    ["class", "file-list", 0],
+                    ["tag", "tbody", 0],
+                    ["tag", "tr", 2],
+                    ["tag", "button", 0]
                 ],
                 qualifier: "ends",
                 target: ["lastChild", "textContent"],
@@ -562,75 +557,74 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "select", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "select", 1]
                     ],
                     value: "true (extremely slow)"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ],
                     value: ""
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "1"
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "Enter"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "Enter"
                 }
             ],
             name: "Display absolute paths and directory size",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 2],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 2],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "not",
                     target: ["textContent"],
@@ -639,11 +633,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 3],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 3],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "ends",
                     target: ["lastChild", "textContent"],
@@ -652,11 +646,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 3],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 3],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "not",
                     target: ["textContent"],
@@ -668,11 +662,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
         {
             delay: {
                 node: [
-                    ["getElementById", "file-system", null],
-                    ["getElementsByClassName", "file-list", 0],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", 2],
-                    ["getElementsByTagName", "button", 0]
+                    ["id", "file-system", null],
+                    ["class", "file-list", 0],
+                    ["tag", "tbody", 0],
+                    ["tag", "tr", 2],
+                    ["tag", "button", 0]
                 ],
                 qualifier: "ends",
                 target: ["lastChild", "textContent"],
@@ -683,75 +677,74 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "select", 0]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "select", 0]
                     ],
                     value: "Relative"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 1]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 1]
                     ],
                     value: ""
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "1"
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "Enter"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "file-system", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 2]
                     ],
                     value: "Enter"
                 }
             ],
             name: "Display relative paths and directory size",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 6],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 6],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "not",
                     target: ["textContent"],
@@ -760,11 +753,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 3],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 3],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["lastChild", "textContent"],
@@ -773,11 +766,11 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                 },
                 {
                     node: [
-                        ["getElementById", "file-system", null],
-                        ["getElementsByClassName", "file-list", 0],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 3],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "file-system", null],
+                        ["class", "file-list", 0],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 3],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "not",
                     target: ["textContent"],
@@ -788,6 +781,7 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
         }
     ];
     list.name = "Local browser tests - file system";
+    list.type = "dom";
     return list;
 };
 

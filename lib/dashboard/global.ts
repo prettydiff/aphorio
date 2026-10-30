@@ -25,8 +25,8 @@ const ui_global = function ui_global():void {
                             path_style: 1,
                             search: ""
                         },
-                        graph_display: 0,
-                        graph_type: 0,
+                        graph_display: 1,
+                        graph_type: 1,
                         hash: {
                             algorithm: "sha3-512",
                             digest: "hex",

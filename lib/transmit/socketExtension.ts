@@ -131,7 +131,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     } while (index > 0);
 
                     // kill off an unused demo dashboard
-                    if (vars.options.demo === true && vars.data.server[socket.server_hash].sockets.length < 1 && socket.type !== "http-get") {
+                    if (vars.options.mode === "demo" && vars.data.server[socket.server_hash].sockets.length < 1 && socket.type !== "http-get") {
                         setTimeout(function transmit_socketExtension_demoKill():void {
                             if (vars.data.server[socket.server_hash].sockets.length < 1) {
                                 process.exit(0);
@@ -227,7 +227,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 ? (message_handler[config.server] === undefined)
                     ? config.handler
                     : message_handler[config.server]
-                : config.handler;   // assigns an event handler to process incoming messages
+                : config.handler;                  // assigns an event handler to process incoming messages
             if (config.type !== "http") {
                 if (config.socket.handler !== null && config.socket.handler !== undefined) {
                     config.socket.on("data", receiver);

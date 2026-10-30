@@ -14,7 +14,7 @@ import vars from "../core/vars.ts";
 // 5. launch servers
 // 6. call the callback
 
-const server_create = function services_serverCreate(data:services_server_action, callback:() => void, dashboard:boolean):void {
+const server_create = function services_serverCreate(data:services_server_action, callback:(id:string) => void, dashboard:boolean):void {
     hash({
         algorithm: "sha3-512",
         callback: function services_serverCreate_hashCallback(output:core_hash_output):void {
@@ -34,7 +34,7 @@ const server_create = function services_serverCreate(data:services_server_action
                                 ports_application();
                                 // 6. call the callback
                                 if (callback !== null) {
-                                    callback();
+                                    callback(output.hash);
                                 }
                             };
                         log.application({
@@ -46,10 +46,10 @@ const server_create = function services_serverCreate(data:services_server_action
                             time: Date.now()
                         });
                         // 4. launch servers
-                        if (config.activate === true && vars.options.demo === false && config.id !== vars.id.dashboard_server) {
+                        if (config.activate === true && vars.options.mode !== "demo" && config.id !== vars.id.dashboard_server) {
                             server_start(data.server.id, serverCallback);
                         } else if (callback !== null) {
-                            callback();
+                            callback(output.hash);
                         }
             }
                 },
@@ -83,7 +83,7 @@ const server_create = function services_serverCreate(data:services_server_action
                         key: `${vars.path.project}servers${config.id + vars.path.sep}certs${vars.path.sep}server.key`
                     };
                 }
-                if (vars.options.demo === true) {
+                if (vars.options.mode === "demo") {
                     if (Object.keys(vars.data.server).length > 2) {
                         return;
                     }

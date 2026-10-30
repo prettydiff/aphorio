@@ -1,12 +1,12 @@
 // cspell: words bxsw, docusign, onetrust, smime, tlds
 
-const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():test_list {
-    const list:test_list = [
+const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "dns-query", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "dns-query", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -17,21 +17,20 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 4],
-                        ["getElementsByTagName", "button", 2]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 4],
+                        ["tag", "button", 2]
                     ]
                 }
             ],
             name: "Navigate to dns query",
-            type: "dom",
             unit: []
         },
         {
             delay: {
                 node: [
-                    ["getElementById", "dns-query", null],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "dns-query", null],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "not",
                 target: ["value"],
@@ -42,54 +41,53 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 2]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 2]
                     ],
                     value: "google.com"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 3]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 3]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 3]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 3]
                     ],
                     value: "A"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "button", 1]
+                        ["id", "dns-query", null],
+                        ["tag", "button", 1]
                     ]
                 }
             ],
             name: "Query google.com with A record type",
-            type: "dom",
             unit: [{
                 node: [
-                    ["getElementById", "dns-query", null],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "dns-query", null],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "begins",
                 target: ["value"],
@@ -102,8 +100,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
         {
             delay: {
                 node: [
-                    ["getElementById", "dns-query", null],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "dns-query", null],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "not",
                 target: ["value"],
@@ -114,55 +112,54 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 2]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 2]
                     ],
                     value: "google.com"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 3]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 3]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 3]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 3]
                     ],
                     value: "AAAA"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 3]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 3]
                     ],
                     value: "Enter"
                 }
             ],
             name: "Query google.com with AAAA record type",
-            type: "dom",
             unit: [{
                 node: [
-                    ["getElementById", "dns-query", null],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "dns-query", null],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "begins",
                 target: ["value"],
@@ -175,8 +172,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
         {
             delay: {
                 node: [
-                    ["getElementById", "dns-query", null],
-                    ["getElementsByTagName", "textarea", 0]
+                    ["id", "dns-query", null],
+                    ["tag", "textarea", 0]
                 ],
                 qualifier: "not",
                 target: ["value"],
@@ -187,56 +184,55 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 2]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 2]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 2]
                     ],
                     value: "google.com"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 3]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 3]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 3]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 3]
                     ],
                     value: ""
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "input", 3]
+                        ["id", "dns-query", null],
+                        ["tag", "input", 3]
                     ],
                     value: "Enter"
                 }
             ],
             name: "Query google.com with all record types",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "begins",
                     target: ["value"],
@@ -247,8 +243,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 },
                 {
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "contains",
                     target: ["value"],
@@ -258,8 +254,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 },
                 {
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "contains",
                     target: ["value"],
@@ -269,8 +265,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 },
                 {
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "contains",
                     target: ["value"],
@@ -280,8 +276,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 },
                 {
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "contains",
                     target: ["value"],
@@ -291,8 +287,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 },
                 {
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "contains",
                     target: ["value"],
@@ -302,8 +298,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 },
                 {
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "contains",
                     target: ["value"],
@@ -313,8 +309,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 },
                 {
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "contains",
                     target: ["value"],
@@ -324,8 +320,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 },
                 {
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "contains",
                     target: ["value"],
@@ -335,8 +331,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 },
                 {
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "contains",
                     target: ["value"],
@@ -346,8 +342,8 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
                 },
                 {
                     node: [
-                        ["getElementById", "dns-query", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "dns-query", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "contains",
                     target: ["value"],
@@ -359,6 +355,7 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
         }
     ];
     list.name = "Local browser tests - dns";
+    list.type = "dom";
     return list;
 };
 

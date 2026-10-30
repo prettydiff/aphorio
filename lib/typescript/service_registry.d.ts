@@ -10,7 +10,7 @@ interface services_compose {
 // Docker compose objects and their corresponding status
 
 interface services_compose_container {
-    action: type_dashboard_action;
+    action: type_server_action;
     compose: string;
     id: string;
     location: string;
@@ -31,7 +31,6 @@ interface services_dashboard_open {
     compose: services_compose;
     demo: boolean;
     hashes: string[];
-    http_request: string;
     id: core_vars_id;
     logs: {
         entries: config_log[];
@@ -44,6 +43,9 @@ interface services_dashboard_open {
     path: core_vars_path;
     "ports-application": services_ports_application;
     repository: string;
+    request_http: string;
+    request_ws: string;
+    runtime: string;
     server: services_server_update;
     services_app: core_service_internal[];
     sockets: services_socket_application;
@@ -259,7 +261,7 @@ interface services_ports_application {
 // TCP and UDP ports used by Docker containers and web servers created by this application
 
 interface services_server_action {
-    action: type_dashboard_action;
+    action: type_server_action;
     server: supplemental_server_config;
 }
 // A user requested action to activate, stop, remove, or modify a web server
@@ -317,7 +319,7 @@ interface services_test_browser {
     index: number;
     magicString: string;
     result: test_assert[];
-    store: test_primitive;
+    store: type_test_primitive;
     suite_name: string;
     test: test_browserItem;
 }

@@ -63,7 +63,7 @@ const ui_compose_containers = function ui_compose_containers():void {
             },
             message_container: function dashboard_sections_composeContainers_messageContainer(event:MouseEvent):void {
                 const target:HTMLElement = event.target,
-                    action:type_dashboard_action = target.getAttribute("class").replace("server-", "") as type_dashboard_action,
+                    action:type_server_action = target.getAttribute("class").replace("server-", "") as type_server_action,
                     edit:HTMLElement = target.getAncestor("edit", "class"),
                     cancel:HTMLButtonElement = edit.getElementsByClassName("server-cancel")[0] as HTMLButtonElement,
                     textArea:HTMLTextAreaElement = edit.getElementsByTagName("textarea")[0],
@@ -108,7 +108,7 @@ const ui_compose_containers = function ui_compose_containers():void {
                     ]);
                 }
             },
-            update: function dashboard_sections_composeContainers_update():void {
+            update_list: function dashboard_sections_composeContainers_updateList():void {
                 const message:services_compose_container = {
                     action: "update",
                     compose: "",
@@ -118,7 +118,9 @@ const ui_compose_containers = function ui_compose_containers():void {
                 dashboard.message.send({data: message, service: "services_compose_container"});
             },
             validate_containers: function dashboard_sections_composeContainers_validateContainers(event:FocusEvent|KeyboardEvent):void {
-                const target:HTMLElement = event.target,
+                const target:HTMLElement = (event.false_target === undefined)
+                        ? event.target
+                        : event.false_target,
                     id:string = target.getAncestor("li", "tag").dataset.id,
                     section:HTMLElement = target.getAncestor("edit", "class"),
                     newItem:boolean = (section.parentNode.getAttribute("class") === "section"),
@@ -262,7 +264,7 @@ const ui_compose_containers = function ui_compose_containers():void {
                     dashboard.sections["compose-containers"].nodes.new_container.onclick = dashboard.shared_services.create;
                 }
                 dashboard.sections["compose-containers"].nodes.new_variable.onclick = dashboard.sections["compose-containers"].events.edit_variable;
-                dashboard.sections["compose-containers"].nodes.update_button.onclick = dashboard.sections["compose-containers"].events.update;
+                dashboard.sections["compose-containers"].nodes.update_button.onclick = dashboard.sections["compose-containers"].events.update_list;
                 dashboard.sections["compose-containers"].nodes.update_time.onclick = null;
                 dashboard.sections["compose-containers"].receive({
                     data: dashboard.global.payload.compose,

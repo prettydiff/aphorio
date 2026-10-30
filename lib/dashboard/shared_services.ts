@@ -83,19 +83,57 @@ const ui_shared_services = function ui_shared_services():void {
                     label:HTMLElement = document.createElement("label"),
                     textArea:HTMLTextAreaElement = document.createElement("textarea"),
                     span:HTMLElement = document.createElement("span"),
+                    step:string = "\u0020\u0020\u0020\u0020",
                     value:string = (dashboard.global.section === "servers-web")
                         ? (function dashboard_shareServices_details_serversWeb():string {
-                            const array = function dashboard_shareServices_details_serversWeb_array(indent:boolean, name:string, property:string[]):void {
+                            const array = function dashboard_shareServices_details_serversWeb_array(indent:boolean, name:string, property:string[]|supplemental_server_proxy[]):void {
                                     const ind:string = (indent === true)
-                                        ? "    "
+                                        ? step
                                         : "";
                                     if (property === null || property === undefined || property.length < 1) {
                                         output.push(`${ind}"${name}": [],`);
                                     } else {
                                         output.push(`${ind}"${name}": [`);
-                                        property.forEach(function dashboard_shareServices_details_serversWeb_array_each(value:string):void {
-                                            output.push(`${ind}    "${sanitize(value)}",`);
-                                        });
+                                        if (name === "proxy") {
+                                            const proxy_rules = function dashboard_shareServices_details_serversWeb_array_proxyRules(value:supplemental_server_proxy, key:"incoming"|"outgoing"):void {
+                                                const final_comma:string = (key === "incoming")
+                                                    ? ","
+                                                    : "";
+                                                output.push(`${step + step}"${key}": {`);
+                                                if (value[key].domain !== undefined) {
+                                                    output.push(`${step + step + step}"domain": "${value[key].domain}",`);
+                                                }
+                                                if (value[key].encryption !== undefined) {
+                                                    output.push(`${step + step + step}"encryption": ${value[key].encryption},`);
+                                                }
+                                                if (value[key].method !== undefined) {
+                                                    output.push(`${step + step + step}"method": "${value[key].method}",`);
+                                                }
+                                                if (value[key].port !== undefined) {
+                                                    output.push(`${step + step + step}"port": ${value[key].port},`);
+                                                }
+                                                if (value[key].resource !== undefined) {
+                                                    output.push(`${step + step + step}"resource": "${value[key].resource}"`);
+                                                }
+                                                if (output[output.length - 1] === `${step + step}"${key}": {`) {
+                                                    output[output.length - 1] = `${step + step}"${key}": {}${final_comma}`;
+                                                } else {
+                                                    output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
+                                                    output.push(`${step + step}}${final_comma}`);
+                                                }
+                                            };
+                                            (property as supplemental_server_proxy[]).forEach(function dashboard_shareServices_details_serversWeb_array_eachProxy(value:supplemental_server_proxy):void {
+                                                output.push(`${step}{`);
+                                                output.push(`${step + step}"description": "${value.description}",`);
+                                                proxy_rules(value, "incoming");
+                                                proxy_rules(value, "outgoing");
+                                                output.push(`${step}},`);
+                                            });
+                                        } else {
+                                            (property as string[]).forEach(function dashboard_shareServices_details_serversWeb_array_eachString(value:string):void {
+                                                output.push(`${ind + step}"${sanitize(value)}",`);
+                                            });
+                                        }
                                         output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
                                         output.push(`${ind}],`);
                                     }
@@ -199,15 +237,20 @@ const ui_shared_services = function ui_shared_services():void {
                             }
                             if (serverData.certificate_path === null || serverData.certificate_path === undefined) {
                                 output.push("\"certificate_path\": {");
-                                output.push(`    "ca": "${server_path}certs${dashboard.global.payload.path.sep}int.crt",`.replace(/\\/g, "\\\\"));
-                                output.push(`    "cert": "${server_path}certs${dashboard.global.payload.path.sep}server.crt",`.replace(/\\/g, "\\\\"));
-                                output.push(`    "key": "${server_path}certs${dashboard.global.payload.path.sep}server.key"`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"ca": "${server_path}certs${dashboard.global.payload.path.sep}int.crt",`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"cert": "${server_path}certs${dashboard.global.payload.path.sep}server.crt",`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"key": "${server_path}certs${dashboard.global.payload.path.sep}server.key"`.replace(/\\/g, "\\\\"));
                                 output.push("},");
+                                dashboard.global.payload.server[serverData.id].config.certificate_path = {
+                                    ca: `${server_path}certs${dashboard.global.payload.path.sep}int.crt`,
+                                    cert: `${server_path}certs${dashboard.global.payload.path.sep}server.crt`,
+                                    key: `${server_path}certs${dashboard.global.payload.path.sep}server.key`
+                                };
                             } else {
                                 output.push("\"certificate_path\": {");
-                                output.push(`    "ca": "${serverData.certificate_path.ca}",`.replace(/\\/g, "\\\\"));
-                                output.push(`    "cert": "${serverData.certificate_path.cert}",`.replace(/\\/g, "\\\\"));
-                                output.push(`    "key": "${serverData.certificate_path.key}"`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"ca": "${serverData.certificate_path.ca}",`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"cert": "${serverData.certificate_path.cert}",`.replace(/\\/g, "\\\\"));
+                                output.push(`${step}"key": "${serverData.certificate_path.key}"`.replace(/\\/g, "\\\\"));
                                 output.push("},");
                             }
                             array(false, "domain_local", serverData.domain_local);
@@ -235,14 +278,21 @@ const ui_shared_services = function ui_shared_services():void {
                             }
                             output.push("\"ports\": {");
                             if (serverData.encryption === "both") {
-                                output.push(`    "open": ${serverData.ports.open},`);
-                                output.push(`    "secure": ${serverData.ports.secure}`);
+                                output.push(`${step}"open": ${serverData.ports.open},`);
+                                output.push(`${step}"secure": ${serverData.ports.secure}`);
                             } else if (serverData.encryption === "open") {
-                                output.push(`    "open": ${serverData.ports.open}`);
+                                output.push(`${step}"open": ${serverData.ports.open}`);
                             } else {
-                                output.push(`    "secure": ${serverData.ports.secure}`);
+                                output.push(`${step}"secure": ${serverData.ports.secure}`);
                             }
                             output.push("},");
+                            if (serverData.proxy !== undefined) {
+                                if (serverData.proxy === null) {
+                                    output.push("\"proxy\": null,");
+                                } else {
+                                    array(false, "proxy", serverData.proxy);
+                                }
+                            }
                             if (serverData.redirect_asset !== undefined && serverData.redirect_asset !== null) {
                                 object("redirect_asset");
                             }
@@ -269,7 +319,7 @@ const ui_shared_services = function ui_shared_services():void {
                                 output.push("\"upgrade\": false");
                             }
                             output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
-                            return `${output.join("\n    ")}\n}`;
+                            return `${output.join(`\n${step}`)}\n}`;
                         }())
                         : (newFlag === true || dashboard.global.payload.compose === null)
                             ? ""
@@ -415,15 +465,17 @@ const ui_shared_services = function ui_shared_services():void {
                 note.setAttribute("class", "note");
                 p.parentNode.appendChild(note);
             }
+            event.false_target = textArea;
             if (dashboard.global.section === "compose-containers") {
                 textArea.onkeyup = dashboard.sections["compose-containers"].events.validate_containers;
                 textArea.onfocus = dashboard.sections["compose-containers"].events.validate_containers;
+                dashboard.sections["compose-containers"].events.validate_containers(event);
             } else {
                 textArea.onkeyup = dashboard.sections["servers-web"].events.validate;
                 textArea.onfocus = dashboard.sections["servers-web"].events.validate;
+                dashboard.sections["servers-web"].events.validate(event);
             }
             textArea.readOnly = false;
-            textArea.focus();
         },
         shellResize: function dashboard_sharedServices_shellResize(config:config_resize):void {
             dashboard.sections[config.section as "terminal"].events.resize = function dashboard_shareServices_shellResize_instance():void {

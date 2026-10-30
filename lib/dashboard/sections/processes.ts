@@ -22,7 +22,7 @@ const ui_processes = function ui_processes():void {
                 timeValue:string = (record.time === null)
                     ? (0).time_elapsed()
                     : record.time.time_elapsed(),
-                time:string = (dashboard.global.payload.os.main.process.platform === "win32")
+                time:string = (dashboard.global.payload.os.main.process.platform === "win32" || dashboard.global.payload.os.main.process.platform === "cygwin")
                     ? timeValue.replace(/000$/, "")
                     : timeValue.replace(/\.0+$/, ""),
                 memory:string = (record.memory === null)

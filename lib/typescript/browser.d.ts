@@ -32,15 +32,14 @@ declare global {
 
     interface Number {
         bytes: (input?:number) => string;
-        bytesLong: () => string;
+        bytes_long: () => string;
         commas: () => string;
         dateTime: (date:boolean, timezone_offset:number) => string;
         time_elapsed: (start?:bigint) => string;
     }
 
     interface String {
-        bytes: () => number;
-        bytes_big: () => bigint;
+        bytes_numb: () => number;
         capitalize: () => string;
         file_sanitize: () => string;
     }
@@ -58,12 +57,15 @@ declare global {
     }
 
     interface FocusEvent {
+        false_target: HTMLElement;
         target: HTMLElement;
     }
     interface KeyboardEvent {
+        false_target: HTMLElement;
         target: HTMLElement;
     }
     interface MouseEvent {
+        false_target: HTMLElement;
         target: HTMLElement;
     }
     interface TouchEvent {
@@ -287,7 +289,7 @@ declare global {
         error: (message:string, source:string, line:number, col:number, error:Error) => void;
         evaluate: (test:test_assertion_dom) => test_assert;
         event: (item:services_test_browser, pageLoad:boolean) => void;
-        getProperty: (test:test_assertion_dom) => [HTMLElement, test_primitive];
+        getProperty: (test:test_assertion_dom) => [HTMLElement, type_test_primitive];
         index: number;
         keyAlt: boolean;
         keyControl: boolean;
@@ -296,8 +298,8 @@ declare global {
         node: (dom:test_browserDOM, property:string) => HTMLElement;
         report: (delay:test_assertion_dom, test:test_assertion_dom[], index:number) => void;
         sendTest: (payload:test_assert[], index:number) => services_test_browser;
-        store: HTMLElement | test_primitive;
-        stringify: (primitive:test_primitive) => string;
+        store: HTMLElement | type_test_primitive;
+        stringify: (primitive:type_test_primitive) => string;
         suite_name: string;
         test_item: services_test_browser;
     }
@@ -336,7 +338,7 @@ declare global {
             message_variable: (event:MouseEvent) => void;
             resize: () => void;
             selection: () => void;
-            update: () => void;
+            update_list: () => void;
             validate_containers: (event:FocusEvent|KeyboardEvent) => void;
             validate_variables: (event:FocusEvent|KeyboardEvent) => void;
         };
@@ -674,7 +676,6 @@ declare global {
         };
         timeout: number;
         tools: {
-            handshake: () => void;
             parse_frame: () => websocket_frame;
         };
         transmit: map_messages;

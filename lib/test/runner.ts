@@ -1,14 +1,16 @@
 
+import http_request from "../http/http_request.ts";
 import log from "../core/log.ts";
+import node from "../core/node.ts";
 import send from "../transmit/send.ts";
 import spawn from "../core/spawn.ts";
 import vars from "../core/vars.ts";
 
 const test_runner:test_runner = {
     assert: {
-        "begins": function test_runner_execCommand_assertBegins(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
+        "begins": function test_runner_assert_begins(value_actual:type_test_primitive, unit:test_assertion_command|test_assertion_proxy, location:string):test_assert {
             const nullable:boolean = (unit.nullable === true && value_actual === null),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 test:boolean = (String(value_actual).indexOf(String(value_test)) === 0);
             return {
                 assessment: (nullable === true)
@@ -16,15 +18,16 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` begins with ${typeof value_test}\n${value_test}`
                         : ` begins with ${typeof value_test}\n${value_actual.toString().slice(0, String(value_test).length)}\nnot ${typeof value_test}\n${value_test}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
                 value: value_actual
             };
         },
-        "contains": function test_runner_execCommand_assertContains(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
+        "contains": function test_runner_assert_contains(value_actual:type_test_primitive, unit:test_assertion_command|test_assertion_proxy, location:string):test_assert {
             const s_value:string = String(value_actual),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (String(value_actual).includes(String(value_test)) === true);
@@ -34,15 +37,16 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${s_value}\nwhich contains\n${s_unit}`
                         : ` is ${typeof value_actual}\n${s_value}\nwhich does not contain ${typeof value_test}\n${s_unit}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
                 value: value_actual
             };
         },
-        "ends": function test_runner_execCommand_assertEnds(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
+        "ends": function test_runner_assert_ends(value_actual:type_test_primitive, unit:test_assertion_command|test_assertion_proxy, location:string):test_assert {
             const str_value:string = String(value_actual),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 str_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (str_value.indexOf(str_unit) === str_value.length - str_unit.length);
@@ -52,15 +56,16 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${str_value}\nwhich ends with ${typeof value_test}\n${str_unit}`
                         :  ` ends with\n${str_value.slice(str_value.length - str_unit.length)}\nnot ${typeof value_test}\n${str_unit}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
                 value: value_actual
             };
         },
-        "greater": function test_runner_execCommand_assertGreater(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
+        "greater": function test_runner_assert_greater(value_actual:type_test_primitive, unit:test_assertion_command|test_assertion_proxy, location:string):test_assert {
             const nullable:boolean = (unit.nullable === true && value_actual === null),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 test:boolean = (((typeof value_actual === "bigint" || (typeof value_actual === "string" && (/^\d+n$/).test(String(value_actual)) === true)) && BigInt(value_actual as string) > BigInt(value_test)) || Number(value_actual) > Number(value_test));
             return {
                 assessment: (nullable === true)
@@ -68,15 +73,16 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${value_actual}\nwhich is greater than\n${value_test}`
                         : ` is ${typeof value_actual}\n${value_actual}\nwhich is not greater than ${typeof value_test}\n${value_test}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
                 value: value_actual
             };
         },
-        "is": function test_runner_execCommand_assertIs(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
+        "is": function test_runner_assert_is(value_actual:type_test_primitive, unit:test_assertion_command|test_assertion_proxy, location:string):test_assert {
             const s_value:string = String(value_actual),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (value_actual === value_test);
@@ -86,15 +92,16 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is exactly ${typeof value_test}\n${s_unit}`
                         : ` is ${typeof value_actual}\n${s_value}\nwhich is not ${typeof value_test}\n${s_unit}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
                 value: value_actual
             };
         },
-        "lesser": function test_runner_execCommand_assertLesser(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
+        "lesser": function test_runner_assert_lesser(value_actual:type_test_primitive, unit:test_assertion_command|test_assertion_proxy, location:string):test_assert {
             const nullable:boolean = (unit.nullable === true && value_actual === null),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 test:boolean = (((typeof value_actual === "bigint" || (typeof value_actual === "string" && (/^\d+n$/).test(String(value_actual)) === true)) && BigInt(value_actual as string) < BigInt(value_test)) || Number(value_actual) < Number(value_test));
             return {
                 assessment: (nullable === true)
@@ -102,15 +109,16 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${value_actual}\nwhich is lesser than ${typeof value_test}\n${value_test}`
                         : ` is ${typeof value_actual}\n${value_actual}\nwhich is not lesser than ${typeof value_test}\n${value_test}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
                 value: value_actual
             };
         },
-        "not": function test_runner_execCommand_assertBegins(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
+        "not": function test_runner_assert_begins(value_actual:type_test_primitive, unit:test_assertion_command|test_assertion_proxy, location:string):test_assert {
             const s_value:string = String(value_actual),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (value_actual !== value_test);
@@ -120,15 +128,16 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${s_value}\nnot ${typeof value_test}\n${s_unit}`
                         : ` is exactly ${typeof value_actual}\n${s_value}`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
                 value: value_actual
             };
         },
-        "not contains": function test_runner_execCommand_assertNotContains(value_actual:string, unit:test_assertion_command|test_assertion_dom, location:string):test_assert {
+        "not contains": function test_runner_assert_notContains(value_actual:type_test_primitive, unit:test_assertion_command|test_assertion_proxy, location:string):test_assert {
             const s_value:string = String(value_actual),
-                value_test:test_primitive = test_runner.tools.get_value(value_actual, unit.value),
+                value_test:type_test_primitive = test_runner.tools.get_value(value_actual, unit.value),
                 s_unit:string = String(value_test),
                 nullable:boolean = (unit.nullable === true && value_actual === null),
                 test:boolean = (String(value_actual).includes(String(value_test)) === false);
@@ -138,6 +147,26 @@ const test_runner:test_runner = {
                     : (test === true)
                         ? ` is ${typeof value_actual}\n${s_value}\nwhich does not contain ${typeof value_test}\n${s_unit}`
                         : ` is ${typeof value_actual}\n${s_value}\nwhich contains ${typeof value_test}\n${s_unit}`,
+                error: null,
+                location: location,
+                pass: (test === true || nullable === true),
+                store: unit.store,
+                value: value_actual
+            };
+        },
+        "numeric": function test_runner_assert_numeric(value_actual:type_test_primitive, unit:test_assertion_command|test_assertion_proxy, location:string):test_assert {
+            const n_value:number = (typeof value_actual !== "number")
+                    ? Number(value_actual)
+                    : value_actual,
+                nullable:boolean = (unit.nullable === true && value_actual === null),
+                test:boolean = (isNaN(n_value) === false);
+            return {
+                assessment: (nullable === true)
+                    ? " is null, which is accepted"
+                    : (test === true)
+                        ? ` is ${typeof value_actual}\nis numeric`
+                        : ` is ${typeof value_actual}\nis not numeric`,
+                error: null,
                 location: location,
                 pass: (test === true || nullable === true),
                 store: unit.store,
@@ -165,9 +194,100 @@ const test_runner:test_runner = {
                     service: "services_test_browser"
                 };
             send(payload, test_runner.socket, 3);
+        },
+        proxy: function test_runner_executionProxy():void {
+            const proxy_list:test_list_proxy = vars.test.list as test_list_proxy,
+                test_item:test_item_proxy = proxy_list[vars.test.index] as test_item_proxy,
+                port:number = (function test_runner_executionProxy_port():number {
+                    const encrypt:boolean = test_item.request.encryption,
+                        port_value:number = Math.floor(Number(test_item.request.port));
+                    if (typeof test_item.request.port === "string") {
+                        const server_index:number = Number(test_item.request.port.split("_")[1]);
+                        if (encrypt === true) {
+                            return vars.test.servers[server_index].port_secure;
+                        }
+                        return vars.test.servers[server_index].port_open;
+                    }
+                    if (test_item.request.port === undefined) {
+                        return null;
+                    }
+                    if (isNaN(port_value) === true || port_value < 1 || port_value > 65535) {
+                        if (encrypt === true) {
+                            return 443;
+                        }
+                        return 80;
+                    }
+                    return port_value;
+                }()),
+                host:string = (port === null)
+                    ? test_item.request.host
+                    : (node.net.isIPv6(test_item.request.host) === true)
+                        ? `[${test_item.request.host}]:${port}`
+                        : `${test_item.request.host}:${port}`,
+                config:services_test_http = {
+                    body: test_item.request.body,
+                    encryption: test_item.request.encryption,
+                    headers: [
+                        `${test_item.request.method} ${test_item.request.resource} HTTP/1.1`,
+                        `Host: ${host}`,
+                        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0",
+                        "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                        "Accept-Language: en-US,en;q=0.9",
+                        "Accept-Encoding: gzip, deflate",
+                        "Connection: keep-alive",
+                        "Upgrade-Insecure-Requests: 1",
+                        "Priority: u=0, i"
+                    ].join("\r\n"),
+                    stats: null,
+                    timeout: (test_item.request.timeout === undefined || isNaN(test_item.request.timeout) === true)
+                        ? 1000
+                        : test_item.request.timeout,
+                    uri: ""
+                },
+                handler = function test_runner_executionProxy_handler(output:config_http_request_output):void {
+                    let index:number = 0,
+                        value:string = "";
+                    const unit:test_assertion_proxy[] = proxy_list[vars.test.index].unit,
+                        len:number = unit.length,
+                        assertions:test_assert[] = [];
+                    vars.test.encrypted_proxy = false;
+                    // loop through assertions
+                    if (output.error === null) {
+                        do {
+                            value = (unit[index].property === "url")
+                                ? output.url.href
+                                : output[unit[index].property] as string;
+                            if (typeof value === "string") {
+                                value = value.replace(/servers(\\|\/)server_\d/, function test_runner_executionProxy_handler_fileSystem(input:string):string {
+                                    const server_index:number = Number(input.split("_")[1]),
+                                        id:string = vars.test.servers[server_index].id;
+                                    return `servers${vars.path.sep + id}`;
+                                });
+                            }
+                            if (unit[index].qualifier === "greater" || unit[index].qualifier === "lesser") {
+                                assertions.push(test_runner.assert[unit[index].qualifier](value.length, unit[index], unit[index].property));
+                            } else {
+                                assertions.push(test_runner.assert[unit[index].qualifier](value, unit[index], unit[index].property));
+                            }
+                            index = index + 1;
+                        } while (index < len);
+                    } else {
+                        assertions.push({
+                            assessment: "",
+                            error: output.error,
+                            location: "",
+                            pass: false,
+                            store: false,
+                            value: "Error"
+                        });
+                    }
+                    test_runner.logger(assertions);
+                    test_runner.tools.next();
+                };
+            http_request(config, handler);
         }
     },
-    list: function test_runner_list(list:test_list, callback:(name:string) => void):void {
+    list: function test_runner_list(list:test_list_dom|test_list_proxy, callback:(name:string) => void):void {
         const len_list:number = list.length;
         log.shell(["", "", `Test list ${vars.text.cyan + list.name + vars.text.none}`]);
         vars.test.index = 0;
@@ -186,10 +306,18 @@ const test_runner:test_runner = {
         };
         test_runner.count = 0;
         test_runner.tools.callback = callback;
-        if (test_runner.execution[vars.test.list[vars.test.index].type] === undefined) {
+        if (test_runner.execution[vars.test.list.type] === undefined) {
+            test_runner.logger([{
+                assessment: `Test type not specified for test named '${vars.test.list.name}'.`,
+                error: null,
+                location: "",
+                pass: false,
+                store: false,
+                value: ""
+            }]);
             test_runner.tools.next();
         } else {
-            test_runner.execution[vars.test.list[vars.test.index].type]();
+            test_runner.execution[vars.test.list.type]();
         }
     },
     logs: [],
@@ -225,13 +353,19 @@ const test_runner:test_runner = {
                 // pass or fail report text
                 if (assertions[index].pass === true) {
                     logs.push(star + vars.text.green + assertions[index].location + assertions[index].assessment + vars.text.none);
-                } else {
+                } else if (assertions[index].error === null) {
                     fail_test = true;
                     if (assertions[index].assessment === "failed to parse output into JSON") {
                         logs.push(`${star + vars.text.red + assertions[index].assessment + vars.text.none}\n${assertions[index].location}`);
                     } else {
                         logs.push(star + vars.text.red + assertions[index].location + assertions[index].assessment + vars.text.none);
                     }
+                    vars.test.total_assertions_fail = vars.test.total_assertions_fail + 1;
+                    vars.test.counts[vars.test.list.name].assertions_fail = vars.test.counts[vars.test.list.name].assertions_fail + 1;
+                } else {
+                    fail_test = true;
+                    logs.push(star + vars.text.red + assertions[index].error.message + vars.text.none);
+                    logs.push(assertions[index].error.stack.replace(assertions[index].error.message, ""));
                     vars.test.total_assertions_fail = vars.test.total_assertions_fail + 1;
                     vars.test.counts[vars.test.list.name].assertions_fail = vars.test.counts[vars.test.list.name].assertions_fail + 1;
                 }
@@ -256,9 +390,28 @@ const test_runner:test_runner = {
     },
     receive: function test_runner_receive(socket_data:socket_data):void {
         const data:services_test_browser = socket_data.data as services_test_browser,
-            results:test_assert[] = data.result;
+            current_test:test_item_dom = vars.test.list[vars.test.index] as test_item_dom,
+            results:test_assert[] = data.result,
+            interactions:test_event[] = current_test.interaction;
+        let index:number = (interactions === null)
+                ? 0
+                : interactions.length,
+            refresh:boolean = false;
+        if (index > 0) {
+            do {
+                index = index - 1;
+                if (interactions[index].event === "refresh") {
+                    refresh = true;
+                    break;
+                }
+            } while (index > 0);
+        }
         test_runner.logger(results);
-        test_runner.tools.next();
+        if (refresh === false) {
+            test_runner.tools.next();
+        } else {
+            test_runner.tools.get_socket(test_runner.tools.next);
+        }
     },
     socket: null,
     tools: {
@@ -272,34 +425,38 @@ const test_runner:test_runner = {
                         return `${vars.commands.open} "${vars.test.test_browser}" "${path}"`;
                     }
                     return `${vars.commands.open} "${path}"`;
-                },
-                call_dom = function test_runner_toolsBrowser_callDom():void {
-                    if (vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0] === undefined || vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0].queue === undefined) {
-                        setTimeout(test_runner_toolsBrowser_callDom, 50);
-                    } else {
-                        test_runner.socket = vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0];
-                        test_runner.execution.dom();
-                    }
                 };
             vars.test.browser_start = true;
             vars.test.browser_child = spawn(browserCommand(), null, {
-                shell: (process.platform === "win32")
+                shell: (process.platform === "win32" || process.platform === "cygwin")
                     ? "powershell"
                     : "bash"
             });
             vars.test.browser_child.execute();
-            setTimeout(call_dom, 300);
+            setTimeout(function test_runner_toolsBrowser_delay():void {
+                test_runner.tools.get_socket(test_runner.execution.dom);
+            }, 300);
         },
         callback: null,
-        get_value: function test_runner_getValue(value_actual:test_primitive, value_test:test_primitive|test_primitive[]):test_primitive {
+        get_socket: function test_runner_getSocket(callback:() => void):void {
+            if (vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0] === undefined || vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0].queue === undefined || vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0].hash.indexOf("http-") === 0) {
+                setTimeout(function test_runner_getSocket_delay():void {
+                    test_runner_getSocket(callback);
+                }, 50);
+            } else {
+                test_runner.socket = vars.data_store.server[vars.id.dashboard_server].sockets_tcp.open[0];
+                callback();
+            }
+        },
+        get_value: function test_runner_getValue(value_actual:type_test_primitive, value_test:type_test_primitive|type_test_primitive[]):type_test_primitive {
             if (Array.isArray(value_test) === true) {
-                const index:number = (value_test as test_primitive[]).indexOf(value_actual);
+                const index:number = (value_test as type_test_primitive[]).indexOf(value_actual);
                 if (index > -1) {
                     return value_test[index];
                 }
                 return JSON.stringify(value_test);
             }
-            return value_test as test_primitive;
+            return value_test as type_test_primitive;
         },
         next: function test_runner_toolsNext():void {
             vars.test.index = vars.test.index + 1;
@@ -318,8 +475,8 @@ const test_runner:test_runner = {
                 } else if (vars.test.list[vars.test.index] === undefined) {
                     test_runner_toolsNext();
                 } else {
-                    if (test_runner.execution[vars.test.list[vars.test.index].type] !== undefined) {
-                        test_runner.execution[vars.test.list[vars.test.index].type]();
+                    if (test_runner.execution[vars.test.list.type] !== undefined) {
+                        test_runner.execution[vars.test.list.type]();
                     }
                 }
             }

@@ -51,7 +51,7 @@ const websocket_test:websocket_test = {
         }
     },
     handshake: function services_websocketTest_handshake(socket_data:socket_data, transmit:transmit_socket):void {
-        if (vars.options.demo === false) {
+        if (vars.options.mode !== "demo") {
             const data:services_websocket_handshake = socket_data.data as services_websocket_handshake,
                 browser_socket:websocket_client = transmit.socket as websocket_client,
                 socket_id:string = browser_socket.hash,
@@ -113,7 +113,7 @@ const websocket_test:websocket_test = {
                 // set host to loopback if not found
                 if (host === "") {
                     config.ip = "127.0.0.1";
-                    config.port = (data.encryption === true && vars.options.demo === false)
+                    config.port = (data.encryption === true)
                         ? vars.data.server[vars.id.dashboard_server].ports.secure
                         : vars.data.server[vars.id.dashboard_server].ports.open;
                 // discern host value from IPv6 address plus specified port
@@ -155,7 +155,7 @@ const websocket_test:websocket_test = {
         }
     },
     message: function services_websocketTest_message(socket_data:socket_data, transmit:transmit_socket):void {
-        if (vars.options.demo === false) {
+        if (vars.options.mode !== "demo") {
             // from - dashboard socket
             // to   - test-websocket socket
             const data:services_websocket_message = socket_data.data as services_websocket_message,

@@ -1,11 +1,11 @@
 
-const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserApplicationLogs():test_list {
-    const list:test_list = [
+const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserApplicationLogs():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "application-logs", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "application-logs", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -16,20 +16,19 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 6],
-                        ["getElementsByTagName", "button", 0]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 6],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
             name: "Navigate to application-logs",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "application-logs", null],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "strong", 0]
+                        ["id", "application-logs", null],
+                        ["tag", "li", 0],
+                        ["tag", "strong", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -38,9 +37,9 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
                 },
                 {
                     node: [
-                        ["getElementById", "application-logs", null],
-                        ["getElementsByTagName", "li", 0],
-                        ["childNodes", null, 0]
+                        ["id", "application-logs", null],
+                        ["tag", "li", 0],
+                        ["child", null, 0]
                     ],
                     qualifier: "is",
                     target: ["lowName()"],
@@ -49,9 +48,9 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
                 },
                 {
                     node: [
-                        ["getElementById", "application-logs", null],
-                        ["getElementsByTagName", "li", 0],
-                        ["childNodes", null, 1]
+                        ["id", "application-logs", null],
+                        ["tag", "li", 0],
+                        ["child", null, 1]
                     ],
                     qualifier: "is",
                     target: ["lowName()"],
@@ -60,9 +59,9 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
                 },
                 {
                     node: [
-                        ["getElementById", "application-logs", null],
-                        ["getElementsByTagName", "li", 0],
-                        ["childNodes", null, 2]
+                        ["id", "application-logs", null],
+                        ["tag", "li", 0],
+                        ["child", null, 2]
                     ],
                     qualifier: "is",
                     target: ["lowName()"],
@@ -71,9 +70,9 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
                 },
                 {
                     node: [
-                        ["getElementById", "application-logs", null],
-                        ["getElementsByTagName", "li", 0],
-                        ["childNodes", null, 3]
+                        ["id", "application-logs", null],
+                        ["tag", "li", 0],
+                        ["child", null, 3]
                     ],
                     qualifier: "is",
                     target: ["lowName()"],
@@ -84,6 +83,7 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
         }
     ];
     list.name = "Local browser tests - application logs";
+    list.type = "dom";
     return list;
 };
 

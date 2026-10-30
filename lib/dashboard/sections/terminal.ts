@@ -34,7 +34,7 @@ const ui_terminal = function ui_terminal():void {
             },
             resize: null,
             selection: function dashboard_sections_terminal_selection():void {
-                if (dashboard.global.click === true) {
+                if (dashboard.global.click === true && location.href.indexOf("?test_browser") < 0) {
                     navigator.clipboard.write([
                         new ClipboardItem({["text/plain"]: dashboard.sections["terminal"].item.getSelection()})
                     ]);

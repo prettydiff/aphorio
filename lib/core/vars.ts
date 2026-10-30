@@ -191,8 +191,6 @@ const vars:core_vars = {
             git_hash: "",
             // list of supported hash algorithm names
             hashes: [],
-            // the HTTP request header of the dashboard page request, used as a default value for the dashboard's http test tool
-            http_request: "",
             // a list of local network addresses as determined from active network interfaces on the OS
             interfaces: [
                 "localhost",
@@ -212,7 +210,15 @@ const vars:core_vars = {
             // this application's name
             name: "aphorio",
             // where the source code lives
-            repository: "https://github.com/prettydiff/aphorio",
+            repository: "",
+            // the request header of the dashboard page HTTP request, used as a default value for the dashboard's various http features
+            request_http: "",
+            // the request header of the dashboard page websocket handshake, used as a default value for the dashboard's various websocket features
+            request_ws: "",
+            // the language runtime executing the application code: bun or node
+            runtime: (process.versions.bun === undefined)
+                ? "node"
+                : "bun",
             // a list of data service definitions used by this application
             services_app: [],
             // a start date time value for use in the browser
@@ -245,17 +251,17 @@ const vars:core_vars = {
         },
         // command line options for running this application
         options: {
-            "browser": null,
+            "browser": "",
             "delay-intervals": 250,
             "delay-time": 50,
-            "demo": false,
-            "list": null,
+            "feature": "",
+            "list": "",
+            "mode": "server",
             "no-color": false,
             "no-exit": false,
             "port-open": 0,
             "port-secure": 0,
             "stop-on-fail": false,
-            "test": false,
             "test-verbose": false
         },
         // raw OS data
@@ -371,9 +377,11 @@ const vars:core_vars = {
             browser_child: null,
             browser_start: false,
             counts: {},
+            encrypted_proxy: false,
             index: 0,
             list: null,
             magicString: "AW#E$RF1SA9DFY^HDfg4hw5se45tDA234",
+            servers: [],
             store: null,
             test_browser: null,
             testing: false,

@@ -1,12 +1,12 @@
 
 
-const test_listLocalBrowserNotes = function test_listLocalBrowserNotes():test_list {
-    const list:test_list = [
+const test_listLocalBrowserNotes = function test_listLocalBrowserNotes():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "notes", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "notes", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -17,21 +17,20 @@ const test_listLocalBrowserNotes = function test_listLocalBrowserNotes():test_li
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 4],
-                        ["getElementsByTagName", "button", 4]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 4],
+                        ["tag", "button", 4]
                     ]
                 }
             ],
             name: "Navigate to notes",
-            type: "dom",
             unit: []
         },
         {
             delay: {
                 node: [
-                    ["getElementById", "notes", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "notes", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -42,23 +41,23 @@ const test_listLocalBrowserNotes = function test_listLocalBrowserNotes():test_li
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "notes", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "notes", null],
+                        ["tag", "textarea", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "notes", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "notes", null],
+                        ["tag", "textarea", 0]
                     ],
                     value: "testing section notes from test automation"
                 },
                 {
                     event: "blur",
                     node: [
-                        ["getElementById", "notes", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "notes", null],
+                        ["tag", "textarea", 0]
                     ]
                 },
                 {
@@ -72,12 +71,11 @@ const test_listLocalBrowserNotes = function test_listLocalBrowserNotes():test_li
                 }
             ],
             name: "Refresh page and check notes value",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "notes", null],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "notes", null],
+                        ["tag", "textarea", 0]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -88,6 +86,7 @@ const test_listLocalBrowserNotes = function test_listLocalBrowserNotes():test_li
         }
     ];
     list.name = "Local browser tests - notes";
+    list.type = "dom";
     return list;
 };
 export default test_listLocalBrowserNotes;

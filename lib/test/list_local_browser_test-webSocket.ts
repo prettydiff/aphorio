@@ -1,12 +1,12 @@
 
 
-const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWebSocket():test_list {
-    const list:test_list = [
+const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWebSocket():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "test-websocket", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "test-websocket", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -17,19 +17,18 @@ const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 5],
-                        ["getElementsByTagName", "button", 1]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 5],
+                        ["tag", "button", 1]
                     ]
                 }
             ],
             name: "Navigate to websocket test",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "websocket-status", null],
-                        ["getElementsByTagName", "strong", 0]
+                        ["id", "websocket-status", null],
+                        ["tag", "strong", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -38,9 +37,9 @@ const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWeb
                 },
                 {
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "form", 0],
+                        ["tag", "textarea", 1]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -49,10 +48,10 @@ const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWeb
                 },
                 {
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "form", 2],
-                        ["getElementsByClassName", "frame_validate", 0],
-                        ["getElementsByTagName", "em", 0]
+                        ["id", "test-websocket", null],
+                        ["class", "form", 2],
+                        ["class", "frame_validate", 0],
+                        ["tag", "em", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -64,8 +63,8 @@ const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWeb
         {
             delay: {
                 node: [
-                    ["getElementById", "websocket-status", null],
-                    ["getElementsByTagName", "strong", 0]
+                    ["id", "websocket-status", null],
+                    ["tag", "strong", 0]
                 ],
                 qualifier: "is",
                 target: ["textContent"],
@@ -76,20 +75,19 @@ const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWeb
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "test-websocket", null],
+                        ["class", "form", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
             name: "Open encrypted websocket",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "form", 0],
+                        ["tag", "textarea", 1]
                     ],
                     qualifier: "begins",
                     target: ["value"],
@@ -101,9 +99,9 @@ const test_listLocalBrowserTestWebSocket = function test_listLocalBrowserTestWeb
         {
             delay: {
                 node: [
-                    ["getElementById", "test-websocket", null],
-                    ["getElementsByClassName", "http_response", 1],
-                    ["getElementsByTagName", "textarea", 3]
+                    ["id", "test-websocket", null],
+                    ["class", "http_response", 1],
+                    ["tag", "textarea", 3]
                 ],
                 qualifier: "is",
                 target: ["value"],
@@ -116,17 +114,17 @@ test secure socket`
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 0]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 0]
                     ],
                     value: `{
     "extended": 0,
@@ -144,44 +142,44 @@ test secure socket`
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 1]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 1]
                     ],
                     value: "test secure socket"
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 1]
                     ],
                     value: "shift"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 1]
                     ],
                     value: "shift"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "button", 0]
                     ]
                 },
                 {
@@ -191,13 +189,12 @@ test secure socket`
                 }
             ],
             name: "Send encrypted message",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 2]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 2]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -219,9 +216,9 @@ test secure socket`
                 },
                 {
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "form", 2],
-                        ["getElementsByClassName", "frame_validate", 0]
+                        ["id", "test-websocket", null],
+                        ["class", "form", 2],
+                        ["class", "frame_validate", 0]
                     ],
                     qualifier: "is",
                     target: ["style", "display"],
@@ -233,8 +230,8 @@ test secure socket`
         {
             delay: {
                 node: [
-                    ["getElementById", "websocket-status", null],
-                    ["getElementsByTagName", "strong", 0]
+                    ["id", "websocket-status", null],
+                    ["tag", "strong", 0]
                 ],
                 qualifier: "is",
                 target: ["textContent"],
@@ -245,20 +242,19 @@ test secure socket`
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "test-websocket", null],
+                        ["class", "form", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
             name: "Close encrypted websocket",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "form", 0],
+                        ["tag", "textarea", 1]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -270,8 +266,8 @@ test secure socket`
         {
             delay: {
                 node: [
-                    ["getElementById", "websocket-status", null],
-                    ["getElementsByTagName", "strong", 0]
+                    ["id", "websocket-status", null],
+                    ["tag", "strong", 0]
                 ],
                 qualifier: "is",
                 target: ["textContent"],
@@ -282,28 +278,27 @@ test secure socket`
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "test-websocket", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "test-websocket", null],
+                        ["class", "form", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
             name: "Open insecure websocket",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 2]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 2]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -312,9 +307,9 @@ test secure socket`
                 },
                 {
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 3]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 3]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -326,9 +321,9 @@ test secure socket`
         {
             delay: {
                 node: [
-                    ["getElementById", "test-websocket", null],
-                    ["getElementsByClassName", "http_response", 1],
-                    ["getElementsByTagName", "textarea", 3]
+                    ["id", "test-websocket", null],
+                    ["class", "http_response", 1],
+                    ["tag", "textarea", 3]
                 ],
                 qualifier: "is",
                 target: ["value"],
@@ -341,55 +336,54 @@ test insecure socket`
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 1]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 1]
                     ],
                     value: "test insecure socket"
                 },
                 {
                     event: "keydown",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 1]
                     ],
                     value: "shift"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 1]
                     ],
                     value: "shift"
                 },
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
             name: "Send encrypted message",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "http_response", 1],
-                        ["getElementsByTagName", "textarea", 2]
+                        ["id", "test-websocket", null],
+                        ["class", "http_response", 1],
+                        ["tag", "textarea", 2]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -414,8 +408,8 @@ test insecure socket`
         {
             delay: {
                 node: [
-                    ["getElementById", "websocket-status", null],
-                    ["getElementsByTagName", "strong", 0]
+                    ["id", "websocket-status", null],
+                    ["tag", "strong", 0]
                 ],
                 qualifier: "is",
                 target: ["textContent"],
@@ -426,20 +420,19 @@ test insecure socket`
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "test-websocket", null],
+                        ["class", "form", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
             name: "Close insecure websocket",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "test-websocket", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "textarea", 1]
+                        ["id", "test-websocket", null],
+                        ["class", "form", 0],
+                        ["tag", "textarea", 1]
                     ],
                     qualifier: "is",
                     target: ["value"],
@@ -450,6 +443,7 @@ test insecure socket`
         }
     ];
     list.name = "Local browser tests - web socket";
+    list.type = "dom";
     return list;
 };
 

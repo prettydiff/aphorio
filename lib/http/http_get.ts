@@ -12,18 +12,10 @@ import vars from "../core/vars.ts";
 
 /* cspell: words msvideo, nofollow, onnection, prettydiff */
 
-const http_get:http_action = function http_get(headerList:string[], socket:websocket_client):void {
-    const index0:string[] = headerList[0].replace(/^\s+/, "").replace(/\s+/, " ").split(" "),
-        method:"GET"|"HEAD" = (index0.indexOf("HEAD") === 0)
-            ? "HEAD"
-            : "GET",
-        server_id:string = socket.server_hash,
-        resource:string = index0[1],
-        asset:string[] = resource.split("/"),
-        path:string = `${vars.path.servers + server_id + vars.path.sep}assets${vars.path.sep}`,
-        fileFragment:string = asset.join(vars.path.sep).replace(/^(\\|\/)/, ""),
+const http_get:type_http_action = function http_get(config:config_http, socket:websocket_client):void {
+    const server_id:string = socket.server_hash,
         payload = function http_get_payload(heading:string[], body:string):string {
-            if (method === "HEAD") {
+            if (config.method.toLowerCase() === "head") {
                 return heading.join("\r\n");
             }
             return heading.join("\r\n") + body;
@@ -112,7 +104,7 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
         },
         notFound = function http_get_notFound():void {
             http_write(socket, html({
-                content: [`<p>Resource not found: <strong>${asset.join("/")}</strong></p>`],
+                content: [`<p>Resource not found: <strong>${config.resource}</strong></p>`],
                 content_type: "text/html; utf8",
                 core: false,
                 page_title: "404",
@@ -121,264 +113,208 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
                 template: true
             }), true);
         },
-        stat = function http_get_stat(input:string):void {
-            const statTest = function http_get_stat_statTest(stat:node_fs_BigIntStats):void {
-                const directory_item = function http_get_stat_statTest_directoryItem():void {
-                        const indexFile:string = `${input.replace(/(\\|\/)$/, "") + vars.path.sep}index.html`;
-                        file.stat({
-                            callback: function http_get_stat_statItem_directoryItem_callback():void {
-                                input = indexFile;
-                                fileItem();
-                            },
-                            location: indexFile,
-                            no_file: function http_get_stat_statTest_directoryItem_noFile():void {
-                                const callback = function http_get_stat_statTest_directoryItem_noFile_directory(list:core_directory_list):void {
-                                    let index_item:number = 0,
-                                        dtg:string[] = null,
-                                        address:string = "";
-                                    const content:string[] = [
-                                            `<h2>Directory List - ${decodeURI(index0[1])}</h2>`,
-                                            "<table class=\"file-list\"><thead><tr><th><button data-dir=\"1\">object</button></th><th><button data-dir=\"1\">type</button></th><th><button data-dir=\"1\">size</button></th><th><button data-dir=\"1\">modified date</button></th><th><button data-dir=\"1\">modified time</button></th><th><button data-dir=\"1\">permissions</button></th><th><button data-dir=\"1\">children</button></th></tr></thead><tbody>"
-                                        ],
-                                        total:number = list.length,
-                                        icon:store_string = {
-                                            "block_device": "\u2580",
-                                            "character_device": "\u0258",
-                                            "directory": "\ud83d\udcc1",
-                                            "fifo_pipe": "\u275a",
-                                            "file": "\ud83d\uddce",
-                                            "socket": "\ud83d\udd0c",
-                                            "symbolic_link": "\ud83d\udd17"
-                                        },
-                                        scheme:"http"|"https" = (socket.encrypted === true)
-                                            ? "https"
-                                            : "http",
-                                        host:string = (function http_get_host():string {
-                                            let index:number = headerList.length,
-                                                value:string = "";
-                                            do {
-                                                index = index - 1;
-                                                if (typeof headerList[index] === "string") {
-                                                    if (headerList[index].toLowerCase().indexOf("host:") === 0) {
-                                                        value = headerList[index].slice(headerList[index].indexOf(":") + 1).replace(/\s+/g, "");
-                                                    } else if (headerList[index].toLowerCase().indexOf("connection:") === 0) {
-                                                        headerList.splice(index, 1);
-                                                        index = index + 1;
-                                                    }
-                                                }
-                                            } while (index > 0);
-                                            return value;
-                                        }());
-                                    list.sort(function http_get_stat_statTest_directoryItem_noFile_directory_sort(a:type_directory_item, b:type_directory_item):-1|1 {
-                                        if (a[1] < b[1]) {
-                                            return -1;
-                                        }
-                                        return 1;
-                                    });
-                                    do {
-                                        if (list[index_item][2] === 0 && list[index_item][0].indexOf(input) !== list[index_item][0].length - input.length) {
-                                            address = `${scheme}://${host + index0[1].replace(/\/$/, "") + vars.path.sep + list[index_item][5]}`;
-                                            dtg = list[index_item][4].mtimeMs.dateTime(true, null).split(", ");
-                                            content.push(`<tr class="${(index_item % 2 === 0) ? "even" : "odd"}"><td class="file-name"><span class="icon">${icon[list[index_item][1]]}</span> <a href="${address}">${list[index_item][5]}</a></td><td>${list[index_item][1]}</td><td data-raw="${list[index_item][4].size}">${list[index_item][4].size.commas()}</td><td data-raw="${list[index_item][4].mtimeMs}">${dtg[0]}</td><td>${dtg[1]}</td><td>${list[index_item][4].mode === null ? "" : (list[index_item][4].mode & parseInt("777", 8)).toString(8)}</td><td data-raw="${list[index_item][3]}">${list[index_item][3].commas()}</td></tr>`);
-                                        }
-                                        index_item = index_item + 1;
-                                    } while (index_item < total);
-                                    content.push("</tbody></table>");
-                                    http_write(socket, html({
-                                        content: content,
-                                        content_type: "text/html; utf8",
-                                        core: true,
-                                        page_title: index0[1],
-                                        status: 200,
-                                        template: true,
-                                        script: file_list
-                                    }), true);
-                                };
-                                directory({
-                                    callback: callback,
-                                    depth: 2,
-                                    directory_size: false,
-                                    exclusions: [],
-                                    parent: false,
-                                    path: input,
-                                    relative: true,
-                                    search: "",
-                                    symbolic: false
-                                });
-                            },
-                            section: "servers-web"
-                        });
-                    },
-                    fileItem = function http_get_stat_statTest_fileItem():void {
-                        const type_callback = function http_get_stat_statTest_fileItem_typeCallback(type:string):void {
-                            const headerText:string[] = [
-                                "",
-                                `content-type: ${type}`,
-                                "transfer-encoding: chunked",
-                                `server: prettydiff/${vars.environment.name}`,
-                                "accept-ranges: bytes",
-                                ""
-                            ];
-                            if (method === "HEAD") {
-                                http_write(socket, headerText.join("\r\n"), true);
-                            } else {
-                                let stream:node_fs_ReadStream = null;
-                                const status:string = (function http_get_stat_statTest_fileItem_partial():string {
-                                        let index:number = headerList.length;
-                                        do {
-                                            index = index - 1;
-                                            if (headerList[index].toLowerCase().indexOf("range:") === 0) {
-                                                const range:string = headerList[index].toLowerCase().replace(/range:\s*bytes=/, ""),
-                                                    ranges:string[] = range.split("-"),
-                                                    size:number = Number(stat.size),
-                                                    start:number = (ranges[0] === "")
-                                                        ? 0
-                                                        : Number(ranges[0]),
-                                                    end:number = (ranges[1] === "" || ranges[1] === undefined)
-                                                        ? Math.min(start + (1024 * 1024), size)
-                                                        : Number(ranges[1].split("/")[0]),
-                                                    empty:boolean = (end - start === 0);
-                                                    if (empty === true) {
-                                                        headerText[0] = "HTTP/1.1 200";
-                                                        headerText[2] = "content-length: 0";
-                                                    } else {
-                                                        if (end === size) {
-                                                            headerText.splice(2, 0, `content-range: bytes ${start}-${end - 1}/${size}`);
-                                                        } else {
-                                                            headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
-                                                        }
-                                                        stream = node.fs.createReadStream(input, {
-                                                            end: end,
-                                                            start: start
-                                                        });
-                                                    }
-                                                return "HTTP/1.1 206";
-                                            }
-                                        } while (index > 0);
-                                        stream = node.fs.createReadStream(input);
-                                        return "HTTP/1.1 200";
-                                    }());
-                                headerText[0] = status;
-                                http_write(socket, headerText.join("\r\n"), false);
-                                if (stream !== null) {
-                                    stream.on("close", function http_get_stat_statTest_fileItem_close():void {
-                                        http_write(socket, "\r\n0\r\n\r\n", true);
-                                    });
-                                    stream.on("data", function http_get_stat_statTest_fileItem_data(chunk:Buffer|string):void {
-                                        http_write(socket, `\r\n${Buffer.byteLength(chunk).toString(16)}\r\n`, false);
-                                        http_write(socket, chunk, false);
-                                    });
-                                }
-                            }
-                        };
-                        if (vars.environment.file === true) {
-                            spawn(vars.commands.file + input, function http_get_stat_statTest_fileItem_spawn(output:core_spawn_output):void {
-                                const triples:string[] = output.stdout.split("; ");
-                                type_callback(triples[1]);
-                            }).execute();
-                        } else {
-                            type_callback((function http_get_stat_statTest_fileItem_contentType():string {
-                                const extension:string = input.slice(input.lastIndexOf(".") + 1);
-                                if (extension === "avi") {
-                                    return "video/x-msvideo";
-                                }
-                                if (extension === "css") {
-                                    return "text/css; utf8";
-                                }
-                                if (extension === "flv") {
-                                    return "video/x-flv";
-                                }
-                                if (extension === "gif") {
-                                    return "image/gif";
-                                }
-                                if (extension === "html") {
-                                    return "text/html; utf8";
-                                }
-                                if (extension === "ico") {
-                                    return "image/x-icon";
-                                }
-                                if (extension === "jpg" || extension === "jpeg") {
-                                    return "image/jpeg";
-                                }
-                                if (extension === "js" || extension === "ts") {
-                                    return "application/javascript; utf8";
-                                }
-                                if (extension === "json") {
-                                    return "application/json; utf8";
-                                }
-                                if (extension === "mp3") {
-                                    return "audio/mpeg";
-                                }
-                                if (extension === "mp4" || extension === "mpeg4" || extension === "mkv") {
-                                    return "video/mp4";
-                                }
-                                if (extension === "png") {
-                                    return "image/png";
-                                }
-                                if (extension === "wmv") {
-                                    return "video/x-ms-wmv";
-                                }
-                                if (extension === "xhtml") {
-                                    return "application/xml+html; utf8";
-                                }
-                                if (extension === "xml") {
-                                    return "application/xml; utf8";
-                                }
-                                return "text/plain; utf8";
-                            }()));
-                        }
-                    };
-                if (stat.isFile() === true) {
-                    fileItem();
-                } else if (stat.isDirectory() === true) {
-                    if (input.charAt(input.length - 1) === vars.path.sep) {
-                        directory_item();
-                    } else {
-                        const headers:string[] = [
-                            "HTTP/1.1 308 Permanent Redirect",
-                            `Location: ${resource}/`,
-                            "Content-Type: text/html; charset=UTF-8",
-                            "Content-Length: 0",
-                            "",
-                            ""
-                        ];
-                        http_write(socket, headers.join("\r\n"), true);
-                    }
-                } else {
-                    notFound();
-                }
-            };
+        directory_item = function http_get_stat_statTest_directoryItem():void {
+            const indexFile:string = `${config.resource_absolute.replace(/(\\|\/)$/, "") + vars.path.sep}index.html`;
             file.stat({
-                callback: statTest,
-                location: input,
-                no_file: notFound,
+                callback: function http_get_stat_statItem_directoryItem_callback():void {
+                    config.resource_absolute = indexFile;
+                    fileItem();
+                },
+                location: indexFile,
+                no_file: function http_get_stat_statTest_directoryItem_noFile():void {
+                    const callback = function http_get_stat_statTest_directoryItem_noFile_directory(list:core_directory_list):void {
+                        let index_item:number = 0,
+                            dtg:string[] = null,
+                            address:string = "";
+                        const content:string[] = [
+                                `<h2>Directory List - ${decodeURI(config.resource)}</h2>`,
+                                "<table class=\"file-list\"><thead><tr><th><button data-dir=\"1\">object</button></th><th><button data-dir=\"1\">type</button></th><th><button data-dir=\"1\">size</button></th><th><button data-dir=\"1\">modified date</button></th><th><button data-dir=\"1\">modified time</button></th><th><button data-dir=\"1\">permissions</button></th><th><button data-dir=\"1\">children</button></th></tr></thead><tbody>"
+                            ],
+                            total:number = list.length,
+                            icon:store_string = {
+                                "block_device": "\u2580",
+                                "character_device": "\u0258",
+                                "directory": "\ud83d\udcc1",
+                                "fifo_pipe": "\u275a",
+                                "file": "\ud83d\uddce",
+                                "socket": "\ud83d\udd0c",
+                                "symbolic_link": "\ud83d\udd17"
+                            },
+                            scheme:"http"|"https" = (socket.encrypted === true)
+                                ? "https"
+                                : "http";
+                        list.sort(function http_get_stat_statTest_directoryItem_noFile_directory_sort(a:type_directory_item, b:type_directory_item):-1|1 {
+                            if (a[1] < b[1]) {
+                                return -1;
+                            }
+                            return 1;
+                        });
+                        do {
+                            if (list[index_item][2] === 0 && list[index_item][0].indexOf(config.resource_absolute) !== list[index_item][0].length - config.resource_absolute.length) {
+                                address = `${scheme}://${config.origin + config.resource.replace(/\/$/, "") + vars.path.sep + list[index_item][5]}`;
+                                dtg = list[index_item][4].mtimeMs.dateTime(true, null).split(", ");
+                                content.push(`<tr class="${(index_item % 2 === 0) ? "even" : "odd"}"><td class="file-name"><span class="icon">${icon[list[index_item][1]]}</span> <a href="${address.replace(/(\\)/g, "/")}">${list[index_item][5].replace(/(\\)/g, "/")}</a></td><td>${list[index_item][1]}</td><td data-raw="${list[index_item][4].size}">${list[index_item][4].size.commas()}</td><td data-raw="${list[index_item][4].mtimeMs}">${dtg[0]}</td><td>${dtg[1]}</td><td>${list[index_item][4].mode === null ? "" : (list[index_item][4].mode & parseInt("777", 8)).toString(8)}</td><td data-raw="${list[index_item][3]}">${list[index_item][3].commas()}</td></tr>`);
+                            }
+                            index_item = index_item + 1;
+                        } while (index_item < total);
+                        content.push("</tbody></table>");
+                        http_write(socket, html({
+                            content: content,
+                            content_type: "text/html; utf8",
+                            core: true,
+                            page_title: config.resource,
+                            status: 200,
+                            template: true,
+                            script: file_list
+                        }), true);
+                    };
+                    directory({
+                        callback: callback,
+                        depth: 2,
+                        directory_size: false,
+                        exclusions: [],
+                        parent: false,
+                        path: config.resource_absolute,
+                        relative: true,
+                        search: "",
+                        symbolic: false
+                    });
+                },
                 section: "servers-web"
             });
         },
-        decode:string = decodeURI(fileFragment),
-        decoded:string = (decode.includes("?") === true)
-            ? decode.slice(0, decode.indexOf("?"))
-            : decode;
-    if (server_id === vars.id.dashboard_server) {
-        if (decoded.indexOf("file-system-") > -1) {
-            stat(decoded.slice(decoded.indexOf("file-system-") + 12));
-            return;
-        }
-        if (decoded === "" || decoded.includes("/") === true || decoded.charAt(0) === "?" || decoded.charAt(0) === "#") {
-            const list:string = headerList.join("\n"),
-                dashboard:string = vars.environment.dashboard_page.replace("request: \"\"", `request: \`${list}\``),
-                headers:string[] = [
-                    "HTTP/1.1 200",
-                    "content-type: text/html",
-                    `content-length: ${Buffer.byteLength(dashboard)}`,
+        fileItem = function http_get_stat_statTest_fileItem():void {
+            const type_callback = function http_get_stat_statTest_fileItem_typeCallback(type:string):void {
+                const headerText:string[] = [
+                    "",
+                    `content-type: ${type}`,
+                    "transfer-encoding: chunked",
                     `server: prettydiff/${vars.environment.name}`,
                     "accept-ranges: bytes",
-                    "",
                     ""
                 ];
-            if (method === "GET") {
-                http_write(socket, headers.join("\r\n") + dashboard, true);
-            } else if (method === "HEAD") {
+                if (config.method.toLowerCase() === "head") {
+                    http_write(socket, headerText.join("\r\n"), true);
+                } else {
+                    let stream:node_fs_ReadStream = null;
+                    const status:string = (function http_get_stat_statTest_fileItem_partial():string {
+                        if (config.range === "") {
+                            stream = node.fs.createReadStream(config.resource_absolute);
+                            return "HTTP/1.1 200";
+                        }
+                        const ranges:string[] = config.range.replace(/\s*bytes=/, "").split("-"),
+                            size:number = config.resource_size,
+                            start:number = (ranges[0] === "")
+                                ? 0
+                                : Number(ranges[0]),
+                            end:number = (ranges[1] === "" || ranges[1] === undefined)
+                                ? Math.min(start + (1024 * 1024), size)
+                                : Number(ranges[1].split("/")[0]),
+                            empty:boolean = (end - start === 0);
+                            if (empty === true) {
+                                headerText[0] = "HTTP/1.1 200";
+                                headerText[2] = "content-length: 0";
+                            } else {
+                                if (end === size) {
+                                    headerText.splice(2, 0, `content-range: bytes ${start}-${end - 1}/${size}`);
+                                } else {
+                                    headerText.splice(2, 0, `content-range: bytes ${start}-${end}/${size}`);
+                                }
+                                stream = node.fs.createReadStream(config.resource_absolute, {
+                                    end: end,
+                                    start: start
+                                });
+                            }
+                        return "HTTP/1.1 206";
+                    }());
+                    headerText[0] = status;
+                    http_write(socket, headerText.join("\r\n"), false);
+                    if (stream !== null) {
+                        stream.on("close", function http_get_stat_statTest_fileItem_close():void {
+                            http_write(socket, "\r\n0\r\n\r\n", true);
+                        });
+                        stream.on("data", function http_get_stat_statTest_fileItem_data(chunk:Buffer|string):void {
+                            http_write(socket, `\r\n${Buffer.byteLength(chunk).toString(16)}\r\n`, false);
+                            http_write(socket, chunk, false);
+                        });
+                    }
+                }
+            };
+            if (vars.environment.file === true) {
+                spawn(vars.commands.file + config.resource_absolute, function http_get_stat_statTest_fileItem_spawn(output:core_spawn_output):void {
+                    const triples:string[] = output.stdout.split("; ");
+                    type_callback(triples[1]);
+                }).execute();
+            } else {
+                type_callback((function http_get_stat_statTest_fileItem_contentType():string {
+                    const extension:string = config.resource_absolute.slice(config.resource_absolute.lastIndexOf(".") + 1);
+                    if (extension === "avi") {
+                        return "video/x-msvideo";
+                    }
+                    if (extension === "css") {
+                        return "text/css; utf8";
+                    }
+                    if (extension === "flv") {
+                        return "video/x-flv";
+                    }
+                    if (extension === "gif") {
+                        return "image/gif";
+                    }
+                    if (extension === "html") {
+                        return "text/html; utf8";
+                    }
+                    if (extension === "ico") {
+                        return "image/x-icon";
+                    }
+                    if (extension === "jpg" || extension === "jpeg") {
+                        return "image/jpeg";
+                    }
+                    if (extension === "js" || extension === "ts") {
+                        return "application/javascript; utf8";
+                    }
+                    if (extension === "json") {
+                        return "application/json; utf8";
+                    }
+                    if (extension === "mp3") {
+                        return "audio/mpeg";
+                    }
+                    if (extension === "mp4" || extension === "mpeg4" || extension === "mkv") {
+                        return "video/mp4";
+                    }
+                    if (extension === "png") {
+                        return "image/png";
+                    }
+                    if (extension === "wmv") {
+                        return "video/x-ms-wmv";
+                    }
+                    if (extension === "xhtml") {
+                        return "application/xml+html; utf8";
+                    }
+                    if (extension === "xml") {
+                        return "application/xml; utf8";
+                    }
+                    return "text/plain; utf8";
+                }()));
+            }
+        };
+    if (server_id === vars.id.dashboard_server) {
+        // if (decoded.indexOf("file-system-") > -1) {
+        //     stat(decoded.slice(decoded.indexOf("file-system-") + 12));
+        //     return;
+        // }
+        if (config.resource.includes("/") === true || config.resource.charAt(0) === "?" || config.resource.charAt(0) === "#") {
+            const headers:string[] = [
+                "HTTP/1.1 200",
+                "content-type: text/html",
+                `content-length: ${Buffer.byteLength(vars.environment.dashboard_page)}`,
+                `server: prettydiff/${vars.environment.name}`,
+                "accept-ranges: bytes",
+                "",
+                ""
+            ];
+            if (config.method.toLowerCase() === "get") {
+                http_write(socket, headers.join("\r\n") + vars.environment.dashboard_page, true);
+            } else if (config.method.toLowerCase() === "head") {
                 http_write(socket, headers.join("\r\n"), true);
             }
             return;
@@ -392,12 +328,14 @@ const http_get:http_action = function http_get(headerList:string[], socket:webso
             "",
             ""
         ].join("\r\n"), true);
-    } else if (fileFragment === "") {
-        // server root html file takes the name of the server, not index.html
-        stat(`${path}index.html`);
     } else {
-        // all other HTTP requests
-        stat(path + decoded);
+        if (config.resource_type === "file") {
+            fileItem();
+        } else if (config.resource_type === "directory") {
+            directory_item();
+        } else {
+            notFound();
+        }
     }
 };
 

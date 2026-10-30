@@ -1,13 +1,13 @@
 
 // cspell: words bootable
 
-const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_list {
-    const list:test_list = [
+const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "disks", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "disks", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -18,28 +18,26 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 3],
-                        ["getElementsByTagName", "button", 2]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 3],
+                        ["tag", "button", 2]
                     ]
                 }
             ],
             name: "Navigate to disks",
-            type: "dom",
             unit: []
         },
         {
             delay: null,
             interaction: [],
             name: "Check if disks list is populated",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "h3", 0]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["tag", "h3", 0]
                     ],
                     qualifier: "greater",
                     target: ["offsetTop"],
@@ -48,11 +46,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "li", 0],
-                        ["getElementsByTagName", "strong", 0]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["tag", "li", 0],
+                        ["tag", "strong", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -61,11 +59,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "li", 1],
-                        ["getElementsByTagName", "strong", 0]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["tag", "li", 1],
+                        ["tag", "strong", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -74,11 +72,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "li", 2],
-                        ["getElementsByTagName", "strong", 0]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["tag", "li", 2],
+                        ["tag", "strong", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -87,11 +85,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "li", 3],
-                        ["getElementsByTagName", "strong", 0]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["tag", "li", 3],
+                        ["tag", "strong", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -100,11 +98,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "li", 4],
-                        ["getElementsByTagName", "strong", 0]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["tag", "li", 4],
+                        ["tag", "strong", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -113,10 +111,10 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "h4", 0]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["tag", "h4", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -125,11 +123,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "os-interface", 0],
-                        ["getElementsByTagName", "strong", 0]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["class", "os-interface", 0],
+                        ["tag", "strong", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -138,11 +136,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "os-interface", 0],
-                        ["getElementsByTagName", "strong", 1]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["class", "os-interface", 0],
+                        ["tag", "strong", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -151,11 +149,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "os-interface", 0],
-                        ["getElementsByTagName", "strong", 2]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["class", "os-interface", 0],
+                        ["tag", "strong", 2]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -164,11 +162,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "os-interface", 0],
-                        ["getElementsByTagName", "strong", 3]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["class", "os-interface", 0],
+                        ["tag", "strong", 3]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -177,11 +175,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "os-interface", 0],
-                        ["getElementsByTagName", "strong", 4]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["class", "os-interface", 0],
+                        ["tag", "strong", 4]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -190,11 +188,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "os-interface", 0],
-                        ["getElementsByTagName", "strong", 5]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["class", "os-interface", 0],
+                        ["tag", "strong", 5]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -203,11 +201,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "os-interface", 0],
-                        ["getElementsByTagName", "strong", 6]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["class", "os-interface", 0],
+                        ["tag", "strong", 6]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -216,11 +214,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "os-interface", 0],
-                        ["getElementsByTagName", "strong", 7]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["class", "os-interface", 0],
+                        ["tag", "strong", 7]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -229,11 +227,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "os-interface", 0],
-                        ["getElementsByTagName", "strong", 8]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["class", "os-interface", 0],
+                        ["tag", "strong", 8]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -242,11 +240,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "os-interface", 0],
-                        ["getElementsByTagName", "strong", 9]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["class", "os-interface", 0],
+                        ["tag", "strong", 9]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -255,11 +253,11 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "disks", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "os-interface", 0],
-                        ["getElementsByTagName", "strong", 10]
+                        ["id", "disks", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["class", "os-interface", 0],
+                        ["tag", "strong", 10]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -270,6 +268,7 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
         }
     ];
     list.name = "Local browser tests - disks";
+    list.type = "dom";
     return list;
 };
 

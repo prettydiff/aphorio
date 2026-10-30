@@ -1,13 +1,13 @@
 
 import vars from "../core/vars.ts";
 
-const test_listLocalBrowserComposeContainers = function test_listLocalBrowserComposeContainers():test_list {
-    const list:test_list = [
+const test_listLocalBrowserComposeContainers = function test_listLocalBrowserComposeContainers():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "compose-containers", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "compose-containers", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -18,13 +18,12 @@ const test_listLocalBrowserComposeContainers = function test_listLocalBrowserCom
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "button", 1]
+                        ["tag", "nav", 0],
+                        ["tag", "button", 1]
                     ]
                 }
             ],
             name: "Navigate to compose",
-            type: "dom",
             unit: []
         }
     ];
@@ -33,11 +32,10 @@ const test_listLocalBrowserComposeContainers = function test_listLocalBrowserCom
             delay: null,
             interaction: null,
             name: "Display compose error message.",
-            type: "dom",
             unit: [{
                 node: [
-                    ["getElementById", "compose-containers", null],
-                    ["getElementsByTagName", "p", 1]
+                    ["id", "compose-containers", null],
+                    ["tag", "p", 1]
                 ],
                 qualifier: "is",
                 target: ["textContent"],
@@ -47,6 +45,7 @@ const test_listLocalBrowserComposeContainers = function test_listLocalBrowserCom
         });
     }
     list.name = "Local browser tests - compose";
+    list.type = "dom";
     return list;
 };
 

@@ -1,13 +1,13 @@
 
 import vars from "../core/vars.ts";
 
-const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine():test_list {
-    const list:test_list = [
+const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "os-machine", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "os-machine", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -18,20 +18,19 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 3],
-                        ["getElementsByTagName", "button", 0]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 3],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
             name: "Navigate to os",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "os-machine", null],
-                        ["getElementsByClassName", "table-stats", 0],
-                        ["getElementsByTagName", "time", 0]
+                        ["id", "os-machine", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "time", 0]
                     ],
                     qualifier: "not",
                     store: true,
@@ -41,10 +40,10 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 },
                 {
                     node: [
-                        ["getElementById", "os-machine", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "h3", 0]
+                        ["id", "os-machine", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["tag", "h3", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -53,10 +52,10 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 },
                 {
                     node: [
-                        ["getElementById", "os-machine", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "h4", 0]
+                        ["id", "os-machine", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["tag", "h4", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -65,10 +64,10 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 },
                 {
                     node: [
-                        ["getElementById", "os-machine", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByTagName", "h4", 1]
+                        ["id", "os-machine", null],
+                        ["class", "section", 0],
+                        ["class", "section", 0],
+                        ["tag", "h4", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -77,10 +76,10 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 },
                 {
                     node: [
-                        ["getElementById", "os-machine", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 1],
-                        ["getElementsByTagName", "h3", 0]
+                        ["id", "os-machine", null],
+                        ["class", "section", 0],
+                        ["class", "section", 1],
+                        ["tag", "h3", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -89,10 +88,10 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 },
                 {
                     node: [
-                        ["getElementById", "os-machine", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 1],
-                        ["getElementsByTagName", "h4", 0]
+                        ["id", "os-machine", null],
+                        ["class", "section", 0],
+                        ["class", "section", 1],
+                        ["tag", "h4", 0]
                     ],
                     qualifier: "is",
                     target: ["firstChild", "textContent"],
@@ -101,10 +100,10 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 },
                 {
                     node: [
-                        ["getElementById", "os-machine", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 1],
-                        ["getElementsByTagName", "h4", 1]
+                        ["id", "os-machine", null],
+                        ["class", "section", 0],
+                        ["class", "section", 1],
+                        ["tag", "h4", 1]
                     ],
                     qualifier: "is",
                     target: ["firstChild", "textContent"],
@@ -113,10 +112,10 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 },
                 {
                     node: [
-                        ["getElementById", "os-machine", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 2],
-                        ["getElementsByTagName", "h3", 0]
+                        ["id", "os-machine", null],
+                        ["class", "section", 0],
+                        ["class", "section", 2],
+                        ["tag", "h3", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -125,10 +124,10 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 },
                 {
                     node: [
-                        ["getElementById", "os-machine", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 2],
-                        ["getElementsByTagName", "h4", 0]
+                        ["id", "os-machine", null],
+                        ["class", "section", 0],
+                        ["class", "section", 2],
+                        ["tag", "h4", 0]
                     ],
                     qualifier: "is",
                     target: ["firstChild", "textContent"],
@@ -137,10 +136,10 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 },
                 {
                     node: [
-                        ["getElementById", "os-machine", null],
-                        ["getElementsByClassName", "section", 0],
-                        ["getElementsByClassName", "section", 3],
-                        ["getElementsByTagName", "h3", 0]
+                        ["id", "os-machine", null],
+                        ["class", "section", 0],
+                        ["class", "section", 3],
+                        ["tag", "h3", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -152,9 +151,9 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
         {
             delay: {
                 node: [
-                    ["getElementById", "os-machine", null],
-                    ["getElementsByClassName", "table-stats", 0],
-                    ["getElementsByTagName", "time", 0]
+                    ["id", "os-machine", null],
+                    ["class", "table-stats", 0],
+                    ["tag", "time", 0]
                 ],
                 qualifier: "not",
                 target: ["textContent"],
@@ -165,18 +164,18 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "os-machine", null],
-                        ["getElementsByClassName", "table-stats", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "os-machine", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
             name: "Update OS content",
-            type: "dom",
             unit: []
         }
     ];
     list.name = "Local browser tests - os";
+    list.type = "dom";
     return list;
 };
 

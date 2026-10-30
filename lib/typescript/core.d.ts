@@ -65,8 +65,8 @@ interface core_directory_data {
 
 interface core_directory_list extends Array<type_directory_item> {
     [index:number]: type_directory_item;
-    failures?: string[];
-    parent?: type_directory_item;
+    failures: string[];
+    parent: type_directory_item;
 }
 
 interface core_docker_status {
@@ -149,6 +149,12 @@ interface core_module_peer {
     request_ui: (socket_data:socket_data) => void;
 }
 
+interface core_module_remoteShell {
+    init: (socket:websocket_client) => void;
+    prompt: string;
+    receiver: (data:Buffer) => void;
+}
+
 interface core_module_spawn {
     close: () => void;
     command: string;
@@ -180,13 +186,21 @@ interface core_module_udp {
 }
 
 interface core_module_universal {
-    bytes: () => number;
-    bytes_big: () => bigint;
+    bytes: (input?:number) => string;
+    bytes_long: () => string;
+    bytes_numb: () => number;
     capitalize: () => string;
     commas: () => string;
     dateTime: (date:boolean, timeZone_offset:number) => string;
     file_sanitize: () => string;
     time_elapsed: () => string;
+}
+
+interface core_package_json {
+    bugs: {
+        url: string;
+    };
+    version: string;
 }
 
 interface core_server_child_input {
@@ -246,11 +260,13 @@ interface core_spawn_output {
     type: string;
 }
 
+interface core_start_task {
+    label: string;
+    task: () => void;
+}
+
 interface core_start_tasks {
-    [key:string]: {
-        label: string;
-        task: () => void;
-    };
+    [key:string]: core_start_task;
 }
 
 interface core_state_file {
@@ -330,22 +346,24 @@ interface core_vars_data_primary {
     sockets_udp: services_udp_socket[];
 }
 
+interface core_vars_data_server {
+    // server certificates
+    server_certs: transmit_tlsCerts;
+    // storage of actual web server objects
+    server_object: {
+        open: core_server_instance;
+        secure: core_server_instance;
+    };
+    // storage of application managed tcp sockets
+    sockets_tcp: {
+        open: websocket_client[];
+        secure: websocket_client[];
+    };
+}
+
 interface core_vars_data_store {
     server: {
-        [key:string]: {
-            // server certificates
-            server_certs: transmit_tlsCerts;
-            // storage of actual web server objects
-            server_object: {
-                open: core_server_instance;
-                secure: core_server_instance;
-            };
-            // storage of application managed tcp sockets
-            sockets_tcp: {
-                open: websocket_client[];
-                secure: websocket_client[];
-            };
-        };
+        [key:string]: core_vars_data_server;
     };
     // storage of application managed udp sockets
     sockets_udp: transmit_udp[];
@@ -391,7 +409,6 @@ interface core_vars_environment {
     file: boolean;
     git_hash: string;
     hashes: string[];
-    http_request: string;
     interfaces: string[];
     license: string;
     loading: boolean;
@@ -401,6 +418,9 @@ interface core_vars_environment {
     };
     name: string;
     repository: string;
+    request_http: string;
+    request_ws: string;
+    runtime: string;
     services_app: core_service_internal[];
     start_date: number;
     start_time: bigint;
@@ -418,14 +438,14 @@ interface core_vars_options {
     "browser": string;
     "delay-intervals": number;
     "delay-time": number;
-    "demo": boolean;
+    "feature": type_dashboard_features | "";
     "list": string;
+    "mode": type_mode;
     "no-color": boolean;
     "no-exit": boolean;
     "port-open": number;
     "port-secure": number;
     "stop-on-fail": boolean;
-    "test": boolean;
     "test-verbose": boolean;
 }
 
@@ -460,10 +480,12 @@ interface core_vars_test {
     counts: {
         [key:string]: test_counts;
     };
+    encrypted_proxy: boolean;
     index: number;
-    list: test_list;
+    list: test_list_dom | test_list_proxy;
     magicString: string;
-    store: test_primitive;
+    servers: core_vars_test_server[];
+    store: type_test_primitive;
     test_browser: string;
     testing: boolean;
     total_assertions: number;
@@ -474,6 +496,12 @@ interface core_vars_test {
     total_tests_skipped: number;
     total_time_end: bigint;
     total_time_start: bigint;
+}
+
+interface core_vars_test_server {
+    id: string;
+    port_open: number;
+    port_secure: number;
 }
 
 interface core_windows_drives {

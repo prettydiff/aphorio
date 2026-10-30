@@ -77,7 +77,7 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
                     } else if (data.action === "destroy") {
                         delete vars.data.server[id];
                         delete vars.data_store.server[id];
-                        if (vars.options.demo === true) {
+                        if (vars.options.mode === "demo") {
                             complete();
                         } else {
                             file.remove({
@@ -92,7 +92,7 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
                     } else if (data.action === "modify") {
                         const modify = function servers_serverHalt_closed_modify():void {
                                 vars.data.server[id].config = data.server;
-                                if (vars.options.demo === true) {
+                                if (vars.options.mode === "demo") {
                                     complete();
                                 } else {
                                     save(activate, "servers-web");

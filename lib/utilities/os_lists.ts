@@ -8,12 +8,12 @@ import vars from "../core/vars.ts";
 // cspell: words blockdevices, bootable, fsavail, fssize, fstype, fsused, mountpoint, partflags, parttypename, pwsh, serv, stcp, sudp, volu
 
 const os_list = function utilities_osList(type_os:type_os_services, callback:(output:socket_data) => void):void {
-    if (vars.options.demo === true) {
+    if (vars.options.mode === "demo") {
         os_demo(type_os, callback);
     } else {
         let cpu_max_number:number = null,
-            cpu_max_test:boolean = (process.platform !== "win32");
-        const win32:boolean = (process.platform === "win32"),
+            cpu_max_test:boolean = (process.platform !== "win32" && process.platform !== "cygwin");
+        const win32:boolean = (process.platform === "win32" || process.platform === "cygwin"),
             shell:string = (win32 === true)
                 ? (vars.environment.terminal.includes("C:\\Program Files\\PowerShell\\7\\pwsh.exe") === true)
                     ? "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
@@ -898,7 +898,7 @@ const os_list = function utilities_osList(type_os:type_os_services, callback:(ou
                             env: process.env,
                             hostname: node.os.hostname(),
                             name: node.os.version(),
-                            path: (process.platform === "win32")
+                            path: (win32 === true)
                                 ? process.env.Path.split(";")
                                 : (process.env.PATH === undefined)
                                     ? []

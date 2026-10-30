@@ -2830,7 +2830,7 @@ const os_demo = function utilities_osDemo(type_os:type_os_services, callback:(ou
             service: "services_os_sudp"
         });
     } else if (type_os === "user") {
-        if (process.platform === "win32") {
+        if (process.platform === "win32" || process.platform === "cygwin") {
             vars.os.proc = processes;
         }
         vars.os.user = user;

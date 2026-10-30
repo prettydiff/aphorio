@@ -101,9 +101,38 @@ declare global {
         template: boolean;
     }
 
+    interface config_http {
+        accept: string;
+        body: Buffer;
+        domain: string;
+        encryption: "open" | "secure";
+        fragment: string;
+        headers: string[];
+        host_index: number;
+        http_test: boolean;
+        http_upgrade: boolean;
+        method: type_http_method;
+        origin: string;
+        port: number;
+        proxy_type: "encryption" | "none" | "proxy_resource" | "proxy_server" | "resource";
+        query: string;
+        range: string;
+        referrer: string;
+        resource: string;
+        resource_absolute: string;
+        resource_size: number;
+        resource_type: "directory" | "file" | "other";
+        user_agent: string;
+        websocket_key: string;
+        websocket_nonce: string;
+        websocket_type: string;
+    }
+
     interface config_http_request_output {
         chunked: boolean;
         chunks: number;
+        encrypted_proxy: boolean;
+        encrypted_self: boolean;
         error: node_error;
         response_body_raw: string;
         response_headers: string;
@@ -117,6 +146,13 @@ declare global {
         section: type_dashboard_sections | "certificate" | "dashboard" | "startup";
         status: type_dashboard_status;
         time: number;
+    }
+
+    interface config_log_start {
+        conflict: boolean;
+        name: string;
+        type: "open" | "secure" | "tcp" | "udp";
+        value: number;
     }
 
     interface config_os_comparison {
@@ -142,6 +178,21 @@ declare global {
         };
     }
 
+    interface config_proxy_create {
+        body: Buffer;
+        encrypted: boolean;
+        headers: string[];
+        host: string;
+        host_index: number;
+        identifier: string;
+        method: type_http_method | "";
+        port: number;
+        resource: string;
+        server_hash: string;
+        socket: websocket_client;
+        user_agent: string;
+    }
+
     interface config_resize {
         node: HTMLElement;
         section: type_dashboard_features;
@@ -163,11 +214,11 @@ declare global {
     }
 
     interface config_validate_serverKeys {
-        name: "block_list" | "method" | "ports" | "redirect_asset" | "redirect_domain";
+        name: number | "block_list" | "method" | "ports" | "redirect_asset" | "redirect_domain";
         required_name: boolean;
         required_property: boolean;
         supported: string[];
-        type: "array" | "method" | "number" | "store" | "string";
+        type: "array" | "method" | "number" | "proxy" | "store" | "string";
     }
 
     interface config_websocket_create {

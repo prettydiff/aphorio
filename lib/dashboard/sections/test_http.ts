@@ -41,7 +41,7 @@ const ui_test_http = function ui_test_http():void {
             } else {
                 // populate a default HTTP test value
                 dashboard.sections["test-http"].nodes.request.value = (dashboard.global.state.http === null || dashboard.global.state.http === undefined || typeof dashboard.global.state.http.request !== "string" || dashboard.global.state.http.request === "")
-                    ? dashboard.global.payload.http_request
+                    ? dashboard.global.payload.request_http
                     : dashboard.global.state.http.request;
                 dashboard.sections["test-http"].nodes.http_request.onclick = dashboard.sections["test-http"].events.request;
                 dashboard.sections["test-http"].nodes.responseBody.value = "";
@@ -73,17 +73,17 @@ const ui_test_http = function ui_test_http():void {
             // round trip time
             strong[0].textContent = `${data.stats.time} seconds`;
             // response header size
-            strong[1].textContent = data.stats.response.size_header.bytesLong();
+            strong[1].textContent = data.stats.response.size_header.bytes_long();
             // response body size
-            strong[2].textContent = data.stats.response.size_body.bytesLong();
+            strong[2].textContent = data.stats.response.size_body.bytes_long();
             // chunked?
             strong[3].textContent = String(data.stats.chunks.chunked);
             // chunk count
             strong[4].textContent = data.stats.chunks.count.commas();
             // request header size
-            strong[5].textContent = data.stats.request.size_header.bytesLong();
+            strong[5].textContent = data.stats.request.size_header.bytes_long();
             // request body size
-            strong[6].textContent = data.stats.request.size_body.bytesLong();
+            strong[6].textContent = data.stats.request.size_body.bytes_long();
             // URI length
             strong[7].textContent = (data.uri === "")
                 ? ""

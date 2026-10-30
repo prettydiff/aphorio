@@ -1,12 +1,12 @@
 import vars from "../core/vars.ts";
 
-const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowserSocketsApplicationTCP():test_list {
-    const list:test_list = [
+const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowserSocketsApplicationTCP():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "sockets-application-tcp", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "sockets-application-tcp", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -17,22 +17,21 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 1],
-                        ["getElementsByTagName", "button", 1]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 1],
+                        ["tag", "button", 1]
                     ]
                 }
             ],
             name: "Navigate to sockets",
-            type: "dom",
             unit: []
         },
         {
             delay: {
                 node: [
-                    ["getElementById", "sockets-application-tcp", null],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", null]
+                    ["id", "sockets-application-tcp", null],
+                    ["tag", "tbody", 0],
+                    ["tag", "tr", null]
                 ],
                 qualifier: "greater",
                 store: true,
@@ -42,14 +41,13 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
             },
             interaction: [],
             name: "Check if application socket table is populated",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 0]
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent", "length"],
@@ -58,10 +56,10 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 },
                 {
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 1]
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -70,10 +68,10 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 },
                 {
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "begins",
                     target: ["textContent"],
@@ -82,10 +80,10 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 },
                 {
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 3]
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 3]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -94,10 +92,10 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 },
                 {
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 4]
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 4]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -106,10 +104,10 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 },
                 {
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 5]
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 5]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -118,10 +116,10 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 },
                 {
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 6]
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 6]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -130,22 +128,22 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 },
                 {
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 7]
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 7]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
                     type: "property",
-                    value: ["127.0.0.1", "::1"] as test_primitive[]
+                    value: ["127.0.0.1", "::1"] as type_test_primitive[]
                 },
                 {
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 8]
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 8]
                     ],
                     qualifier: "numeric",
                     target: ["textContent"],
@@ -154,10 +152,10 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 },
                 {
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 9]
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 9]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -172,26 +170,26 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "sockets-application-tcp", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "sockets-application-tcp", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "services_terminal_"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "sockets-application-tcp", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "Enter"
                 },
@@ -201,14 +199,13 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                     value: "50"
                 }
             ],
-            name: "Filter application sockets",
-            type: "dom",
+            name: "Filter TCP application sockets",
             unit: [
                 {
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByClassName", "table-stats", 0],
-                        ["getElementsByTagName", "em", 1]
+                        ["id", "sockets-application-tcp", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "em", 1]
                     ],
                     qualifier: "lesser",
                     target: ["textContent"],
@@ -218,11 +215,83 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
             ]
         },
         {
+            delay: null,
+            interaction: [
+                {
+                    event: "click",
+                    node: [
+                        ["id", "sockets-application-tcp", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
+                    ]
+                },
+                {
+                    event: "setValue",
+                    node: [
+                        ["id", "sockets-application-tcp", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
+                    ],
+                    value: ""
+                },
+                {
+                    event: "keyup",
+                    node: [
+                        ["id", "sockets-application-tcp", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
+                    ],
+                    value: "Enter"
+                },
+                {
+                    event: "wait",
+                    node: [],
+                    value: "50"
+                }
+            ],
+            name: "Remove filter on TCP application sockets",
+            unit: [
+                {
+                    node: [
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", null]
+                    ],
+                    qualifier: "greater",
+                    target: ["length"],
+                    type: "property",
+                    value: 1
+                },
+                {
+                    node: [
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0]
+                    ],
+                    qualifier: "is",
+                    target: ["style", "display"],
+                    type: "property",
+                    value: "table-row"
+                },
+                {
+                    node: [
+                        ["id", "sockets-application-tcp", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "em", 1]
+                    ],
+                    qualifier: "greater",
+                    target: ["textContent"],
+                    type: "property",
+                    value: 1
+                }
+            ]
+        },
+        {
             delay: {
                 node: [
-                    ["getElementById", "sockets-application-tcp", null],
-                    ["getElementsByClassName", "table-stats", 0],
-                    ["getElementsByTagName", "em", 2]
+                    ["id", "sockets-application-tcp", null],
+                    ["class", "table-stats", 0],
+                    ["tag", "em", 2]
                 ],
                 qualifier: "not",
                 store: true,
@@ -234,18 +303,18 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "sockets-application-tcp", null],
-                        ["getElementsByClassName", "update-button", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["id", "sockets-application-tcp", null],
+                        ["class", "update-button", 0],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
-            name: "Update os sockets",
-            type: "dom",
+            name: "Update application TCP sockets",
             unit: null
         }
     ];
     list.name = "Local browser tests - sockets-application-tcp";
+    list.type = "dom";
     return list;
 };
 

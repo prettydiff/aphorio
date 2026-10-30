@@ -1,5 +1,4 @@
 
-import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import test_listLocalBrowserApplicationLogs from "./list_local_browser_application-logs.ts";
 import test_listLocalBrowserComposeContainers from "./list_local_browser_compose-containers.ts";
@@ -30,9 +29,9 @@ import test_runner from "./runner.ts";
 import test_summary from "./summary.ts";
 import vars from "../core/vars.ts";
 
-const test_index = function test_index():void {
+const test_index_dom = function test_indexDOM():void {
     let total_lists:number = 0;
-    const list:test_list[] = (vars.test.list === null)
+    const list:test_list_dom[] = (vars.test.list === null)
             ? [
                 test_listLocalBrowserStart(),
                 test_listLocalBrowserApplicationLogs(),
@@ -65,39 +64,13 @@ const test_index = function test_index():void {
                 vars.test.list()
             ],
         len_list:number = list.length,
-        callback = function test_index_callback(name:string):void {
+        callback = function test_indexDOM_callback(name:string):void {
             total_lists = total_lists + 1;
             if (total_lists === len_list || (vars.options["stop-on-fail"] === true && vars.test.counts[name].assertions_fail > 0)) {
-                let count:number = 0;
-                const removed = function test_index_callback_removed():void {
-                    count = count + 1;
-                    if (count > 2) {
-                        vars.test.total_time_end = process.hrtime.bigint();
-                        test_summary(name, true);
-                    }
-                };
-                // in the context of testing vars.path.project is actually ${vars.path.project}test so removing files does not harm the project runtime
-                file.remove({
-                    callback: removed,
-                    exclusions: [],
-                    location: `${vars.path.project}compose`,
-                    section: "startup"
-                });
-                file.remove({
-                    callback: removed,
-                    exclusions: [],
-                    location: `${vars.path.project}servers`,
-                    section: "startup"
-                });
-                file.remove({
-                    callback: removed,
-                    exclusions: [],
-                    location: `${vars.path.project}servers.json`,
-                    section: "startup"
-                });
+                test_summary(name, true);
             } else {
                 test_summary(name, false);
-                test_runner.list(list[total_lists], test_index_callback);
+                test_runner.list(list[total_lists], test_indexDOM_callback);
             }
         };
     log.shell(["", `Starting test automation for ${len_list} lists.`, ""]);
@@ -112,4 +85,4 @@ const test_index = function test_index():void {
 // App UDP Sockets
 // WebSocket Test - Incomplete
 
-export default test_index;
+export default test_index_dom;

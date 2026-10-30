@@ -72,7 +72,7 @@ const ui_disks = function ui_disks():void {
                                 if (list_data[index_child].size_total === 0) {
                                     data_item(list, "0 bytes (0B)", "size_free");
                                 } else if (warn_test === false) {
-                                    data_item(list, `${list_data[index_child].size_free.bytesLong()}, ${list_data[index_child].size_free_percent}%`, "size_free");
+                                    data_item(list, `${list_data[index_child].size_free.bytes_long()}, ${list_data[index_child].size_free_percent}%`, "size_free");
                                 } else {
                                     const sfLi:HTMLElement = document.createElement("li"),
                                         sfBad:HTMLElement = document.createElement("strong"),
@@ -81,19 +81,19 @@ const ui_disks = function ui_disks():void {
                                     sfBad.textContent = `${list_data[index_child].size_free_percent}%`;
                                     sfStrong.textContent = "Size Free";
                                     sfLi.appendChild(sfStrong);
-                                    sfLi.appendText(`${list_data[index_child].size_free.bytesLong()}, `);
+                                    sfLi.appendText(`${list_data[index_child].size_free.bytes_long()}, `);
                                     sfLi.appendChild(sfBad);
                                     list.appendChild(sfLi);
                                 }
                                 if (list_data[index_child].size_total === 0) {
-                                    data_item(list, `${list_data[index_child].size_used.bytesLong()}`, "size_used");
+                                    data_item(list, `${list_data[index_child].size_used.bytes_long()}`, "size_used");
                                 } else {
-                                    data_item(list, `${list_data[index_child].size_used.bytesLong()}, ${list_data[index_child].size_used_percent}%`, "size_used");
+                                    data_item(list, `${list_data[index_child].size_used.bytes_long()}, ${list_data[index_child].size_used_percent}%`, "size_used");
                                 }
                                 if (list_data[index_child].size_total === 0) {
                                     data_item(list, "0 bytes (0B)", "size_total");
                                 } else {
-                                    data_item(list, `${list_data[index_child].size_total.bytesLong()}, 100%`, "size_total");
+                                    data_item(list, `${list_data[index_child].size_total.bytes_long()}, 100%`, "size_total");
                                 }
                                 data_item(list, list_data[index_child].type, "type");
                                 len_child = list_data[index_child].children.length;
@@ -140,7 +140,7 @@ const ui_disks = function ui_disks():void {
                     data_item(ul, String(item.data[index].guid), "guid");
                     data_item(ul, String(item.data[index].name), "name");
                     data_item(ul, String(item.data[index].serial), "serial");
-                    data_item(ul, item.data[index].size_disk.bytesLong(), "size_disk");
+                    data_item(ul, item.data[index].size_disk.bytes_long(), "size_disk");
                     data_item(ul, item.data[index].partitions, "partitions");
                     div.appendChild(ul);
                     div.setAttribute("class", "section");

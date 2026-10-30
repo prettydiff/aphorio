@@ -49,6 +49,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         error: function testBrowser_error(message:string, source:string, line:number, col:number, error:Error):void {
             remote.sendTest([{
                 assessment: message,
+                error: error,
                 location: "",
                 pass: false,
                 store: false,
@@ -66,14 +67,14 @@ const test_browser = function testBrowser(socketData:socket_data):void {
 
         /* Determine whether a given test item is pass or fail */
         evaluate: function testBrowser_evaluate(unit:test_assertion_dom):test_assert {
-            const rawValue:[HTMLElement, test_primitive] = remote.getProperty(unit),
-                value_actual:HTMLElement|test_primitive = (unit.type === "element")
+            const rawValue:[HTMLElement, type_test_primitive] = remote.getProperty(unit),
+                value_actual:HTMLElement|type_test_primitive = (unit.type === "element")
                     ? rawValue[0]
                     : rawValue[1],
-                value_test:test_primitive = (unit.value === remote.magicString)
-                    ? remote.store as test_primitive
-                    : unit.value as test_primitive,
-                qualifier:test_qualifier = unit.qualifier,
+                value_test:type_test_primitive = (unit.value === remote.magicString)
+                    ? remote.store as type_test_primitive
+                    : unit.value as type_test_primitive,
+                qualifier:type_test_qualifier = unit.qualifier,
                 test_nullable:boolean = (unit.nullable === true),
                 highlight = function testBrowser_evaluate_highlight():void {
                     if (unit !== remote.test_item.test.delay && rawValue[0] !== null && rawValue[0] !== undefined && rawValue[0].nodeType === 1) {
@@ -109,6 +110,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` begins with ${typeof value_actual}\n${s_unit}`
                             : ` begins with ${typeof value_actual}\n${value_actual.toString().slice(0, String(value_test).length)}\nnot ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -139,6 +141,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nwhich contains\n${s_unit}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich does not contain ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -170,6 +173,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nwhich ends with\n${test[1]}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich does not end with ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -199,6 +203,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nwhich is greater than\n${s_unit}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich is not greater than ${typeof value_test}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -206,9 +211,9 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "is") {
-                const value:test_primitive = (Array.isArray(value_test) === true)
-                        ? (value_test as test_primitive[]).includes(value_actual as test_primitive)
-                            ? value_test[value_test.indexOf(value_actual as test_primitive)]
+                const value:type_test_primitive = (Array.isArray(value_test) === true)
+                        ? (value_test as type_test_primitive[]).includes(value_actual as type_test_primitive)
+                            ? value_test[value_test.indexOf(value_actual as type_test_primitive)]
                             : JSON.stringify(value_test)
                         : value_test,
                     test:boolean = (value_actual === value),
@@ -219,6 +224,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test === true)
                             ? ` is exactly ${typeof value_actual}\n${s_actual}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich is not ${typeof value_test}\n${(value === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,
@@ -248,6 +254,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nwhich is lesser than ${typeof test[1]}\n${s_unit}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich is not lesser than ${typeof test[1]}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -255,9 +262,9 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 };
             }
             if (qualifier === "not") {
-                const value:test_primitive = (Array.isArray(value_test) === true)
-                        ? (value_test as test_primitive[]).includes(value_actual as test_primitive)
-                            ? value_test[value_test.indexOf(value_actual as test_primitive)]
+                const value:type_test_primitive = (Array.isArray(value_test) === true)
+                        ? (value_test as type_test_primitive[]).includes(value_actual as type_test_primitive)
+                            ? value_test[value_test.indexOf(value_actual as type_test_primitive)]
                             : JSON.stringify(value_test)
                         : value_test,
                     test:boolean = (value_actual !== value),
@@ -268,6 +275,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nnot ${typeof value_test}\n${(value === null) ? JSON.stringify(value_test) : s_unit}`
                             : ` is exactly ${typeof value_actual}\n${s_actual}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,
@@ -298,6 +306,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : (test[0] === true)
                             ? ` is ${typeof value_actual}\n${s_actual}\nwhich does not contain ${typeof test[1]}\n${(test[1] === null) ? JSON.stringify(value_test) : s_unit}`
                             : ` is ${typeof value_actual}\n${s_actual}\nwhich contains ${typeof test[1]}\n${s_unit}`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test[0] === true || nullable === true),
                     store: unit.store,
@@ -312,6 +321,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                         : ((value_test === false && test === false) || test === true)
                             ? ` is\n${s_actual}\nwhich is a numeric value`
                             : ` is\n${s_actual}\nwhich is not a numeric value`,
+                    error: null,
                     location: unit.node.nodeString,
                     pass: (test === true || nullable === true),
                     store: unit.store,
@@ -322,6 +332,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                 highlight();
                 return {
                     assessment: " value is of type dom element",
+                    error: null,
                     location: unit.node.nodeString.replace(/\s?highlight/, ""),
                     pass: false,
                     store: false,
@@ -331,10 +342,11 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             highlight();
             return {
                 assessment: " value does not match other assertion criteria",
+                error: null,
                 location: unit.node.nodeString,
                 pass: false,
                 store: false,
-                value: remote.stringify(value_actual as test_primitive)
+                value: remote.stringify(value_actual as type_test_primitive)
             };
         },
 
@@ -377,6 +389,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                                 if (config.coords === undefined || config.coords === null || config.coords.length !== 2 || isNaN(Number(config.coords[0])) === true || isNaN(Number(config.coords[0])) === true) {
                                     remote.sendTest([{
                                         assessment: " event error on resize",
+                                        error: null,
                                         location: config.node.nodeString,
                                         pass: false,
                                         store: false,
@@ -395,6 +408,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
                                 if (element === null || element === undefined) {
                                     remote.sendTest([{
                                         assessment: ` node is ${element}`,
+                                        error: null,
                                         location: config.node.nodeString,
                                         pass: false,
                                         store: false,
@@ -494,13 +508,13 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         },
 
         /* Get the value of the specified property/attribute */
-        getProperty: function testBrowser_getProperty(unit:test_assertion_dom):[HTMLElement, test_primitive] {
+        getProperty: function testBrowser_getProperty(unit:test_assertion_dom):[HTMLElement, type_test_primitive] {
             let type:boolean = false;
             const element:HTMLElement = (unit.node.length > 0)
                     ? remote.node(unit.node, unit.target[0])
                     : null,
                 pLength:number = unit.target.length,
-                property = function testBrowser_getProperty_property(origin:HTMLElement|Window):test_primitive {
+                property = function testBrowser_getProperty_property(origin:HTMLElement|Window):type_test_primitive {
                     let index_prop:number = 0,
                         prop:number|string = null,
                         method:string = null,
@@ -578,56 +592,81 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         /* Gather a DOM node using instructions from a data structure */
         node: function testBrowser_node(dom:test_browserDOM, property:string):HTMLElement {
             let element:Document|HTMLElement = document,
-                node:[test_domMethod, string, number],
+                node:type_test_browserDOM,
                 a:number = 0,
-                fail:string = "";
+                fail:string = "",
+                method:type_test_domMethod_standard = null;
             const nodeLength:number = dom.length,
-                str:string[] = ["document"];
+                str:string[] = ["document"],
+                method_map:store_dom = {
+                    active   : "activeElement",
+                    add      : "addClass",
+                    ancestor : "getAncestor",
+                    attribute: "getElementsByAttribute",
+                    child    : "childNodes",
+                    class    : "getElementsByClassName",
+                    document : "documentElement",
+                    first    : "firstChild",
+                    id       : "getElementById",
+                    last     : "lastChild",
+                    name     : "getElementsByName",
+                    next     : "nextSibling",
+                    parent   : "parentNode",
+                    previous : "previousSibling",
+                    remove   : "removeClass",
+                    tag      : "getElementsByTagName",
+                    text     : "getElementsByText",
+                    type     : "getNodesByType",
+                    window   : "window"
+                };
             if (dom === null || dom === undefined) {
                 return null;
             }
             do {
                 node = dom[a];
-                if (node[0] === "getElementById" && a > 0) {
+                method = (method_map[node[0]] === undefined)
+                    ? node[0] as type_test_domMethod_standard
+                    : method_map[node[0]];
+                if (method === "getElementById" && a > 0) {
                     fail = "Bad test. Method 'getElementById' must only occur as the first DOM method.";
                 }
-                if (node[2] === null && (node[0] === "childNodes" || node[0] === "getElementsByAttribute" || node[0] === "getElementsByClassName" || node[0] === "getElementsByName" || node[0] === "getElementsByTagName" || node[0] === "getElementsByText" || node[0] === "getModalsByModalType" || node[0] === "getNodesByType")) {
+                if (node[2] === null && (method === "childNodes" || method === "getElementsByAttribute" || method === "getElementsByClassName" || method === "getElementsByName" || method === "getElementsByTagName" || method === "getElementsByText" || method === "getNodesByType")) {
                     if (property !== "length" && a !== nodeLength - 1) {
                         fail = `Bad test. Property '${node[0]}' requires an index value as the third data point of a DOM item: ["${node[0]}", "${node[1]}", ${node[2]}]`;
                     }
                 }
-                if (node[0] === "childNodes" && node[2] !== null) {
+                if (method === "childNodes" && node[2] !== null) {
                     if (fail === "") {
                         element = element.childNodes[node[2]] as HTMLElement;
                     }
                     str.push(".childNodes[");
                     str.push(String(node[2]));
                     str.push("]");
-                } else if (node[1] === "" || node[1] === null || node[0] === "activeElement" || node[0] === "documentElement" || node[0] === "firstChild" || node[0] === "lastChild" || node[0] === "nextSibling" || node[0] === "parentNode" || node[0] === "previousSibling") {
+                } else if (node[1] === "" || node[1] === null || method === "activeElement" || method === "documentElement" || method === "firstChild" || method === "lastChild" || method === "nextSibling" || method === "parentNode" || method === "previousSibling") {
                     if (fail === "") {
                         // @ts-expect-error - TypeScript's DOM types do not understand custom extensions to the Document object
-                        element = element[node[0]];
+                        element = element[method];
                     }
                     str.push(".");
-                    str.push(node[0]);
-                } else if (node[2] === null || node[0] === "getElementById") {
+                    str.push(method);
+                } else if (node[2] === null || method === "getElementById") {
                     if (fail === "") {
                         // @ts-expect-error - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
-                        element = element[node[0]](node[1]);
+                        element = element[method](node[1]);
                     }
                     str.push(".");
-                    str.push(node[0]);
+                    str.push(method);
                     str.push("(\"");
                     str.push(node[1]);
                     str.push("\")");
                 } else {
                     // @ts-expect-error - TypeScript cannot implicitly walk the DOM by combining data structures and DOM methods
-                    const el:HTMLElement[] = element[node[0]](node[1]),
+                    const el:HTMLElement[] = element[method](node[1]),
                         len:number = (el === null || el.length < 1)
                             ? -1
                             : el.length;
                     str.push(".");
-                    str.push(node[0]);
+                    str.push(method);
                     str.push("(\"");
                     str.push(node[1]);
                     str.push("\")");
@@ -658,6 +697,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
             if (fail !== "") {
                 remote.sendTest([{
                     assessment: fail,
+                    error: null,
                     location: dom.nodeString,
                     pass: false,
                     store: false,
@@ -716,7 +756,7 @@ const test_browser = function testBrowser(socketData:socket_data):void {
         suite_name: null,
 
         /* Converts a primitive of any type into a string for presentation */
-        stringify: function testBrowser_raw(primitive:test_primitive):string {
+        stringify: function testBrowser_raw(primitive:type_test_primitive):string {
             return (typeof primitive === "string")
                 ? `"${primitive.replace(/"/g, "\\\"")}"`
                 : String(primitive);

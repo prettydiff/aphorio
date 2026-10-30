@@ -23,6 +23,10 @@ interface store_demo {
     [key:string]: services_demo;
 }
 
+interface store_dom {
+    [key:string]: type_test_domMethod_standard;
+}
+
 interface store_elements {
     [key:string]: HTMLElement;
 }
@@ -76,5 +80,5 @@ interface store_string_list {
 }
 
 interface store_test_list {
-    [key:string]: test_list;
+    [key:string]: test_list_dom;
 }

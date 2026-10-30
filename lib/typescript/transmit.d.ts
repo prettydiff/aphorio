@@ -18,39 +18,6 @@ interface transmit_addresses_socket {
     };
 }
 
-interface transmit_linux_ip extends Array<transmit_linux_ip_item> {
-    [index:number]: transmit_linux_ip_item;
-}
-
-interface transmit_linux_ip_item {
-    address: string;
-    broadcast: string;
-    flags: string[];
-    group: string;
-    ifindex: number;
-    ifname: string;
-    link_index: number;
-    link_netnsid: number;
-    link_type: string;
-    linkmode: "DEFAULT";
-    mtu: number;
-    operstate: "DOWN"|"UP";
-    qdisc: string;
-    stats64: {
-        rx: transmit_linux_ip_stats;
-        tx: transmit_linux_ip_stats;
-    };
-}
-
-interface transmit_linux_ip_stats {
-    bytes: number;
-    carrier_errors: number;
-    collisions: number;
-    dropped: number;
-    errors: number;
-    packets: number;
-}
-
 interface transmit_receiver {
     [key:string]: type_receiver;
 }

@@ -1,13 +1,13 @@
 
 import vars from "../core/vars.ts";
 
-const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPortsApplication():test_list {
-    const list:test_list = [
+const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPortsApplication():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "ports-application", null],
-                    ["getElementsByTagName", "h2", 0]
+                    ["id", "ports-application", null],
+                    ["tag", "h2", 0]
                 ],
                 qualifier: "greater",
                 target: ["offsetTop"],
@@ -18,22 +18,21 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
                 {
                     event: "click",
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "div", 1],
-                        ["getElementsByTagName", "button", 0]
+                        ["tag", "nav", 0],
+                        ["tag", "div", 1],
+                        ["tag", "button", 0]
                     ]
                 }
             ],
             name: "Navigate to ports-application",
-            type: "dom",
             unit: []
         },
         {
             delay: {
                 node: [
-                    ["getElementById", "ports-application", null],
-                    ["getElementsByTagName", "tbody", 0],
-                    ["getElementsByTagName", "tr", null]
+                    ["id", "ports-application", null],
+                    ["tag", "tbody", 0],
+                    ["tag", "tr", null]
                 ],
                 qualifier: "greater",
                 store: true,
@@ -43,14 +42,13 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
             },
             interaction: [],
             name: "Check if ports-application table is populated",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 0]
+                        ["id", "ports-application", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent", "typeof"],
@@ -59,10 +57,10 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
                 },
                 {
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 1]
+                        ["id", "ports-application", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 1]
                     ],
                     qualifier: "is",
                     target: ["textContent", "typeof"],
@@ -71,10 +69,10 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
                 },
                 {
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0],
-                        ["getElementsByTagName", "td", 2]
+                        ["id", "ports-application", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 2]
                     ],
                     qualifier: "is",
                     target: ["textContent", "typeof"],
@@ -89,26 +87,26 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "ports-application", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "ports-application", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "USB"
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "ports-application", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "Enter"
                 },
@@ -119,13 +117,12 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
                 }
             ],
             name: "Filter ports-application",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByClassName", "table-stats", 0],
-                        ["getElementsByTagName", "em", 1]
+                        ["id", "ports-application", null],
+                        ["class", "table-stats", 0],
+                        ["tag", "em", 1]
                     ],
                     qualifier: "lesser",
                     target: ["textContent"],
@@ -134,9 +131,9 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
                 },
                 {
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0]
+                        ["id", "ports-application", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0]
                     ],
                     qualifier: "is",
                     target: ["style", "display"],
@@ -151,26 +148,26 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
                 {
                     event: "click",
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "ports-application", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ]
                 },
                 {
                     event: "setValue",
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "ports-application", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: ""
                 },
                 {
                     event: "keyup",
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByClassName", "form", 0],
-                        ["getElementsByTagName", "input", 0]
+                        ["id", "ports-application", null],
+                        ["class", "form", 0],
+                        ["tag", "input", 0]
                     ],
                     value: "Enter"
                 },
@@ -181,13 +178,12 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
                 }
             ],
             name: "Remove filter ports-application",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "ports-application", null],
-                        ["getElementsByTagName", "tbody", 0],
-                        ["getElementsByTagName", "tr", 0]
+                        ["id", "ports-application", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0]
                     ],
                     qualifier: "is",
                     target: ["style", "display"],
@@ -198,6 +194,7 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
         }
     ];
     list.name = "Local browser tests - ports-application";
+    list.type = "dom";
     return list;
 };
 

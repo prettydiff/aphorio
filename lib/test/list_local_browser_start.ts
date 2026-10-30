@@ -1,13 +1,13 @@
 
 import vars from "../core/vars.ts";
 
-const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_list {
-    const list:test_list = [
+const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_list_dom {
+    const list:test_list_dom = [
         {
             delay: {
                 node: [
-                    ["getElementById", "connection-status", 0],
-                    ["getElementsByTagName", "strong", 0]
+                    ["id", "connection-status", 0],
+                    ["tag", "strong", 0]
                 ],
                 qualifier: "is",
                 target: ["textContent"],
@@ -16,11 +16,10 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
             },
             interaction: [],
             name: "Page load",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementsByTagName", "h1", 0]
+                        ["tag", "h1", 0]
                     ],
                     qualifier: "begins",
                     target: ["textContent"],
@@ -29,8 +28,8 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
                 },
                 {
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "h2", 0]
+                        ["tag", "nav", 0],
+                        ["tag", "h2", 0]
                     ],
                     qualifier: "is",
                     target: ["textContent"],
@@ -39,8 +38,8 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
                 },
                 {
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["tag", "nav", 0],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["data-section"],
@@ -49,8 +48,8 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
                 },
                 {
                     node: [
-                        ["getElementsByTagName", "nav", 0],
-                        ["getElementsByTagName", "button", 0]
+                        ["tag", "nav", 0],
+                        ["tag", "button", 0]
                     ],
                     qualifier: "is",
                     target: ["class"],
@@ -59,8 +58,8 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
                 },
                 {
                     node: [
-                        ["getElementById", "servers-web", null],
-                        ["getElementsByTagName", "h2", 0]
+                        ["id", "servers-web", null],
+                        ["tag", "h2", 0]
                     ],
                     qualifier: "greater",
                     target: ["offsetTop"],
@@ -79,12 +78,11 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
                 }
             ],
             name: "Clock Time 1",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "clock", null],
-                        ["getElementsByTagName", "time", 0]
+                        ["id", "clock", null],
+                        ["tag", "time", 0]
                     ],
                     qualifier: "not contains",
                     store: true,
@@ -104,12 +102,11 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
                 }
             ],
             name: "Clock Time 2",
-            type: "dom",
             unit: [
                 {
                     node: [
-                        ["getElementById", "clock", null],
-                        ["getElementsByTagName", "time", 0]
+                        ["id", "clock", null],
+                        ["tag", "time", 0]
                     ],
                     qualifier: "not",
                     target: ["textContent"],
@@ -120,6 +117,7 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
         }
     ];
     list.name = "Local browser tests - start";
+    list.type = "dom";
     return list;
 };
 export default test_listLocalBrowserStart;

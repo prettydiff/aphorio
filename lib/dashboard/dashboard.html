@@ -1019,11 +1019,6 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                             </p><p>
                                 <strong>Please note the terminal slash in the prior examples.</strong>
                                 Without the terminating slash the redirected address becomes <em>/api_services/informational/dashboards/uptimeimages/interface/title.png</em>.
-                            </p><p>
-                                If requests to a given asset of a supported domain should redirect to an existing socket created from this application just supply the socket's id, a 128 hexadecimal: <code>"jellyfin.x": {"/api/": "fe37dd66fa849ca98684160d542538b22c1edb576271d76b319ded4965d90143a0806fe1edf29b82b8740ec177880769629bdd1a0fb7cb97d7640e60c44833d3"}</code>
-                                The socket must merely exist from the current local instance of this application, which may include sockets associated with other web servers, but the socket must not already exist in a proxy relationship.
-                                If the specified socket does not exist or is in a proxy relationship the server will drop the request.
-                                If the given web server is TLS and the specified socket is not TLS the server will drop the request.
                             </p></dd>
                             <dt><em>redirect_domain</em> (object)</dt>
                             <dd><p>

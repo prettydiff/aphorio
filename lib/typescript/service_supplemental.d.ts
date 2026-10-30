@@ -2,7 +2,7 @@
 // cspell: words opencontainers, serv, TLSA
 
 interface supplemental_action_compose {
-    action: type_dashboard_action;
+    action: type_server_action;
     compose: string;
 }
 
@@ -49,11 +49,16 @@ interface supplemental_dns_callback {
 }
 
 interface supplemental_http {
-    connect: http_action;
-    get: http_action;
-    head: http_action;
-    options: http_action;
-    trace: http_action;
+    connect: type_http_action;
+    // delete: type_http_action;
+    get: type_http_action;
+    head: type_http_action;
+    options: type_http_action;
+    // query: type_http_action;
+    // patch: type_http_action;
+    // post: type_http_action;
+    // put: type_http_action;
+    trace: type_http_action;
 }
 
 interface supplemental_ports_application_item {
@@ -79,14 +84,10 @@ interface supplemental_server_config {
         ip: string[];
         referrer: string[];
     };
-    certificate_path: {
-        ca: string;
-        cert: string;
-        key: string;
-    };
+    certificate_path?: transmit_tlsCerts;
     domain_local: string[];
     encryption: type_encryption;
-    id: string;
+    id?: string;
     message_segmentation: number;
     method?: {
         delete?: supplemental_server_method;
@@ -97,6 +98,7 @@ interface supplemental_server_config {
     mutual_tls: boolean;
     name: string;
     ports: core_server_ports;
+    proxy?: supplemental_server_proxy[];
     redirect_asset?: {
         [key:string]: store_string;
     };
@@ -111,6 +113,20 @@ interface supplemental_server_config {
 interface supplemental_server_method {
     address: string;
     port: number;
+}
+
+interface supplemental_server_proxy {
+    description: string;
+    incoming: supplemental_server_proxy_identity;
+    outgoing: supplemental_server_proxy_identity;
+}
+
+interface supplemental_server_proxy_identity {
+    domain?: string;
+    encryption?: "both" | "open" | "secure";
+    method?: type_http_method;
+    port?: number;
+    resource?: string;
 }
 
 interface supplemental_socket_application_list {
