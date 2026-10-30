@@ -85,19 +85,64 @@ const ui_shared_services = function ui_shared_services():void {
                     span:HTMLElement = document.createElement("span"),
                     value:string = (dashboard.global.section === "servers-web")
                         ? (function dashboard_shareServices_details_serversWeb():string {
-                            const array = function dashboard_shareServices_details_serversWeb_array(indent:boolean, name:string, property:string[]):void {
+                            const array = function dashboard_shareServices_details_serversWeb_array(indent:boolean, name:string, property:supplemental_server_proxy[]|string[]):void {
                                     const ind:string = (indent === true)
                                         ? "    "
                                         : "";
                                     if (property === null || property === undefined || property.length < 1) {
                                         output.push(`${ind}"${name}": [],`);
                                     } else {
-                                        output.push(`${ind}"${name}": [`);
-                                        property.forEach(function dashboard_shareServices_details_serversWeb_array_each(value:string):void {
-                                            output.push(`${ind}    "${sanitize(value)}",`);
-                                        });
+                                        if (name === "proxy") {
+                                            output.push(`"${name}": [`);
+                                        } else {
+                                            output.push(`${ind}"${name}": [`);
+                                        }
+                                        if (name === "proxy") {
+                                            const proxy_rules = function dashboard_shareServices_details_serversWeb_array_proxyRules(value:supplemental_server_proxy, key:"incoming"|"outgoing"):void {
+                                                const final_comma:string = (key === "incoming")
+                                                    ? ","
+                                                    : "";
+                                                output.push(`${ind + ind}"${key}": {`);
+                                                if (value[key].domain !== undefined) {
+                                                    output.push(`${ind + ind + ind}"domain": "${value[key].domain}",`);
+                                                }
+                                                if (value[key].encryption !== undefined) {
+                                                    output.push(`${ind + ind + ind}"encryption": ${value[key].encryption},`);
+                                                }
+                                                if (value[key].method !== undefined) {
+                                                    output.push(`${ind + ind + ind}"method": "${value[key].method}",`);
+                                                }
+                                                if (value[key].port !== undefined) {
+                                                    output.push(`${ind + ind + ind}"port": ${value[key].port},`);
+                                                }
+                                                if (value[key].resource !== undefined) {
+                                                    output.push(`${ind + ind + ind}"resource": "${value[key].resource}"`);
+                                                }
+                                                if (output[output.length - 1] === `${ind + ind}"${key}": {`) {
+                                                    output[output.length - 1] = `${ind + ind}"${key}": {}${final_comma}`;
+                                                } else {
+                                                    output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
+                                                    output.push(`${ind + ind}}${final_comma}`);
+                                                }
+                                            };
+                                            (property as supplemental_server_proxy[]).forEach(function dashboard_shareServices_details_serversWeb_array_eachProxy(value:supplemental_server_proxy):void {
+                                                output.push(`${ind}{`);
+                                                output.push(`${ind + ind}"description": "${value.description}",`);
+                                                proxy_rules(value, "incoming");
+                                                proxy_rules(value, "outgoing");
+                                                output.push(`${ind}},`);
+                                            });
+                                        } else {
+                                            (property as string[]).forEach(function dashboard_shareServices_details_serversWeb_array_eachString(value:string):void {
+                                                output.push(`${ind}    "${sanitize(value)}",`);
+                                            });
+                                        }
                                         output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
-                                        output.push(`${ind}],`);
+                                        if (name === "proxy") {
+                                            output.push("],");
+                                        } else {
+                                            output.push(`${ind}],`);
+                                        }
                                     }
                                 },
                                 object = function dashboard_shareServices_details_serversWeb_object(property:"redirect_asset"|"redirect_domain"):void {
@@ -248,6 +293,13 @@ const ui_shared_services = function ui_shared_services():void {
                                 output.push(`    "secure": ${serverData.ports.secure}`);
                             }
                             output.push("},");
+                            if (serverData.proxy !== undefined) {
+                                if (serverData.proxy === null) {
+                                    output.push("\"proxy\": null,");
+                                } else {
+                                    array(true, "proxy", serverData.proxy);
+                                }
+                            }
                             if (serverData.redirect_asset !== undefined && serverData.redirect_asset !== null) {
                                 object("redirect_asset");
                             }
