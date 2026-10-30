@@ -319,7 +319,7 @@ const ui_shared_services = function ui_shared_services():void {
                                 output.push("\"upgrade\": false");
                             }
                             output[output.length - 1] = output[output.length - 1].replace(/,$/, "");
-                            return `${output.join("\n\u0020\u0020\u0020\u0020")}\n}`;
+                            return `${output.join(`\n${step}`)}\n}`;
                         }())
                         : (newFlag === true || dashboard.global.payload.compose === null)
                             ? ""
