@@ -473,7 +473,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 upgrade_tls();
             } else {
                 let domain:string = "",
-                    encryption:boolean = false,
+                    encryption:boolean = null,
                     method:type_http_method | "",
                     port:number = 0,
                     resource:string = "",
@@ -634,19 +634,15 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             do {
                                 count = 0;
                                 if (server.proxy[index].incoming.port === config_http.port) {
-                                    port = config_http.port;
                                     count = count + 1;
                                 }
                                 if (server.proxy[index].incoming.domain === config_http.domain) {
-                                    domain = config_http.domain;
                                     count = count + 1;
                                 }
                                 if (typeof server.proxy[index].incoming.method === "string" && server.proxy[index].incoming.method.toLowerCase() === config_http.method.toLowerCase()) {
-                                    method = config_http.method;
                                     count = count + 1;
                                 }
                                 if (server.proxy[index].incoming.encryption === "both" || (server.proxy[index].incoming.encryption === config_http.encryption)) {
-                                    encryption = (config_http.encryption === "secure");
                                     count = count + 1;
                                 }
                                 resource_match(server.proxy[index].incoming.resource, index);
@@ -681,9 +677,11 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     domain = (typeof outgoing.domain === "string" && outgoing.domain !== "")
                                         ? outgoing.domain.replace(/(\/|\\)$/, "")
                                         : "";
-                                    encryption = (outgoing.encryption === "secure" || (outgoing.encryption === "both" && socket.encrypted === true))
+                                    encryption = (outgoing.encryption === "secure")
                                         ? true
-                                        : false;
+                                        : (outgoing.encryption === "open")
+                                            ? false
+                                            : (socket.encrypted === true);
                                     method = (typeof outgoing.method === "string" && outgoing.method !== "" as type_http_method)
                                         ? outgoing.method
                                         : "";
