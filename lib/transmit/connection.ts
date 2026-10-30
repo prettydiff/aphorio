@@ -496,7 +496,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         // fs absolute
                         callback: stat_callback,
                         location: resource_relative,
-                        no_file: function () {
+                        no_file: function transmit_connection_handshake_resourceStat_noFile():void {
                             // fs relative to web root
                             file.stat({
                                 callback: stat_callback,

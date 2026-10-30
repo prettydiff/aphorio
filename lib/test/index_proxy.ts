@@ -7,7 +7,8 @@ import test_summary from "./summary.ts";
 import vars from "../core/vars.ts";
 
 const index_proxy = function test_indexProxy():void {
-    let total_lists:number = 0;
+    let total_lists:number = 0,
+        count_server:number = 0;
     const list_proxy_tests:test_list_proxy = list_proxy(),
         list:test_list_proxy[] = (vars.test.list === null)
             ? [
@@ -205,7 +206,6 @@ const index_proxy = function test_indexProxy():void {
                 test_runner.list(list[total_lists], test_server);
             }
         };
-    let count_server:number = 0;
     vars.test.total_time_start = process.hrtime.bigint();
     servers.forEach(function test_indexProxy_serversEach(value:supplemental_server_config, index:number):void {
         value.name = `server_${index}`;

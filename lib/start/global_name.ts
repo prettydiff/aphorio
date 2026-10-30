@@ -130,6 +130,6 @@ import vars from "./core/vars.ts";(${index.toString()}());`
             }).execute();
         }
     };
-}
+};
 
 export default global_name;

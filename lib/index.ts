@@ -97,7 +97,7 @@ function index():void {
             start(process_path);
         }
     }
-};
+}
 index();
 
 export default index;

@@ -12,7 +12,7 @@ const help = function utilities_help():void {
                 output.push(`${asterisk + vars.text.cyan + name + vars.text.none} - ${definition}`);
             }
         },
-        heading = function utilities_help_heading(message:string) {
+        heading = function utilities_help_heading(message:string):void {
             output.push("");
             output.push(vars.text.underline + message.capitalize() + vars.text.none);
         };

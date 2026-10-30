@@ -86,7 +86,7 @@ const ui_shared_services = function ui_shared_services():void {
                     step:string = "\u0020\u0020\u0020\u0020",
                     value:string = (dashboard.global.section === "servers-web")
                         ? (function dashboard_shareServices_details_serversWeb():string {
-                            const array = function dashboard_shareServices_details_serversWeb_array(indent:boolean, name:string, property:supplemental_server_proxy[]|string[]):void {
+                            const array = function dashboard_shareServices_details_serversWeb_array(indent:boolean, name:string, property:string[]|supplemental_server_proxy[]):void {
                                     const ind:string = (indent === true)
                                         ? step
                                         : "";

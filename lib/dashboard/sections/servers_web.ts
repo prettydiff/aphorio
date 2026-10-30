@@ -85,10 +85,10 @@ const ui_servers_web = function ui_servers_web():void {
                         }
                     },
                     array_type = function dashboard_sections_serversWeb_validate_arrayType(required:boolean, name:string):boolean {
-                        let property:string[] = serverData[name as "domain_local"] as string[],
-                            index:number = 0,
+                        let index:number = 0,
                             fail:boolean = false;
-                        const requirement:string = (required === true)
+                        const property:string[] = serverData[name as "domain_local"] as string[],
+                            requirement:string = (required === true)
                                 ? "Required"
                                 : "Optional",
                             len:number = (property === null || property === undefined)

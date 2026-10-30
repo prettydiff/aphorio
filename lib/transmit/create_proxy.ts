@@ -10,7 +10,7 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
     const host:string = (function transmit_createProxy_scheme():string {
             const hosts:string[] = (config.host.includes("://") === true)
                 ? config.host.split("://")
-                : ["", config.host]
+                : ["", config.host];
             if (hosts[0].toLowerCase() === "https" || hosts[0].toLowerCase() === "wss") {
                 config.encrypted = true;
             }
