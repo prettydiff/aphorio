@@ -53,8 +53,12 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             : dataString.replace(/^\s+/, ""),
                         list:string[] = headerString.split("\r\n"),
                         list0:string[] = list[0].split(" "),
-                        query:number = list0[1].indexOf("?"),
-                        fragment:number = list0[1].indexOf("#"),
+                        query:number = (list0.length > 1)
+                            ? list0[1].indexOf("?")
+                            :-1,
+                        fragment:number = (list0.length > 1)
+                            ? list0[1].indexOf("#")
+                            : -1,
                         config:config_http = {
                             accept: "",
                             body: null,
@@ -469,45 +473,58 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 upgrade_tls();
             } else {
                 let domain:string = "",
-                    encryption:boolean = false,
+                    encryption:boolean = null,
                     method:type_http_method | "",
                     port:number = 0,
-                    resource:string = "";
+                    resource:string = "",
+                    proxy_test:[boolean, boolean] = null;
                 const resource_stat = function transmit_connection_handshake_resourceStat(incoming:string, callback:() => void):void {
-                    const resource_absolute:string = incoming.replace(/(\/|\\)$/, ""),
-                        resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "")}`,
-                        stat_callback = function transmit_connection_handshake_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
-                            if (stats !== null) {
-                                config_http.resource_absolute = location;
-                                if (stats.isFile() === true) {
-                                    config_http.resource_size = Number(stats.size);
-                                    config_http.resource_type = "file";
-                                } else if (stats.isDirectory() === true) {
-                                    config_http.resource_type = "directory";
+                        const resource_absolute:string = incoming.replace(/(\/|\\)$/, ""),
+                            resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "")}`,
+                            stat_callback = function transmit_connection_handshake_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
+                                if (stats !== null) {
+                                    config_http.resource_absolute = location;
+                                    if (stats.isFile() === true) {
+                                        config_http.resource_size = Number(stats.size);
+                                        config_http.resource_type = "file";
+                                    } else if (stats.isDirectory() === true) {
+                                        config_http.resource_type = "directory";
+                                    }
                                 }
-                            }
-                            callback();
-                        };
-                    // 1. specific, fs absolute          - outgoing
-                    // 2. specific, relative to web root - project_path/servers/server/assets/outgoing
-                    // 3. wildcard, fs absolute          - (outgoing + config.resource without match)
-                    // 4. wildcard, relative to web root - project_path/servers/server/assets/(outgoing + config.resource without match)
-                    file.stat({
-                        // fs absolute
-                        callback: stat_callback,
-                        location: resource_relative,
-                        no_file: function transmit_connection_handshake_resourceStat_noFile():void {
-                            // fs relative to web root
-                            file.stat({
-                                callback: stat_callback,
-                                location: resource_absolute,
-                                no_file: null,
-                                section: "servers-web"
-                            });
-                        },
-                        section: "servers-web"
-                    });
-                };
+                                callback();
+                            };
+                        // 1. specific, fs absolute          - outgoing
+                        // 2. specific, relative to web root - project_path/servers/server/assets/outgoing
+                        // 3. wildcard, fs absolute          - (outgoing + config.resource without match)
+                        // 4. wildcard, relative to web root - project_path/servers/server/assets/(outgoing + config.resource without match)
+                        file.stat({
+                            // fs absolute
+                            callback: stat_callback,
+                            location: resource_relative,
+                            no_file: function transmit_connection_handshake_resourceStat_noFile():void {
+                                // fs relative to web root
+                                file.stat({
+                                    callback: stat_callback,
+                                    location: resource_absolute,
+                                    no_file: null,
+                                    section: "servers-web"
+                                });
+                            },
+                            section: "servers-web"
+                        });
+                    },
+                    proxy_eval = function transmit_connection_handshake_proxyEval():[boolean, boolean] {
+                        const port_open:number = vars.data.server[server.id].ports.open,
+                            port_secure:number = vars.data.server[server.id].ports.secure,
+                            domain_test:boolean = (typeof domain === "string" && domain !== "" && domain !== config_http.domain),
+                            encryption_test:boolean = (socket.encrypted === true && encryption === false) || (socket.encrypted !== true && encryption === true),
+                            port_test:boolean = (port > 0 && (port !== port_open && socket.encrypted !== true) && (port !== port_secure && socket.encrypted === true)),
+                            resource_test:boolean = (typeof resource === "string" && resource !== "" && config_http.websocket_key === "");
+                        if (domain_test === true || port_test === true || encryption_test === true) {
+                            return [true, resource_test];
+                        }
+                        return [false, resource_test];
+                    };
                 // legacy asset redirection
                 if (server.redirect_asset !== null && server.redirect_asset !== undefined) {
                     const keys:string[] = Object.keys(server.redirect_asset),
@@ -571,11 +588,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 }
                 // For testing legacy redirection criteria:
                 // log.shell([domain+" "+port+" "+resource+" "+config_http.resource]);
-                if (domain === "" && port === 0 && typeof resource === "string" && resource !== "" && config_http.websocket_key === "") {
-                    // resolve a resource from the local file system due to legacy redirect_asset rules
-                    resource = resource.replace(/(\\|\/)g/, vars.path.sep);
-                    resource_stat(resource, local_service);
-                } else if (domain !== "" || port > 0) { 
+                proxy_test = proxy_eval();
+                if (proxy_test[0] === true) {
                     // proxy to a different server due to legacy redirect_domain rules
                     create_proxy({
                         body: config_http.body,
@@ -591,6 +605,10 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         socket: socket,
                         user_agent: config_http.user_agent
                     });
+                } else if (proxy_test[1] === true) {
+                    // resolve a resource from the local file system due to legacy redirect_asset rules
+                    resource = resource.replace(/(\\|\/)g/, vars.path.sep);
+                    resource_stat(resource, local_service);
                 } else {
                     // universal proxy model
                     if (server.proxy !== null && server.proxy !== undefined) {
@@ -616,19 +634,15 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             do {
                                 count = 0;
                                 if (server.proxy[index].incoming.port === config_http.port) {
-                                    port = config_http.port;
                                     count = count + 1;
                                 }
                                 if (server.proxy[index].incoming.domain === config_http.domain) {
-                                    domain = config_http.domain;
                                     count = count + 1;
                                 }
                                 if (typeof server.proxy[index].incoming.method === "string" && server.proxy[index].incoming.method.toLowerCase() === config_http.method.toLowerCase()) {
-                                    method = config_http.method;
                                     count = count + 1;
                                 }
                                 if (server.proxy[index].incoming.encryption === "both" || (server.proxy[index].incoming.encryption === config_http.encryption)) {
-                                    encryption = (config_http.encryption === "secure");
                                     count = count + 1;
                                 }
                                 resource_match(server.proxy[index].incoming.resource, index);
@@ -663,9 +677,11 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     domain = (typeof outgoing.domain === "string" && outgoing.domain !== "")
                                         ? outgoing.domain.replace(/(\/|\\)$/, "")
                                         : "";
-                                    encryption = (outgoing.encryption === "secure" || (outgoing.encryption === "both" && socket.encrypted === true))
+                                    encryption = (outgoing.encryption === "secure")
                                         ? true
-                                        : false;
+                                        : (outgoing.encryption === "open")
+                                            ? false
+                                            : (socket.encrypted === true);
                                     method = (typeof outgoing.method === "string" && outgoing.method !== "" as type_http_method)
                                         ? outgoing.method
                                         : "";
@@ -680,11 +696,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 }
                                 // For testing universal redirection criteria:
                                 // log.shell([domain+" "+port+" "+resource+" "+config_http.resource]);
-                                if (domain === "" && port === 0 && typeof resource === "string" && resource !== "" && config_http.websocket_key === "") {
-                                    // resolve a resource from the local file system due to most well matched proxy rule
-                                    resource = resource.replace(/(\\|\/)g/, vars.path.sep);
-                                    resource_stat(resource, local_service);
-                                } else if (domain !== "" || port > 0) {
+                                proxy_test = proxy_eval();
+                                if (proxy_test[0] === true) {
                                     // proxy to a different server
                                     create_proxy({
                                         body: config_http.body,
@@ -700,6 +713,10 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                         socket: socket,
                                         user_agent: config_http.user_agent
                                     });
+                                } else if (proxy_test[1] === true) {
+                                    // resolve a resource from the local file system due to most well matched proxy rule
+                                    resource = resource.replace(/(\\|\/)g/, vars.path.sep);
+                                    resource_stat(resource, local_service);
                                 } else {
                                     resource = config_http.resource;
                                     resource_stat(resource, local_service);
