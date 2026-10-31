@@ -518,7 +518,11 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             port_secure:number = vars.data.server[server.id].ports.secure,
                             domain_test:boolean = (typeof domain === "string" && domain !== "" && domain !== config_http.domain),
                             encryption_test:boolean = (socket.encrypted === true && encryption === false) || (socket.encrypted !== true && encryption === true),
-                            port_test:boolean = (port > 0 && (port !== port_open && socket.encrypted !== true) && (port !== port_secure && socket.encrypted === true)),
+                            port_test:boolean = (port > 0 && (
+                                (port !== port_open && port !== port_secure) ||
+                                (port === port_open && socket.encrypted === true) ||
+                                (port === port_secure && socket.encrypted !== true))
+                            ),
                             resource_test:boolean = (typeof resource === "string" && resource !== "" && config_http.websocket_key === "");
                         if (domain_test === true || port_test === true || encryption_test === true) {
                             return [true, resource_test];
@@ -566,16 +570,17 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 // legacy domain redirection
                 if (server.redirect_domain !== null && server.redirect_domain !== undefined) {
                     let test:boolean = false;
-                    const select_rule = function transmit_connection_handshake_redirectDomain(rule:string,):void {
-                        if (test === false && server.redirect_domain[rule] !== null && server.redirect_domain[rule] !== undefined) {
+                    const select_rule = function transmit_connection_handshake_redirectDomain(rule_name:string):void {
+                        const rule:[string, number, "default" | "open" | "secure"] = server.redirect_domain[rule_name];
+                        if (test === false && rule !== null && rule !== undefined) {
                             test = true;
-                            domain = server.redirect_domain[rule][0];
-                            port = server.redirect_domain[rule][1];
-                            if ((/\.secure$/).test(rule) === true) {
+                            domain = rule[0];
+                            port = rule[1];
+                            if ((/\.secure$/).test(rule_name) === true) {
                                 encryption = true;
-                            } else if (server.redirect_domain[rule][2] === "default") {
+                            } else if (rule[2] === "default") {
                                 encryption = (config_http.encryption === "secure");
-                            } else if (server.redirect_domain[rule][2] === "secure") {
+                            } else if (rule[2] === "secure") {
                                 encryption = true;
                             } else {
                                 encryption = false;
@@ -587,7 +592,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     select_rule(`${config_http.domain}.secure`);
                 }
                 // For testing legacy redirection criteria:
-                // log.shell([domain+" "+port+" "+resource+" "+config_http.resource]);
+                // log.shell([domain+" "+port+" "+resource+" "+config_http.domain+" "+config_http.resource]);
                 proxy_test = proxy_eval();
                 if (proxy_test[0] === true) {
                     // proxy to a different server due to legacy redirect_domain rules
@@ -614,7 +619,9 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     if (server.proxy !== null && server.proxy !== undefined) {
                         const matches:[number, number, string, boolean][] = [],
                             resource_match = function transmit_proxy_resourceMatch(resource_input:string, index:number):void {
-                                resource_input = resource_input.trim();
+                                resource_input = (typeof resource_input === "string")
+                                    ? resource_input.trim()
+                                    : "";
                                 const wildcard:boolean = (/\/\*$/).test(resource_input) === true;
                                 if (config_http.resource.replace(/(\/|\\)$/, "") === resource_input.replace(/(\/|\\)$/, "")) {
                                     count = count + 1;
@@ -695,7 +702,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                         : "";
                                 }
                                 // For testing universal redirection criteria:
-                                // log.shell([domain+" "+port+" "+resource+" "+config_http.resource]);
+                                // log.shell([domain+" "+port+" "+resource+" "+config_http.domain+" "+config_http.resource]);
                                 proxy_test = proxy_eval();
                                 if (proxy_test[0] === true) {
                                     // proxy to a different server

@@ -221,6 +221,11 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                     property: "response_body_raw",
                     qualifier: "contains",
                     value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
+                },
+                {
+                    property: "encrypted_proxy",
+                    qualifier: "is",
+                    value: false
                 }
             ]
         },
@@ -250,6 +255,11 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                     property: "response_body_raw",
                     qualifier: "contains",
                     value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
+                },
+                {
+                    property: "encrypted_proxy",
+                    qualifier: "is",
+                    value: true
                 }
             ]
         }
