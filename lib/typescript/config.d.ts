@@ -79,7 +79,7 @@ declare global {
         contents: Buffer | string;
         identifier?: string;
         location: string;
-        section: type_dashboard_sections | "startup";
+        section: type_dashboard_sections | "startup" | "test-automation";
     }
 
     interface config_hash {
