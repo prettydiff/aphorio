@@ -635,24 +635,38 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             },
                             len:number = server.proxy.length;
                         let index:number = 0,
-                            count:number = 0;
+                            count:number = 0,
+                            not_matched:boolean = false;
                         // grade matching rule sets to determine the best rule set to apply
                         if (len > 0) {
                             do {
                                 count = 0;
+                                not_matched = false;
                                 if (server.proxy[index].incoming.port === config_http.port) {
                                     count = count + 1;
+                                } else if (typeof server.proxy[index].incoming.port === "number" && server.proxy[index].incoming.port > 0) {
+                                    not_matched = true;
                                 }
                                 if (server.proxy[index].incoming.domain === config_http.domain) {
                                     count = count + 1;
+                                } else if (typeof server.proxy[index].incoming.domain === "string" && server.proxy[index].incoming.domain !== "") {
+                                    not_matched = true;
                                 }
-                                if (typeof server.proxy[index].incoming.method === "string" && server.proxy[index].incoming.method.toLowerCase() === config_http.method.toLowerCase()) {
-                                    count = count + 1;
+                                if (typeof server.proxy[index].incoming.method === "string") {
+                                    if (server.proxy[index].incoming.method.toLowerCase() === config_http.method.toLowerCase()) {
+                                        count = count + 1;
+                                    } else {
+                                        not_matched = true;
+                                    }
                                 }
                                 if (server.proxy[index].incoming.encryption === "both" || (server.proxy[index].incoming.encryption === config_http.encryption)) {
                                     count = count + 1;
+                                } else if (typeof server.proxy[index].incoming.encryption === "string") {
+                                    not_matched = true;
                                 }
-                                resource_match(server.proxy[index].incoming.resource, index);
+                                if (not_matched === false) {
+                                    resource_match(server.proxy[index].incoming.resource, index);
+                                }
                                 index = index + 1;
                             } while (index < len);
                             if (matches.length > 0) {

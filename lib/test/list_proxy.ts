@@ -262,6 +262,74 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                     value: false
                 }
             ]
+        },
+        {
+            name: "Provide new path for test.localhost subdomain only",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "test.localhost",
+                method: "GET",
+                port: "server_3",
+                resource: "/lib",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "response_body_raw",
+                    qualifier: "contains",
+                    value: "const dashboard:dashboard = {"
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "greater",
+                    value: 25000
+                },
+                {
+                    property: "encrypted_proxy",
+                    qualifier: "is",
+                    value: false
+                },
+                {
+                    property: "encrypted_self",
+                    qualifier: "is",
+                    value: false
+                }
+            ]
+        },
+        {
+            name: "Ensures that subdomain rules do not effect parent domains",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "GET",
+                port: "server_3",
+                resource: "/servers.json",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "response_body_raw",
+                    qualifier: "begins",
+                    value: "[{\"activate\":true,\"domain_local\":[\"127.0.0.1\",\"::1\"],\"encryption\":\"both\",\"message_segmentation\":1000000,\"mutual_tls\":false,\"name\":\"server_0\""
+                },
+                {
+                    property: "response_body_raw",
+                    qualifier: "greater",
+                    value: 5000
+                },
+                {
+                    property: "encrypted_proxy",
+                    qualifier: "is",
+                    value: false
+                },
+                {
+                    property: "encrypted_self",
+                    qualifier: "is",
+                    value: false
+                }
+            ]
         }
     ];
     list_proxy.name = "proxy object";

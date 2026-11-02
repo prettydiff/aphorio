@@ -123,7 +123,7 @@ interface supplemental_server_proxy {
 
 interface supplemental_server_proxy_identity {
     domain?: string;
-    encryption?: "both" | "open" | "secure";
+    encryption?: type_encryption;
     method?: type_http_method;
     port?: number;
     resource?: string;

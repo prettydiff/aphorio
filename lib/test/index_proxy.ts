@@ -1,4 +1,5 @@
 
+import file from "../utilities/file.ts";
 import list_proxy from "./list_proxy.ts";
 import list_proxy_legacy from "./list_proxy_legacy.ts";
 import server_create from "../server/server_create.ts";
@@ -176,6 +177,31 @@ const index_proxy = function test_indexProxy():void {
                     "localhost.secure": ["localhost", 0, "default"]
                 },
                 upgrade: true
+            },
+            {
+                activate: true,
+                domain_local: ["::1", "127.0.0.1", "localhost", "test.localhost"],
+                encryption: "both",
+                message_segmentation: 1e6,
+                mutual_tls: false,
+                name: "",
+                ports: {
+                    open: 0,
+                    secure: 0
+                },
+                proxy: [
+                    {
+                        description: "subdomain test",
+                        incoming: {
+                            domain: "test.localhost",
+                            resource: "/lib/*"
+                        },
+                        outgoing: {
+                            resource: `${project_path}lib/dashboard/dashboard.ts`
+                        }
+                    }
+                ],
+                upgrade: true
             }
         ],
         test_server = function test_indexProxy_testServer(name:string):void {
@@ -196,14 +222,22 @@ const index_proxy = function test_indexProxy():void {
                 port_secure: vars.data.server[id].ports.secure
             };
             if (count_server === servers.length) {
-                // server to server alignment here:
-                vars.data.server[vars.test.servers[0].id].config.proxy[7].incoming.port = vars.data.server[vars.test.servers[0].id].ports.open;
-                vars.data.server[vars.test.servers[1].id].config.redirect_domain["localhost"][1] = vars.data.server[vars.test.servers[0].id].ports.open;
-                vars.data.server[vars.test.servers[2].id].config.redirect_domain["localhost.secure"][1] = vars.data.server[vars.test.servers[0].id].ports.secure;
-                list_proxy_tests[1].unit[1].value = (list_proxy_tests[1].unit[1].value as string).replace("port_open", vars.test.servers[0].port_open.toString());
+                file.write({
+                    callback: function test_indexProxy_callbackServer_write():void {
+                        // server to server alignment here:
+                        vars.environment.interfaces.push("test.localhost");
+                        vars.data.server[vars.test.servers[0].id].config.proxy[7].incoming.port = vars.data.server[vars.test.servers[0].id].ports.open;
+                        vars.data.server[vars.test.servers[1].id].config.redirect_domain["localhost"][1] = vars.data.server[vars.test.servers[0].id].ports.open;
+                        vars.data.server[vars.test.servers[2].id].config.redirect_domain["localhost.secure"][1] = vars.data.server[vars.test.servers[0].id].ports.secure;
+                        list_proxy_tests[1].unit[1].value = (list_proxy_tests[1].unit[1].value as string).replace("port_open", vars.test.servers[0].port_open.toString());
 
-                // start testing here
-                test_runner.list(list[total_lists], test_server);
+                        // start testing here
+                        test_runner.list(list[total_lists], test_server);
+                    },
+                    contents: JSON.stringify(servers),
+                    location: `${vars.path.project}servers${vars.path.sep + vars.test.servers[3].id + vars.path.sep}assets${vars.path.sep}servers.json`,
+                    section: "test-automation"
+                });
             }
         };
     vars.test.total_time_start = process.hrtime.bigint();
