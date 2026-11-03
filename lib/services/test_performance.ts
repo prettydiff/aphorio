@@ -118,7 +118,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                         index_http = 0;
                         index_test = index_test + 1;
                         if (index_test < data.quantity_tests) {
-                            test_type();
+                            setTimeout(test_type, 0);
                         } else {
                             times("Test complete.", false);
                         }
@@ -144,7 +144,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                             memory[memory.length - 1][1] = mem.heapUsed;
                             index_test = index_test + 1;
                             if (index_test < data.quantity_tests) {
-                                test_type();
+                                setTimeout(test_type, 0);
                             } else {
                                 times("Test complete.", false);
                             }
@@ -220,6 +220,9 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                 test_http();
             }
         };
+    if (vars.test.test_browser === null && vars.options.mode === "server") {
+        vars.test.test_browser = data.measure;
+    }
     if (vars.options.mode === "demo") {
         times("Performance testing is not available in demo mode.", true);
     } else if (typeof data.quantity_tests === "number" && typeof data.quantity_transmit === "number" && data.quantity_tests > 0 && data.quantity_transmit > 0) {

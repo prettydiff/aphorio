@@ -392,6 +392,9 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                         return message_handler.test_websocket;
                                     }
                                     if (config_http.websocket_type === "test-performance-socket") {
+                                        if (vars.test.test_browser === "send") {
+                                            return null;
+                                        }
                                         return message_handler.test_performance;
                                     }
                                     return message_handler.default;
