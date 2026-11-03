@@ -80,6 +80,7 @@ const dashboard:dashboard = {
                         "pid": 0,
                         "platform": "",
                         "ppid": 0,
+                        "runtime": "",
                         "uptime": 0,
                         "versions": {}
                     },
@@ -477,6 +478,7 @@ const dashboard:dashboard = {
                     "pid": null,
                     "platform": null,
                     "ppid": null,
+                    "runtime": null,
                     "uptime": null
                 },
                 "update_button": null,

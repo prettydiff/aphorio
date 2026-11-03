@@ -150,9 +150,11 @@ const ui_test_websocket = function ui_test_websocket():void {
                 dashboard.sections["test-websocket"].nodes.button_handshake.disabled = true;
             } else {
                 const key:string = window.btoa((Math.random().toString() + Math.random().toString()).slice(2, 18));
-                dashboard.sections["test-websocket"].nodes.handshake.value = dashboard.global.payload.request_ws
-                    .replace(/Sec-WebSocket-Key\s*:\s*\S+/i, `Sec-WebSocket-Key: ${key}`)
-                    .replace(/Sec-WebSocket-Protocol\s*:\s*dashboard/i, "Sec-WebSocket-Protocol: test-websocket");
+                dashboard.sections["test-websocket"].nodes.handshake.value = (dashboard.global.payload.request_ws === undefined || dashboard.global.payload.request_ws === null)
+                    ? ""
+                    : dashboard.global.payload.request_ws
+                        .replace(/Sec-WebSocket-Key\s*:\s*\S+/i, `Sec-WebSocket-Key: ${key}`)
+                        .replace(/Sec-WebSocket-Protocol\s*:\s*dashboard/i, "Sec-WebSocket-Protocol: test-websocket");
                 dashboard.sections["test-websocket"].nodes.button_handshake.onclick = dashboard.sections["test-websocket"].events.handshakeSend;
                 dashboard.sections["test-websocket"].nodes.button_send.onclick = dashboard.sections["test-websocket"].events.message_send;
                 dashboard.sections["test-websocket"].nodes.encrypt_false.onclick = dashboard.sections["test-websocket"].events.encryption;

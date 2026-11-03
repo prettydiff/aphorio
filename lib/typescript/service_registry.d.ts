@@ -218,6 +218,7 @@ interface services_os_main {
         pid: number;
         platform: string;
         ppid: number;
+        runtime: string;
         uptime: number;
         versions: store_string;
     };

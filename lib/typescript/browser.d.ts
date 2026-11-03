@@ -269,6 +269,7 @@ declare global {
             pid: HTMLElement;
             platform: HTMLElement;
             ppid: HTMLElement;
+            runtime: HTMLElement;
             uptime: HTMLElement;
         };
         update_button: HTMLButtonElement;

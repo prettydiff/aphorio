@@ -115,6 +115,7 @@ const ui_utility = function ui_utility():void {
                     dashboard.sections["os-machine"].nodes_os.process.memoryProcess.textContent = "";
                     dashboard.sections["os-machine"].nodes_os.process.memoryV8.textContent = "";
                     dashboard.sections["os-machine"].nodes_os.process.memoryExternal.textContent = "";
+                    dashboard.sections["os-machine"].nodes_os.process.runtime.textContent = "";
                     dashboard.sections["os-machine"].nodes_os.update_text.textContent = "";
                     dashboard.sections["os-machine"].nodes_os.user.gid.textContent = "";
                     dashboard.sections["os-machine"].nodes_os.user.uid.textContent = "";

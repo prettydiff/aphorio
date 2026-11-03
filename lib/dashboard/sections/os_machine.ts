@@ -39,13 +39,14 @@ const ui_os_machine = function ui_os_machine():void {
             dashboard.sections["os-machine"].nodes_os.process.cpuSystem.textContent = dashboard.global.payload.os.main.process.cpuSystem.time_elapsed();
             dashboard.sections["os-machine"].nodes_os.process.cpuUser.textContent = dashboard.global.payload.os.main.process.cpuUser.time_elapsed();
             dashboard.sections["os-machine"].nodes_os.process.cwd.textContent = dashboard.global.payload.os.main.process.cwd;
-            dashboard.sections["os-machine"].nodes_os.process.platform.textContent = dashboard.global.payload.os.main.process.platform;
-            dashboard.sections["os-machine"].nodes_os.process.pid.textContent = String(dashboard.global.payload.os.main.process.pid);
-            dashboard.sections["os-machine"].nodes_os.process.ppid.textContent = String(dashboard.global.payload.os.main.process.ppid);
-            dashboard.sections["os-machine"].nodes_os.process.uptime.textContent = dashboard.global.payload.os.main.process.uptime.time_elapsed();
             dashboard.sections["os-machine"].nodes_os.process.memoryProcess.textContent = `${dashboard.global.payload.os.main.process.memory.rss.bytes_long()}, ${((dashboard.global.payload.os.main.process.memory.rss / dashboard.global.payload.os.main.machine.memory.total) * 100).toFixed(2)}%`;
             dashboard.sections["os-machine"].nodes_os.process.memoryV8.textContent = dashboard.global.payload.os.main.process.memory.V8.bytes_long();
             dashboard.sections["os-machine"].nodes_os.process.memoryExternal.textContent = dashboard.global.payload.os.main.process.memory.external.bytes_long();
+            dashboard.sections["os-machine"].nodes_os.process.platform.textContent = dashboard.global.payload.os.main.process.platform;
+            dashboard.sections["os-machine"].nodes_os.process.pid.textContent = String(dashboard.global.payload.os.main.process.pid);
+            dashboard.sections["os-machine"].nodes_os.process.ppid.textContent = String(dashboard.global.payload.os.main.process.ppid);
+            dashboard.sections["os-machine"].nodes_os.process.runtime.textContent = dashboard.global.payload.os.main.process.runtime;
+            dashboard.sections["os-machine"].nodes_os.process.uptime.textContent = dashboard.global.payload.os.main.process.uptime.time_elapsed();
             if (dashboard.global.payload.os.main.process.platform === "win32" || dashboard.global.payload.os.main.process.platform === "cygwin") {
                 dashboard.sections["os-machine"].nodes_os.user.gid.parentNode.style.display = "none";
                 dashboard.sections["os-machine"].nodes_os.user.uid.parentNode.style.display = "none";
@@ -158,7 +159,8 @@ const ui_os_machine = function ui_os_machine():void {
                         platform: item("process", 9),
                         pid: item("process", 10),
                         ppid: item("process", 11),
-                        uptime: item("process", 12)
+                        runtime: item("process", 12),
+                        uptime: item("process", 13)
                     },
                     update_button: document.getElementById("os-machine").getElementsByClassName("table-stats")[0].getElementsByTagName("button")[0],
                     update_duration: document.getElementById("os-machine").getElementsByClassName("table-stats")[0].getElementsByTagName("time")[1],
