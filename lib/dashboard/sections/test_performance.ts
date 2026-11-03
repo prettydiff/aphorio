@@ -15,9 +15,9 @@ const ui_test_performance = function ui_test_performance():void {
                     },
                     service:services_test_performance_input = {
                         body: dashboard.sections["test-performance"].nodes.body.value,
+                        call_stack: (dashboard.sections["test-performance"].nodes.call_stack_true.checked === true),
                         encryption: (dashboard.sections["test-performance"].nodes.encrypt_true.checked === true),
                         frame_body_size: Number(dashboard.sections["test-performance"].nodes.frame_body_size.value),
-                        garbage_collection: (dashboard.sections["test-performance"].nodes.garbage_collection_true.checked === true),
                         location: dashboard.sections["test-performance"].nodes.connect_address.value,
                         measure: (dashboard.sections["test-performance"].nodes.measure_send.checked === true)
                             ? "send"
@@ -103,13 +103,13 @@ const ui_test_performance = function ui_test_performance():void {
         nodes: {
             body: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("textarea")[0] as HTMLTextAreaElement,
             button_execute: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("button")[0],
+            call_stack_false: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[7],
+            call_stack_true: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[6],
             connect_address: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[9],
             connect_port: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[10],
             encrypt_false: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[3],
             encrypt_true: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[2],
             frame_body_size: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[8],
-            garbage_collection_false: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[7],
-            garbage_collection_true: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[6],
             measure_roundtrip: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[5],
             measure_send: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[4],
             quantity_tests: document.getElementById("test-performance").getElementsByClassName("form")[0].getElementsByTagName("input")[12],

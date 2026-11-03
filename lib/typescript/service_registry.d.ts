@@ -351,9 +351,9 @@ interface services_test_http {
 
 interface services_test_performance_input {
     body: string;
+    call_stack: boolean;
     encryption: boolean;
     frame_body_size: number;
-    garbage_collection: boolean;
     location: string;
     measure: "roundtrip" | "send";
     port: number;

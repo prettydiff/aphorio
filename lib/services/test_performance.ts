@@ -100,29 +100,6 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                 service: "services_test_performance_output"
             }, socket_service, 3);
         },
-        complete = function services_testPerformance_complete(measure:"roundtrip"|"send", socket_test:websocket_client):void {
-            if (measure === data.measure) {
-                socket_test.destroy();
-                const index_value:number = (measure === "roundtrip")
-                        ? 2
-                        : 1,
-                    mem:os_node_memoryUsage = process.memoryUsage();
-                test_time[test_time.length - 1][index_value] = process.hrtime.bigint();
-                memory[memory.length - 1][1] = mem.heapUsed;
-                index_test = index_test + 1;
-                if (index_test < data.quantity_tests) {
-                    if (data.garbage_collection === true) {
-                        setTimeout(test_type, 0);
-                    } else {
-                        test_type();
-                    }
-                } else {
-                    times("Test complete.", false);
-                }
-            } else {
-                test_time[test_time.length - 1][1] = process.hrtime.bigint();
-            }
-        },
         test_http = function services_testPerformance_testHTTP():void {
             http_request({
                 body: data.body,
@@ -141,11 +118,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                         index_http = 0;
                         index_test = index_test + 1;
                         if (index_test < data.quantity_tests) {
-                            if (data.garbage_collection === true) {
-                                setTimeout(test_type, 0);
-                            } else {
-                                test_type();
-                            }
+                            test_type();
                         } else {
                             times("Test complete.", false);
                         }
@@ -160,6 +133,25 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                 algorithm: "sha3-512",
                 callback: function services_testPerformance_testWebsocket_hash(output:core_hash_output):void {
                     let index_receive:number = 1;
+                    const complete = function services_testPerformance_testWebsocket_complete(measure:"roundtrip"|"send", socket_test:websocket_client):void {
+                        if (measure === data.measure) {
+                            socket_test.destroy();
+                            const index_value:number = (measure === "roundtrip")
+                                    ? 2
+                                    : 1,
+                                mem:os_node_memoryUsage = process.memoryUsage();
+                            test_time[test_time.length - 1][index_value] = process.hrtime.bigint();
+                            memory[memory.length - 1][1] = mem.heapUsed;
+                            index_test = index_test + 1;
+                            if (index_test < data.quantity_tests) {
+                                test_type();
+                            } else {
+                                times("Test complete.", false);
+                            }
+                        } else {
+                            test_time[test_time.length - 1][1] = process.hrtime.bigint();
+                        }
+                    };
                     create_socket({
                         callback: function services_testPerformance_testWebsocket_hash_create(socket_test:websocket_client, timeout:bigint, error:node_error):void {
                             if (socket_test === null || (error !== null && error !== undefined)) {
@@ -181,9 +173,13 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                                 if (index > 0) {
                                     do {
                                         index = index - 1;
-                                        setTimeout(function services_testPerformance_testWebSocket_hash_create_send():void {
+                                        if (data.call_stack === true) {
+                                            setTimeout(function services_testPerformance_testWebSocket_hash_create_send():void {
+                                                send(data.body, socket_test, 1);
+                                            }, 0);
+                                        } else {
                                             send(data.body, socket_test, 1);
-                                        }, 0);
+                                        }
                                     } while (index > 0);
                                 }
                             }

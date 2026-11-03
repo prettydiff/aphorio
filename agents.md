@@ -215,14 +215,12 @@ HTTP testing follows the concept of HTTP 1.1 without a keep alive header.
 This means a socket must be created, a request must be sent, a response must be received, and the socket must be closed for a single message iteration to occur.
 
 WebSocket tests allow for multiple conditions:
-* Whether to include garbage collection time in the measured test time.
 * The size of message segmentation.
 * Wether to test only for message sends or total round trip of message send and equivalent response.
 * Custom message body, as message size is a factor of performance testing and segmentation.
 
 A WebSocket send experiment occurs by creating a socket, pushing messages onto a message queue, waiting for both the message queue to empty and the socket to drain, and then finally closing the socket.
 A WebSocket round trip experiment follows a similar pattern as the send experiment except that before closing the socket a count of messages received matching the message quantity occurs.
-The only difference between the garbage collection testing is whether the next test executes from a setTimeout delay of 0 milliseconds.
 The 0 millisecond delay forces the next operation onto a new call stack in the event loop, which modifies the order of instruction execution.
 
 ### Dashboard Web Page Code
@@ -235,7 +233,6 @@ Test automation is available but many test scenarios are missing, incomplete, ou
 As such critical regressions occur due to large scale code refactors that should not occur at all.
 
 ### Performance
-This application has discovered that on a AMD Ryzen 9 9900X CPU it can send 3,250,000 WebSocket messages per 0.002 seconds but spends the remaining 0.998 seconds on garbage collection.
 This performance gap exists because the way the application is written the given message is already in memory and so each execution step is a cached operation in CPU cache pushing data onto the network interface buffer and Node's instructions are shallow abstractions to the respective kernel interfaces.
 Following the CPU operations the language runtime, V8, must then clear the overhead from memory for each of these execution steps and V8 instructions for memory operations are slower than CPU instructions.
 I could use some agent assistance to close this performance gap at each layer.
