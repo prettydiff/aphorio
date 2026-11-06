@@ -4,11 +4,11 @@ import get_address from "../core/get_address.ts";
 import file from "../utilities/file.ts";
 import hash from "../core/hash.ts";
 import http from "../http/index.ts";
+import http_parse from "../http/http_parse.ts";
 import http_write from "../http/http_write.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import message_handler from "./messageHandler.ts";
-import message_inspection from "../services/message_inspection.ts";
 import send from "./send.ts";
 import server_halt from "../server/server_halt.ts";
 import socket_extension from "./socketExtension.ts";
@@ -45,134 +45,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
 
             const // eslint-disable-next-line @typescript-eslint/no-this-alias
                 socket:websocket_client = this,
-                config_http:config_http = (function transmit_connection_handshake_headerList():config_http {
-                    const dataString:string = data.toString("utf-8"),
-                        headerIndex:number = dataString.replace(/^\s+/, "").indexOf("\r\n\r\n"),
-                        headerString:string = (headerIndex > 0)
-                            ? dataString.replace(/^\s+/, "").slice(0, headerIndex)
-                            : dataString.replace(/^\s+/, ""),
-                        list:string[] = headerString.split("\r\n"),
-                        list0:string[] = list[0].split(" "),
-                        query:number = (list0.length > 1)
-                            ? list0[1].indexOf("?")
-                            :-1,
-                        fragment:number = (list0.length > 1)
-                            ? list0[1].indexOf("#")
-                            : -1,
-                        config:config_http = {
-                            accept: "",
-                            body: null,
-                            domain: "",
-                            encryption: (socket.encrypted === true)
-                                ? "secure"
-                                : "open",
-                            fragment: "",
-                            headers: list,
-                            host_index: 0,
-                            http_test: false,
-                            http_upgrade: false,
-                            method: list[0].slice(0, list[0].indexOf(" ")).toLowerCase() as type_http_method,
-                            origin: "",
-                            port: 0,
-                            proxy_type: "none",
-                            query: "",
-                            range: "",
-                            referrer: "",
-                            resource: list[0].slice(list[0].replace(/ +/, " ").indexOf(" ") + 1).replace(/\s+HTTP\/\d(\.\d)?/, ""),
-                            resource_absolute: "",
-                            resource_size: 0,
-                            resource_type: "other",
-                            user_agent: "",
-                            websocket_key: "",
-                            websocket_nonce: "",
-                            websocket_type: ""
-                        },
-                        get_domain = function transmit_connection_handshake_headerList_getDomain(header:string):void {
-                            const sIndex:number = header.indexOf("]"),
-                                index:number = header.indexOf(":"),
-                                host:string = (index > 0)
-                                    ? header.slice(0, index)
-                                    : header;
-                            if (header.indexOf("[") === 0 && sIndex > 0) {
-                                config.domain = header.slice(1, sIndex);
-                            } else if ((/:\d+$/).test(header) === true) {
-                                config.domain = host;
-                            } else {
-                                config.domain = host;
-                            }
-                            config.origin = header.replace(/:80$/, "").replace(/:443$/, ".secure");
-                        },
-                        pair = function transmit_connection_handshake_headerList_pair(input:string):[string, string] {
-                            return [input.slice(0, input.indexOf(":")).trim().toLowerCase(), input.slice(input.indexOf(":") + 1).trim()];
-                        };
-                    list.forEach(function transmit_connection_handshake_headerList_each(header:string, index:number):void {
-                        const values:[string, string] = pair(header);
-                        if (values[0] === "sec-websocket-key") {
-                            config.websocket_key = values[1] + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-                        } else if (values[0] === "accept") {
-                            config.accept = values[1];
-                        } else if (values[0] === "host") {
-                            get_domain(values[1]);
-                            config.host_index = index;
-                        } else if (values[0] === "range") {
-                            config.range = values[1];
-                        } else if (values[0] === "referer:") {
-                            config.referrer = values[1];
-                        } else if (values[0] === "sec-websocket-protocol") {
-                            config.websocket_nonce = header;
-                            config.websocket_type = values[1];
-                        } else if (values[0] === "user-agent") {
-                            let ua:string[] = [];
-                            ua[0] = values[1].slice(values[1].indexOf("(") + 1, values[1].indexOf(")"));
-                            ua = ua[0].split(";");
-                            config.user_agent = `${ua[0]}, ${ua[1]}, ${config.user_agent.slice(config.user_agent.lastIndexOf(")") + 2)}`;
-                        } else if (values[0] === "upgrade-insecure-requests" && socket.encrypted !== true && server.upgrade === true && vars.data.server[server_id].ports.secure > 0) {
-                            config.http_upgrade = true;
-                        } else if (values[0] === "services_http_test") {
-                            config.http_test = true;
-                        }
-                    });
-                    if (fragment > 0) {
-                        config.fragment = config.resource.slice(fragment + 1);
-                        config.resource = config.resource.slice(0, fragment);
-                    }
-                    if (query > 0) {
-                        config.query = config.resource.slice(query + 1);
-                        config.resource = config.resource.slice(0, query);
-                    }
-                    config.resource = (config.resource === "/")
-                        ? "/"
-                        : config.resource.replace(/\/$/, "");
-                    if (config.method.toLowerCase() === "get" && server_id === vars.id.dashboard_server && config.resource === "/") {
-                        if (config.websocket_key === "") {
-                            vars.environment.request_http = headerString;
-                        } else {
-                            vars.environment.request_ws = headerString;
-                        }
-                    }
-                    if (headerIndex > 1) {
-                        config.body = data.subarray(Buffer.byteLength(headerString) + 4);
-                    }
-                    if (server.id === vars.id.dashboard_server) {
-                        vars.environment.dashboard_page.replace("request: \"\"", `request: \`${headerString}\``);
-                    }
-                    if (config.http_upgrade === true && config.http_test === true) {
-                        config.http_upgrade = false;
-                    }
-                    socket.addresses = get_address(socket);
-                    config.port = socket.addresses.local.port;
-                    message_inspection.send({
-                        count: 0,
-                        direction: "in",
-                        maximum_size: 0,
-                        message: dataString,
-                        service: socket.server_hash,
-                        throttle_size: 0,
-                        throttle_time: 0,
-                        type: "web-server"
-                    });
-                    return config;
-                }()),
+                address:transmit_addresses_socket = get_address(socket),
+                config_http:config_http = http_parse(server_id, address.local.port, data),
                 domain_local:string[] = server.domain_local.concat(vars.environment.interfaces),
                 upgrade_tls = function transmit_connection_handshake_upgradeTLS():void {
                     // * server option 'upgrade' must be true
@@ -198,37 +72,11 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     // http
                     if (config_http.websocket_key === "") {
                         const http_action = function transmit_connection_handshake_localService_httpAction():void {
-                                const keys:string[] = (server.method === null || server.method === undefined)
-                                    ? []
-                                    : Object.keys(server.method);
-                                let index:number = keys.length;
-                                if (index > 0) {
-                                    do {
-                                        index = index - 1;
-                                        if (keys[index].toLowerCase() === config_http.method) {
-                                            create_proxy({
-                                                body: config_http.body,
-                                                encrypted: socket.encrypted,
-                                                headers: config_http.headers,
-                                                host: server.method[config_http.method as "delete"].address,
-                                                host_index: config_http.host_index,
-                                                identifier: config_http.origin,
-                                                method: null,
-                                                port: server.method[config_http.method as "delete"].port,
-                                                resource: config_http.headers[0].replace(/\u0020+/g, " ").split(" ")[1],
-                                                server_hash: server_id,
-                                                socket: socket,
-                                                user_agent: config_http.user_agent
-                                            });
-                                            return;
-                                        }
-                                    } while (index > 0);
-                                }
-                                if (http[config_http.method.toLowerCase() as type_http_method_function] === undefined) {
+                                if (http[config_http.method as type_http_method_function] === undefined) {
                                     // unsupported HTTP methods result in socket destruction
                                     socket.destroy();
                                 } else {
-                                    http[config_http.method.toLowerCase() as type_http_method_function](config_http, socket);
+                                    http[config_http.method as type_http_method_function](config_http, socket);
                                     if (server.single_socket === true) {
                                         const terminate = function transmit_connection_handshake_localService_httpAction_terminate(this:websocket_client):void {
                                             this.destroy();
@@ -429,10 +277,11 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     let index:number = (server.block_list === null || server.block_list === undefined)
                         ? 0
                         : server.block_list.referrer.length;
+                    socket.addresses = address;
                     if (config_http.headers.length < 3) {
                         return true;
                     }
-                    if (domain_local.includes(config_http.origin) === false && socket.proxy === null) {
+                    if (domain_local.includes(config_http.domain) === false && socket.proxy === null) {
                         return true;
                     }
                     if (server.block_list !== null && server.block_list !== undefined) {
@@ -483,7 +332,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     proxy_test:[boolean, boolean] = null;
                 const resource_stat = function transmit_connection_handshake_resourceStat(incoming:string, callback:() => void):void {
                         const resource_absolute:string = incoming.replace(/(\/|\\)$/, ""),
-                            resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "")}`,
+                            resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.path.sep)}`,
                             stat_callback = function transmit_connection_handshake_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
                                 if (stats !== null) {
                                     config_http.resource_absolute = location;
@@ -500,21 +349,25 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         // 2. specific, relative to web root - project_path/servers/server/assets/outgoing
                         // 3. wildcard, fs absolute          - (outgoing + config.resource without match)
                         // 4. wildcard, relative to web root - project_path/servers/server/assets/(outgoing + config.resource without match)
-                        file.stat({
-                            // fs absolute
-                            callback: stat_callback,
-                            location: resource_relative,
-                            no_file: function transmit_connection_handshake_resourceStat_noFile():void {
-                                // fs relative to web root
-                                file.stat({
-                                    callback: stat_callback,
-                                    location: resource_absolute,
-                                    no_file: null,
-                                    section: "servers-web"
-                                });
-                            },
-                            section: "servers-web"
-                        });
+                        if (config_http.method === "get" && config_http.websocket_key === "") {
+                            file.stat({
+                                // fs absolute
+                                callback: stat_callback,
+                                location: resource_relative,
+                                no_file: function transmit_connection_handshake_resourceStat_noFile():void {
+                                    // fs relative to web root
+                                    file.stat({
+                                        callback: stat_callback,
+                                        location: resource_absolute,
+                                        no_file: null,
+                                        section: "servers-web"
+                                    });
+                                },
+                                section: "servers-web"
+                            });
+                        } else {
+                            callback();
+                        }
                     },
                     proxy_eval = function transmit_connection_handshake_proxyEval():[boolean, boolean] {
                         const port_open:number = vars.data.server[server.id].ports.open,
@@ -656,7 +509,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     not_matched = true;
                                 }
                                 if (typeof server.proxy[index].incoming.method === "string") {
-                                    if (server.proxy[index].incoming.method.toLowerCase() === config_http.method.toLowerCase()) {
+                                    if (server.proxy[index].incoming.method.toLowerCase() === config_http.method) {
                                         count = count + 1;
                                     } else {
                                         not_matched = true;

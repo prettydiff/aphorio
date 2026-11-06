@@ -143,7 +143,7 @@ declare global {
         error: node_childProcess_ExecException | node_error | TypeError;
         message: string;
         origin: string;
-        section: type_dashboard_sections | "certificate" | "dashboard" | "startup";
+        section: type_dashboard_sections | "certificate" | "dashboard" | "startup" | "test-automation";
         status: type_dashboard_status;
         time: number;
     }
