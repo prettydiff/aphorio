@@ -48,6 +48,82 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 address:transmit_addresses_socket = get_address(socket),
                 config_http:config_http = http_parse(server_id, address.local.port, data),
                 domain_local:string[] = server.domain_local.concat(vars.environment.interfaces),
+                resource_stat = function transmit_connection_handshake_resourceStat(incoming:string, config:config_http, callback:() => void):void {
+                    const resource_absolute:string = incoming.replace(/(\/|\\)$/, ""),
+                        resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.path.sep)}`,
+                        stat_callback = function transmit_connection_handshake_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
+                            if (stats !== null) {
+                                config.resource_absolute = location;
+                                if (stats.isFile() === true) {
+                                    config.resource_size = Number(stats.size);
+                                    config.resource_type = "file";
+                                } else if (stats.isDirectory() === true) {
+                                    config.resource_type = "directory";
+                                }
+                            }
+                            callback();
+                        };
+                    // 1. specific, fs absolute          - outgoing
+                    // 2. specific, relative to web root - project_path/servers/server/assets/outgoing
+                    // 3. wildcard, fs absolute          - (outgoing + config.resource without match)
+                    // 4. wildcard, relative to web root - project_path/servers/server/assets/(outgoing + config.resource without match)
+                    if (config.method === "get" && config.websocket_key === "") {
+                        file.stat({
+                            // fs absolute
+                            callback: stat_callback,
+                            location: resource_relative,
+                            no_file: function transmit_connection_handshake_resourceStat_noFile():void {
+                                // fs relative to web root
+                                file.stat({
+                                    callback: stat_callback,
+                                    location: resource_absolute,
+                                    no_file: null,
+                                    section: "servers-web"
+                                });
+                            },
+                            section: "servers-web"
+                        });
+                    } else {
+                        callback();
+                    }
+                },
+                http_action = function transmit_connection_handshake_httpAction():void {
+                    if (socket.timeout > 0) {
+                        socket.setTimeout(config_http.timeout);
+                        socket.on("timeout", function transmit_connection_handshake_httpAction_timeout():void {
+                            socket.end();
+                        });
+                    }
+                    if (http[config_http.method as type_http_method_function] === undefined) {
+                        // unsupported HTTP methods result in socket destruction
+                        socket.destroy();
+                    } else {
+                        if (server.single_socket === true) {
+                            const terminate = function transmit_connection_handshake_httpAction_terminate(this:websocket_client):void {
+                                this.destroy();
+                                server_halt({
+                                    action: "destroy",
+                                    server: vars.data.server[this.server_hash].config
+                                }, null);
+                            };
+                            socket.on("close", terminate);
+                            socket.on("end", terminate);
+                            socket.on("error", terminate);
+                        }
+                        socket.on("data", function transmit_connection_handshake_httpAction_data(this:websocket_client, data_http:Buffer):void {
+                            const socket:websocket_client = this,
+                                config:config_http = (data_http.includes("\r\n\r\n") === true)
+                                    ? http_parse(socket.server_hash, socket.addresses.local.port, data_http)
+                                    : null;
+                            if (config !== null) {
+                                resource_stat(config.resource, config, function transmit_connection_handshake_httpAction_data_stat():void {
+                                    http[config.method as type_http_method_function](config, socket);
+                                });
+                            }
+                        });
+                        http[config_http.method as type_http_method_function](config_http, socket);
+                    }
+                },
                 upgrade_tls = function transmit_connection_handshake_upgradeTLS():void {
                     // * server option 'upgrade' must be true
                     // * must be http request with header 'upgrade-insecure-requests: 1'
@@ -64,6 +140,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         "",
                         ""
                     ].join("\r\n"), true);
+                    http_action();
                 },
                 local_service = function transmit_connection_handshake_localService():void {
                     if (socket.destroyed === true) {
@@ -71,26 +148,6 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     }
                     // http
                     if (config_http.websocket_key === "") {
-                        const http_action = function transmit_connection_handshake_localService_httpAction():void {
-                                if (http[config_http.method as type_http_method_function] === undefined) {
-                                    // unsupported HTTP methods result in socket destruction
-                                    socket.destroy();
-                                } else {
-                                    http[config_http.method as type_http_method_function](config_http, socket);
-                                    if (server.single_socket === true) {
-                                        const terminate = function transmit_connection_handshake_localService_httpAction_terminate(this:websocket_client):void {
-                                            this.destroy();
-                                            server_halt({
-                                                action: "destroy",
-                                                server: vars.data.server[this.server_hash].config
-                                            }, null);
-                                        };
-                                        socket.on("close", terminate);
-                                        socket.on("end", terminate);
-                                        socket.on("error", terminate);
-                                    }
-                                }
-                            };
                         socket_extension({
                             callback: http_action,
                             handler: message_handler.default,
@@ -278,6 +335,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         ? 0
                         : server.block_list.referrer.length;
                     socket.addresses = address;
+                    socket.timeout = config_http.timeout;
                     if (config_http.headers.length < 3) {
                         return true;
                     }
@@ -330,46 +388,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     port:number = 0,
                     resource:string = "",
                     proxy_test:[boolean, boolean] = null;
-                const resource_stat = function transmit_connection_handshake_resourceStat(incoming:string, callback:() => void):void {
-                        const resource_absolute:string = incoming.replace(/(\/|\\)$/, ""),
-                            resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.path.sep)}`,
-                            stat_callback = function transmit_connection_handshake_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
-                                if (stats !== null) {
-                                    config_http.resource_absolute = location;
-                                    if (stats.isFile() === true) {
-                                        config_http.resource_size = Number(stats.size);
-                                        config_http.resource_type = "file";
-                                    } else if (stats.isDirectory() === true) {
-                                        config_http.resource_type = "directory";
-                                    }
-                                }
-                                callback();
-                            };
-                        // 1. specific, fs absolute          - outgoing
-                        // 2. specific, relative to web root - project_path/servers/server/assets/outgoing
-                        // 3. wildcard, fs absolute          - (outgoing + config.resource without match)
-                        // 4. wildcard, relative to web root - project_path/servers/server/assets/(outgoing + config.resource without match)
-                        if (config_http.method === "get" && config_http.websocket_key === "") {
-                            file.stat({
-                                // fs absolute
-                                callback: stat_callback,
-                                location: resource_relative,
-                                no_file: function transmit_connection_handshake_resourceStat_noFile():void {
-                                    // fs relative to web root
-                                    file.stat({
-                                        callback: stat_callback,
-                                        location: resource_absolute,
-                                        no_file: null,
-                                        section: "servers-web"
-                                    });
-                                },
-                                section: "servers-web"
-                            });
-                        } else {
-                            callback();
-                        }
-                    },
-                    proxy_eval = function transmit_connection_handshake_proxyEval():[boolean, boolean] {
+                const proxy_eval = function transmit_connection_handshake_proxyEval():[boolean, boolean] {
                         const port_open:number = vars.data.server[server.id].ports.open,
                             port_secure:number = vars.data.server[server.id].ports.secure,
                             domain_test:boolean = (typeof domain === "string" && domain !== "" && domain !== config_http.domain),
@@ -469,7 +488,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 } else if (proxy_test[1] === true) {
                     // resolve a resource from the local file system due to legacy redirect_asset rules
                     resource = resource.replace(/(\\|\/)g/, vars.path.sep);
-                    resource_stat(resource, local_service);
+                    resource_stat(resource, config_http, local_service);
                 } else {
                     // universal proxy model
                     if (server.proxy !== null && server.proxy !== undefined) {
@@ -593,22 +612,22 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 } else if (proxy_test[1] === true) {
                                     // resolve a resource from the local file system due to most well matched proxy rule
                                     resource = resource.replace(/(\\|\/)g/, vars.path.sep);
-                                    resource_stat(resource, local_service);
+                                    resource_stat(resource, config_http, local_service);
                                 } else {
                                     resource = config_http.resource;
-                                    resource_stat(resource, local_service);
+                                    resource_stat(resource, config_http, local_service);
                                 }
                             } else {
                                 resource = config_http.resource;
-                                resource_stat(resource, local_service);
+                                resource_stat(resource, config_http, local_service);
                             }
                         } else {
                             resource = config_http.resource;
-                            resource_stat(resource, local_service);
+                            resource_stat(resource, config_http, local_service);
                         }
                     } else {
                         resource = config_http.resource;
-                        resource_stat(resource, local_service);
+                        resource_stat(resource, config_http, local_service);
                     }
                 }
             }

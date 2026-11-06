@@ -181,7 +181,7 @@ const ui_test_performance = function ui_test_performance():void {
                 list[1].textContent = data.quantity_tests.commas();
                 list[2].textContent = `${data.message_size.commas()} bytes`;
                 list[3].textContent = (data.type === "http")
-                    ? "WebSocket Only"
+                    ? "Not used with HTTP"
                     : `${data.frame_body_size.commas()} bytes`;
                 list[4].textContent = `${(data.time / 1e9).commas()} seconds`;
                 list[5].textContent = data.type;

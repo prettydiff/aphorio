@@ -4,6 +4,9 @@ import vars from "../core/vars.ts";
 
 const http_parse = function http_parse(server_id:string, port:number, data:Buffer):config_http {
     const dataString:string = data.toString("utf-8"),
+        server:supplemental_server = (server_id === null || server_id === undefined || vars.data.server[server_id] === undefined)
+            ? null
+            : vars.data.server[server_id],
         headerIndex:number = dataString.replace(/^\s+/, "").indexOf("\r\n\r\n"),
         headerString:string = (headerIndex > 0)
             ? dataString.replace(/^\s+/, "").slice(0, headerIndex)
@@ -16,7 +19,9 @@ const http_parse = function http_parse(server_id:string, port:number, data:Buffe
         fragment:number = (list0.length > 1)
             ? list0[1].indexOf("#")
             : -1,
-        encrypted:boolean = (vars.data.server[server_id].ports.secure === port),
+        encrypted:boolean = (server === null)
+            ? true
+            : (server.ports.secure === port),
         config:config_http = {
             accept: "",
             body: null,
@@ -40,6 +45,8 @@ const http_parse = function http_parse(server_id:string, port:number, data:Buffe
             resource_absolute: "",
             resource_size: 0,
             resource_type: "other",
+            response_type: 0,
+            timeout: 10000,
             user_agent: "",
             websocket_key: "",
             websocket_nonce: "",
@@ -79,12 +86,26 @@ const http_parse = function http_parse(server_id:string, port:number, data:Buffe
         } else if (values[0] === "sec-websocket-protocol") {
             config.websocket_nonce = header;
             config.websocket_type = values[1];
+        } else if (values[0] === "connection" && values[1] === "close") {
+            config.timeout = 0;
+        } else if (values[0] === "transfer-encoding" && values[1] === "chunked") {
+            config.response_type = -1;
+        } else if (values[0] === "content-length" && (/^\d+$/).test(values[1]) === true) {
+            config.response_type = Number(values[1]);
+        } else if (values[0] === "keep-alive" && typeof values[1] === "string" && (/timeout=\d+/).test(values[1]) === true) {
+            let times:string = values[1].split("timeout=")[1].replace(/\s+/g, "");
+            if (times.includes(",") === true) {
+                times = times.split(",")[0];
+            }
+            if (config.timeout > 0) {
+                config.timeout = Number(times);
+            }
         } else if (values[0] === "user-agent") {
             let ua:string[] = [];
             ua[0] = values[1].slice(values[1].indexOf("(") + 1, values[1].indexOf(")"));
             ua = ua[0].split(";");
             config.user_agent = `${ua[0]}, ${ua[1]}, ${config.user_agent.slice(config.user_agent.lastIndexOf(")") + 2)}`;
-        } else if (values[0] === "upgrade-insecure-requests" && encrypted !== true && vars.data.server[server_id].config.upgrade === true && vars.data.server[server_id].ports.secure > 0) {
+        } else if (values[0] === "upgrade-insecure-requests" && encrypted !== true && server !== null && server.config.upgrade === true && server.ports.secure > 0) {
             config.http_upgrade = true;
         } else if (values[0] === "services_http_test") {
             config.http_test = true;

@@ -31,7 +31,7 @@ const ui_sockets_application_tcp = function ui_sockets_application_tcp():void {
             dashboard.tables.cell(tr, record["address"].remote.address, null);
             dashboard.tables.cell(tr, String(record["address"].remote.port), null);
             dashboard.tables.cell(tr, record["userAgent"], null);
-            if (dashboard.sections["sockets-application-tcp"].time === 0) {
+            if (dashboard.sections["sockets-application-tcp"].time === 0 && dashboard.global.payload !== null) {
                 dashboard.tables.cell(tr, BigInt(record["time"] * 1e6).time_elapsed(BigInt(dashboard.global.payload.start_date * 1e6)), String(record["time"]));
             } else {
                 dashboard.tables.cell(tr, BigInt(dashboard.sections["sockets-application-tcp"].time * 1e6).time_elapsed(BigInt(record["time"] * 1e6)), String(record["time"]));

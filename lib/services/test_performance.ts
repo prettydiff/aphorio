@@ -1,7 +1,7 @@
 
 import create_socket from "../transmit/create_socket.ts";
 import hash from "../core/hash.ts";
-import http_request from "../http/http_request.ts";
+import http_client from "../http/http_client.ts";
 import send from "../transmit/send.ts";
 import vars from "../core/vars.ts";
 
@@ -101,46 +101,56 @@ const test_performance = function services_testPerformance(socket_data:socket_da
             }, socket_service, 3);
         },
         test_http = function services_testPerformance_testHTTP():void {
-            http_request({
-                body: data.body,
-                encryption: data.encryption,
-                headers: vars.environment.request_http,
-                stats: null,
-                timeout: 1000,
-                uri: ""
-            }, function services_testPerformance_testHTTP_callback(output:config_http_request_output):void {
-                if (output.error === null) {
-                    test_time[test_time.length - 1][2] = process.hrtime.bigint();
+            const message:Buffer = Buffer.from(`${vars.environment.request_http}\r\n\r\n${data.body}\r\n\r\n`);
+            http_client({
+                callback_error: function services_testPerformance_testHTTP_error(error:node_error):void {
+                    times(error.message, true);
+                },
+                callback_response: function services_testPerformance_testHTTP_data(socket:websocket_client, data_response:Buffer):void {
                     index_http = index_http + 1;
                     if (index_http < data.quantity_transmit) {
-                        services_testPerformance_testHTTP();
+                        socket.write(message);
                     } else {
+                        socket.removeAllListeners("data");
+                        socket.removeAllListeners("error");
+                        socket.removeAllListeners("ready");
+                        socket.destroy();
+                        test_time[test_time.length - 1][2] = process.hrtime.bigint();
                         index_http = 0;
                         index_test = index_test + 1;
                         if (index_test < data.quantity_tests) {
                             setTimeout(test_type, 0);
                         } else {
+                            output.message_size = data_response.byteLength;
                             times("Test complete.", false);
                         }
                     }
-                } else {
-                    times(JSON.stringify(output.error), true);
-                }
-            }, [data.location, data.port]);
+                },
+                encryption: data.encryption,
+                host: data.location,
+                message: message,
+                port: data.port,
+                timeout: 10000
+            });
         },
         test_websocket = function services_testPerformance_testWebSocket():void {
             hash({
                 algorithm: "sha3-512",
                 callback: function services_testPerformance_testWebsocket_hash(output:core_hash_output):void {
-                    let index_receive:number = 1;
+                    let index_receive:number = 1,
+                        flags:store_flag = {
+                            roundtrip: false,
+                            send: false
+                        };
                     const complete = function services_testPerformance_testWebsocket_complete(measure:"roundtrip"|"send", socket_test:websocket_client):void {
-                        if (measure === data.measure) {
+                        const index_value:number = (measure === "roundtrip")
+                            ? 2
+                            : 1;
+                        test_time[test_time.length - 1][index_value] = process.hrtime.bigint();
+                        flags[measure] = true;
+                        if (data.measure === "send" || (data.measure === "roundtrip" && flags.roundtrip === true && flags.send === true)) {
                             socket_test.destroy();
-                            const index_value:number = (measure === "roundtrip")
-                                    ? 2
-                                    : 1,
-                                mem:os_node_memoryUsage = process.memoryUsage();
-                            test_time[test_time.length - 1][index_value] = process.hrtime.bigint();
+                            const mem:os_node_memoryUsage = process.memoryUsage();
                             memory[memory.length - 1][1] = mem.heapUsed;
                             index_test = index_test + 1;
                             if (index_test < data.quantity_tests) {
@@ -148,8 +158,6 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                             } else {
                                 times("Test complete.", false);
                             }
-                        } else {
-                            test_time[test_time.length - 1][1] = process.hrtime.bigint();
                         }
                     };
                     create_socket({

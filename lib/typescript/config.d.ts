@@ -122,10 +122,22 @@ declare global {
         resource_absolute: string;
         resource_size: number;
         resource_type: "directory" | "file" | "other";
+        response_type: number;
+        timeout: number;
         user_agent: string;
         websocket_key: string;
         websocket_nonce: string;
         websocket_type: string;
+    }
+
+    interface config_http_client {
+        callback_error: (error:node_error) => void;
+        callback_response: (socket:websocket_client, data:Buffer) => void;
+        encryption: boolean;
+        host: string;
+        message: Buffer;
+        port: number;
+        timeout: number;
     }
 
     interface config_http_request_output {

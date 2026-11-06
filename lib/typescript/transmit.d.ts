@@ -75,7 +75,7 @@ interface websocket_client extends node_tls_TLSSocket {
     segmentation: number;
     server_hash: string;
     status: type_socket_status;
-    time: number;
+    timeout: number;
     type: string;
     userAgent: string;
 }
