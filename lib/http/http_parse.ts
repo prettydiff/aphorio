@@ -119,9 +119,6 @@ const http_parse = function http_parse(server_id:string, port:number, data:Buffe
         config.query = config.resource.slice(query + 1);
         config.resource = config.resource.slice(0, query);
     }
-    config.resource = (config.resource === "/")
-        ? "/"
-        : config.resource.replace(/\/$/, "");
     if (config.method === "get" && server_id === vars.id.dashboard_server && config.resource === "/") {
         if (config.websocket_key === "") {
             vars.environment.request_http = headerString;

@@ -98,14 +98,27 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         // unsupported HTTP methods result in socket destruction
                         socket.destroy();
                     } else {
+                        const slash_test = function transmit_connection_handshake_httpAction_slashTest(config:config_http):void {
+                            if (config.resource_type !== "file" && (/\/$/).test(config.resource) === false) {
+                                const scheme:string = (config.encryption === "open")
+                                        ? "http"
+                                        : "https",
+                                    resource:string = `${config.resource}/`;
+                                config.headers[0] = config.headers[0].replace(config.resource, resource);
+                                config.resource = resource;
+                                redirect_http(scheme);
+                            } else {
+                                http[config_http.method as type_http_method_function](config, socket);
+                            }
+                        };
                         if (server.single_socket === true) {
                             const terminate = function transmit_connection_handshake_httpAction_terminate(this:websocket_client):void {
-                                this.destroy();
-                                server_halt({
-                                    action: "destroy",
-                                    server: vars.data.server[this.server_hash].config
-                                }, null);
-                            };
+                                    this.destroy();
+                                    server_halt({
+                                        action: "destroy",
+                                        server: vars.data.server[this.server_hash].config
+                                    }, null);
+                                };
                             socket.on("close", terminate);
                             socket.on("end", terminate);
                             socket.on("error", terminate);
@@ -117,28 +130,23 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     : null;
                             if (config !== null) {
                                 resource_stat(config.resource, config, function transmit_connection_handshake_httpAction_data_stat():void {
-                                    http[config.method as type_http_method_function](config, socket);
+                                    slash_test(config);
                                 });
                             }
                         });
-                        // here
-                        // resource-type = directory
-                        // refer does not end with /
-                        // - redirect - might be able to use upgrade_tls
-                        // and tls upgradew/downgrade is not working
-                        http[config_http.method as type_http_method_function](config_http, socket);
+                        slash_test(config_http);
                     }
                 },
-                upgrade_tls = function transmit_connection_handshake_upgradeTLS():void {
+                redirect_http = function transmit_connection_handshake_redirectHTTP(scheme:string):void {
                     // * server option 'upgrade' must be true
                     // * must be http request with header 'upgrade-insecure-requests: 1'
                     // * requests from the dashboard http test tool are ignored
                     const domain:string = (node.net.isIPv6(config_http.domain) === true)
-                        ? `[${config_http.domain}]`
-                        : config_http.domain;
+                            ? `[${config_http.domain}]`
+                            : config_http.domain;
                     http_write(socket, [
                         "HTTP/1.1 308",
-                        `location: https://${domain}:${vars.data.server[server_id].ports.secure + config_http.resource}`,
+                        `location: ${scheme}://${domain}:${vars.data.server[server_id].ports.secure + config_http.resource}`,
                         "content-length: 5",
                         "",
                         "moved",
@@ -385,7 +393,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
             } else if (blocked === true) {
                 socket.destroy();
             } else if (config_http.http_upgrade === true) {
-                upgrade_tls();
+                redirect_http("https");
             } else {
                 let domain:string = "",
                     encryption:boolean = null,
