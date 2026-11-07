@@ -121,6 +121,11 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 });
                             }
                         });
+                        // here
+                        // resource-type = directory
+                        // refer does not end with /
+                        // - redirect - might be able to use upgrade_tls
+                        // and tls upgradew/downgrade is not working
                         http[config_http.method as type_http_method_function](config_http, socket);
                     }
                 },
@@ -334,8 +339,6 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     let index:number = (server.block_list === null || server.block_list === undefined)
                         ? 0
                         : server.block_list.referrer.length;
-                    socket.addresses = address;
-                    socket.timeout = config_http.timeout;
                     if (config_http.headers.length < 3) {
                         return true;
                     }
@@ -346,7 +349,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         if (server.block_list.host.includes(config_http.origin) === true) {
                             return true;
                         }
-                        if (server.block_list.ip.includes(socket.addresses.remote.address) === true) {
+                        if (server.block_list.ip.includes(address.remote.address) === true) {
                             return true;
                         }
                     }
@@ -360,16 +363,16 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     }
                     return false;
                 }()),
-                redirect_tls:boolean = (data[0] === 22 && socket.addresses.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0);
-            if (blocked === true) {
-                socket.destroy();
-            } else if (redirect_tls === true) {
+                redirect_tls:boolean = (data[0] === 22 && address.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0);
+            socket.addresses = address;
+            socket.timeout = config_http.timeout;
+            if (redirect_tls === true) {
                 config_http.domain = `open_socket_tunnel-${vars.data.server[server_id].config.name}`;
                 create_proxy({
-                    body: config_http.body,
+                    body: data,
                     encrypted: false,
-                    headers: config_http.headers,
-                    host: socket.addresses.local.address,
+                    headers: null,
+                    host: address.local.address,
                     host_index: config_http.host_index,
                     identifier: config_http.origin,
                     method: null,
@@ -379,6 +382,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     socket: socket,
                     user_agent: config_http.user_agent
                 });
+            } else if (blocked === true) {
+                socket.destroy();
             } else if (config_http.http_upgrade === true) {
                 upgrade_tls();
             } else {
