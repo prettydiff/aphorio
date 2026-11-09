@@ -100,9 +100,9 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     } else {
                         const slash_test = function transmit_connection_handshake_httpAction_slashTest(config:config_http):void {
                             if ((config.resource_absolute === "" || config.resource_type === "directory") && (/\/$/).test(config.resource) === false) {
-                                const scheme:string = (config.encryption === "open")
-                                        ? "http"
-                                        : "https",
+                                const scheme:string = (config.encryption === "secure" || config.http_upgrade === true)
+                                        ? "https"
+                                        : "http",
                                     resource:string = `${config.resource}/`;
                                 config.headers[0] = config.headers[0].replace(config.resource, resource);
                                 config.resource = resource;
@@ -143,14 +143,17 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     // * requests from the dashboard http test tool are ignored
                     const domain:string = (node.net.isIPv6(config_http.domain) === true)
                             ? `[${config_http.domain}]`
-                            : config_http.domain;
+                            : config_http.domain,
+                        port:number = (scheme === "https")
+                            ? vars.data.server[server_id].ports.secure
+                            : vars.data.server[server_id].ports.open;
                     if (typeof socket.server_hash === "string") {
                         http_action();
                     } else {
                         socket_extension({
                             callback: http_action,
                             handler: message_handler.default,
-                            identifier: `http-${config_http.domain}-${config_http.port}-${Math.random()}`,
+                            identifier: `http-${config_http.domain}-${port}-${Math.random()}`,
                             proxy: null,
                             role: "server",
                             server: server_id,
@@ -162,7 +165,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     }
                     http_write(socket, [
                         "HTTP/1.1 308",
-                        `location: ${scheme}://${domain}:${vars.data.server[server_id].ports.secure + config_http.resource}`,
+                        `location: ${scheme}://${domain}:${port + config_http.resource}`,
                         "content-length: 5",
                         "",
                         "moved",
