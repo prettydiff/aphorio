@@ -162,7 +162,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: "<h2>Directory List - /redirect_wild_3</h2>"
+                    value: "<h2>Directory List - /redirect_wild_3/</h2>"
                 }
             ]
         },
@@ -181,18 +181,18 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 {
                     property: "headers",
                     qualifier: "contains",
-                    value: "HTTP/1.1 200 OK"
-                },
-                {
-                    property: "body",
-                    qualifier: "contains",
-                    value: "dom = function core_dom()"
-                },
-                {
-                    property: "body",
-                    qualifier: "contains",
-                    value: "<h2>Directory List - /redirect_wild_3</h2>"
+                    value: "HTTP/1.1 308"
                 }
+                // {
+                //     property: "body",
+                //     qualifier: "contains",
+                //     value: "dom = function core_dom()"
+                // },
+                // {
+                //     property: "body",
+                //     qualifier: "contains",
+                //     value: "<h2>Directory List - /redirect_wild_3</h2>"
+                // }
             ]
         },
         {

@@ -224,8 +224,8 @@ const test_runner:test_runner = {
                     : (node.net.isIPv6(test_item.request.host) === true)
                         ? `[${test_item.request.host}]:${port}`
                         : `${test_item.request.host}:${port}`,
-                headers:string[] = [`
-                    ${test_item.request.method} ${test_item.request.resource} HTTP/1.1`,
+                headers:string[] = [
+                    `${test_item.request.method} ${test_item.request.resource} HTTP/1.1`,
                     `Host: ${host}`,
                     "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0",
                     "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -251,32 +251,33 @@ const test_runner:test_runner = {
                     test_runner.tools.next();
                 },
                 callback_response: function test_runner_executionProxy_response(socket:websocket_client, response_header:string, response_body:Buffer):void {
-                    const body:string = response_body.toString(),
-                        unit:test_assertion_proxy[] = proxy_list[vars.test.index].unit,
-                        len:number = unit.length;
-                    let index:number = 0,
-                        value:type_test_primitive = null;
-                    do {
-                        if (unit[index].property === "body") {
-                            value = body;
-                        } else if (unit[index].property === "encrypted_proxy") {
-                            value = (socket.proxy === null)
-                                ? false
-                                : socket.proxy.encrypted;
-                        } else if (unit[index].property === "encrypted_proxy") {
-                            value = socket.encrypted;
-                        } else if (unit[index].property === "headers") {
-                            value = response_header;
-                        }
-                        if (unit[index].qualifier === "greater" || unit[index].qualifier === "lesser") {
-                            value = value.toString().length;
-                        }
-                        assertions.push(test_runner.assert[unit[index].qualifier](value, unit[index], unit[index].property));
-                        index = index + 1;
-                    } while (index < len);
-                    socket.end();
-                    test_runner.logger(assertions);
-                    test_runner.tools.next();
+                    if (socket.closed === false) {
+                        const body:string = response_body.toString(),
+                            unit:test_assertion_proxy[] = proxy_list[vars.test.index].unit,
+                            len:number = unit.length;
+                        let index:number = 0,
+                            value:type_test_primitive = null;
+                        do {
+                            if (unit[index].property === "body") {
+                                value = body;
+                            } else if (unit[index].property === "encrypted_proxy") {
+                                value = vars.test.encrypted_proxy;
+                            } else if (unit[index].property === "encrypted_self") {
+                                value = (socket.encrypted === true);
+                            } else if (unit[index].property === "headers") {
+                                value = response_header;
+                            }
+                            if (unit[index].qualifier === "greater" || unit[index].qualifier === "lesser") {
+                                value = value.toString().length;
+                            }
+                            assertions.push(test_runner.assert[unit[index].qualifier](value, unit[index], unit[index].property));
+                            index = index + 1;
+                        } while (index < len);
+                        vars.test.encrypted_proxy = false;
+                        socket.destroy();
+                        test_runner.logger(assertions);
+                        test_runner.tools.next();
+                    }
                 },
                 encryption: test_item.request.encryption,
                 host: test_item.request.host,

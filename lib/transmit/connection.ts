@@ -49,7 +49,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                 config_http:config_http = http_parse(server_id, address.local.port, data),
                 domain_local:string[] = server.domain_local.concat(vars.environment.interfaces),
                 resource_stat = function transmit_connection_handshake_resourceStat(incoming:string, config:config_http, callback:() => void):void {
-                    const resource_absolute:string = incoming.replace(/(\/|\\)$/, ""),
+                    const resource_absolute:string = incoming.replace(/(\/|\\)$/, "").replace(/(\\|\/)/g, vars.path.sep),
                         resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.path.sep)}`,
                         stat_callback = function transmit_connection_handshake_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
                             if (stats !== null) {
@@ -99,7 +99,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         socket.destroy();
                     } else {
                         const slash_test = function transmit_connection_handshake_httpAction_slashTest(config:config_http):void {
-                            if (config.resource_type !== "file" && (/\/$/).test(config.resource) === false) {
+                            if ((config.resource_absolute === "" || config.resource_type === "directory") && (/\/$/).test(config.resource) === false) {
                                 const scheme:string = (config.encryption === "open")
                                         ? "http"
                                         : "https",

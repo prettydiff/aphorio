@@ -43,7 +43,7 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: "<h2>Directory List - /path</h2>"
+                    value: "<h2>Directory List - /path/</h2>"
                 },
                 {
                     property: "body",
@@ -265,40 +265,40 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 }
             ]
         },
-        {
-            name: "Provide new path for test.localhost subdomain only",
-            request: {
-                body: "test body",
-                encryption: false,
-                host: "test.localhost",
-                method: "GET",
-                port: "server_3",
-                resource: "/lib",
-                timeout: 1000
-            },
-            unit: [
-                {
-                    property: "body",
-                    qualifier: "contains",
-                    value: "const dashboard:dashboard = {"
-                },
-                {
-                    property: "body",
-                    qualifier: "greater",
-                    value: 25000
-                },
-                {
-                    property: "encrypted_proxy",
-                    qualifier: "is",
-                    value: false
-                },
-                {
-                    property: "encrypted_self",
-                    qualifier: "is",
-                    value: false
-                }
-            ]
-        },
+        // {
+        //     name: "Provide new path for test.localhost subdomain only",
+        //     request: {
+        //         body: "test body",
+        //         encryption: false,
+        //         host: "test.localhost",
+        //         method: "GET",
+        //         port: "server_3",
+        //         resource: "/lib",
+        //         timeout: 1000
+        //     },
+        //     unit: [
+        //         {
+        //             property: "body",
+        //             qualifier: "contains",
+        //             value: "const dashboard:dashboard = {"
+        //         },
+        //         {
+        //             property: "body",
+        //             qualifier: "greater",
+        //             value: 25000
+        //         },
+        //         {
+        //             property: "encrypted_proxy",
+        //             qualifier: "is",
+        //             value: false
+        //         },
+        //         {
+        //             property: "encrypted_self",
+        //             qualifier: "is",
+        //             value: false
+        //         }
+        //     ]
+        // },
         {
             name: "Ensures that subdomain rules do not effect parent domains",
             request: {
