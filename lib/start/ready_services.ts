@@ -83,6 +83,9 @@ const ready_services = function start_readyServices(count_task:number):void {
             longest:number[] = [0, 4, 0],
             len:number = servers.length,
             port:number = 0;
+        vars.os.main.process.runtime = (bun === undefined)
+            ? "node"
+            : "bun";
         servers.sort(function start_readyServices_serverSort(a:string, b:string):-1|1 {
             if (a > b) {
                 return -1;

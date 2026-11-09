@@ -125,13 +125,13 @@ const index_proxy = function test_indexProxy():void {
                     {
                         "description": "Redirect to encrypted google from method POST to method GET",
                         incoming: {
-                            method: "POST",
+                            method: "post",
                             resource: "/google_7/*"
                         },
                         outgoing: {
                             domain: "google.com/",
                             encryption: "secure",
-                            method: "GET",
+                            method: "get",
                             resource: "/"
                         }
                     }
@@ -144,7 +144,7 @@ const index_proxy = function test_indexProxy():void {
                         "/redirect_wild_3/": `${project_path}lib/transmit/`
                     }
                 },
-                upgrade: true
+                upgrade: false
             },
             {
                 activate: true,
@@ -160,7 +160,7 @@ const index_proxy = function test_indexProxy():void {
                 redirect_domain: {
                     "localhost": ["localhost", 0, "default"]
                 },
-                upgrade: true
+                upgrade: false
             },
             {
                 activate: true,
@@ -176,7 +176,7 @@ const index_proxy = function test_indexProxy():void {
                 redirect_domain: {
                     "localhost.secure": ["localhost", 0, "default"]
                 },
-                upgrade: true
+                upgrade: false
             },
             {
                 activate: true,
@@ -201,7 +201,7 @@ const index_proxy = function test_indexProxy():void {
                         }
                     }
                 ],
-                upgrade: true
+                upgrade: false
             }
         ],
         test_server = function test_indexProxy_testServer(name:string):void {

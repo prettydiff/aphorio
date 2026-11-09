@@ -923,6 +923,7 @@ const os_list = function utilities_osList(type_os:type_os_services, callback:(ou
                             pid: process.pid,
                             platform: process.platform,
                             ppid: process.ppid,
+                            runtime: vars.os.main.process.runtime,
                             // sea: node.sea.isSea(),
                             uptime: process.uptime(),
                             versions: process.versions

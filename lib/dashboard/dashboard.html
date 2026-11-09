@@ -822,6 +822,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <li data-name="platform"><strong>Platform</strong><span></span></li>
                         <li data-name="pid"><strong>Process ID</strong><span></span></li>
                         <li data-name="ppid"><strong>Parent Process ID</strong><span></span></li>
+                        <li data-name="runtime"><strong>Runtime</strong><span></span></li>
                         <li data-name="uptime"><strong>Up Time</strong><span></span></li>
                     </ul>
                     <div>
@@ -1461,10 +1462,6 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         Roundtrip measurements are a more honest measure of transmission performance, but because receiving data from WebSockets is dramatically slow compared to sending that data most tools bias their results by only reporting send speeds.
                     </p>
                     <p>
-                        The tool also allows for imposing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Memory_management">JavaScript garbage collection</a> between tests or allowing garbage collection at the application's discretion.
-                        The actual real world timings between those are similar, but the raw numbers measuring transmission speed only are wildly different.
-                    </p>
-                    <p>
                         All messages are sent serially, for both HTTP and WebSocket tests, which means one after another without any kind of parallel messaging.
                         In the case of WebSockets the protocol, <a href="https://www.rfc-editor.org/info/rfc6455/">RFC 6455</a>, requires that messages be sent in an orderly fashion without any inter-splicing.
                         The means to test for parallel message transfer would require the use of multiple sockets, but this application does not perform such testing.
@@ -1494,8 +1491,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                 <p class="radio"><label>Encrypted (HTTPS/WSS) <input name="test-performance-encryption" type="radio" value="encrypted"/></label><label>Unencrypted (HTTP/WS) <input checked="checked" name="test-performance-encryption" type="radio" value="unencrypted"/></label></p>
                 <h4>Measurement Type</h4>
                 <p class="radio"><label>Send Only <input checked="checked" name="test-performance-measure" type="radio" value="send"/></label><label>Roundtrip <input name="test-performance-measure" type="radio" value="roundtrip"/></label></p>
-                <h4>Garbage Collection</h4>
-                <p class="radio"><label>Force GC Between Tests <input checked="checked" name="test-performance-gc" type="radio" value="forced"/></label><label>Back to Back Tests <input name="test-performance-gc" type="radio" value="back-to-back"/></label></p>
+                <h4>Call Stack</h4>
+                <p class="radio"><label>Force each message send into a separate call stack <input checked="checked" name="test-performance-gc" type="radio" value="forced"/></label><label>Send all messages from the same call stack <input name="test-performance-gc" type="radio" value="back-to-back"/></label></p>
                 <h4>Message Frame Details</h4>
                 <p><label>Maximum Frame Body Size (WebSocket only)<input type="number" value="1000000"/></label></p>
                 <h4>Connection Details</h4>

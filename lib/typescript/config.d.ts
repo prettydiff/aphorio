@@ -122,6 +122,8 @@ declare global {
         resource_absolute: string;
         resource_size: number;
         resource_type: "directory" | "file" | "other";
+        response_type: number;
+        timeout: number;
         user_agent: string;
         websocket_key: string;
         websocket_nonce: string;
@@ -143,7 +145,7 @@ declare global {
         error: node_childProcess_ExecException | node_error | TypeError;
         message: string;
         origin: string;
-        section: type_dashboard_sections | "certificate" | "dashboard" | "startup";
+        section: type_dashboard_sections | "certificate" | "dashboard" | "startup" | "test-automation";
         status: type_dashboard_status;
         time: number;
     }
@@ -222,7 +224,7 @@ declare global {
     }
 
     interface config_websocket_create {
-        callback: (socket:websocket_client, timeout:bigint, error?:node_error) => void;
+        callback: (socket:websocket_client, error?:node_error) => void;
         handler: websocket_message_handler;
         hash: string;
         headers: string[];
@@ -237,7 +239,7 @@ declare global {
     }
 
     interface config_websocket_extensions {
-        callback: (socket:websocket_client, timeout:bigint) => void;
+        callback: (socket:websocket_client) => void;
         handler: websocket_message_handler;
         identifier: string;
         proxy: websocket_client;
@@ -245,8 +247,6 @@ declare global {
         server: string;
         single_socket: boolean;
         socket: websocket_client;
-        temporary: boolean;
-        timeout: bigint;
         type: string;
         userAgent: string;
     }

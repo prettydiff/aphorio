@@ -269,6 +269,7 @@ declare global {
             pid: HTMLElement;
             platform: HTMLElement;
             ppid: HTMLElement;
+            runtime: HTMLElement;
             uptime: HTMLElement;
         };
         update_button: HTMLButtonElement;
@@ -629,13 +630,13 @@ declare global {
         nodes: {
             body: HTMLTextAreaElement;
             button_execute: HTMLButtonElement;
+            call_stack_false: HTMLInputElement;
+            call_stack_true: HTMLInputElement;
             connect_address: HTMLInputElement;
             connect_port: HTMLInputElement;
             encrypt_false: HTMLInputElement;
             encrypt_true: HTMLInputElement;
             frame_body_size: HTMLInputElement;
-            garbage_collection_false: HTMLInputElement;
-            garbage_collection_true: HTMLInputElement;
             measure_roundtrip: HTMLInputElement;
             measure_send: HTMLInputElement;
             quantity_tests: HTMLInputElement;

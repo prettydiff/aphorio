@@ -44,13 +44,15 @@ const ui_application_logs = function ui_application_logs():void {
             timeElement.appendText(time);
             strong.textContent = item.log.section;
             span.textContent = item.log.message;
-            p.textContent = ((item.log.section === "servers-web" || item.log.section === "sockets-application-tcp" || item.log.section === "sockets-application-udp") && (/\.ts$/).test(item.log.origin) === false)
-                ? (dashboard.global.payload.server[item.log.origin] === undefined)
-                    ? item.log.origin
-                    : `(${dashboard.global.payload.server[item.log.origin].config.name}) ${item.log.origin}`
-                : (item.log.section === "compose-containers" && (/\.ts$/).test(item.log.origin) === false)
-                    ? `(${dashboard.global.payload.compose.containers[item.log.origin].name}) ${item.log.origin}`
-                    : item.log.origin;
+            if (dashboard.global.payload !== null) {
+                p.textContent = ((item.log.section === "servers-web" || item.log.section === "sockets-application-tcp" || item.log.section === "sockets-application-udp") && (/\.ts$/).test(item.log.origin) === false)
+                    ? (dashboard.global.payload.server[item.log.origin] === undefined)
+                        ? item.log.origin
+                        : `(${dashboard.global.payload.server[item.log.origin].config.name}) ${item.log.origin}`
+                    : (item.log.section === "compose-containers" && (/\.ts$/).test(item.log.origin) === false)
+                        ? `(${dashboard.global.payload.compose.containers[item.log.origin].name}) ${item.log.origin}`
+                        : item.log.origin;
+            }
             li.appendChild(timeElement);
             li.appendChild(strong);
             li.appendChild(span);

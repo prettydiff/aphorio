@@ -18,6 +18,17 @@ interface transmit_addresses_socket {
     };
 }
 
+interface transmit_http_client {
+    callback_error: (socket:websocket_client, error:node_error) => void;
+    callback_response: (socket:websocket_client, response_header:string, response_body:Buffer) => void;
+    encryption: boolean;
+    host: string;
+    message: Buffer;
+    port: number;
+    timeout: number;
+    type: string;
+}
+
 interface transmit_receiver {
     [key:string]: type_receiver;
 }
@@ -62,6 +73,8 @@ interface websocket_client extends node_tls_TLSSocket {
     frame: websocket_frame;
     handler: websocket_message_handler;
     hash: string;
+    http_header: string;
+    http_response_type: number;
     ping: (ttl:number, callback:(err:node_error, roundtrip:bigint) => void) => void;
     pong: {
         [key:string]: websocket_pong;
@@ -75,7 +88,7 @@ interface websocket_client extends node_tls_TLSSocket {
     segmentation: number;
     server_hash: string;
     status: type_socket_status;
-    time: number;
+    timeout: number;
     type: string;
     userAgent: string;
 }

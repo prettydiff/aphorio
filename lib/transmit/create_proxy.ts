@@ -35,30 +35,34 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
         callback = function transmit_createProxy_callback():void {
             count = count + 1;
             if (count > 1) {
-                const method:type_http_method | "" = (config.method === "" || config.method === undefined || config.method === null)
-                        ? null
-                        : config.method,
-                    resource:string = (config.resource === "" || config.resource === undefined || config.resource === null)
-                        ? null
-                        : config.resource;
-                if (typeof method === "string" || typeof resource === "string") {
-                    const header:string[] = config.headers[0].replace(/\u0020+/g, " ").split(" ");
-                    if (typeof method === "string") {
-                        header[0] = method.toUpperCase();
-                    }
-                    if (typeof resource === "string") {
-                        header[1] = resource.replace(/(\\|\/)/g, "/");
-                    }
-                    config.headers[0] = header.join(" ");
-                }
-                config.headers[config.host_index] = (node.net.isIPv6(config.host) === true)
-                    ? `Host: [${host}]:${port_value}`
-                    : `Host: ${host}:${port_value}`;
                 proxy.pipe(config.socket);
                 config.socket.pipe(proxy);
-                proxy.write((config.body === null)
-                    ? Buffer.from(config.headers.join("\r\n") + "\r\n\r\n")
-                    : Buffer.concat([Buffer.from(config.headers.join("\r\n") + "\r\n\r\n"), config.body]));
+                if (config.headers === null) {
+                    proxy.write(config.body);
+                } else {
+                    const method:type_http_method | "" = (config.method === "" || config.method === undefined || config.method === null)
+                            ? null
+                            : config.method,
+                        resource:string = (config.resource === "" || config.resource === undefined || config.resource === null)
+                            ? null
+                            : config.resource;
+                    if (typeof method === "string" || typeof resource === "string") {
+                        const header:string[] = config.headers[0].replace(/\u0020+/g, " ").split(" ");
+                        if (typeof method === "string") {
+                            header[0] = method.toUpperCase();
+                        }
+                        if (typeof resource === "string") {
+                            header[1] = resource.replace(/(\\|\/)/g, "/");
+                        }
+                        config.headers[0] = header.join(" ");
+                    }
+                    config.headers[config.host_index] = (node.net.isIPv6(config.host) === true)
+                        ? `Host: [${host}]:${port_value}`
+                        : `Host: ${host}:${port_value}`;
+                    proxy.write((config.body === null)
+                        ? Buffer.from(config.headers.join("\r\n") + "\r\n\r\n")
+                        : Buffer.concat([Buffer.from(config.headers.join("\r\n") + "\r\n\r\n"), config.body]));
+                }
             }
         };
     proxy.on("error", function transmit_createProxy_error(proxy_error:node_error):void {
@@ -91,8 +95,6 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
             server: config.server_hash,
             single_socket: false,
             socket: config.socket,
-            temporary: false,
-            timeout: null,
             type: "relay",
             userAgent: config.user_agent
         });
@@ -107,8 +109,6 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
             server: config.server_hash,
             single_socket: false,
             socket: proxy,
-            temporary: false,
-            timeout: null,
             type: "proxy",
             userAgent: config.user_agent
         });

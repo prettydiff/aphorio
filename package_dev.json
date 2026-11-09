@@ -46,14 +46,15 @@
         "url": "git+https://github.com/prettydiff/aphorio.git"
     },
     "scripts": {
-        "lint":   "node ./node_modules/eslint/bin/eslint.js ./",
-        "server-bun": "bun ./lib/index.ts",
-        "server-node": "node ./lib/index.ts",
-        "test-bun":   "bun ./lib/index.ts mode:test-browser",
-        "test-node":   "node ./lib/index.ts mode:test-browser",
-        "tsc":    "node ./node_modules/typescript/bin/tsc --pretty"
+        "server-bun":          "bun ./lib/index.ts",
+        "server-node":         "node ./lib/index.ts",
+        "test-dashboard-bun":  "bun ./lib/index.ts mode:test-browser",
+        "test-dashboard-node": "node ./lib/index.ts mode:test-browser",
+        "test-proxy-bun":      "bun ./lib/index.ts mode:test-proxy",
+        "test-proxy-node":     "node ./lib/index.ts mode:test-proxy",
+        "tsc":                 "node ./node_modules/typescript/bin/tsc --pretty"
     },
     "types": "/lib/typescript",
     "type": "module",
-    "version": "0.7.2"
+    "version": "0.7.3"
 }

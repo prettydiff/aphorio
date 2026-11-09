@@ -201,6 +201,12 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 }
 
                 log.application(payload_log);
+                socket.removeAllListeners("close");
+                socket.removeAllListeners("data");
+                socket.removeAllListeners("end");
+                socket.removeAllListeners("error");
+                socket.removeAllListeners("ready");
+                socket.removeAllListeners("timeout");
                 socket.destroy();
                 socket_list_build();
             },
@@ -219,7 +225,6 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         config.socket.hash = config.identifier;    // assigns a unique identifier to the socket based upon the socket's credentials
         config.socket.proxy = config.proxy;        // assigns the relationship between a socket and its proxy, if any
         config.socket.role = config.role;          // assigns socket creation location
-        config.socket.time = now;                  // socket creation time
         config.socket.type = config.type;          // a classification identifier to functionally identify a common utility of sockets on a given server
         config.socket.userAgent = config.userAgent;// Attempts to describe the socket by originating OS and browser name/version
         if (config.type === "test-websocket" || config.proxy === null) {
@@ -263,7 +268,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             config.socket.on("error", end_error);
         }
         if (config.callback !== null && config.callback !== undefined) {
-            config.callback(config.socket, config.timeout);
+            config.callback(config.socket);
         }
         if (config.proxy !== null && config.proxy !== undefined) {
             let index:number = vars.data.sockets_tcp.length;

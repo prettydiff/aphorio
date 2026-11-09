@@ -1,5 +1,5 @@
 
-import http_request from "../http/http_request.ts";
+import http_client from "../http/http_client.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import send from "../transmit/send.ts";
@@ -224,67 +224,68 @@ const test_runner:test_runner = {
                     : (node.net.isIPv6(test_item.request.host) === true)
                         ? `[${test_item.request.host}]:${port}`
                         : `${test_item.request.host}:${port}`,
-                config:services_test_http = {
-                    body: test_item.request.body,
-                    encryption: test_item.request.encryption,
-                    headers: [
-                        `${test_item.request.method} ${test_item.request.resource} HTTP/1.1`,
-                        `Host: ${host}`,
-                        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0",
-                        "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                        "Accept-Language: en-US,en;q=0.9",
-                        "Accept-Encoding: gzip, deflate",
-                        "Connection: keep-alive",
-                        "Upgrade-Insecure-Requests: 1",
-                        "Priority: u=0, i"
-                    ].join("\r\n"),
-                    stats: null,
-                    timeout: (test_item.request.timeout === undefined || isNaN(test_item.request.timeout) === true)
-                        ? 1000
-                        : test_item.request.timeout,
-                    uri: ""
-                },
-                handler = function test_runner_executionProxy_handler(output:config_http_request_output):void {
-                    let index:number = 0,
-                        value:string = "";
-                    const unit:test_assertion_proxy[] = proxy_list[vars.test.index].unit,
-                        len:number = unit.length,
-                        assertions:test_assert[] = [];
-                    vars.test.encrypted_proxy = false;
-                    // loop through assertions
-                    if (output.error === null) {
-                        do {
-                            value = (unit[index].property === "url")
-                                ? output.url.href
-                                : output[unit[index].property] as string;
-                            if (typeof value === "string") {
-                                value = value.replace(/servers(\\|\/)server_\d/, function test_runner_executionProxy_handler_fileSystem(input:string):string {
-                                    const server_index:number = Number(input.split("_")[1]),
-                                        id:string = vars.test.servers[server_index].id;
-                                    return `servers${vars.path.sep + id}`;
-                                });
-                            }
-                            if (unit[index].qualifier === "greater" || unit[index].qualifier === "lesser") {
-                                assertions.push(test_runner.assert[unit[index].qualifier](value.length, unit[index], unit[index].property));
-                            } else {
-                                assertions.push(test_runner.assert[unit[index].qualifier](value, unit[index], unit[index].property));
-                            }
-                            index = index + 1;
-                        } while (index < len);
-                    } else {
-                        assertions.push({
-                            assessment: "",
-                            error: output.error,
-                            location: "",
-                            pass: false,
-                            store: false,
-                            value: "Error"
-                        });
-                    }
+                headers:string[] = [
+                    `${test_item.request.method} ${test_item.request.resource} HTTP/1.1`,
+                    `Host: ${host}`,
+                    "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0",
+                    "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Language: en-US,en;q=0.9",
+                    "Accept-Encoding: gzip, deflate",
+                    "Connection: keep-alive",
+                    "Upgrade-Insecure-Requests: 1",
+                    "Priority: u=0, i"
+                ],
+                assertions:test_assert[] = [];
+            http_client({
+                callback_error: function test_runner_executionProxy_error(socket:websocket_client, error:node_error):void {
+                    assertions.push({
+                        assessment: "",
+                        error: error,
+                        location: "",
+                        pass: false,
+                        store: false,
+                        value: "Error"
+                    });
+                    socket.end();
                     test_runner.logger(assertions);
                     test_runner.tools.next();
-                };
-            http_request(config, handler);
+                },
+                callback_response: function test_runner_executionProxy_response(socket:websocket_client, response_header:string, response_body:Buffer):void {
+                    if (socket.closed === false) {
+                        const body:string = response_body.toString(),
+                            unit:test_assertion_proxy[] = proxy_list[vars.test.index].unit,
+                            len:number = unit.length;
+                        let index:number = 0,
+                            value:type_test_primitive = null;
+                        do {
+                            if (unit[index].property === "body") {
+                                value = body;
+                            } else if (unit[index].property === "encrypted_proxy") {
+                                value = vars.test.encrypted_proxy;
+                            } else if (unit[index].property === "encrypted_self") {
+                                value = (socket.encrypted === true);
+                            } else if (unit[index].property === "headers") {
+                                value = response_header;
+                            }
+                            if (unit[index].qualifier === "greater" || unit[index].qualifier === "lesser") {
+                                value = value.toString().length;
+                            }
+                            assertions.push(test_runner.assert[unit[index].qualifier](value, unit[index], unit[index].property));
+                            index = index + 1;
+                        } while (index < len);
+                        vars.test.encrypted_proxy = false;
+                        socket.destroy();
+                        test_runner.logger(assertions);
+                        test_runner.tools.next();
+                    }
+                },
+                encryption: test_item.request.encryption,
+                host: test_item.request.host,
+                port: port,
+                message: Buffer.from(`${headers.join("\r\n")}\r\n\r\n${test_item.request.body}`),
+                timeout: 1000,
+                type: "test-proxy"
+            });
         }
     },
     list: function test_runner_list(list:test_list_dom|test_list_proxy, callback:(name:string) => void):void {

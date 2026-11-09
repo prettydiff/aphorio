@@ -80,6 +80,7 @@ const dashboard:dashboard = {
                         "pid": 0,
                         "platform": "",
                         "ppid": 0,
+                        "runtime": "",
                         "uptime": 0,
                         "versions": {}
                     },
@@ -477,6 +478,7 @@ const dashboard:dashboard = {
                     "pid": null,
                     "platform": null,
                     "ppid": null,
+                    "runtime": null,
                     "uptime": null
                 },
                 "update_button": null,
@@ -732,13 +734,13 @@ const dashboard:dashboard = {
             nodes: {
                 body: null,
                 button_execute: null,
+                call_stack_false: null,
+                call_stack_true: null,
                 connect_address: null,
                 connect_port: null,
                 encrypt_false: null,
                 encrypt_true: null,
                 frame_body_size: null,
-                garbage_collection_false: null,
-                garbage_collection_true: null,
                 measure_roundtrip: null,
                 measure_send: null,
                 quantity_tests: null,
