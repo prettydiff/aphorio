@@ -7,7 +7,7 @@ import vars from "../core/vars.ts";
 
 const create_socket = function transmit_createSocket(config:config_websocket_create):void {
     if (typeof config.ip !== "string" || config.ip === "") {
-        config.callback(null, null, new Error(`Error: Host value does not appear valid: ${config.ip}`));
+        config.callback(null, new Error(`Error: Host value does not appear valid: ${config.ip}`));
         return;
     }
     let startTime:bigint = null;
@@ -54,7 +54,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
             });
             client.destroy();
             if (typeof config.callback === "function") {
-                config.callback(null, null, errorMessage);
+                config.callback(null, errorMessage);
             }
         },
         callbackReady = function transmit_createSocket_hash_ready():void {
@@ -81,8 +81,6 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     server: config.server,
                     single_socket: false,
                     socket: client,
-                    temporary: false,
-                    timeout: startTime,
                     type: config.type,
                     userAgent: `${vars.os.main.os.type}, ${vars.environment.name.capitalize()} Client Socket`
                 });
@@ -101,7 +99,7 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                 ? "ETIMEDOUT"
                 : errorItem.code;
             client.destroy();
-            config.callback(null, null, error);
+            config.callback(null, error);
         };
     if (config.ip === "") {
         // an empty string defaults to loopback, which creates an endless feedback loop

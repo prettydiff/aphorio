@@ -108,7 +108,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 config.resource = resource;
                                 redirect_http(scheme);
                             } else {
-                                http[config_http.method as type_http_method_function](config, socket);
+                                http[config.method as type_http_method_function](config, socket);
                             }
                         };
                         if (server.single_socket === true) {
@@ -144,6 +144,22 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                     const domain:string = (node.net.isIPv6(config_http.domain) === true)
                             ? `[${config_http.domain}]`
                             : config_http.domain;
+                    if (typeof socket.server_hash === "string") {
+                        http_action();
+                    } else {
+                        socket_extension({
+                            callback: http_action,
+                            handler: message_handler.default,
+                            identifier: `http-${config_http.domain}-${config_http.port}-${Math.random()}`,
+                            proxy: null,
+                            role: "server",
+                            server: server_id,
+                            single_socket: server.single_socket,
+                            socket: socket,
+                            type: `http-${config_http.method}`,
+                            userAgent: config_http.user_agent
+                        });
+                    }
                     http_write(socket, [
                         "HTTP/1.1 308",
                         `location: ${scheme}://${domain}:${vars.data.server[server_id].ports.secure + config_http.resource}`,
@@ -153,7 +169,6 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         "",
                         ""
                     ].join("\r\n"), true);
-                    http_action();
                 },
                 local_service = function transmit_connection_handshake_localService():void {
                     if (socket.destroyed === true) {
@@ -164,14 +179,12 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         socket_extension({
                             callback: http_action,
                             handler: message_handler.default,
-                            identifier: `http-${config_http.resource}-${Math.random()}`,
+                            identifier: `http-${config_http.domain}-${config_http.port}-${Math.random()}`,
                             proxy: null,
                             role: "server",
                             server: server_id,
                             single_socket: server.single_socket,
                             socket: socket,
-                            temporary: server.temporary,
-                            timeout: null,
                             type: `http-${config_http.method}`,
                             userAgent: config_http.user_agent
                         });
@@ -326,8 +339,6 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     server: server_id,
                                     single_socket: server.single_socket,
                                     socket: socket,
-                                    temporary: server.temporary,
-                                    timeout: null,
                                     type: config_http.websocket_type,
                                     userAgent: config_http.user_agent
                                 };

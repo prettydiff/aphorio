@@ -130,16 +130,6 @@ declare global {
         websocket_type: string;
     }
 
-    interface config_http_client {
-        callback_error: (error:node_error) => void;
-        callback_response: (socket:websocket_client, data:Buffer) => void;
-        encryption: boolean;
-        host: string;
-        message: Buffer;
-        port: number;
-        timeout: number;
-    }
-
     interface config_http_request_output {
         chunked: boolean;
         chunks: number;
@@ -234,7 +224,7 @@ declare global {
     }
 
     interface config_websocket_create {
-        callback: (socket:websocket_client, timeout:bigint, error?:node_error) => void;
+        callback: (socket:websocket_client, error?:node_error) => void;
         handler: websocket_message_handler;
         hash: string;
         headers: string[];
@@ -249,7 +239,7 @@ declare global {
     }
 
     interface config_websocket_extensions {
-        callback: (socket:websocket_client, timeout:bigint) => void;
+        callback: (socket:websocket_client) => void;
         handler: websocket_message_handler;
         identifier: string;
         proxy: websocket_client;
@@ -257,8 +247,6 @@ declare global {
         server: string;
         single_socket: boolean;
         socket: websocket_client;
-        temporary: boolean;
-        timeout: bigint;
         type: string;
         userAgent: string;
     }

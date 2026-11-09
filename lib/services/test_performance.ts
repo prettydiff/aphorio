@@ -103,10 +103,10 @@ const test_performance = function services_testPerformance(socket_data:socket_da
         test_http = function services_testPerformance_testHTTP():void {
             const message:Buffer = Buffer.from(`${vars.environment.request_http}\r\n\r\n${data.body}\r\n\r\n`);
             http_client({
-                callback_error: function services_testPerformance_testHTTP_error(error:node_error):void {
+                callback_error: function services_testPerformance_testHTTP_error(socket:websocket_client, error:node_error):void {
                     times(error.message, true);
                 },
-                callback_response: function services_testPerformance_testHTTP_data(socket:websocket_client, data_response:Buffer):void {
+                callback_response: function services_testPerformance_testHTTP_data(socket:websocket_client, response_header:string, response_body:Buffer):void {
                     index_http = index_http + 1;
                     if (index_http < data.quantity_transmit) {
                         socket.write(message);
@@ -121,7 +121,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                         if (index_test < data.quantity_tests) {
                             setTimeout(test_type, 0);
                         } else {
-                            output.message_size = data_response.byteLength;
+                            output.message_size = response_body.byteLength + Buffer.from(response_header).byteLength + 4;
                             times("Test complete.", false);
                         }
                     }
@@ -130,7 +130,8 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                 host: data.location,
                 message: message,
                 port: data.port,
-                timeout: 10000
+                timeout: 10000,
+                type: "test-performance"
             });
         },
         test_websocket = function services_testPerformance_testWebSocket():void {
@@ -161,7 +162,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                         }
                     };
                     create_socket({
-                        callback: function services_testPerformance_testWebsocket_hash_create(socket_test:websocket_client, timeout:bigint, error:node_error):void {
+                        callback: function services_testPerformance_testWebsocket_hash_create(socket_test:websocket_client, error:node_error):void {
                             if (socket_test === null || (error !== null && error !== undefined)) {
                                 const message:string = JSON.stringify(error);
                                 if (message === "{}") {

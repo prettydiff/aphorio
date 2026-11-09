@@ -73,12 +73,12 @@ const websocket_test:websocket_test = {
                     socket_test.destroy();
                 }
             } else {
-                const callback = function services_websocket_handshake_callback(websocket:websocket_client, timeout:bigint, error:node_error):void {
+                const callback = function services_websocket_handshake_callback(websocket:websocket_client, error:node_error):void {
                         const message:services_websocket_status = {
                                 connected: (websocket !== null),
                                 encrypted: websocket.encrypted,
                                 error: (error === undefined || error === null)
-                                    ? `Connected in ${Number(timeout) /1e6} milliseconds.`
+                                    ? `Connected in ${Number(process.hrtime.bigint() - start_time) /1e6} milliseconds.`
                                     : error.message
                             };
                         send({
@@ -97,9 +97,10 @@ const websocket_test:websocket_test = {
                         resource: null,
                         secure: data.encryption,
                         server: vars.id.dashboard_server,
-                        timeout: 0,
+                        timeout: data.timeout,
                         type: "test-websocket"
-                    };
+                    },
+                    start_time:bigint = process.hrtime.bigint();
 
                 // get the host value
                 do {

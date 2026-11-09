@@ -3,7 +3,7 @@
 const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
     const list_proxy_legacy:test_list_proxy = [
         {
-            name: "Redirect to project lib/dashboard/styles.css, no trailing slash",
+            name: "Redirect to lib/dashboard/styles.css, no trailing slash",
             request: {
                 body: "test body",
                 encryption: false,
@@ -15,17 +15,17 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_headers",
+                    property: "headers",
                     qualifier: "contains",
                     value: "HTTP/1.1 200"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "greater",
                     value: 250000
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
                 }
@@ -44,17 +44,17 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_headers",
+                    property: "headers",
                     qualifier: "contains",
                     value: "HTTP/1.1 200"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "greater",
                     value: 250000
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
                 }
@@ -73,17 +73,17 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_headers",
+                    property: "headers",
                     qualifier: "contains",
                     value: "HTTP/1.1 200"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "greater",
                     value: 250000
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
                 }
@@ -102,17 +102,17 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_headers",
+                    property: "headers",
                     qualifier: "contains",
                     value: "HTTP/1.1 200"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "greater",
                     value: 250000
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
                 }
@@ -131,7 +131,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_headers",
+                    property: "headers",
                     qualifier: "contains",
                     value: "HTTP/1.1 404 NOT FOUND"
                 }
@@ -150,17 +150,17 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_headers",
+                    property: "headers",
                     qualifier: "contains",
                     value: "HTTP/1.1 200 OK"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "dom = function core_dom()"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "<h2>Directory List - /redirect_wild_3</h2>"
                 }
@@ -179,17 +179,17 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_headers",
+                    property: "headers",
                     qualifier: "contains",
                     value: "HTTP/1.1 200 OK"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "dom = function core_dom()"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "<h2>Directory List - /redirect_wild_3</h2>"
                 }
@@ -208,17 +208,17 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_headers",
+                    property: "headers",
                     qualifier: "contains",
                     value: "HTTP/1.1 200"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "greater",
                     value: 250000
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
                 },
@@ -242,17 +242,17 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_headers",
+                    property: "headers",
                     qualifier: "contains",
                     value: "HTTP/1.1 200"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "greater",
                     value: 250000
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
                 },

@@ -93,7 +93,35 @@ const ui_servers_web = function ui_servers_web():void {
                                 : "Optional",
                             len:number = (property === null || property === undefined)
                                 ? 0
-                                : property.length;
+                                : property.length,
+                            proxy_test = function dashboard_sections_serversWeb_validate_proxyTest(index_proxy:number, type:"incoming"|"outgoing"):void {
+                                if (typeof serverData.proxy[index_proxy].incoming !== "object" || serverData.proxy[index_proxy].incoming === null) {
+                                    populate(false, `Proxy rule index ${index} is missing property "incoming" or the value is not an object.`);
+                                    fail = true;
+                                } else {
+                                    const method:type_http_method = serverData.proxy[index_proxy].incoming.method;
+                                    if (serverData.proxy[index_proxy][type].domain !== undefined && serverData.proxy[index_proxy][type].domain !== null && typeof serverData.proxy[index_proxy][type].domain !== "string") {
+                                        populate(false, `Proxy optional rule value [${index}].incoming.domain is not a string.`);
+                                        fail = true;
+                                    }
+                                    if (serverData.proxy[index_proxy][type].encryption !== undefined && serverData.proxy[index_proxy][type].encryption !== null && serverData.proxy[index_proxy][type].encryption !== "both" && serverData.proxy[index_proxy][type].encryption !== "open" && serverData.proxy[index_proxy][type].encryption !== "secure") {
+                                        populate(false, `Proxy optional rule value [${index}].incoming.encryption is not a supported string value: "both", "open", "secure".`);
+                                        fail = true;
+                                    }
+                                    if (serverData.proxy[index_proxy][type].method !== undefined && serverData.proxy[index_proxy][type].method !== null && method !== "connect" && method !== "delete" && method !== "get" && method !== "head" && method !== "options" && method !== "patch" && method !== "post" && method !== "put" && method !== "query" && method !== "trace") {
+                                        populate(false, `Proxy optional rule value [${index}].incoming.method is not a supported string value: "connect", "delete", "get", "head", "options", "patch", "post", "put", "query", "trace".`);
+                                        fail = true;
+                                    }
+                                    if (serverData.proxy[index_proxy][type].port !== undefined && serverData.proxy[index_proxy][type].port !== null && (typeof serverData.proxy[index_proxy][type].port !== "number" || serverData.proxy[index_proxy][type].port < 0 || serverData.proxy[index_proxy][type].port > 65535)) {
+                                        populate(false, `Proxy optional rule value [${index}].incoming.port is not an integer number value 0 - 65535.`);
+                                        fail = true;
+                                    }
+                                    if (serverData.proxy[index_proxy][type].resource !== undefined && serverData.proxy[index_proxy][type].resource !== null && (typeof serverData.proxy[index_proxy][type].resource !== "string" || serverData.proxy[index_proxy][type].resource.includes("\\") === true)) {
+                                        populate(false, `Proxy optional rule value [${index}].incoming.resource is not a string or contains backslash characters.`);
+                                        fail = true;
+                                    }
+                                }
+                            };
                         if (Array.isArray(property) === false && name.includes(".") === false && (required === true || (required === false && property !== undefined && property !== null))) {
                             populate(false, `${requirement} property ${name} is not an array.`);
                             return false;
@@ -105,56 +133,8 @@ const ui_servers_web = function ui_servers_web():void {
                                         populate(false, `Proxy rule index ${index} is missing property "description" or the value is not a string.`);
                                         fail = true;
                                     }
-                                    if (typeof serverData.proxy[index].incoming !== "object" || serverData.proxy[index].incoming === null) {
-                                        populate(false, `Proxy rule index ${index} is missing property "incoming" or the value is not an object.`);
-                                        fail = true;
-                                    } else {
-                                        if (serverData.proxy[index].incoming.domain !== undefined && serverData.proxy[index].incoming.domain !== null && typeof serverData.proxy[index].incoming.domain !== "string") {
-                                            populate(false, `Proxy optional rule value [${index}].incoming.domain is not a string.`);
-                                            fail = true;
-                                        }
-                                        if (serverData.proxy[index].incoming.encryption !== undefined && serverData.proxy[index].incoming.encryption !== null && serverData.proxy[index].incoming.encryption !== "both" && serverData.proxy[index].incoming.encryption !== "open" && serverData.proxy[index].incoming.encryption !== "secure") {
-                                            populate(false, `Proxy optional rule value [${index}].incoming.encryption is not a supported string value: "both", "open", "secure".`);
-                                            fail = true;
-                                        }
-                                        if (serverData.proxy[index].incoming.method !== undefined && serverData.proxy[index].incoming.method !== null && serverData.proxy[index].incoming.method !== "CONNECT" && serverData.proxy[index].incoming.method !== "DELETE" && serverData.proxy[index].incoming.method !== "GET" && serverData.proxy[index].incoming.method !== "HEAD" && serverData.proxy[index].incoming.method !== "OPTIONS" && serverData.proxy[index].incoming.method !== "PATCH" && serverData.proxy[index].incoming.method !== "POST" && serverData.proxy[index].incoming.method !== "PUT" && serverData.proxy[index].incoming.method !== "QUERY" && serverData.proxy[index].incoming.method !== "TRACE") {
-                                            populate(false, `Proxy optional rule value [${index}].incoming.method is not a supported string value: "CONNECT", "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "QUERY", "TRACE".`);
-                                            fail = true;
-                                        }
-                                        if (serverData.proxy[index].incoming.port !== undefined && serverData.proxy[index].incoming.port !== null && (typeof serverData.proxy[index].incoming.port !== "number" || serverData.proxy[index].incoming.port < 0 || serverData.proxy[index].incoming.port > 65535)) {
-                                            populate(false, `Proxy optional rule value [${index}].incoming.port is not an integer number value 0 - 65535.`);
-                                            fail = true;
-                                        }
-                                        if (serverData.proxy[index].incoming.resource !== undefined && serverData.proxy[index].incoming.resource !== null && (typeof serverData.proxy[index].incoming.resource !== "string" || serverData.proxy[index].incoming.resource.includes("\\") === true)) {
-                                            populate(false, `Proxy optional rule value [${index}].incoming.resource is not a string or contains backslash characters.`);
-                                            fail = true;
-                                        }
-                                    }
-                                    if (typeof serverData.proxy[index].outgoing !== "object" || serverData.proxy[index].outgoing === null) {
-                                        populate(false, `Proxy rule index ${index} is missing property "outgoing" or the value is not an object.`);
-                                        fail = true;
-                                    } else {
-                                        if (serverData.proxy[index].outgoing.domain !== undefined && serverData.proxy[index].outgoing.domain !== null && typeof serverData.proxy[index].outgoing.domain !== "string") {
-                                            populate(false, `Proxy optional rule value [${index}].outgoing.domain is not a string.`);
-                                            fail = true;
-                                        }
-                                        if (serverData.proxy[index].outgoing.encryption !== undefined && serverData.proxy[index].outgoing.encryption !== null && serverData.proxy[index].outgoing.encryption !== "both" && serverData.proxy[index].outgoing.encryption !== "open" && serverData.proxy[index].outgoing.encryption !== "secure") {
-                                            populate(false, `Proxy optional rule value [${index}].outgoing.encryption is not a supported string value: "both", "open", "secure".`);
-                                            fail = true;
-                                        }
-                                        if (serverData.proxy[index].outgoing.method !== undefined && serverData.proxy[index].outgoing.method !== null && serverData.proxy[index].outgoing.method !== "CONNECT" && serverData.proxy[index].outgoing.method !== "DELETE" && serverData.proxy[index].outgoing.method !== "GET" && serverData.proxy[index].outgoing.method !== "HEAD" && serverData.proxy[index].outgoing.method !== "OPTIONS" && serverData.proxy[index].outgoing.method !== "PATCH" && serverData.proxy[index].outgoing.method !== "POST" && serverData.proxy[index].outgoing.method !== "PUT" && serverData.proxy[index].outgoing.method !== "QUERY" && serverData.proxy[index].outgoing.method !== "TRACE") {
-                                            populate(false, `Proxy optional rule value [${index}].outgoing.method is not a supported string value: "CONNECT", "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "QUERY", "TRACE".`);
-                                            fail = true;
-                                        }
-                                        if (serverData.proxy[index].outgoing.port !== undefined && serverData.proxy[index].outgoing.port !== null && (typeof serverData.proxy[index].outgoing.port !== "number" || serverData.proxy[index].outgoing.port < 0 || serverData.proxy[index].outgoing.port > 65535)) {
-                                            populate(false, `Proxy optional rule value [${index}].outgoing.port is not an integer number value 0 - 65535.`);
-                                            fail = true;
-                                        }
-                                        if (serverData.proxy[index].outgoing.resource !== undefined && serverData.proxy[index].outgoing.resource !== null && (typeof serverData.proxy[index].outgoing.resource !== "string" || serverData.proxy[index].outgoing.resource.includes("\\") === true)) {
-                                            populate(false, `Proxy optional rule value [${index}].outgoing.resource is not a string or contains backslash characters.`);
-                                            fail = true;
-                                        }
-                                    }
+                                    proxy_test(index, "incoming");
+                                    proxy_test(index, "outgoing");
                                 } else if (typeof property[index] !== "string") {
                                     const requirement_lower:string = (required === true)
                                         ? "required"

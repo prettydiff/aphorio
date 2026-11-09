@@ -95,8 +95,6 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
             server: config.server_hash,
             single_socket: false,
             socket: config.socket,
-            temporary: false,
-            timeout: null,
             type: "relay",
             userAgent: config.user_agent
         });
@@ -111,8 +109,6 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
             server: config.server_hash,
             single_socket: false,
             socket: proxy,
-            temporary: false,
-            timeout: null,
             type: "proxy",
             userAgent: config.user_agent
         });

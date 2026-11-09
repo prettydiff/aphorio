@@ -201,6 +201,12 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 }
 
                 log.application(payload_log);
+                socket.removeAllListeners("close");
+                socket.removeAllListeners("data");
+                socket.removeAllListeners("end");
+                socket.removeAllListeners("error");
+                socket.removeAllListeners("ready");
+                socket.removeAllListeners("timeout");
                 socket.destroy();
                 socket_list_build();
             },
@@ -262,7 +268,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
             config.socket.on("error", end_error);
         }
         if (config.callback !== null && config.callback !== undefined) {
-            config.callback(config.socket, config.timeout);
+            config.callback(config.socket);
         }
         if (config.proxy !== null && config.proxy !== undefined) {
             let index:number = vars.data.sockets_tcp.length;

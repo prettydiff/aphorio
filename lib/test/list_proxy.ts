@@ -15,12 +15,14 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_headers",
+                    // index: 2,
+                    property: "headers",
                     qualifier: "contains",
                     value: "404 NOT FOUND"
                 },
                 {
-                    property: "response_body_raw",
+                    // index: 2,
+                    property: "body",
                     qualifier: "lesser",
                     value: 2000
                 }
@@ -39,17 +41,17 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "<h2>Directory List - /path</h2>"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "<td class=\"file-name\"><span class=\"icon\">📁</span> <a href=\"http://localhost:port_open/path/browser\">browser</a></td><td>directory</td>"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "greater",
                     value: 20000
                 }
@@ -68,12 +70,12 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "lesser",
                     value: 1e3
                 }
@@ -92,12 +94,12 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "lesser",
                     value: 1e3
                 }
@@ -116,12 +118,12 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "lesser",
                     value: 1e3
                 }
@@ -140,12 +142,12 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "lesser",
                     value: 1e3
                 },
@@ -174,12 +176,12 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "lesser",
                     value: 1e3
                 },
@@ -208,12 +210,12 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "lesser",
                     value: 1e3
                 },
@@ -242,12 +244,12 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "<TITLE>301 Moved</TITLE></HEAD><BODY>"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "lesser",
                     value: 1e3
                 },
@@ -276,12 +278,12 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "contains",
                     value: "const dashboard:dashboard = {"
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "greater",
                     value: 25000
                 },
@@ -310,12 +312,12 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "begins",
                     value: "[{\"activate\":true,\"domain_local\":[\"127.0.0.1\",\"::1\"],\"encryption\":\"both\",\"message_segmentation\":1000000,\"mutual_tls\":false,\"name\":\"server_0\""
                 },
                 {
-                    property: "response_body_raw",
+                    property: "body",
                     qualifier: "greater",
                     value: 5000
                 },
