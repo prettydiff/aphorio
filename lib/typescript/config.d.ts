@@ -195,6 +195,13 @@ declare global {
         user_agent: string;
     }
 
+    interface config_proxy_test {
+        domain: string;
+        encryption: boolean;
+        port: number;
+        resource: string;
+    }
+
     interface config_resize {
         node: HTMLElement;
         section: type_dashboard_features;
