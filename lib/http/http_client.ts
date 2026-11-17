@@ -1,7 +1,7 @@
 
 import get_address from "../core/get_address.ts";
 import node from "../core/node.ts";
-import socket_extension from "../transmit/socketExtension.ts";
+import socket_extension from "../transmit/socket_extension.ts";
 import vars from "../core/vars.ts";
 
 const http_client = function http_client(config:transmit_http_client):websocket_client {

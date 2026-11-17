@@ -2,7 +2,7 @@
 import get_address from "../core/get_address.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
-import socket_extension from "./socketExtension.ts";
+import socket_extension from "./socket_extension.ts";
 import vars from "../core/vars.ts";
 
 const create_socket = function transmit_createSocket(config:config_websocket_create):void {

@@ -2,7 +2,7 @@
 import get_address from "../core/get_address.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
-import socket_extension from "./socketExtension.ts";
+import socket_extension from "./socket_extension.ts";
 import vars from "../core/vars.ts";
 
 const create_proxy = function transmit_createProxy(config:config_proxy_create):void {
