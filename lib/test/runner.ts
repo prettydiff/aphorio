@@ -246,7 +246,7 @@ const test_runner:test_runner = {
                         store: false,
                         value: "Error"
                     });
-                    socket.end();
+                    socket.destroy();
                     test_runner.logger(assertions);
                     test_runner.tools.next();
                 },

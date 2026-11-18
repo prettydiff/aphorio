@@ -52,7 +52,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                         websocket:boolean = (typeof config_http.websocket_key === "string" && config_http.websocket_key !== ""),
                         identifier:string = (function transmit_connection_extend_hash_identifier():string {
                             if (websocket === false) {
-                                return `http-${output.hash}`;
+                                return `http-${config_http.resource}-${output.hash}`;
                             }
                             if (localFlag === true && config_http.websocket_type === "dashboard-terminal") {
                                 return `ws-dashboard-terminal-${output.hash}`;
@@ -62,36 +62,85 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             }
                             return `ws-${config_http.websocket_type}-${output.hash}`;
                         }()),
-                        resource_stat = function transmit_connection_extend_hash_resourceStat(incoming:string, config:config_http, callback:() => void):void {
-                            const resource_absolute:string = (incoming === "/")
-                                    ? "/"
-                                    : incoming.replace(/(\/|\\)$/, "").replace(/(\\|\/)/g, vars.path.sep),
-                                resource_relative:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets${vars.path.sep + resource_absolute.replace(/^(\\|\/)/, "").replace(/(\\|\/)/g, vars.path.sep)}`,
-                                stat_callback = function transmit_connection_extend_hash_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
-                                    if (stats !== null) {
-                                        config.resource_absolute = location;
-                                        if (stats.isFile() === true) {
-                                            config.resource_size = Number(stats.size);
-                                            config.resource_type = "file";
-                                        } else if (stats.isDirectory() === true) {
-                                            config.resource_type = "directory";
-                                        }
+                        handler_ws:websocket_message_handler = (function transmit_connection_extend_hash_handlerWS():websocket_message_handler {
+                            if (websocket === false) {
+                                return null;
+                            }
+                            if (config_http.websocket_type === "test-websocket") {
+                                return message_handler.test_websocket;
+                            }
+                            if (config_http.websocket_type === "test-performance-socket") {
+                                if (vars.test.test_browser === "send") {
+                                    return null;
+                                }
+                                return message_handler.test_performance;
+                            }
+                            return message_handler.default;
+                        }()),
+                        blocked = function transmit_connection_extend_hash_blocked():boolean {
+                            const domain_local:string[] = server.domain_local.concat(vars.environment.interfaces);
+                            let index:number = (server.block_list === null || server.block_list === undefined)
+                                    ? 0
+                                    : server.block_list.referrer.length,
+                                message:string = "";
+                            if (config_http.headers.length < 3) {
+                                message = "incomplete RFC2616 headers";
+                            } else if (domain_local.includes(config_http.domain) === false && socket.proxy === null) {
+                                message = "desired domain not supported on this server";
+                            } else if (server.block_list !== null && server.block_list !== undefined) {
+                                if (server.block_list.host.includes(config_http.origin) === true) {
+                                    message = "origin in server's block list";
+                                }
+                                if (server.block_list.ip.includes(address.remote.address) === true) {
+                                    message = "remote IP in server's block list";
+                                }
+                            }
+                            if (index > 0) {
+                                do {
+                                    index = index - 1;
+                                    if (config_http.referrer.indexOf(server.block_list.referrer[index].toLowerCase()) === 0 || config_http.referrer.replace(/\w+:\/\//, "").indexOf(server.block_list.referrer[index].toLowerCase()) === 0) {
+                                        message = "referrer in block list";
+                                        break;
                                     }
-                                    callback();
-                                };
-                            file.stat({
-                                // fs absolute
-                                callback: stat_callback,
-                                location: resource_relative,
-                                no_file: null,
-                                section: "servers-web"
+                                } while (index > 0);
+                            }
+                            if (message === "") {
+                                return false;
+                            }
+                            socket.destroy();
+                            log.application({
+                                error: null,
+                                message: `Blocked socket - ${message}`,
+                                origin: server.id,
+                                section: "servers-web",
+                                status: "informational",
+                                time: Date.now()
+                            });
+                            return true;
+                        },
+                        data_event = function transmit_connection_extend_hash_dataEvent():void {
+                            socket_extension({
+                                callback: (websocket === true)
+                                    ? data_ws
+                                    : data_http,
+                                handler: handler_ws,
+                                identifier: identifier,
+                                proxy: null,
+                                role: "server",
+                                server: server_id,
+                                single_socket: server.single_socket,
+                                socket: socket,
+                                type: (websocket === true)
+                                    ? config_http.websocket_type
+                                    : `http-${config_http.method}`,
+                                userAgent: config_http.user_agent
                             });
                         },
                         data_http = function transmit_connection_extend_hash_dataHTTP():void {
                             if (socket.timeout > 0) {
                                 socket.setTimeout(config_http.timeout);
                                 socket.on("timeout", function transmit_connection_extend_hash_dataHTTP_timeout():void {
-                                    socket.end();
+                                    socket.destroy();
                                 });
                             }
                             if (http[config_http.method as type_http_method_function] === undefined) {
@@ -116,12 +165,12 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                             ? http_parse(socket.server_hash, socket.addresses.local.port, data_http)
                                             : null;
                                     if (config !== null) {
-                                        resource_stat(config.resource, config, function transmit_connection_extend_hash_dataHTTP_data_stat():void {
+                                        resource_stat(socket, config, function transmit_connection_extend_hash_dataHTTP_data_stat():void {
                                             http[config.method as type_http_method_function](config, socket);
                                         });
                                     }
                                 });
-                                resource_stat(config_http.resource, config_http, function transmit_connection_extend_hash_dataHTTP_data_stat():void {
+                                resource_stat(socket, config_http, function transmit_connection_extend_hash_dataHTTP_data_stat():void {
                                     http[config_http.method as type_http_method_function](config_http, socket);
                                 });
                             }
@@ -242,59 +291,6 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 }
                             }
                         },
-                        data_event = function transmit_connection_extend_hash_dataEvent():void {
-                            socket_extension({
-                                callback: (websocket === true)
-                                    ? data_ws
-                                    : data_http,
-                                handler: handler_ws,
-                                identifier: identifier,
-                                proxy: null,
-                                role: "server",
-                                server: server_id,
-                                single_socket: server.single_socket,
-                                socket: socket,
-                                type: (websocket === true)
-                                    ? config_http.websocket_type
-                                    : `http-${config_http.method}`,
-                                userAgent: config_http.user_agent
-                            });
-                        },
-                        redirect_http = function transmit_connection_extend_hash_redirectHTTP(scheme:string):void {
-                            // * server option 'upgrade' must be true
-                            // * must be http request with header 'upgrade-insecure-requests: 1'
-                            // * requests from the dashboard http test tool are ignored
-                            socket_extension({
-                                callback: function transmit_connection_extend_hash_redirectHTTP_callback():void {
-                                    const domain:string = (node.net.isIPv6(config_http.domain) === true)
-                                            ? `[${config_http.domain}]`
-                                            : config_http.domain,
-                                        port:number = (scheme === "https")
-                                            ? vars.data.server[server_id].ports.secure
-                                            : vars.data.server[server_id].ports.open;
-                                    http_write(socket, [
-                                        "HTTP/1.1 308",
-                                        `location: ${scheme}://${domain}:${port + config_http.resource}`,
-                                        "content-length: 5",
-                                        "",
-                                        "moved",
-                                        "",
-                                        ""
-                                    ].join("\r\n"), true);
-                                },
-                                handler: handler_ws,
-                                identifier: identifier,
-                                proxy: null,
-                                role: "server",
-                                server: server_id,
-                                single_socket: server.single_socket,
-                                socket: socket,
-                                type: (websocket === true)
-                                    ? config_http.websocket_type
-                                    : `http-${config_http.method}`,
-                                userAgent: config_http.user_agent
-                            });
-                        },
                         proxy_eval = function transmit_connection_extend_hash_proxyEval(config:config_proxy_test):[boolean, boolean] {
                             const port_open:number = vars.data.server[server.id].ports.open,
                                 port_secure:number = vars.data.server[server.id].ports.secure,
@@ -317,11 +313,6 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 port:number = 0,
                                 resource:string = "",
                                 proxy_test:[boolean, boolean] = null;
-                            // legacy asset redirection
-                            if (logger === true) {
-                                // For testing legacy redirection criteria:
-                                log.shell([domain+" "+port+" "+resource+" "+config_http.domain+" "+config_http.resource]);
-                            }
                             if (server.redirect_asset !== null && server.redirect_asset !== undefined) {
                                 const keys:string[] = Object.keys(server.redirect_asset),
                                     len:number = keys.length;
@@ -389,6 +380,15 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 port: port,
                                 resource: resource
                             });
+                            // legacy asset redirection
+                            if (logger === true) {
+                                // For testing legacy redirection criteria:
+                                if (proxy_test[0] === true) {
+                                    log.shell([`proxy legacy: ${vars.text.angry}proxy rule applied${vars.text.none}`, domain+" "+port+" "+resource+" "+config_http.domain+" "+config_http.resource]);
+                                } else if (proxy_test[1] === true) {
+                                    log.shell([`proxy legacy: ${vars.text.angry}resource redirect rule applied${vars.text.none}`, domain+" "+port+" "+resource+" "+config_http.domain+" "+config_http.resource]);
+                                }
+                            }
                             if (proxy_test[0] === true) {
                                 // proxy to a different server due to legacy redirect_domain rules
                                 create_proxy({
@@ -409,8 +409,8 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             }
                             if (proxy_test[1] === true) {
                                 // resolve a resource from the local file system due to legacy redirect_asset rules
-                                resource = resource.replace(/(\\|\/)g/, vars.path.sep);
-                                resource_stat(resource, config_http, data_event);
+                                config_http.resource = resource.replace(/(\\|\/)g/, vars.path.sep);
+                                resource_stat(socket, config_http, data_event);
                                 return true;
                             }
                             return false;
@@ -526,16 +526,20 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                         : outgoing.resource
                                     : "";
                             }
-                            if (logger === true) {
-                                // For testing universal redirection criteria:
-                                log.shell([domain+" "+port+" "+resource+" "+config_http.domain+" "+config_http.resource]);
-                            }
                             proxy_test = proxy_eval({
                                 domain: domain,
                                 encryption: encryption,
                                 port: port,
                                 resource: resource
                             });
+                            if (logger === true) {
+                                // For testing universal redirection criteria:
+                                if (proxy_test[0] === true) {
+                                    log.shell([`proxy modern: ${vars.text.angry}proxy rule applied${vars.text.none}`, domain+" "+port+" "+resource+" "+config_http.domain+" "+config_http.resource]);
+                                } else if (proxy_test[1] === true) {
+                                    log.shell([`proxy modern: ${vars.text.angry}resource redirect rule applied${vars.text.none}`, domain+" "+port+" "+resource+" "+config_http.domain+" "+config_http.resource]);
+                                }
+                            }
                             if (proxy_test[0] === true) {
                                 // proxy to a different server
                                 create_proxy({
@@ -544,7 +548,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                     headers: config_http.headers,
                                     host: domain,
                                     host_index: config_http.host_index,
-                                    identifier: "",
+                                    identifier: identifier,
                                     method: method,
                                     port: port,
                                     resource: resource,
@@ -556,11 +560,46 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             }
                             if (proxy_test[1] === true) {
                                 // resolve a resource from the local file system due to most well matched proxy rule
-                                resource = resource.replace(/(\\|\/)g/, vars.path.sep);
-                                resource_stat(resource, config_http, data_event);
+                                config_http.resource = resource.replace(/(\\|\/)g/, vars.path.sep);
+                                resource_stat(socket, config_http, data_event);
                                 return true;
                             }
                             return false;
+                        },
+                        redirect_http = function transmit_connection_extend_hash_redirectHTTP(scheme:string, resource:string):void {
+                            // * server option 'upgrade' must be true
+                            // * must be http request with header 'upgrade-insecure-requests: 1'
+                            // * requests from the dashboard http test tool are ignored
+                            socket_extension({
+                                callback: function transmit_connection_extend_hash_redirectHTTP_callback():void {
+                                    const domain:string = (node.net.isIPv6(config_http.domain) === true)
+                                            ? `[${config_http.domain}]`
+                                            : config_http.domain,
+                                        port:number = (scheme === "https" || scheme === "wss")
+                                            ? vars.data.server[server_id].ports.secure
+                                            : vars.data.server[server_id].ports.open;
+                                    http_write(socket, [
+                                        "HTTP/1.1 308",
+                                        `location: ${scheme}://${domain}:${port + resource}`,
+                                        "content-length: 5",
+                                        "",
+                                        "moved",
+                                        "",
+                                        ""
+                                    ].join("\r\n"), true);
+                                },
+                                handler: handler_ws,
+                                identifier: identifier,
+                                proxy: null,
+                                role: "server",
+                                server: server_id,
+                                single_socket: server.single_socket,
+                                socket: socket,
+                                type: (websocket === true)
+                                    ? config_http.websocket_type
+                                    : `http-${config_http.method}`,
+                                userAgent: config_http.user_agent
+                            });
                         },
                         redirect_tls = function transmit_connection_extend_hash_redirectTLS():boolean {
                             if (data[0] === 22 && address.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0) {
@@ -583,68 +622,55 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             }
                             return false;
                         },
-                        handler_ws:websocket_message_handler = (function transmit_connection_extend_hash_handlerWS():websocket_message_handler {
-                            if (websocket === false) {
-                                return null;
-                            }
-                            if (config_http.websocket_type === "test-websocket") {
-                                return message_handler.test_websocket;
-                            }
-                            if (config_http.websocket_type === "test-performance-socket") {
-                                if (vars.test.test_browser === "send") {
-                                    return null;
-                                }
-                                return message_handler.test_performance;
-                            }
-                            return message_handler.default;
-                        }()),
-                        blocked = function transmit_connection_extend_hash_blocked():boolean {
-                            const domain_local:string[] = server.domain_local.concat(vars.environment.interfaces);
-                            let index:number = (server.block_list === null || server.block_list === undefined)
-                                    ? 0
-                                    : server.block_list.referrer.length,
-                                message:string = "";
-                            if (config_http.headers.length < 3) {
-                                message = "incomplete RFC2616 headers";
-                            } else if (domain_local.includes(config_http.domain) === false && socket.proxy === null) {
-                                message = "desired domain not supported on this server";
-                            } else if (server.block_list !== null && server.block_list !== undefined) {
-                                if (server.block_list.host.includes(config_http.origin) === true) {
-                                    message = "origin in server's block list";
-                                }
-                                if (server.block_list.ip.includes(address.remote.address) === true) {
-                                    message = "remote IP in server's block list";
-                                }
-                            }
-                            if (index > 0) {
-                                do {
-                                    index = index - 1;
-                                    if (config_http.referrer.indexOf(server.block_list.referrer[index].toLowerCase()) === 0 || config_http.referrer.replace(/\w+:\/\//, "").indexOf(server.block_list.referrer[index].toLowerCase()) === 0) {
-                                        message = "referrer in block list";
-                                        break;
+                        resource_stat = function transmit_connection_extend_hash_resourceStat(socket:websocket_client, config:config_http, callback:() => void):void {
+                            const path_incoming:string = config.resource.replace(/\\|\//g, vars.path.sep),
+                                path_asset:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets`,
+                                path_relative:string = (function transmit_connection_extend_hash_resourceStat_relative():string {
+                                    if (socket.http_base_href === "" || socket.http_base_href === undefined || socket.http_base_href === null) {
+                                        socket.http_base_href = vars.path.sep + config.resource.replace(/^(\\|\/)/, "").replace(/(\\|\/)$/, "").replace(/\\|\//g, vars.path.sep) + vars.path.sep;
                                     }
-                                } while (index > 0);
-                            }
-                            if (message === "") {
-                                return false;
-                            }
-                            socket.destroy();
-                            log.application({
-                                error: null,
-                                message: `Blocked socket - ${message}`,
-                                origin: server.id,
-                                section: "servers-web",
-                                status: "informational",
-                                time: Date.now()
+                                    return socket.http_base_href;
+                                }()),
+                                path_resource:string = (path_incoming.charAt(0) === vars.path.sep)
+                                    ? path_asset + path_incoming
+                                    : path_asset + path_relative + path_incoming,
+                                stat_callback = function transmit_connection_extend_hash_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
+                                    if (stats !== null) {
+                                        config.resource_absolute = location;
+                                        if (stats.isFile() === true) {
+                                            config.resource_size = Number(stats.size);
+                                            config.resource_type = "file";
+                                        } else if (stats.isDirectory() === true) {
+                                            config.resource_type = "directory";
+                                        }
+                                    }
+                                    if (config.resource_type !== "file" && config.resource.charAt(config.resource.length - 1) !== "/") {
+                                        redirect_http((socket.addresses.local.port === vars.data.server[socket.server_hash].ports.open) ? "http" : "https", `${config.resource}/`);
+                                    } else {
+                                        callback();
+                                    }
+                                };
+// console.log({
+//     config_resource: config.resource,
+//     path_asset: path_asset,
+//     path_relative: path_relative,
+//     path_incoming: path_incoming,
+//     path_resource: path_resource
+// });
+//console.log(config);
+                            file.stat({
+                                // fs absolute
+                                callback: stat_callback,
+                                location: path_resource,
+                                no_file: null,
+                                section: "servers-web"
                             });
-                            return true;
                         };
                     socket.addresses = address;
                     socket.timeout = config_http.timeout;
                     // * socket_extension must be called on every socket exactly once, called in
                     //   - create_proxy - redirect_tls, proxy_legacy, proxy_modern
                     //   - data_event
-                    //   - redirect_http
 
                     // 1. proxy - secure socket on open server to TLS server peer
                     if (redirect_tls() === true) {
@@ -658,7 +684,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
 
                     // 3. http 308 - socket upgrade via redirect response to client
                     if (config_http.http_upgrade === true) {
-                        redirect_http("https");
+                        redirect_http("https", config_http.resource);
                         return;
                     }
 
@@ -712,5 +738,6 @@ export default connection;
  * 
  * testing
  * 1. must include tests for subdomains
- * 2. must include tests for a page with relative assets in a child directory
+ * 2. must include tests for a page with relative assets in a child directory with page address ending in slash
+ * 3. must include tests for a page with relative assets in a child directory with page address not ending in slash
  */

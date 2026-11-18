@@ -178,7 +178,7 @@ const http_request = function http_request(config:services_test_http, callback:(
                     response_headers: "",
                     url: null
                 });
-                socket.end();
+                socket.destroy();
             }
         });
     }
@@ -199,7 +199,7 @@ const http_request = function http_request(config:services_test_http, callback:(
         socket.write(headers.join("\r\n"));
         socket.on("data", function http_request_data(responseData:Buffer):void {
             if (contentLength === 0 && ((responseData.length === 5 && responseData.toString() === "0\r\n\r\n") || responseData.length === 0)) {
-                socket.end();
+                socket.destroy();
                 return;
             }
             fragment = decoder.write(responseData);
@@ -226,7 +226,7 @@ const http_request = function http_request(config:services_test_http, callback:(
                 chunks = chunks.slice(0, bodyIndex) + chunks.slice(bodyIndex).replace(/^[0-9a-f]+\r\n/, "");
             }
             if (Buffer.byteLength(chunks.slice(bodyIndex)) === contentLength) {
-                socket.end();
+                socket.destroySoon();
             }
         });
         socket.once("end", function http_request_end():void {

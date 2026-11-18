@@ -90,7 +90,7 @@ const http_client = function http_client(config:transmit_http_client):websocket_
             });
             socket.on("error", function http_client_error(this:websocket_client, error:node_error):void {
                 const socket:websocket_client = this;
-                socket.end();
+                socket.destroy();
                 config.callback_error(socket, error);
             });
             socket.on("ready", function http_client_ready(this:websocket_client):void {
@@ -100,7 +100,7 @@ const http_client = function http_client(config:transmit_http_client):websocket_
             });
             socket.on("timeout", function http_client_timeout(this:websocket_client):void {
                 const socket:websocket_client = this;
-                socket.end();
+                socket.destroy();
             });
         };
     socket.addresses = get_address(socket);
