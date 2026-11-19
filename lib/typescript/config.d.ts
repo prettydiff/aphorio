@@ -181,18 +181,16 @@ declare global {
     }
 
     interface config_proxy_create {
-        body: Buffer;
+        config_http: config_http;
+        data: Buffer;
+        domain: string;
         encrypted: boolean;
-        headers: string[];
-        host: string;
-        host_index: number;
         identifier: string;
         method: type_http_method | "";
         port: number;
         resource: string;
         server_hash: string;
         socket: websocket_client;
-        user_agent: string;
     }
 
     interface config_proxy_test {

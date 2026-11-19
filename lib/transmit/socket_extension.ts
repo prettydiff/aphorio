@@ -75,7 +75,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                         : `${socket.addresses.remote.address}:${socket.addresses.remote.port}`,
                     payload_log:config_log = {
                         error: error,
-                        message: `Socket type ${socket.type} with id ${socket.hash} from ${address_local} to ${address_remote} ended.`,
+                        message: `Socket type ${socket.type_primary} with id ${socket.hash} from ${address_local} to ${address_remote} ended.`,
                         origin: socket.server_hash,
                         section: "sockets-application-tcp",
                         status: "error",
@@ -129,7 +129,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     } while (index > 0);
 
                     // kill off an unused demo dashboard
-                    if (vars.options.mode === "demo" && vars.data.server[socket.server_hash].sockets.length < 1 && socket.type !== "http-get") {
+                    if (vars.options.mode === "demo" && vars.data.server[socket.server_hash].sockets.length < 1 && (socket.type_primary !== "http" || (socket.type_primary === "http" && socket.type_secondary !== "get"))) {
                         setTimeout(function transmit_socketExtension_demoKill():void {
                             if (vars.data.server[socket.server_hash].sockets.length < 1) {
                                 process.exit(0);
@@ -138,7 +138,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     } 
                 }
 
-                if (vars.data.server[socket.server_hash].config.id === vars.id.dashboard_server && socket.type === "dashboard") {
+                if (vars.data.server[socket.server_hash].config.id === vars.id.dashboard_server && socket.type_secondary === "dashboard") {
                     const payload:services_message_inspection = {
                         count: 0,
                         direction: "in",
@@ -158,7 +158,7 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                     });
                 }
 
-                if (socket.type === "test-performance-socket" && error !== null && error !== undefined) {
+                if (socket.type_secondary === "test-performance-socket" && error !== null && error !== undefined) {
                     const message:string = JSON.stringify(error),
                         output:services_test_performance_output = {
                             frame_body_size: 0,
@@ -218,13 +218,13 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 const socket:websocket_client = this;
                 end(socket, error);
             };
-        config.socket.server_hash = config.server; // identifies which local server the given socket is connected to
+        config.socket.server_hash = config.server;  // identifies which local server the given socket is connected to
         config.socket.segmentation = vars.data.server[config.server].config.message_segmentation; // maximum size of a WebSocket message frame body
-        config.socket.hash = config.identifier;    // assigns a unique identifier to the socket based upon the socket's credentials
-        config.socket.proxy = config.proxy;        // assigns the relationship between a socket and its proxy, if any
-        config.socket.role = config.role;          // assigns socket creation location
-        config.socket.type = config.type;          // a classification identifier to functionally identify a common utility of sockets on a given server
-        config.socket.userAgent = config.userAgent;// Attempts to describe the socket by originating OS and browser name/version
+        config.socket.hash = config.identifier;     // assigns a unique identifier to the socket based upon the socket's credentials
+        config.socket.proxy = config.proxy;         // assigns the relationship between a socket and its proxy, if any
+        config.socket.role = config.role;           // assigns socket creation location
+        config.socket.type_secondary = config.type; // a classification identifier to functionally identify a common utility of sockets on a given server
+        config.socket.userAgent = config.userAgent; // Attempts to describe the socket by originating OS and browser name/version
         if (config.type === "test-websocket" || config.proxy === null) {
             config.socket.handler = (config.handler === message_handler.default)
                 ? (message_handler[config.server] === undefined)

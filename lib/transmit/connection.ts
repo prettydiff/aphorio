@@ -1,11 +1,10 @@
 
 import create_proxy from "./create_proxy.ts";
 import get_address from "../core/get_address.ts";
-import file from "../utilities/file.ts";
 import hash from "../core/hash.ts";
 import http from "../http/index.ts";
 import http_parse from "../http/http_parse.ts";
-import http_write from "../http/http_write.ts";
+import http_redirect from "../http/http_redirect.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
 import message_handler from "./messageHandler.ts";
@@ -77,7 +76,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             }
                             return message_handler.default;
                         }()),
-                        blocked = function transmit_connection_extend_hash_blocked():boolean {
+                        blocked =       function transmit_connection_extend_hash_blocked():boolean {
                             const domain_local:string[] = server.domain_local.concat(vars.environment.interfaces);
                             let index:number = (server.block_list === null || server.block_list === undefined)
                                     ? 0
@@ -118,7 +117,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             });
                             return true;
                         },
-                        data_event = function transmit_connection_extend_hash_dataEvent():void {
+                        data_event =    function transmit_connection_extend_hash_dataEvent():void {
                             socket_extension({
                                 callback: (websocket === true)
                                     ? data_ws
@@ -136,46 +135,37 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 userAgent: config_http.user_agent
                             });
                         },
-                        data_http = function transmit_connection_extend_hash_dataHTTP():void {
+                        data_http =     function transmit_connection_extend_hash_dataHTTP():void {
                             if (socket.timeout > 0) {
                                 socket.setTimeout(config_http.timeout);
                                 socket.on("timeout", function transmit_connection_extend_hash_dataHTTP_timeout():void {
                                     socket.destroy();
                                 });
                             }
-                            if (http[config_http.method as type_http_method_function] === undefined) {
-                                // unsupported HTTP methods result in socket destruction
-                                socket.destroy();
-                            } else {
-                                if (server.single_socket === true) {
-                                    const terminate = function transmit_connection_extend_hash_dataHTTP_terminate(this:websocket_client):void {
-                                            this.destroy();
-                                            server_halt({
-                                                action: "destroy",
-                                                server: vars.data.server[this.server_hash].config
-                                            }, null);
-                                        };
-                                    socket.on("close", terminate);
-                                    socket.on("end", terminate);
-                                    socket.on("error", terminate);
-                                }
-                                socket.on("data", function transmit_connection_extend_hash_dataHTTP_data(this:websocket_client, data_http:Buffer):void {
-                                    const socket:websocket_client = this,
-                                        config:config_http = (data_http.includes("\r\n\r\n") === true)
-                                            ? http_parse(socket.server_hash, socket.addresses.local.port, data_http)
-                                            : null;
-                                    if (config !== null) {
-                                        resource_stat(socket, config, function transmit_connection_extend_hash_dataHTTP_data_stat():void {
-                                            http[config.method as type_http_method_function](config, socket);
-                                        });
-                                    }
-                                });
-                                resource_stat(socket, config_http, function transmit_connection_extend_hash_dataHTTP_data_stat():void {
-                                    http[config_http.method as type_http_method_function](config_http, socket);
-                                });
+                            if (server.single_socket === true) {
+                                const terminate = function transmit_connection_extend_hash_dataHTTP_terminate(this:websocket_client):void {
+                                        this.destroy();
+                                        server_halt({
+                                            action: "destroy",
+                                            server: vars.data.server[this.server_hash].config
+                                        }, null);
+                                    };
+                                socket.on("close", terminate);
+                                socket.on("end", terminate);
+                                socket.on("error", terminate);
                             }
+                            socket.on("data", function transmit_connection_extend_hash_dataHTTP_data(this:websocket_client, data_http:Buffer):void {
+                                const socket:websocket_client = this,
+                                    config:config_http = (data_http.includes("\r\n\r\n") === true)
+                                        ? http_parse(socket.server_hash, socket.addresses.local.port, data_http)
+                                        : null;
+                                if (config !== null) {
+                                    http(config, socket);
+                                }
+                            });
+                            http(config_http, socket);
                         },
-                        data_ws = function transmit_connection_extend_hash_dataWS():void {
+                        data_ws =       function transmit_connection_extend_hash_dataWS():void {
                             const headers:string[] = [
                                     "HTTP/1.1 101 Switching Protocols",
                                     "Upgrade: websocket",
@@ -291,7 +281,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 }
                             }
                         },
-                        proxy_eval = function transmit_connection_extend_hash_proxyEval(config:config_proxy_test):[boolean, boolean] {
+                        proxy_eval =    function transmit_connection_extend_hash_proxyEval(config:config_proxy_test):[boolean, boolean] {
                             const port_open:number = vars.data.server[server.id].ports.open,
                                 port_secure:number = vars.data.server[server.id].ports.secure,
                                 domain_test:boolean = (typeof config.domain === "string" && config.domain !== "" && config.domain !== config_http.domain),
@@ -307,7 +297,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             }
                             return [false, resource_test];
                         },
-                        proxy_legacy = function transmit_connection_extend_hash_proxyLegacy(logger:boolean):boolean {
+                        proxy_legacy =  function transmit_connection_extend_hash_proxyLegacy(logger:boolean):boolean {
                             let domain:string = "",
                                 encryption:boolean = null,
                                 port:number = 0,
@@ -392,30 +382,28 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             if (proxy_test[0] === true) {
                                 // proxy to a different server due to legacy redirect_domain rules
                                 create_proxy({
-                                    body: config_http.body,
+                                    config_http: config_http,
+                                    data: config_http.body,
+                                    domain: domain,
                                     encrypted: encryption,
-                                    headers: config_http.headers,
-                                    host: domain,
-                                    host_index: config_http.host_index,
                                     identifier: identifier,
                                     method: null,
                                     port: port,
                                     resource: resource,
                                     server_hash: server_id,
-                                    socket: socket,
-                                    user_agent: config_http.user_agent
+                                    socket: socket
                                 });
                                 return true;
                             }
                             if (proxy_test[1] === true) {
                                 // resolve a resource from the local file system due to legacy redirect_asset rules
                                 config_http.resource = resource.replace(/(\\|\/)g/, vars.path.sep);
-                                resource_stat(socket, config_http, data_event);
+                                data_event();
                                 return true;
                             }
                             return false;
                         },
-                        proxy_modern = function transmit_connection_extend_hash_proxyModern(logger:boolean):boolean {
+                        proxy_modern =  function transmit_connection_extend_hash_proxyModern(logger:boolean):boolean {
                             const matches:[number, number, string, boolean][] = [],
                                 resource_match = function transmit_connection_extend_hash_proxyModern_resourceMatch(resource_input:string, index:number):void {
                                     resource_input = (typeof resource_input === "string")
@@ -520,11 +508,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 port = (typeof outgoing.port === "number" && outgoing.port > 0 && outgoing.port < 65536)
                                     ? outgoing.port
                                     : 0;
-                                resource = (typeof outgoing.resource === "string" && outgoing.resource !== "")
-                                    ? (matches[0][3] === true)
-                                        ? outgoing.resource.replace(/(\\|\/)$/, "").replace(/(\\|\/)/g, vars.path.sep) + vars.path.sep + config_http.resource.replace(matches[0][2].replace(/\/\*$/, ""), "").replace(/^\//, "")
-                                        : outgoing.resource
-                                    : "";
+                                resource = matches[0][2];
                             }
                             proxy_test = proxy_eval({
                                 domain: domain,
@@ -542,132 +526,58 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             }
                             if (proxy_test[0] === true) {
                                 // proxy to a different server
+                                socket.http_resource_rule = resource;
                                 create_proxy({
-                                    body: config_http.body,
+                                    config_http: config_http,
+                                    data: config_http.body,
+                                    domain: domain,
                                     encrypted: encryption,
-                                    headers: config_http.headers,
-                                    host: domain,
-                                    host_index: config_http.host_index,
                                     identifier: identifier,
                                     method: method,
                                     port: port,
-                                    resource: resource,
+                                    resource: config_http.resource,
                                     server_hash: server_id,
-                                    socket: socket,
-                                    user_agent: config_http.user_agent
+                                    socket: socket
                                 });
                                 return true;
                             }
                             if (proxy_test[1] === true) {
                                 // resolve a resource from the local file system due to most well matched proxy rule
-                                config_http.resource = resource.replace(/(\\|\/)g/, vars.path.sep);
-                                resource_stat(socket, config_http, data_event);
+                                resource = (typeof resource === "string" && resource !== "")
+                                    ? (matches[0][3] === true)
+                                        ? resource.replace(/(\\|\/)$/, "").replace(/(\\|\/)/g, vars.path.sep) + vars.path.sep + config_http.resource.replace(matches[0][2].replace(/\/\*$/, ""), "").replace(/^\//, "")
+                                        : resource.replace(/(\\|\/)g/, vars.path.sep)
+                                    : "";
+                                config_http.resource = resource;
+                                data_event();
                                 return true;
                             }
                             return false;
                         },
-                        redirect_http = function transmit_connection_extend_hash_redirectHTTP(scheme:string, resource:string):void {
-                            // * server option 'upgrade' must be true
-                            // * must be http request with header 'upgrade-insecure-requests: 1'
-                            // * requests from the dashboard http test tool are ignored
-                            socket_extension({
-                                callback: function transmit_connection_extend_hash_redirectHTTP_callback():void {
-                                    const domain:string = (node.net.isIPv6(config_http.domain) === true)
-                                            ? `[${config_http.domain}]`
-                                            : config_http.domain,
-                                        port:number = (scheme === "https" || scheme === "wss")
-                                            ? vars.data.server[server_id].ports.secure
-                                            : vars.data.server[server_id].ports.open;
-                                    http_write(socket, [
-                                        "HTTP/1.1 308",
-                                        `location: ${scheme}://${domain}:${port + resource}`,
-                                        "content-length: 5",
-                                        "",
-                                        "moved",
-                                        "",
-                                        ""
-                                    ].join("\r\n"), true);
-                                },
-                                handler: handler_ws,
-                                identifier: identifier,
-                                proxy: null,
-                                role: "server",
-                                server: server_id,
-                                single_socket: server.single_socket,
-                                socket: socket,
-                                type: (websocket === true)
-                                    ? config_http.websocket_type
-                                    : `http-${config_http.method}`,
-                                userAgent: config_http.user_agent
-                            });
-                        },
-                        redirect_tls = function transmit_connection_extend_hash_redirectTLS():boolean {
+                        redirect_tls =  function transmit_connection_extend_hash_redirectTLS():boolean {
                             if (data[0] === 22 && address.local.port === server.ports.open && vars.data.server[server_id].ports.secure > 0) {
                                 config_http.domain = `open_socket_tunnel-${vars.data.server[server_id].config.name}`;
                                 create_proxy({
-                                    body: data,
+                                    config_http: config_http,
+                                    data: data,
+                                    domain: address.local.address,
                                     encrypted: false,
-                                    headers: null,
-                                    host: address.local.address,
-                                    host_index: config_http.host_index,
                                     identifier: identifier,
-                                    method: null,
+                                    method: "",
                                     port: vars.data.server[server_id].ports.secure,
-                                    resource: config_http.headers[0].replace(/\u0020+/g, " ").split(" ")[1],
+                                    resource: "",
                                     server_hash: server_id,
-                                    socket: socket,
-                                    user_agent: config_http.user_agent
+                                    socket: socket
                                 });
                                 return true;
                             }
                             return false;
-                        },
-                        resource_stat = function transmit_connection_extend_hash_resourceStat(socket:websocket_client, config:config_http, callback:() => void):void {
-                            const path_incoming:string = config.resource.replace(/\\|\//g, vars.path.sep),
-                                path_asset:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets`,
-                                path_relative:string = (function transmit_connection_extend_hash_resourceStat_relative():string {
-                                    if (socket.http_base_href === "" || socket.http_base_href === undefined || socket.http_base_href === null) {
-                                        socket.http_base_href = vars.path.sep + config.resource.replace(/^(\\|\/)/, "").replace(/(\\|\/)$/, "").replace(/\\|\//g, vars.path.sep) + vars.path.sep;
-                                    }
-                                    return socket.http_base_href;
-                                }()),
-                                path_resource:string = (path_incoming.charAt(0) === vars.path.sep)
-                                    ? path_asset + path_incoming
-                                    : path_asset + path_relative + path_incoming,
-                                stat_callback = function transmit_connection_extend_hash_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
-                                    if (stats !== null) {
-                                        config.resource_absolute = location;
-                                        if (stats.isFile() === true) {
-                                            config.resource_size = Number(stats.size);
-                                            config.resource_type = "file";
-                                        } else if (stats.isDirectory() === true) {
-                                            config.resource_type = "directory";
-                                        }
-                                    }
-                                    if (config.resource_type !== "file" && config.resource.charAt(config.resource.length - 1) !== "/") {
-                                        redirect_http((socket.addresses.local.port === vars.data.server[socket.server_hash].ports.open) ? "http" : "https", `${config.resource}/`);
-                                    } else {
-                                        callback();
-                                    }
-                                };
-// console.log({
-//     config_resource: config.resource,
-//     path_asset: path_asset,
-//     path_relative: path_relative,
-//     path_incoming: path_incoming,
-//     path_resource: path_resource
-// });
-//console.log(config);
-                            file.stat({
-                                // fs absolute
-                                callback: stat_callback,
-                                location: path_resource,
-                                no_file: null,
-                                section: "servers-web"
-                            });
                         };
                     socket.addresses = address;
                     socket.timeout = config_http.timeout;
+                    socket.type_primary = (websocket === true)
+                        ? "ws"
+                        : "http";
                     // * socket_extension must be called on every socket exactly once, called in
                     //   - create_proxy - redirect_tls, proxy_legacy, proxy_modern
                     //   - data_event
@@ -684,7 +594,25 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
 
                     // 3. http 308 - socket upgrade via redirect response to client
                     if (config_http.http_upgrade === true) {
-                        redirect_http("https", config_http.resource);
+                        // * server option 'upgrade' must be true
+                        // * must be http request with header 'upgrade-insecure-requests: 1'
+                        // * requests from the dashboard http test tool are ignored
+                        socket_extension({
+                            callback: function transmit_connection_extend_hash_httpUpgrade():void {
+                                http_redirect(config_http, "https", socket);
+                            },
+                            handler: handler_ws,
+                            identifier: identifier,
+                            proxy: null,
+                            role: "server",
+                            server: server_id,
+                            single_socket: server.single_socket,
+                            socket: socket,
+                            type: (websocket === true)
+                                ? config_http.websocket_type
+                                : `http-${config_http.method}`,
+                            userAgent: config_http.user_agent
+                        });
                         return;
                     }
 

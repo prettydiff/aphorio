@@ -14,7 +14,7 @@ const broadcast = function transmit_broadcast(server:string, type:string, messag
             if (index > 0) {
                 do {
                     index = index - 1;
-                    if (list[index].type === type || type === "") {
+                    if (list[index].type_secondary === type || type === "") {
                         send(message, list[index], 3);
                     }
                 } while (index > 0);

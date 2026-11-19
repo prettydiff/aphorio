@@ -73,8 +73,8 @@ interface websocket_client extends node_tls_TLSSocket {
     frame: websocket_frame;
     handler: websocket_message_handler;
     hash: string;
-    http_base_href: string;
     http_header: string;
+    http_resource_rule: string;
     http_response_type: number;
     ping: (ttl:number, callback:(err:node_error, roundtrip:bigint) => void) => void;
     pong: {
@@ -90,7 +90,8 @@ interface websocket_client extends node_tls_TLSSocket {
     server_hash: string;
     status: type_socket_status;
     timeout: number;
-    type: string;
+    type_primary: "http" | "ws";
+    type_secondary: string;
     userAgent: string;
 }
 

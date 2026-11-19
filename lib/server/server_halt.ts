@@ -54,7 +54,8 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
                 });
             },
             kill_sockets = function servers_serverHalt_killSockets(encryption_sockets:"open"|"secure"):void {
-                const sockets:websocket_client[] = vars.data_store.server[id].sockets_tcp[encryption_sockets];
+                const sockets:websocket_client[] = vars.data_store.server[id].sockets_tcp[encryption_sockets],
+                    server:core_server_instance = vars.data_store.server[id].server_object[encryption_sockets];
                 let index:number = sockets.length;
                 if (index > 0) {
                     do {
@@ -62,7 +63,10 @@ const server_halt = function services_serverHalt(data:services_server_action, ca
                         sockets[index].destroy();
                     } while (index > 0);
                 }
-                vars.data_store.server[id].server_object[encryption_sockets].close(closed);
+                server.removeAllListeners("close");
+                server.removeAllListeners("connection");
+                server.removeAllListeners("error");
+                server.close(closed);
             },
             closed = function servers_serverHalt_closed():void {
                 // 2. write changes to the servers.json file
