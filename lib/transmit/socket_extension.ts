@@ -55,7 +55,8 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 server_id: config.server,
                 server_name: vars.data.server[config.server].config.name,
                 time: now,
-                type: config.type,
+                type_primary: config.socket.type_primary,
+                type_secondary: config.type,
                 userAgent: config.userAgent
             },
             log_config:config_log = {

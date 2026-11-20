@@ -76,19 +76,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                     qualifier: "begins",
                     target: ["textContent"],
                     type: "property",
-                    value: ["browserSocket-", "dashboard-term"]
-                },
-                {
-                    node: [
-                        ["id", "sockets-application-tcp", null],
-                        ["tag", "tbody", 0],
-                        ["tag", "tr", 0],
-                        ["tag", "td", 3]
-                    ],
-                    qualifier: "is",
-                    target: ["textContent"],
-                    type: "property",
-                    value: ["dashboard", "dashboard-terminal"]
+                    value: ["http-/-", "ws-dashboard-"]
                 },
                 {
                     node: [
@@ -100,7 +88,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                     qualifier: "is",
                     target: ["textContent"],
                     type: "property",
-                    value: "server"
+                    value: ["dashboard", "dashboard-terminal"]
                 },
                 {
                     node: [
@@ -112,7 +100,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                     qualifier: "is",
                     target: ["textContent"],
                     type: "property",
-                    value: ""
+                    value: "server"
                 },
                 {
                     node: [
@@ -124,7 +112,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                     qualifier: "is",
                     target: ["textContent"],
                     type: "property",
-                    value: "false"
+                    value: ""
                 },
                 {
                     node: [
@@ -136,7 +124,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                     qualifier: "is",
                     target: ["textContent"],
                     type: "property",
-                    value: ["127.0.0.1", "::1"] as type_test_primitive[]
+                    value: "false"
                 },
                 {
                     node: [
@@ -144,6 +132,18 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                         ["tag", "tbody", 0],
                         ["tag", "tr", 0],
                         ["tag", "td", 8]
+                    ],
+                    qualifier: "is",
+                    target: ["textContent"],
+                    type: "property",
+                    value: ["127.0.0.1", "::1"] as type_test_primitive[]
+                },
+                {
+                    node: [
+                        ["id", "sockets-application-tcp", null],
+                        ["tag", "tbody", 0],
+                        ["tag", "tr", 0],
+                        ["tag", "td", 9]
                     ],
                     qualifier: "numeric",
                     target: ["textContent"],
@@ -155,7 +155,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
                         ["id", "sockets-application-tcp", null],
                         ["tag", "tbody", 0],
                         ["tag", "tr", 0],
-                        ["tag", "td", 9]
+                        ["tag", "td", 10]
                     ],
                     qualifier: "is",
                     target: ["textContent"],

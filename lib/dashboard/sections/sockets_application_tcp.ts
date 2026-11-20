@@ -22,7 +22,8 @@ const ui_sockets_application_tcp = function ui_sockets_application_tcp():void {
             dashboard.tables.cell(tr, record["server_id"], "id");
             dashboard.tables.cell(tr, record["server_name"], null);
             dashboard.tables.cell(tr, record["hash"], null);
-            dashboard.tables.cell(tr, record["type"], null);
+            dashboard.tables.cell(tr, record["type_primary"], null);
+            dashboard.tables.cell(tr, record["type_secondary"], null);
             dashboard.tables.cell(tr, record["role"], null);
             dashboard.tables.cell(tr, record["proxy"], null);
             dashboard.tables.cell(tr, String(record["encrypted"]), null);

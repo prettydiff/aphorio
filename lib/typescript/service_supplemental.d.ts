@@ -143,7 +143,8 @@ interface supplemental_socket_application_tcp {
     server_id: string;
     server_name: string;
     time: number;
-    type: string;
+    type_primary: string;
+    type_secondary: string;
     userAgent: string;
 }
 
