@@ -81,7 +81,8 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     server: config.server,
                     single_socket: false,
                     socket: client,
-                    type: config.type,
+                    type_primary: "ws",
+                    type_secondary: config.type,
                     userAgent: `${vars.os.main.os.type}, ${vars.environment.name.capitalize()} Client Socket`
                 });
             });

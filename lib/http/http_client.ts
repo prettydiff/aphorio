@@ -16,108 +16,118 @@ const http_client = function http_client(config:transmit_http_client):websocket_
                 host: config.host,
                 port: config.port,
                 timeout: config.timeout,
-            }) as websocket_client,
-        extension = function http_client_extension():void {
-            socket.on("data", function http_client_extension_data(this:websocket_client, data_response:Buffer):void {
-                const socket:websocket_client = this,
-                    segmentation = function http_client_extension_data_segmentation(data:Buffer):void {
-                        if (socket.fragments.length === 0) {
-                            const index:number = data.indexOf("\r\n\r\n");
-                            socket.http_header = (index > 0)
-                                ? data.subarray(0, index + 4).toString()
-                                : data.toString();
-                            data = (index < 0)
-                                ? Buffer.from("")
-                                : data.subarray(index + 4);
-                            if ((/transfer-encoding:\s*chunked/).test(socket.http_header.toLowerCase()) === true) {
-                                socket.http_response_type = -1;
-                            } else if ((/content-length:\s*\d+/).test(socket.http_header.toLowerCase()) === true) {
-                                const str:string = socket.http_header.toLowerCase().split("content-length:")[1],
-                                    end_index:number = str.indexOf("\r\n");
-                                if (end_index > 0) {
-                                    socket.http_response_type = Number(str.slice(0, end_index).trim());
-                                } else {
-                                    socket.http_response_type = Number(str.trim());
-                                }
-                            }
-                        }
-                        if (socket.http_response_type === 0) {
-                            // no body
-                            const header:string = socket.http_header;
-                            socket.http_header = "";
-                            config.callback_response(socket, header, Buffer.from(""));
-                        } else if (socket.http_response_type === -1) {
-                            // chunked
-                            if (data.toString() === "\r\n0\r\n\r\n") {
-                                const payload:Buffer = Buffer.concat(socket.fragments),
-                                    header:string = socket.http_header;
-                                socket.http_header = "";
-                                socket.http_response_type = 0;
-                                socket.fragments = [];
-                                config.callback_response(socket, header, payload);
-                            } else if (data.indexOf("\r\n0\r\n\r\n") === data.byteLength - 7) {
-                                socket.fragments.push(data.subarray(0, data.byteLength - 7));
-                                const payload:Buffer = Buffer.concat(socket.fragments),
-                                    header:string = socket.http_header;
-                                socket.http_header = "";
-                                socket.http_response_type = 0;
-                                socket.fragments = [];
-                                config.callback_response(socket, header, payload);
+            }) as websocket_client;
+    if (config.timeout > 0) {
+        socket.timeout = config.timeout;
+    }
+    socket.on("error", function http_client_error(this:websocket_client, error:node_error):void {
+        const socket:websocket_client = this;
+        socket.destroy();
+        config.callback_error(socket, error);
+    });
+    socket.on("ready", function http_client_ready(this:websocket_client):void {
+        const socket:websocket_client = this,
+            meta:config_http_request_output = {
+                chunked: true,
+                chunks: 0,
+                encrypted_self: config.encryption,
+                encrypted_proxy: null,
+                response_body_raw: null,
+                response_headers: null
+            };
+        socket.on("data", function http_client_extension_data(this:websocket_client, data_response:Buffer):void {
+            const socket:websocket_client = this,
+                response = function http_client_extension_data_response(payload:Buffer):void {
+                    const header:string = socket.http_header;
+                    socket.http_header = "";
+                    socket.http_response_type = 0;
+                    socket.fragments = [];
+                    meta.response_body_raw = payload.toString();
+                    meta.response_headers = socket.http_header;
+                    config.callback_response(socket, Buffer.concat([Buffer.from(header), payload]), meta);
+                    meta.chunked = false;
+                    meta.chunks = 0;
+                },
+                segmentation = function http_client_extension_data_segmentation(data:Buffer):void {
+                    if (socket.fragments.length === 0) {
+                        const index:number = data.indexOf("\r\n\r\n");
+                        socket.http_header = (index > 0)
+                            ? data.subarray(0, index + 4).toString()
+                            : data.toString();
+                        data = (index < 0)
+                            ? Buffer.from("")
+                            : data.subarray(index + 4);
+                        if ((/transfer-encoding:\s*chunked/).test(socket.http_header.toLowerCase()) === true) {
+                            socket.http_response_type = -1;
+                        } else if ((/content-length:\s*\d+/).test(socket.http_header.toLowerCase()) === true) {
+                            const str:string = socket.http_header.toLowerCase().split("content-length:")[1],
+                                end_index:number = str.indexOf("\r\n");
+                            if (end_index > 0) {
+                                socket.http_response_type = Number(str.slice(0, end_index).trim());
                             } else {
-                                socket.fragments.push(data.subarray(data.indexOf("\r\n", 2) + 2));
-                            }
-                        } else {
-                            // content-length
-                            socket.fragments.push(data);
-                            const payload:Buffer = Buffer.concat(socket.fragments),
-                                    header:string = socket.http_header;
-                            if (payload.byteLength === socket.http_response_type) {
-                                socket.http_header = "";
-                                socket.http_response_type = 0;
-                                socket.fragments = [];
-                                config.callback_response(socket, header, payload);
-                            } else if (payload.byteLength > socket.http_response_type) {
-                                const ending:number = socket.http_response_type;
-                                socket.http_header = "";
-                                socket.http_response_type = 0;
-                                socket.fragments = [];
-                                config.callback_response(socket, header, payload.subarray(0, ending));
-                                http_client_extension_data_segmentation(payload.subarray(ending));
+                                socket.http_response_type = Number(str.trim());
                             }
                         }
-                    };
-                segmentation(data_response);
-            });
-            socket.on("error", function http_client_error(this:websocket_client, error:node_error):void {
-                const socket:websocket_client = this;
-                socket.destroy();
-                config.callback_error(socket, error);
-            });
-            socket.on("ready", function http_client_ready(this:websocket_client):void {
-                const socket:websocket_client = this;
-                socket.fragments = [];
-                socket.write(config.message);
-            });
+                    }
+                    if (socket.http_response_type === 0) {
+                        // no body
+                        const header:string = socket.http_header;
+                        socket.http_header = "";
+                        config.callback_response(socket, Buffer.from(header));
+                    } else if (socket.http_response_type === -1) {
+                        // chunked
+                        meta.chunked = true;
+                        meta.chunks = meta.chunks + 1;
+                        if (data.toString() === "\r\n0\r\n\r\n") {
+                            response(Buffer.concat(socket.fragments));
+                        } else if (data.indexOf("\r\n0\r\n\r\n") === data.byteLength - 7) {
+                            socket.fragments.push(data.subarray(0, data.byteLength - 7));
+                            response(Buffer.concat(socket.fragments));
+                        } else {
+                            socket.fragments.push(data.subarray(data.indexOf("\r\n", 2) + 2));
+                        }
+                    } else {
+                        // content-length
+                        meta.chunked = false;
+                        socket.fragments.push(data);
+                        const payload:Buffer = Buffer.concat(socket.fragments);
+                        if (payload.byteLength === socket.http_response_type) {
+                            meta.chunks = 1;
+                            response(Buffer.concat(socket.fragments));
+                        } else if (payload.byteLength > socket.http_response_type) {
+                            const ending:number = socket.http_response_type;
+                            meta.chunks = 1;
+                            response(payload);
+                            http_client_extension_data_segmentation(payload.subarray(ending));
+                        }
+                    }
+                };
+            segmentation(data_response);
+        });
+        if (config.timeout > 0) {
             socket.on("timeout", function http_client_timeout(this:websocket_client):void {
                 const socket:websocket_client = this;
                 socket.destroy();
             });
-        };
-    socket.addresses = get_address(socket);
-    socket.timeout = config.timeout;
-    socket_extension({
-        callback: extension,
-        handler: null,
-        identifier: `http-${config.host}-${config.port}-${Math.random()}`,
-        proxy: null,
-        role: "client",
-        server: (vars.options.mode === "test-proxy")
-            ? vars.test.servers[0].id
-            : vars.id.dashboard_server,
-        single_socket: false,
-        socket: socket,
-        type: `http-${config.type}`,
-        userAgent: `aphorio-${vars.environment.version}`
+        }
+        socket.fragments = [];
+        socket.addresses = get_address(socket);
+        socket_extension({
+            callback: null,
+            handler: null,
+            identifier: `http-${config.host}-${config.port}-${Math.random()}`,
+            proxy: null,
+            role: "client",
+            server: (vars.options.mode === "test-proxy")
+                ? vars.test.servers[0].id
+                : vars.id.dashboard_server,
+            single_socket: false,
+            socket: socket,
+            type_primary: "http",
+            type_secondary: config.type,
+            userAgent: `aphorio-${vars.environment.version}`
+        });
+        socket.write(config.message);
     });
     return socket;
 };

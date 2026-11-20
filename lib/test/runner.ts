@@ -250,9 +250,11 @@ const test_runner:test_runner = {
                     test_runner.logger(assertions);
                     test_runner.tools.next();
                 },
-                callback_response: function test_runner_executionProxy_response(socket:websocket_client, response_header:string, response_body:Buffer):void {
+                callback_response: function test_runner_executionProxy_response(socket:websocket_client, response:Buffer):void {
                     if (socket.closed === false) {
-                        const body:string = response_body.toString(),
+                        const header_index:number = response.indexOf("\r\n\r\n"),
+                            body:string = response.subarray(header_index + 4).toString(),
+                            headers:string = response.subarray(0, header_index).toString(),
                             unit:test_assertion_proxy[] = proxy_list[vars.test.index].unit,
                             len:number = unit.length;
                         let index:number = 0,
@@ -265,7 +267,7 @@ const test_runner:test_runner = {
                             } else if (unit[index].property === "encrypted_self") {
                                 value = (socket.encrypted === true);
                             } else if (unit[index].property === "headers") {
-                                value = response_header;
+                                value = headers;
                             }
                             if (unit[index].qualifier === "greater" || unit[index].qualifier === "lesser") {
                                 value = value.toString().length;

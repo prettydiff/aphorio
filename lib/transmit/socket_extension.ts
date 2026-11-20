@@ -55,8 +55,8 @@ const socket_extension = function transmit_socketExtension(config:config_websock
                 server_id: config.server,
                 server_name: vars.data.server[config.server].config.name,
                 time: now,
-                type_primary: config.socket.type_primary,
-                type_secondary: config.type,
+                type_primary: config.type_primary,
+                type_secondary: config.type_secondary,
                 userAgent: config.userAgent
             },
             log_config:config_log = {
@@ -224,15 +224,16 @@ const socket_extension = function transmit_socketExtension(config:config_websock
         config.socket.hash = config.identifier;     // assigns a unique identifier to the socket based upon the socket's credentials
         config.socket.proxy = config.proxy;         // assigns the relationship between a socket and its proxy, if any
         config.socket.role = config.role;           // assigns socket creation location
-        config.socket.type_secondary = config.type; // a classification identifier to functionally identify a common utility of sockets on a given server
+        config.socket.type_primary = config.type_primary;     // whether the socket is HTTP or WebSocket
+        config.socket.type_secondary = config.type_secondary; // a secondary identifier to functionally name a common utility of sockets on a given server
         config.socket.userAgent = config.userAgent; // Attempts to describe the socket by originating OS and browser name/version
-        if (config.type === "test-websocket" || config.proxy === null) {
+        if (config.type_secondary === "test-websocket" || config.proxy === null) {
             config.socket.handler = (config.handler === message_handler.default)
                 ? (message_handler[config.server] === undefined)
                     ? config.handler
                     : message_handler[config.server]
                 : config.handler;                  // assigns an event handler to process incoming messages
-            if (config.type !== "http") {
+            if (config.type_primary === "ws") {
                 if (config.socket.handler !== null && config.socket.handler !== undefined) {
                     config.socket.on("data", receiver);
                 }

@@ -106,7 +106,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                 callback_error: function services_testPerformance_testHTTP_error(socket:websocket_client, error:node_error):void {
                     times(error.message, true);
                 },
-                callback_response: function services_testPerformance_testHTTP_data(socket:websocket_client, response_header:string, response_body:Buffer):void {
+                callback_response: function services_testPerformance_testHTTP_data(socket:websocket_client, response:Buffer):void {
                     index_http = index_http + 1;
                     if (index_http < data.quantity_transmit) {
                         socket.write(message);
@@ -121,7 +121,7 @@ const test_performance = function services_testPerformance(socket_data:socket_da
                         if (index_test < data.quantity_tests) {
                             setTimeout(test_type, 0);
                         } else {
-                            output.message_size = response_body.byteLength + Buffer.from(response_header).byteLength + 4;
+                            output.message_size = response.byteLength + 4;
                             times("Test complete.", false);
                         }
                     }

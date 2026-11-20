@@ -146,7 +146,10 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
             server: config.server_hash,
             single_socket: false,
             socket: config.socket,
-            type: "relay",
+            type_primary: (config.config_http.websocket_key === "")
+                ? "http"
+                : "ws",
+            type_secondary: "relay",
             userAgent: config.config_http.user_agent
         });
         proxy.addresses = get_address(proxy);
@@ -160,7 +163,10 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
             server: config.server_hash,
             single_socket: false,
             socket: proxy,
-            type: "proxy",
+            type_primary: (config.config_http.websocket_key === "")
+                ? "http"
+                : "ws",
+            type_secondary: "proxy",
             userAgent: config.config_http.user_agent
         });
     });

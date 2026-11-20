@@ -129,7 +129,10 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 server: server_id,
                                 single_socket: server.single_socket,
                                 socket: socket,
-                                type: (websocket === true)
+                                type_primary: (websocket === true)
+                                    ? "ws"
+                                    : "http",
+                                type_secondary: (websocket === true)
                                     ? config_http.websocket_type
                                     : `http-${config_http.method}`,
                                 userAgent: config_http.user_agent
@@ -608,7 +611,10 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                             server: server_id,
                             single_socket: server.single_socket,
                             socket: socket,
-                            type: (websocket === true)
+                            type_primary: (websocket === true)
+                                ? "ws"
+                                : "http",
+                            type_secondary: (websocket === true)
                                 ? config_http.websocket_type
                                 : `http-${config_http.method}`,
                             userAgent: config_http.user_agent

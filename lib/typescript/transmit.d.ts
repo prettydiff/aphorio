@@ -20,7 +20,7 @@ interface transmit_addresses_socket {
 
 interface transmit_http_client {
     callback_error: (socket:websocket_client, error:node_error) => void;
-    callback_response: (socket:websocket_client, response_header:string, response_body:Buffer) => void;
+    callback_response: (socket:websocket_client, response:Buffer, meta?:config_http_request_output) => void;
     encryption: boolean;
     host: string;
     message: Buffer;

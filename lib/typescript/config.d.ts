@@ -135,10 +135,8 @@ declare global {
         chunks: number;
         encrypted_proxy: boolean;
         encrypted_self: boolean;
-        error: node_error;
         response_body_raw: string;
         response_headers: string;
-        url: URL;
     }
 
     interface config_log {
@@ -252,7 +250,8 @@ declare global {
         server: string;
         single_socket: boolean;
         socket: websocket_client;
-        type: string;
+        type_primary: "http" | "ws";
+        type_secondary: string;
         userAgent: string;
     }
 
