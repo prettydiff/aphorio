@@ -29,7 +29,6 @@ import ready_services from "./ready_services.ts";
 import server_create from "../server/server_create.ts";
 import server_start from "../server/server_start.ts";
 import test_index_proxy from "../test/index_proxy.ts";
-import test_remove from "../test/remove.ts";
 import universal from "../core/universal.ts";
 import vars from "../core/vars.ts";
 
@@ -52,7 +51,11 @@ const start = function start(process_path:string):void {
         },
         prerequisites = function start_prerequisites():void {
             if (keys_prerequisites[index_prerequisites] === undefined) {
-                start_tasks();
+                if (vars.options.mode === "test-proxy") {
+                    test_index_proxy(false);
+                } else {
+                    start_tasks();
+                }
             } else {
                 index_prerequisites = index_prerequisites + 1;
                 log_task("prerequisite", keys_prerequisites[index_prerequisites - 1]);
@@ -240,7 +243,9 @@ const start = function start(process_path:string):void {
         },
         keys_tasks:type_start_primary_tasks[] = Object.keys(tasks) as type_start_primary_tasks[],
         keys_prerequisites:type_start_pre_tasks[] = Object.keys(prerequisite_tasks) as type_start_pre_tasks[],
-        len_tasks:number = keys_tasks.length;
+        len_tasks:number = (vars.options.mode === "test-proxy")
+            ? keys_prerequisites.length
+            : keys_tasks.length;
 
     BigInt.prototype.time_elapsed = universal.time_elapsed;
     Number.prototype.bytes = universal.bytes;
@@ -257,9 +262,7 @@ const start = function start(process_path:string):void {
         "",
         `${vars.text.underline + vars.environment.name.capitalize()} mode: ${vars.options.mode + vars.text.none}`
     ]);
-    if (vars.options.mode === "test-proxy") {
-        test_remove(vars.path.project, test_index_proxy);
-    } else if (vars.options.mode === "certificate") {
+    if (vars.options.mode === "certificate" || vars.options.mode === "test-proxy") {
         prerequisite_tasks.servers.task();
     } else {
         log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);
