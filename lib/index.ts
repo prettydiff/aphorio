@@ -15,7 +15,7 @@ function index():void {
             colonIndex:number = null,
             arg:type_options = null,
             value:string = null;
-        const modes:type_mode[] = ["certificate", "demo", "server", "test-browser", "test-proxy"],
+        const modes:type_mode[] = ["certificate", "demo", "server", "test-dashboard", "test-proxy"],
             assign = function index_assign(key:type_options, value:string):void {
                 if (key === "feature") {
                     if (vars.environment.features[value as type_dashboard_features] !== undefined) {
@@ -69,14 +69,16 @@ function index():void {
                 }
             }
         } while (index > 0);
-        if (vars.options.mode === "test-browser" || vars.options.mode === "test-proxy") {
+        if (vars.options.mode === "test-dashboard" || vars.options.mode === "test-proxy") {
             vars.test.testing = true;
         } else if (vars.options.feature !== "") {
             vars.options.mode = "shell";
         }
 
         vars.path.project = (vars.test.testing === true)
-            ? `${process_path}test${vars.path.sep}`
+            ? (vars.options.mode === "test-dashboard")
+                ? `${process_path}test-dashboard${vars.path.sep}`
+                : `${process_path}test-proxy${vars.path.sep}`
             : process_path;
         vars.path.compose_empty = `${process_path}compose${vars.path.sep}empty.yml`;
         vars.path.compose = `${vars.path.project}compose${vars.path.sep}`;

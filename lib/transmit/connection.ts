@@ -218,7 +218,6 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                 variables: vars.data.compose_variables
                                             }
                                             : null,
-                                        demo: (vars.options.mode === "demo"),
                                         hashes: (vars.environment.features["hash"] === true)
                                             ? vars.environment.hashes
                                             : null,
@@ -232,6 +231,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                                 total: vars.environment.logs.total
                                             }
                                             : null,
+                                        mode: vars.options.mode,
                                         name: vars.environment.name,
                                         notes: vars.data.notes,
                                         os: vars.os,

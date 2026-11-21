@@ -35,7 +35,7 @@ const ui_test_http = function ui_test_http():void {
             }
         },
         init: function dashboard_sections_testHttp_init():void {
-            if (dashboard.global.payload.demo === true) {
+            if (dashboard.global.payload.mode === "demo") {
                 dashboard.sections["test-http"].nodes.http_request.disabled = true;
                 dashboard.sections["test-http"].nodes.http_request.textContent = "Not available in demo mode.";
             } else {

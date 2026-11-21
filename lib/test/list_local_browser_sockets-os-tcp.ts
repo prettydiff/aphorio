@@ -205,7 +205,7 @@ const test_listLocalSocketsOS_TCP = function test_listLocalSocketsOS_TCP():test_
         }
     ];
     list.name = "Local browser tests - sockets-os-tcp";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

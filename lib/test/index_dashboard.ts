@@ -29,7 +29,7 @@ import test_runner from "./runner.ts";
 import test_summary from "./summary.ts";
 import vars from "../core/vars.ts";
 
-const test_index_dom = function test_indexDOM():void {
+const test_index_dashboard = function test_indexDashboard():void {
     let total_lists:number = 0;
     const list:test_list_dom[] = (vars.test.list === null)
             ? [
@@ -85,4 +85,4 @@ const test_index_dom = function test_indexDOM():void {
 // App UDP Sockets
 // WebSocket Test - Incomplete
 
-export default test_index_dom;
+export default test_index_dashboard;

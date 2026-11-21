@@ -356,7 +356,6 @@ const vars:core_vars = {
             compose: "",
             compose_empty: "",
             node: "",
-            process: "",
             project: "",
             sep: "/",
             servers: ""

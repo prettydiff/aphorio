@@ -133,7 +133,7 @@ const test_listLocalBrowserServicesOS = function test_listLocalBrowserServicesOS
         }
     ];
     list.name = "Local browser tests - services";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

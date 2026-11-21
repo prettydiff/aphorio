@@ -268,7 +268,7 @@ const test_listLocalBrowserDisks = function test_listLocalBrowserDisks():test_li
         }
     ];
     list.name = "Local browser tests - disks";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

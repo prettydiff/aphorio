@@ -217,7 +217,7 @@ const test_listLocalBrowserProcesses = function test_listLocalBrowserProcesses()
         }
     ];
     list.name = "Local browser tests - processes";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

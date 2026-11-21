@@ -79,7 +79,7 @@ const test_listLocalBrowserTerminal = function test_listLocalBrowserTerminal():t
         }
     ];
     list.name = "Local browser tests - terminal";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

@@ -97,7 +97,7 @@ const ui_udp_socket = function ui_udp_socket():void {
                 len:number = keys.length,
                 nodes:store_elements = dashboard.sections["udp-socket"].nodes,
                 events:store_function = dashboard.sections["udp-socket"].events;
-            if (dashboard.global.payload.demo === true) {
+            if (dashboard.global.payload.mode === "demo") {
                 const button:HTMLButtonElement = nodes.button_create as HTMLButtonElement;
                 button.disabled = true;
                 dashboard.sections["udp-socket"].nodes.status.textContent = "UDP socket creation is not available in demo mode.";

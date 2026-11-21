@@ -807,7 +807,7 @@ const test_listLocalBrowserServersWeb = function test_listLocalBrowserServersWeb
         }
     ];
     list.name = "Local browser tests - servers, web";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

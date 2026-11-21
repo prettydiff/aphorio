@@ -186,7 +186,7 @@ const ui_utility = function ui_utility():void {
             }
         },
         clock_demo: function dashboard_utility_clockDemo(socket_data:socket_data):void {
-            if (dashboard.global.payload.demo === true) {
+            if (dashboard.global.payload.mode === "demo") {
                 const data:services_status_clock_demo = socket_data.data as services_status_clock_demo;
                 dashboard.utility.nodes.clock_demo.textContent = data.remaining;
             }

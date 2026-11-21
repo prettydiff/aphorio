@@ -176,7 +176,7 @@ const test_runner:test_runner = {
     },
     count: 0,
     execution: {
-        dom: function test_runner_executeDOM():void {
+        dashboard: function test_runner_executeDashboard():void {
             if (vars.test.browser_start === false) {
                 test_runner.tools.browser_open();
                 return;
@@ -420,7 +420,7 @@ const test_runner:test_runner = {
     tools: {
         browser_open: function test_runner_toolsBrowser():void {
             const browserCommand = function test_runner_toolsBrowser_browserCommand():string {
-                    const path:string = `http://localhost:${vars.data.server[vars.id.dashboard_server].ports.open}/?test_browser`;
+                    const path:string = `http://localhost:${vars.data.server[vars.id.dashboard_server].ports.open}/?test-dashboard`;
                     if (vars.test.test_browser !== "" && vars.test.test_browser !== null) {
                         if (vars.test.browser_args.length > 0) {
                             return `${vars.commands.open} "${vars.test.test_browser}" "${path}" ${vars.test.browser_args.join(" ")}`;
@@ -437,7 +437,7 @@ const test_runner:test_runner = {
             });
             vars.test.browser_child.execute();
             setTimeout(function test_runner_toolsBrowser_delay():void {
-                test_runner.tools.get_socket(test_runner.execution.dom);
+                test_runner.tools.get_socket(test_runner.execution.dashboard);
             }, 300);
         },
         callback: null,

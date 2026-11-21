@@ -23,7 +23,7 @@ const ui_message = function ui_message():void {
                         }
                     };
                 dashboard.global.payload = data;
-                if (dashboard.global.payload.demo === true) {
+                if (dashboard.global.payload.mode === "demo") {
                     document.getElementById("demo-mode").style.display = "block";
                 }
                 init("application-logs", false);
@@ -71,6 +71,12 @@ const ui_message = function ui_message():void {
                     ];
                 };
                 dashboard.global.loaded = true;
+                if (dashboard.utility.test_browser !== null && dashboard.utility.test_browser !== undefined) {
+                    dashboard.utility.test_browser({
+                        data: null,
+                        service: "services_test_browser"
+                    });
+                }
             }
         },
         receive: function dashboard_message_receive(data:string):void {
@@ -147,7 +153,7 @@ const ui_message = function ui_message():void {
                         ? null
                         : dashboard.sections["statistics-resources"].receive,
                     "services_status_clock": dashboard.utility.clock,
-                    "services_status_clock_demo": (dashboard.global.payload !== null && dashboard.global.payload.demo === true)
+                    "services_status_clock_demo": (dashboard.global.payload !== null && dashboard.global.payload.mode === "demo")
                         ? dashboard.utility.clock_demo
                         : null,
                     "services_test_http": (dashboard.sections["test-http"] === undefined)

@@ -29,7 +29,6 @@ interface services_compose_variables {
 
 interface services_dashboard_open {
     compose: services_compose;
-    demo: boolean;
     hashes: string[];
     id: core_vars_id;
     logs: {
@@ -37,6 +36,7 @@ interface services_dashboard_open {
         max: number;
         total: number;
     };
+    mode: type_mode;
     name: string;
     notes: string;
     os: services_os_all;

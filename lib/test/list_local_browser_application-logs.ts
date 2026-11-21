@@ -83,7 +83,7 @@ const test_listLocalBrowserApplicationLogs = function test_listLocalBrowserAppli
         }
     ];
     list.name = "Local browser tests - application logs";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

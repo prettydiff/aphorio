@@ -86,7 +86,7 @@ const test_listLocalBrowserNotes = function test_listLocalBrowserNotes():test_li
         }
     ];
     list.name = "Local browser tests - notes";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 export default test_listLocalBrowserNotes;

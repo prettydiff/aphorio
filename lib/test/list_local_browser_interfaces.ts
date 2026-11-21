@@ -177,7 +177,7 @@ const test_listLocalBrowserInterfaces = function test_listLocalBrowserInterfaces
         }
     ];
     list.name = "Local browser tests - interfaces";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

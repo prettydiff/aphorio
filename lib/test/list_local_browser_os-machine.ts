@@ -175,7 +175,7 @@ const test_listLocalBrowserOSMachine = function test_listLocalBrowserOSMachine()
         }
     ];
     list.name = "Local browser tests - os";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

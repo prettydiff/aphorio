@@ -34,7 +34,7 @@ const ui_terminal = function ui_terminal():void {
             },
             resize: null,
             selection: function dashboard_sections_terminal_selection():void {
-                if (dashboard.global.click === true && location.href.indexOf("?test_browser") < 0) {
+                if (dashboard.global.click === true && dashboard.global.payload.mode === "server") {
                     navigator.clipboard.write([
                         new ClipboardItem({["text/plain"]: dashboard.sections["terminal"].item.getSelection()})
                     ]);
@@ -74,7 +74,7 @@ const ui_terminal = function ui_terminal():void {
                 section: "terminal",
                 shell: dashboard.sections["terminal"].item
             });
-            if (dashboard.global.payload.demo === true) {
+            if (dashboard.global.payload.mode === "demo") {
                 dashboard.sections["terminal"].nodes.demo_terminal.style.display = "block";
             }
         },

@@ -475,7 +475,7 @@ const ui_servers_web = function ui_servers_web():void {
                 data: dashboard.global.payload.server,
                 service: "services_server_update"
             });
-            if (dashboard.global.payload.demo === true) {
+            if (dashboard.global.payload.mode === "demo") {
                 document.getElementById("servers-web").getElementsByClassName("tab-description")[0].appendText("In demo mode only a maximum of three servers will spawn.");
             }
         },

@@ -69,7 +69,7 @@ const test_listLocalBrowserServicesApp = function test_listLocalBrowserServicesA
         }
     ];
     list.name = "Local browser tests - services_app";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

@@ -443,7 +443,7 @@ test insecure socket`
         }
     ];
     list.name = "Local browser tests - web socket";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

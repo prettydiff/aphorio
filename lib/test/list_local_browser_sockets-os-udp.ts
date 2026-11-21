@@ -205,7 +205,7 @@ const test_listLocalSocketsOS_UDP = function test_listLocalSocketsOS_UDP():test_
         }
     ];
     list.name = "Local browser tests - sockets-os-udp";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

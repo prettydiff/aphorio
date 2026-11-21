@@ -117,7 +117,7 @@ const test_listLocalBrowserStart = function test_listLocalBrowserStart():test_li
         }
     ];
     list.name = "Local browser tests - start";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 export default test_listLocalBrowserStart;

@@ -108,7 +108,7 @@ const test_listLocalBrowserHTTP = function test_listLocalBrowserHTTP():test_list
         }
     ];
     list.name = "Local browser tests - http";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

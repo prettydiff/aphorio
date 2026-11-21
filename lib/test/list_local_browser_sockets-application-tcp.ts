@@ -314,7 +314,7 @@ const test_listLocalBrowserSocketsApplicationTCP = function test_listLocalBrowse
         }
     ];
     list.name = "Local browser tests - sockets-application-tcp";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

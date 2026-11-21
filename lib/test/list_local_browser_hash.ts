@@ -170,7 +170,7 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
                         ["class", "form", 0],
                         ["tag", "textarea", 0]
                     ],
-                    value: `${vars.path.project.replace("test", "")}bin${vars.path.sep}aphorio.js`
+                    value: `${vars.path.project.replace("test-dashboard", "")}bin${vars.path.sep}aphorio.js`
                 },
                 {
                     event: "click",
@@ -315,7 +315,7 @@ const test_listLocalBrowserHash = function test_listLocalBrowserHash():test_list
         }
     ];
     list.name = "Local browser tests - hash";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

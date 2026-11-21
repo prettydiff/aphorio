@@ -8,7 +8,7 @@ const file_start = function start_fileStart(complete_tasks:(task:type_start_prim
         task: function start_fileStart_task():void {
             if (vars.environment.features["file-system"] === true) {
                 if (process.platform === "win32" || process.platform === "cygwin") {
-                    vars.commands.file = `${vars.path.process}node_modules${vars.path.sep}file${vars.path.sep}bin${vars.path.sep}file.exe -bi `;
+                    vars.commands.file = `${vars.path.project}node_modules${vars.path.sep}file${vars.path.sep}bin${vars.path.sep}file.exe -bi `;
                     complete_tasks("file");
                     return;
                 }

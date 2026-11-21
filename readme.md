@@ -82,12 +82,20 @@ Please note that Docker support on Linux requires executing this application adm
    <td>Executes the application with Node.js</td>
 </tr>
 <tr>
-   <td><code>npm run test-bun</code><br>or<br><code>bun ./lib/index.ts mode:test-browser</code></td>
+   <td><code>npm run test-dashboard-bun</code><br>or<br><code>bun ./lib/index.ts mode:test-dashboard</code></td>
    <td>Runs the dashboard test automation with bun</td>
 </tr>
 <tr>
-   <td><code>npm run test-node</code><br>or<br><code>node ./lib/index.ts mode:test-browser</code></td>
+   <td><code>npm run test-dashboard-node</code><br>or<br><code>node ./lib/index.ts mode:test-dashboard</code></td>
    <td>Runs the dashboard test automation with Node.js</td>
+</tr>
+<tr>
+   <td><code>npm run test-proxy-bun</code><br>or<br><code>bun ./lib/index.ts mode:test-proxy</code></td>
+   <td>Runs the proxy test automation with bun</td>
+</tr>
+<tr>
+   <td><code>npm run test-proxy-node</code><br>or<br><code>node ./lib/index.ts mode:test-proxy</code></td>
+   <td>Runs the proxy test automation with Node.js</td>
 </tr>
 <tr>
    <td><code>npm run tsc</code></td>
@@ -113,8 +121,12 @@ Please note that Docker support on Linux requires executing this application adm
    <td>This is the applications's default behavior designed to execute the application as a service and report output to a web browser.</td>
 </tr>
 <tr>
-   <td><code>mode:test-browser</code></td>
+   <td><code>mode:test-dashboard</code></td>
    <td>Instructs the application to execute test automation against the dashboard in a web browser.</td>
+</tr>
+<tr>
+   <td><code>mode:test-proxy</code></td>
+   <td>Instructs the application to execute test automation against preconfigured servers for a variety of network connection tests.</td>
 </tr>
 </tbody></table>
 

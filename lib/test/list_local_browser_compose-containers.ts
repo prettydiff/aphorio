@@ -45,7 +45,7 @@ const test_listLocalBrowserComposeContainers = function test_listLocalBrowserCom
         });
     }
     list.name = "Local browser tests - compose";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

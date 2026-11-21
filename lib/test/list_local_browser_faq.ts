@@ -28,7 +28,7 @@ const test_listLocalBrowserFAQ = function test_listLocalBrowserFAQ():test_list_d
         }
     ];
     list.name = "Local browser tests - faq";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 export default test_listLocalBrowserFAQ;

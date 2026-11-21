@@ -133,7 +133,7 @@ const test_listLocalBrowserDevices = function test_listLocalBrowserDevices():tes
         }
     ];
     list.name = "Local browser tests - devices";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

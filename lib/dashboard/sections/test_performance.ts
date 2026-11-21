@@ -52,7 +52,7 @@ const ui_test_performance = function ui_test_performance():void {
             }
         },
         init: function dashboard_sections_testPerformance_init():void {
-            if (dashboard.global.payload.demo === true) {
+            if (dashboard.global.payload.mode === "demo") {
                 dashboard.sections["test-performance"].nodes.button_execute.disabled = true;
                 dashboard.sections["test-performance"].nodes.status.textContent = "Performance tests are not available in demo mode.";
             } else {

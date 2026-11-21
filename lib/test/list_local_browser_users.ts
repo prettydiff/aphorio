@@ -157,7 +157,7 @@ const test_listLocalBrowserUsers = function test_listLocalBrowserUsers():test_li
         }
     ];
     list.name = "Local browser tests - users";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

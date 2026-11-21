@@ -141,7 +141,7 @@ interface test_runner {
     };
     count: number;
     execution: {
-        dom: () => void;
+        dashboard: () => void;
         proxy: () => void;
     };
     list: (list:test_list_dom|test_list_proxy, callback:(name:string) => void) => void;

@@ -15,7 +15,6 @@ const dashboard:dashboard = {
                 "time": 0,
                 "variables": {}
             },
-            "demo": false,
             "hashes": [""],
             id: {
                 dashboard_server: "",
@@ -26,6 +25,7 @@ const dashboard:dashboard = {
                 "max": 0,
                 "total": 0
             },
+            "mode": "server",
             "name": "",
             "notes": "",
             "os": {
@@ -118,7 +118,6 @@ const dashboard:dashboard = {
                 "compose": "",
                 "compose_empty": "",
                 "node": "",
-                "process": "",
                 "project": "",
                 "sep": "/",
                 "servers": ""

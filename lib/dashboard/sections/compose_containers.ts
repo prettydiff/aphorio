@@ -250,7 +250,7 @@ const ui_compose_containers = function ui_compose_containers():void {
                         }
                     }
                 };
-                if (dashboard.global.payload.demo === true) {
+                if (dashboard.global.payload.mode === "demo") {
                     const p:HTMLElement = document.createElement("p");
                     p.textContent = "Shell output disabled in demo mode.";
                     dashboard.sections["compose-containers"].nodes.shell.appendChild(p);
@@ -278,7 +278,7 @@ const ui_compose_containers = function ui_compose_containers():void {
                 dashboard.sections["compose-containers"].nodes.status.appendText(dashboard.global.payload.compose.status);
                 dashboard.sections["compose-containers"].nodes.status.style.display = "block";
             }
-            if (dashboard.global.payload.demo === true) {
+            if (dashboard.global.payload.mode === "demo") {
                 dashboard.sections["compose-containers"].nodes.demo_containers.style.display = "block";
             }
         },

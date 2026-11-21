@@ -48,8 +48,8 @@
     "scripts": {
         "server-bun":          "bun ./lib/index.ts",
         "server-node":         "node ./lib/index.ts",
-        "test-dashboard-bun":  "bun ./lib/index.ts mode:test-browser",
-        "test-dashboard-node": "node ./lib/index.ts mode:test-browser",
+        "test-dashboard-bun":  "bun ./lib/index.ts mode:test-dashboard",
+        "test-dashboard-node": "node ./lib/index.ts mode:test-dashboard",
         "test-proxy-bun":      "bun ./lib/index.ts mode:test-proxy",
         "test-proxy-node":     "node ./lib/index.ts mode:test-proxy",
         "tsc":                 "node ./node_modules/typescript/bin/tsc --pretty"

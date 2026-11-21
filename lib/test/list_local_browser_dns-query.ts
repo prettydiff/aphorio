@@ -355,7 +355,7 @@ const test_listLocalBrowserDNSQuery = function test_listLocalBrowserDNSQuery():t
         }
     ];
     list.name = "Local browser tests - dns";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

@@ -194,7 +194,7 @@ const test_listLocalBrowserPortsApplication = function test_listLocalBrowserPort
         }
     ];
     list.name = "Local browser tests - ports-application";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

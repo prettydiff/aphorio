@@ -43,7 +43,7 @@ const test_summary = function test_summary(name:string, complete:boolean):void {
         summary.push("___________________________________________________");
         summary.push("");
         summary.push(`${vars.text.underline}Test settings${vars.text.none}`);
-        if (vars.options.mode === "test-browser" && vars.options.browser !== "") {
+        if (vars.options.mode === "test-dashboard" && vars.options.browser !== "") {
             summary.push(`    ${vars.text.angry}*${vars.text.none} browser                  : ${vars.options["browser"]}`);
         }
         if (vars.options.list !== "") {

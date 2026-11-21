@@ -4,7 +4,7 @@
 /servers.json
 /servers
 /compose/**
-/test
+/test-dashboard
 !/compose/empty.yml
 !/node_modules/@kurkle
 !/node_modules/@lydell

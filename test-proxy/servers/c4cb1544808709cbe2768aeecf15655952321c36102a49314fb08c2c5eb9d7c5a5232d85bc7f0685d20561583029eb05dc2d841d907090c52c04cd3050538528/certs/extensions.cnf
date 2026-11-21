@@ -1,0 +1,22 @@
+[ ca ]
+        basicConstraints       = CA:false
+        subjectKeyIdentifier   = hash
+        authorityKeyIdentifier = keyid,issuer
+        subjectAltName         = @alt_names
+        nameConstraints        = @name_constraints
+
+[ selfSign ]
+        basicConstraints     = critical,CA:true,pathlen:1
+        subjectKeyIdentifier = hash
+        subjectAltName       = @alt_names
+        nameConstraints      = @name_constraints
+
+[ name_constraints ]
+        permitted;DNS.0 = localhost
+        permitted;DNS.1 = test.localhost
+        # End Constraints
+
+[ alt_names ]
+        DNS.0 = localhost
+        DNS.1 = test.localhost
+        # End Alt Names

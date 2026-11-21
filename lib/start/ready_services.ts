@@ -5,7 +5,7 @@ import log from "../core/log.ts";
 import node from "../core/node.ts";
 import ports_application from "../services/ports_application.ts";
 import statistics_resources from "../services/statistics_resources.ts";
-import test_index_dom from "../test/index_dom.ts";
+import test_index_dashboard from "../test/index_dashboard.ts";
 import test_remove from "../test/remove.ts";
 import vars from "../core/vars.ts";
 
@@ -20,7 +20,7 @@ const ready_services = function start_readyServices(count_task:number):void {
         demo.clock_self();
     }
     if (vars.test.testing === true) {
-        test_remove(vars.path.project, test_index_dom);
+        test_remove(vars.path.project, test_index_dashboard);
     } else if (vars.options.mode === "demo" || vars.options.mode === "server") {
         const heading = function start_readyServices_heading(message:string):string {
                 return vars.text.underline + message + vars.text.none;

@@ -28,7 +28,7 @@ const test_listLocalBrowserHelp = function test_listLocalBrowserHelp():test_list
         }
     ];
     list.name = "Local browser tests - help";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

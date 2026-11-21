@@ -56,7 +56,7 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
                         ["class", "form", 0],
                         ["tag", "input", 0]
                     ],
-                    value: vars.path.project.replace(`${vars.path.sep}test`, "").replace(/(\\|\/)$/, "")
+                    value: vars.path.project.replace(`${vars.path.sep}test-dashboard`, "").replace(/(\\|\/)$/, "")
                 },
                 {
                     event: "keydown",
@@ -781,7 +781,7 @@ const test_listLocalBrowserFileSystem = function test_listLocalBrowserFileSystem
         }
     ];
     list.name = "Local browser tests - file system";
-    list.type = "dom";
+    list.type = "dashboard";
     return list;
 };
 

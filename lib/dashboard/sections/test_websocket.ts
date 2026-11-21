@@ -145,7 +145,7 @@ const ui_test_websocket = function ui_test_websocket():void {
                 emSecure:HTMLElement = document.createElement("em"),
                 port_open:number = dashboard.global.payload.server[dashboard.global.payload.id.dashboard_server].ports.open,
                 port_secure:number = dashboard.global.payload.server[dashboard.global.payload.id.dashboard_server].ports.secure;
-            if (dashboard.global.payload.demo === true) {
+            if (dashboard.global.payload.mode === "demo") {
                 dashboard.sections["test-websocket"].nodes.handshake_label.textContent = "Websocket tests are disabled in demo mode.";
                 dashboard.sections["test-websocket"].nodes.button_handshake.disabled = true;
             } else {
@@ -196,7 +196,7 @@ const ui_test_websocket = function ui_test_websocket():void {
                     };
                 } else {
                     dashboard.sections["test-websocket"].nodes.handshake_timeout.value = dashboard.global.state.test_websocket.request_timeout;
-                    if (dashboard.global.state.test_websocket.send_frame === "" || location.href.includes("test_browser") === true) {
+                    if (dashboard.global.state.test_websocket.send_frame === "" || dashboard.global.payload.mode === "test-dashboard") {
                         dashboard.sections["test-websocket"].nodes.message_send_frame.value = `{
     "extended": 0,
     "fin": false,
