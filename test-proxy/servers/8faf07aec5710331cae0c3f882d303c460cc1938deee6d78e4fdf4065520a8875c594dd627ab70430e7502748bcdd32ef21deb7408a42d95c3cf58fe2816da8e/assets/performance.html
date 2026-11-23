@@ -1,0 +1,88 @@
+
+<!doctype html>
+<html lang="en">
+    <!-- cspell: words  -->
+<head>
+<meta charset="utf-8"/>
+<title>Aphorio - Performance</title>
+<meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="index, follow" name="robots"/>
+<meta content="#fff" name="theme-color"/>
+<meta content="Global" name="distribution"/>
+<meta content="en" http-equiv="Content-Language"/>
+<meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/>
+<meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/>
+<meta content="text/css" http-equiv="content-style-type"/>
+<meta content="application/javascript" http-equiv="content-script-type"/>
+<meta content="#bbbbff" name="msapplication-TileColor"/>
+<link rel="stylesheet" href="styles.css"/>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo="/>
+</head>
+<body>
+    <span class="cursor"><span class="vertical"></span><span class="horizontal"></span><span class="ball"></span></span>
+    <div class="title">
+        <h1><a href="./">Aphorio</a> <span>v0.6.3</span></h1>
+        <nav>
+            <ul>
+                <li><a href="features.html">Features</a></li>
+                <li><a href="performance.html">Performance</a></li>
+                <li><a href="services.html">Services</a></li>
+            </ul>
+        </nav>
+        <span class="clear"></span>
+    </div>
+    <main class="performance">
+        <section>
+            <h2>Performance</h2>
+            <p>These measures reflect complete messages sent with a 4 character message payload. Each experiment comprises 100 tests.  The results are the average across a given experiment.  All values are expressed as seconds.</p>
+            <p>All tests performed on a machine with these criteria: <span>aWindows 11, AMD Ryzon 9 9900X, 64GB memory at 4800MT/s</span></p>
+            <section>
+                <h3>WebSocket Performance</h3>
+                <table>
+                    <thead><tr>
+                        <th>Message Count</th>
+                        <th>Node.js Time</th>
+                        <th>Node.js Experiment Variance</th>
+                        <th>Bun</th>
+                        <th>Bun Experiment Variance</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr><th colspan="5" class="colspan">Message Send Only, Payload 4 characters</th></tr>
+                        <tr><th>1,000</th>
+                            <td>0.012251729</td>
+                            <td>±0.004319102, (35.25%)</td>
+                            <td>0.003248424</td>
+                            <td>±0.000446833, (13.76%)</td></tr>
+                        <tr><th>10,000</th>
+                            <td>0.004777349</td>
+                            <td>±0.00297334, (62.24%)</td>
+                            <td>0.003317779</td>
+                            <td>±0.000481589, (14.52%)</td></tr>
+                        <tr><th>100,000</th>
+                            <td>0.012350051</td>
+                            <td>±0.003343366, (27.07%)</td>
+                            <td>0.020252797</td>
+                            <td>±0.002401165, (11.86%)</td></tr>
+                        <tr><th>1,000,000</th>
+                            <td>0.163618612</td>
+                            <td>±0.023549976, (14.39%)</td>
+                            <td>0.192037705</td>
+                            <td>±0.011706295, (6.10%)</td></tr>
+                        <tr><th>10,000,000</th>
+                            <td>1.628270537</td>
+                            <td>±0.091025869, (5.59%)</td>
+                            <td>2.80128224</td>
+                            <td>±0.158345955, (5.65%)</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+    <footer>
+        <p><span class="copyright"></span>, Licensed <a href="https://github.com/prettydiff/aphorio/blob/main/LICENSE" target="_blank">AGPLv3</a>, <a href="https://github.com/prettydiff/aphorio/" target="_blank">GitHub</a></p>
+    </footer>
+    <script type="module" src="./script.js"></script>
+    <!--script type="module" data-entity="aphorio.sharefile.systems" src="https://traffic.sharefile.systems/script.js"></script-->
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="0811742a-4856-49f5-bebe-11a2863c4509"></script>
+</body></html>

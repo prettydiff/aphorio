@@ -38,7 +38,7 @@ const http_client = function http_client(config:transmit_http_client):websocket_
         socket.on("data", function http_client_extension_data(this:websocket_client, data_response:Buffer):void {
             const socket:websocket_client = this,
                 response = function http_client_extension_data_response(payload:Buffer):void {
-                    const header:string = socket.http_header;
+                    const header:string = `${socket.http_header.replace(/\s+$/, "")}\r\n\r\n`;
                     socket.http_header = "";
                     socket.http_response_type = 0;
                     socket.fragments = [];

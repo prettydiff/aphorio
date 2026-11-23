@@ -1,0 +1,152 @@
+
+<!doctype html>
+<html lang="en">
+    <!-- cspell: words  -->
+<head>
+<meta charset="utf-8"/>
+<title>Aphorio - Services</title>
+<meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="index, follow" name="robots"/>
+<meta content="#fff" name="theme-color"/>
+<meta content="Global" name="distribution"/>
+<meta content="en" http-equiv="Content-Language"/>
+<meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/>
+<meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/>
+<meta content="text/css" http-equiv="content-style-type"/>
+<meta content="application/javascript" http-equiv="content-script-type"/>
+<meta content="#bbbbff" name="msapplication-TileColor"/>
+<link rel="stylesheet" href="styles.css"/>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo="/>
+</head>
+<body>
+    <span class="cursor"><span class="vertical"></span><span class="horizontal"></span><span class="ball"></span></span>
+    <div class="title">
+        <h1><a href="./">Aphorio</a> <span>v0.6.3</span></h1>
+        <nav>
+            <ul>
+                <li><a href="features.html">Features</a></li>
+                <li><a href="performance.html">Performance</a></li>
+                <li><a href="services.html">Services</a></li>
+            </ul>
+        </nav>
+        <span class="clear"></span>
+    </div>
+    <main>
+        <section>
+            <h2>Services</h2>
+            <p>In Aphorio the service architecture is built for simplicity so that it can scale to accomodate custom third-party extensions without refactoring the rest of the application. Generally, the service architecture comprises three locations and a universal format:</p>
+            <ul>
+                <li><a href="https://github.com/prettydiff/aphorio/blob/main/lib/typescript/service_registry.d.ts">/lib/typescript/service_registry.d.ts</a> - A service definition file.</li>
+                <li><a href="https://github.com/prettydiff/aphorio/blob/main/lib/transmit/router.ts">/lib/transmit/router.ts</a> - Guidance to direct network data to the proper library.</li>
+                <li><a href="https://github.com/prettydiff/aphorio/tree/main/lib/services">/lib/services</a> - A central location to store service specific libraries.</li>
+            </ul>
+            <section>
+                <h3>Universal Service Format</h3>
+                <p>All services in Aphorio comprise the same high level format, which is an object of two properties: <em>data</em> and <em>service</em>.</p>
+                <p>The data property stores the data to transfer, either between libraries locally or across the network between machines. This data is defined in the service definition file, which is further explained in the next section.</p>
+                <p>The service data property is just a string type. This string is the name of both the service consuming this data as well as the TypeScript interface name that defines the data. See this simplified example:</p>
+                <p><code>{
+    data: {
+        frequency: 20,
+        records: 1000
+    },
+    service: "services_statistics_change"
+}</code></p>
+            </section>
+            <section>
+                <h3>Service Definitiions</h3>
+                <p>The service definition file, <a href="https://github.com/prettydiff/aphorio/blob/main/lib/typescript/service_registry.d.ts">/lib/typescript/service_registry.d.ts</a>, is just a TypeScript definition file containing two things.  Most of the file comprises TypeScript interface definitions to define all the supported service data types. The bottom of the file contains a union of maps, which defines the relationship between the provided service definitions above to their TypeScript interface names.</p>
+                <p>The goal of this approach is to provide a singular identity to both a service consumer and definition.  There is a single location to reference all service definitions against a single name which always accompanies the data.  This also simplifies maintenance and troubleshooting.  The above sample is defined like this:</p>
+                <p><code>interface services_statistics_change {
+    frequency: number;
+    records: number;
+}
+// Saves data about how much data to gather and send to the UI for statistics graphs</code></p>
+            </section>
+            <section>
+                <h3>Routing the Data</h3>
+                <p>A given service library will know what data format it expects to receive due to type definitions of its function arguments, but that data must get to the appriorate function first.  The <a href="https://github.com/prettydiff/aphorio/blob/main/lib/transmit/router.ts">/lib/transmit/router.ts</a> file provides a map that associates service name to the receiving function for all data coming off the network interface.  The above exmaples are routed like the highlighted line in following code:</p>
+                <p><code>
+import dns from "../services/dns.ts";
+import docker from "../services/docker.ts";
+import fileSystem from "../services/fileSystem.ts";
+import hash from "../services/hash.ts";
+import log from "../core/log.ts";
+import message_inspection from "../services/message_inspection.ts";
+import notes from "../services/notes.ts";
+import os from "../services/os.ts";
+import ports_application from "../services/ports_application.ts";
+import servers from "../server/index.ts";
+import socket_list from "../services/socket_list.ts";
+import statistics_resources from "../services/statistics_resources.ts";
+import terminal from "../services/terminal.ts";
+import test_http from "../services/test_http.ts";
+import test_performance from "../services/test_performance.ts";
+import test_runner from "../test/runner.ts";
+import udp_socket from "../services/udp_socket.ts";
+import websocket_test from "../services/websocket.ts";
+
+const router = function transmit_router(socketData:socket_data, transmit:transmit_socket):void {
+    const services:string = socketData.service,
+        actions:transmit_receiver = {
+            "services_compose_container": docker.receive,
+            "services_compose_variables": docker.receive,
+            "services_dns_input": dns,
+            "services_file_system": fileSystem,
+            "services_hash": hash,
+            "services_log": log.receive,
+            "services_message_inspection": message_inspection.set,
+            "services_notes": notes,
+            "services_os_all": os,
+            "services_os_devs": os,
+            "services_os_disk": os,
+            "services_os_intr": os,
+            "services_os_main": os,
+            "services_os_proc": os,
+            "services_os_serv": os,
+            "services_os_sock": os,
+            "services_os_stcp": os,
+            "services_os_sudp": os,
+            "services_os_user": os,
+            "services_ports_application": ports_application,
+            "services_server_action": servers,
+            "services_socket_application": socket_list,
+            <strong>"services_statistics_change": statistics_resources.change,</strong>
+            "services_terminal_resize": terminal.resize,
+            "services_test_browser": test_runner.receive,
+            "services_test_http": test_http,
+            "services_test_performance_input": test_performance,
+            "services_udp_socket": udp_socket,
+            "services_websocket_handshake": websocket_test.handshake,
+            "services_websocket_message": websocket_test.message
+        };
+    if (services === "services_terminal_resize") {
+        const data:services_terminal_resize = socketData.data as services_terminal_resize;
+        if (data.section === "compose-containers") {
+            docker.resize(socketData, transmit);
+        } else {
+            terminal.resize(socketData, transmit);
+        }
+    } else if (actions[services] !== undefined) {
+        actions[services](socketData, transmit);
+    }
+};</code></p>
+            </section>
+            <section>
+                <h3>Directory of Services</h3>
+                <p>The project provides a single directory, <a href="https://github.com/prettydiff/aphorio/tree/main/lib/services">/lib/services</a>, to store service specific libraries.  This single location exists for convenience of maintenance, but a given service library can exist anywhere a third party author wishes so long as it is included in the router file mentioned above.</p>
+            </section>
+            <section>
+                <h3>Further Reading</h3>
+                <p>For more detailed explanations of each supported service please see the <em>App Services</em> feature section in the running Aphorio dashboard UI.  This content provides each service definition along with all referenced types from the given definition and a brief explanation for each service.</p>
+            </section>
+        </section>
+    </main>
+    <footer>
+        <p><span class="copyright"></span>, Licensed <a href="https://github.com/prettydiff/aphorio/blob/main/LICENSE" target="_blank">AGPLv3</a>, <a href="https://github.com/prettydiff/aphorio/" target="_blank">GitHub</a></p>
+    </footer>
+    <script type="module" src="./script.js"></script>
+    <!--script type="module" data-entity="aphorio.sharefile.systems" src="https://traffic.sharefile.systems/script.js"></script-->
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="0811742a-4856-49f5-bebe-11a2863c4509"></script>
+</body></html>

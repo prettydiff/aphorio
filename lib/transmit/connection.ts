@@ -386,7 +386,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 // proxy to a different server due to legacy redirect_domain rules
                                 create_proxy({
                                     config_http: config_http,
-                                    data: config_http.body,
+                                    data: data,
                                     domain: domain,
                                     encrypted: encryption,
                                     identifier: identifier,
@@ -511,7 +511,7 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 port = (typeof outgoing.port === "number" && outgoing.port > 0 && outgoing.port < 65536)
                                     ? outgoing.port
                                     : 0;
-                                resource = matches[0][2];
+                                resource = outgoing.resource;
                             }
                             proxy_test = proxy_eval({
                                 domain: domain,
@@ -532,13 +532,13 @@ const connection = function transmit_connection(this:core_server_instance, TLS_s
                                 socket.http_resource_rule = resource;
                                 create_proxy({
                                     config_http: config_http,
-                                    data: config_http.body,
+                                    data: data,
                                     domain: domain,
                                     encrypted: encryption,
                                     identifier: identifier,
                                     method: method,
                                     port: port,
-                                    resource: config_http.resource,
+                                    resource: resource,
                                     server_hash: server_id,
                                     socket: socket
                                 });

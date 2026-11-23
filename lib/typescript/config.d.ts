@@ -121,7 +121,7 @@ declare global {
         resource: string;
         resource_absolute: string;
         resource_size: number;
-        resource_type: "directory" | "file" | "other";
+        resource_type: "directory" | "file" | "missing" | "other";
         response_type: number;
         timeout: number;
         user_agent: string;

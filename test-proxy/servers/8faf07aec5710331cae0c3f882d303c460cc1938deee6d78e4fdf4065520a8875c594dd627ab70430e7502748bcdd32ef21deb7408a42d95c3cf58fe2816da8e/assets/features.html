@@ -1,0 +1,387 @@
+
+<!doctype html>
+<html lang="en">
+    <!-- cspell: words  -->
+<head>
+<meta charset="utf-8"/>
+<title>Aphorio - Features</title>
+<meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="index, follow" name="robots"/>
+<meta content="#fff" name="theme-color"/>
+<meta content="Global" name="distribution"/>
+<meta content="en" http-equiv="Content-Language"/>
+<meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/>
+<meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/>
+<meta content="text/css" http-equiv="content-style-type"/>
+<meta content="application/javascript" http-equiv="content-script-type"/>
+<meta content="#bbbbff" name="msapplication-TileColor"/>
+<link rel="stylesheet" href="styles.css"/>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo="/>
+</head>
+<body>
+    <span class="cursor"><span class="vertical"></span><span class="horizontal"></span><span class="ball"></span></span>
+    <div class="title">
+        <h1><a href="./">Aphorio</a> <span>v0.7.3</span></h1>
+        <nav>
+            <ul>
+                <li><a href="features.html">Features</a></li>
+                <li><a href="performance.html">Performance</a></li>
+                <li><a href="services.html">Services</a></li>
+            </ul>
+        </nav>
+        <span class="clear"></span>
+    </div>
+    <main>
+        <section>
+            <h2>Features Overview</h2>
+            <p>This page provides an extremely brief informational summary of features and content provided by this application. More detailed content, technical documentation, and relevant references are provided directly in the dashboard page HTML for immediate availability using the application.</p>
+            <p>All dashboard content features are provided a la carte using a <em>features.json</em> file. To exclude any features, in both content and data services, simply set a given feature value to false and restart the application.  All specified service interface definitions can be found in file <a href="https://github.com/prettydiff/aphorio/blob/main/lib/typescript/service_registry.d.ts">/lib/typescript/service_registry.d.ts</a>. More detailed information about how this application publishes and consumes services please see the <a href="services.html">services</a> page.</p>
+            <p>The feature list is provided in the order presented in the Aphorio dashboard.</p>
+            <section>
+                <h3>Web Servers <span>(Services)</span></h3>
+                <p>Displays a list of running web servers color coded by operating status.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/servers_web.ts">/lib/dashboard/sections/servers_web.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/server/index.ts">/lib/server/index.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_server_action</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Docker Compose <span>(Services)</span></h3>
+                <p>This section provides a list of avialable docker containers gathered from the list of compose file stored in the project's <em>compose</em> directory as well as any other containers currently running, a read-only shell detailing current status of operations, and any docker specific environmental variables.</p>
+                <p>Each container is configured using <a href="https://docs.docker.com/reference/compose-file/">docker compose's yaml</a> format. The compose yaml is followed by a meta-data summary populated from the container's downloaded image and ports mapped to the operating system.</p>
+                <p>Please note that on Linux operating systems Docker executes with elevated user access, which means this application must execute with elevated privilege to support this feature. On Windows Docker requires activation of Windows Subsystem for Linux (WSL), which requires elevated access to execute, but otherwise docker support does not require elevated access.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/compose_containers.ts">/lib/dashboard/sections/compose_containers.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/docker.ts">/lib/services/docker.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_compose_container, store_string</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Message Inspection <span>(Services)</span></h3>
+                <p>The Message Inspection tool allows the ability to read message data that traverses web server sockets or information written to docker logs. This tool provides throttling restrictions because some docker containers output information too fast to display in the browser and could result in browser crashes.  The same instabilities are also observed with high frequency web server sockets.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/message_inspection.ts">/lib/dashboard/sections/message_inspection.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/message_inspection.ts">/lib/services/message_inspection.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_message_inspection</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Resource Statistics <span>(Services)</span></h3>
+                <p>A series of graphs displaying comparative resource consumption for each running web server and docker container. These graphs are customizable by frequency and number of data points.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/statistics_resources.ts">/lib/dashboard/sections/statistics_resources.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/statistics_resources.ts">/lib/services/statistics_resources.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_statistics_change, services_statistics_data</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>App Ports <span>(Application)</span></h3>
+                <p>Provides a list of all ports consumed by managed web servers and running docker containers with additional information about the service id and port type.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/ports_application.ts">/lib/dashboard/sections/ports_application.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/ports_application.ts">/lib/services/ports_application.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_ports_application</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>App TCP Sockets <span>(Application)</span></h3>
+                <p>Displays a list of TCP sockets generated or managed by this application and all associated data points this application uses to manage and map those sockets..</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/sockets_application_tcp.ts">/lib/dashboard/sections/sockets_application_tcp.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/socket_list.ts">/lib/services/socket_list.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_socket_application</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>App UDP Sockets <span>(Application)</span></h3>
+                <p>Displays a list of UDP sockets generated or managed by this application and all associated data points this application uses to manage and map those sockets..</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/sockets_application_udp.ts">/lib/dashboard/sections/sockets_application_udp.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/socket_list.ts">/lib/services/socket_list.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_socket_application</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Interfaces <span>(Network)</span></h3>
+                <p>A list of all network interface data known to the operating system, including both physical and virtual interfaces.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/interfaces.tss">/lib/dashboard/sections/interfaces.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/os.ts">/lib/services/os.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_os_all, services_os_intr</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>OS TCP Sockets <span>(Network)</span></h3>
+                <p>A list of all TCP sockets current open on the given operating system. The table includes address and port for both sides of the socket, associated process id, and process name.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/sockets_os_tcp.ts">/lib/dashboard/sections/sockets_os_tcp.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/os.ts">/lib/services/os.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_os_all, services_os_sock</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>OS UDP Sockets <span>(Network)</span></h3>
+                <p>A list of all UDP sockets current open on the given operating system. The table includes address and port for both sides of the socket, associated process id, and process name.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/sockets_os_udp.ts">/lib/dashboard/sections/sockets_os_udp.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/os.ts">/lib/services/os.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_os_all, services_os_sock</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>OS / Machine <span>(System)</span></h3>
+                <p>Provides detailed information about the machine hardware, operating system, and application run time properties.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/os_machine.ts">/lib/dashboard/sections/os_machine.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/os.ts">/lib/services/os.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_os_all, services_os_main</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Devices <span>(System)</span></h3>
+                <p>A list of external devices and peripherals attached to the current machine operating system.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/devices.ts">/lib/dashboard/sections/devices.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/os.ts">/lib/services/os.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_os_all, services_os_devs</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Disks <span>(System)</span></h3>
+                <p>This section provides information on attached physical storage disks, their partitions, and any nested partitions. This information includes space consumed versus space available, partition status, disk make/model, and additional information gathered from the operating system.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/disks.ts">/lib/dashboard/sections/disks.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/os.ts">/lib/services/os.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_os_all, services_os_disk</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Processes <span>(System)</span></h3>
+                <p>A list of processes running on the given server's operating system and additional information including owning user, memory consumption, and more.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/processes.ts">/lib/dashboard/sections/processes.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/os.ts">/lib/services/os.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_os_all, services_os_proc</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>OS Services <span>(System)</span></h3>
+                <p>A list of all operating system services by service name, operating status, and provided description text. </p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/services_os.ts">/lib/dashboard/sections/services_os.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/os.ts">/lib/services/os.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_os_all, services_os_serv</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Users <span>(System)</span></h3>
+                <p>A table of user account data from the operating system.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/users.ts">/lib/dashboard/sections/users.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/os.ts">/lib/services/os.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_os_all, services_os_user</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Terminal <span>(Tools)</span></h3>
+                <p>Provides a command terminal to the Aphorio dashboard browser interface that fully maps to a selection of command terminals installed in the host operating system.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/terminal.ts">/lib/dashboard/sections/terminal.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/terminal.ts">/lib/services/terminal.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>none, uses a dedicated socket</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>File System <span>(Tools)</span></h3>
+                <p>Provides read only navigation of the local machine operating system from the dashboard tool in a web browser. The file system data is presented in a format that resembles most modern GUI file explorer applications but it also optionally provides the number of child artifacts in listed directories and total recursive directory size. Text-based files will present their content to screen and certain media files supported by the given web browser will display in a provided media player.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/file_system.ts">/lib/dashboard/sections/file_system.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/fileSystem.ts">/lib/services/fileSystem.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_file_system</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>DNS Query <span>(Tools)</span></h3>
+                <p>A simplistic tool to look query the DNS system for domain related information by all or specified record type. This tool also allows reverse DNS queries to search an IP address for related domain assignments.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/dns_query.ts">/lib/dashboard/sections/dns_query.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/dns.ts">/lib/services/dns.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_dns_input, services_dns_output, services_dns_reverse</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Hash / Base64 <span>(Tools)</span></h3>
+                <p>A simple tool to provide hash sequences or text or raw files from the server's file system. The hash sequences are all sequences supported by OpenSSH and the output is either base64 or hexadecimal. This tool also provides a base64 capability to encode text or decode base64 encodings.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/hash.ts">/lib/dashboard/sections/hash.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/hash.ts">/lib/services/hash.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_hash</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Notes <span>(Tools)</span></h3>
+                <p>This feature provides a textarea element for writing down thoughts. On blur of element focus or after 10 second of inactivity the notes are automatically saved to the applications configuration file and broadcast across all sockets incase the Aphorio dashboard is open on various tabs, browsers, or machines.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/notes.ts">/lib/dashboard/sections/notes.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/notes.ts">/lib/services/notes.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_notes</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>HTTP Test <span>(Network Tests)</span></h3>
+                <p>A connection test utility for the HTTP protocol, much like the popular Postman tool, except this tool is low level making use of raw request headers in the original text format. The response also displays the raw response header text as well chunk data if the response is chunk encoded.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/test_http.ts">/lib/dashboard/sections/test_http.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/test_http.ts">/lib/services/test_http.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_test_http</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>WebSocket Test <span>(Network Tests)</span></h3>
+                <p>A connection test utility for the WebSocket protocol. Allows specific low level access to each phase of WebSockets: handshake and message transfer.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/test_websocket.ts">/lib/dashboard/sections/test_websocket.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/websocket.ts">/lib/services/websocket.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_websocket_handshake, services_websocket_message, services_websocket_status</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Performance Test <span>(Network Tests)</span></h3>
+                <p>A connection test for both HTTP and WebSockets with granular control for experimentation, such as message segmentation size.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/test_performance.ts">/lib/dashboard/sections/test_performance.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/services/test_performance.ts">/lib/services/test_performance.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_test_performance_input, services_test_performance_output</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Application Logs <span>(Informational)</span></h3>
+                <p>The Application Logs section provides event managing listing logged events per web server, docker container interaction, and various other internal events from the application.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/application_logs.ts">/lib/dashboard/sections/application_logs.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/core/log.ts">/lib/core/log.ts</a></dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>services_log</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>App Services <span>(Informational)</span></h3>
+                <p>Informational documentation about system services written for people to read. This information is dynamically compiled at application start time and includes the respective TypeScript interface definition for each defined service as well as an specified type reference.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd><a href="https://github.com/prettydiff/aphorio/blob/main/lib/dashboard/sections/services_app.ts">/lib/dashboard/sections/services_app.ts</a></dd>
+                    <dt>Service code</dt>
+                    <dd>none</dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>none</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>FAQ <span>(Informational)</span></h3>
+                <p>Static information about connection, service details, and features managed by this application in a question and answer format.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd>none</dd>
+                    <dt>Service code</dt>
+                    <dd>none</dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>none</dd>
+                </dl>
+            </section>
+            <section>
+                <h3>Help <span>(Informational)</span></h3>
+                <p>Generalized documentation about this application not covered in the feature specific documentation.</p>
+                <dl>
+                    <dt>Dashboard user interface code</dt>
+                    <dd>none</dd>
+                    <dt>Service code</dt>
+                    <dd>none</dd>
+                    <dt>Respective services(s)</dt>
+                    <dd>none</dd>
+                </dl>
+            </section>
+        </section>
+    </main>
+    <footer>
+        <p><span class="copyright"></span>, Licensed <a href="https://github.com/prettydiff/aphorio/blob/main/LICENSE" target="_blank">AGPLv3</a>, <a href="https://github.com/prettydiff/aphorio/" target="_blank">GitHub</a></p>
+    </footer>
+    <script type="module" src="./script.js"></script>
+    <!--script type="module" data-entity="aphorio.sharefile.systems" src="https://traffic.sharefile.systems/script.js"></script-->
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="0811742a-4856-49f5-bebe-11a2863c4509"></script>
+</body></html>

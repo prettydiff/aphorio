@@ -1,0 +1,88 @@
+
+<!doctype html>
+<html lang="en">
+    <!-- cspell: words  -->
+<head>
+<meta charset="utf-8"/>
+<title>Aphorio - Docker and Site Management</title>
+<meta content="text/html;charset=UTF-8" http-equiv="Content-Type"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="index, follow" name="robots"/>
+<meta content="#fff" name="theme-color"/>
+<meta content="Global" name="distribution"/>
+<meta content="en" http-equiv="Content-Language"/>
+<meta content="blendTrans(Duration=0)" http-equiv="Page-Enter"/>
+<meta content="blendTrans(Duration=0)" http-equiv="Page-Exit"/>
+<meta content="text/css" http-equiv="content-style-type"/>
+<meta content="application/javascript" http-equiv="content-script-type"/>
+<meta content="#bbbbff" name="msapplication-TileColor"/>
+<link rel="stylesheet" href="styles.css"/>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo="/>
+</head>
+<body>
+    <span class="cursor"><span class="vertical"></span><span class="horizontal"></span><span class="ball"></span></span>
+    <div class="title">
+        <h1><a href="./">Aphorio</a> <span>v0.6.3</span></h1>
+        <nav>
+            <ul>
+                <li><a href="features.html">Features</a></li>
+                <li><a href="performance.html">Performance</a></li>
+                <li><a href="services.html">Services</a></li>
+            </ul>
+        </nav>
+        <span class="clear"></span>
+    </div>
+    <hgroup>
+        <h2><em>Everything</em> in One Place!</h2>
+        <p>Your self-hosted solution for web servers, <span>docker containers,</span> and so much more!</p>
+        <p class="images"><img src="containers.png" alt="application screenshot"/></p>
+        <span class="clear"></span>
+    </hgroup>
+    <main>
+        <section>
+            <h2>About Aphorio</h2>
+            <p>Aphorio started because of two very simple problems:</p>
+            <ol>
+                <li>Needing a simple solution to proxy WebSocket connections</li>
+                <li>Needing an automated solution for port assignments</li>
+            </ol>
+            <p>Before Aphorio I was a long time Apache user, but have you ever tried to proxy WebSockets in Apache?  It's extremely painful.  In JavaScript with Node.js it really is only two lines of code. So I started this application to bend network traffic crossing my home network to my will.</p>
+            <p>My other challeng was keeping track of what ports were mapped to which web servers and which docker containers.  This can become quite the hassle when you have many services running, each with their own multitude of port assingments, and need to assign ports in a logical manner for your next incoming application.</p>
+        </section>
+        <section>
+            <h2>Demo</h2>
+            <p>Try this application out by launching a real demo.  For performance and security several features of the demo are reduced or restricted.</p>
+            <p><button class="button-demo">Launch Demo</button></p>
+        </section>
+        <section>
+            <h2>Installation</h2>
+            <ol>
+                <li>Install either <a href="https://bun.com/">Bun</a> or <a href="https://nodejs.org/">Node.js</a>.</li>
+                <li>Download the application: <code>git clone https://github.com/prettydiff/aphorio/</code></li>
+            </ol>
+        </section>
+        <section>
+            <h2>Execution</h2>
+            <ol class="execution">
+                <li>Execute with your choice of Bun or Node.js run times:
+                    <code>node ./aphorio/lib/index.ts</code> <span>or</span> <code>bun ./aphorio/lib/index.ts</code></li>
+            </ol>
+        </section>
+        <section>
+            <h2>Performance</h2>
+            <p>Aphorio focuses on both execution performance and convenience. HTTP and WebSockets execute on the same port, which eases everything from server configuration to proxy management without sacrifing speed. In fact, Aphorio just might be the fastest thing out there.</p>
+            <h3><strong>6,000,000</strong> WebSocket message sends per second.</h3>
+            <p>That is 6,000,000 messages per second averaged across multiple 10 test experiements using a 4 character message to a single socket on a AMD Ryzen 9 9900X with 32gb 5200mhz memory. Please produce your own measures on your own hardware using Aphorio's <em>Performance Test</em> dashboard feature section.</p>
+        </section>
+        <section>
+            <h2>Artificial Intelligence</h2>
+            <p>This application makes no use of large language models in the authoring or analysis of this code.</p>
+        </section>
+    </main>
+    <footer>
+        <p><span class="copyright"></span>, Licensed <a href="https://github.com/prettydiff/aphorio/blob/main/LICENSE" target="_blank">AGPLv3</a>, <a href="https://github.com/prettydiff/aphorio/" target="_blank">GitHub</a></p>
+    </footer>
+    <script type="module" src="./script.js"></script>
+    <!--script type="module" data-entity="aphorio.sharefile.systems" src="https://traffic.sharefile.systems/script.js"></script-->
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="0811742a-4856-49f5-bebe-11a2863c4509"></script>
+</body></html>

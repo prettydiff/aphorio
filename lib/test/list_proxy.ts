@@ -15,13 +15,11 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             },
             unit: [
                 {
-                    // index: 2,
                     property: "headers",
                     qualifier: "contains",
                     value: "404 NOT FOUND"
                 },
                 {
-                    // index: 2,
                     property: "body",
                     qualifier: "lesser",
                     value: 2000
@@ -43,12 +41,12 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: "<h2>Directory List - /path/</h2>"
+                    value: "<h2>Directory List - /folder/</h2>"
                 },
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: "<td class=\"file-name\"><span class=\"icon\">📁</span> <a href=\"http://localhost:port_open/path/browser\">browser</a></td><td>directory</td>"
+                    value: "<td class=\"file-name\"><span class=\"icon\">🗎</span> <a href=\"http://localhost:19731/folder/style.css\">style.css</a></td>"
                 },
                 {
                     property: "body",
@@ -265,40 +263,40 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 }
             ]
         },
-        // {
-        //     name: "Provide new path for test.localhost subdomain only",
-        //     request: {
-        //         body: "test body",
-        //         encryption: false,
-        //         host: "test.localhost",
-        //         method: "GET",
-        //         port: "server_3",
-        //         resource: "/lib",
-        //         timeout: 1000
-        //     },
-        //     unit: [
-        //         {
-        //             property: "body",
-        //             qualifier: "contains",
-        //             value: "const dashboard:dashboard = {"
-        //         },
-        //         {
-        //             property: "body",
-        //             qualifier: "greater",
-        //             value: 25000
-        //         },
-        //         {
-        //             property: "encrypted_proxy",
-        //             qualifier: "is",
-        //             value: false
-        //         },
-        //         {
-        //             property: "encrypted_self",
-        //             qualifier: "is",
-        //             value: false
-        //         }
-        //     ]
-        // },
+        {
+            name: "Provide new path for test.localhost subdomain only",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "test.localhost",
+                method: "GET",
+                port: "server_3",
+                resource: "/",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "body",
+                    qualifier: "contains",
+                    value: "<h2><em>Everything</em> in One Place!</h2>"
+                },
+                {
+                    property: "body",
+                    qualifier: "lesser",
+                    value: 5500
+                },
+                {
+                    property: "encrypted_proxy",
+                    qualifier: "is",
+                    value: false
+                },
+                {
+                    property: "encrypted_self",
+                    qualifier: "is",
+                    value: false
+                }
+            ]
+        },
         {
             name: "Ensures that subdomain rules do not effect parent domains",
             request: {
@@ -320,6 +318,40 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                     property: "body",
                     qualifier: "greater",
                     value: 5000
+                },
+                {
+                    property: "encrypted_proxy",
+                    qualifier: "is",
+                    value: false
+                },
+                {
+                    property: "encrypted_self",
+                    qualifier: "is",
+                    value: false
+                }
+            ]
+        },
+        {
+            name: "Redirect folder to different server",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "GET",
+                port: "server_0",
+                resource: "/folder_1/",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "body",
+                    qualifier: "contains",
+                    value: "<title>Aphorio - Docker and Site Management</title>"
+                },
+                {
+                    property: "body",
+                    qualifier: "lesser",
+                    value: 5500
                 },
                 {
                     property: "encrypted_proxy",

@@ -252,9 +252,10 @@ const test_runner:test_runner = {
                 },
                 callback_response: function test_runner_executionProxy_response(socket:websocket_client, response:Buffer):void {
                     if (socket.closed === false) {
-                        const header_index:number = response.indexOf("\r\n\r\n"),
-                            body:string = response.subarray(header_index + 4).toString(),
-                            headers:string = response.subarray(0, header_index).toString(),
+                        const response_string:string = response.toString().replace(/^\s+/, ""),
+                            header_index:number = response_string.indexOf("\r\n\r\n"),
+                            body:string = response_string.slice(header_index + 4),
+                            headers:string = response_string.slice(0, header_index),
                             unit:test_assertion_proxy[] = proxy_list[vars.test.index].unit,
                             len:number = unit.length;
                         let index:number = 0,

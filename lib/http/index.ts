@@ -20,7 +20,9 @@ const http = function http(config:config_http, socket:websocket_client):void {
     path_asset:string = `${vars.path.project}servers${vars.path.sep + server.id + vars.path.sep}assets`,
     path_resource:string = path_asset + vars.path.sep + path_incoming,
     stat_callback = function http_resourceStat_statCallback(stats:node_fs_BigIntStats, location:string):void {
-        if (stats !== null) {
+        if (stats === null) {
+            config.resource_type = "missing";
+        } else {
             config.resource_absolute = location;
             if (stats.isFile() === true) {
                 config.resource_size = Number(stats.size);
@@ -29,7 +31,7 @@ const http = function http(config:config_http, socket:websocket_client):void {
                 config.resource_type = "directory";
             }
         }
-        if (config.resource_type !== "file" && config.resource.charAt(config.resource.length - 1) !== "/") {
+        if (config.resource_type !== "file" && config.resource_type !== "missing" && config.resource.charAt(config.resource.length - 1) !== "/") {
             config.resource = `${config.resource}/`;
             http_redirect(config, (socket.addresses.local.port === vars.data.server[socket.server_hash].ports.open) ? "http" : "https", socket);
         } else {

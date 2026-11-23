@@ -55,7 +55,10 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
                     config.socket.on("end", terminate);
                     config.socket.on("error", terminate);
                 }
-                if (config.socket.type_primary === "ws" || config.resource === "" || config.resource === null) {
+                if (config.socket.type_primary === "ws" || (
+                    (config.resource === "" || config.resource === config.config_http.resource || config.resource === null) &&
+                    (config.method === "" || config.method === config.config_http.method || config.method === null)
+                )) {
                     proxy.pipe(config.socket);
                     config.socket.pipe(proxy);
                     proxy.write(config.data);
@@ -64,12 +67,12 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
                         if (config_http.headers === null) {
                             proxy.write(config_http.body);
                         } else {
-                            const method:type_http_method | "" = (typeof config_http.method !== "string" || config_http.method.length === 0)
+                            const method:type_http_method | "" = (typeof config.method !== "string" || config.method.length === 0)
                                     ? null
-                                    : config_http.method,
-                                resource:string = (config_http.resource === "" || config_http.resource === undefined || config_http.resource === null)
+                                    : config.method,
+                                resource:string = (config.resource === "" || config.resource === undefined || config.resource === null)
                                     ? null
-                                    : config_http.resource;
+                                    : config.resource;
                             if (typeof method === "string" || typeof resource === "string") {
                                 const header:string[] = config_http.headers[0].replace(/\u0020+/g, " ").split(" ");
                                 if (typeof method === "string") {
@@ -102,8 +105,8 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
                                 ? `Host: [${host}]:${port_value}`
                                 : `Host: ${host}:${port_value}`;
                             proxy.write((config_http.body === null)
-                                ? Buffer.from(config_http.headers.join("\r\n") + "\r\n\r\n")
-                                : Buffer.concat([Buffer.from(config_http.headers.join("\r\n") + "\r\n\r\n"), config_http.body]));
+                                ? Buffer.from(`${config_http.headers.join("\r\n")}\r\n\r\n`)
+                                : Buffer.concat([Buffer.from(`${config_http.headers.join("\r\n")}\r\n\r\n`), config_http.body]));
                         }
                     };
                     proxy.pipe(config.socket);

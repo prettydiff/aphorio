@@ -27,7 +27,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
+                    value: "display:block;height:5em;position:absolute;transform:translate3d(0, 0, 0);width:5em;z-index:10;"
                 }
             ]
         },
@@ -56,7 +56,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
+                    value: "display:block;height:5em;position:absolute;transform:translate3d(0, 0, 0);width:5em;z-index:10;"
                 }
             ]
         },
@@ -68,7 +68,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 host: "localhost",
                 method: "GET",
                 port: "server_0",
-                resource: "/redirect_wild_1/styles.css",
+                resource: "/redirect_wild_1/style.css",
                 timeout: 1000
             },
             unit: [
@@ -85,7 +85,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
+                    value: "display:block;height:5em;position:absolute;transform:translate3d(0, 0, 0);width:5em;z-index:10;"
                 }
             ]
         },
@@ -97,7 +97,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 host: "localhost",
                 method: "GET",
                 port: "server_0",
-                resource: "/redirect_wild_2/styles.css",
+                resource: "/redirect_wild_2/style.css",
                 timeout: 1000
             },
             unit: [
@@ -114,7 +114,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
+                    value: "display:block;height:5em;position:absolute;transform:translate3d(0, 0, 0);width:5em;z-index:10;"
                 }
             ]
         },
@@ -126,7 +126,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 host: "localhost",
                 method: "GET",
                 port: "server_0",
-                resource: "/redirect_wild_3/styles.css",
+                resource: "/redirect_wild_4/style.css",
                 timeout: 1000
             },
             unit: [
@@ -162,7 +162,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: "<h2>Directory List - /redirect_wild_3/</h2>"
+                    value: "<h2>Directory List - /folder/</h2>"
                 }
             ]
         },
@@ -181,18 +181,18 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 {
                     property: "headers",
                     qualifier: "contains",
-                    value: "HTTP/1.1 308"
+                    value: "HTTP/1.1 200 OK"
+                },
+                {
+                    property: "body",
+                    qualifier: "contains",
+                    value: "dom = function core_dom()"
+                },
+                {
+                    property: "body",
+                    qualifier: "contains",
+                    value: "<h2>Directory List - /folder/</h2>"
                 }
-                // {
-                //     property: "body",
-                //     qualifier: "contains",
-                //     value: "dom = function core_dom()"
-                // },
-                // {
-                //     property: "body",
-                //     qualifier: "contains",
-                //     value: "<h2>Directory List - /redirect_wild_3</h2>"
-                // }
             ]
         },
         {
@@ -220,7 +220,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
+                    value: "display:block;height:5em;position:absolute;transform:translate3d(0, 0, 0);width:5em;z-index:10;"
                 },
                 {
                     property: "encrypted_proxy",
@@ -254,7 +254,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: ".highlight{outline:var(--fail_bright) solid 0.1em;overflow:visible;z-index:20}"
+                    value: "display:block;height:5em;position:absolute;transform:translate3d(0, 0, 0);width:5em;z-index:10;"
                 },
                 {
                     property: "encrypted_proxy",

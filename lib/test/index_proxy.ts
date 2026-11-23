@@ -34,7 +34,9 @@ const index_proxy = function test_indexProxy(generate_servers:boolean):void {
         start = function test_indexProxy_start():void {
             // server to server alignment here:
             vars.environment.interfaces.push("test.localhost");
-            vars.data.server[vars.test.servers[0].id].config.proxy[7].incoming.port = vars.data.server[vars.test.servers[0].id].ports.open;
+            vars.data.server[vars.test.servers[0].id].config.proxy[1].outgoing.port = vars.data.server[vars.test.servers[3].id].ports.open;
+            vars.data.server[vars.test.servers[0].id].config.proxy[8].incoming.port = vars.data.server[vars.test.servers[0].id].ports.open;
+            vars.data.server[vars.test.servers[0].id].config.proxy[10].outgoing.port = vars.data.server[vars.test.servers[3].id].ports.open;
             vars.data.server[vars.test.servers[1].id].config.redirect_domain["localhost"][1] = vars.data.server[vars.test.servers[0].id].ports.open;
             vars.data.server[vars.test.servers[2].id].config.redirect_domain["localhost.secure"][1] = vars.data.server[vars.test.servers[0].id].ports.secure;
             list_proxy_tests[1].unit[1].value = (list_proxy_tests[1].unit[1].value as string).replace("port_open", vars.test.servers[0].port_open.toString());
@@ -45,8 +47,7 @@ const index_proxy = function test_indexProxy(generate_servers:boolean):void {
     vars.test.total_time_start = process.hrtime.bigint();
     if (generate_servers === true) {
         test_remove(vars.path.project, function test_indexProxy_generateServers():void {
-            const project_path:string = vars.path.project.replace(/test-proxy(\\|\/)$/, ""),
-                servers:supplemental_server_config[] = [
+            const servers:supplemental_server_config[] = [
                     {
                         activate: true,
                         domain_local: [
@@ -63,12 +64,23 @@ const index_proxy = function test_indexProxy(generate_servers:boolean):void {
                         },
                         proxy: [
                             {
-                                "description": "directory list of project lib directory",
+                                "description": "directory list of server's directory named 'folder'",
                                 incoming: {
                                     resource: "/path/"
                                 },
                                 outgoing: {
-                                    resource: `${project_path}lib`
+                                    resource: `/folder/`
+                                }
+                            },
+                            {
+                                "description": "redirect subdomain to different server",
+                                incoming: {
+                                    domain: "test.localhost",
+                                    resource: "/*"
+                                },
+                                outgoing: {
+                                    port: 0,
+                                    resource: "/"
                                 }
                             },
                             {
@@ -159,14 +171,25 @@ const index_proxy = function test_indexProxy(generate_servers:boolean):void {
                                     method: "get",
                                     resource: "/"
                                 }
+                            },
+                            {
+                                "description": "Redirect folder to different server",
+                                incoming: {
+                                    resource: "/folder_1/*"
+                                },
+                                outgoing: {
+                                    port: 0,
+                                    resource: "/"
+                                }
                             }
                         ],
                         redirect_asset: {
                             "localhost": {
-                                "/redirect_asset_1/": `${project_path}lib/dashboard/styles.css`.replace(/(\/|\\)/g, vars.path.sep),
-                                "/redirect_wild_1/*": `${project_path}lib/dashboard/`,
-                                "/redirect_wild_2/*": `${project_path}lib/dashboard`,
-                                "/redirect_wild_3/": `${project_path}lib/transmit/`
+                                "/redirect_asset_1/": "/style.css",
+                                "/redirect_asset_2/": "style.css",
+                                "/redirect_wild_1/*": "/folder/",
+                                "/redirect_wild_2/*": "/folder",
+                                "/redirect_wild_3/": "/folder/"
                             }
                         },
                         upgrade: false
@@ -222,7 +245,7 @@ const index_proxy = function test_indexProxy(generate_servers:boolean):void {
                                     resource: "/lib/*"
                                 },
                                 outgoing: {
-                                    resource: `${project_path}lib/dashboard/dashboard.ts`
+                                    resource: "/style.css"
                                 }
                             }
                         ],
