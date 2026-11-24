@@ -55,10 +55,16 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
                     config.socket.on("end", terminate);
                     config.socket.on("error", terminate);
                 }
-                if (config.socket.type_primary === "ws" || (
-                    (config.resource === "" || config.resource === config.config_http.resource || config.resource === null) &&
-                    (config.method === "" || config.method === config.config_http.method || config.method === null)
-                )) {
+                if (typeof config.socket.http_rule_method !== "string" || config.socket.http_rule_method.length < 3 || config.socket.http_rule_method === config.config_http.method) {
+                    config.socket.http_rule_method = null;
+                }
+                if (typeof config.socket.http_rule_resource_in !== "string" || config.socket.http_rule_resource_in.length < 1) {
+                    config.socket.http_rule_resource_in = null;
+                }
+                if (typeof config.socket.http_rule_resource_out !== "string" || config.socket.http_rule_resource_out.length < 1 || config.socket.http_rule_resource_out === config.config_http.resource) {
+                    config.socket.http_rule_resource_out = null;
+                }
+                if (config.socket.type_primary === "ws" || ((config.socket.http_rule_resource_in === null || config.socket.http_rule_resource_out === null) && config.socket.http_rule_method === null)) {
                     proxy.pipe(config.socket);
                     config.socket.pipe(proxy);
                     proxy.write(config.data);
@@ -67,36 +73,24 @@ const create_proxy = function transmit_createProxy(config:config_proxy_create):v
                         if (config_http.headers === null) {
                             proxy.write(config_http.body);
                         } else {
-                            const method:type_http_method | "" = (typeof config.method !== "string" || config.method.length === 0)
-                                    ? null
-                                    : config.method,
-                                resource:string = (config.resource === "" || config.resource === undefined || config.resource === null)
-                                    ? null
-                                    : config.resource;
-                            if (typeof method === "string" || typeof resource === "string") {
+                            if (socket.http_rule_method !== null || (socket.http_rule_resource_in !== null && socket.http_rule_resource_out !== null)) {
                                 const header:string[] = config_http.headers[0].replace(/\u0020+/g, " ").split(" ");
-                                if (typeof method === "string") {
-                                    header[0] = method.toUpperCase();
+                                if (socket.http_rule_method !== null) {
+                                    header[0] = socket.http_rule_method.toUpperCase();
                                 }
-                                if (typeof resource === "string") {
+                                if (socket.http_rule_resource_in !== null && socket.http_rule_resource_out !== null) {
                                     header[1] = (function transmit_createProxy_callback_modifyHeaders_resource():string {
-                                        // not modified resource path
-                                        if (socket.http_resource_rule === "" || typeof socket.http_resource_rule !== "string") {
-                                            return resource;
-                                        }
                                         // wildcard resource match
-                                        if ((/\/\*$/).test(socket.http_resource_rule) === true) {
-                                            const rule:string = socket.http_resource_rule.replace(/\*$/, "");
-                                            if (rule.charAt(0) === "/") {
-                                                return `/${resource.replace(rule, "")}`;
-                                            }
-                                            return resource.replace(rule, "");
+                                        if ((/\/\*$/).test(socket.http_rule_resource_in) === true) {
+                                            const rule:string = socket.http_rule_resource_in.replace(/\*$/, ""),
+                                                resource:string = `${config_http.resource.replace(/\/$/, "")}/`;
+                                            return resource.replace(rule, socket.http_rule_resource_out);
                                         }
                                         // literal resource match
-                                        if (socket.http_resource_rule.charAt(0) === "/") {
-                                            return `/${resource.replace(socket.http_resource_rule, "")}`;
-                                        }
-                                        return resource.replace(socket.http_resource_rule, "");
+                                        return (((/\/$/).test(socket.http_rule_resource_in) === true)
+                                            ? `${config_http.resource.replace(/\/$/, "")}/`
+                                            : config_http.resource
+                                        ).replace(socket.http_rule_resource_in, socket.http_rule_resource_out);
                                     }());
                                 }
                                 config_http.headers[0] = header.join(" ");

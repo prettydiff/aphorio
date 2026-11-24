@@ -184,9 +184,7 @@ declare global {
         domain: string;
         encrypted: boolean;
         identifier: string;
-        method: type_http_method | "";
         port: number;
-        resource: string;
         server_hash: string;
         socket: websocket_client;
     }

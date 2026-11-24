@@ -61,7 +61,7 @@ const test_listProxyLegacy = function test_listProxyLegacy():test_list_proxy {
             ]
         },
         {
-            name: "Redirect to project lib/dashboard/styles.css, using wildcard '/redirect_wild_1/*'",
+            name: "Redirect wildcard '/redirect_wild_1/*' to /folder/",
             request: {
                 body: "test body",
                 encryption: false,

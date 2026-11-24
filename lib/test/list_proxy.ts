@@ -27,7 +27,7 @@ const test_listProxy = function test_listProxy():test_list_proxy {
             ]
         },
         {
-            name: "Request directory list of root",
+            name: "Request directory list of /folder/",
             request: {
                 body: "test body",
                 encryption: false,
@@ -35,6 +35,35 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 method: "GET",
                 port: "server_0",
                 resource: "/path/",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "body",
+                    qualifier: "contains",
+                    value: "<h2>Directory List - /folder/</h2>"
+                },
+                {
+                    property: "body",
+                    qualifier: "contains",
+                    value: "<td class=\"file-name\"><span class=\"icon\">🗎</span> <a href=\"http://localhost:19731/folder/style.css\">style.css</a></td>"
+                },
+                {
+                    property: "body",
+                    qualifier: "greater",
+                    value: 20000
+                }
+            ]
+        },
+        {
+            name: "Request directory list of /folder/ without trailing slash",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "GET",
+                port: "server_0",
+                resource: "/path",
                 timeout: 1000
             },
             unit: [
@@ -352,6 +381,40 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                     property: "body",
                     qualifier: "lesser",
                     value: 5500
+                },
+                {
+                    property: "encrypted_proxy",
+                    qualifier: "is",
+                    value: false
+                },
+                {
+                    property: "encrypted_self",
+                    qualifier: "is",
+                    value: false
+                }
+            ]
+        },
+        {
+            name: "Redirect resource in folder to a different server",
+            request: {
+                body: "test body",
+                encryption: false,
+                host: "localhost",
+                method: "GET",
+                port: "server_0",
+                resource: "/folder_1/style.css",
+                timeout: 1000
+            },
+            unit: [
+                {
+                    property: "body",
+                    qualifier: "contains",
+                    value: "button:disabled{background:var(--background_textarea);box-shadow:-0.05em -0.05em 0.1em var(--background_textarea);color:var(--border-color);opacity:0.5}"
+                },
+                {
+                    property: "body",
+                    qualifier: "greater",
+                    value: 250000
                 },
                 {
                     property: "encrypted_proxy",
