@@ -315,6 +315,7 @@ interface core_vars_commands {
     firewall_allow_out: string;
     firewall_deny_in: string;
     firewall_deny_out: string;
+    memory_speed: string;
     open: string;
     part: string;
     proc: string;

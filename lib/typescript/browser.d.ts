@@ -244,6 +244,7 @@ declare global {
         env: HTMLElement;
         memory: {
             free: HTMLElement;
+            speed: HTMLElement;
             total: HTMLElement;
             used: HTMLElement;
         };

@@ -870,78 +870,151 @@ const os_list = function utilities_osList(type_os:type_os_services, callback:(ou
                     }
                 }
             },
-            main = function utilities_os_main(time:number):services_os_main {
-                const mem:os_node_memoryUsage = process.memoryUsage(),
-                    cpu:os_node_cpuUsage = process.cpuUsage(),
-                    cpus:os_node_cpu = node.os.cpus(),
-                    gid:number = (typeof process.getgid === "undefined")
-                        ? 0
-                        : process.getgid(),
-                    uid:number = (typeof process.getuid === "undefined")
-                        ? 0
-                        : process.getuid(),
-                    output:services_os_main = {
-                        machine: {
-                            cpu: {
-                                arch: node.os.arch(),
-                                cores: cpus.length,
-                                endianness: node.os.endianness(),
-                                frequency: cpus[0].speed,
-                                name: cpus[0].model
+            main = function utilities_os_main(time:number):void {
+                spawn(vars.commands.memory_speed, function utilities_os_getMemorySpeed_child(output:core_spawn_output):void {
+                    const lines:string[] = output.stdout.replace(/\r\n/g, "\n").replace(/\s+$/, "").split("\n"),
+                        len:number = lines.length,
+                        mem:os_node_memoryUsage = process.memoryUsage(),
+                        cpu:os_node_cpuUsage = process.cpuUsage(),
+                        cpus:os_node_cpu = node.os.cpus(),
+                        gid:number = (typeof process.getgid === "undefined")
+                            ? 0
+                            : process.getgid(),
+                        uid:number = (typeof process.getuid === "undefined")
+                            ? 0
+                            : process.getuid(),
+                        main:services_os_main = {
+                            machine: {
+                                cpu: {
+                                    arch: node.os.arch(),
+                                    cores: cpus.length,
+                                    endianness: node.os.endianness(),
+                                    frequency: cpus[0].speed,
+                                    name: cpus[0].model
+                                },
+                                memory: {
+                                    free: node.os.freemem(),
+                                    speed: "",
+                                    total: node.os.totalmem()
+                                }
                             },
-                            memory: {
-                                free: node.os.freemem(),
-                                total: node.os.totalmem()
+                            os: {
+                                env: process.env,
+                                hostname: node.os.hostname(),
+                                name: node.os.version(),
+                                path: (win32 === true)
+                                    ? process.env.Path.split(";")
+                                    : (process.env.PATH === undefined)
+                                        ? []
+                                        : process.env.PATH.split(":"),
+                                platform: node.os.platform(),
+                                release: node.os.release(),
+                                type: node.os.type(),
+                                uptime: node.os.uptime()
+                            },
+                            process: {
+                                admin: vars.os.main.process.admin,
+                                arch: process.arch,
+                                argv: process.argv,
+                                cpuSystem: cpu.system / 1e6,
+                                cpuUser: cpu.user / 1e6,
+                                cwd: process.cwd(),
+                                memory: {
+                                    external: mem.external,
+                                    rss: mem.rss,
+                                    V8: mem.heapUsed
+                                },
+                                pid: process.pid,
+                                platform: process.platform,
+                                ppid: process.ppid,
+                                runtime: vars.os.main.process.runtime,
+                                // sea: node.sea.isSea(),
+                                uptime: process.uptime(),
+                                versions: process.versions
+                            },
+                            time: time,
+                            user_account: {
+                                gid: (gid === 0)
+                                    ? 1000
+                                    : gid,
+                                homedir: node.os.homedir(),
+                                uid: (gid === 0)
+                                    ? 1000
+                                    : uid
                             }
-                        },
-                        os: {
-                            env: process.env,
-                            hostname: node.os.hostname(),
-                            name: node.os.version(),
-                            path: (win32 === true)
-                                ? process.env.Path.split(";")
-                                : (process.env.PATH === undefined)
-                                    ? []
-                                    : process.env.PATH.split(":"),
-                            platform: node.os.platform(),
-                            release: node.os.release(),
-                            type: node.os.type(),
-                            uptime: node.os.uptime()
-                        },
-                        process: {
-                            admin: vars.os.main.process.admin,
-                            arch: process.arch,
-                            argv: process.argv,
-                            cpuSystem: cpu.system / 1e6,
-                            cpuUser: cpu.user / 1e6,
-                            cwd: process.cwd(),
-                            memory: {
-                                external: mem.external,
-                                rss: mem.rss,
-                                V8: mem.heapUsed
+                        };
+                    let total:number = 0,
+                        index:number = 0;
+                    if (lines.length > 0) {
+                        do {
+                            total = Number(lines[index]) + total;
+                            index = index + 1;
+                        } while (index < len);
+                    }
+                    main.machine.memory.speed = `${(total / index).toFixed(2)} MT/s`;
+                    vars.os.time = time;
+                    vars.os.main = main;
+                    if (type_os === "all") {
+                        const all:services_os_all = {
+                            devs: {
+                                data: devices,
+                                time: time
                             },
-                            pid: process.pid,
-                            platform: process.platform,
-                            ppid: process.ppid,
-                            runtime: vars.os.main.process.runtime,
-                            // sea: node.sea.isSea(),
-                            uptime: process.uptime(),
-                            versions: process.versions
-                        },
-                        time: time,
-                        user_account: {
-                            gid: (gid === 0)
-                                ? 1000
-                                : gid,
-                            homedir: node.os.homedir(),
-                            uid: (gid === 0)
-                                ? 1000
-                                : uid
-                        }
-                    };
-                vars.os.time = time;
-                vars.os.main = output;
-                return output;
+                            disk: {
+                                data: disks,
+                                time: time
+                            },
+                            intr: {
+                                data: int,
+                                time: time
+                            },
+                            main: main,
+                            proc: {
+                                data: processes,
+                                time: time
+                            },
+                            serv: {
+                                data: services,
+                                time: time
+                            },
+                            stcp: {
+                                data: tcp,
+                                time: time
+                            },
+                            sudp: {
+                                data: udp,
+                                time: time
+                            },
+                            time: time,
+                            user: {
+                                data: users,
+                                time: time
+                            }
+                        };
+                        vars.os.devs = all.devs;
+                        vars.os.disk = all.disk;
+                        vars.os.intr = all.intr;
+                        vars.os.proc = all.proc;
+                        vars.os.serv = all.serv;
+                        vars.os.stcp = all.stcp;
+                        vars.os.sudp = all.sudp;
+                        vars.os.user = all.user;
+                        callback({
+                            data: all,
+                            service: "services_os_all"
+                        });
+                    } else {
+                        callback({
+                            data: main,
+                            service: "services_os_main"
+                        });
+                    }
+                }, (win32 === true)
+                    ? {
+                        shell: "powershell"
+                    }
+                    : null
+                ).execute();
             },
             completed = function utilities_os_complete(type:type_os_key):void {
                 const keys:string[] = Object.keys(complete),
@@ -958,60 +1031,9 @@ const os_list = function utilities_osList(type_os:type_os_services, callback:(ou
                             return;
                         }
                     } while (index > 0);
-                    const all:services_os_all = {
-                        devs: {
-                            data: devices,
-                            time: now
-                        },
-                        disk: {
-                            data: disks,
-                            time: now
-                        },
-                        intr: {
-                            data: int,
-                            time: now
-                        },
-                        main: main(now),
-                        proc: {
-                            data: processes,
-                            time: now
-                        },
-                        serv: {
-                            data: services,
-                            time: now
-                        },
-                        stcp: {
-                            data: tcp,
-                            time: now
-                        },
-                        sudp: {
-                            data: udp,
-                            time: now
-                        },
-                        time: now,
-                        user: {
-                            data: users,
-                            time: now
-                        }
-                    };
-                    vars.os.devs = all.devs;
-                    vars.os.disk = all.disk;
-                    vars.os.intr = all.intr;
-                    vars.os.proc = all.proc;
-                    vars.os.serv = all.serv;
-                    vars.os.stcp = all.stcp;
-                    vars.os.sudp = all.sudp;
-                    vars.os.user = all.user;
-                    callback({
-                        data: all,
-                        service: "services_os_all"
-                    });
+                    main(now);
                 } else if (type_os === "main") {
-                    const output:services_os_main = main(now);
-                    callback({
-                        data: output,
-                        service: "services_os_main"
-                    });
+                    main(now);
                 } else if (type_os === "devs") {
                     vars.os.devs = {
                         data: devices,

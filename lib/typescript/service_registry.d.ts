@@ -190,6 +190,7 @@ interface services_os_main {
         };
         memory: {
             free: number;
+            speed: string;
             total: number;
         };
     };

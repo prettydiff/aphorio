@@ -25,8 +25,9 @@ const ui_os_machine = function ui_os_machine():void {
             dashboard.sections["os-machine"].nodes_os.cpu.frequency.textContent = `${dashboard.global.payload.os.main.machine.cpu.frequency.commas()}mhz`;
             dashboard.sections["os-machine"].nodes_os.cpu.name.textContent = dashboard.global.payload.os.main.machine.cpu.name;
             dashboard.sections["os-machine"].nodes_os.memory.free.textContent = `${dashboard.global.payload.os.main.machine.memory.free.bytes_long()}, ${((dashboard.global.payload.os.main.machine.memory.free / dashboard.global.payload.os.main.machine.memory.total) * 100).toFixed(2)}%`;
-            dashboard.sections["os-machine"].nodes_os.memory.used.textContent = `${(dashboard.global.payload.os.main.machine.memory.total - dashboard.global.payload.os.main.machine.memory.free).bytes_long()}, ${(((dashboard.global.payload.os.main.machine.memory.total - dashboard.global.payload.os.main.machine.memory.free) / dashboard.global.payload.os.main.machine.memory.total) * 100).toFixed(2)}%`;
+            dashboard.sections["os-machine"].nodes_os.memory.speed.textContent = dashboard.global.payload.os.main.machine.memory.speed;
             dashboard.sections["os-machine"].nodes_os.memory.total.textContent = `${dashboard.global.payload.os.main.machine.memory.total.bytes_long()}, 100%`;
+            dashboard.sections["os-machine"].nodes_os.memory.used.textContent = `${(dashboard.global.payload.os.main.machine.memory.total - dashboard.global.payload.os.main.machine.memory.free).bytes_long()}, ${(((dashboard.global.payload.os.main.machine.memory.total - dashboard.global.payload.os.main.machine.memory.free) / dashboard.global.payload.os.main.machine.memory.total) * 100).toFixed(2)}%`;
             dashboard.sections["os-machine"].nodes_os.os.hostname.textContent = dashboard.global.payload.os.main.os.hostname;
             dashboard.sections["os-machine"].nodes_os.os.name.textContent = dashboard.global.payload.os.main.os.name;
             dashboard.sections["os-machine"].nodes_os.os.platform.textContent = dashboard.global.payload.os.main.os.platform;
@@ -133,9 +134,10 @@ const ui_os_machine = function ui_os_machine():void {
                     },
                     env: sections.env,
                     memory: {
-                        free: item("memory", 0),
-                        total: item("memory", 2),
-                        used: item("memory", 1)
+                        free: item("memory", 1),
+                        speed: item("memory", 0),
+                        total: item("memory", 3),
+                        used: item("memory", 2)
                     },
                     os: {
                         hostname: item("os", 0),

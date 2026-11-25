@@ -52,6 +52,7 @@ const dashboard:dashboard = {
                         },
                         "memory": {
                             "free": 0,
+                            "speed": "",
                             "total": 0
                         }
                     },
@@ -452,6 +453,7 @@ const dashboard:dashboard = {
                 "env": null,
                 "memory": {
                     "free": null,
+                    "speed": null,
                     "total": null,
                     "used": null
                 },

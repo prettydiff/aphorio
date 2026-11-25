@@ -37,6 +37,8 @@ const vars:core_vars = {
                     firewall_deny_in: "sudo ufw delete allow in #/tcp",
                     // default debian firewall is ufw
                     firewall_deny_out: "sudo ufw delete allow out #/tcp",
+                    // get memory speed
+                    memory_speed: "dmidecode --type 17 | grep -E \"Configured Memory Speed:\" | sed \"s/\\tConfigured Memory Speed: //\" | sed \"s/ MT\\/s//",
                     // open an application
                     open: "xdg-open",
                     // gets disk partition data, unused in linux as the disk command is enough
@@ -86,6 +88,8 @@ const vars:core_vars = {
                     firewall_deny_in: "Remove-NetFirewallRule -DisplayName \"NAME_INBOUND_#\"",
                     // default windows firewall is Windows Defender Firewall
                     firewall_deny_out: "Remove-NetFirewallRule -DisplayName \"NAME_OUTBOUND_#\"",
+                    // get memory speed
+                    memory_speed: "(Get-CimInstance Win32_PhysicalMemory).ConfiguredClockSpeed",
                     // open an application
                     open: "start",
                     // gets disk partition data
@@ -289,6 +293,7 @@ const vars:core_vars = {
                     },
                     memory: {
                         free: 0,
+                        speed: "",
                         total: 0
                     }
                 },

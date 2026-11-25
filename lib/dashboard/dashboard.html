@@ -1,7 +1,7 @@
 
 <!doctype html>
 <html lang="en">
-    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, internetwork, IRSSI, keyrings, jellyfin, journalctl, kurkle, libcap, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, ryzen, setgid, setuid, TLSA, uptimeimages, winget -->
+    <!-- cspell: words buildx, containerd, dpkg, endianness, EPROTO, healthcheck, internetwork, IRSSI, keyrings, jellyfin, journalctl, kurkle, libcap, megatransfers, NAPTR, PGID, POSIX, ppid, prettydiff, proxied, PUID, ryzen, setgid, setuid, TLSA, uptimeimages, winget -->
 <head>
 <meta charset="utf-8"/>
 <title>Server Management Dashboard</title>
@@ -404,7 +404,7 @@
                     <ul>
                         <li>Some domains are very slow to return a response and can take up to 10 minutes.</li>
                         <li>Some domains drop the connection or return an erroneous response. This could be due to a misconfiguration at the server, but is more typically an intentional way for servers to abandon traffic they don't want.</li>
-                        <li>Some domains cause an EPROTO error.  This is a TLS protocol negotiation error.  It occurs because they server is using unsupported TLS 1.1 certificates, an error in this application, or mostly likely due to an error in Node.js. Examples of domains causing this error: <em>prettydiff.com</em>, <em>www.army.mil</em>, <em>www.treasury.gov</em></li>
+                        <li>Some domains cause an EPROTO error.  This is a TLS protocol negotiation error.  It occurs because the server is using unsupported TLS 1.1 certificates, an error in this application, or mostly likely due to an error in Node.js. Examples of domains causing this error: <em>prettydiff.com</em>, <em>www.army.mil</em>, <em>www.treasury.gov</em></li>
                     </ul>
                 </div>
                 <div class="section">
@@ -783,6 +783,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                     </ul>
                     <h4>Memory</h4>
                     <ul>
+                        <li><strong>Speed<sup>1</sup></strong><span></span></li>
                         <li data-name="memoryFree"><strong>Free</strong><span></span></li>
                         <li><strong>Used</strong><span></span></li>
                         <li data-name="memoryFree"><strong>Total</strong><span></span></li>
@@ -813,8 +814,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <li data-name="admin"><strong>Administrative Privilege</strong><span></span></li>
                         <li data-name="arch"><strong>Architecture</strong><span></span></li>
                         <li data-name="argv"><strong>Arguments</strong><span></span></li>
-                        <li data-name="cpuSystem"><strong>CPU System Time<sup>1</sup></strong><span></span></li>
-                        <li data-name="cpuUser"><strong>CPU User Time<sup>1</sup></strong><span></span></li>
+                        <li data-name="cpuSystem"><strong>CPU System Time<sup>2</sup></strong><span></span></li>
+                        <li data-name="cpuUser"><strong>CPU User Time<sup>2</sup></strong><span></span></li>
                         <li data-name="cwd"><strong>Current Working Directory</strong><span></span></li>
                         <li data-name="memory-process"><strong>Total Process Memory</strong><span></span></li>
                         <li data-name="memory-v8"><strong>V8 Memory</strong><span></span></li>
@@ -829,7 +830,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         <h4>Node.js Dependency Versions <button class="expand">Expand</button></h4>
                         <ul class="definition-body" data-name="versions"></ul>
                     </div>
-                    <p><strong>[1]</strong> User CPU time and System CPU time measure actual CPU cycle time across all logical CPU instances for this application's process.</p>
+                    <p><strong>[1]</strong> Memory speed is measured in megatransfers per second (MT/s) and is averaged from all observed physical memory modules.</p>
+                    <p><strong>[2]</strong> User CPU time and System CPU time measure actual CPU cycle time across all logical CPU instances for this application's process.</p>
                 </div>
                 <div class="section">
                     <h3>User</h3>
@@ -962,6 +964,119 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                         </p>
                     </div>
                     <div class="section">
+                        <h4>Proxy, Reverse Proxy, and Redirection</h4>
+                        <p>A proxy rule is defined according to the following TypeScript definition:</p>
+                        <p><code>{
+    description: string;
+    incoming: {
+        domain?: string;
+        encryption?: type_encryption;
+        method?: type_http_method;
+        port?: number;
+        resource?: string;
+    };
+    outgoing: {
+        domain?: string;
+        encryption?: type_encryption;
+        method?: type_http_method;
+        port?: number;
+        resource?: string;
+    };
+}</code></p>
+                        <p>
+                            In the definition above the question mark indicates an optional property, such that every property in both the <em>incoming</em> and <em>outgoing</em> objects of a given rule are optional.
+                            These proxy conventions were designed with maximum simplicity and flexibility in mind.
+                        </p>
+                        <p>
+                            The <em>incoming</em> object provides for a rule set to match against incoming traffic.
+                            The <em>outgoing</em> object of the given proxy rule determines how the traffic should be modified.
+                            Only one rule will be applied to any given traffic and that match will be selected by closest match according to matching details and order of priority.
+                            Rules that do not match the given traffic in any way will not be consider for the given traffic.
+                        </p>
+                        <p>
+                            The incoming resource property supports literal strings for matches or wildcards.
+                            A wildcard is any value ending in a single forward slash and asterisk: <code class="inline">/*</code>.
+                            Wildcard values will match any resource value if the given resource value begins with the wildcard value with the asterisk and/or slash removed.
+                            Non-wildcard resource values must match the traffic resource value exactly.
+                            In the case of multiple proxy rules where one rule matches by literal resource value and another rule matches by wildcard the rule with the literal match has priority.
+                        </p>
+                        <p>
+                            The proxy rules do allow for traffic redirection by encryption.
+                            It must be noted that encrypted traffic sent to an unencrypted server can be forwarded to an encrypted server without concern.
+                            When that occurs an unencrypted server will appear to respond with encrypted traffic, such as a webserver on port 80 responding with TLS traffic.
+                            In that scenario the client sends encrypted traffic to an unencrypted server and the unencrypted server can identify the traffic as TLS encrypted and forward that traffic to a server expecting TLS traffic where it is processed properly, but the client does not observe this transfer behind the scenes.
+                            Unencrypted traffic sent to an encrypted server will fail, however.
+                            This occurs because a TLS server expects to negotiate encryption keys via a TLS handshake before processing further content, but this cannot happen if the unencrypted traffic is missing the necessary data to initial such a TLS handshake.
+                        </p>
+                        <p>
+                            This application does not respond to failed network initialization.
+                            If either a socket fails to full connect to this server or a proxy initiated by this server fails to connect to its destination these sockets will be immediately destroyed.
+                            Destroyed sockets will result in a network timeout from the requesting client.
+                            This application will respond to successfully connected sockets that invoke failed content, such as a 400 class HTTP response.
+                        </p>
+                        <p>
+                            Example of using a proxy rule to invoke a subdomain: <code>{
+    "description": "Redirect aphorio subdomain locally to different server",
+    "incoming": {
+        "domain": "aphorio.example.com",
+        "resource": "/*"
+    },
+    "outgoing": {
+        "port": 4444,
+        "resource": "/"
+    }
+}</code>
+                            This rule will proxy all traffic with a host name of aphorio.example.com sent to a server on port 80 or 443 with domain example.com to a different server on the same IP and port 4444.
+                        </p>
+                        <p>
+                            Example of using a proxy rule to transfer any request with resource beginning with <em>/aphorio-example/</em> to a different server on port 4444: <code>{
+    "description": "Redirect aphorio subdomain locally to different server",
+    "incoming": {
+        "resource": "/aphorio-example/*"
+    },
+    "outgoing": {
+        "port": 4444,
+        "resource": "/"
+    }
+}</code>
+                        </p>
+                    </div>
+                    <div class="section">
+                        <h4>Legacy Proxy Convention - redirect_asset</h4>
+                        <p><strong>Warning:</strong> These are deprecated conventions. These conventions remain under current support, but will not be expanded and may be removed at any point in the future.</p>
+                        <p>
+                            Redirects resource paths of HTTP requests within the given server based upon the hostname in the HTTP request header.
+                            This is useful for dynamic or vanity endpoints on a given server that wish to return something different than a relative file system destination.
+                            Each instance uses the structure of <code>"domain": {"resource location": "new location"}</code> because each server can represent 0 or more domain names.
+                        </p><p>
+                            For example there could be an informational dashboard on some server at address: <em>http://myexample.com/api_services/informational/dashboards/uptime/</em>.
+                            For the sake of simplicity you want to serve that dashboard from an internal vanity domain like: <em>http://api.dashboard/</em>.
+                            You would need a rule to redirect from resource <em>/</em> to actual resource at <em>/api_services/informational/dashboards/uptime</em>, and that rule would look like: <code>"api.dashboard": {"/": "/api_services/informational/dashboards/uptime/"}</code>
+                        </p><p>
+                            Asset redirection supports use of wildcards by specifying an asterisk at the end of asset locations.
+                            For example, redirection of request for <em>/api_services/informational/dashboards/uptime/images/interface/title.png</em> to <em>/api/images/interface/title.png</em> would occur with rule: <code>"api.dashboard": {"/api/*": "/api_services/informational/dashboards/uptime/"}</code>
+                            With wildcards all asset requests matching the address up to the asterisk will be redirected to the specified location.
+                        </p><p>
+                            <strong>Please note the terminal slash in the prior examples.</strong>
+                            Without the terminating slash the redirected address becomes <em>/api_services/informational/dashboards/uptimeimages/interface/title.png</em>.
+                        </p>
+                    </div>
+                    <div class="section">
+                        <h4>Legacy Proxy Convention - redirect_domain</h4>
+                        <p><strong>Warning:</strong> These are deprecated conventions. These conventions remain under current support, but will not be expanded and may be removed at any point in the future.</p>
+                        <p>
+                            Redirects traffic to a different server location, such as a vanity domain that may or may not be served from the same server.
+                            Each instance uses a three value array structure assigned to a domain name as an object key, such as: <code>"redirect_domain": {"domain": ["new domain", port_number, "default"]}</code></p>
+                            <ol start="0">
+                                <li>The first value is a string representing the domain to redirect to. If this 'new domain' value is an empty string the current domain, the object key name, will be used.</li>
+                                <li>The second value is a port number. If the port number is not a number or 0 the current server's port number will be used.</li>
+                                <li>The third value is encryption on the proxy with supported values: <em>default</em>, <em>open</em>, <em>secure</em>.  The value "default" will impose encryption if the origin socket is encrypted.  The value "open" will create an unencrypted proxy and the value "secure" will create an encrypted proxy.</li>
+                            </ol>
+                        </p><p>
+                            If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003, "secure"]</code>
+                        </p>
+                    </div>
+                    <div class="section">
                         <h4>Server Configuration Definitions</h4>
                         <dl>
                             <dt><em>activate</em> (string)</dt>
@@ -997,42 +1112,26 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
                             <dt><em>message_segmentation</em> (number)</dt>
                             <dd><p>Specifies maximum size of a WebSocket frame body. Messages larger than this number, in bytes, will be divided and sent as multiple data frames across the network. Bear in mind this number is not related to TLS segmentation which is 16384 bytes as of TLS version 1.3.</p></dd>
                             <dt><em>mutual_tls</em> (boolean)</dt>
-                            <dd><p>Adds an option for secure servers to request a client certificate on each connection. This provides an extra layer of security that limits a server to authorized applications on selected devices without need for a password. Please note that when the mutual_tls option is enabled all unencrypted sockets will be dropped even if the server features both a secure and insecure service.</p></dd>
+                            <dd><p>
+                                Adds an option for secure servers to request a client certificate on each connection.
+                                This provides an extra layer of security that limits a server to authorized applications on selected devices without need for a password.
+                                Please note that when the mutual_tls option is enabled all unencrypted sockets will be dropped even if the server features both a secure and insecure service.
+                            </p></dd>
                             <dt><em>name</em> (string)</dt>
                             <dd><p>
                                 The human readable name of this server.
                             </p></dd>
                             <dt><em>ports</em> (object)</dt>
                             <dd><p>The ports on which the server operates.</p></dd>
+                            <dt><em>proxy</em> (array), list of proxy objects</dt>
+                            <dd><p>
+                                An optional property allowing for a list of proxy rules.
+                                See the section <em>Proxy, Reverse Proxy, and Redirection</em> above for specific details.
+                            </p></dd>
                             <dt><em>redirect_asset</em> (object)</dt>
-                            <dd><p>
-                                Redirects resource paths of HTTP requests within the given server based upon the hostname in the HTTP request header.
-                                This is useful for dynamic or vanity endpoints on a given server that wish to return something different than a relative file system destination.
-                                Each instance uses the structure of <code>"domain": {"resource location": "new location"}</code> because each server can represent 0 or more domain names.
-                            </p><p>
-                                For example there could be an informational dashboard on some server at address: <em>http://myexample.com/api_services/informational/dashboards/uptime/</em>.
-                                For the sake of simplicity you want to serve that dashboard from an internal vanity domain like: <em>http://api.dashboard/</em>.
-                                You would need a rule to redirect from resource <em>/</em> to actual resource at <em>/api_services/informational/dashboards/uptime</em>, and that rule would look like: <code>"api.dashboard": {"/": "/api_services/informational/dashboards/uptime/"}</code>
-                            </p><p>
-                                Asset redirection supports use of wildcards by specifying an asterisk at the end of asset locations.
-                                For example, redirection of request for <em>/api_services/informational/dashboards/uptime/images/interface/title.png</em> to <em>/api/images/interface/title.png</em> would occur with rule: <code>"api.dashboard": {"/api/*": "/api_services/informational/dashboards/uptime/"}</code>
-                                With wildcards all asset requests matching the address up to the asterisk will be redirected to the specified location.
-                            </p><p>
-                                <strong>Please note the terminal slash in the prior examples.</strong>
-                                Without the terminating slash the redirected address becomes <em>/api_services/informational/dashboards/uptimeimages/interface/title.png</em>.
-                            </p></dd>
+                            <dd><p>A deprecated convention to redirect file or resource requests to a different location. For more information see <em>Legacy Proxy Conventions</em> section above.</p></dd>
                             <dt><em>redirect_domain</em> (object)</dt>
-                            <dd><p>
-                                Redirects traffic to a different server location, such as a vanity domain that may or may not be served from the same server.
-                                Each instance uses a three value array structure assigned to a domain name as an object key, such as: <code>"redirect_domain": {"domain": ["new domain", port_number, "default"]}</code></p>
-                                <ol start="0">
-                                    <li>The first value is a string representing the domain to redirect to. If this 'new domain' value is an empty string the current domain, the object key name, will be used.</li>
-                                    <li>The second value is a port number. If the port number is not a number or 0 the current server's port number will be used.</li>
-                                    <li>The third value is encryption on the proxy with supported values: <em>default</em>, <em>open</em>, <em>secure</em>.  The value "default" will impose encryption if the origin socket is encrypted.  The value "open" will create an unencrypted proxy and the value "secure" will create an encrypted proxy.</li>
-                                </ol>
-                            </p><p>
-                                If TLS connections needs to be directed to a port different than open connections then use the naming convention <strong>myDomain.secure</strong>, for example: <code>"jellyfin.x.secure": ["", 3003, "secure"]</code>
-                            </p></dd>
+                            <dd><p>A deprecated convention to redirect traffic away from the current server. For more information see <em>Legacy Proxy Conventions</em> section above.</p></dd>
                             <dt><em>single_socket</em> (boolean)</dt>
                             <dd><p>
                                 Providing property <em>single_socket</em> with value <em>true</em> will create a server that only accepts a first successful HTTP or WebSocket connection.
