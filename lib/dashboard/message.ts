@@ -72,10 +72,10 @@ const ui_message = function ui_message():void {
                 };
                 dashboard.global.loaded = true;
                 if (dashboard.utility.test_browser !== null && dashboard.utility.test_browser !== undefined) {
-                    dashboard.utility.test_browser({
-                        data: null,
-                        service: "services_test_browser"
-                    });
+                    if (dashboard.global.state.test_automation !== null) {
+                        dashboard.global.state.test_automation = null;
+                        localStorage.state = JSON.stringify(dashboard.global.state);
+                    }
                 }
             }
         },

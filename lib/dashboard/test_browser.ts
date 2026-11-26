@@ -765,25 +765,19 @@ const test_browser = function testBrowser(socketData:socket_data):void {
     };
     if (dashboard.global.payload.mode === "test-dashboard") {
         const data:services_test_browser = socketData.data as services_test_browser;
-        if (dashboard.global.state.test_automation !== null) {
-            dashboard.global.state.test_automation = null;
-            localStorage.state = JSON.stringify(dashboard.global.state);
+        console.log(`On browser receive index ${data.index} of suite "${data.suite_name}"`);
+        remote.magicString = data.magicString;
+        remote.store = data.store;
+        remote.suite_name = data.suite_name;
+        if (data.index === -10) {
+            window.close();
+            return;
         }
-        if (data !== null) {
-            console.log(`On browser receive index ${data.index} of suite "${data.suite_name}"`);
-            remote.magicString = data.magicString;
-            remote.store = data.store;
-            remote.suite_name = data.suite_name;
-            if (data.index === -10) {
-                window.close();
-                return;
-            }
-            if (Array.isArray(data.result) === true && data.result.length > 0) {
-                remote.sendTest(data.result, data.index);
-                return;
-            }
-            remote.event(data, false);
+        if (Array.isArray(data.result) === true && data.result.length > 0) {
+            remote.sendTest(data.result, data.index);
+            return;
         }
+        remote.event(data, false);
     }
 };
 
