@@ -53,10 +53,10 @@ const spawn = function core_spawn(command:string, callback:(output:core_spawn_ou
                 windowsHide: true
             });
             spawn.on("close", item.close);
-            if (options === undefined || (options !== undefined && options.stream_stderr !== true)) {
+            if (options === undefined || options === null || (options !== undefined && options !== null && options.stream_stderr !== true)) {
                 spawn.stderr.on("data", item.data_stderr);
             }
-            if (options === undefined || (options !== undefined && options.stream_stdout !== true)) {
+            if (options === undefined || options === null || (options !== undefined && options !== null && options.stream_stdout !== true)) {
                 spawn.stdout.on("data", item.data_stdout);
             }
             spawn.on("error", item.error

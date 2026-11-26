@@ -38,7 +38,7 @@ const vars:core_vars = {
                     // default debian firewall is ufw
                     firewall_deny_out: "sudo ufw delete allow out #/tcp",
                     // get memory speed
-                    memory_speed: "dmidecode --type 17 | grep -E \"Configured Memory Speed:\" | sed \"s/\\tConfigured Memory Speed: //\" | sed \"s/ MT\\/s//",
+                    memory_speed: "sudo dmidecode --type 17 | grep -E \"Configured Memory Speed:\" | sed \"s/\\tConfigured Memory Speed: //\" | sed \"s/ MT\\/s//\"",
                     // open an application
                     open: "xdg-open",
                     // gets disk partition data, unused in linux as the disk command is enough

@@ -871,10 +871,8 @@ const os_list = function utilities_osList(type_os:type_os_services, callback:(ou
                 }
             },
             main = function utilities_os_main(time:number):void {
-                spawn(vars.commands.memory_speed, function utilities_os_getMemorySpeed_child(output:core_spawn_output):void {
-                    const lines:string[] = output.stdout.replace(/\r\n/g, "\n").replace(/\s+$/, "").split("\n"),
-                        len:number = lines.length,
-                        mem:os_node_memoryUsage = process.memoryUsage(),
+                const set_main = function utilities_os_main_setMain():void {
+                    const mem:os_node_memoryUsage = process.memoryUsage(),
                         cpu:os_node_cpuUsage = process.cpuUsage(),
                         cpus:os_node_cpu = node.os.cpus(),
                         gid:number = (typeof process.getgid === "undefined")
@@ -894,7 +892,7 @@ const os_list = function utilities_osList(type_os:type_os_services, callback:(ou
                                 },
                                 memory: {
                                     free: node.os.freemem(),
-                                    speed: "",
+                                    speed: vars.os.main.machine.memory.speed,
                                     total: node.os.totalmem()
                                 }
                             },
@@ -943,15 +941,6 @@ const os_list = function utilities_osList(type_os:type_os_services, callback:(ou
                                     : uid
                             }
                         };
-                    let total:number = 0,
-                        index:number = 0;
-                    if (lines.length > 0) {
-                        do {
-                            total = Number(lines[index]) + total;
-                            index = index + 1;
-                        } while (index < len);
-                    }
-                    main.machine.memory.speed = `${(total / index).toFixed(2)} MT/s`;
                     vars.os.time = time;
                     vars.os.main = main;
                     if (type_os === "all") {
@@ -1009,12 +998,30 @@ const os_list = function utilities_osList(type_os:type_os_services, callback:(ou
                             service: "services_os_main"
                         });
                     }
-                }, (win32 === true)
-                    ? {
-                        shell: "powershell"
-                    }
-                    : null
-                ).execute();
+                };
+                if (win32 === true || vars.os.main.process.admin === true) {
+                    spawn(vars.commands.memory_speed, function utilities_os_getMemorySpeed_child(output:core_spawn_output):void {
+                        const lines:string[] = output.stdout.replace(/\r\n/g, "\n").replace(/\s+$/, "").split("\n"),
+                            len:number = lines.length;
+                        let total:number = 0,
+                            index:number = 0;
+                        if (lines.length > 0) {
+                            do {
+                                total = Number(lines[index]) + total;
+                                index = index + 1;
+                            } while (index < len);
+                        }
+                        vars.os.main.machine.memory.speed = `${(total / index).toFixed(2)} MT/s`;
+                        set_main();
+                    }, (win32 === true)
+                        ? {
+                            shell: "powershell"
+                        }
+                        : null
+                    ).execute();
+                } else {
+                    set_main();
+                }
             },
             completed = function utilities_os_complete(type:type_os_key):void {
                 const keys:string[] = Object.keys(complete),
