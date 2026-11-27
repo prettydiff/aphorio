@@ -27,8 +27,6 @@ import file from "../utilities/file.ts";
 import log from "../core/log.ts";
 import ready_services from "./ready_services.ts";
 import server_create from "../server/server_create.ts";
-import server_start from "../server/server_start.ts";
-import test_index_proxy from "../test/index_proxy.ts";
 import universal from "../core/universal.ts";
 import vars from "../core/vars.ts";
 
@@ -51,11 +49,7 @@ const start = function start(process_path:string):void {
         },
         prerequisites = function start_prerequisites():void {
             if (keys_prerequisites[index_prerequisites] === undefined) {
-                if (vars.options.mode === "test-proxy") {
-                    test_index_proxy(false);
-                } else {
-                    start_tasks();
-                }
+                start_tasks();
             } else {
                 index_prerequisites = index_prerequisites + 1;
                 log_task("prerequisite", keys_prerequisites[index_prerequisites - 1]);
@@ -68,67 +62,42 @@ const start = function start(process_path:string):void {
             // delete task_definitions[flag];console.log(Object.keys(task_definitions));
             count_task = count_task + 1;
             if (count_task === len_tasks) {
-                // sends a server time update every 950ms
-                const default_server:supplemental_server_config = {
-                    activate: true,
-                    certificate_path: {
-                        ca: "",
-                        cert: "",
-                        key: ""
-                    },
-                    domain_local: [
-                        "localhost",
-                        "127.0.0.1",
-                        "::1"
-                    ],
-                    encryption: (vars.options.mode === "demo")
-                        ? "open"
-                        : "both",
-                    id: "",
-                    message_segmentation: 1e6,
-                    mutual_tls: false,
-                    name: "dashboard",
-                    ports: {
-                        open: vars.options["port-open"],
-                        secure: vars.options["port-secure"]
-                    },
-                    single_socket: false,
-                    temporary: false,
-                    upgrade: false
-                },
-                start = function start_completeTasks_start():void {
-                    const servers:string[] = Object.keys(vars.data.server),
-                        total:number = (vars.test.testing === true)
-                            ? 1
-                            : servers.length,
-                        callback = function start_completeTasks_start_serverCallback():void {
-                            count_servers = count_servers + 1;
-                            if (count_servers === total) {
-                                ready_services(count_task);
-                            }
-                        };
-                    let count_servers:number = 0,
-                        index:number = 0;
-
-                    if (vars.test.testing === true) {
-                        server_start(vars.data.server[vars.id.dashboard_server].config.id, callback);
-                    } else {
-                        do {
-                            server_start(vars.data.server[servers[index]].config.id, callback);
-                            index = index + 1;
-                        } while (index < total);
-                    }
-
-                };
-                if (vars.options.mode === "test-proxy") {
-                    ready_services(count_task);
-                } else if (vars.options.mode === "test-dashboard" || vars.data.server[vars.id.dashboard_server] === undefined) {
+                if (vars.options.mode === "test-dashboard" || vars.data.server[vars.id.dashboard_server] === undefined) {
+                    const default_server:supplemental_server_config = {
+                        activate: true,
+                        certificate_path: {
+                            ca: "",
+                            cert: "",
+                            key: ""
+                        },
+                        domain_local: [
+                            "localhost",
+                            "127.0.0.1",
+                            "::1"
+                        ],
+                        encryption: (vars.options.mode === "demo")
+                            ? "open"
+                            : "both",
+                        id: "",
+                        message_segmentation: 1e6,
+                        mutual_tls: false,
+                        name: "dashboard",
+                        ports: {
+                            open: vars.options["port-open"],
+                            secure: vars.options["port-secure"]
+                        },
+                        single_socket: false,
+                        temporary: false,
+                        upgrade: false
+                    };
                     server_create({
                         action: "add",
                         server: default_server
-                    }, start, true);
+                    }, function start_completeTasks_readyServices():void {
+                        ready_services(count_task);
+                    }, true);
                 } else {
-                    start();
+                    ready_services(count_task);
                 }
             }
         },
@@ -262,7 +231,7 @@ const start = function start(process_path:string):void {
         "",
         `${vars.text.underline + vars.environment.name.capitalize()} mode: ${vars.options.mode + vars.text.none}`
     ]);
-    if (vars.options.mode === "certificate" || vars.options.mode === "test-proxy") {
+    if (vars.options.mode === "certificate" || vars.options.mode === "performance" || vars.options.mode === "test-proxy") {
         prerequisite_tasks.servers.task();
     } else {
         log.shell(["", `${vars.text.underline}Executing start up tasks${vars.text.none}`]);

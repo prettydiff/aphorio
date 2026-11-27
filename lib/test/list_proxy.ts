@@ -46,7 +46,7 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: "<td class=\"file-name\"><span class=\"icon\">🗎</span> <a href=\"http://localhost:19731/folder/style.css\">style.css</a></td>"
+                    value: "<td class=\"file-name\"><span class=\"icon\">🗎</span> <a href=\"http://localhost:0/folder/style.css\">style.css</a></td>"
                 },
                 {
                     property: "body",
@@ -75,7 +75,7 @@ const test_listProxy = function test_listProxy():test_list_proxy {
                 {
                     property: "body",
                     qualifier: "contains",
-                    value: "<td class=\"file-name\"><span class=\"icon\">🗎</span> <a href=\"http://localhost:19731/folder/style.css\">style.css</a></td>"
+                    value: "<td class=\"file-name\"><span class=\"icon\">🗎</span> <a href=\"http://localhost:0/folder/style.css\">style.css</a></td>"
                 },
                 {
                     property: "body",

@@ -330,7 +330,7 @@ const os_demo = function utilities_osDemo(type_os:type_os_services, callback:(ou
                     frequency: 4083,
                     name: "Intel(R) Xeon(R) CPU E3-1270 v6 @ 3.80GHz"
                 },
-                memory: { free: 22824980480, total: 33562828800 }
+                memory: { free: 22824980480, speed: "2400 MT/s", total: 33562828800 }
             },
             os: {
                 env: {

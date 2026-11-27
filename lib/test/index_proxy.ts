@@ -39,7 +39,8 @@ const index_proxy = function test_indexProxy(generate_servers:boolean):void {
             vars.data.server[vars.test.servers[0].id].config.proxy[10].outgoing.port = vars.data.server[vars.test.servers[3].id].ports.open;
             vars.data.server[vars.test.servers[1].id].config.redirect_domain["localhost"][1] = vars.data.server[vars.test.servers[0].id].ports.open;
             vars.data.server[vars.test.servers[2].id].config.redirect_domain["localhost.secure"][1] = vars.data.server[vars.test.servers[0].id].ports.secure;
-            list_proxy_tests[1].unit[1].value = (list_proxy_tests[1].unit[1].value as string).replace("port_open", vars.test.servers[0].port_open.toString());
+            list_proxy_tests[1].unit[1].value = (list_proxy_tests[1].unit[1].value as string).replace("http://localhost:0/", `http://localhost:${vars.test.servers[0].port_open.toString()}/`);
+            list_proxy_tests[2].unit[1].value = (list_proxy_tests[2].unit[1].value as string).replace("http://localhost:0/", `http://localhost:${vars.test.servers[0].port_open.toString()}/`);
 
             // start testing here
             test_runner.list(list[total_lists], test_server);

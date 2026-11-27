@@ -4,7 +4,9 @@ import file from "../utilities/file.ts";
 import hash from "../core/hash.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
+import ready_services from "./ready_services.ts";
 import save from "../utilities/save.ts";
+import test_index_proxy from "../test/index_proxy.ts";
 import vars from "../core/vars.ts";
 
 const servers = function start_servers(start_prerequisites:() => void, process_path:string):core_start_task {
@@ -27,13 +29,70 @@ const servers = function start_servers(start_prerequisites:() => void, process_p
                     keys_int:string[] = Object.keys(interfaces),
                     keys_srv:string[] = (config === null)
                         ? null
-                        : Object.keys(config.servers);
+                        : Object.keys(config.servers),
+                    mode_certificate = function start_servers_task_callback_modeCertificate():void {
+                        let index:number = process.argv.length,
+                            id_test:boolean = false;
+                        do {
+                            index = index - 1;
+                            if (keys_srv.includes(process.argv[index]) === true) {
+                                id_test = true;
+                                certificate({
+                                    callback: function start_servers_task_callback_modeCertificate_certificate():void {
+                                        log.shell([`Certificates created for server named ${vars.text.cyan + vars.data.server[process.argv[index]].config.name + vars.text.none}.`], true);
+                                        process.exit(0);
+                                    },
+                                    days: 65535,
+                                    id: process.argv[index],
+                                    selfSign: false
+                                });
+                                break;
+                            }
+                        } while (index > 0);
+                        if (id_test === false) {
+                            log.shell(["Either no server id was specified or the server at the specified id does not exist."], true);
+                            process.exit(1);
+                        }
+                    },
+                    mode_performance = function start_servers_task_callback_modePerformance():void {
+                        ready_services(1);
+                    },
+                    mode_server = function start_servers_task_callback_modeServer():void {
+                        let sub:number = 0;
+                        if (index_int > 0) {
+                            do {
+                                index_int = index_int - 1;
+                                sub = interfaces[keys_int[index_int]].length;
+                                do {
+                                    sub = sub - 1;
+                                    includes(interfaces[keys_int[index_int]][sub].address);
+                                } while (sub > 0);
+                            } while (index_int > 0);
+                        }
+                        if (typeof vars.id.machine === "string" && vars.id.machine.length > 0) {
+                            start_prerequisites();
+                        } else {
+                            const cpu:os_node_cpu = node.os.cpus();
+                            hash({
+                                algorithm: "sha3-512",
+                                callback: function start_servers_task_callback_hash(out:core_hash_output):void {
+                                    vars.id.machine = out.hash;
+                                    save(function start_servers_task_callback_hash_save():void {
+                                        start_prerequisites();
+                                    }, "startup");
+                                },
+                                digest: "hex",
+                                hash_input_type: "direct",
+                                section: "startup",
+                                source: `${process.hrtime.bigint()} ${process.pid} ${process.ppid} ${cpu[0].model} ${cpu[0].speed} ${process.platform} ${node.os.hostname()}`
+                            });
+                        }
+                    };
                 let index_int:number = keys_int.length,
                     index_srv:number = (config === null)
                         ? 0
                         : keys_srv.length,
-                    server:supplemental_server_config = null,
-                    sub:number = 0;
+                    server:supplemental_server_config = null;
                 if (config !== null) {
                     if (typeof config.notes === "string") {
                         vars.data.notes = config.notes;
@@ -121,57 +180,13 @@ const servers = function start_servers(start_prerequisites:() => void, process_p
                     } while (index_srv > 0);
                 }
                 if (vars.options.mode === "certificate") {
-                    let index:number = process.argv.length,
-                        id_test:boolean = false;
-                    do {
-                        index = index - 1;
-                        if (keys_srv.includes(process.argv[index]) === true) {
-                            id_test = true;
-                            certificate({
-                                callback: function start_servers_task_certificate():void {
-                                    log.shell([`Certificates created for server named ${vars.text.cyan + vars.data.server[process.argv[index]].config.name + vars.text.none}.`], true);
-                                    process.exit(0);
-                                },
-                                days: 65535,
-                                id: process.argv[index],
-                                selfSign: false
-                            });
-                            break;
-                        }
-                    } while (index > 0);
-                    if (id_test === false) {
-                        log.shell(["Either no server id was specified or the server at the specified id does not exist."], true);
-                        process.exit(1);
-                    }
+                    mode_certificate();
+                } else if (vars.options.mode === "performance") {
+                    mode_performance();
+                } else if (vars.options.mode === "test-proxy") {
+                    test_index_proxy(false);
                 } else {
-                    if (index_int > 0) {
-                        do {
-                            index_int = index_int - 1;
-                            sub = interfaces[keys_int[index_int]].length;
-                            do {
-                                sub = sub - 1;
-                                includes(interfaces[keys_int[index_int]][sub].address);
-                            } while (sub > 0);
-                        } while (index_int > 0);
-                    }
-                    if (typeof vars.id.machine === "string" && vars.id.machine.length > 0) {
-                        start_prerequisites();
-                    } else {
-                        const cpu:os_node_cpu = node.os.cpus();
-                        hash({
-                            algorithm: "sha3-512",
-                            callback: function start_servers_task_callback_hash(out:core_hash_output):void {
-                                vars.id.machine = out.hash;
-                                save(function start_servers_task_callback_hash_save():void {
-                                    start_prerequisites();
-                                }, "startup");
-                            },
-                            digest: "hex",
-                            hash_input_type: "direct",
-                            section: "startup",
-                            source: `${process.hrtime.bigint()} ${process.pid} ${process.ppid} ${cpu[0].model} ${cpu[0].speed} ${process.platform} ${node.os.hostname()}`
-                        });
-                    }
+                    mode_server();
                 }
             };
             if (vars.options.mode === "demo" || vars.options.mode === "test-dashboard") {
