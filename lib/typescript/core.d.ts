@@ -500,6 +500,7 @@ interface core_vars_test {
 
 interface core_vars_test_server {
     id: string;
+    name: string;
     port_open: number;
     port_secure: number;
 }

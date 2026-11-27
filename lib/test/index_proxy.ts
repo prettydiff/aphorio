@@ -258,6 +258,7 @@ const index_proxy = function test_indexProxy(generate_servers:boolean):void {
                     count_server = count_server + 1;
                     vars.test.servers[index] = {
                         id: id,
+                        name: vars.data.server[id].config.name,
                         port_open: vars.data.server[id].ports.open,
                         port_secure: vars.data.server[id].ports.secure
                     };
@@ -284,6 +285,7 @@ const index_proxy = function test_indexProxy(generate_servers:boolean):void {
             server_started = function test_indexProxy_serverStarted():void {
                 vars.test.servers.push({
                     id: keys[index],
+                    name: vars.data.server[keys[index]].config.name,
                     port_open: vars.data.server[keys[index]].ports.open,
                     port_secure: vars.data.server[keys[index]].ports.secure
                 });

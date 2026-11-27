@@ -113,7 +113,9 @@ const http_client = function http_client(config:transmit_http_client):websocket_
         socket.fragments = [];
         socket.addresses = get_address(socket);
         socket_extension({
-            callback: null,
+            callback: function http_client_extensionCallback(client:websocket_client):void {
+                client.write(config.message);
+            },
             handler: null,
             identifier: `http-${config.host}-${config.port}-${Math.random()}`,
             proxy: null,
@@ -127,7 +129,6 @@ const http_client = function http_client(config:transmit_http_client):websocket_
             type_secondary: config.type,
             userAgent: `aphorio-${vars.environment.version}`
         });
-        socket.write(config.message);
     });
     return socket;
 };

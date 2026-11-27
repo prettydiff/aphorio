@@ -12,7 +12,7 @@
             "message_segmentation":1000000,
             "mutual_tls":false,
             "name":"server_0",
-            "ports":{"open":19731,"secure":19732},
+            "ports":{"open":0,"secure":0},
             "proxy":[
                 {"description":"directory list of server's directory named 'folder'","incoming":{"resource":"/path/"},"outgoing":{"resource":"/folder/"}},
                 {"description":"redirect subdomain to different server","incoming":{"domain":"test.localhost","resource":"/*"},"outgoing":{"port":0,"resource":"/"}},
@@ -49,7 +49,7 @@
             "message_segmentation":1000000,
             "mutual_tls":false,
             "name":"server_1",
-            "ports":{"open":42554,"secure":42555},
+            "ports":{"open":0,"secure":0},
             "redirect_domain":{"localhost":["localhost",0,"default"]},
             "upgrade":false,
             "id":"06c494709cc9f51aa2ac8fec1fe0fc320913e30b57ddfe9ebfd4b6d937cad5705985b138e3b2ace31d1510d3bd2f32da203d58a75975f085820ce850f1589acc",
@@ -83,7 +83,7 @@
             "message_segmentation":1000000,
             "mutual_tls":false,
             "name":"server_3",
-            "ports":{"open":42551,"secure":42552},
+            "ports":{"open":0,"secure":0},
             "proxy":[
                 {"description":"subdomain test","incoming":{"domain":"test.localhost","resource":"/lib/*"},"outgoing":{"resource":"/style.css"}}
             ],

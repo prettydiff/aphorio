@@ -3,7 +3,7 @@ import clock from "../services/clock.ts";
 import demo from "../services/demo.ts";
 import log from "../core/log.ts";
 import node from "../core/node.ts";
-import performance from "../utilities/performance.ts";
+import performance_shell from "../utilities/performance_shell.ts";
 import ports_application from "../services/ports_application.ts";
 import server_start from "../server/server_start.ts";
 import statistics_resources from "../services/statistics_resources.ts";
@@ -248,7 +248,7 @@ const ready_services = function start_readyServices(count_task:number):void {
             log.shell(logs, true);
 
             if (vars.options.mode === "performance") {
-                performance();
+                performance_shell();
             }
         };
     let count_servers:number = 0,

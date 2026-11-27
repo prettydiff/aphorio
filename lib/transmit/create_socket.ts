@@ -73,7 +73,9 @@ const create_socket = function transmit_createSocket(config:config_websocket_cre
                     config.proxy.pipe(client);
                 }
                 socket_extension({
-                    callback: config.callback,
+                    callback: function transmit_createSocket_hash_ready_data_callback():void {
+                        config.callback(client, null);
+                    },
                     handler: config.handler,
                     identifier: config.hash,
                     proxy: config.proxy,

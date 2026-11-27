@@ -888,7 +888,7 @@ const os_list = function utilities_osList(type_os:type_os_services, callback:(ou
                                     cores: cpus.length,
                                     endianness: node.os.endianness(),
                                     frequency: cpus[0].speed,
-                                    name: cpus[0].model
+                                    name: cpus[0].model.replace(/\s+$/, "")
                                 },
                                 memory: {
                                     free: node.os.freemem(),
