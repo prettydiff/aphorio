@@ -8,7 +8,7 @@ import vars from "../core/vars.ts";
 
 const performance_shell = function utilities_performanceShell():void {
     const servers:string[] = Object.keys(vars.data.server),
-        len:number = servers.length;
+        len_servers:number = servers.length;
     let index:number = 0;
     servers.sort(function utilities_performanceShell_serverSort(a:string, b:string):-1|1 {
         if (vars.data.server[a].config.name < vars.data.server[b].config.name) {
@@ -24,7 +24,7 @@ const performance_shell = function utilities_performanceShell():void {
             port_secure: vars.data.server[servers[index]].ports.secure
         });
         index = index + 1;
-    } while (index < len);
+    } while (index < len_servers);
     vars.id.dashboard_server = vars.test.servers[0].id;
     os_list("main", function utilities_performanceShell_OS(data:socket_data):void {
         vars.os.main = data.data as services_os_main;
@@ -32,30 +32,62 @@ const performance_shell = function utilities_performanceShell():void {
                 return vars.text.underline + message + vars.text.none;
             },
             callback = function utilities_performanceShell_callback(output:services_test_performance_output) {
-                console.log(output);
-                console.log(output.roundtrip.average.commas());
+                const word_send:string = (output.send.trials.length > 0 && output.roundtrip.trials.length < 1)
+                        ? "send only"
+                        : "roundtrip",
+                    word_type:string = (output.type === "http")
+                        ? "HTTP"
+                        : "WebSocket",
+                    plural = function utilities_performanceShell_callback_plural(quantity:number):string {
+                        if (quantity === 1) {
+                            return "";
+                        }
+                        return "s";
+                    };
+                index = index + 1;
+                log.shell([
+                    "",
+                    `${asterisk + vars.text.cyan + word_type} ${word_send} test of ${vars.text.none + output.message_size.commas() + vars.text.cyan} byte${plural(output.message_size)} comprising ${vars.text.none + output.quantity_transmit.commas() + vars.text.cyan} transmission${plural(output.quantity_transmit)} measured across ${vars.text.none + output.quantity_tests.commas() + vars.text.cyan} test${plural(output.quantity_tests)}.${vars.text.none}`,
+                    `   - ${(word_send === "send only") ? (output.send.average / 1e9).commas() : (output.roundtrip.average / 1e9).commas()} seconds average`,
+                    `   - ${(word_send === "send only") ? (output.send.min / 1e9).commas() : (output.roundtrip.min / 1e9).commas()} seconds ${vars.text.green}fastest${vars.text.none} trial`,
+                    `   - ${(word_send === "send only") ? (output.send.max / 1e9).commas() : (output.roundtrip.max / 1e9).commas()} seconds ${vars.text.angry}slowest${vars.text.none} trial`
+                ]);
+                if (index < len_trials) {
+                    performance(trials[index], vars.test.servers[0].id, utilities_performanceShell_callback);
+                } else {
+                    log.shell([
+                        "",
+                        "All performance trials complete!"
+                    ]);
+                    process.exit(0);
+                }
             },
-            payload:services_test_performance_input = {
-                body: "test",
-                call_stack: true,
-                encryption: false,
-                frame_body_size: 16382,
-                location: "127.0.0.1",
-                measure: "send",
-                port: vars.test.servers[0].port_open,
-                quantity_tests: 10,
-                quantity_transmit: 10000,
-                type: "http"
-            },
-            cpu:string =    `CPU    - ${vars.os.main.machine.cpu.name} at ${vars.os.main.machine.cpu.frequency}MHz`,
-            memory:string = `Memory - ${vars.os.main.machine.memory.total.bytes()} at ${vars.os.main.machine.memory.speed}, ${vars.os.main.machine.memory.free.bytes()} free`;
+            trials:services_test_performance_input[] = [
+                {
+                    body: "test",
+                    call_stack: true,
+                    encryption: false,
+                    frame_body_size: 16382,
+                    location: "127.0.0.1",
+                    measure: "send",
+                    port: vars.test.servers[0].port_open,
+                    quantity_tests: 10,
+                    quantity_transmit: 6500000,
+                    type: "websocket"
+                }
+            ],
+            len_trials:number = trials.length,
+            asterisk:string = `${vars.text.angry}*${vars.text.none} `,
+            cpu:string =    `${asterisk + vars.text.cyan}CPU${vars.text.none}    - ${vars.os.main.machine.cpu.name} at ${vars.os.main.machine.cpu.frequency}MHz`,
+            memory:string = `${asterisk + vars.text.cyan}Memory${vars.text.none} - ${vars.os.main.machine.memory.total.bytes()} at ${vars.os.main.machine.memory.speed}, ${vars.os.main.machine.memory.free.bytes()} free`;
+        index = 0;
         log.shell([
             "",
             heading("Machine Information"),
             cpu,
             memory
         ]);
-        performance(payload, vars.test.servers[0].id, callback);
+        performance(trials[0], vars.test.servers[0].id, callback);
     });
 };
 
